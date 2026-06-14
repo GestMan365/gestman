@@ -569,15 +569,16 @@
 
     .order-detail {
       display: grid;
+      grid-template-columns: 170px minmax(0, 1fr);
       gap: 10px;
     }
 
     .detail-tabs {
       display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      border-bottom: 1px solid rgba(255,255,255,.16);
-      padding-bottom: 8px;
+      flex-direction: column;
+      gap: 5px;
+      border-right: 1px solid rgba(255,255,255,.16);
+      padding-right: 8px;
     }
 
     .detail-tab {
@@ -588,6 +589,7 @@
       padding: 6px 9px;
       font-size: 11px;
       font-weight: 800;
+      text-align: left;
     }
 
     .detail-tab.active {
@@ -604,6 +606,12 @@
       border: 1px solid rgba(255,255,255,.14);
       border-radius: 8px;
       background: rgba(255,255,255,.05);
+    }
+
+    .detail-main {
+      display: grid;
+      gap: 10px;
+      min-width: 0;
     }
 
     .icon-actions {
@@ -662,6 +670,17 @@
     }
 
     @media (max-width: 760px) {
+      .order-detail {
+        grid-template-columns: 1fr;
+      }
+
+      .detail-tabs {
+        border-right: 0;
+        border-bottom: 1px solid rgba(255,255,255,.16);
+        padding-right: 0;
+        padding-bottom: 8px;
+      }
+
       .detail-grid {
         grid-template-columns: 1fr;
       }
@@ -1168,8 +1187,8 @@
             <label>Código <input class="field" id="assetCode" required placeholder="RT-01"></label>
             <label>Nome <input class="field" id="assetName" required placeholder="Reator 01"></label>
             <label>Local <select class="field" id="assetLocation"></select></label>
-            <label>Tag <select class="field" id="assetTag"></select></label>
-            <label>Subtag <select class="field" id="assetSubtag"></select></label>
+            <select class="field" id="assetTag" style="display:none"></select>
+            <select class="field" id="assetSubtag" style="display:none"></select>
             <label>Criticidade <select class="field" id="assetCriticality"><option>Baixa</option><option>Média</option><option>Alta</option></select></label>
             <label>Status <select class="field" id="assetStatus"><option>Operando</option><option>Inspeção</option><option>Em manutenção</option><option>Inativo</option></select></label>
             <label>Marca <input class="field" id="assetBrand" placeholder="WEG, Muriel, Atlas"></label>
@@ -1846,6 +1865,7 @@
           <div class="detail-tabs">
             ${["CheckLists", "Outros Custos", "Assinatura", "Detalhes", "Historico", "Geral", "Equipe", "Tarefas", "Seguranca", "Fotos", "Anexos", "Documentos", "Materiais", "Recursos"].map((tab, index) => `<button class="detail-tab ${index === 5 ? "active" : ""}" type="button">${tab}</button>`).join("")}
           </div>
+          <div class="detail-main">
           <div class="detail-toolbar">
             <div class="toolbar">
               <button class="btn" type="button" onclick="simpleOrderAction('${order.id}', 'Modelo')">Modelos</button>
@@ -1866,6 +1886,7 @@
             <label>Local</label><input class="field detail-span" value="${locationName(asset.locationId)}" readonly>
             <label>LI</label><input class="field detail-span" value="${asset.name || "-"}" readonly>
             <label>TAG</label><input class="field detail-span" value="${tagName(asset.tagId)} ${subtagName(asset.subtagId)}" readonly>
+            <label>Solicitante</label><input class="field detail-span" id="detailRequester" value="${order.requester || ""}" placeholder="Quem abriu a OS">
 
             <label>Tipo de Servico</label><select class="field detail-span" id="detailType"><option>Corretiva</option><option>Preventiva</option><option>Inspecao</option><option>Eletrica</option><option>Mecanica</option></select>
             <label>Tipo de Manutencao</label><select class="field detail-span" id="detailMaintenance"><option>Preventiva</option><option>Corretiva</option><option>Preditiva</option><option>Melhoria</option></select>
@@ -1887,6 +1908,7 @@
           <div class="toolbar">
             <button class="btn danger" type="button" onclick="closeModal()">Cancelar</button>
             <button class="btn primary" type="submit">Salvar detalhes</button>
+          </div>
           </div>
         </form>
       `, true);
@@ -1910,6 +1932,7 @@
           durationHours: $("detailHours").value,
           executor: $("detailExecutor").value,
           executors: $("detailExecutors").value,
+          requester: $("detailRequester").value,
           checklist: $("detailChecklist").value,
           comment: $("detailComment").value,
           description: $("detailComment").value,
@@ -2019,43 +2042,39 @@
       openModal(editing ? "Preencher OS" : "Criar OS", `
         <form class="form" id="orderForm">
           <label>Maquina <select class="field" id="orderAsset">${machines || `<option value="">Cadastre uma maquina</option>`}</select></label>
+          <label>Solicitante <input class="field" id="orderRequester" placeholder="Quem abriu a ordem"></label>
           <label>Tipo <select class="field" id="orderType"><option>Corretiva</option><option>Preventiva</option><option>Inspecao</option></select></label>
           <label>Prioridade <select class="field" id="orderPriority"><option>Baixa</option><option>Media</option><option>Alta</option></select></label>
-          <label>Status <select class="field" id="orderStatus"><option>Aberta</option><option>Planejada</option><option>Em execucao</option><option>Concluida</option></select></label>
-          <label>MTTR estimado (h) <input class="field" id="orderMttr" type="number" value="4"></label>
           <label class="full">Descricao <textarea class="field" id="orderDescription"></textarea></label>
-          ${editing ? `<div class="full side-box"><strong>Registro</strong><span>Abertura: ${formatDateTime(editing.createdAt)}</span><span>Inicio: ${formatDateTime(editing.startedAt)}</span><span>Finalizacao: ${formatDateTime(editing.finishedAt)}</span></div>` : ""}
+          ${editing ? `<div class="full side-box"><strong>Registro automatico</strong><span>Abertura: ${formatDateTime(editing.createdAt)}</span><span>Inicio: ${formatDateTime(editing.startedAt)}</span><span>Finalizacao: ${formatDateTime(editing.finishedAt)}</span><span>Status atual: ${editing.status || "Aberta"}</span></div>` : `<div class="full side-box"><strong>Registro automatico</strong><span>Status inicial: Aberta</span><span>Data e hora de abertura serao gravadas ao salvar.</span></div>`}
           <div class="full toolbar"><button class="btn primary" type="submit">Salvar OS</button></div>
         </form>
       `);
       $("genericModalBox").classList.remove("large");
       $("genericModalBox").style.width = "760px";
       if (editing) {
+        $("orderRequester").value = editing.requester || "";
         $("orderType").value = editing.type || "Corretiva";
         $("orderPriority").value = editing.priority || "Baixa";
-        $("orderStatus").value = isRunningOrder(editing.status) ? "Em execucao" : isClosedOrder(editing.status) ? "Concluida" : editing.status || "Aberta";
-        $("orderMttr").value = editing.mttr || 4;
         $("orderDescription").value = editing.description || "";
       }
       $("orderForm").addEventListener("submit", event => {
         event.preventDefault();
         const now = Date.now();
-        const status = $("orderStatus").value;
-        const base = editing || { id: uid("os"), number: `OS-${String(state.orders.length + 1).padStart(4, "0")}`, createdAt: now };
+        const base = editing || { id: uid("os"), number: `OS-${String(state.orders.length + 1).padStart(4, "0")}`, createdAt: now, status: "Aberta", startedAt: null, finishedAt: null };
         const payload = {
           ...base,
           assetId: $("orderAsset").value,
+          requester: $("orderRequester").value,
           type: $("orderType").value,
           maintenance: base.maintenance || "",
           priority: $("orderPriority").value,
-          status,
-          startedAt: status.startsWith("Em exec") ? (base.startedAt || now) : base.startedAt || null,
-          finishedAt: status.startsWith("Conclu") ? (base.finishedAt || now) : base.finishedAt || null,
-          mttr: Number($("orderMttr").value || 0),
+          status: base.status || "Aberta",
+          mttr: Number(base.mttr || 0),
           description: $("orderDescription").value
         };
         state.orders = state.orders.filter(order => order.id !== payload.id).concat(payload);
-        saveState(); closeModal(); render(); showToast(editing ? "OS atualizada." : "OS criada.");
+        saveState(); closeModal(); render(); showToast(editing ? "OS atualizada." : "OS criada como aberta.");
       });
     }
 
@@ -2084,20 +2103,20 @@
       if (action === "newOrder") return openOrderModal(asset.id);
       if (action === "checklists") return openChecklistModal(asset.id);
       if (action === "history") return openModal("Lista de OS", renderOrderList(asset.id), true);
-      if (action === "openOrders") return openModal("OS's Abertas", renderOrderList(asset.id, "Aberta"));
+      if (action === "openOrders") return openModal("OS's Abertas", renderOrderList(asset.id, "active"));
       if (action === "pending") return openModal("Pendências Abertas", `<div class="empty">${asset.criticality === "Alta" ? "Existe uma pendência sugerida para análise de causa raiz." : "Nenhuma pendência aberta."}</div>`);
       if (action === "compiled") return openModal("Compilado de Checklist", renderCompiled(asset), true);
       if (action === "specialist") return openModal("Especialista GestMan365", `<div class="side-box"><strong>${asset.code} - ${asset.name}</strong><span>Analise histórico de OS, criticidade, checklists pendentes e padrão de repetição das falhas.</span><span>Recomendação: criar checklist preventivo e monitorar MTTR semanal.</span></div>`);
     }
 
     function renderOrderList(assetId, status = "") {
-      const rows = state.orders.filter(order => order.assetId === assetId && (!status || order.status === status));
+      const rows = state.orders.filter(order => order.assetId === assetId && (status === "active" ? !isClosedOrder(order.status) : (!status || order.status === status)));
       return `
         <div class="form">
           <label>Entre as datas <input class="field" value="16/03/2026"></label>
           <label>Ate <input class="field" value="15/06/2026"></label>
           <label>Tipo de Servico <select class="field"><option>[Todos]</option></select></label>
-          <label>Status <select class="field"><option>${status || "[Todos]"}</option></select></label>
+          <label>Status <select class="field"><option>${status === "active" ? "Abertas e em execucao" : status || "[Todos]"}</option></select></label>
         </div>
         ${rows.map(order => `
           <div class="os-action-card">
