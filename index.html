@@ -378,6 +378,14 @@
       background: transparent;
       color: #fff;
       padding: 0;
+      cursor: grab;
+      user-select: none;
+    }
+
+    .machine-node.dragging {
+      cursor: grabbing;
+      z-index: 8;
+      opacity: .86;
     }
 
     .machine-icon {
@@ -1117,11 +1125,14 @@
       subtags: [],
       assets: [],
       orders: [],
-      checklists: []
+      checklists: [],
+      movements: []
     });
 
     let state = loadState();
     let selectedMachineId = null;
+    let dragState = null;
+    let pendingMove = null;
 
     function loadState() {
       try {
@@ -1279,14 +1290,79 @@
 
       map.innerHTML = zones + machines;
       document.querySelectorAll("[data-machine]").forEach(button => {
-        button.addEventListener("click", event => openMachineMenu(event, button.dataset.machine));
+        button.addEventListener("pointerdown", event => startMachineDrag(event, button.dataset.machine));
+        button.addEventListener("click", event => {
+          if (button.dataset.dragged === "1") {
+            button.dataset.dragged = "0";
+            return;
+          }
+          openMachineMenu(event, button.dataset.machine);
+        });
         button.addEventListener("mouseenter", () => showMachineDetails(button.dataset.machine));
       });
+    }
+
+    function startMachineDrag(event, id) {
+      if (event.button !== 0) return;
+      const map = $("industrialMap");
+      const node = event.currentTarget;
+      const rect = map.getBoundingClientRect();
+      const asset = byId(state.assets, id);
+      if (!asset) return;
+      dragState = {
+        id,
+        node,
+        rect,
+        startClientX: event.clientX,
+        startClientY: event.clientY,
+        originalX: Number(asset.x || 50),
+        originalY: Number(asset.y || 50),
+        moved: false
+      };
+      node.classList.add("dragging");
+      node.setPointerCapture?.(event.pointerId);
+      node.addEventListener("pointermove", moveMachineDrag);
+      node.addEventListener("pointerup", endMachineDrag, { once: true });
+    }
+
+    function moveMachineDrag(event) {
+      if (!dragState) return;
+      const dx = Math.abs(event.clientX - dragState.startClientX);
+      const dy = Math.abs(event.clientY - dragState.startClientY);
+      if (dx + dy > 4) dragState.moved = true;
+      const x = Math.min(97, Math.max(3, ((event.clientX - dragState.rect.left) / dragState.rect.width) * 100));
+      const y = Math.min(97, Math.max(3, ((event.clientY - dragState.rect.top) / dragState.rect.height) * 100));
+      dragState.node.style.left = `${x}%`;
+      dragState.node.style.top = `${y}%`;
+      dragState.newX = Number(x.toFixed(2));
+      dragState.newY = Number(y.toFixed(2));
+    }
+
+    function endMachineDrag(event) {
+      if (!dragState) return;
+      const finished = dragState;
+      finished.node.classList.remove("dragging");
+      finished.node.removeEventListener("pointermove", moveMachineDrag);
+      if (!finished.moved) {
+        dragState = null;
+        return;
+      }
+      finished.node.dataset.dragged = "1";
+      pendingMove = {
+        assetId: finished.id,
+        oldX: finished.originalX,
+        oldY: finished.originalY,
+        newX: finished.newX ?? finished.originalX,
+        newY: finished.newY ?? finished.originalY
+      };
+      dragState = null;
+      openMoveReasonModal();
     }
 
     function showMachineDetails(id) {
       const asset = byId(state.assets, id);
       if (!asset) return;
+      const lastMove = state.movements.find(move => move.assetId === id);
       $("mapDetails").innerHTML = `
         <strong>${asset.code} - ${asset.name}</strong>
         <span>${tag(asset.criticality)} ${tag(asset.status)}</span>
@@ -1294,6 +1370,7 @@
         <span>Tag: ${tagName(asset.tagId)} / ${subtagName(asset.subtagId)}</span>
         <span>Marca: ${asset.brand || "-"}</span>
         <span>Modelo: ${asset.model || "-"}</span>
+        ${lastMove ? `<span>Último deslocamento: ${lastMove.reason}</span>` : ""}
       `;
     }
 
@@ -1386,6 +1463,74 @@
     }
 
     function closeModal() { $("genericModal").classList.remove("open"); }
+
+    function openMoveReasonModal() {
+      const asset = byId(state.assets, pendingMove?.assetId);
+      if (!asset || !pendingMove) return;
+      openModal("Motivo do deslocamento", `
+        <form class="form" id="moveReasonForm">
+          <div class="full side-box">
+            <strong>${asset.code} - ${asset.name}</strong>
+            <span>De: X ${pendingMove.oldX}% / Y ${pendingMove.oldY}%</span>
+            <span>Para: X ${pendingMove.newX}% / Y ${pendingMove.newY}%</span>
+          </div>
+          <label class="full">Motivo do deslocamento <textarea class="field" id="moveReason" required placeholder="Ex: reposicionada para dentro da Fase 1 após reorganização da linha"></textarea></label>
+          <label>Responsável <input class="field" id="moveResponsible" placeholder="Nome do responsável"></label>
+          <label>Tipo <select class="field" id="moveType"><option>Ajuste de layout</option><option>Movimentação física</option><option>Correção de cadastro</option><option>Manutenção</option></select></label>
+          <div class="full toolbar">
+            <button class="btn primary" type="submit">Confirmar deslocamento</button>
+            <button class="btn" type="button" id="cancelMoveReason">Cancelar e voltar</button>
+          </div>
+        </form>
+      `);
+      $("moveReasonForm").addEventListener("submit", event => {
+        event.preventDefault();
+        confirmMachineMove();
+      });
+      $("cancelMoveReason").addEventListener("click", cancelMachineMove);
+    }
+
+    function confirmMachineMove() {
+      if (!pendingMove) return;
+      const asset = byId(state.assets, pendingMove.assetId);
+      if (!asset) return;
+      const reason = $("moveReason").value.trim();
+      if (!reason) {
+        showToast("Informe o motivo do deslocamento.");
+        return;
+      }
+      state.assets = state.assets.map(item => item.id === pendingMove.assetId ? {
+        ...item,
+        x: pendingMove.newX,
+        y: pendingMove.newY
+      } : item);
+      state.movements.unshift({
+        id: uid("move"),
+        assetId: pendingMove.assetId,
+        assetCode: asset.code,
+        assetName: asset.name,
+        oldX: pendingMove.oldX,
+        oldY: pendingMove.oldY,
+        newX: pendingMove.newX,
+        newY: pendingMove.newY,
+        reason,
+        responsible: $("moveResponsible").value.trim(),
+        type: $("moveType").value,
+        createdAt: Date.now()
+      });
+      pendingMove = null;
+      saveState();
+      closeModal();
+      render();
+      showToast("Deslocamento registrado.");
+    }
+
+    function cancelMachineMove() {
+      pendingMove = null;
+      closeModal();
+      render();
+      showToast("Deslocamento cancelado.");
+    }
 
     function openOrderModal(assetId = "") {
       const machines = state.assets.map(asset => `<option value="${asset.id}" ${asset.id === assetId ? "selected" : ""}>${asset.code} - ${asset.name}</option>`).join("");
