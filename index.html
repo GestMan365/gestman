@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GestMan365 + Supabase</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --panel: #ffffff;
+      --ink: #17202a;
+      --muted: #667085;
+      --line: #d8dee6;
+      --brand: #0f766e;
+      --danger: #b91c1c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14px;
+    }
+    header {
+      background: #101828;
+      color: #fff;
+      padding: 18px 22px;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    h1 { margin: 0; font-size: 22px; }
+    main {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      padding: 22px;
+      display: grid;
+      gap: 16px;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .panel-head {
+      padding: 14px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .panel-title { font-weight: 700; }
+    .status { color: #c7d2fe; font-size: 13px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      padding: 14px;
+    }
+    label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      display: grid;
+      gap: 6px;
+    }
+    input, select, textarea, button {
+      font: inherit;
+      border-radius: 6px;
+    }
+    input, select, textarea {
+      width: 100%;
+      min-height: 38px;
+      border: 1px solid var(--line);
+      padding: 0 10px;
+      background: #fff;
+      color: var(--ink);
+    }
+    textarea {
+      min-height: 78px;
+      padding-top: 9px;
+      resize: vertical;
+    }
+    .full { grid-column: 1 / -1; }
+    button {
+      min-height: 38px;
+      border: 1px solid var(--brand);
+      background: var(--brand);
+      color: #fff;
+      padding: 0 12px;
+      cursor: pointer;
+    }
+    button.secondary {
+      background: #fff;
+      color: var(--ink);
+      border-color: var(--line);
+    }
+    .table-wrap { overflow: auto; }
+    table {
+      width: 100%;
+      min-width: 760px;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+    }
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      background: #f8fafc;
+    }
+    .tag {
+      display: inline-flex;
+      border-radius: 999px;
+      min-height: 24px;
+      align-items: center;
+      padding: 0 9px;
+      background: #eef2f7;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .error { color: var(--danger); padding: 14px; }
+    @media (max-width: 760px) {
+      main { padding: 14px; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>GestMan365</h1>
+      <div class="status" id="connectionStatus">Conectando ao Supabase...</div>
+    </div>
+    <button class="secondary" id="reloadBtn">Atualizar</button>
+  </header>
+
+  <main>
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Novo ativo</div>
+      </div>
+      <form class="grid" id="assetForm">
+        <label>Codigo <input name="codigo" placeholder="AT-004" required></label>
+        <label>Nome <input name="nome" placeholder="Bomba centrifuga" required></label>
+        <label>Setor <input name="setor" placeholder="Utilidades" required></label>
+        <label>Criticidade
+          <select name="criticidade">
+            <option>Baixa</option>
+            <option selected>Media</option>
+            <option>Alta</option>
+          </select>
+        </label>
+        <label>Status
+          <select name="status">
+            <option selected>Operando</option>
+            <option>Em manutencao</option>
+            <option>Inspecao</option>
+            <option>Inativo</option>
+          </select>
+        </label>
+        <label>Responsavel <input name="responsavel" placeholder="Nome do responsavel"></label>
+        <div class="full"><button type="submit">Salvar ativo</button></div>
+      </form>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Ativos cadastrados no Supabase</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Codigo</th><th>Nome</th><th>Setor</th><th>Criticidade</th><th>Status</th><th>Responsavel</th></tr>
+          </thead>
+          <tbody id="assetRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Novo chamado</div>
+      </div>
+      <form class="grid" id="ticketForm">
+        <label>Numero <input name="numero" placeholder="CH-2203" required></label>
+        <label>Origem <input name="origem" placeholder="Linha 1" required></label>
+        <label>Prioridade
+          <select name="prioridade">
+            <option>Baixa</option>
+            <option selected>Media</option>
+            <option>Alta</option>
+            <option>Critica</option>
+          </select>
+        </label>
+        <label class="full">Descricao <textarea name="descricao" required></textarea></label>
+        <div class="full"><button type="submit">Salvar chamado</button></div>
+      </form>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Chamados cadastrados no Supabase</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Numero</th><th>Origem</th><th>Descricao</th><th>Prioridade</th><th>Status</th></tr>
+          </thead>
+          <tbody id="ticketRows"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const SUPABASE_URL = "https://zkkyiqtzmimcoderjrrm.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_h88SLb98aMdmGCJvEO6yFw_QuJ4I3bI";
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+    const statusEl = document.getElementById("connectionStatus");
+    const assetRows = document.getElementById("assetRows");
+    const ticketRows = document.getElementById("ticketRows");
+
+    function tag(value) {
+      return `<span class="tag">${value || ""}</span>`;
+    }
+
+    function showError(message) {
+      statusEl.textContent = "Erro de conexao";
+      return `<tr><td colspan="6" class="error">${message}</td></tr>`;
+    }
+
+    async function loadAssets() {
+      const { data, error } = await client
+        .from("ativos")
+        .select("codigo,nome,setor,criticidade,status,responsavel")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        assetRows.innerHTML = showError(error.message);
+        return;
+      }
+
+      assetRows.innerHTML = data.map(asset => `
+        <tr>
+          <td>${asset.codigo}</td>
+          <td>${asset.nome}</td>
+          <td>${asset.setor}</td>
+          <td>${tag(asset.criticidade)}</td>
+          <td>${tag(asset.status)}</td>
+          <td>${asset.responsavel || ""}</td>
+        </tr>
+      `).join("") || `<tr><td colspan="6">Nenhum ativo cadastrado.</td></tr>`;
+    }
+
+    async function loadTickets() {
+      const { data, error } = await client
+        .from("chamados")
+        .select("numero,origem,descricao,prioridade,status")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        ticketRows.innerHTML = showError(error.message);
+        return;
+      }
+
+      ticketRows.innerHTML = data.map(ticket => `
+        <tr>
+          <td>${ticket.numero}</td>
+          <td>${ticket.origem}</td>
+          <td>${ticket.descricao}</td>
+          <td>${tag(ticket.prioridade)}</td>
+          <td>${tag(ticket.status)}</td>
+        </tr>
+      `).join("") || `<tr><td colspan="5">Nenhum chamado cadastrado.</td></tr>`;
+    }
+
+    async function refresh() {
+      statusEl.textContent = "Conectando ao Supabase...";
+      await Promise.all([loadAssets(), loadTickets()]);
+      statusEl.textContent = "Conectado ao Supabase";
+    }
+
+    document.getElementById("assetForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const payload = Object.fromEntries(new FormData(event.currentTarget).entries());
+      const { error } = await client.from("ativos").insert(payload);
+      if (error) {
+        alert(error.message);
+        return;
+      }
+      event.currentTarget.reset();
+      refresh();
+    });
+
+    document.getElementById("ticketForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const payload = Object.fromEntries(new FormData(event.currentTarget).entries());
+      const { error } = await client.from("chamados").insert({ ...payload, status: "Aberto" });
+      if (error) {
+        alert(error.message);
+        return;
+      }
+      event.currentTarget.reset();
+      refresh();
+    });
+
+    document.getElementById("reloadBtn").addEventListener("click", refresh);
+    refresh();
+  </script>
+</body>
+</html>
