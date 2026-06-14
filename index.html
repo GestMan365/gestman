@@ -125,6 +125,33 @@
       gap: 7px;
       font-weight: 700;
       color: #fff;
+      cursor: pointer;
+      transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
+    }
+
+    .admin-pill:hover {
+      transform: translateY(-1px);
+      background: rgba(255,138,76,.18);
+      box-shadow: 0 0 18px rgba(255,138,76,.22);
+    }
+
+    .admin-avatar {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      display: inline-grid;
+      place-items: center;
+      overflow: hidden;
+      background: var(--orange);
+      color: #061533;
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .admin-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .nav {
@@ -590,11 +617,20 @@
       font-size: 11px;
       font-weight: 800;
       text-align: left;
+      width: 100%;
+      cursor: pointer;
+      transition: transform .16s ease, background .16s ease, border-color .16s ease;
     }
 
     .detail-tab.active {
       background: var(--blue-700);
       color: #fff;
+    }
+
+    .detail-tab:hover {
+      transform: translateX(4px);
+      border-color: var(--orange);
+      background: rgba(255,138,76,.18);
     }
 
     .detail-toolbar {
@@ -667,6 +703,34 @@
       width: 18px;
       height: 18px;
       accent-color: var(--orange);
+    }
+
+    .active-os-list {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+    }
+
+    .active-os-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 8px;
+      background: rgba(255,255,255,.05);
+      padding: 12px;
+    }
+
+    .active-os-item strong,
+    .active-os-item span {
+      display: block;
+    }
+
+    .active-os-item small {
+      color: var(--muted);
+      display: block;
+      margin-top: 4px;
     }
 
     @media (max-width: 760px) {
@@ -1100,9 +1164,8 @@
       </div>
     </div>
     <div class="top-actions">
-      <span class="admin-pill">Administrador</span>
+      <button class="admin-pill" id="profileBtn" type="button"><span class="admin-avatar" id="profileAvatar">AD</span><span id="profileName">Administrador</span></button>
       <button class="btn" id="exportBtn">Exportar</button>
-      <button class="btn danger" id="wipeBtn">Apagar tudo</button>
     </div>
   </header>
 
@@ -1114,6 +1177,7 @@
       <button class="tab" data-view="locations">Locais</button>
       <button class="tab" data-view="tags">Tags</button>
       <button class="tab" data-view="orders">Ordens</button>
+      <button class="tab" data-view="activeOrders">Painel OS</button>
       <button class="tab" data-view="checklists">Checklists</button>
     </div>
     <input class="searchbar" id="globalSearch" placeholder="Pesquisar máquina, local, tag ou OS">
@@ -1145,8 +1209,8 @@
           <div class="chart" id="criticalityBars"></div>
         </div>
         <div class="panel">
-          <div class="panel-head"><div class="panel-title">Próximos passos</div></div>
-          <div id="nextSteps" class="empty"></div>
+          <div class="panel-head"><div class="panel-title">OS abertas e em execução</div><button class="btn" data-view-button="activeOrders">Abrir painel</button></div>
+          <div id="dashboardActiveOrders" class="active-os-list"></div>
         </div>
       </div>
     </section>
@@ -1271,6 +1335,16 @@
       </div>
     </section>
 
+    <section class="view" id="activeOrders">
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Painel de OS abertas e em execução</div>
+          <button class="btn primary" id="activePanelNewOrder" data-view-button="orders">Nova OS</button>
+        </div>
+        <div id="activeOrdersPanel" class="active-os-list"></div>
+      </div>
+    </section>
+
     <section class="view" id="checklists">
       <div class="panel">
         <div class="panel-head">
@@ -1311,7 +1385,8 @@
       assets: [],
       orders: [],
       checklists: [],
-      movements: []
+      movements: [],
+      profile: { name: "Administrador", role: "Administrador", email: "", photo: "" }
     });
 
     let state = loadState();
@@ -1390,11 +1465,16 @@
     function machineName(id) { const item = byId(state.assets, id); return item ? `${item.code} - ${item.name}` : "-"; }
 
     function calcMetrics() {
-      const failures = state.orders.filter(order => order.status !== "Cancelada").length;
-      const totalRepair = state.orders.reduce((sum, order) => sum + Number(order.mttr || 0), 0);
-      const mttr = failures ? totalRepair / failures : 0;
-      const mtbf = state.assets.length ? Math.max(0, 168 - failures * 6 + state.assets.length * 4) : 0;
-      const availability = mtbf + mttr ? (mtbf / (mtbf + mttr)) * 100 : 0;
+      const completed = state.orders.filter(order => isClosedOrder(order.status));
+      const active = state.orders.filter(order => !isClosedOrder(order.status));
+      const totalRepair = completed.reduce((sum, order) => sum + Number(order.mttr || 0), 0);
+      const mttr = completed.length ? totalRepair / completed.length : 0;
+      const totalFailures = state.orders.filter(order => statusKey(order.status) !== "cancelada").length;
+      const mtbf = totalFailures && state.assets.length ? (state.assets.length * 720) / totalFailures : (state.assets.length ? 720 : 0);
+      const activeMachineIds = new Set(active.map(order => order.assetId));
+      const operating = state.assets.filter(asset => statusKey(asset.status).startsWith("operando"));
+      const available = operating.filter(asset => !activeMachineIds.has(asset.id)).length;
+      const availability = state.assets.length ? (available / state.assets.length) * 100 : 0;
       return { mttr, mtbf, availability };
     }
 
@@ -1404,33 +1484,47 @@
       $("mtbfMetric").textContent = `${mtbf.toFixed(0)}h`;
       $("availabilityMetric").textContent = `${availability.toFixed(1)}%`;
       $("assetMetric").textContent = state.assets.length;
-      renderTrendChart(mttr, mtbf);
+      renderTrendChart();
       renderStatusBars();
       renderCriticalityBars();
-      $("nextSteps").innerHTML = state.assets.length
-        ? `Seu parque já tem ${state.assets.length} máquina(s). Continue criando OS e checklists para alimentar MTTR e MTBF.`
-        : `Comece criando locais, depois cadastre as máquinas e posicione cada uma no mapa industrial.`;
+      renderActiveOrdersPanel("dashboardActiveOrders", 4);
     }
 
-    function renderTrendChart(mttr, mtbf) {
-      const mttrPoints = [mttr + 1.8, mttr + 1.2, mttr + .9, mttr + .4, mttr + .2, mttr].map(v => Math.max(0, v));
-      const mtbfPoints = [mtbf * .72, mtbf * .78, mtbf * .84, mtbf * .9, mtbf * .95, mtbf].map(v => Math.max(0, v));
+    function renderTrendChart() {
+      const dayMs = 24 * 60 * 60 * 1000;
+      const today = new Date();
+      today.setHours(23, 59, 59, 999);
+      const buckets = Array.from({ length: 6 }, (_, index) => {
+        const end = new Date(today.getTime() - (5 - index) * dayMs);
+        const start = new Date(end.getTime() - dayMs + 1);
+        const orders = state.orders.filter(order => {
+          const date = Number(order.finishedAt || order.startedAt || order.createdAt || 0);
+          return date >= start.getTime() && date <= end.getTime();
+        });
+        const completed = orders.filter(order => isClosedOrder(order.status));
+        const mttr = completed.length ? completed.reduce((sum, order) => sum + Number(order.mttr || 0), 0) / completed.length : 0;
+        const failures = orders.filter(order => statusKey(order.status) !== "cancelada").length;
+        const mtbf = failures && state.assets.length ? (state.assets.length * 24) / failures : (state.assets.length ? 24 : 0);
+        return { mttr, mtbf };
+      });
+      const mttrPoints = buckets.map(item => item.mttr);
+      const mtbfPoints = buckets.map(item => item.mtbf);
       const max = Math.max(10, ...mttrPoints, ...mtbfPoints);
       const poly = arr => arr.map((v, i) => `${40 + i * 110},${180 - (v / max) * 145}`).join(" ");
       $("trendChart").innerHTML = `
-        <svg viewBox="0 0 650 210" aria-label="Gráfico MTTR e MTBF">
+        <svg viewBox="0 0 650 210" aria-label="Grafico MTTR e MTBF">
           <line x1="40" y1="180" x2="620" y2="180" stroke="rgba(255,255,255,.25)"/>
           <line x1="40" y1="30" x2="40" y2="180" stroke="rgba(255,255,255,.25)"/>
           <polyline points="${poly(mtbfPoints)}" fill="none" stroke="#ffffff" stroke-width="4"/>
           <polyline points="${poly(mttrPoints)}" fill="none" stroke="#ff8a4c" stroke-width="4"/>
           <text x="460" y="28" fill="#fff">MTBF</text>
           <text x="540" y="28" fill="#ff8a4c">MTTR</text>
-          <text x="38" y="202" fill="#aebfdf">últimos períodos</text>
+          <text x="38" y="202" fill="#aebfdf">ultimos periodos</text>
         </svg>`;
     }
 
     function renderStatusBars() {
-      const statuses = [{ label: "Aberta", match: "aberta" }, { label: "Planejada", match: "planejada" }, { label: "Concluida", match: "conclu" }];
+      const statuses = [{ label: "Aberta", match: "aberta" }, { label: "Em execucao", match: "em exec" }, { label: "Planejada", match: "planejada" }, { label: "Concluida", match: "conclu" }];
       const countFor = status => state.orders.filter(order => statusKey(order.status).startsWith(status.match)).length;
       const max = Math.max(1, ...statuses.map(countFor));
       $("statusBars").innerHTML = statuses.map(status => {
@@ -1784,11 +1878,35 @@
       `).join("") || `<tr><td colspan="5" class="empty">Nenhum checklist criado.</td></tr>`;
     }
 
+    function renderActiveOrdersPanel(targetId, limit = 0) {
+      const target = $(targetId);
+      if (!target) return;
+      const rows = state.orders
+        .filter(order => !isClosedOrder(order.status))
+        .sort((a, b) => Number(b.startedAt || b.createdAt || 0) - Number(a.startedAt || a.createdAt || 0));
+      const visible = limit ? rows.slice(0, limit) : rows;
+      target.innerHTML = visible.map(order => `
+        <div class="active-os-item">
+          <div>
+            <strong>${order.number} - ${machineName(order.assetId)}</strong>
+            <small>${tag(order.status)} Solicitante: ${order.requester || "-"}</small>
+            <small>Abertura: ${formatDateTime(order.createdAt)} | Inicio: ${formatDateTime(order.startedAt)}</small>
+          </div>
+          <div class="actions">
+            <button class="btn" onclick="showOrderDetails('${order.id}')">Detalhes</button>
+            ${isRunningOrder(order.status) ? `<button class="btn primary" onclick="finishOrder('${order.id}')">Finalizar</button>` : `<button class="btn primary" onclick="confirmStartOrder('${order.id}')">Iniciar</button>`}
+          </div>
+        </div>
+      `).join("") || `<div class="empty">Nao tem ordens em aberto ou em execucao.</div>`;
+    }
+
     function render() {
       fillSelects();
       renderDashboard();
       renderMap();
       renderTables();
+      renderActiveOrdersPanel("activeOrdersPanel");
+      renderProfile();
     }
 
     function resetAssetForm() {
@@ -1828,6 +1946,51 @@
     }
 
     function closeModal() { $("genericModal").classList.remove("open"); }
+
+    function renderProfile() {
+      const profile = state.profile || {};
+      const name = profile.name || "Administrador";
+      $("profileName").textContent = name;
+      $("profileAvatar").innerHTML = profile.photo ? `<img src="${profile.photo}" alt="${name}">` : name.slice(0, 2).toUpperCase();
+    }
+
+    function openProfileModal() {
+      const profile = state.profile || {};
+      openModal("Perfil do administrador", `
+        <form class="form" id="profileForm">
+          <label>Nome <input class="field" id="profileEditName" value="${profile.name || "Administrador"}"></label>
+          <label>Cargo <input class="field" id="profileEditRole" value="${profile.role || "Administrador"}"></label>
+          <label>Email <input class="field" id="profileEditEmail" value="${profile.email || ""}" placeholder="email@empresa.com"></label>
+          <label>Foto por URL <input class="field" id="profileEditPhoto" value="${profile.photo || ""}" placeholder="https://..."></label>
+          <label class="full">Enviar foto <input class="field" id="profilePhotoFile" type="file" accept="image/*"></label>
+          <div class="full side-box"><strong>Previa</strong><span id="profilePreview">${profile.photo ? `<img src="${profile.photo}" style="width:72px;height:72px;border-radius:999px;object-fit:cover">` : "Sem foto cadastrada"}</span></div>
+          <div class="full toolbar"><button class="btn primary" type="submit">Salvar perfil</button></div>
+        </form>
+      `);
+      $("profilePhotoFile").addEventListener("change", event => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          $("profileEditPhoto").value = reader.result;
+          $("profilePreview").innerHTML = `<img src="${reader.result}" style="width:72px;height:72px;border-radius:999px;object-fit:cover">`;
+        };
+        reader.readAsDataURL(file);
+      });
+      $("profileForm").addEventListener("submit", event => {
+        event.preventDefault();
+        state.profile = {
+          name: $("profileEditName").value.trim() || "Administrador",
+          role: $("profileEditRole").value.trim() || "Administrador",
+          email: $("profileEditEmail").value.trim(),
+          photo: $("profileEditPhoto").value.trim()
+        };
+        saveState();
+        closeModal();
+        render();
+        showToast("Perfil atualizado.");
+      });
+    }
 
     function formatDateTime(value) {
       if (!value) return "-";
@@ -1873,7 +2036,8 @@
             </div>
             <div class="icon-actions">
               <button class="icon-btn" type="button" title="Gerar PDF" onclick="simpleOrderAction('${order.id}', 'PDF')">PDF</button>
-              <button class="icon-btn" type="button" title="Iniciar" onclick="confirmStartOrder('${order.id}')">▶</button>
+              ${!isRunningOrder(order.status) && !isClosedOrder(order.status) ? `<button class="icon-btn" type="button" title="Iniciar" onclick="confirmStartOrder('${order.id}')">▶</button>` : ""}
+              ${isRunningOrder(order.status) ? `<button class="icon-btn" type="button" title="Finalizar" onclick="finishOrder('${order.id}')">✓</button>` : ""}
               <button class="icon-btn" type="button" title="Copiar" onclick="simpleOrderAction('${order.id}', 'copy')">⧉</button>
               <button class="icon-btn" type="button" title="Compartilhar" onclick="simpleOrderAction('${order.id}', 'Compartilhamento')">↗</button>
               <button class="icon-btn" type="button" title="Imprimir" onclick="simpleOrderAction('${order.id}', 'Impressao')">▣</button>
@@ -2125,11 +2289,11 @@
             <div class="os-actions">
               <button class="btn" onclick="showOrderDetails('${order.id}')">Detalhes</button>
               <button class="btn" onclick="editOrder('${order.id}')">Editar / Preencher</button>
-              <button class="btn" onclick="finishOrder('${order.id}')">Encerrar</button>
+              ${isRunningOrder(order.status) ? `<button class="btn" onclick="finishOrder('${order.id}')">Encerrar</button>` : ""}
               <button class="btn" onclick="simpleOrderAction('${order.id}', 'Impressao')">Imprimir</button>
               <button class="btn" onclick="simpleOrderAction('${order.id}', 'Compartilhamento')">Compartilhar OS</button>
               <button class="btn" onclick="simpleOrderAction('${order.id}', 'copy')">Copiar OS</button>
-              <button class="btn primary" onclick="confirmStartOrder('${order.id}')">Iniciar OS</button>
+              ${!isRunningOrder(order.status) && !isClosedOrder(order.status) ? `<button class="btn primary" onclick="confirmStartOrder('${order.id}')">Iniciar OS</button>` : ""}
               <button class="btn danger" onclick="simpleOrderAction('${order.id}', 'PDF')">PDF Gerar PDF</button>
             </div>
           </div>
@@ -2222,6 +2386,11 @@
 
     function startOrder(id) {
       const now = Date.now();
+      const current = byId(state.orders, id);
+      if (!current || isClosedOrder(current.status)) {
+        showToast("OS concluida nao pode ser iniciada novamente.");
+        return;
+      }
       state.orders = state.orders.map(order => order.id === id ? {
         ...order,
         status: "Em execucao",
@@ -2234,6 +2403,11 @@
 
     function finishOrder(id) {
       const now = Date.now();
+      const current = byId(state.orders, id);
+      if (!current || isClosedOrder(current.status)) {
+        showToast("OS ja esta concluida.");
+        return;
+      }
       state.orders = state.orders.map(order => {
         if (order.id !== id) return order;
         const startedAt = Number(order.startedAt || order.createdAt || now);
@@ -2273,6 +2447,7 @@
     $("machineMenu").addEventListener("click", event => { const action = event.target.closest("[data-machine-action]"); if (action) machineAction(action.dataset.machineAction); });
     document.querySelectorAll("[data-close-modal]").forEach(button => button.addEventListener("click", closeModal));
     $("genericModal").addEventListener("click", event => { if (event.target.id === "genericModal") closeModal(); });
+    $("profileBtn").addEventListener("click", openProfileModal);
     $("createOrderBtn").addEventListener("click", () => openOrderModal());
     $("createChecklistBtn").addEventListener("click", () => openChecklistModal());
 
@@ -2325,14 +2500,6 @@
     $("resetLocationForm").addEventListener("click", resetLocationForm);
     $("resetTagForm").addEventListener("click", resetTagForm);
     $("resetSubtagForm").addEventListener("click", resetSubtagForm);
-    $("wipeBtn").addEventListener("click", () => {
-      if (!confirm("Apagar todos os dados criados e começar do zero?")) return;
-      state = emptyState();
-      saveState();
-      resetAssetForm(); resetLocationForm(); resetTagForm(); resetSubtagForm();
-      render();
-      showToast("Todos os dados foram apagados.");
-    });
     $("exportBtn").addEventListener("click", () => {
       const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
@@ -2346,6 +2513,8 @@
     setInterval(() => {
       renderMap();
       renderTables();
+      renderActiveOrdersPanel("dashboardActiveOrders", 4);
+      renderActiveOrdersPanel("activeOrdersPanel");
     }, 30000);
 
     render();
