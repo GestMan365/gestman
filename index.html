@@ -1359,6 +1359,296 @@
       box-shadow: 0 9px 20px rgba(0,0,0,.28);
     }
 
+    .open-os-pop {
+      position: fixed;
+      width: 134px;
+      background: #1b1b1b;
+      border: 1px solid #2d2d2d;
+      box-shadow: 0 12px 32px rgba(0,0,0,.55);
+      display: none;
+      z-index: 66;
+      padding-top: 24px;
+      color: #d7d7d7;
+    }
+
+    .open-os-pop.open { display: block; }
+
+    .open-os-close {
+      position: absolute;
+      right: 0;
+      top: -24px;
+      width: 19px;
+      height: 19px;
+      border: 1px solid #555;
+      border-radius: 4px;
+      background: #d8d8d8;
+      color: #202020;
+      font-weight: 900;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+    }
+
+    .open-os-toolbar {
+      height: 29px;
+      background: #48515c;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 3px;
+      padding-right: 5px;
+    }
+
+    .open-os-tool {
+      width: 18px;
+      height: 18px;
+      border: 1px solid #9aa2ad;
+      border-radius: 3px;
+      background: #37414b;
+      color: #dce8f0;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+    }
+
+    .open-os-tool.excel {
+      background: #0f6f38;
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .open-os-empty {
+      height: 25px;
+      display: flex;
+      align-items: center;
+      padding-left: 6px;
+      font-size: 11px;
+      color: #cfcfcf;
+      border-bottom: 1px solid #333;
+    }
+
+    .open-os-pager {
+      height: 33px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding-left: 10px;
+      color: #cfcfcf;
+      font-size: 13px;
+    }
+
+    .pager-select {
+      width: 38px;
+      height: 20px;
+      border: 1px solid #c4c4c4;
+      background: #252525;
+      color: #fff;
+      font-size: 12px;
+      padding: 0 2px;
+    }
+
+    .compiled-backdrop {
+      position: fixed;
+      inset: 0;
+      background: #1d2f45;
+      display: none;
+      z-index: 68;
+      color: #111;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .compiled-backdrop.open { display: block; }
+
+    .compiled-toolbar {
+      height: 29px;
+      background: #4055b9;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding-left: 6px;
+    }
+
+    .compiled-toolbar input,
+    .compiled-toolbar select {
+      height: 20px;
+      border: 1px solid #20408c;
+      border-radius: 2px;
+      background: #fff;
+      color: #111;
+      font-size: 12px;
+      padding: 0 4px;
+      min-width: auto;
+    }
+
+    .compiled-tool-btn {
+      width: 21px;
+      height: 20px;
+      border: 0;
+      border-radius: 3px;
+      background: #fff;
+      color: #111;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .compiled-close {
+      margin-left: auto;
+      margin-right: 8px;
+      width: 23px;
+      height: 22px;
+      border: 0;
+      border-radius: 4px;
+      background: #f1f1f1;
+      color: #111;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .compiled-page {
+      margin: 11px 7px;
+      height: calc(100vh - 40px);
+      background: #fff;
+      border-radius: 6px;
+      padding: 15px 8px 10px;
+      overflow: auto;
+    }
+
+    .compiled-sheet {
+      width: 1180px;
+      max-width: 100%;
+      min-height: calc(100vh - 72px);
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+    }
+
+    .compiled-header {
+      display: grid;
+      grid-template-columns: 88px minmax(0, 1fr) 170px;
+      align-items: center;
+      gap: 12px;
+      padding: 0 8px;
+    }
+
+    .muriel-box {
+      width: 70px;
+      height: 37px;
+      background: #ff4b68;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+      border-radius: 0;
+      line-height: 1;
+    }
+
+    .compiled-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #4055b9;
+    }
+
+    .compiled-logo {
+      font-size: 36px;
+      color: #202020;
+      text-align: center;
+      letter-spacing: -2px;
+    }
+
+    .compiled-info {
+      margin: 10px 6px 4px;
+      border: 1px solid #777;
+      border-radius: 5px;
+      height: 26px;
+      display: grid;
+      grid-template-columns: 260px 250px 190px minmax(0, 1fr);
+      align-items: center;
+      font-size: 12px;
+      padding: 0 8px;
+    }
+
+    .compiled-info strong { margin-right: 6px; }
+
+    .compiled-blue-line {
+      height: 2px;
+      background: #4055ff;
+      margin: 0 6px 22px;
+    }
+
+    .compiled-content {
+      padding: 0 26px;
+    }
+
+    .compiled-note {
+      height: 19px;
+      border: 1px solid #999;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      padding-left: 3px;
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .compiled-observation {
+      height: 96px;
+      border: 1px solid #888;
+      border-radius: 0 0 6px 6px;
+      position: relative;
+      font-size: 12px;
+      padding: 4px;
+    }
+
+    .compiled-eye {
+      position: absolute;
+      right: 4px;
+      top: 0;
+      color: #000;
+      font-size: 18px;
+    }
+
+    .compiled-signature {
+      margin-top: 116px;
+      display: grid;
+      justify-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: #24345f;
+    }
+
+    .compiled-signature button {
+      height: 20px;
+      border: 1px solid #777;
+      background: #fff;
+      color: #111;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .signature-line {
+      width: 205px;
+      border-top: 1px solid #111;
+    }
+
+    .compiled-footer {
+      border-top: 2px solid #4055ff;
+      margin: 0 6px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #4055b9;
+      font-size: 12px;
+    }
+
+    .compiled-footer strong {
+      color: #333;
+      font-size: 18px;
+      letter-spacing: -1px;
+    }
+
     @media (max-width: 1100px) {
       .os-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .os-field.wide,
@@ -1907,6 +2197,66 @@
     </div>
   </div>
 
+  <div class="open-os-pop" id="openOsPop">
+    <button class="open-os-close" id="closeOpenOsPop">×</button>
+    <div class="open-os-toolbar">
+      <span class="open-os-tool">▼</span>
+      <span class="open-os-tool">▣</span>
+      <span class="open-os-tool excel">X</span>
+    </div>
+    <div class="open-os-empty">Nenhum registro encontrado</div>
+    <div class="open-os-pager">
+      <span>«</span>
+      <span>»</span>
+      <select class="pager-select"><option>10</option><option>25</option><option>50</option></select>
+    </div>
+  </div>
+
+  <div class="compiled-backdrop" id="compiledChecklist">
+    <div class="compiled-toolbar">
+      <input id="compiledDate" value="14/05/2026">
+      <select><option>Mensal</option><option>Semanal</option><option>Diário</option></select>
+      <button class="compiled-tool-btn">▣</button>
+      <button class="compiled-tool-btn">⟳</button>
+      <button class="compiled-close" id="closeCompiledChecklist">×</button>
+    </div>
+    <div class="compiled-page">
+      <div class="compiled-sheet">
+        <div>
+          <div class="compiled-header">
+            <div class="muriel-box">nova<br>muriel</div>
+            <div class="compiled-title">Compilado de Checklist</div>
+            <div class="compiled-logo">GestMan365</div>
+          </div>
+          <div class="compiled-info">
+            <div><strong>Região:</strong> UNIDADE 01- FÁBRICA</div>
+            <div><strong>Local:</strong> <span id="compiledLocal">ESTOQUE 2 (FARDOS)</span></div>
+            <div><strong>LI:</strong> <span id="compiledLi">CORREDORES</span></div>
+            <div><strong>Equipamento:</strong> <span id="compiledEquipment">CORREDOR GALPÃO CORREDOR CORREDOR - CORR-03</span></div>
+          </div>
+          <div class="compiled-blue-line"></div>
+        </div>
+        <div class="compiled-content">
+          <div class="compiled-note">Não existem checklists preenchidos no período selecionado</div>
+          <div class="compiled-observation">
+            Observações gerais
+            <span class="compiled-eye">◉</span>
+          </div>
+          <div class="compiled-signature">
+            <button>Limpar Assinatura</button>
+            <div class="signature-line"></div>
+            <div>Técnico Responsável</div>
+          </div>
+        </div>
+        <div></div>
+        <div class="compiled-footer">
+          <strong>GestMan365</strong>
+          <span>14/06/26 14:49</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <button class="fab" id="adminFab">▦</button>
 
   <script>
@@ -2188,6 +2538,14 @@
         openOsModal(asset);
         return;
       }
+      if (action === "abertas") {
+        openOsAbertasPop();
+        return;
+      }
+      if (action === "compilado") {
+        openCompiledChecklist(asset);
+        return;
+      }
       const content = {
         "checklists": `
           <div><span class="pill green">Checklist diario</span> <span class="pill orange">Inspecao semanal</span></div>
@@ -2293,6 +2651,33 @@
       document.getElementById("detailsPanel").classList.add("open");
     }
 
+    function openOsAbertasPop() {
+      const menu = document.getElementById("machineMenu");
+      const pop = document.getElementById("openOsPop");
+      const menuLeft = Number.parseInt(menu.style.left || "120", 10);
+      const menuTop = Number.parseInt(menu.style.top || "120", 10);
+      pop.style.left = `${Math.min(window.innerWidth - 150, Math.max(20, menuLeft + 34))}px`;
+      pop.style.top = `${Math.min(window.innerHeight - 120, Math.max(60, menuTop + 8))}px`;
+      closeMachineMenu();
+      pop.classList.add("open");
+    }
+
+    function closeOsAbertasPop() {
+      document.getElementById("openOsPop").classList.remove("open");
+    }
+
+    function openCompiledChecklist(asset) {
+      document.getElementById("compiledLocal").textContent = label(state.locations, asset.local_id) || "UNIDADE 01- FÁBRICA";
+      document.getElementById("compiledLi").textContent = asset.setor || "CORREDORES";
+      document.getElementById("compiledEquipment").textContent = `${asset.nome} - ${asset.codigo}`;
+      closeMachineMenu();
+      document.getElementById("compiledChecklist").classList.add("open");
+    }
+
+    function closeCompiledChecklist() {
+      document.getElementById("compiledChecklist").classList.remove("open");
+    }
+
     function closeOsModal() {
       document.getElementById("osModal").classList.remove("open");
     }
@@ -2388,6 +2773,11 @@
     document.getElementById("confirmNewOsModal").addEventListener("click", confirmNewOsModal);
     document.getElementById("newOsModal").addEventListener("click", event => {
       if (event.target.id === "newOsModal") closeNewOsModal();
+    });
+    document.getElementById("closeOpenOsPop").addEventListener("click", closeOsAbertasPop);
+    document.getElementById("closeCompiledChecklist").addEventListener("click", closeCompiledChecklist);
+    document.addEventListener("click", event => {
+      if (!event.target.closest("#openOsPop") && !event.target.closest("[data-action='abertas']")) closeOsAbertasPop();
     });
     document.getElementById("closeMachineMenu").addEventListener("click", closeMachineMenu);
     document.getElementById("machineMenu").addEventListener("click", event => {
