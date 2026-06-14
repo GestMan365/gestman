@@ -1534,100 +1534,37 @@
 
     function openOrderModal(assetId = "") {
       const machines = state.assets.map(asset => `<option value="${asset.id}" ${asset.id === assetId ? "selected" : ""}>${asset.code} - ${asset.name}</option>`).join("");
-      const selectedAsset = byId(state.assets, assetId) || state.assets[0] || null;
-      const selectedLocation = selectedAsset ? locationName(selectedAsset.locationId) : "UNIDADE 01- FÁBRICA - MANIP...";
-      const selectedTag = selectedAsset ? selectedAsset.code : "R-05";
       openModal("Criar OS", `
-        <form class="legacy-os-modal" id="orderForm">
-          <div class="legacy-os-tabs">
-            <div class="legacy-os-tab">CheckLists</div><div class="legacy-os-tab">Outros Custos</div><div class="legacy-os-tab">Assinatura</div><div class="legacy-os-tab">Detalhes</div>
-            <div class="legacy-os-tab active">Geral</div><div class="legacy-os-tab">Equipe</div><div class="legacy-os-tab">Tarefas</div><div class="legacy-os-tab">Segurança</div><div class="legacy-os-tab">Fotos</div><div class="legacy-os-tab">Anexos</div><div class="legacy-os-tab">Documentos</div>
-          </div>
-          <div class="legacy-os-box">
-            <div class="legacy-title">
-              <div class="legacy-gear">⚙</div>
-              <select class="legacy-model"><option>Modelos</option></select>
-              <div>Criar OS</div>
-            </div>
-            <div class="legacy-grid">
-              <label>Máquina</label><select class="legacy-field filled" id="orderAsset">${machines || `<option value="">Cadastre uma máquina</option>`}</select>
-              <label>Local</label><input class="legacy-field filled" id="orderLocal" value="${selectedLocation}" readonly>
-              <label>LI</label><input class="legacy-field filled" id="orderLi" value="${selectedAsset?.name || "REATORES"}">
-              <label>TAG</label><input class="legacy-field filled" id="orderTag" value="${selectedTag}" readonly>
-              <label>Tipo de Serviço</label><select class="legacy-field" id="orderType"><option>Corretiva</option><option>Preventiva</option><option>Inspeção</option></select>
-              <label>Tipo de Manutenção</label><select class="legacy-field" id="orderMaintenance"><option>Mecânica</option><option>Elétrica</option><option>Utilidades</option><option>Predial</option></select>
-              <label>Prioridade</label><select class="legacy-field filled" id="orderPriority"><option>Baixa</option><option>Média</option><option>Alta</option></select>
-              <label>Status</label><select class="legacy-field filled" id="orderStatus"><option>Aberta</option><option>Planejada</option><option>Em execução</option><option>Concluída</option></select>
-              <label>Data/Hora Programada</label><input class="legacy-field" id="orderProgrammedAt" placeholder="dd/mm/aaaa --:--">
-              <label>Duração Estimada</label><div class="legacy-duration"><input class="legacy-field" id="orderDays"><span>dias e</span><input class="legacy-field" id="orderHours" value="04:00"><span>hrs</span></div>
-              <label>Executante</label><select class="legacy-field" id="orderExecutor"><option>Manutenção</option><option>Confiabilidade</option><option>Operação</option></select>
-              <label>Número de Executantes</label><input class="legacy-field" id="orderWorkers" type="number" value="1">
-              <label>Data e Hora de Início</label><input class="legacy-field" id="orderStartedText" placeholder="dd/mm/aaaa --:--">
-              <label>Data e Hora do Término</label><input class="legacy-field" id="orderFinishedText" placeholder="dd/mm/aaaa --:--">
-            </div>
-            <textarea class="legacy-area" id="orderDescription" placeholder="Descrição"></textarea>
-            <textarea class="legacy-area" id="orderComment" placeholder="Comentário"></textarea>
-            <input class="legacy-category" id="orderCategory" placeholder="escolha uma categoria">
-            <div class="legacy-toggles">
-              <div class="legacy-toggle-row"><button type="button" class="legacy-toggle" data-toggle="pending">0</button><span>OS Pendente de Execução</span></div>
-              <div class="legacy-toggle-row"><button type="button" class="legacy-toggle" data-toggle="stopped">0</button><span>Máquina parada durante o serviço.</span></div>
-              <div class="legacy-toggle-row"><button type="button" class="legacy-toggle" data-toggle="openAnother">0</button><span>Abrir outra OS após esta.</span></div>
-              <div class="legacy-toggle-row"><button type="button" class="legacy-toggle" data-toggle="printAfter">0</button><span>Imprimir esta OS após a Criação.</span></div>
-            </div>
-            <div class="legacy-actions">
-              <button class="legacy-cancel" type="button" id="cancelOrderModal">Cancelar</button>
-              <button class="legacy-confirm" type="submit">Confirmar</button>
-            </div>
-          </div>
+        <form class="form" id="orderForm">
+          <label>Máquina <select class="field" id="orderAsset">${machines || `<option value="">Cadastre uma máquina</option>`}</select></label>
+          <label>Tipo <select class="field" id="orderType"><option>Corretiva</option><option>Preventiva</option><option>Inspeção</option></select></label>
+          <label>Prioridade <select class="field" id="orderPriority"><option>Baixa</option><option>Média</option><option>Alta</option></select></label>
+          <label>Status <select class="field" id="orderStatus"><option>Aberta</option><option>Planejada</option><option>Em execução</option><option>Concluída</option></select></label>
+          <label>MTTR estimado (h) <input class="field" id="orderMttr" type="number" value="4"></label>
+          <label class="full">Descrição <textarea class="field" id="orderDescription"></textarea></label>
+          <div class="full toolbar"><button class="btn primary" type="submit">Salvar OS</button></div>
         </form>
       `);
       $("genericModalBox").classList.remove("large");
-      $("genericModalBox").style.width = "398px";
-      $("orderAsset").addEventListener("change", () => {
-        const asset = byId(state.assets, $("orderAsset").value);
-        $("orderLocal").value = asset ? locationName(asset.locationId) : "";
-        $("orderLi").value = asset?.name || "";
-        $("orderTag").value = asset?.code || "";
-      });
-      document.querySelectorAll(".legacy-toggle").forEach(button => button.addEventListener("click", () => {
-        button.classList.toggle("on");
-        button.textContent = button.classList.contains("on") ? "1" : "0";
-      }));
-      $("cancelOrderModal").addEventListener("click", closeModal);
+      $("genericModalBox").style.width = "760px";
       $("orderForm").addEventListener("submit", event => {
         event.preventDefault();
         const status = $("orderStatus").value;
-        const selectedOrderAsset = $("orderAsset").value;
-        const shouldOpenAnother = document.querySelector("[data-toggle='openAnother']").classList.contains("on");
         state.orders.unshift({
           id: uid("os"),
           number: `OS-${String(state.orders.length + 1).padStart(4, "0")}`,
-          assetId: selectedOrderAsset,
+          assetId: $("orderAsset").value,
           type: $("orderType").value,
-          maintenance: $("orderMaintenance").value,
+          maintenance: "",
           priority: $("orderPriority").value,
           status,
           createdAt: Date.now(),
           startedAt: status === "Em execução" ? Date.now() : null,
           finishedAt: status === "Concluída" ? Date.now() : null,
-          mttr: Number((Number($("orderDays").value || 0) * 24) + parseFloat(($("orderHours").value || "4").replace(":", ".")) || 4),
-          programmedAt: $("orderProgrammedAt").value,
-          startedText: $("orderStartedText").value,
-          finishedText: $("orderFinishedText").value,
-          executor: $("orderExecutor").value,
-          workers: Number($("orderWorkers").value || 1),
-          category: $("orderCategory").value,
-          pendingExecution: document.querySelector("[data-toggle='pending']").classList.contains("on"),
-          machineStopped: document.querySelector("[data-toggle='stopped']").classList.contains("on"),
-          openAnother: shouldOpenAnother,
-          printAfter: document.querySelector("[data-toggle='printAfter']").classList.contains("on"),
-          description: $("orderDescription").value,
-          comment: $("orderComment").value
+          mttr: Number($("orderMttr").value || 0),
+          description: $("orderDescription").value
         });
         saveState(); closeModal(); render(); showToast("OS criada.");
-        if (shouldOpenAnother) {
-          setTimeout(() => openOrderModal(selectedOrderAsset || assetId), 250);
-        }
       });
     }
 
@@ -1753,27 +1690,10 @@
       openOrderModal(item.assetId);
       setTimeout(() => {
         $("orderType").value = item.type || "Corretiva";
-        $("orderMaintenance").value = item.maintenance || "Mecânica";
         $("orderPriority").value = item.priority || "Baixa";
         $("orderStatus").value = item.status || "Aberta";
-        $("orderProgrammedAt").value = item.programmedAt || "";
-        $("orderStartedText").value = item.startedText || "";
-        $("orderFinishedText").value = item.finishedText || "";
-        $("orderExecutor").value = item.executor || "Manutenção";
-        $("orderWorkers").value = item.workers || 1;
-        $("orderCategory").value = item.category || "";
+        $("orderMttr").value = item.mttr || 4;
         $("orderDescription").value = item.description || "";
-        $("orderComment").value = item.comment || "";
-        const hours = Number(item.mttr || 4);
-        $("orderDays").value = Math.floor(hours / 24) || "";
-        $("orderHours").value = String(Math.round(hours % 24)).padStart(2, "0") + ":00";
-        [["pending", item.pendingExecution], ["stopped", item.machineStopped], ["openAnother", item.openAnother], ["printAfter", item.printAfter]].forEach(([key, enabled]) => {
-          const button = document.querySelector(`[data-toggle='${key}']`);
-          if (button && enabled) {
-            button.classList.add("on");
-            button.textContent = "1";
-          }
-        });
         deleteOrder(id, false);
       }, 0);
     }
