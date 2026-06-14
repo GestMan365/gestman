@@ -774,6 +774,172 @@
       min-height: 18px;
     }
 
+    .os-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.58);
+      display: none;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 38px 18px;
+      z-index: 60;
+    }
+
+    .os-modal-backdrop.open { display: flex; }
+
+    .os-modal {
+      width: min(1810px, calc(100vw - 36px));
+      background: #151515;
+      border: 1px solid #303030;
+      box-shadow: 0 20px 60px rgba(0,0,0,.58);
+      color: #d8d8d8;
+    }
+
+    .os-modal-head {
+      height: 72px;
+      background: #222;
+      border-bottom: 1px solid #6a6a6a;
+      display: grid;
+      grid-template-columns: 46px minmax(0, 1fr) 38px;
+      align-items: end;
+      padding: 0 10px 8px;
+    }
+
+    .os-title {
+      text-align: center;
+      font-weight: 700;
+      font-size: 16px;
+      align-self: end;
+    }
+
+    .os-calendar {
+      width: 26px;
+      height: 26px;
+      border: 1px solid #888;
+      border-radius: 2px;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      color: #cfcfcf;
+      margin-bottom: 2px;
+    }
+
+    .os-close {
+      width: 24px;
+      height: 24px;
+      border: 0;
+      border-radius: 4px;
+      background: #d8d8d8;
+      color: #202020;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      cursor: pointer;
+      align-self: start;
+      justify-self: end;
+      margin-top: 5px;
+    }
+
+    .os-form {
+      padding: 8px 8px 10px;
+      display: grid;
+      grid-template-columns: .72fr .72fr 1.48fr 1.48fr 1.48fr 1.48fr;
+      gap: 9px 5px;
+    }
+
+    .os-field {
+      min-height: 32px;
+      border: 1px solid #666;
+      border-radius: 3px;
+      background: #1b1b1b;
+      position: relative;
+      display: grid;
+      align-content: end;
+    }
+
+    .os-field.wide { grid-column: span 2; }
+    .os-field.xwide { grid-column: span 3; }
+
+    .os-field label {
+      position: absolute;
+      left: 6px;
+      top: 2px;
+      color: #848484;
+      font-size: 10px;
+      text-transform: none;
+      font-weight: 400;
+    }
+
+    .os-field input,
+    .os-field select {
+      width: 100%;
+      height: 30px;
+      border: 0;
+      background: transparent;
+      color: #d7d7d7;
+      padding: 10px 28px 0 6px;
+      outline: none;
+      font-size: 14px;
+    }
+
+    .os-date {
+      position: absolute;
+      right: 5px;
+      bottom: 6px;
+      color: #e8e8e8;
+      font-size: 13px;
+    }
+
+    .os-chip {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      height: 24px;
+      margin: 6px 0 4px 6px;
+      padding: 0 8px;
+      border-radius: 3px;
+      background: #d4d4d4;
+      color: #222;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .os-submit {
+      grid-column: 1 / -1;
+      height: 33px;
+      border: 0;
+      border-radius: 4px;
+      background: #139fe8;
+      color: #00131f;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
+    }
+
+    .os-submit:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.08);
+      box-shadow: 0 10px 24px rgba(19,159,232,.28);
+    }
+
+    .os-results {
+      margin: 0 8px 10px;
+      border: 1px solid #444;
+      display: none;
+    }
+
+    .os-results.open { display: block; }
+
+    .os-results table {
+      min-width: 980px;
+    }
+
+    @media (max-width: 1100px) {
+      .os-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .os-field.wide,
+      .os-field.xwide { grid-column: span 1; }
+    }
+
     .details-head {
       height: 38px;
       background: linear-gradient(90deg, #123f8d, #0d2f73);
@@ -1143,6 +1309,83 @@
 
   <div class="machine-tooltip" id="machineTooltip"></div>
 
+  <div class="os-modal-backdrop" id="osModal">
+    <div class="os-modal">
+      <div class="os-modal-head">
+        <div class="os-calendar">▦</div>
+        <div class="os-title">Lista de OS</div>
+        <button class="os-close" id="closeOsModal">×</button>
+      </div>
+      <div class="os-form">
+        <div class="os-field">
+          <label>Entre as Datas</label>
+          <input id="osStartDate" value="16/03/2026">
+          <span class="os-date">▣</span>
+        </div>
+        <div class="os-field">
+          <label>&nbsp;</label>
+          <input id="osEndDate" value="15/06/2026">
+          <span class="os-date">▣</span>
+        </div>
+        <div class="os-field wide">
+          <label>Tipo de Servico</label>
+          <select><option>[Todos]</option><option>Corretiva</option><option>Preventiva</option><option>Inspecao</option></select>
+        </div>
+        <div class="os-field wide">
+          <label>Tipo de Manutencao</label>
+          <select><option>[Todos]</option><option>Mecanica</option><option>Eletrica</option><option>Utilidades</option></select>
+        </div>
+        <div class="os-field wide">
+          <label>Executante</label>
+          <select><option>[Todos]</option><option>Manutencao</option><option>Confiabilidade</option></select>
+        </div>
+        <div class="os-field wide">
+          <label>Considerar Equipe</label>
+          <select><option>Nao</option><option>Sim</option></select>
+        </div>
+        <div class="os-field wide">
+          <label>Regiao</label>
+          <select><option>[Todos]</option><option>Linha 01 - Producao</option><option>Linha 02 - Producao</option></select>
+        </div>
+        <div class="os-field wide">
+          <label>Local</label>
+          <select><option>[Todos]</option></select>
+        </div>
+        <div class="os-field wide">
+          <label>TAG</label>
+          <input id="osTag" value="RT-14">
+        </div>
+        <div class="os-field wide">
+          <label>Nº da OS</label>
+          <input id="osNumber">
+        </div>
+        <div class="os-field wide">
+          <label>Calcular Custos</label>
+          <select><option>Nao</option><option>Sim</option></select>
+        </div>
+        <div class="os-field wide">
+          <label>Maquina Parada</label>
+          <select><option>[Todos]</option><option>Sim</option><option>Nao</option></select>
+        </div>
+        <div class="os-field xwide">
+          <label>Status</label>
+          <span class="os-chip">× [Todos]</span>
+        </div>
+        <div class="os-field xwide">
+          <label>Categorias</label>
+          <input>
+        </div>
+        <button class="os-submit" id="submitOsList">Submeter</button>
+      </div>
+      <div class="os-results" id="osResults">
+        <table>
+          <thead><tr><th>OS</th><th>TAG</th><th>Descricao</th><th>Status</th><th>Executante</th><th>Data</th></tr></thead>
+          <tbody id="osRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <button class="fab" id="adminFab">▦</button>
 
   <script>
@@ -1412,6 +1655,10 @@
       const asset = byId(state.assets, state.selectedAssetId);
       if (!asset) return;
       closeMachineMenu();
+      if (action === "historico") {
+        openOsModal(asset);
+        return;
+      }
       const content = {
         "checklists": `
           <div><span class="pill green">Checklist diario</span> <span class="pill orange">Inspecao semanal</span></div>
@@ -1467,6 +1714,37 @@
         ${content[action]}
       `;
       document.getElementById("detailsPanel").classList.add("open");
+    }
+
+    function openOsModal(asset) {
+      document.getElementById("osTag").value = asset.codigo;
+      document.getElementById("osResults").classList.remove("open");
+      document.getElementById("osRows").innerHTML = "";
+      document.getElementById("osModal").classList.add("open");
+    }
+
+    function closeOsModal() {
+      document.getElementById("osModal").classList.remove("open");
+    }
+
+    function submitOsList() {
+      const tag = document.getElementById("osTag").value || "RT-14";
+      const rows = [
+        ["OS-1048", tag, "Ajuste mecanico e reaperto geral", "Concluida", "Manutencao", "16/03/2026"],
+        ["OS-1092", tag, "Inspecao preventiva de seguranca", "Concluida", "Confiabilidade", "28/04/2026"],
+        ["OS-1137", tag, "Verificacao de ruido e vibracao", "Aberta", "Manutencao", "12/06/2026"]
+      ];
+      document.getElementById("osRows").innerHTML = rows.map(row => `
+        <tr>
+          <td>${row[0]}</td>
+          <td>${row[1]}</td>
+          <td>${row[2]}</td>
+          <td><span class="pill ${row[3] === "Aberta" ? "orange" : "green"}">${row[3]}</span></td>
+          <td>${row[4]}</td>
+          <td>${row[5]}</td>
+        </tr>
+      `).join("");
+      document.getElementById("osResults").classList.add("open");
     }
 
     async function loadTable(name, fallbackRows) {
@@ -1525,6 +1803,11 @@
     document.getElementById("searchInput").addEventListener("input", renderOverview);
     document.getElementById("regionFilter").addEventListener("change", renderOverview);
     document.getElementById("closeDetails").addEventListener("click", () => document.getElementById("detailsPanel").classList.remove("open"));
+    document.getElementById("closeOsModal").addEventListener("click", closeOsModal);
+    document.getElementById("submitOsList").addEventListener("click", submitOsList);
+    document.getElementById("osModal").addEventListener("click", event => {
+      if (event.target.id === "osModal") closeOsModal();
+    });
     document.getElementById("closeMachineMenu").addEventListener("click", closeMachineMenu);
     document.getElementById("machineMenu").addEventListener("click", event => {
       const item = event.target.closest("[data-action]");
