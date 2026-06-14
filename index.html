@@ -32,7 +32,7 @@
         radial-gradient(circle at 88% 0%, rgba(255, 255, 255, .12), transparent 26%),
         linear-gradient(135deg, var(--blue-900), var(--blue-800) 44%, var(--blue-700));
       color: var(--ink);
-      font-family: Arial, Helvetica, sans-serif;
+      font-family: Bahnschrift, "Segoe UI Variable", "Segoe UI", Arial, Helvetica, sans-serif;
       font-size: 13px;
       text-transform: uppercase;
       overflow: hidden;
@@ -94,7 +94,26 @@
     .brand-mark svg {
       width: 32px;
       height: 32px;
+    }
+
+    .brand-tools {
+      width: 38px;
+      height: 38px;
+      overflow: visible;
+    }
+
+    .brand-gear {
+      transform-origin: 32px 32px;
+      animation: logoSpin 9s linear infinite;
+    }
+
+    .brand-wrench {
+      transform-origin: 32px 32px;
       animation: wrenchTurn 3.7s ease-in-out infinite;
+    }
+
+    .brand-spark {
+      animation: logoSpark 1.8s ease-in-out infinite;
     }
 
     .brand-name {
@@ -115,6 +134,17 @@
       letter-spacing: 0;
       margin-top: 3px;
       font-weight: 800;
+    }
+
+    .ui-icon {
+      width: 18px;
+      height: 18px;
+      display: block;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
 
     .top-actions {
@@ -213,8 +243,7 @@
       display: grid;
       place-items: center;
       background: rgba(255,255,255,.1);
-      font-size: 13px;
-      font-weight: 900;
+      color: currentColor;
     }
 
     .tab:hover {
@@ -763,6 +792,65 @@
       accent-color: var(--orange);
     }
 
+    .tab-workspace {
+      display: grid;
+      gap: 10px;
+    }
+
+    .signature-panel {
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 8px;
+      background: rgba(0,0,0,.2);
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .signature-box {
+      height: 118px;
+      border: 1px solid rgba(255,255,255,.34);
+      border-radius: 6px;
+      background:
+        linear-gradient(transparent 70%, rgba(255,255,255,.22) 71%, transparent 72%),
+        rgba(255,255,255,.04);
+      display: grid;
+      place-items: center;
+      color: rgba(255,255,255,.54);
+      font-size: 22px;
+      font-weight: 700;
+      cursor: crosshair;
+    }
+
+    .signature-box.signed {
+      color: #fff;
+      font-family: "Segoe Script", "Brush Script MT", cursive;
+      font-size: 30px;
+    }
+
+    .epi-list {
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 8px;
+      background: rgba(0,0,0,.16);
+      padding: 12px;
+      display: grid;
+      gap: 9px;
+    }
+
+    .epi-item {
+      display: grid;
+      grid-template-columns: 22px minmax(0,1fr);
+      gap: 10px;
+      align-items: center;
+      color: #d9e4ff;
+      font-weight: 800;
+    }
+
+    .epi-item input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--orange);
+    }
+
     .active-os-list {
       display: grid;
       gap: 10px;
@@ -1234,6 +1322,15 @@
       50% { transform: rotate(12deg); }
     }
 
+    @keyframes logoSpin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes logoSpark {
+      0%,100% { opacity: .35; transform: scale(.9); }
+      50% { opacity: 1; transform: scale(1.16); }
+    }
+
     @keyframes pulse {
       0%,100% { transform: scale(1); box-shadow: 0 0 0 rgba(255,138,76,0); }
       50% { transform: scale(1.12); box-shadow: 0 0 18px rgba(255,138,76,.7); }
@@ -1268,8 +1365,18 @@
     <div>
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 64 64">
-            <path fill="currentColor" d="M43.2 7.4c-4.9-1.5-10.4-.3-14.3 3.6-4.2 4.2-5.2 10.5-3 15.7L8.8 43.8c-2.8 2.8-2.8 7.4 0 10.2l1.2 1.2c2.8 2.8 7.4 2.8 10.2 0l17.1-17.1c5.2 2.2 11.5 1.2 15.7-3 3.9-3.9 5.1-9.4 3.6-14.3l-9.4 9.4-8.1-2.1-2.1-8.1 9.4-9.4c-1-.5-2.1-.9-3.2-1.2ZM15.2 51.9a3.3 3.3 0 1 1 0-6.6 3.3 3.3 0 0 1 0 6.6Z"/>
+          <svg class="brand-tools" viewBox="0 0 64 64" aria-hidden="true">
+            <g class="brand-gear" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="32" cy="32" r="11"/>
+              <path d="M32 8v7M32 49v7M8 32h7M49 32h7M15 15l5 5M44 44l5 5M49 15l-5 5M20 44l-5 5"/>
+            </g>
+            <g class="brand-wrench" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M47 12c-5-2-11-1-15 3-4 4-5 10-3 15L12 47l5 5 17-17c5 2 11 1 15-3 4-4 5-10 3-15l-8 8-7-2-2-7 8-8Z"/>
+            </g>
+            <g fill="#ff8a4c" class="brand-spark">
+              <circle cx="51" cy="48" r="4"/>
+              <circle cx="16" cy="13" r="2.5"/>
+            </g>
           </svg>
         </div>
         <div>
@@ -1286,17 +1393,17 @@
 
   <nav class="nav">
     <div class="tabs">
-      <button class="tab active" data-view="dashboard"><span class="tab-icon">?</span><span>DASHBOARD</span></button>
-      <button class="tab" data-view="map"><span class="tab-icon">?</span><span>MAPA INDUSTRIAL</span></button>
-      <button class="tab" data-view="assets"><span class="tab-icon">?</span><span>MAQUINAS</span></button>
-      <button class="tab" data-view="locations"><span class="tab-icon">?</span><span>LOCAIS</span></button>
-      <button class="tab" data-view="orders"><span class="tab-icon">?</span><span>ORDENS</span></button>
-      <button class="tab" data-view="calendar"><span class="tab-icon">?</span><span>CALENDARIO</span></button>
-      <button class="tab" data-view="activeOrders"><span class="tab-icon">?</span><span>PAINEL OS</span></button>
-      <button class="tab" data-view="reports"><span class="tab-icon">?</span><span>RELATORIOS</span></button>
-      <button class="tab" data-view="checklists"><span class="tab-icon">?</span><span>CHECKLISTS</span></button>
+      <button class="tab active" data-view="dashboard"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span><span>DASHBOARD</span></button>
+      <button class="tab" data-view="map"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M9 18l-6 3V6l6-3 6 3 6-3v15l-6 3-6-3z"/><path d="M9 3v15M15 6v15"/></svg></span><span>MAPA INDUSTRIAL</span></button>
+      <button class="tab" data-view="assets"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 17h16v4H4z"/><path d="M7 17V9h10v8"/><circle cx="9" cy="13" r="1"/><circle cx="15" cy="13" r="1"/><path d="M12 9V3M9 5h6"/></svg></span><span>MAQUINAS</span></button>
+      <button class="tab" data-view="locations"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M6 21V8l6-5 6 5v13"/><path d="M10 21v-6h4v6"/></svg></span><span>LOCAIS</span></button>
+      <button class="tab" data-view="orders"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M7 3h10l3 3v15H4V3h3z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg></span><span>ORDENS</span></button>
+      <button class="tab" data-view="calendar"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg></span><span>CALENDARIO</span></button>
+      <button class="tab" data-view="activeOrders"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/><circle cx="17" cy="16" r="2"/></svg></span><span>PAINEL O.S</span></button>
+      <button class="tab" data-view="reports"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h17"/><path d="M8 16v-5M13 16V8M18 16v-9"/></svg></span><span>RELATORIOS</span></button>
+      <button class="tab" data-view="checklists"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M7 12l3 3 7-7"/></svg></span><span>CHECKLISTS</span></button>
     </div>
-    <input class="searchbar" id="globalSearch" placeholder="Pesquisar máquina, local, tag ou OS">
+    <input class="searchbar" id="globalSearch" placeholder="Pesquisar máquina, local, tag ou O.S">
   </nav>
 
   <main class="workspace">
@@ -1314,7 +1421,7 @@
           <div class="line-chart" id="trendChart"></div>
         </div>
         <div class="panel">
-          <div class="panel-head"><div class="panel-title">Backlog por status</div><button class="btn" data-view-button="orders">Ver OS</button></div>
+          <div class="panel-head"><div class="panel-title">Backlog por status</div><button class="btn" data-view-button="orders">Ver O.S</button></div>
           <div class="chart" id="statusBars"></div>
         </div>
       </div>
@@ -1325,7 +1432,7 @@
           <div class="chart" id="criticalityBars"></div>
         </div>
         <div class="panel">
-          <div class="panel-head"><div class="panel-title">OS abertas e em execução</div><button class="btn" data-view-button="activeOrders">Abrir painel</button></div>
+          <div class="panel-head"><div class="panel-title">O.S abertas e em execução</div><button class="btn" data-view-button="activeOrders">Abrir painel</button></div>
           <div id="dashboardActiveOrders" class="active-os-list"></div>
         </div>
       </div>
@@ -1457,30 +1564,30 @@
           <div class="panel-title">Ordens de Serviço</div>
           <div class="toolbar">
             <button class="btn" type="button" data-view-button="calendar">Calendario</button>
-            <button class="btn primary" id="createOrderBtn">Nova OS</button>
+            <button class="btn primary" id="createOrderBtn">Nova O.S</button>
           </div>
         </div>
-        <div class="table-wrap"><table><thead><tr><th>OS</th><th>MAQUINA</th><th>TIPO</th><th>PRIORIDADE</th><th>STATUS</th><th>EXECUTANTE</th><th>ACOES</th></tr></thead><tbody id="orderRows"></tbody></table></div>
+        <div class="table-wrap"><table><thead><tr><th>O.S</th><th>MAQUINA</th><th>TIPO</th><th>PRIORIDADE</th><th>STATUS</th><th>EXECUTANTE</th><th>ACOES</th></tr></thead><tbody id="orderRows"></tbody></table></div>
       </div>
     </section>
 
     <section class="view" id="calendar">
       <div class="panel">
         <div class="panel-head">
-          <div class="panel-title">Calendario de OS</div>
+          <div class="panel-title">Calendario de O.S</div>
           <div class="toolbar">
             <input class="field" id="calendarDate" type="date">
             <button class="btn" id="calendarTodayBtn" type="button">Hoje</button>
           </div>
         </div>
-        <div class="table-wrap"><table><thead><tr><th>OS</th><th>Maquina</th><th>Tipo</th><th>Prioridade</th><th>Status</th><th>Executante</th><th>Abertura</th><th>Inicio</th><th>Fim</th></tr></thead><tbody id="calendarRows"></tbody></table></div>
+        <div class="table-wrap"><table><thead><tr><th>O.S</th><th>Maquina</th><th>Tipo</th><th>Prioridade</th><th>Status</th><th>Executante</th><th>Abertura</th><th>Inicio</th><th>Fim</th></tr></thead><tbody id="calendarRows"></tbody></table></div>
       </div>
     </section>
 
     <section class="view" id="activeOrders">
       <div class="panel">
         <div class="panel-head">
-          <div class="panel-title">Painel de OS abertas e em execução</div>
+          <div class="panel-title">Painel de O.S abertas e em execução</div>
         </div>
         <div id="activeOrdersPanel" class="active-os-list"></div>
       </div>
@@ -1500,11 +1607,11 @@
       <div class="grid two-col" style="margin-top:14px">
         <div class="panel">
           <div class="panel-head"><div class="panel-title">Maquinas por local</div></div>
-          <div class="table-wrap"><table><thead><tr><th>Local</th><th>Maquinas</th><th>OS ativas</th><th>Criticas</th></tr></thead><tbody id="reportLocationRows"></tbody></table></div>
+          <div class="table-wrap"><table><thead><tr><th>Local</th><th>Maquinas</th><th>O.S ativas</th><th>Criticas</th></tr></thead><tbody id="reportLocationRows"></tbody></table></div>
         </div>
         <div class="panel">
           <div class="panel-head"><div class="panel-title">Executantes</div></div>
-          <div class="table-wrap"><table><thead><tr><th>Executante</th><th>OS atendidas</th><th>Em execucao</th><th>Concluidas</th></tr></thead><tbody id="reportExecutorRows"></tbody></table></div>
+          <div class="table-wrap"><table><thead><tr><th>Executante</th><th>O.S atendidas</th><th>Em execucao</th><th>Concluidas</th></tr></thead><tbody id="reportExecutorRows"></tbody></table></div>
         </div>
       </div>
     </section>
@@ -1521,7 +1628,7 @@
             <div class="ai-answer" id="aiAnswer">PERGUNTE SOBRE OS DADOS CADASTRADOS NO GESTMAN365.</div>
           </div>
           <form class="ai-form" id="aiForm">
-            <label>Pergunta <textarea class="field" id="aiQuestion" placeholder="Ex: QUAIS OS ESTAO EM EXECUCAO?"></textarea></label>
+            <label>Pergunta <textarea class="field" id="aiQuestion" placeholder="Ex: QUAIS O.S ESTAO EM EXECUCAO?"></textarea></label>
             <button class="btn primary" type="submit">Perguntar IA</button>
             <div class="side-box"><strong>Base da IA</strong><span id="aiScopeText">Somente dados registrados no sistema.</span></div>
           </form>
@@ -1541,13 +1648,13 @@
   </main>
 
   <div class="context-menu" id="machineMenu">
-    <button class="menu-item" data-machine-action="checklists"><span>?</span><span>CHECKLISTS</span></button>
-    <button class="menu-item" data-machine-action="newOrder"><span>?</span><span>NOVA OS</span></button>
-    <button class="menu-item" data-machine-action="history"><span>?</span><span>HISTORICO DE OS</span></button>
-    <button class="menu-item" data-machine-action="openOrders"><span>?</span><span>LISTAR OS ABERTAS</span></button>
-    <button class="menu-item" data-machine-action="pending"><span>!</span><span>LISTAR PENDENCIAS ABERTAS</span></button>
-    <button class="menu-item" data-machine-action="compiled"><span>?</span><span>COMPILADO DE CHECKLIST</span></button>
-    <button class="menu-item" data-machine-action="specialist"><span>IA</span><span>ESPECIALISTA GESTMAN365</span></button>
+    <button class="menu-item" data-machine-action="checklists"><span><svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M7 12l3 3 7-7"/></svg></span><span>CHECKLISTS</span></button>
+    <button class="menu-item" data-machine-action="newOrder"><span><svg class="ui-icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><span>NOVA O.S</span></button>
+    <button class="menu-item" data-machine-action="history"><span><svg class="ui-icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v6h6"/><path d="M12 7v6l4 2"/></svg></span><span>HISTORICO DE O.S</span></button>
+    <button class="menu-item" data-machine-action="openOrders"><span><svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/><circle cx="17" cy="16" r="2"/></svg></span><span>LISTAR O.S ABERTAS</span></button>
+    <button class="menu-item" data-machine-action="pending"><span><svg class="ui-icon" viewBox="0 0 24 24"><path d="M12 3l10 18H2L12 3z"/><path d="M12 9v5M12 18h.01"/></svg></span><span>LISTAR PENDENCIAS ABERTAS</span></button>
+    <button class="menu-item" data-machine-action="compiled"><span><svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h17"/><path d="M8 16v-5M13 16V8M18 16v-9"/></svg></span><span>COMPILADO DE CHECKLIST</span></button>
+    <button class="menu-item" data-machine-action="specialist"><span><svg class="ui-icon" viewBox="0 0 24 24"><rect x="5" y="6" width="14" height="12" rx="3"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4"/><circle cx="10" cy="12" r="1"/><circle cx="14" cy="12" r="1"/></svg></span><span>ESPECIALISTA GESTMAN365</span></button>
   </div>
 
   <div class="modal-backdrop" id="genericModal">
@@ -1746,9 +1853,9 @@
       const metrics = calcMetrics();
       const counts = orderStatusCounts();
       target.innerHTML = [
-        ["OS ABERTAS", counts.abertas],
-        ["OS EM EXECUCAO", counts.execucao],
-        ["OS CONCLUIDAS", counts.concluidas],
+        ["O.S ABERTAS", counts.abertas],
+        ["O.S EM EXECUCAO", counts.execucao],
+        ["O.S CONCLUIDAS", counts.concluidas],
         ["MAQUINAS", state.assets.length],
         ["MTTR MEDIO", `${metrics.mttr.toFixed(1)}H`],
         ["MTBF MEDIO", `${metrics.mtbf.toFixed(0)}H`],
@@ -1812,7 +1919,7 @@
           <td>${formatDateTime(order.startedAt)}</td>
           <td>${formatDateTime(order.finishedAt)}</td>
         </tr>
-      `).join("") || `<tr><td colspan="9" class="empty">Nenhuma OS encontrada para este dia.</td></tr>`;
+      `).join("") || `<tr><td colspan="9" class="empty">Nenhuma O.S encontrada para este dia.</td></tr>`;
     }
 
     function executorStatsRows() {
@@ -1880,17 +1987,17 @@
       if (!question.trim()) return "DIGITE UMA PERGUNTA SOBRE OS DADOS DO SISTEMA.";
       if (q.includes("internet") || q.includes("fora")) return "ESTA IA ESTA RESTRITA AOS DADOS CADASTRADOS NO GESTMAN365. NAO CONSULTO INTERNET NEM FONTES EXTERNAS.";
       if (q.includes("mttr") || q.includes("mtbf") || q.includes("dispon")) return `MTTR MEDIO: ${metrics.mttr.toFixed(1)}H.\nMTBF MEDIO: ${metrics.mtbf.toFixed(0)}H.\nDISPONIBILIDADE: ${metrics.availability.toFixed(1)}%.`;
-      if (q.includes("execu")) return running.length ? running.map(order => `${order.number} | ${machineName(order.assetId)} | EXECUTANTE: ${order.executor || "SEM EXECUTANTE"}`).join("\n") : "NAO HA OS EM EXECUCAO.";
-      if (q.includes("abert")) return open.length ? open.map(order => `${order.number} | ${machineName(order.assetId)} | PRIORIDADE: ${order.priority} | EXECUTANTE: ${order.executor || "SEM EXECUTANTE"}`).join("\n") : "NAO HA OS ABERTA.";
+      if (q.includes("execu")) return running.length ? running.map(order => `${order.number} | ${machineName(order.assetId)} | EXECUTANTE: ${order.executor || "SEM EXECUTANTE"}`).join("\n") : "NAO HA O.S EM EXECUCAO.";
+      if (q.includes("abert")) return open.length ? open.map(order => `${order.number} | ${machineName(order.assetId)} | PRIORIDADE: ${order.priority} | EXECUTANTE: ${order.executor || "SEM EXECUTANTE"}`).join("\n") : "NAO HA O.S ABERTA.";
       if (q.includes("execut")) {
         const names = [...new Set(state.orders.map(order => order.executor || "SEM EXECUTANTE"))];
-        return names.length ? names.map(name => `${name}: ${state.orders.filter(order => (order.executor || "SEM EXECUTANTE") === name).length} OS`).join("\n") : "NENHUM EXECUTANTE REGISTRADO.";
+        return names.length ? names.map(name => `${name}: ${state.orders.filter(order => (order.executor || "SEM EXECUTANTE") === name).length} O.S`).join("\n") : "NENHUM EXECUTANTE REGISTRADO.";
       }
       if (q.includes("critic") || q.includes("alta")) return critical.length ? critical.map(asset => `${asset.code} - ${asset.name} | LOCAL: ${locationName(asset.locationId)}`).join("\n") : "NAO HA MAQUINAS DE ALTA CRITICIDADE CADASTRADAS.";
       if (q.includes("local") || q.includes("linha") || q.includes("fase")) return state.locations.length ? state.locations.map(location => `${location.name}: ${state.assets.filter(asset => asset.locationId === location.id).length} MAQUINAS`).join("\n") : "NENHUM LOCAL CADASTRADO.";
       if (q.includes("maquina") || q.includes("equip")) return state.assets.length ? state.assets.map(asset => `${asset.code} - ${asset.name} | ${locationName(asset.locationId)} | ${asset.status}`).join("\n") : "NENHUMA MAQUINA CADASTRADA.";
-      if (q.includes("resumo") || q.includes("geral")) return `RESUMO DO SISTEMA:\nOS TOTAL: ${counts.total}\nABERTAS: ${counts.abertas}\nEM EXECUCAO: ${counts.execucao}\nCONCLUIDAS: ${counts.concluidas}\nMAQUINAS: ${state.assets.length}\nLOCAIS: ${state.locations.length}`;
-      return `TENHO DADOS DO SISTEMA SOBRE ${state.assets.length} MAQUINAS, ${state.locations.length} LOCAIS E ${state.orders.length} ORDENS DE SERVICO. PERGUNTE POR OS ABERTAS, EM EXECUCAO, EXECUTANTE, MTTR, MTBF, DISPONIBILIDADE, LOCAL OU MAQUINA.`;
+      if (q.includes("resumo") || q.includes("geral")) return `RESUMO DO SISTEMA:\nO.S TOTAL: ${counts.total}\nABERTAS: ${counts.abertas}\nEM EXECUCAO: ${counts.execucao}\nCONCLUIDAS: ${counts.concluidas}\nMAQUINAS: ${state.assets.length}\nLOCAIS: ${state.locations.length}`;
+      return `TENHO DADOS DO SISTEMA SOBRE ${state.assets.length} MAQUINAS, ${state.locations.length} LOCAIS E ${state.orders.length} ORDENS DE SERVICO. PERGUNTE POR O.S ABERTAS, EM EXECUCAO, EXECUTANTE, MTTR, MTBF, DISPONIBILIDADE, LOCAL OU MAQUINA.`;
     }
 
     function statusKey(status = "") {
@@ -1917,14 +2024,14 @@
       const active = activeOrdersForAsset(assetId);
       if (!active.length) return null;
       if (active.some(order => isRunningOrder(order.status))) {
-        return { className: "running", count: active.length, label: "OS em execucao" };
+        return { className: "running", count: active.length, label: "O.S em execucao" };
       }
       const newest = active.reduce((latest, order) => Math.max(latest, Number(order.createdAt || 0)), 0);
       const ageMs = Date.now() - newest;
       if (ageMs <= 5 * 60 * 1000) {
-        return { className: "recent", count: active.length, label: "OS aberta recentemente" };
+        return { className: "recent", count: active.length, label: "O.S aberta recentemente" };
       }
-      return { className: "waiting", count: active.length, label: "OS aberta aguardando inicio" };
+      return { className: "waiting", count: active.length, label: "O.S aberta aguardando inicio" };
     }
 
     function autoResizeLocations() {
@@ -2169,7 +2276,7 @@
 
       $("orderRows").innerHTML = state.orders.map(order => `
         <tr><td>${order.number}</td><td>${machineName(order.assetId)}</td><td>${order.type}</td><td>${tag(order.priority)}</td><td>${tag(order.status)}</td><td>${order.executor || "Sem executante"}</td><td><div class="os-panel-actions">${!isRunningOrder(order.status) && !isClosedOrder(order.status) ? `<button class="btn primary" onclick="confirmStartOrder('${order.id}')"><span class="action-icon play">▶</span>Iniciar</button>` : ""}${isRunningOrder(order.status) ? `<button class="btn primary" onclick="finishOrder('${order.id}')"><span class="action-icon done">✓</span>Finalizar</button>` : ""}<button class="btn" onclick="editOrder('${order.id}')"><span class="action-icon edit">✎</span>Editar</button><button class="btn danger" onclick="deleteOrder('${order.id}')"><span class="action-icon delete">×</span>Excluir</button></div></td></tr>
-      `).join("") || `<tr><td colspan="7" class="empty">Nenhuma OS criada.</td></tr>`;
+      `).join("") || `<tr><td colspan="7" class="empty">Nenhuma O.S criada.</td></tr>`;
 
       $("checklistRows").innerHTML = state.checklists.map(item => `
         <tr><td>${item.code}</td><td>${machineName(item.assetId)}</td><td>${item.name}</td><td>${item.lastFill || "-"}</td><td class="actions"><button class="btn" onclick="editChecklist('${item.id}')">Editar</button><button class="btn danger" onclick="deleteChecklist('${item.id}')">Excluir</button></td></tr>
@@ -2186,7 +2293,7 @@
       target.innerHTML = `
         <div class="table-wrap">
           <table>
-            <thead><tr><th>OS</th><th>Maquina</th><th>Tipo</th><th>Prioridade</th><th>Status</th><th>Executante</th><th>Acoes</th></tr></thead>
+            <thead><tr><th>O.S</th><th>Maquina</th><th>Tipo</th><th>Prioridade</th><th>Status</th><th>Executante</th><th>Acoes</th></tr></thead>
             <tbody>
               ${visible.map(order => `
                 <tr>
@@ -2325,7 +2432,7 @@
       $("confirmStartOrderBtn").addEventListener("click", () => {
         const executor = $("startExecutor").value.trim();
         if (!executor) {
-          showToast("Informe o executante para iniciar a OS.");
+          showToast("Informe o executante para iniciar a O.S.");
           return;
         }
         closeModal();
@@ -2339,13 +2446,13 @@
         "Outros Custos": "Registro de custos adicionais ligados a servicos, terceiros ou despesas.",
         "Assinatura": "Area reservada para assinatura do tecnico ou responsavel.",
         "Detalhes": "Dados completos da ordem, datas, executantes e prioridade.",
-        "Historico": "Historico de alteracoes, movimentacoes e execucoes desta OS.",
+        "Historico": "Historico de alteracoes, movimentacoes e execucoes desta O.S.",
         "Geral": "Dados principais da ordem de servico.",
         "Equipe": "Equipe responsavel pela execucao.",
-        "Tarefas": "Tarefas planejadas e executadas durante a OS.",
+        "Tarefas": "Tarefas planejadas e executadas durante a O.S.",
         "Seguranca": "Informacoes de seguranca e bloqueios necessarios.",
         "Fotos": "Fotos vinculadas a ordem de servico.",
-        "Anexos": "Arquivos anexados na OS.",
+        "Anexos": "Arquivos anexados na O.S.",
         "Documentos": "Documentos tecnicos e procedimentos relacionados.",
         "Materiais": "Materiais aplicados ou previstos.",
         "Recursos": "Recursos, ferramentas e apoio necessario."
@@ -2353,12 +2460,87 @@
       return texts[tabName] || "Secao da ordem de servico.";
     }
 
+    function detailTabContent(tabName, order = {}) {
+      const epis = order.epis || {};
+      const checked = key => epis[key] ? "checked" : "";
+      if (tabName === "Assinatura") {
+        const signed = order.signatureText || "";
+        return `
+          <div class="tab-workspace">
+            <div class="toolbar"><button class="btn primary" type="button" id="addSignatureBtn">Adicionar assinatura</button><button class="btn danger" type="button" id="clearSignatureBtn">Limpar</button></div>
+            <div class="signature-panel">
+              <div class="signature-box ${signed ? "signed" : ""}" id="signatureBox">${signed || "Assine Aqui"}</div>
+              <div class="form">
+                <label>Nome / empresa / cargo <input class="field" id="signatureName" value="${order.signatureName || order.executor || ""}" placeholder="Nome / Empresa / Cargo"></label>
+                <label>Data <input class="field" value="${formatDateTime(order.signatureAt)}" readonly></label>
+              </div>
+            </div>
+          </div>`;
+      }
+      if (tabName === "Seguranca") {
+        return `
+          <div class="tab-workspace">
+            <strong>EPIS/EPCS RECOMENDADOS</strong>
+            <div class="epi-list">
+              <label class="epi-item"><input type="checkbox" data-epi="bota" ${checked("bota")}> BOTA DE SEGURANCA</label>
+              <label class="epi-item"><input type="checkbox" data-epi="luva" ${checked("luva")}> LUVA</label>
+              <label class="epi-item"><input type="checkbox" data-epi="oculos" ${checked("oculos")}> OCULOS DE PROTECAO</label>
+              <label class="epi-item"><input type="checkbox" data-epi="uniforme" ${checked("uniforme")}> UNIFORME</label>
+              <label class="epi-item"><input type="checkbox" data-epi="protetor" ${checked("protetor")}> PROTETOR AURICULAR</label>
+              <label class="epi-item"><input type="checkbox" data-epi="bloqueio" ${checked("bloqueio")}> BLOQUEIO E ETIQUETAGEM</label>
+            </div>
+          </div>`;
+      }
+      if (tabName === "CheckLists") return `<strong>CHECKLISTS</strong><textarea class="field" placeholder="Itens de checklist desta O.S">${order.checklist || ""}</textarea>`;
+      if (tabName === "Outros Custos") return `<strong>OUTROS CUSTOS</strong><div class="form"><label>Descricao <input class="field" placeholder="Servico, terceiro ou despesa"></label><label>Valor <input class="field" placeholder="R$ 0,00"></label></div>`;
+      if (tabName === "Equipe") return `<strong>EQUIPE</strong><div class="form"><label>Executante principal <input class="field" value="${order.executor || ""}"></label><label>Quantidade <input class="field" value="${order.executors || 1}"></label></div>`;
+      if (tabName === "Tarefas") return `<strong>TAREFAS</strong><div class="epi-list"><label class="epi-item"><input type="checkbox"> ANALISAR FALHA</label><label class="epi-item"><input type="checkbox"> EXECUTAR MANUTENCAO</label><label class="epi-item"><input type="checkbox"> TESTAR EQUIPAMENTO</label></div>`;
+      if (tabName === "Fotos" || tabName === "Anexos" || tabName === "Documentos") return `<strong>${tabName.toUpperCase()}</strong><input class="field" type="file"><span class="muted">Arquivo fica vinculado visualmente nesta O.S.</span>`;
+      if (tabName === "Materiais") return `<strong>MATERIAIS</strong><div class="form"><label>Material <input class="field" placeholder="Ex: rolamento, oleo, sensor"></label><label>Quantidade <input class="field" placeholder="1"></label></div>`;
+      if (tabName === "Recursos") return `<strong>RECURSOS</strong><textarea class="field" placeholder="Ferramentas, bancada, apoio externo ou recursos necessarios"></textarea>`;
+      return `<strong>${tabName.toUpperCase()}</strong><span>${detailTabText(tabName)}</span>`;
+    }
+
+    function updateOrderExtras(id, patch) {
+      state.orders = state.orders.map(order => order.id === id ? { ...order, ...patch } : order);
+      saveState();
+    }
+
+    function wireDetailTab(tabName, orderId) {
+      if (tabName === "Assinatura") {
+        const add = $("addSignatureBtn");
+        const clear = $("clearSignatureBtn");
+        const box = $("signatureBox");
+        if (add && box) add.addEventListener("click", () => {
+          const name = value("signatureName") || "Assinatura digital";
+          box.textContent = name;
+          box.classList.add("signed");
+          updateOrderExtras(orderId, { signatureText: name, signatureName: name, signatureAt: Date.now() });
+          showToast("Assinatura registrada na O.S.");
+        });
+        if (clear && box) clear.addEventListener("click", () => {
+          box.textContent = "Assine Aqui";
+          box.classList.remove("signed");
+          updateOrderExtras(orderId, { signatureText: "", signatureName: "", signatureAt: null });
+          showToast("Assinatura removida.");
+        });
+      }
+      if (tabName === "Seguranca") {
+        document.querySelectorAll("[data-epi]").forEach(input => {
+          input.addEventListener("change", () => {
+            const order = byId(state.orders, orderId) || {};
+            updateOrderExtras(orderId, { epis: { ...(order.epis || {}), [input.dataset.epi]: input.checked } });
+          });
+        });
+      }
+    }
+
     function showOrderDetails(id) {
       const order = byId(state.orders, id);
       if (!order) return;
       const asset = byId(state.assets, order.assetId) || {};
       const plan = order.plan || "43";
-      openModal("Visualizacao de OS", `
+      openModal("Visualizacao de O.S", `
         <form class="order-detail" id="orderDetailForm">
           <div class="detail-tabs">
             ${["CheckLists", "Outros Custos", "Assinatura", "Detalhes", "Historico", "Geral", "Equipe", "Tarefas", "Seguranca", "Fotos", "Anexos", "Documentos", "Materiais", "Recursos"].map((tab, index) => `<button class="detail-tab ${index === 5 ? "active" : ""}" type="button" data-detail-tab="${tab}">${tab}</button>`).join("")}
@@ -2371,22 +2553,22 @@
             </div>
             <div class="icon-actions">
               <button class="icon-btn" type="button" title="Gerar PDF" onclick="simpleOrderAction('${order.id}', 'PDF')">PDF</button>
-              ${!isRunningOrder(order.status) && !isClosedOrder(order.status) ? `<button class="icon-btn" type="button" title="Iniciar" onclick="confirmStartOrder('${order.id}')">▶</button>` : ""}
-              ${isRunningOrder(order.status) ? `<button class="icon-btn" type="button" title="Finalizar" onclick="finishOrder('${order.id}')">✓</button>` : ""}
-              <button class="icon-btn" type="button" title="Copiar" onclick="simpleOrderAction('${order.id}', 'copy')">⧉</button>
-              <button class="icon-btn" type="button" title="Compartilhar" onclick="simpleOrderAction('${order.id}', 'Compartilhamento')">↗</button>
-              <button class="icon-btn" type="button" title="Imprimir" onclick="simpleOrderAction('${order.id}', 'Impressao')">▣</button>
+              ${!isRunningOrder(order.status) && !isClosedOrder(order.status) ? `<button class="icon-btn" type="button" title="Iniciar" onclick="confirmStartOrder('${order.id}')">INI</button>` : ""}
+              ${isRunningOrder(order.status) ? `<button class="icon-btn" type="button" title="Finalizar" onclick="finishOrder('${order.id}')">OK</button>` : ""}
+              <button class="icon-btn" type="button" title="Copiar" onclick="simpleOrderAction('${order.id}', 'copy')">CP</button>
+              <button class="icon-btn" type="button" title="Compartilhar" onclick="simpleOrderAction('${order.id}', 'Compartilhamento')">SH</button>
+              <button class="icon-btn" type="button" title="Imprimir" onclick="simpleOrderAction('${order.id}', 'Impressao')">PR</button>
             </div>
           </div>
-          <div class="side-box" id="detailTabPanel"><strong>GERAL</strong><span>Dados principais da ordem de servico.</span></div>
+          <div class="side-box" id="detailTabPanel">${detailTabContent("Geral", order)}</div>
           <div class="detail-grid">
-            <label>Num. OS</label><input class="field" id="detailNumber" value="${order.number}" readonly>
+            <label>Num. O.S</label><input class="field" id="detailNumber" value="${order.number}" readonly>
             <label>Plano</label><input class="field" id="detailPlan" value="${plan}">
 
             <label>Local</label><input class="field detail-span" value="${locationName(asset.locationId)}" readonly>
             <label>LI</label><input class="field detail-span" value="${asset.name || "-"}" readonly>
             <label>TAG</label><input class="field detail-span" value="${tagName(asset.tagId)} ${subtagName(asset.subtagId)}" readonly>
-            <label>Solicitante</label><input class="field detail-span" id="detailRequester" value="${order.requester || ""}" placeholder="Quem abriu a OS">
+            <label>Solicitante</label><input class="field detail-span" id="detailRequester" value="${order.requester || ""}" placeholder="Quem abriu a O.S">
 
             <label>Tipo de Servico</label><select class="field detail-span" id="detailType"><option>Corretiva</option><option>Preventiva</option><option>Inspecao</option><option>Eletrica</option><option>Mecanica</option></select>
             <label>Tipo de Manutencao</label><select class="field detail-span" id="detailMaintenance"><option>Preventiva</option><option>Corretiva</option><option>Preditiva</option><option>Melhoria</option></select>
@@ -2402,7 +2584,7 @@
             <label>Comentario</label><textarea class="field detail-span" id="detailComment" placeholder="Comentario">${order.comment || order.description || ""}</textarea>
           </div>
           <div class="side-box">
-            <label class="switch-line"><input type="checkbox" id="detailPending" ${order.pendingExecution ? "checked" : ""}> OS pendente de execucao</label>
+            <label class="switch-line"><input type="checkbox" id="detailPending" ${order.pendingExecution ? "checked" : ""}> O.S pendente de execucao</label>
             <label class="switch-line"><input type="checkbox" id="detailStopped" ${order.machineStopped ? "checked" : ""}> Maquina parada durante o servico</label>
           </div>
           <div class="toolbar">
@@ -2420,7 +2602,9 @@
         button.addEventListener("click", () => {
           document.querySelectorAll("[data-detail-tab]").forEach(tab => tab.classList.toggle("active", tab === button));
           const tabName = button.dataset.detailTab;
-          $("detailTabPanel").innerHTML = `<strong>${tabName.toUpperCase()}</strong><span>${detailTabText(tabName)}</span>`;
+          const latest = byId(state.orders, id) || order;
+          $("detailTabPanel").innerHTML = detailTabContent(tabName, latest);
+          wireDetailTab(tabName, id);
         });
       });
       $("orderDetailForm").addEventListener("submit", event => {
@@ -2451,7 +2635,7 @@
         saveState();
         closeModal();
         render();
-        showToast("Detalhes da OS salvos.");
+        showToast("Detalhes da O.S salvos.");
       });
     }
 
@@ -2459,11 +2643,11 @@
       const order = byId(state.orders, id);
       if (!order) return;
       if (action === "copy") {
-        const clone = { ...order, id: uid("os"), number: `OS-${String(state.orders.length + 1).padStart(4, "0")}`, status: "Aberta", createdAt: Date.now(), startedAt: null, finishedAt: null };
+        const clone = { ...order, id: uid("os"), number: `O.S-${String(state.orders.length + 1).padStart(4, "0")}`, status: "Aberta", createdAt: Date.now(), startedAt: null, finishedAt: null };
         state.orders.unshift(clone);
         saveState();
         render();
-        showToast("OS copiada.");
+        showToast("O.S copiada.");
         return;
       }
       showToast(`${action} registrado para ${order.number}.`);
@@ -2546,7 +2730,7 @@
       const editing = byId(state.orders, editId);
       const selectedAssetId = editing?.assetId || assetId;
       const machines = state.assets.map(asset => `<option value="${asset.id}" ${asset.id === selectedAssetId ? "selected" : ""}>${asset.code} - ${asset.name}</option>`).join("");
-      openModal(editing ? "Preencher OS" : "Criar OS", `
+      openModal(editing ? "Preencher O.S" : "Criar O.S", `
         <form class="form" id="orderForm">
           <label>Maquina <select class="field" id="orderAsset">${machines || `<option value="">Cadastre uma maquina</option>`}</select></label>
           <label>Solicitante <input class="field" id="orderRequester" required placeholder="Quem abriu a ordem"></label>
@@ -2555,7 +2739,7 @@
           <label>Prioridade <select class="field" id="orderPriority"><option>Baixa</option><option>Media</option><option>Alta</option></select></label>
           <label class="full">Descricao <textarea class="field" id="orderDescription" required></textarea></label>
           ${editing ? `<div class="full side-box"><strong>Registro automatico</strong><span>Abertura: ${formatDateTime(editing.createdAt)}</span><span>Inicio: ${formatDateTime(editing.startedAt)}</span><span>Finalizacao: ${formatDateTime(editing.finishedAt)}</span><span>Status atual: ${editing.status || "Aberta"}</span></div>` : `<div class="full side-box"><strong>Registro automatico</strong><span>Status inicial: Aberta</span><span>Data e hora de abertura serao gravadas ao salvar.</span></div>`}
-          <div class="full toolbar"><button class="btn primary" type="submit">Salvar OS</button></div>
+          <div class="full toolbar"><button class="btn primary" type="submit">Salvar O.S</button></div>
         </form>
       `);
       $("genericModalBox").classList.remove("large");
@@ -2570,11 +2754,11 @@
       $("orderForm").addEventListener("submit", event => {
         event.preventDefault();
         if (!value("orderRequester") || !value("orderExecutor") || !value("orderDescription")) {
-          showToast("Preencha solicitante, executante e descricao da OS.");
+          showToast("Preencha solicitante, executante e descricao da O.S.");
           return;
         }
         const now = Date.now();
-        const base = editing || { id: uid("os"), number: `OS-${String(state.orders.length + 1).padStart(4, "0")}`, createdAt: now, status: "Aberta", startedAt: null, finishedAt: null };
+        const base = editing || { id: uid("os"), number: `O.S-${String(state.orders.length + 1).padStart(4, "0")}`, createdAt: now, status: "Aberta", startedAt: null, finishedAt: null };
         const payload = {
           ...base,
           assetId: $("orderAsset").value,
@@ -2588,7 +2772,7 @@
           description: $("orderDescription").value
         };
         state.orders = state.orders.filter(order => order.id !== payload.id).concat(payload);
-        saveState(); closeModal(); render(); showToast(editing ? "OS atualizada." : "OS criada como aberta.");
+        saveState(); closeModal(); render(); showToast(editing ? "O.S atualizada." : "O.S criada como aberta.");
       });
     }
 
@@ -2616,8 +2800,8 @@
       if (!asset) return;
       if (action === "newOrder") return openOrderModal(asset.id);
       if (action === "checklists") return openChecklistModal(asset.id);
-      if (action === "history") return openModal("Lista de OS", renderOrderList(asset.id), true);
-      if (action === "openOrders") return openModal("OS's Abertas", renderOrderList(asset.id, "active"));
+      if (action === "history") return openModal("Lista de O.S", renderOrderList(asset.id), true);
+      if (action === "openOrders") return openModal("O.S Abertas", renderOrderList(asset.id, "active"));
       if (action === "pending") return openModal("Pendências Abertas", `<div class="empty">${asset.criticality === "Alta" ? "Existe uma pendência sugerida para análise de causa raiz." : "Nenhuma pendência aberta."}</div>`);
       if (action === "compiled") return openModal("Compilado de Checklist", renderCompiled(asset), true);
       if (action === "specialist") return openModal("Especialista GestMan365", `<div class="side-box"><strong>${asset.code} - ${asset.name}</strong><span>Analise histórico de OS, criticidade, checklists pendentes e padrão de repetição das falhas.</span><span>Recomendação: criar checklist preventivo e monitorar MTTR semanal.</span></div>`);
@@ -2641,9 +2825,9 @@
               <button class="btn" onclick="editOrder('${order.id}')"><span class="action-icon edit">✎</span>Editar / Preencher</button>
               ${isRunningOrder(order.status) ? `<button class="btn" onclick="finishOrder('${order.id}')"><span class="action-icon done">✓</span>Encerrar</button>` : ""}
               <button class="btn" onclick="simpleOrderAction('${order.id}', 'Impressao')"><span class="action-icon edit">▣</span>Imprimir</button>
-              <button class="btn" onclick="simpleOrderAction('${order.id}', 'Compartilhamento')"><span class="action-icon edit">↗</span>Compartilhar OS</button>
-              <button class="btn" onclick="simpleOrderAction('${order.id}', 'copy')"><span class="action-icon edit">⧉</span>Copiar OS</button>
-              ${!isRunningOrder(order.status) && !isClosedOrder(order.status) ? `<button class="btn primary" onclick="confirmStartOrder('${order.id}')"><span class="action-icon play">▶</span>Iniciar OS</button>` : ""}
+              <button class="btn" onclick="simpleOrderAction('${order.id}', 'Compartilhamento')"><span class="action-icon edit">↗</span>Compartilhar O.S</button>
+              <button class="btn" onclick="simpleOrderAction('${order.id}', 'copy')"><span class="action-icon edit">⧉</span>Copiar O.S</button>
+              ${!isRunningOrder(order.status) && !isClosedOrder(order.status) ? `<button class="btn primary" onclick="confirmStartOrder('${order.id}')"><span class="action-icon play">▶</span>Iniciar O.S</button>` : ""}
               <button class="btn danger" onclick="simpleOrderAction('${order.id}', 'PDF')"><span class="action-icon delete">PDF</span>Gerar PDF</button>
             </div>
           </div>
@@ -2728,17 +2912,17 @@
     }
 
     function deleteOrder(id, ask = true) {
-      if (ask && !confirm("Excluir esta OS?")) return;
+      if (ask && !confirm("Excluir esta O.S?")) return;
       state.orders = state.orders.filter(item => item.id !== id);
       saveState(); render();
-      if (ask) showToast("OS excluída.");
+      if (ask) showToast("O.S excluída.");
     }
 
     function startOrder(id, executorName = "") {
       const now = Date.now();
       const current = byId(state.orders, id);
       if (!current || isClosedOrder(current.status)) {
-        showToast("OS concluida nao pode ser iniciada novamente.");
+        showToast("O.S concluida nao pode ser iniciada novamente.");
         return;
       }
       state.orders = state.orders.map(order => order.id === id ? {
@@ -2749,14 +2933,14 @@
       } : order);
       saveState();
       render();
-      showToast("OS iniciada. Alerta verde ativado no mapa.");
+      showToast("O.S iniciada. Alerta verde ativado no mapa.");
     }
 
     function finishOrder(id) {
       const now = Date.now();
       const current = byId(state.orders, id);
       if (!current || isClosedOrder(current.status)) {
-        showToast("OS ja esta concluida.");
+        showToast("O.S ja esta concluida.");
         return;
       }
       openFinishOrderModal(id);
@@ -2765,11 +2949,11 @@
     function openFinishOrderModal(id) {
       const order = byId(state.orders, id);
       if (!order || isClosedOrder(order.status)) {
-        showToast("OS ja esta concluida.");
+        showToast("O.S ja esta concluida.");
         return;
       }
       const asset = byId(state.assets, order.assetId) || {};
-      openModal("Encerramento de OS", `
+      openModal("Encerramento de O.S", `
         <form class="order-detail" id="finishOrderForm">
           <div class="detail-tabs">
             ${["CheckLists", "Outros Custos", "Assinatura", "Detalhes", "Historico", "Geral", "Equipe", "Tarefas", "Seguranca", "Fotos", "Anexos", "Documentos", "Materiais", "Recursos"].map((tab, index) => `<button class="detail-tab ${index === 5 ? "active" : ""}" type="button" data-detail-tab="${tab}">${tab}</button>`).join("")}
@@ -2784,9 +2968,9 @@
                 <button class="icon-btn" type="button" title="Imprimir" onclick="simpleOrderAction('${order.id}', 'Impressao')">PR</button>
               </div>
             </div>
-            <div class="side-box" id="detailTabPanel"><strong>GERAL</strong><span>Preencha os dados finais antes de concluir a ordem de servico.</span></div>
+            <div class="side-box" id="detailTabPanel">${detailTabContent("Geral", order)}</div>
             <div class="detail-grid">
-              <label>Num. OS</label><input class="field" value="${order.number}" readonly>
+              <label>Num. O.S</label><input class="field" value="${order.number}" readonly>
               <label>Plano</label><input class="field" id="finishPlan" value="${order.plan || "42"}">
               <label>Local</label><input class="field detail-span" value="${locationName(asset.locationId)}" readonly>
               <label>LI</label><input class="field detail-span" value="${asset.name || "-"}" readonly>
@@ -2804,7 +2988,7 @@
               <label>Comentario</label><textarea class="field detail-span" id="finishComment" placeholder="Comentario">${order.comment || order.description || ""}</textarea>
             </div>
             <div class="side-box">
-              <label class="switch-line"><input type="checkbox" id="finishPending" ${order.pendingExecution ? "checked" : ""}> OS pendente de execucao</label>
+              <label class="switch-line"><input type="checkbox" id="finishPending" ${order.pendingExecution ? "checked" : ""}> O.S pendente de execucao</label>
               <label class="switch-line"><input type="checkbox" id="finishStopped" ${order.machineStopped ? "checked" : ""}> Maquina parada durante o servico</label>
             </div>
             <div class="toolbar">
@@ -2820,7 +3004,9 @@
       document.querySelectorAll("[data-detail-tab]").forEach(button => {
         button.addEventListener("click", () => {
           document.querySelectorAll("[data-detail-tab]").forEach(tab => tab.classList.toggle("active", tab === button));
-          $("detailTabPanel").innerHTML = `<strong>${button.dataset.detailTab.toUpperCase()}</strong><span>${detailTabText(button.dataset.detailTab)}</span>`;
+          const latest = byId(state.orders, id) || order;
+          $("detailTabPanel").innerHTML = detailTabContent(button.dataset.detailTab, latest);
+          wireDetailTab(button.dataset.detailTab, id);
         });
       });
       $("finishOrderForm").addEventListener("submit", event => {
@@ -2859,7 +3045,7 @@
       saveState();
       closeModal();
       render();
-      showToast("OS finalizada. Alerta removido do mapa e ordem registrada.");
+      showToast("O.S finalizada. Alerta removido do mapa e ordem registrada.");
     }
 
     function editChecklist(id) {
