@@ -61,21 +61,21 @@
 
     .brand {
       display: grid;
-      grid-template-columns: 44px auto;
-      gap: 10px;
+      grid-template-columns: 50px auto;
+      gap: 12px;
       align-items: center;
     }
 
     .brand-mark {
-      width: 44px;
-      height: 44px;
-      border-radius: 13px;
-      background: var(--white);
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      background: linear-gradient(145deg, #ffffff, #dbe7ff);
       color: var(--blue-700);
       display: grid;
       place-items: center;
       position: relative;
-      box-shadow: 0 0 0 3px rgba(255,255,255,.12), 0 8px 18px rgba(0,0,0,.28);
+      box-shadow: 0 0 0 3px rgba(255,255,255,.12), 0 10px 24px rgba(0,0,0,.32);
       animation: floatLogo 4.5s ease-in-out infinite;
     }
 
@@ -92,16 +92,19 @@
     }
 
     .brand-mark svg {
-      width: 29px;
-      height: 29px;
+      width: 32px;
+      height: 32px;
       animation: wrenchTurn 3.7s ease-in-out infinite;
     }
 
     .brand-name {
-      font-size: 29px;
+      font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+      font-size: 31px;
       font-weight: 900;
-      letter-spacing: -1px;
-      line-height: .95;
+      letter-spacing: 0;
+      line-height: .9;
+      color: #fff;
+      text-shadow: 0 6px 18px rgba(0,0,0,.34);
     }
 
     .brand-name span { color: var(--orange); }
@@ -109,8 +112,9 @@
     .brand-sub {
       color: rgba(255,255,255,.78);
       font-size: 11px;
-      letter-spacing: .7px;
+      letter-spacing: 0;
       margin-top: 3px;
+      font-weight: 800;
     }
 
     .top-actions {
@@ -194,8 +198,23 @@
       white-space: nowrap;
       text-align: left;
       font-weight: 800;
-      letter-spacing: .2px;
+      letter-spacing: 0;
       transition: transform .18s ease, background .18s ease, border-color .18s ease;
+      display: grid;
+      grid-template-columns: 26px minmax(0, 1fr);
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tab-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,.1);
+      font-size: 13px;
+      font-weight: 900;
     }
 
     .tab:hover {
@@ -313,7 +332,29 @@
       color: #fff;
       padding: 0 11px;
       transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
+
+    .action-icon {
+      min-width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      display: inline-grid;
+      place-items: center;
+      padding: 0 4px;
+      background: rgba(255,255,255,.14);
+      font-size: 11px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .action-icon.play { background: rgba(74,222,128,.22); color: var(--ok); }
+    .action-icon.done { background: rgba(255,138,76,.22); color: var(--orange); }
+    .action-icon.edit { background: rgba(255,255,255,.16); color: #fff; }
+    .action-icon.delete { background: rgba(255,92,108,.22); color: var(--danger); }
 
     .btn:hover {
       transform: translateY(-2px);
@@ -893,6 +934,18 @@
       text-align: left;
     }
 
+    .menu-item span:first-child {
+      width: 24px;
+      height: 24px;
+      border-radius: 5px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,.12);
+      margin-left: 5px;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
     .menu-item:hover {
       background: rgba(255,138,76,.18);
     }
@@ -962,35 +1015,6 @@
     }
 
     .toast.open { display: block; }
-
-    .machine-tooltip {
-      position: fixed;
-      display: none;
-      z-index: 160;
-      min-width: 220px;
-      max-width: 280px;
-      padding: 10px 12px;
-      border: 1px solid rgba(255,255,255,.22);
-      border-radius: 8px;
-      background: rgba(10,18,35,.96);
-      box-shadow: 0 18px 45px rgba(0,0,0,.38);
-      color: #fff;
-      pointer-events: none;
-      font-size: 12px;
-      line-height: 1.45;
-    }
-
-    .machine-tooltip strong {
-      display: block;
-      margin-bottom: 6px;
-      color: #fff;
-      font-size: 13px;
-    }
-
-    .machine-tooltip span {
-      display: block;
-      color: #d9e4ff;
-    }
 
     .legacy-os-modal {
       width: 398px;
@@ -1262,17 +1286,15 @@
 
   <nav class="nav">
     <div class="tabs">
-      <button class="tab active" data-view="dashboard">Dashboard</button>
-      <button class="tab" data-view="map">Mapa industrial</button>
-      <button class="tab" data-view="assets">Máquinas</button>
-      <button class="tab" data-view="locations">Locais</button>
-      <button class="tab" data-view="tags">Tags</button>
-      <button class="tab" data-view="orders">Ordens</button>
-      <button class="tab" data-view="calendar">Calendario</button>
-      <button class="tab" data-view="activeOrders">Painel OS</button>
-      <button class="tab" data-view="reports">Relatorios</button>
-      <button class="tab" data-view="assistant">IA GestMan365</button>
-      <button class="tab" data-view="checklists">Checklists</button>
+      <button class="tab active" data-view="dashboard"><span class="tab-icon">?</span><span>DASHBOARD</span></button>
+      <button class="tab" data-view="map"><span class="tab-icon">?</span><span>MAPA INDUSTRIAL</span></button>
+      <button class="tab" data-view="assets"><span class="tab-icon">?</span><span>MAQUINAS</span></button>
+      <button class="tab" data-view="locations"><span class="tab-icon">?</span><span>LOCAIS</span></button>
+      <button class="tab" data-view="orders"><span class="tab-icon">?</span><span>ORDENS</span></button>
+      <button class="tab" data-view="calendar"><span class="tab-icon">?</span><span>CALENDARIO</span></button>
+      <button class="tab" data-view="activeOrders"><span class="tab-icon">?</span><span>PAINEL OS</span></button>
+      <button class="tab" data-view="reports"><span class="tab-icon">?</span><span>RELATORIOS</span></button>
+      <button class="tab" data-view="checklists"><span class="tab-icon">?</span><span>CHECKLISTS</span></button>
     </div>
     <input class="searchbar" id="globalSearch" placeholder="Pesquisar máquina, local, tag ou OS">
   </nav>
@@ -1314,7 +1336,7 @@
         </div>
         <div class="panel">
           <div class="panel-head"><div class="panel-title">EXECUTANTES POR ORDENS ATENDIDAS</div></div>
-          <div class="table-wrap"><table><thead><tr><th>EXECUTANTE</th><th>ORDENS</th><th>EM EXECUCAO</th><th>CONCLUIDAS</th></tr></thead><tbody id="dashboardExecutorRows"></tbody></table></div>
+          <div class="table-wrap"><table><thead><tr><th>EXECUTANTE</th><th>ORDENS</th><th>TEMPO HOJE</th><th>TOTAL MES</th></tr></thead><tbody id="dashboardExecutorRows"></tbody></table></div>
         </div>
       </div>
     </section>
@@ -1519,13 +1541,13 @@
   </main>
 
   <div class="context-menu" id="machineMenu">
-    <button class="menu-item" data-machine-action="checklists"><span>☑</span><span>CheckLists</span></button>
-    <button class="menu-item" data-machine-action="newOrder"><span>⚙</span><span>Nova OS</span></button>
-    <button class="menu-item" data-machine-action="history"><span>▦</span><span>Histórico de OS's</span></button>
-    <button class="menu-item" data-machine-action="openOrders"><span>▦</span><span>Listar OS's Abertas</span></button>
-    <button class="menu-item" data-machine-action="pending"><span>▦</span><span>Listar Pendências Abertas</span></button>
-    <button class="menu-item" data-machine-action="compiled"><span>▦</span><span>Compilado de Checklist</span></button>
-    <button class="menu-item" data-machine-action="specialist"><span>BOT</span><span>Especialista GestMan365</span></button>
+    <button class="menu-item" data-machine-action="checklists"><span>?</span><span>CHECKLISTS</span></button>
+    <button class="menu-item" data-machine-action="newOrder"><span>?</span><span>NOVA OS</span></button>
+    <button class="menu-item" data-machine-action="history"><span>?</span><span>HISTORICO DE OS</span></button>
+    <button class="menu-item" data-machine-action="openOrders"><span>?</span><span>LISTAR OS ABERTAS</span></button>
+    <button class="menu-item" data-machine-action="pending"><span>!</span><span>LISTAR PENDENCIAS ABERTAS</span></button>
+    <button class="menu-item" data-machine-action="compiled"><span>?</span><span>COMPILADO DE CHECKLIST</span></button>
+    <button class="menu-item" data-machine-action="specialist"><span>IA</span><span>ESPECIALISTA GESTMAN365</span></button>
   </div>
 
   <div class="modal-backdrop" id="genericModal">
@@ -1795,12 +1817,28 @@
 
     function executorStatsRows() {
       const executors = {};
+      const now = new Date();
+      const todayKey = now.toLocaleDateString("pt-BR");
+      const monthKey = `${now.getFullYear()}-${now.getMonth()}`;
+      const maintenanceHours = order => {
+        if (isRunningOrder(order.status) && order.startedAt) return Math.max(0, (Date.now() - Number(order.startedAt)) / 36e5);
+        if (Number(order.mttr || 0)) return Number(order.mttr || 0);
+        if (order.startedAt && order.finishedAt) return Math.max(0, (Number(order.finishedAt) - Number(order.startedAt)) / 36e5);
+        return 0;
+      };
       state.orders.forEach(order => {
         const name = (order.executor || "SEM EXECUTANTE").trim() || "SEM EXECUTANTE";
-        executors[name] ||= { total: 0, running: 0, closed: 0 };
+        executors[name] ||= { total: 0, running: 0, closed: 0, todayHours: 0, monthHours: 0 };
         executors[name].total += 1;
         if (isRunningOrder(order.status)) executors[name].running += 1;
         if (isClosedOrder(order.status)) executors[name].closed += 1;
+        const reference = Number(order.finishedAt || order.startedAt || order.createdAt || 0);
+        const date = reference ? new Date(reference) : null;
+        const hours = maintenanceHours(order);
+        if (date && hours) {
+          if (date.toLocaleDateString("pt-BR") === todayKey) executors[name].todayHours += hours;
+          if (`${date.getFullYear()}-${date.getMonth()}` === monthKey) executors[name].monthHours += hours;
+        }
       });
       return Object.entries(executors)
         .sort((a, b) => b[1].total - a[1].total)
@@ -1825,7 +1863,7 @@
       const target = $("dashboardExecutorRows");
       if (!target) return;
       const rows = executorStatsRows().slice(0, 10);
-      target.innerHTML = rows.map(item => `<tr><td>${escapeHtml(item.name)}</td><td>${item.total}</td><td>${item.running}</td><td>${item.closed}</td></tr>`).join("") || `<tr><td colspan="4" class="empty">Nenhum executante registrado.</td></tr>`;
+      target.innerHTML = rows.map(item => `<tr><td>${escapeHtml(item.name)}</td><td>${item.total}</td><td>${item.todayHours.toFixed(1)}H</td><td>${item.monthHours.toFixed(1)}H</td></tr>`).join("") || `<tr><td colspan="4" class="empty">Nenhum executante registrado.</td></tr>`;
     }
 
     function renderAssistantSummary() {
@@ -1983,7 +2021,7 @@
         .map(asset => {
           const alert = orderAlertForAsset(asset.id);
           return `
-          <button class="machine-node" data-machine="${asset.id}" style="left:${asset.x}%;top:${asset.y}%;" title="${alert ? alert.label : asset.name}">
+          <button class="machine-node" data-machine="${asset.id}" style="left:${asset.x}%;top:${asset.y}%;">
             <span class="machine-icon">${visualIcon(asset.icon)}${alert ? `<span class="machine-alert ${alert.className}">${alert.count}</span>` : ""}</span>
             <span class="machine-label">${asset.code}</span>
           </button>
@@ -1997,14 +2035,9 @@
             button.dataset.dragged = "0";
             return;
           }
+          showMachineDetails(button.dataset.machine);
           openMachineMenu(event, button.dataset.machine);
         });
-        button.addEventListener("mouseenter", event => {
-          showMachineDetails(button.dataset.machine);
-          showMachineTooltip(button.dataset.machine, event);
-        });
-        button.addEventListener("mousemove", event => moveMachineTooltip(event));
-        button.addEventListener("mouseleave", hideMachineTooltip);
       });
     }
 
@@ -2095,7 +2128,6 @@
     function showMachineDetails(id) {
       const asset = byId(state.assets, id);
       if (!asset) return;
-      const lastMove = state.movements.find(move => move.assetId === id);
       $("mapDetails").innerHTML = `
         <strong>${asset.code} - ${asset.name}</strong>
         <span>${tag(asset.criticality)} ${tag(asset.status)}</span>
@@ -2103,54 +2135,7 @@
         <span>Tag: ${tagName(asset.tagId)} / ${subtagName(asset.subtagId)}</span>
         <span>Marca: ${asset.brand || "-"}</span>
         <span>Modelo: ${asset.model || "-"}</span>
-        ${lastMove ? `<span>Último deslocamento: ${lastMove.fromLocationName || "Local anterior"} → ${lastMove.toLocationName || "Local atual"}</span><span>Motivo: ${lastMove.reason}</span>` : ""}
       `;
-    }
-
-    function tooltipEl() {
-      let el = $("machineTooltip");
-      if (!el) {
-        el = document.createElement("div");
-        el.id = "machineTooltip";
-        el.className = "machine-tooltip";
-        document.body.appendChild(el);
-      }
-      return el;
-    }
-
-    function showMachineTooltip(id, event) {
-      const asset = byId(state.assets, id);
-      if (!asset) return;
-      const active = activeOrdersForAsset(id);
-      const el = tooltipEl();
-      el.innerHTML = `
-        <strong>${asset.code} - ${asset.name}</strong>
-        <span>Local: ${locationName(asset.locationId)}</span>
-        <span>Tag: ${tagName(asset.tagId)} / ${subtagName(asset.subtagId)}</span>
-        <span>Marca: ${asset.brand || "-"}</span>
-        <span>Modelo: ${asset.model || "-"}</span>
-        <span>Status: ${asset.status || "-"}</span>
-        <span>OS abertas: ${active.length}</span>
-      `;
-      el.style.display = "block";
-      moveMachineTooltip(event);
-    }
-
-    function moveMachineTooltip(event) {
-      const el = $("machineTooltip");
-      if (!el || el.style.display !== "block") return;
-      const offset = 14;
-      const width = el.offsetWidth || 240;
-      const height = el.offsetHeight || 130;
-      const x = Math.min(window.innerWidth - width - 12, event.clientX + offset);
-      const y = Math.min(window.innerHeight - height - 12, event.clientY + offset);
-      el.style.left = `${Math.max(12, x)}px`;
-      el.style.top = `${Math.max(12, y)}px`;
-    }
-
-    function hideMachineTooltip() {
-      const el = $("machineTooltip");
-      if (el) el.style.display = "none";
     }
 
     function fillSelects() {
@@ -2183,7 +2168,7 @@
       $("tagRows").innerHTML = tagRows + subRows || `<tr><td colspan="5" class="empty">Nenhuma tag criada.</td></tr>`;
 
       $("orderRows").innerHTML = state.orders.map(order => `
-        <tr><td>${order.number}</td><td>${machineName(order.assetId)}</td><td>${order.type}</td><td>${tag(order.priority)}</td><td>${tag(order.status)}</td><td>${order.executor || "Sem executante"}</td><td><div class="os-panel-actions">${!isRunningOrder(order.status) && !isClosedOrder(order.status) ? `<button class="btn primary" onclick="confirmStartOrder('${order.id}')">Iniciar</button>` : ""}${isRunningOrder(order.status) ? `<button class="btn primary" onclick="finishOrder('${order.id}')">Finalizar</button>` : ""}<button class="btn" onclick="editOrder('${order.id}')">Editar</button><button class="btn danger" onclick="deleteOrder('${order.id}')">Excluir</button></div></td></tr>
+        <tr><td>${order.number}</td><td>${machineName(order.assetId)}</td><td>${order.type}</td><td>${tag(order.priority)}</td><td>${tag(order.status)}</td><td>${order.executor || "Sem executante"}</td><td><div class="os-panel-actions">${!isRunningOrder(order.status) && !isClosedOrder(order.status) ? `<button class="btn primary" onclick="confirmStartOrder('${order.id}')"><span class="action-icon play">▶</span>Iniciar</button>` : ""}${isRunningOrder(order.status) ? `<button class="btn primary" onclick="finishOrder('${order.id}')"><span class="action-icon done">✓</span>Finalizar</button>` : ""}<button class="btn" onclick="editOrder('${order.id}')"><span class="action-icon edit">✎</span>Editar</button><button class="btn danger" onclick="deleteOrder('${order.id}')"><span class="action-icon delete">×</span>Excluir</button></div></td></tr>
       `).join("") || `<tr><td colspan="7" class="empty">Nenhuma OS criada.</td></tr>`;
 
       $("checklistRows").innerHTML = state.checklists.map(item => `
@@ -2212,7 +2197,7 @@
                   <td>${tag(order.status)}</td>
                   <td>${order.executor || "Sem executante"}</td>
                   <td><div class="os-panel-actions">
-                    <button class="btn" onclick="showOrderDetails('${order.id}')">Detalhes</button>
+                    <button class="btn" onclick="showOrderDetails('${order.id}')"><span class="action-icon edit">□</span>Detalhes</button>
                   </div></td>
                 </tr>
               `).join("") || `<tr><td colspan="7" class="empty">Nao tem ordens em aberto ou em execucao.</td></tr>`}
@@ -2564,11 +2549,11 @@
       openModal(editing ? "Preencher OS" : "Criar OS", `
         <form class="form" id="orderForm">
           <label>Maquina <select class="field" id="orderAsset">${machines || `<option value="">Cadastre uma maquina</option>`}</select></label>
-          <label>Solicitante <input class="field" id="orderRequester" placeholder="Quem abriu a ordem"></label>
-          <label>Executante <input class="field" id="orderExecutor" placeholder="Quem vai atender a ordem"></label>
+          <label>Solicitante <input class="field" id="orderRequester" required placeholder="Quem abriu a ordem"></label>
+          <label>Executante <input class="field" id="orderExecutor" required placeholder="Quem vai atender a ordem"></label>
           <label>Tipo <select class="field" id="orderType"><option>Corretiva</option><option>Preventiva</option><option>Inspecao</option></select></label>
           <label>Prioridade <select class="field" id="orderPriority"><option>Baixa</option><option>Media</option><option>Alta</option></select></label>
-          <label class="full">Descricao <textarea class="field" id="orderDescription"></textarea></label>
+          <label class="full">Descricao <textarea class="field" id="orderDescription" required></textarea></label>
           ${editing ? `<div class="full side-box"><strong>Registro automatico</strong><span>Abertura: ${formatDateTime(editing.createdAt)}</span><span>Inicio: ${formatDateTime(editing.startedAt)}</span><span>Finalizacao: ${formatDateTime(editing.finishedAt)}</span><span>Status atual: ${editing.status || "Aberta"}</span></div>` : `<div class="full side-box"><strong>Registro automatico</strong><span>Status inicial: Aberta</span><span>Data e hora de abertura serao gravadas ao salvar.</span></div>`}
           <div class="full toolbar"><button class="btn primary" type="submit">Salvar OS</button></div>
         </form>
@@ -2584,6 +2569,10 @@
       }
       $("orderForm").addEventListener("submit", event => {
         event.preventDefault();
+        if (!value("orderRequester") || !value("orderExecutor") || !value("orderDescription")) {
+          showToast("Preencha solicitante, executante e descricao da OS.");
+          return;
+        }
         const now = Date.now();
         const base = editing || { id: uid("os"), number: `OS-${String(state.orders.length + 1).padStart(4, "0")}`, createdAt: now, status: "Aberta", startedAt: null, finishedAt: null };
         const payload = {
@@ -2648,14 +2637,14 @@
             <div class="os-action-head"><span>${order.number} - ${machineName(order.assetId)}</span><span>${tag(order.status)}</span></div>
             <div class="side-box" style="margin:10px"><span>Aberta: ${formatDateTime(order.createdAt)}</span><span>Inicio: ${formatDateTime(order.startedAt)}</span><span>Finalizacao: ${formatDateTime(order.finishedAt)}</span></div>
             <div class="os-actions">
-              <button class="btn" onclick="showOrderDetails('${order.id}')">Detalhes</button>
-              <button class="btn" onclick="editOrder('${order.id}')">Editar / Preencher</button>
-              ${isRunningOrder(order.status) ? `<button class="btn" onclick="finishOrder('${order.id}')">Encerrar</button>` : ""}
-              <button class="btn" onclick="simpleOrderAction('${order.id}', 'Impressao')">Imprimir</button>
-              <button class="btn" onclick="simpleOrderAction('${order.id}', 'Compartilhamento')">Compartilhar OS</button>
-              <button class="btn" onclick="simpleOrderAction('${order.id}', 'copy')">Copiar OS</button>
-              ${!isRunningOrder(order.status) && !isClosedOrder(order.status) ? `<button class="btn primary" onclick="confirmStartOrder('${order.id}')">Iniciar OS</button>` : ""}
-              <button class="btn danger" onclick="simpleOrderAction('${order.id}', 'PDF')">PDF Gerar PDF</button>
+              <button class="btn" onclick="showOrderDetails('${order.id}')"><span class="action-icon edit">□</span>Detalhes</button>
+              <button class="btn" onclick="editOrder('${order.id}')"><span class="action-icon edit">✎</span>Editar / Preencher</button>
+              ${isRunningOrder(order.status) ? `<button class="btn" onclick="finishOrder('${order.id}')"><span class="action-icon done">✓</span>Encerrar</button>` : ""}
+              <button class="btn" onclick="simpleOrderAction('${order.id}', 'Impressao')"><span class="action-icon edit">▣</span>Imprimir</button>
+              <button class="btn" onclick="simpleOrderAction('${order.id}', 'Compartilhamento')"><span class="action-icon edit">↗</span>Compartilhar OS</button>
+              <button class="btn" onclick="simpleOrderAction('${order.id}', 'copy')"><span class="action-icon edit">⧉</span>Copiar OS</button>
+              ${!isRunningOrder(order.status) && !isClosedOrder(order.status) ? `<button class="btn primary" onclick="confirmStartOrder('${order.id}')"><span class="action-icon play">▶</span>Iniciar OS</button>` : ""}
+              <button class="btn danger" onclick="simpleOrderAction('${order.id}', 'PDF')"><span class="action-icon delete">PDF</span>Gerar PDF</button>
             </div>
           </div>
         `).join("") || `<div class="empty">Nenhum registro encontrado</div>`}
