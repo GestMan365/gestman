@@ -3,19 +3,27 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GestMan365 + Supabase</title>
+  <title>GestMan365</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --bg: #f5f7fa;
+      --bg: #f3f5f7;
       --panel: #ffffff;
       --ink: #17202a;
       --muted: #667085;
       --line: #d8dee6;
       --brand: #0f766e;
+      --brand-dark: #0b4f4a;
+      --blue: #1d4ed8;
+      --warn: #b45309;
       --danger: #b91c1c;
+      --ok: #15803d;
+      --sidebar: #101828;
+      --shadow: 0 1px 2px rgba(16, 24, 40, .08);
     }
+
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       background: var(--bg);
@@ -23,32 +31,162 @@
       font-family: Arial, Helvetica, sans-serif;
       font-size: 14px;
     }
-    header {
-      background: #101828;
-      color: #fff;
-      padding: 18px 22px;
+
+    button, input, select, textarea { font: inherit; }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 250px minmax(0, 1fr);
+    }
+
+    aside {
+      background: var(--sidebar);
+      color: #e5e7eb;
+      padding: 18px 12px;
       display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .brand {
+      padding: 0 8px 14px;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+    }
+
+    .brand strong {
+      display: block;
+      color: #fff;
+      font-size: 22px;
+      letter-spacing: 0;
+    }
+
+    .brand span {
+      display: block;
+      margin-top: 4px;
+      color: #b7c0cc;
+      font-size: 12px;
+    }
+
+    nav { display: grid; gap: 4px; }
+
+    .nav-button {
+      width: 100%;
+      height: 42px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: #dbe3ee;
+      display: grid;
+      grid-template-columns: 26px minmax(0, 1fr);
+      align-items: center;
+      gap: 9px;
+      padding: 0 10px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .nav-button.active,
+    .nav-button:hover { background: #1f2937; color: #fff; }
+
+    .nav-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 5px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,.08);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    main { min-width: 0; display: flex; flex-direction: column; }
+
+    header {
+      min-height: 72px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
       justify-content: space-between;
       gap: 16px;
-      align-items: center;
-      flex-wrap: wrap;
     }
-    h1 { margin: 0; font-size: 22px; }
-    main {
-      width: min(1180px, 100%);
+
+    h1 { margin: 0; font-size: 22px; line-height: 1.2; }
+    h2 { margin: 0; font-size: 16px; }
+
+    .subtitle {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .status {
+      min-height: 28px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 10px;
+      color: var(--muted);
+      background: #fff;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .content {
+      width: 100%;
+      max-width: 1480px;
       margin: 0 auto;
-      padding: 22px;
+      padding: 22px 24px 34px;
       display: grid;
-      gap: 16px;
+      gap: 14px;
     }
-    .panel {
+
+    .section { display: none; }
+    .section.active { display: grid; gap: 14px; }
+
+    .grid { display: grid; gap: 14px; }
+    .metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .two-col { grid-template-columns: minmax(0, 1.45fr) minmax(340px, .9fr); align-items: start; }
+    .three-col { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .panel,
+    .metric {
       background: var(--panel);
       border: 1px solid var(--line);
       border-radius: 8px;
+      box-shadow: var(--shadow);
       overflow: hidden;
     }
+
+    .metric {
+      min-height: 112px;
+      padding: 16px;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 10px;
+      font-size: 30px;
+      line-height: 1;
+    }
+
+    .metric small {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+    }
+
     .panel-head {
-      padding: 14px;
+      min-height: 54px;
+      padding: 12px 14px;
       border-bottom: 1px solid var(--line);
       display: flex;
       align-items: center;
@@ -56,268 +194,833 @@
       gap: 12px;
       flex-wrap: wrap;
     }
+
     .panel-title { font-weight: 700; }
-    .status { color: #c7d2fe; font-size: 13px; }
-    .grid {
+
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .button {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 0 12px;
+      background: #fff;
+      color: var(--ink);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    .button.primary {
+      border-color: var(--brand);
+      background: var(--brand);
+      color: #fff;
+    }
+
+    .button.primary:hover { background: var(--brand-dark); }
+
+    .field {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 0 10px;
+      background: #fff;
+      color: var(--ink);
+      width: 100%;
+    }
+
+    textarea.field {
+      min-height: 84px;
+      padding-top: 9px;
+      resize: vertical;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .form-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 12px;
       padding: 14px;
     }
-    label {
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      display: grid;
-      gap: 6px;
-    }
-    input, select, textarea, button {
-      font: inherit;
-      border-radius: 6px;
-    }
-    input, select, textarea {
-      width: 100%;
-      min-height: 38px;
-      border: 1px solid var(--line);
-      padding: 0 10px;
-      background: #fff;
-      color: var(--ink);
-    }
-    textarea {
-      min-height: 78px;
-      padding-top: 9px;
-      resize: vertical;
-    }
+
     .full { grid-column: 1 / -1; }
-    button {
-      min-height: 38px;
-      border: 1px solid var(--brand);
-      background: var(--brand);
-      color: #fff;
-      padding: 0 12px;
-      cursor: pointer;
-    }
-    button.secondary {
-      background: #fff;
-      color: var(--ink);
-      border-color: var(--line);
-    }
+
     .table-wrap { overflow: auto; }
+
     table {
       width: 100%;
-      min-width: 760px;
+      min-width: 860px;
       border-collapse: collapse;
     }
+
     th, td {
       padding: 12px 14px;
       border-bottom: 1px solid var(--line);
       text-align: left;
+      vertical-align: middle;
     }
+
     th {
+      background: #f8fafc;
       color: var(--muted);
       font-size: 12px;
       text-transform: uppercase;
-      background: #f8fafc;
     }
+
+    tr:last-child td { border-bottom: 0; }
+
     .tag {
       display: inline-flex;
-      border-radius: 999px;
-      min-height: 24px;
       align-items: center;
+      min-height: 24px;
+      border-radius: 999px;
       padding: 0 9px;
       background: #eef2f7;
+      color: #344054;
       font-size: 12px;
       font-weight: 700;
+      white-space: nowrap;
     }
+
+    .tag.ok { background: #dcfce7; color: var(--ok); }
+    .tag.warn { background: #fef3c7; color: var(--warn); }
+    .tag.danger { background: #fee2e2; color: var(--danger); }
+    .tag.blue { background: #dbeafe; color: var(--blue); }
+
+    .chart {
+      padding: 16px 14px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 118px minmax(0, 1fr) 64px;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .bar-track {
+      height: 13px;
+      background: #edf2f7;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar {
+      height: 100%;
+      border-radius: inherit;
+      background: var(--brand);
+    }
+
+    .mini-chart {
+      height: 168px;
+      padding: 14px;
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      align-items: end;
+    }
+
+    .mini-bar {
+      min-height: 20px;
+      border-radius: 6px 6px 0 0;
+      background: #0f766e;
+      position: relative;
+    }
+
+    .mini-bar:nth-child(2n) { background: #1d4ed8; }
+    .mini-bar span {
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 5px);
+      transform: translateX(-50%);
+      color: var(--muted);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .map-wrap {
+      padding: 14px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 300px;
+      gap: 14px;
+    }
+
+    .plant-map {
+      position: relative;
+      min-height: 560px;
+      border: 1px solid #b9c4d0;
+      border-radius: 8px;
+      background:
+        linear-gradient(90deg, rgba(16,24,40,.05) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(16,24,40,.05) 1px, transparent 1px),
+        #f8fafc;
+      background-size: 32px 32px;
+      overflow: hidden;
+    }
+
+    .location-zone {
+      position: absolute;
+      border: 2px solid rgba(15,118,110,.58);
+      background: rgba(15,118,110,.08);
+      border-radius: 8px;
+      padding: 8px;
+      color: var(--brand-dark);
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    .machine-pin {
+      position: absolute;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 3px solid #fff;
+      background: var(--blue);
+      box-shadow: 0 4px 14px rgba(16,24,40,.28);
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+    }
+
+    .machine-pin.critical { background: var(--danger); }
+    .machine-pin.medium { background: var(--warn); }
+    .machine-pin.selected {
+      outline: 4px solid rgba(29,78,216,.2);
+    }
+
+    .map-side {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 12px;
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .detail-box {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      display: grid;
+      gap: 6px;
+      background: #f8fafc;
+    }
+
+    .list {
+      display: grid;
+    }
+
+    .list-item {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      gap: 6px;
+    }
+
+    .list-item:last-child { border-bottom: 0; }
+
+    .list-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .muted { color: var(--muted); }
     .error { color: var(--danger); padding: 14px; }
-    @media (max-width: 760px) {
-      main { padding: 14px; }
-      .grid { grid-template-columns: 1fr; }
+
+    @media (max-width: 1060px) {
+      .app { grid-template-columns: 1fr; }
+      aside { position: sticky; top: 0; z-index: 5; padding: 10px; }
+      .brand { padding-bottom: 9px; }
+      nav { display: flex; overflow-x: auto; padding-bottom: 3px; }
+      .nav-button { min-width: 142px; }
+      .metrics, .two-col, .three-col, .map-wrap, .form-grid { grid-template-columns: 1fr; }
+      .plant-map { min-height: 460px; }
+    }
+
+    @media (max-width: 620px) {
+      header { align-items: flex-start; flex-direction: column; padding: 14px 12px; }
+      .content { padding: 16px 12px 26px; }
+      .toolbar { width: 100%; }
+      .toolbar .button, .toolbar .field { flex: 1 1 100%; }
+      .bar-row { grid-template-columns: 92px minmax(0,1fr) 54px; }
     }
   </style>
 </head>
 <body>
-  <header>
-    <div>
-      <h1>GestMan365</h1>
-      <div class="status" id="connectionStatus">Conectando ao Supabase...</div>
-    </div>
-    <button class="secondary" id="reloadBtn">Atualizar</button>
-  </header>
+  <div class="app">
+    <aside>
+      <div class="brand">
+        <strong>GestMan365</strong>
+        <span>Parque industrial, manutencao e confiabilidade</span>
+      </div>
+      <nav aria-label="Modulos">
+        <button class="nav-button active" data-target="dashboard"><span class="nav-icon">IN</span><span>Inicial</span></button>
+        <button class="nav-button" data-target="mapa"><span class="nav-icon">MP</span><span>Mapa</span></button>
+        <button class="nav-button" data-target="ativos"><span class="nav-icon">AT</span><span>Ativos</span></button>
+        <button class="nav-button" data-target="locais"><span class="nav-icon">LC</span><span>Locais</span></button>
+        <button class="nav-button" data-target="tags"><span class="nav-icon">TG</span><span>Tags</span></button>
+        <button class="nav-button" data-target="chamados"><span class="nav-icon">CH</span><span>Chamados</span></button>
+      </nav>
+    </aside>
 
-  <main>
-    <section class="panel">
-      <div class="panel-head">
-        <div class="panel-title">Novo ativo</div>
-      </div>
-      <form class="grid" id="assetForm">
-        <label>Codigo <input name="codigo" placeholder="AT-004" required></label>
-        <label>Nome <input name="nome" placeholder="Bomba centrifuga" required></label>
-        <label>Setor <input name="setor" placeholder="Utilidades" required></label>
-        <label>Criticidade
-          <select name="criticidade">
-            <option>Baixa</option>
-            <option selected>Media</option>
-            <option>Alta</option>
-          </select>
-        </label>
-        <label>Status
-          <select name="status">
-            <option selected>Operando</option>
-            <option>Em manutencao</option>
-            <option>Inspecao</option>
-            <option>Inativo</option>
-          </select>
-        </label>
-        <label>Responsavel <input name="responsavel" placeholder="Nome do responsavel"></label>
-        <div class="full"><button type="submit">Salvar ativo</button></div>
-      </form>
-    </section>
+    <main>
+      <header>
+        <div>
+          <h1 id="pageTitle">Tela inicial</h1>
+          <div class="subtitle" id="pageSubtitle">Indicadores de manutencao, confiabilidade e risco operacional.</div>
+        </div>
+        <div class="toolbar">
+          <span class="status" id="connectionStatus">Conectando ao Supabase...</span>
+          <button class="button" id="reloadBtn">Atualizar</button>
+        </div>
+      </header>
 
-    <section class="panel">
-      <div class="panel-head">
-        <div class="panel-title">Ativos cadastrados no Supabase</div>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>Codigo</th><th>Nome</th><th>Setor</th><th>Criticidade</th><th>Status</th><th>Responsavel</th></tr>
-          </thead>
-          <tbody id="assetRows"></tbody>
-        </table>
-      </div>
-    </section>
+      <div class="content">
+        <section class="section active" id="dashboard">
+          <div class="grid metrics">
+            <div class="metric"><span>MTTR medio</span><strong id="mttrValue">0h</strong><small>Tempo medio para reparar falhas</small></div>
+            <div class="metric"><span>MTBF medio</span><strong id="mtbfValue">0h</strong><small>Tempo medio entre falhas</small></div>
+            <div class="metric"><span>Disponibilidade</span><strong id="availabilityValue">0%</strong><small>Estimativa dos ativos criticos</small></div>
+            <div class="metric"><span>Ativos mapeados</span><strong id="mappedAssetsValue">0</strong><small>Maquinas com local definido</small></div>
+          </div>
 
-    <section class="panel">
-      <div class="panel-head">
-        <div class="panel-title">Novo chamado</div>
-      </div>
-      <form class="grid" id="ticketForm">
-        <label>Numero <input name="numero" placeholder="CH-2203" required></label>
-        <label>Origem <input name="origem" placeholder="Linha 1" required></label>
-        <label>Prioridade
-          <select name="prioridade">
-            <option>Baixa</option>
-            <option selected>Media</option>
-            <option>Alta</option>
-            <option>Critica</option>
-          </select>
-        </label>
-        <label class="full">Descricao <textarea name="descricao" required></textarea></label>
-        <div class="full"><button type="submit">Salvar chamado</button></div>
-      </form>
-    </section>
+          <div class="grid two-col">
+            <div class="panel">
+              <div class="panel-head">
+                <div class="panel-title">Confiabilidade por area</div>
+                <button class="button" data-target-button="mapa">Abrir mapa</button>
+              </div>
+              <div class="chart" id="reliabilityBars"></div>
+            </div>
 
-    <section class="panel">
-      <div class="panel-head">
-        <div class="panel-title">Chamados cadastrados no Supabase</div>
+            <div class="panel">
+              <div class="panel-head">
+                <div class="panel-title">MTTR dos ultimos 7 periodos</div>
+                <span class="tag blue">Horas</span>
+              </div>
+              <div class="mini-chart" id="mttrChart"></div>
+            </div>
+          </div>
+
+          <div class="grid three-col">
+            <div class="panel">
+              <div class="panel-head"><div class="panel-title">Risco operacional</div></div>
+              <div class="list" id="riskList"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><div class="panel-title">Backlog por prioridade</div></div>
+              <div class="chart" id="backlogBars"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><div class="panel-title">Proximas acoes</div></div>
+              <div class="list">
+                <div class="list-item"><div class="list-top"><strong>Completar mapa</strong><span class="tag warn">Base</span></div><span class="muted">Cadastre setores, linhas e posicao das maquinas.</span></div>
+                <div class="list-item"><div class="list-top"><strong>Padronizar tags</strong><span class="tag blue">Taxonomia</span></div><span class="muted">Use familias como MEC, ELE, UTIL e SEG.</span></div>
+                <div class="list-item"><div class="list-top"><strong>Fechar politicas RLS</strong><span class="tag danger">Seguranca</span></div><span class="muted">Antes de producao, vincular acesso a usuarios.</span></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="mapa">
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-title">Mapa do parque industrial</div>
+                <div class="subtitle">Clique em uma maquina para ver dados. Use posicao X/Y no cadastro para montar a planta.</div>
+              </div>
+              <button class="button primary" data-target-button="ativos">Cadastrar maquina</button>
+            </div>
+            <div class="map-wrap">
+              <div class="plant-map" id="plantMap"></div>
+              <div class="map-side">
+                <h2>Detalhe do ponto</h2>
+                <div class="detail-box" id="machineDetail">
+                  <strong>Nenhuma maquina selecionada</strong>
+                  <span class="muted">Selecione um ponto no mapa.</span>
+                </div>
+                <div class="detail-box">
+                  <strong>Legenda</strong>
+                  <span><span class="tag danger">Alta criticidade</span></span>
+                  <span><span class="tag warn">Media criticidade</span></span>
+                  <span><span class="tag blue">Baixa criticidade</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="ativos">
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">Cadastrar maquina ou equipamento</div>
+            </div>
+            <form class="form-grid" id="assetForm">
+              <label>Codigo <input class="field" name="codigo" placeholder="AT-004" required></label>
+              <label>Nome <input class="field" name="nome" placeholder="Bomba centrifuga" required></label>
+              <label>Setor <input class="field" name="setor" placeholder="Utilidades" required></label>
+              <label>Local <select class="field" name="local_id" id="assetLocation"></select></label>
+              <label>Tag <select class="field" name="tag_id" id="assetTag"></select></label>
+              <label>Subtag <select class="field" name="sub_tag_id" id="assetSubTag"></select></label>
+              <label>Criticidade
+                <select class="field" name="criticidade">
+                  <option>Baixa</option><option selected>Media</option><option>Alta</option>
+                </select>
+              </label>
+              <label>Status
+                <select class="field" name="status">
+                  <option selected>Operando</option><option>Em manutencao</option><option>Inspecao</option><option>Inativo</option>
+                </select>
+              </label>
+              <label>Responsavel <input class="field" name="responsavel" placeholder="Nome do responsavel"></label>
+              <label>Posicao X no mapa (%) <input class="field" name="pos_x" type="number" min="2" max="98" value="50"></label>
+              <label>Posicao Y no mapa (%) <input class="field" name="pos_y" type="number" min="2" max="98" value="50"></label>
+              <div class="full"><button class="button primary" type="submit">Salvar ativo</button></div>
+            </form>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">Ativos cadastrados</div>
+              <input class="field" id="assetSearch" placeholder="Buscar por codigo, nome, local ou tag" style="max-width:360px">
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Codigo</th><th>Nome</th><th>Local</th><th>Tag</th><th>Subtag</th><th>Criticidade</th><th>Status</th><th>Responsavel</th></tr></thead>
+                <tbody id="assetRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="locais">
+          <div class="grid two-col">
+            <div class="panel">
+              <div class="panel-head"><div class="panel-title">Criar local da planta</div></div>
+              <form class="form-grid" id="locationForm">
+                <label>Nome <input class="field" name="nome" placeholder="Linha 1" required></label>
+                <label>Tipo
+                  <select class="field" name="tipo"><option>Area</option><option>Linha</option><option>Celula</option><option>Sala</option><option>Predio</option></select>
+                </label>
+                <label>Cor <input class="field" name="cor" value="#0f766e"></label>
+                <label>X (%) <input class="field" name="x" type="number" min="0" max="90" value="8"></label>
+                <label>Y (%) <input class="field" name="y" type="number" min="0" max="90" value="10"></label>
+                <label>Largura (%) <input class="field" name="largura" type="number" min="8" max="95" value="38"></label>
+                <label>Altura (%) <input class="field" name="altura" type="number" min="8" max="95" value="28"></label>
+                <div class="full"><button class="button primary" type="submit">Salvar local</button></div>
+              </form>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><div class="panel-title">Locais cadastrados</div></div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Local</th><th>Tipo</th><th>Posicao</th><th>Tamanho</th></tr></thead>
+                  <tbody id="locationRows"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="tags">
+          <div class="grid two-col">
+            <div class="panel">
+              <div class="panel-head"><div class="panel-title">Criar tag</div></div>
+              <form class="form-grid" id="tagForm">
+                <label>Codigo <input class="field" name="codigo" placeholder="MEC" required></label>
+                <label>Nome <input class="field" name="nome" placeholder="Mecanica" required></label>
+                <label class="full">Descricao <textarea class="field" name="descricao"></textarea></label>
+                <div class="full"><button class="button primary" type="submit">Salvar tag</button></div>
+              </form>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><div class="panel-title">Criar subtag</div></div>
+              <form class="form-grid" id="subTagForm">
+                <label>Tag principal <select class="field" name="tag_id" id="subTagParent"></select></label>
+                <label>Codigo <input class="field" name="codigo" placeholder="ROL" required></label>
+                <label>Nome <input class="field" name="nome" placeholder="Rolamentos" required></label>
+                <div class="full"><button class="button primary" type="submit">Salvar subtag</button></div>
+              </form>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><div class="panel-title">Taxonomia de manutencao</div></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Tag</th><th>Nome</th><th>Descricao</th><th>Subtags</th></tr></thead>
+                <tbody id="tagRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="chamados">
+          <div class="panel">
+            <div class="panel-head"><div class="panel-title">Novo chamado</div></div>
+            <form class="form-grid" id="ticketForm">
+              <label>Numero <input class="field" name="numero" placeholder="CH-2203" required></label>
+              <label>Origem <input class="field" name="origem" placeholder="Linha 1" required></label>
+              <label>Prioridade
+                <select class="field" name="prioridade"><option>Baixa</option><option selected>Media</option><option>Alta</option><option>Critica</option></select>
+              </label>
+              <label class="full">Descricao <textarea class="field" name="descricao" required></textarea></label>
+              <div class="full"><button class="button primary" type="submit">Salvar chamado</button></div>
+            </form>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><div class="panel-title">Chamados cadastrados</div></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Numero</th><th>Origem</th><th>Descricao</th><th>Prioridade</th><th>Status</th></tr></thead>
+                <tbody id="ticketRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>Numero</th><th>Origem</th><th>Descricao</th><th>Prioridade</th><th>Status</th></tr>
-          </thead>
-          <tbody id="ticketRows"></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
+    </main>
+  </div>
 
   <script>
     const SUPABASE_URL = "https://zkkyiqtzmimcoderjrrm.supabase.co";
     const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_h88SLb98aMdmGCJvEO6yFw_QuJ4I3bI";
     const client = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
+    const memory = {
+      locations: [
+        { id: "loc-1", nome: "Linha 1", tipo: "Linha", cor: "#0f766e", x: 6, y: 8, largura: 42, altura: 32 },
+        { id: "loc-2", nome: "Utilidades", tipo: "Area", cor: "#1d4ed8", x: 54, y: 8, largura: 36, altura: 32 },
+        { id: "loc-3", nome: "Almoxarifado tecnico", tipo: "Area", cor: "#b45309", x: 12, y: 54, largura: 32, altura: 30 }
+      ],
+      tags: [
+        { id: "tag-1", codigo: "MEC", nome: "Mecanica", descricao: "Conjuntos mecanicos, transmissao e rolamentos" },
+        { id: "tag-2", codigo: "ELE", nome: "Eletrica", descricao: "Painel, motor, sensores e automacao" },
+        { id: "tag-3", codigo: "UTIL", nome: "Utilidades", descricao: "Ar comprimido, agua, vapor e energia" }
+      ],
+      subTags: [
+        { id: "sub-1", tag_id: "tag-1", codigo: "ROL", nome: "Rolamentos" },
+        { id: "sub-2", tag_id: "tag-1", codigo: "TRM", nome: "Transmissao" },
+        { id: "sub-3", tag_id: "tag-2", codigo: "MOT", nome: "Motor eletrico" },
+        { id: "sub-4", tag_id: "tag-3", codigo: "CMP", nome: "Compressor" }
+      ],
+      assets: [
+        { id: "asset-1", codigo: "AT-001", nome: "Compressor Atlas 40HP", setor: "Utilidades", local_id: "loc-2", tag_id: "tag-3", sub_tag_id: "sub-4", criticidade: "Alta", status: "Operando", responsavel: "Marcos Lima", pos_x: 72, pos_y: 22 },
+        { id: "asset-2", codigo: "AT-002", nome: "Esteira Linha 1", setor: "Producao", local_id: "loc-1", tag_id: "tag-1", sub_tag_id: "sub-2", criticidade: "Alta", status: "Em manutencao", responsavel: "Paula Rocha", pos_x: 25, pos_y: 24 },
+        { id: "asset-3", codigo: "AT-003", nome: "Painel CCM-01", setor: "Eletrica", local_id: "loc-1", tag_id: "tag-2", sub_tag_id: "sub-3", criticidade: "Media", status: "Inspecao", responsavel: "Bianca Torres", pos_x: 42, pos_y: 31 }
+      ],
+      tickets: [
+        { id: "ticket-1", numero: "CH-2201", origem: "Linha 1", descricao: "Ruido anormal na esteira", prioridade: "Alta", status: "Triagem" },
+        { id: "ticket-2", numero: "CH-2202", origem: "Utilidades", descricao: "Queda de pressao no ar comprimido", prioridade: "Critica", status: "Aberto" }
+      ]
+    };
+
+    const state = {
+      locations: [],
+      tags: [],
+      subTags: [],
+      assets: [],
+      tickets: [],
+      selectedAssetId: null,
+      supabaseReady: false
+    };
+
+    const titles = {
+      dashboard: ["Tela inicial", "Indicadores de manutencao, confiabilidade e risco operacional."],
+      mapa: ["Mapa industrial", "Monte locais, posicione maquinas e visualize o parque industrial."],
+      ativos: ["Ativos", "Cadastre maquinas com local, tag, subtag e posicao no mapa."],
+      locais: ["Locais", "Crie areas, linhas, salas e celulas da planta."],
+      tags: ["Tags e subtags", "Organize familias tecnicas para classificar maquinas e falhas."],
+      chamados: ["Chamados", "Registre solicitacoes operacionais e falhas percebidas."]
+    };
+
     const statusEl = document.getElementById("connectionStatus");
-    const assetRows = document.getElementById("assetRows");
-    const ticketRows = document.getElementById("ticketRows");
 
-    function tag(value) {
-      return `<span class="tag">${value || ""}</span>`;
+    function id(prefix) {
+      return `${prefix}-${crypto.randomUUID ? crypto.randomUUID() : Date.now()}`;
     }
 
-    function showError(message) {
-      statusEl.textContent = "Erro de conexao";
-      return `<tr><td colspan="6" class="error">${message}</td></tr>`;
+    function byId(collection, value) {
+      return collection.find(item => item.id === value);
     }
 
-    async function loadAssets() {
-      const { data, error } = await client
-        .from("ativos")
-        .select("codigo,nome,setor,criticidade,status,responsavel")
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        assetRows.innerHTML = showError(error.message);
-        return;
-      }
-
-      assetRows.innerHTML = data.map(asset => `
-        <tr>
-          <td>${asset.codigo}</td>
-          <td>${asset.nome}</td>
-          <td>${asset.setor}</td>
-          <td>${tag(asset.criticidade)}</td>
-          <td>${tag(asset.status)}</td>
-          <td>${asset.responsavel || ""}</td>
-        </tr>
-      `).join("") || `<tr><td colspan="6">Nenhum ativo cadastrado.</td></tr>`;
+    function label(collection, value, field = "nome") {
+      return byId(collection, value)?.[field] || "";
     }
 
-    async function loadTickets() {
-      const { data, error } = await client
-        .from("chamados")
-        .select("numero,origem,descricao,prioridade,status")
-        .order("created_at", { ascending: false });
+    function tagClass(value) {
+      if (["Alta", "Critica", "Atrasado", "Em manutencao"].includes(value)) return "danger";
+      if (["Media", "Triagem", "Inspecao"].includes(value)) return "warn";
+      if (["Operando", "Aberto"].includes(value)) return "ok";
+      return "blue";
+    }
 
-      if (error) {
-        ticketRows.innerHTML = showError(error.message);
-        return;
-      }
+    function badge(value) {
+      return `<span class="tag ${tagClass(value)}">${value || ""}</span>`;
+    }
 
-      ticketRows.innerHTML = data.map(ticket => `
-        <tr>
-          <td>${ticket.numero}</td>
-          <td>${ticket.origem}</td>
-          <td>${ticket.descricao}</td>
-          <td>${tag(ticket.prioridade)}</td>
-          <td>${tag(ticket.status)}</td>
-        </tr>
-      `).join("") || `<tr><td colspan="5">Nenhum chamado cadastrado.</td></tr>`;
+    function row(cells) {
+      return `<tr>${cells.map(cell => `<td>${cell}</td>`).join("")}</tr>`;
+    }
+
+    function navigate(target) {
+      document.querySelectorAll(".section").forEach(section => section.classList.toggle("active", section.id === target));
+      document.querySelectorAll(".nav-button").forEach(button => button.classList.toggle("active", button.dataset.target === target));
+      document.getElementById("pageTitle").textContent = titles[target][0];
+      document.getElementById("pageSubtitle").textContent = titles[target][1];
+    }
+
+    function renderSelects() {
+      const locationOptions = [`<option value="">Sem local</option>`].concat(state.locations.map(item => `<option value="${item.id}">${item.nome}</option>`)).join("");
+      const tagOptions = [`<option value="">Sem tag</option>`].concat(state.tags.map(item => `<option value="${item.id}">${item.codigo} - ${item.nome}</option>`)).join("");
+      const subTagOptions = [`<option value="">Sem subtag</option>`].concat(state.subTags.map(item => `<option value="${item.id}">${item.codigo} - ${item.nome}</option>`)).join("");
+      document.getElementById("assetLocation").innerHTML = locationOptions;
+      document.getElementById("assetTag").innerHTML = tagOptions;
+      document.getElementById("assetSubTag").innerHTML = subTagOptions;
+      document.getElementById("subTagParent").innerHTML = tagOptions;
+    }
+
+    function renderDashboard() {
+      const critical = state.assets.filter(asset => asset.criticidade === "Alta").length;
+      const downtime = critical * 7 + state.tickets.filter(ticket => ticket.prioridade === "Critica").length * 4;
+      const mttr = Math.max(3.5, downtime / Math.max(1, state.tickets.length)).toFixed(1);
+      const mtbf = Math.max(54, 180 - critical * 18 + state.assets.length * 7).toFixed(0);
+      const availability = ((Number(mtbf) / (Number(mtbf) + Number(mttr))) * 100).toFixed(1);
+      const mapped = state.assets.filter(asset => asset.local_id).length;
+
+      document.getElementById("mttrValue").textContent = `${mttr}h`;
+      document.getElementById("mtbfValue").textContent = `${mtbf}h`;
+      document.getElementById("availabilityValue").textContent = `${availability}%`;
+      document.getElementById("mappedAssetsValue").textContent = mapped;
+
+      const areas = state.locations.map(location => {
+        const count = state.assets.filter(asset => asset.local_id === location.id).length;
+        const score = Math.max(34, Math.min(98, 92 - count * 5 + (location.tipo === "Linha" ? 2 : 0)));
+        return [location.nome, score];
+      });
+      document.getElementById("reliabilityBars").innerHTML = areas.map(([name, value]) => `
+        <div class="bar-row"><strong>${name}</strong><div class="bar-track"><div class="bar" style="width:${value}%"></div></div><span>${value}%</span></div>
+      `).join("");
+
+      const chartValues = [8.4, 6.1, 5.8, 7.2, 4.9, Number(mttr), Math.max(3.2, Number(mttr) - 1.1)];
+      document.getElementById("mttrChart").innerHTML = chartValues.map(value => `
+        <div class="mini-bar" style="height:${Math.min(100, value * 13)}%"><span>${value.toFixed(1)}</span></div>
+      `).join("");
+
+      const risks = state.assets
+        .filter(asset => asset.criticidade === "Alta" || asset.status !== "Operando")
+        .slice(0, 4);
+      document.getElementById("riskList").innerHTML = risks.map(asset => `
+        <div class="list-item"><div class="list-top"><strong>${asset.nome}</strong>${badge(asset.criticidade)}</div><span class="muted">${label(state.locations, asset.local_id) || "Sem local"} - ${asset.status}</span></div>
+      `).join("") || `<div class="list-item"><span class="muted">Nenhum risco alto no momento.</span></div>`;
+
+      const backlog = [
+        ["Critica", state.tickets.filter(ticket => ticket.prioridade === "Critica").length],
+        ["Alta", state.tickets.filter(ticket => ticket.prioridade === "Alta").length],
+        ["Media", state.tickets.filter(ticket => ticket.prioridade === "Media").length]
+      ];
+      const max = Math.max(1, ...backlog.map(item => item[1]));
+      document.getElementById("backlogBars").innerHTML = backlog.map(([name, value]) => `
+        <div class="bar-row"><strong>${name}</strong><div class="bar-track"><div class="bar" style="width:${(value / max) * 100}%"></div></div><span>${value}</span></div>
+      `).join("");
+    }
+
+    function renderMap() {
+      const map = document.getElementById("plantMap");
+      const zones = state.locations.map(location => `
+        <div class="location-zone" style="left:${location.x || 0}%;top:${location.y || 0}%;width:${location.largura || 24}%;height:${location.altura || 20}%;border-color:${location.cor || "#0f766e"};background:${location.cor || "#0f766e"}18;color:${location.cor || "#0f766e"}">
+          ${location.nome}
+        </div>
+      `).join("");
+
+      const pins = state.assets.map(asset => `
+        <button class="machine-pin ${asset.criticidade === "Alta" ? "critical" : asset.criticidade === "Media" ? "medium" : ""} ${state.selectedAssetId === asset.id ? "selected" : ""}"
+          data-asset-id="${asset.id}"
+          style="left:${asset.pos_x || 50}%;top:${asset.pos_y || 50}%"
+          title="${asset.codigo} - ${asset.nome}"></button>
+      `).join("");
+      map.innerHTML = zones + pins;
+      map.querySelectorAll(".machine-pin").forEach(pin => pin.addEventListener("click", () => {
+        state.selectedAssetId = pin.dataset.assetId;
+        renderMap();
+      }));
+
+      const selected = byId(state.assets, state.selectedAssetId);
+      document.getElementById("machineDetail").innerHTML = selected ? `
+        <strong>${selected.codigo} - ${selected.nome}</strong>
+        <span>${badge(selected.criticidade)} ${badge(selected.status)}</span>
+        <span class="muted">Local: ${label(state.locations, selected.local_id) || "Sem local"}</span>
+        <span class="muted">Tag: ${label(state.tags, selected.tag_id, "codigo") || "-"} / ${label(state.subTags, selected.sub_tag_id, "codigo") || "-"}</span>
+        <span class="muted">Responsavel: ${selected.responsavel || "-"}</span>
+      ` : `<strong>Nenhuma maquina selecionada</strong><span class="muted">Selecione um ponto no mapa.</span>`;
+    }
+
+    function renderTables() {
+      const term = document.getElementById("assetSearch")?.value?.toLowerCase() || "";
+      const filtered = state.assets.filter(asset => [
+        asset.codigo,
+        asset.nome,
+        label(state.locations, asset.local_id),
+        label(state.tags, asset.tag_id, "codigo"),
+        label(state.subTags, asset.sub_tag_id, "codigo")
+      ].join(" ").toLowerCase().includes(term));
+
+      document.getElementById("assetRows").innerHTML = filtered.map(asset => row([
+        asset.codigo,
+        asset.nome,
+        label(state.locations, asset.local_id) || "-",
+        label(state.tags, asset.tag_id, "codigo") || "-",
+        label(state.subTags, asset.sub_tag_id, "codigo") || "-",
+        badge(asset.criticidade),
+        badge(asset.status),
+        asset.responsavel || "-"
+      ])).join("") || `<tr><td colspan="8" class="muted">Nenhum ativo cadastrado.</td></tr>`;
+
+      document.getElementById("locationRows").innerHTML = state.locations.map(location => row([
+        location.nome,
+        badge(location.tipo),
+        `${location.x || 0}% / ${location.y || 0}%`,
+        `${location.largura || 0}% x ${location.altura || 0}%`
+      ])).join("");
+
+      document.getElementById("tagRows").innerHTML = state.tags.map(item => {
+        const subs = state.subTags.filter(sub => sub.tag_id === item.id).map(sub => `${sub.codigo} - ${sub.nome}`).join(", ");
+        return row([`${item.codigo}`, item.nome, item.descricao || "-", subs || "-"]);
+      }).join("");
+
+      document.getElementById("ticketRows").innerHTML = state.tickets.map(ticket => row([
+        ticket.numero,
+        ticket.origem,
+        ticket.descricao,
+        badge(ticket.prioridade),
+        badge(ticket.status)
+      ])).join("") || `<tr><td colspan="5" class="muted">Nenhum chamado cadastrado.</td></tr>`;
+    }
+
+    function render() {
+      renderSelects();
+      renderDashboard();
+      renderMap();
+      renderTables();
+    }
+
+    function fallbackData(message) {
+      state.locations = [...memory.locations];
+      state.tags = [...memory.tags];
+      state.subTags = [...memory.subTags];
+      state.assets = [...memory.assets];
+      state.tickets = [...memory.tickets];
+      statusEl.textContent = message || "Modo demonstracao";
+      render();
+    }
+
+    async function loadTable(name, fallback) {
+      const { data, error } = await client.from(name).select("*").order("created_at", { ascending: false });
+      if (error) throw error;
+      return data?.length ? data : fallback;
     }
 
     async function refresh() {
       statusEl.textContent = "Conectando ao Supabase...";
-      await Promise.all([loadAssets(), loadTickets()]);
-      statusEl.textContent = "Conectado ao Supabase";
+      try {
+        state.locations = await loadTable("locais", memory.locations);
+        state.tags = await loadTable("tags", memory.tags);
+        state.subTags = await loadTable("sub_tags", memory.subTags);
+        state.assets = await loadTable("ativos", memory.assets);
+        state.tickets = await loadTable("chamados", memory.tickets);
+        state.supabaseReady = true;
+        statusEl.textContent = "Conectado ao Supabase";
+        render();
+      } catch (error) {
+        state.supabaseReady = false;
+        fallbackData("Modo demonstracao - rode o SQL atualizado no Supabase");
+      }
     }
+
+    async function insertOrMemory(table, payload, collection, prefix) {
+      Object.keys(payload).forEach(key => {
+        if (payload[key] === "") payload[key] = null;
+      });
+      if (state.supabaseReady) {
+        const { error } = await client.from(table).insert(payload);
+        if (error) {
+          alert(error.message);
+          return;
+        }
+        await refresh();
+        return;
+      }
+      collection.unshift({ id: id(prefix), ...payload });
+      render();
+    }
+
+    document.querySelectorAll("[data-target]").forEach(button => button.addEventListener("click", () => navigate(button.dataset.target)));
+    document.querySelectorAll("[data-target-button]").forEach(button => button.addEventListener("click", () => navigate(button.dataset.targetButton)));
+    document.getElementById("reloadBtn").addEventListener("click", refresh);
+    document.getElementById("assetSearch").addEventListener("input", renderTables);
 
     document.getElementById("assetForm").addEventListener("submit", async event => {
       event.preventDefault();
       const payload = Object.fromEntries(new FormData(event.currentTarget).entries());
-      const { error } = await client.from("ativos").insert(payload);
-      if (error) {
-        alert(error.message);
-        return;
-      }
+      payload.pos_x = Number(payload.pos_x || 50);
+      payload.pos_y = Number(payload.pos_y || 50);
+      await insertOrMemory("ativos", payload, state.assets, "asset");
       event.currentTarget.reset();
-      refresh();
+    });
+
+    document.getElementById("locationForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const payload = Object.fromEntries(new FormData(event.currentTarget).entries());
+      payload.x = Number(payload.x || 0);
+      payload.y = Number(payload.y || 0);
+      payload.largura = Number(payload.largura || 24);
+      payload.altura = Number(payload.altura || 20);
+      await insertOrMemory("locais", payload, state.locations, "loc");
+      event.currentTarget.reset();
+    });
+
+    document.getElementById("tagForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const payload = Object.fromEntries(new FormData(event.currentTarget).entries());
+      await insertOrMemory("tags", payload, state.tags, "tag");
+      event.currentTarget.reset();
+    });
+
+    document.getElementById("subTagForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const payload = Object.fromEntries(new FormData(event.currentTarget).entries());
+      await insertOrMemory("sub_tags", payload, state.subTags, "sub");
+      event.currentTarget.reset();
     });
 
     document.getElementById("ticketForm").addEventListener("submit", async event => {
       event.preventDefault();
       const payload = Object.fromEntries(new FormData(event.currentTarget).entries());
-      const { error } = await client.from("chamados").insert({ ...payload, status: "Aberto" });
-      if (error) {
-        alert(error.message);
-        return;
-      }
+      await insertOrMemory("chamados", { ...payload, status: "Aberto" }, state.tickets, "ticket");
       event.currentTarget.reset();
-      refresh();
     });
 
-    document.getElementById("reloadBtn").addEventListener("click", refresh);
     refresh();
   </script>
 </body>

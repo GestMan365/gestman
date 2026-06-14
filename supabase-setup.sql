@@ -6,11 +6,51 @@ create table if not exists public.ativos (
   codigo text not null unique,
   nome text not null,
   setor text not null,
+  local_id uuid,
+  tag_id uuid,
+  sub_tag_id uuid,
   criticidade text not null default 'Media',
   status text not null default 'Operando',
   responsavel text,
+  pos_x numeric(5,2) not null default 50,
+  pos_y numeric(5,2) not null default 50,
   created_at timestamptz not null default now()
 );
+
+create table if not exists public.locais (
+  id uuid primary key default gen_random_uuid(),
+  nome text not null unique,
+  tipo text not null default 'Area',
+  cor text not null default '#0f766e',
+  x numeric(5,2) not null default 0,
+  y numeric(5,2) not null default 0,
+  largura numeric(5,2) not null default 24,
+  altura numeric(5,2) not null default 20,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.tags (
+  id uuid primary key default gen_random_uuid(),
+  codigo text not null unique,
+  nome text not null,
+  descricao text,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.sub_tags (
+  id uuid primary key default gen_random_uuid(),
+  tag_id uuid references public.tags(id) on delete cascade,
+  codigo text not null,
+  nome text not null,
+  created_at timestamptz not null default now(),
+  unique (tag_id, codigo)
+);
+
+alter table public.ativos add column if not exists local_id uuid;
+alter table public.ativos add column if not exists tag_id uuid;
+alter table public.ativos add column if not exists sub_tag_id uuid;
+alter table public.ativos add column if not exists pos_x numeric(5,2) not null default 50;
+alter table public.ativos add column if not exists pos_y numeric(5,2) not null default 50;
 
 create table if not exists public.ordens_servico (
   id uuid primary key default gen_random_uuid(),
@@ -57,6 +97,9 @@ create table if not exists public.pecas (
 );
 
 alter table public.ativos enable row level security;
+alter table public.locais enable row level security;
+alter table public.tags enable row level security;
+alter table public.sub_tags enable row level security;
 alter table public.ordens_servico enable row level security;
 alter table public.preventivas enable row level security;
 alter table public.chamados enable row level security;
@@ -64,9 +107,46 @@ alter table public.pecas enable row level security;
 
 -- Politicas abertas para prototipo inicial com chave publishable.
 -- Antes de usar em producao, troque por politicas com usuarios autenticados.
+drop policy if exists "prototipo_select_ativos" on public.ativos;
+drop policy if exists "prototipo_insert_ativos" on public.ativos;
+drop policy if exists "prototipo_update_ativos" on public.ativos;
+drop policy if exists "prototipo_select_locais" on public.locais;
+drop policy if exists "prototipo_insert_locais" on public.locais;
+drop policy if exists "prototipo_update_locais" on public.locais;
+drop policy if exists "prototipo_select_tags" on public.tags;
+drop policy if exists "prototipo_insert_tags" on public.tags;
+drop policy if exists "prototipo_update_tags" on public.tags;
+drop policy if exists "prototipo_select_sub_tags" on public.sub_tags;
+drop policy if exists "prototipo_insert_sub_tags" on public.sub_tags;
+drop policy if exists "prototipo_update_sub_tags" on public.sub_tags;
+drop policy if exists "prototipo_select_ordens" on public.ordens_servico;
+drop policy if exists "prototipo_insert_ordens" on public.ordens_servico;
+drop policy if exists "prototipo_update_ordens" on public.ordens_servico;
+drop policy if exists "prototipo_select_preventivas" on public.preventivas;
+drop policy if exists "prototipo_insert_preventivas" on public.preventivas;
+drop policy if exists "prototipo_update_preventivas" on public.preventivas;
+drop policy if exists "prototipo_select_chamados" on public.chamados;
+drop policy if exists "prototipo_insert_chamados" on public.chamados;
+drop policy if exists "prototipo_update_chamados" on public.chamados;
+drop policy if exists "prototipo_select_pecas" on public.pecas;
+drop policy if exists "prototipo_insert_pecas" on public.pecas;
+drop policy if exists "prototipo_update_pecas" on public.pecas;
+
 create policy "prototipo_select_ativos" on public.ativos for select using (true);
 create policy "prototipo_insert_ativos" on public.ativos for insert with check (true);
 create policy "prototipo_update_ativos" on public.ativos for update using (true);
+
+create policy "prototipo_select_locais" on public.locais for select using (true);
+create policy "prototipo_insert_locais" on public.locais for insert with check (true);
+create policy "prototipo_update_locais" on public.locais for update using (true);
+
+create policy "prototipo_select_tags" on public.tags for select using (true);
+create policy "prototipo_insert_tags" on public.tags for insert with check (true);
+create policy "prototipo_update_tags" on public.tags for update using (true);
+
+create policy "prototipo_select_sub_tags" on public.sub_tags for select using (true);
+create policy "prototipo_insert_sub_tags" on public.sub_tags for insert with check (true);
+create policy "prototipo_update_sub_tags" on public.sub_tags for update using (true);
 
 create policy "prototipo_select_ordens" on public.ordens_servico for select using (true);
 create policy "prototipo_insert_ordens" on public.ordens_servico for insert with check (true);
@@ -84,11 +164,77 @@ create policy "prototipo_select_pecas" on public.pecas for select using (true);
 create policy "prototipo_insert_pecas" on public.pecas for insert with check (true);
 create policy "prototipo_update_pecas" on public.pecas for update using (true);
 
-insert into public.ativos (codigo, nome, setor, criticidade, status, responsavel)
+insert into public.locais (nome, tipo, cor, x, y, largura, altura)
 values
-  ('AT-001', 'Compressor Atlas 40HP', 'Utilidades', 'Alta', 'Operando', 'Marcos Lima'),
-  ('AT-002', 'Esteira Linha 2', 'Producao', 'Alta', 'Em manutencao', 'Paula Rocha'),
-  ('AT-003', 'Empilhadeira E-14', 'Logistica', 'Media', 'Operando', 'Renato Alves')
+  ('Linha 1', 'Linha', '#0f766e', 6, 8, 42, 32),
+  ('Utilidades', 'Area', '#1d4ed8', 54, 8, 36, 32),
+  ('Almoxarifado tecnico', 'Area', '#b45309', 12, 54, 32, 30)
+on conflict (nome) do nothing;
+
+insert into public.tags (codigo, nome, descricao)
+values
+  ('MEC', 'Mecanica', 'Conjuntos mecanicos, transmissao e rolamentos'),
+  ('ELE', 'Eletrica', 'Painel, motor, sensores e automacao'),
+  ('UTIL', 'Utilidades', 'Ar comprimido, agua, vapor e energia')
+on conflict (codigo) do nothing;
+
+insert into public.sub_tags (tag_id, codigo, nome)
+select id, 'ROL', 'Rolamentos' from public.tags where codigo = 'MEC'
+on conflict (tag_id, codigo) do nothing;
+
+insert into public.sub_tags (tag_id, codigo, nome)
+select id, 'TRM', 'Transmissao' from public.tags where codigo = 'MEC'
+on conflict (tag_id, codigo) do nothing;
+
+insert into public.sub_tags (tag_id, codigo, nome)
+select id, 'MOT', 'Motor eletrico' from public.tags where codigo = 'ELE'
+on conflict (tag_id, codigo) do nothing;
+
+insert into public.sub_tags (tag_id, codigo, nome)
+select id, 'CMP', 'Compressor' from public.tags where codigo = 'UTIL'
+on conflict (tag_id, codigo) do nothing;
+
+insert into public.ativos (codigo, nome, setor, criticidade, status, responsavel, pos_x, pos_y, local_id, tag_id, sub_tag_id)
+values
+  (
+    'AT-001',
+    'Compressor Atlas 40HP',
+    'Utilidades',
+    'Alta',
+    'Operando',
+    'Marcos Lima',
+    72,
+    22,
+    (select id from public.locais where nome = 'Utilidades' limit 1),
+    (select id from public.tags where codigo = 'UTIL' limit 1),
+    (select st.id from public.sub_tags st join public.tags t on t.id = st.tag_id where t.codigo = 'UTIL' and st.codigo = 'CMP' limit 1)
+  ),
+  (
+    'AT-002',
+    'Esteira Linha 1',
+    'Producao',
+    'Alta',
+    'Em manutencao',
+    'Paula Rocha',
+    25,
+    24,
+    (select id from public.locais where nome = 'Linha 1' limit 1),
+    (select id from public.tags where codigo = 'MEC' limit 1),
+    (select st.id from public.sub_tags st join public.tags t on t.id = st.tag_id where t.codigo = 'MEC' and st.codigo = 'TRM' limit 1)
+  ),
+  (
+    'AT-003',
+    'Painel CCM-01',
+    'Eletrica',
+    'Media',
+    'Inspecao',
+    'Bianca Torres',
+    42,
+    31,
+    (select id from public.locais where nome = 'Linha 1' limit 1),
+    (select id from public.tags where codigo = 'ELE' limit 1),
+    (select st.id from public.sub_tags st join public.tags t on t.id = st.tag_id where t.codigo = 'ELE' and st.codigo = 'MOT' limit 1)
+  )
 on conflict (codigo) do nothing;
 
 insert into public.chamados (numero, origem, descricao, prioridade, status)

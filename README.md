@@ -1,12 +1,22 @@
 # GestMan365
 
-Sistema web inicial para gestao de manutencao, ativos e chamados, conectado ao Supabase.
+Sistema web inicial para gestao de manutencao, ativos, chamados, mapa industrial e indicadores de confiabilidade, conectado ao Supabase.
 
 ## Arquivos
 
-- `index.html`: tela inicial do sistema conectada ao Supabase.
-- `supabase-setup.sql`: cria as tabelas iniciais no Supabase.
+- `index.html`: sistema GestMan365 conectado ao Supabase.
+- `supabase-setup.sql`: cria e atualiza as tabelas iniciais no Supabase.
 - `ESCOPO.md`: escopo inicial do sistema.
+
+## Recursos desta versao
+
+- Tela inicial com MTTR, MTBF, disponibilidade e ativos mapeados.
+- Graficos operacionais de confiabilidade e backlog.
+- Mapa visual do parque industrial.
+- Cadastro de locais da planta.
+- Cadastro de tags e subtags.
+- Cadastro de maquinas com local, tag, subtag e posicao no mapa.
+- Chamados operacionais.
 
 ## Como configurar o Supabase
 
@@ -19,6 +29,8 @@ Sistema web inicial para gestao de manutencao, ativos e chamados, conectado ao S
 ## Como abrir o sistema
 
 Depois de rodar o SQL, abra o arquivo `index.html` no navegador.
+
+Se voce ainda nao rodou o SQL atualizado, a tela abre em modo demonstracao. Depois de rodar o SQL, clique em `Atualizar`.
 
 O arquivo ja esta configurado com:
 
