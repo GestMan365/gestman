@@ -34,13 +34,18 @@
       color: var(--ink);
       font-family: Arial, Helvetica, sans-serif;
       font-size: 13px;
+      text-transform: uppercase;
       overflow: hidden;
     }
 
-    button, input, select, textarea { font: inherit; }
+    button, input, select, textarea {
+      font: inherit;
+      text-transform: uppercase;
+    }
 
     button {
       cursor: pointer;
+      text-transform: uppercase;
     }
 
     .topbar {
@@ -155,36 +160,46 @@
     }
 
     .nav {
-      height: 52px;
+      position: fixed;
+      top: 62px;
+      left: 0;
+      bottom: 0;
+      width: 230px;
       background: rgba(5, 18, 43, .86);
-      border-bottom: 1px solid rgba(255,255,255,.14);
+      border-right: 1px solid rgba(255,255,255,.14);
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      justify-content: flex-start;
+      align-items: stretch;
+      flex-direction: column;
       gap: 12px;
-      padding: 10px 16px;
+      padding: 14px;
+      z-index: 20;
     }
 
     .tabs {
       display: flex;
+      flex-direction: column;
       gap: 8px;
-      align-items: center;
-      overflow-x: auto;
+      align-items: stretch;
+      overflow: visible;
     }
 
     .tab {
-      height: 32px;
+      height: 42px;
       border: 1px solid rgba(255,255,255,.22);
       border-radius: 5px;
       background: rgba(255,255,255,.08);
       color: var(--ink);
-      padding: 0 11px;
+      padding: 0 12px;
       white-space: nowrap;
+      text-align: left;
+      font-weight: 800;
+      letter-spacing: .2px;
       transition: transform .18s ease, background .18s ease, border-color .18s ease;
     }
 
     .tab:hover {
-      transform: translateY(-2px);
+      transform: translateX(5px);
       border-color: rgba(255,138,76,.7);
       background: rgba(255,138,76,.14);
     }
@@ -197,7 +212,7 @@
     }
 
     .searchbar {
-      width: min(360px, 36vw);
+      width: 100%;
       height: 32px;
       border: 1px solid rgba(255,255,255,.25);
       border-radius: 5px;
@@ -207,7 +222,8 @@
     }
 
     .workspace {
-      height: calc(100vh - 114px);
+      height: calc(100vh - 62px);
+      margin-left: 230px;
       overflow: auto;
       padding: 16px;
     }
@@ -582,7 +598,7 @@
 
     .os-actions {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      grid-template-columns: 1fr;
       gap: 1px;
       background: rgba(255,255,255,.12);
     }
@@ -592,6 +608,7 @@
       border-radius: 0;
       border: 0;
       background: #121f3a;
+      min-height: 38px;
     }
 
     .order-detail {
@@ -1141,10 +1158,10 @@
 
     @media (max-width: 1050px) {
       body { overflow: auto; }
-      .workspace { height: auto; }
+      .workspace { height: auto; margin-left: 0; }
       .metrics, .two-col, .admin-grid, .map-shell { grid-template-columns: 1fr; }
       .searchbar { width: 100%; }
-      .nav { height: auto; align-items: stretch; flex-direction: column; }
+      .nav { position: static; width: auto; height: auto; align-items: stretch; flex-direction: column; border-right: 0; border-bottom: 1px solid rgba(255,255,255,.14); }
     }
   </style>
 </head>
@@ -2018,6 +2035,26 @@
       });
     }
 
+    function detailTabText(tabName) {
+      const texts = {
+        "CheckLists": "Checklist da manutencao, itens verificados e pendencias encontradas.",
+        "Outros Custos": "Registro de custos adicionais ligados a servicos, terceiros ou despesas.",
+        "Assinatura": "Area reservada para assinatura do tecnico ou responsavel.",
+        "Detalhes": "Dados completos da ordem, datas, executantes e prioridade.",
+        "Historico": "Historico de alteracoes, movimentacoes e execucoes desta OS.",
+        "Geral": "Dados principais da ordem de servico.",
+        "Equipe": "Equipe responsavel pela execucao.",
+        "Tarefas": "Tarefas planejadas e executadas durante a OS.",
+        "Seguranca": "Informacoes de seguranca e bloqueios necessarios.",
+        "Fotos": "Fotos vinculadas a ordem de servico.",
+        "Anexos": "Arquivos anexados na OS.",
+        "Documentos": "Documentos tecnicos e procedimentos relacionados.",
+        "Materiais": "Materiais aplicados ou previstos.",
+        "Recursos": "Recursos, ferramentas e apoio necessario."
+      };
+      return texts[tabName] || "Secao da ordem de servico.";
+    }
+
     function showOrderDetails(id) {
       const order = byId(state.orders, id);
       if (!order) return;
@@ -2026,7 +2063,7 @@
       openModal("Visualizacao de OS", `
         <form class="order-detail" id="orderDetailForm">
           <div class="detail-tabs">
-            ${["CheckLists", "Outros Custos", "Assinatura", "Detalhes", "Historico", "Geral", "Equipe", "Tarefas", "Seguranca", "Fotos", "Anexos", "Documentos", "Materiais", "Recursos"].map((tab, index) => `<button class="detail-tab ${index === 5 ? "active" : ""}" type="button">${tab}</button>`).join("")}
+            ${["CheckLists", "Outros Custos", "Assinatura", "Detalhes", "Historico", "Geral", "Equipe", "Tarefas", "Seguranca", "Fotos", "Anexos", "Documentos", "Materiais", "Recursos"].map((tab, index) => `<button class="detail-tab ${index === 5 ? "active" : ""}" type="button" data-detail-tab="${tab}">${tab}</button>`).join("")}
           </div>
           <div class="detail-main">
           <div class="detail-toolbar">
@@ -2043,6 +2080,7 @@
               <button class="icon-btn" type="button" title="Imprimir" onclick="simpleOrderAction('${order.id}', 'Impressao')">▣</button>
             </div>
           </div>
+          <div class="side-box" id="detailTabPanel"><strong>GERAL</strong><span>Dados principais da ordem de servico.</span></div>
           <div class="detail-grid">
             <label>Num. OS</label><input class="field" id="detailNumber" value="${order.number}" readonly>
             <label>Plano</label><input class="field" id="detailPlan" value="${plan}">
@@ -2080,6 +2118,13 @@
       $("detailMaintenance").value = order.maintenance || "Preventiva";
       $("detailPriority").value = order.priority || "Baixa";
       $("detailStatus").value = isRunningOrder(order.status) ? "Em execucao" : isClosedOrder(order.status) ? "Concluida" : order.status || "Aberta";
+      document.querySelectorAll("[data-detail-tab]").forEach(button => {
+        button.addEventListener("click", () => {
+          document.querySelectorAll("[data-detail-tab]").forEach(tab => tab.classList.toggle("active", tab === button));
+          const tabName = button.dataset.detailTab;
+          $("detailTabPanel").innerHTML = `<strong>${tabName.toUpperCase()}</strong><span>${detailTabText(tabName)}</span>`;
+        });
+      });
       $("orderDetailForm").addEventListener("submit", event => {
         event.preventDefault();
         const now = Date.now();
@@ -2408,12 +2453,98 @@
         showToast("OS ja esta concluida.");
         return;
       }
+      openFinishOrderModal(id);
+    }
+
+    function openFinishOrderModal(id) {
+      const order = byId(state.orders, id);
+      if (!order || isClosedOrder(order.status)) {
+        showToast("OS ja esta concluida.");
+        return;
+      }
+      const asset = byId(state.assets, order.assetId) || {};
+      openModal("Encerramento de OS", `
+        <form class="order-detail" id="finishOrderForm">
+          <div class="detail-tabs">
+            ${["CheckLists", "Outros Custos", "Assinatura", "Detalhes", "Historico", "Geral", "Equipe", "Tarefas", "Seguranca", "Fotos", "Anexos", "Documentos", "Materiais", "Recursos"].map((tab, index) => `<button class="detail-tab ${index === 5 ? "active" : ""}" type="button" data-detail-tab="${tab}">${tab}</button>`).join("")}
+          </div>
+          <div class="detail-main">
+            <div class="detail-toolbar">
+              <div class="toolbar"><button class="btn" type="button" onclick="simpleOrderAction('${order.id}', 'Modelo')">Modelos</button><strong>${order.number}</strong></div>
+              <div class="icon-actions">
+                <button class="icon-btn" type="button" title="Gerar PDF" onclick="simpleOrderAction('${order.id}', 'PDF')">PDF</button>
+                <button class="icon-btn" type="button" title="Copiar" onclick="simpleOrderAction('${order.id}', 'copy')">CP</button>
+                <button class="icon-btn" type="button" title="Compartilhar" onclick="simpleOrderAction('${order.id}', 'Compartilhamento')">SH</button>
+                <button class="icon-btn" type="button" title="Imprimir" onclick="simpleOrderAction('${order.id}', 'Impressao')">PR</button>
+              </div>
+            </div>
+            <div class="side-box" id="detailTabPanel"><strong>GERAL</strong><span>Preencha os dados finais antes de concluir a ordem de servico.</span></div>
+            <div class="detail-grid">
+              <label>Num. OS</label><input class="field" value="${order.number}" readonly>
+              <label>Plano</label><input class="field" id="finishPlan" value="${order.plan || "42"}">
+              <label>Local</label><input class="field detail-span" value="${locationName(asset.locationId)}" readonly>
+              <label>LI</label><input class="field detail-span" value="${asset.name || "-"}" readonly>
+              <label>TAG</label><input class="field detail-span" value="${tagName(asset.tagId)} ${subtagName(asset.subtagId)}" readonly>
+              <label>Tipo de Servico</label><select class="field detail-span" id="finishType"><option>Corretiva</option><option>Preventiva</option><option>Inspecao</option><option>Eletrica</option><option>Mecanica</option></select>
+              <label>Tipo de Manutencao</label><select class="field detail-span" id="finishMaintenance"><option>Preventiva</option><option>Corretiva</option><option>Preditiva</option><option>Melhoria</option></select>
+              <label>Prioridade</label><select class="field detail-span" id="finishPriority"><option>Baixa</option><option>Media</option><option>Alta</option></select>
+              <label>Data/Hora Programada</label><input class="field detail-span" id="finishScheduled" value="${order.scheduledAt || ""}" placeholder="dd/mm/aaaa --:--">
+              <label>Duracao Estimada</label><div class="detail-span detail-two"><input class="field" id="finishDays" type="number" min="0" value="${order.durationDays || 0}"><input class="field" id="finishHours" value="${order.durationHours || "01:00"}" placeholder="01:00 hrs"></div>
+              <label>Executante</label><input class="field detail-span" id="finishExecutor" value="${order.executor || ""}" required placeholder="Nome do executante">
+              <label>Numero de Executantes</label><input class="field detail-span" id="finishExecutors" type="number" min="1" value="${order.executors || 1}">
+              <label>Data e Hora de Inicio</label><input class="field detail-span" value="${formatDateTime(order.startedAt)}" readonly>
+              <label>Data e Hora de Termino</label><input class="field detail-span" value="${formatDateTime(Date.now())}" readonly>
+              <label>Checklist</label><textarea class="field detail-span" id="finishChecklist" placeholder="Checklist de manutencao">${order.checklist || ""}</textarea>
+              <label>Comentario</label><textarea class="field detail-span" id="finishComment" placeholder="Comentario">${order.comment || order.description || ""}</textarea>
+            </div>
+            <div class="side-box">
+              <label class="switch-line"><input type="checkbox" id="finishPending" ${order.pendingExecution ? "checked" : ""}> OS pendente de execucao</label>
+              <label class="switch-line"><input type="checkbox" id="finishStopped" ${order.machineStopped ? "checked" : ""}> Maquina parada durante o servico</label>
+            </div>
+            <div class="toolbar">
+              <button class="btn danger" type="button" onclick="closeModal()">Cancelar</button>
+              <button class="btn primary" type="submit">Confirmar encerramento</button>
+            </div>
+          </div>
+        </form>
+      `, true);
+      $("finishType").value = order.type || "Corretiva";
+      $("finishMaintenance").value = order.maintenance || "Preventiva";
+      $("finishPriority").value = order.priority || "Baixa";
+      document.querySelectorAll("[data-detail-tab]").forEach(button => {
+        button.addEventListener("click", () => {
+          document.querySelectorAll("[data-detail-tab]").forEach(tab => tab.classList.toggle("active", tab === button));
+          $("detailTabPanel").innerHTML = `<strong>${button.dataset.detailTab.toUpperCase()}</strong><span>${detailTabText(button.dataset.detailTab)}</span>`;
+        });
+      });
+      $("finishOrderForm").addEventListener("submit", event => {
+        event.preventDefault();
+        confirmFinishOrder(id);
+      });
+    }
+
+    function confirmFinishOrder(id) {
+      const now = Date.now();
       state.orders = state.orders.map(order => {
         if (order.id !== id) return order;
         const startedAt = Number(order.startedAt || order.createdAt || now);
         const calculatedMttr = Math.max(0.1, (now - startedAt) / 36e5);
         return {
           ...order,
+          plan: $("finishPlan").value,
+          type: $("finishType").value,
+          maintenance: $("finishMaintenance").value,
+          priority: $("finishPriority").value,
+          scheduledAt: $("finishScheduled").value,
+          durationDays: $("finishDays").value,
+          durationHours: $("finishHours").value,
+          executor: $("finishExecutor").value,
+          executors: $("finishExecutors").value,
+          checklist: $("finishChecklist").value,
+          comment: $("finishComment").value,
+          description: $("finishComment").value,
+          pendingExecution: $("finishPending").checked,
+          machineStopped: $("finishStopped").checked,
           status: "Concluida",
           finishedAt: now,
           mttr: Number(calculatedMttr.toFixed(1))
