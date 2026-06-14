@@ -934,6 +934,182 @@
       min-width: 980px;
     }
 
+    .check-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.50);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 62;
+    }
+
+    .check-modal-backdrop.open { display: flex; }
+
+    .check-modal {
+      width: 530px;
+      max-width: calc(100vw - 36px);
+      height: 482px;
+      max-height: calc(100vh - 36px);
+      background: #1c1c1c;
+      border: 1px solid #666;
+      border-radius: 4px;
+      color: #d8d8d8;
+      box-shadow: 0 18px 54px rgba(0,0,0,.62);
+      position: relative;
+      padding: 36px 6px 0;
+    }
+
+    .check-close {
+      position: absolute;
+      right: -1px;
+      top: -1px;
+      width: 24px;
+      height: 24px;
+      border: 1px solid #555;
+      border-radius: 4px;
+      background: #d8d8d8;
+      color: #202020;
+      font-weight: 900;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      font-size: 17px;
+    }
+
+    .check-tab {
+      position: absolute;
+      left: 6px;
+      top: 36px;
+      right: 6px;
+      height: 23px;
+      background: #80aec2;
+      color: #173444;
+      border-radius: 4px 4px 0 0;
+      display: flex;
+      align-items: center;
+      padding-left: 4px;
+      font-size: 13px;
+    }
+
+    .check-body {
+      position: absolute;
+      left: 6px;
+      right: 6px;
+      top: 59px;
+      bottom: 6px;
+      border: 1px solid #696969;
+      border-radius: 0 0 4px 4px;
+      background: #1c1c1c;
+      padding: 6px;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+    }
+
+    .check-title {
+      height: 27px;
+      display: grid;
+      grid-template-columns: 26px minmax(0, 1fr) 26px;
+      align-items: center;
+      border-bottom: 1px solid #686868;
+      font-size: 16px;
+      font-weight: 700;
+      text-align: center;
+      color: #eeeeee;
+    }
+
+    .check-icon {
+      width: 23px;
+      height: 23px;
+      border: 1px solid #8a8a8a;
+      display: grid;
+      place-items: center;
+      color: #cfcfcf;
+      font-size: 18px;
+    }
+
+    .check-filters {
+      width: min(420px, 100%);
+      margin: 18px auto 8px;
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 8px 14px;
+      align-items: center;
+    }
+
+    .check-filters label {
+      color: #a7a7a7;
+      font-size: 16px;
+      text-transform: none;
+      font-weight: 400;
+    }
+
+    .check-select {
+      height: 31px;
+      border: 1px solid #646464;
+      border-radius: 3px;
+      background: #343434;
+      color: #cfcfcf;
+      padding: 0 30px 0 8px;
+      width: 100%;
+      font-size: 14px;
+    }
+
+    .check-table {
+      margin-top: 8px;
+      border-top: 1px solid #8a8a8a;
+    }
+
+    .check-table table {
+      min-width: 100%;
+    }
+
+    .check-table th,
+    .check-table td {
+      padding: 6px 14px;
+      height: 27px;
+      border: 1px solid #3d3d3d;
+    }
+
+    .check-table th {
+      background: #4e555d;
+      color: #eeeeee;
+      font-size: 13px;
+      text-transform: none;
+    }
+
+    .check-table td {
+      color: #d6d6d6;
+      background: #1b1b1b;
+    }
+
+    .check-footer {
+      border-top: 1px solid #8a8a8a;
+      padding: 8px 0 14px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .check-cancel {
+      width: 160px;
+      height: 33px;
+      border: 0;
+      border-radius: 5px;
+      background: #f266ca;
+      color: #2d0723;
+      font-size: 16px;
+      cursor: pointer;
+      transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
+    }
+
+    .check-cancel:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.05);
+      box-shadow: 0 10px 22px rgba(242,102,202,.24);
+    }
+
     @media (max-width: 1100px) {
       .os-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .os-field.wide,
@@ -1386,6 +1562,37 @@
     </div>
   </div>
 
+  <div class="check-modal-backdrop" id="checkModal">
+    <div class="check-modal">
+      <button class="check-close" id="closeCheckModal">×</button>
+      <div class="check-tab">Geral</div>
+      <div class="check-body">
+        <div class="check-title">
+          <div class="check-icon">☑</div>
+          <div>CheckLists Disponíveis</div>
+          <div></div>
+        </div>
+        <div class="check-filters">
+          <label>Local</label>
+          <select class="check-select" id="checkLocal"><option>MANIPULAÇÃO</option><option>PRODUÇÃO</option><option>UTILIDADES</option></select>
+          <label>LI</label>
+          <select class="check-select" id="checkLi"><option>REATORES</option><option>ENVASE</option><option>ROTULAGEM</option></select>
+          <label>TAG</label>
+          <select class="check-select" id="checkTag"><option>R-03</option></select>
+        </div>
+        <div class="check-table">
+          <table>
+            <thead><tr><th style="width:80px">ID</th><th>Nome</th><th style="width:260px">Último Preenchimento</th></tr></thead>
+            <tbody id="checkRows"><tr><td colspan="3">Nenhum checklist vinculado</td></tr></tbody>
+          </table>
+        </div>
+        <div class="check-footer">
+          <button class="check-cancel" id="cancelCheckModal">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <button class="fab" id="adminFab">▦</button>
 
   <script>
@@ -1655,6 +1862,10 @@
       const asset = byId(state.assets, state.selectedAssetId);
       if (!asset) return;
       closeMachineMenu();
+      if (action === "checklists") {
+        openCheckModal(asset);
+        return;
+      }
       if (action === "historico") {
         openOsModal(asset);
         return;
@@ -1721,6 +1932,22 @@
       document.getElementById("osResults").classList.remove("open");
       document.getElementById("osRows").innerHTML = "";
       document.getElementById("osModal").classList.add("open");
+    }
+
+    function openCheckModal(asset) {
+      const localName = label(state.locations, asset.local_id) || "MANIPULAÇÃO";
+      document.getElementById("checkLocal").innerHTML = `<option>${localName.toUpperCase()}</option><option>MANIPULAÇÃO</option><option>PRODUÇÃO</option><option>UTILIDADES</option>`;
+      document.getElementById("checkLi").innerHTML = `<option>${asset.setor || "REATORES"}</option><option>REATORES</option><option>ENVASE</option><option>ROTULAGEM</option>`;
+      document.getElementById("checkTag").innerHTML = `<option>${asset.codigo}</option>`;
+      const hasChecklist = asset.criticidade === "Alta";
+      document.getElementById("checkRows").innerHTML = hasChecklist
+        ? `<tr><td>CK-01</td><td>Inspecao operacional ${asset.codigo}</td><td>14/06/2026 08:20</td></tr>`
+        : `<tr><td colspan="3">Nenhum checklist vinculado</td></tr>`;
+      document.getElementById("checkModal").classList.add("open");
+    }
+
+    function closeCheckModal() {
+      document.getElementById("checkModal").classList.remove("open");
     }
 
     function closeOsModal() {
@@ -1807,6 +2034,11 @@
     document.getElementById("submitOsList").addEventListener("click", submitOsList);
     document.getElementById("osModal").addEventListener("click", event => {
       if (event.target.id === "osModal") closeOsModal();
+    });
+    document.getElementById("closeCheckModal").addEventListener("click", closeCheckModal);
+    document.getElementById("cancelCheckModal").addEventListener("click", closeCheckModal);
+    document.getElementById("checkModal").addEventListener("click", event => {
+      if (event.target.id === "checkModal") closeCheckModal();
     });
     document.getElementById("closeMachineMenu").addEventListener("click", closeMachineMenu);
     document.getElementById("machineMenu").addEventListener("click", event => {
