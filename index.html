@@ -567,6 +567,110 @@
       background: #121f3a;
     }
 
+    .order-detail {
+      display: grid;
+      gap: 10px;
+    }
+
+    .detail-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      border-bottom: 1px solid rgba(255,255,255,.16);
+      padding-bottom: 8px;
+    }
+
+    .detail-tab {
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.07);
+      color: #d9e4ff;
+      border-radius: 5px;
+      padding: 6px 9px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .detail-tab.active {
+      background: var(--blue-700);
+      color: #fff;
+    }
+
+    .detail-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 8px;
+      background: rgba(255,255,255,.05);
+    }
+
+    .icon-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .icon-btn {
+      width: 32px;
+      height: 30px;
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 6px;
+      background: #162746;
+      color: #fff;
+      font-weight: 900;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 130px minmax(0, 1fr) 130px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+    }
+
+    .detail-grid label {
+      color: var(--muted);
+      text-transform: none;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .detail-span {
+      grid-column: span 3;
+    }
+
+    .detail-two {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .switch-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #d9e4ff;
+      font-size: 13px;
+    }
+
+    .switch-line input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--orange);
+    }
+
+    @media (max-width: 760px) {
+      .detail-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .detail-span {
+        grid-column: auto;
+      }
+    }
+
     .actions {
       display: flex;
       gap: 6px;
@@ -1735,18 +1839,90 @@
     function showOrderDetails(id) {
       const order = byId(state.orders, id);
       if (!order) return;
-      openModal("Detalhes da OS", `
-        <div class="side-box">
-          <strong>${order.number}</strong>
-          <span>Máquina: ${machineName(order.assetId)}</span>
-          <span>Tipo: ${order.type}</span>
-          <span>Status: ${order.status}</span>
-          <span>Abertura: ${formatDateTime(order.createdAt)}</span>
-          <span>Início: ${formatDateTime(order.startedAt)}</span>
-          <span>Finalização: ${formatDateTime(order.finishedAt)}</span>
-          <span>Descrição: ${order.description || "-"}</span>
-        </div>
-      `);
+      const asset = byId(state.assets, order.assetId) || {};
+      const plan = order.plan || "43";
+      openModal("Visualizacao de OS", `
+        <form class="order-detail" id="orderDetailForm">
+          <div class="detail-tabs">
+            ${["CheckLists", "Outros Custos", "Assinatura", "Detalhes", "Historico", "Geral", "Equipe", "Tarefas", "Seguranca", "Fotos", "Anexos", "Documentos", "Materiais", "Recursos"].map((tab, index) => `<button class="detail-tab ${index === 5 ? "active" : ""}" type="button">${tab}</button>`).join("")}
+          </div>
+          <div class="detail-toolbar">
+            <div class="toolbar">
+              <button class="btn" type="button" onclick="simpleOrderAction('${order.id}', 'Modelo')">Modelos</button>
+              <strong>${order.number}</strong>
+            </div>
+            <div class="icon-actions">
+              <button class="icon-btn" type="button" title="Gerar PDF" onclick="simpleOrderAction('${order.id}', 'PDF')">PDF</button>
+              <button class="icon-btn" type="button" title="Iniciar" onclick="confirmStartOrder('${order.id}')">▶</button>
+              <button class="icon-btn" type="button" title="Copiar" onclick="simpleOrderAction('${order.id}', 'copy')">⧉</button>
+              <button class="icon-btn" type="button" title="Compartilhar" onclick="simpleOrderAction('${order.id}', 'Compartilhamento')">↗</button>
+              <button class="icon-btn" type="button" title="Imprimir" onclick="simpleOrderAction('${order.id}', 'Impressao')">▣</button>
+            </div>
+          </div>
+          <div class="detail-grid">
+            <label>Num. OS</label><input class="field" id="detailNumber" value="${order.number}" readonly>
+            <label>Plano</label><input class="field" id="detailPlan" value="${plan}">
+
+            <label>Local</label><input class="field detail-span" value="${locationName(asset.locationId)}" readonly>
+            <label>LI</label><input class="field detail-span" value="${asset.name || "-"}" readonly>
+            <label>TAG</label><input class="field detail-span" value="${tagName(asset.tagId)} ${subtagName(asset.subtagId)}" readonly>
+
+            <label>Tipo de Servico</label><select class="field detail-span" id="detailType"><option>Corretiva</option><option>Preventiva</option><option>Inspecao</option><option>Eletrica</option><option>Mecanica</option></select>
+            <label>Tipo de Manutencao</label><select class="field detail-span" id="detailMaintenance"><option>Preventiva</option><option>Corretiva</option><option>Preditiva</option><option>Melhoria</option></select>
+            <label>Prioridade</label><select class="field detail-span" id="detailPriority"><option>Baixa</option><option>Media</option><option>Alta</option></select>
+            <label>Status</label><select class="field detail-span" id="detailStatus"><option>Aberta</option><option>Planejada</option><option>Em execucao</option><option>Concluida</option></select>
+            <label>Data/Hora Programada</label><input class="field detail-span" id="detailScheduled" value="${order.scheduledAt || ""}" placeholder="dd/mm/aaaa --:--">
+            <label>Duracao Estimada</label><div class="detail-span detail-two"><input class="field" id="detailDays" type="number" min="0" value="${order.durationDays || 0}"><input class="field" id="detailHours" value="${order.durationHours || "01:00"}" placeholder="01:00 hrs"></div>
+            <label>Executante</label><input class="field detail-span" id="detailExecutor" value="${order.executor || ""}" placeholder="Nome do executante">
+            <label>Numero de Executantes</label><input class="field detail-span" id="detailExecutors" type="number" min="1" value="${order.executors || 1}">
+            <label>Data e Hora de Inicio</label><input class="field detail-span" value="${formatDateTime(order.startedAt)}" readonly>
+            <label>Data e Hora de Termino</label><input class="field detail-span" value="${formatDateTime(order.finishedAt)}" readonly>
+            <label>Checklist</label><textarea class="field detail-span" id="detailChecklist" placeholder="Checklist de manutencao">${order.checklist || ""}</textarea>
+            <label>Comentario</label><textarea class="field detail-span" id="detailComment" placeholder="Comentario">${order.comment || order.description || ""}</textarea>
+          </div>
+          <div class="side-box">
+            <label class="switch-line"><input type="checkbox" id="detailPending" ${order.pendingExecution ? "checked" : ""}> OS pendente de execucao</label>
+            <label class="switch-line"><input type="checkbox" id="detailStopped" ${order.machineStopped ? "checked" : ""}> Maquina parada durante o servico</label>
+          </div>
+          <div class="toolbar">
+            <button class="btn danger" type="button" onclick="closeModal()">Cancelar</button>
+            <button class="btn primary" type="submit">Salvar detalhes</button>
+          </div>
+        </form>
+      `, true);
+      $("detailType").value = order.type || "Corretiva";
+      $("detailMaintenance").value = order.maintenance || "Preventiva";
+      $("detailPriority").value = order.priority || "Baixa";
+      $("detailStatus").value = isRunningOrder(order.status) ? "Em execucao" : isClosedOrder(order.status) ? "Concluida" : order.status || "Aberta";
+      $("orderDetailForm").addEventListener("submit", event => {
+        event.preventDefault();
+        const now = Date.now();
+        const status = $("detailStatus").value;
+        state.orders = state.orders.map(item => item.id === id ? {
+          ...item,
+          plan: $("detailPlan").value,
+          type: $("detailType").value,
+          maintenance: $("detailMaintenance").value,
+          priority: $("detailPriority").value,
+          status,
+          scheduledAt: $("detailScheduled").value,
+          durationDays: $("detailDays").value,
+          durationHours: $("detailHours").value,
+          executor: $("detailExecutor").value,
+          executors: $("detailExecutors").value,
+          checklist: $("detailChecklist").value,
+          comment: $("detailComment").value,
+          description: $("detailComment").value,
+          pendingExecution: $("detailPending").checked,
+          machineStopped: $("detailStopped").checked,
+          startedAt: isRunningOrder(status) ? (item.startedAt || now) : item.startedAt || null,
+          finishedAt: isClosedOrder(status) ? (item.finishedAt || now) : item.finishedAt || null
+        } : item);
+        saveState();
+        closeModal();
+        render();
+        showToast("Detalhes da OS salvos.");
+      });
     }
 
     function simpleOrderAction(id, action) {
