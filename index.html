@@ -1110,6 +1110,255 @@
       box-shadow: 0 10px 22px rgba(242,102,202,.24);
     }
 
+    .new-os-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.54);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      z-index: 64;
+    }
+
+    .new-os-backdrop.open { display: flex; }
+
+    .new-os-modal {
+      width: 398px;
+      max-width: calc(100vw - 28px);
+      max-height: calc(100vh - 28px);
+      overflow: auto;
+      background: #1b1b1b;
+      border: 1px solid #5f5f5f;
+      border-radius: 3px;
+      color: #d5d5d5;
+      box-shadow: 0 18px 54px rgba(0,0,0,.62);
+      position: relative;
+      padding: 27px 4px 4px;
+    }
+
+    .new-os-close {
+      position: absolute;
+      right: -1px;
+      top: -1px;
+      width: 19px;
+      height: 19px;
+      border: 1px solid #555;
+      border-radius: 4px;
+      background: #d8d8d8;
+      color: #202020;
+      font-weight: 900;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+      z-index: 2;
+    }
+
+    .new-os-tabs {
+      position: absolute;
+      left: 4px;
+      top: 27px;
+      right: 4px;
+      display: flex;
+      align-items: end;
+      height: 39px;
+      overflow: hidden;
+    }
+
+    .new-os-tab {
+      height: 20px;
+      min-width: 54px;
+      border: 1px solid #626262;
+      border-bottom: 0;
+      background: #333;
+      color: #bdbdbd;
+      font-size: 10px;
+      display: grid;
+      place-items: center;
+      padding: 0 4px;
+    }
+
+    .new-os-tab.active {
+      background: #2a2a2a;
+      color: #e2e2e2;
+    }
+
+    .new-os-content {
+      margin-top: 39px;
+      border: 1px solid #626262;
+      border-radius: 0 0 3px 3px;
+      padding: 4px 5px 0;
+    }
+
+    .new-os-title {
+      height: 27px;
+      display: grid;
+      grid-template-columns: 23px 82px minmax(0, 1fr);
+      align-items: center;
+      gap: 4px;
+      color: #f1f1f1;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .new-os-gear {
+      width: 21px;
+      height: 21px;
+      border: 1px solid #777;
+      display: grid;
+      place-items: center;
+      color: #cfcfcf;
+      font-size: 15px;
+    }
+
+    .model-select {
+      height: 23px;
+      border: 1px solid #676767;
+      background: #363636;
+      color: #d8d8d8;
+      border-radius: 3px;
+      padding: 0 4px;
+      font-size: 12px;
+    }
+
+    .new-os-grid {
+      display: grid;
+      grid-template-columns: 130px minmax(0, 1fr);
+      gap: 6px 5px;
+      align-items: center;
+      padding: 0 5px;
+    }
+
+    .new-os-grid label {
+      color: #929292;
+      font-size: 12px;
+      text-transform: none;
+      font-weight: 400;
+    }
+
+    .new-field,
+    .new-select {
+      height: 25px;
+      border: 1px solid #656565;
+      border-radius: 2px;
+      background: #191919;
+      color: #d8d8d8;
+      padding: 0 7px;
+      width: 100%;
+      font-size: 12px;
+    }
+
+    .new-select.filled,
+    .new-field.filled {
+      background: #393939;
+    }
+
+    .duration-row {
+      display: grid;
+      grid-template-columns: 42px 30px minmax(0, 1fr) 28px;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .duration-row span {
+      color: #b8b8b8;
+      font-size: 12px;
+    }
+
+    .new-area {
+      margin: 8px 5px 0;
+      height: 59px;
+      border: 1px solid #686868;
+      background: #161616;
+      color: #d8d8d8;
+      width: calc(100% - 10px);
+      resize: vertical;
+      padding: 7px;
+      font-size: 12px;
+    }
+
+    .category-input {
+      margin: 14px 20px 12px;
+      height: 24px;
+      border: 1px solid #686868;
+      border-radius: 5px;
+      background: #191919;
+      color: #999;
+      padding: 0 8px;
+      width: calc(100% - 40px);
+      font-size: 11px;
+    }
+
+    .toggle-list {
+      display: grid;
+      gap: 9px;
+      margin: 0 12px 12px;
+    }
+
+    .toggle-row {
+      display: grid;
+      grid-template-columns: 38px minmax(0, 1fr);
+      align-items: center;
+      gap: 9px;
+      color: #999;
+      font-size: 12px;
+    }
+
+    .fake-toggle {
+      width: 27px;
+      height: 15px;
+      border-radius: 999px;
+      background: #4a4a4a;
+      position: relative;
+      display: inline-grid;
+      place-items: center;
+      color: #c9c9c9;
+      font-size: 10px;
+    }
+
+    .fake-toggle::before {
+      content: "";
+      position: absolute;
+      left: 2px;
+      top: 2px;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: #252525;
+    }
+
+    .new-os-actions {
+      border-top: 1px solid #777;
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      padding: 7px 0 14px;
+    }
+
+    .new-cancel,
+    .new-confirm {
+      width: 120px;
+      height: 25px;
+      border: 0;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+      transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+    }
+
+    .new-cancel { background: #f266ca; color: #2d0723; }
+    .new-confirm { background: #119feb; color: #00131f; }
+
+    .new-cancel:hover,
+    .new-confirm:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.06);
+      box-shadow: 0 9px 20px rgba(0,0,0,.28);
+    }
+
     @media (max-width: 1100px) {
       .os-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .os-field.wide,
@@ -1593,6 +1842,71 @@
     </div>
   </div>
 
+  <div class="new-os-backdrop" id="newOsModal">
+    <div class="new-os-modal">
+      <button class="new-os-close" id="closeNewOsModal">×</button>
+      <div class="new-os-tabs">
+        <div class="new-os-tab active">CheckLists</div>
+        <div class="new-os-tab">Outros Custos</div>
+        <div class="new-os-tab">Assinatura</div>
+        <div class="new-os-tab">Detalhes</div>
+        <div class="new-os-tab active">Geral</div>
+        <div class="new-os-tab">Equipe</div>
+        <div class="new-os-tab">Tarefas</div>
+        <div class="new-os-tab">Segurança</div>
+        <div class="new-os-tab">Fotos</div>
+        <div class="new-os-tab">Anexos</div>
+        <div class="new-os-tab">Documentos</div>
+      </div>
+      <div class="new-os-content">
+        <div class="new-os-title">
+          <div class="new-os-gear">⚙</div>
+          <select class="model-select"><option>Modelos</option></select>
+          <div>Criar OS</div>
+        </div>
+        <div class="new-os-grid">
+          <label>Local</label>
+          <select class="new-select filled" id="newOsLocal"><option>UNIDADE 01- FÁBRICA - MANIP...</option></select>
+          <label>LI</label>
+          <select class="new-select filled" id="newOsLi"><option>REATORES</option></select>
+          <label>TAG</label>
+          <select class="new-select filled" id="newOsTag"><option>R-05</option></select>
+          <label>Tipo de Serviço</label>
+          <select class="new-select"><option></option><option>Corretiva</option><option>Preventiva</option></select>
+          <label>Tipo de Manutenção</label>
+          <select class="new-select"><option></option><option>Mecânica</option><option>Elétrica</option></select>
+          <label>Prioridade</label>
+          <select class="new-select"><option>Baixa</option><option>Média</option><option>Alta</option></select>
+          <label>Data/Hora Programada</label>
+          <input class="new-field" value="dd/mm/aaaa --:--">
+          <label>Duração Estimada</label>
+          <div class="duration-row"><input class="new-field"><span>dias e</span><input class="new-field" value="--:--"><span>hrs</span></div>
+          <label>Executante</label>
+          <select class="new-select"><option></option><option>Manutenção</option><option>Confiabilidade</option></select>
+          <label>Número de Executantes</label>
+          <input class="new-field" value="1">
+          <label>Data e Hora de Início</label>
+          <input class="new-field" value="dd/mm/aaaa --:--">
+          <label>Data e Hora do Término</label>
+          <input class="new-field" value="dd/mm/aaaa --:--">
+        </div>
+        <textarea class="new-area" placeholder="Descrição"></textarea>
+        <textarea class="new-area" placeholder="Comentário"></textarea>
+        <input class="category-input" placeholder="escolha uma categoria">
+        <div class="toggle-list">
+          <div class="toggle-row"><span class="fake-toggle">0</span><span>OS Pendente de Execução</span></div>
+          <div class="toggle-row"><span class="fake-toggle">0</span><span>Máquina parada durante o serviço.</span></div>
+          <div class="toggle-row"><span class="fake-toggle">0</span><span>Abrir outra OS após esta.</span></div>
+          <div class="toggle-row"><span class="fake-toggle">0</span><span>Imprimir esta OS após a Criação.</span></div>
+        </div>
+        <div class="new-os-actions">
+          <button class="new-cancel" id="cancelNewOsModal">Cancelar</button>
+          <button class="new-confirm" id="confirmNewOsModal">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <button class="fab" id="adminFab">▦</button>
 
   <script>
@@ -1866,6 +2180,10 @@
         openCheckModal(asset);
         return;
       }
+      if (action === "nova-os") {
+        openNewOsModal(asset);
+        return;
+      }
       if (action === "historico") {
         openOsModal(asset);
         return;
@@ -1948,6 +2266,31 @@
 
     function closeCheckModal() {
       document.getElementById("checkModal").classList.remove("open");
+    }
+
+    function openNewOsModal(asset) {
+      const localName = label(state.locations, asset.local_id) || "UNIDADE 01- FÁBRICA - MANIP...";
+      document.getElementById("newOsLocal").innerHTML = `<option>${localName.toUpperCase()}</option>`;
+      document.getElementById("newOsLi").innerHTML = `<option>${asset.setor || "REATORES"}</option>`;
+      document.getElementById("newOsTag").innerHTML = `<option>${asset.codigo}</option>`;
+      document.getElementById("newOsModal").classList.add("open");
+    }
+
+    function closeNewOsModal() {
+      document.getElementById("newOsModal").classList.remove("open");
+    }
+
+    function confirmNewOsModal() {
+      closeNewOsModal();
+      const asset = byId(state.assets, state.selectedAssetId);
+      if (!asset) return;
+      document.getElementById("detailsTitle").textContent = `Nova OS - ${asset.codigo}`;
+      document.getElementById("detailsBody").innerHTML = `
+        <div><span class="pill green">OS criada em rascunho</span></div>
+        <div><strong>Ativo:</strong> ${asset.codigo} - ${asset.nome}</div>
+        <div><strong>Status:</strong> aguardando confirmação de execução.</div>
+      `;
+      document.getElementById("detailsPanel").classList.add("open");
     }
 
     function closeOsModal() {
@@ -2039,6 +2382,12 @@
     document.getElementById("cancelCheckModal").addEventListener("click", closeCheckModal);
     document.getElementById("checkModal").addEventListener("click", event => {
       if (event.target.id === "checkModal") closeCheckModal();
+    });
+    document.getElementById("closeNewOsModal").addEventListener("click", closeNewOsModal);
+    document.getElementById("cancelNewOsModal").addEventListener("click", closeNewOsModal);
+    document.getElementById("confirmNewOsModal").addEventListener("click", confirmNewOsModal);
+    document.getElementById("newOsModal").addEventListener("click", event => {
+      if (event.target.id === "newOsModal") closeNewOsModal();
     });
     document.getElementById("closeMachineMenu").addEventListener("click", closeMachineMenu);
     document.getElementById("machineMenu").addEventListener("click", event => {
