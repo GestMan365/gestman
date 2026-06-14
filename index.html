@@ -527,6 +527,14 @@
       text-transform: uppercase;
     }
 
+    .click-row {
+      cursor: pointer;
+    }
+
+    .click-row:hover {
+      background: rgba(255,138,76,.12);
+    }
+
     .actions {
       display: flex;
       gap: 6px;
@@ -1030,9 +1038,7 @@
             <label>Status <select class="field" id="assetStatus"><option>Operando</option><option>Inspeção</option><option>Em manutenção</option><option>Inativo</option></select></label>
             <label>Marca <input class="field" id="assetBrand" placeholder="WEG, Muriel, Atlas"></label>
             <label>Modelo <input class="field" id="assetModel" placeholder="Modelo"></label>
-            <label>Tipo visual <select class="field" id="assetIcon"><option value="RT">Reator/Tanque</option><option value="ME">Módulo</option><option value="MF">Máquina</option><option value="INK">Funil</option><option value="OS">Estação</option><option value="ILUP">Iluminação</option></select></label>
-            <label>Posição X (%) <input class="field" id="assetX" type="number" min="3" max="97" value="50"></label>
-            <label>Posição Y (%) <input class="field" id="assetY" type="number" min="3" max="97" value="50"></label>
+            <label>Imagem da tag <select class="field" id="assetIcon"><option value="⚙">Motor</option><option value="💧">Bomba</option><option value="▣">Compressor</option><option value="▥">Painel elétrico</option><option value="◉">Reator/Tanque</option><option value="▰">Esteira</option><option value="◆">Máquina geral</option></select></label>
             <label class="full">Descrição <textarea class="field" id="assetDescription" placeholder="Descrição da máquina"></textarea></label>
             <div class="full toolbar">
               <button class="btn primary" type="submit">Salvar máquina</button>
@@ -1055,9 +1061,6 @@
             <input type="hidden" id="locationId">
             <label>Nome <input class="field" id="locationName" required placeholder="Linha 01 - Produção"></label>
             <label>Tipo <select class="field" id="locationType"><option>Linha</option><option>Área</option><option>Célula</option><option>Sala</option><option>Prédio</option></select></label>
-            <label>Cor <input class="field" id="locationColor" value="#123f8d"></label>
-            <label>X (%) <input class="field" id="locationX" type="number" min="0" max="90" value="5"></label>
-            <label>Y (%) <input class="field" id="locationY" type="number" min="0" max="90" value="8"></label>
             <div class="full toolbar">
               <button class="btn primary" type="submit">Salvar local</button>
               <button class="btn" type="button" id="resetLocationForm">Limpar formulário</button>
@@ -1066,7 +1069,7 @@
         </div>
         <div class="panel">
           <div class="panel-head"><div class="panel-title">Locais cadastrados</div></div>
-          <div class="table-wrap"><table><thead><tr><th>Nome</th><th>Tipo</th><th>Posição inicial</th><th>Ações</th></tr></thead><tbody id="locationRows"></tbody></table></div>
+          <div class="table-wrap"><table><thead><tr><th>Nome</th><th>Tipo</th><th>Ações</th></tr></thead><tbody id="locationRows"></tbody></table></div>
         </div>
       </div>
     </section>
@@ -1222,6 +1225,11 @@
       return locationAt(x, y)?.name || "Fora de local definido";
     }
 
+    function visualIcon(value) {
+      const icons = { RT: "◉", ME: "◆", MF: "▣", INK: "▽", OS: "▥", ILUP: "✦" };
+      return icons[value] || value || "◆";
+    }
+
     function tagName(id) { const item = byId(state.tags, id); return item ? `${item.code}` : "-"; }
     function subtagName(id) { const item = byId(state.subtags, id); return item ? `${item.code}` : "-"; }
     function machineName(id) { const item = byId(state.assets, id); return item ? `${item.code} - ${item.name}` : "-"; }
@@ -1306,20 +1314,48 @@
     }
 
     function autoResizeLocations() {
-      state.locations = state.locations.map(location => {
+      let cursorX = 2;
+      let cursorY = 5;
+      let rowH = 0;
+      state.locations = state.locations.map((location) => {
         const machines = state.assets.filter(asset => asset.locationId === location.id);
         const count = machines.length;
-        if (!count) return { ...location, w: Number(location.w || 38), h: Number(location.h || 28) };
-        const minX = Math.min(...machines.map(asset => Number(asset.x || 50)));
-        const maxX = Math.max(...machines.map(asset => Number(asset.x || 50)));
-        const minY = Math.min(...machines.map(asset => Number(asset.y || 50)));
-        const maxY = Math.max(...machines.map(asset => Number(asset.y || 50)));
-        const paddedX = Math.max(0, Math.min(Number(location.x || 0), minX - 8));
-        const paddedY = Math.max(0, Math.min(Number(location.y || 0), minY - 8));
-        const neededW = Math.min(95 - paddedX, Math.max(Number(location.w || 38), maxX - paddedX + 10, 24 + count * 2));
-        const neededH = Math.min(95 - paddedY, Math.max(Number(location.h || 28), maxY - paddedY + 10, 18 + Math.ceil(count / 4) * 8));
-        return { ...location, x: Number(paddedX.toFixed(2)), y: Number(paddedY.toFixed(2)), w: Number(neededW.toFixed(2)), h: Number(neededH.toFixed(2)) };
+        const cols = Math.min(7, Math.max(3, Math.ceil(Math.sqrt(Math.max(1, count)))));
+        const rows = Math.max(1, Math.ceil(Math.max(1, count) / cols));
+        const w = Math.min(92, Math.max(30, 16 + cols * 10));
+        const h = Math.min(82, Math.max(24, 14 + rows * 12));
+        if (cursorX + w > 98) {
+          cursorX = 2;
+          cursorY += rowH + 4;
+          rowH = 0;
+        }
+        const arranged = { ...location, x: Number(cursorX.toFixed(2)), y: Number(cursorY.toFixed(2)), w: Number(w.toFixed(2)), h: Number(h.toFixed(2)) };
+        cursorX += w + 3;
+        rowH = Math.max(rowH, h);
+        return arranged;
       });
+      state.assets = state.assets.map(asset => {
+        const location = byId(state.locations, asset.locationId);
+        if (!location || pointInsideLocation(location, Number(asset.x || 0), Number(asset.y || 0))) return asset;
+        const pos = nextMachinePosition(asset.locationId, asset.id);
+        return { ...asset, x: pos.x, y: pos.y };
+      });
+    }
+
+    function nextMachinePosition(locationId, excludeId = "") {
+      const location = byId(state.locations, locationId);
+      if (!location) return { x: 50, y: 50 };
+      const machines = state.assets.filter(asset => asset.locationId === locationId && asset.id !== excludeId);
+      const index = machines.length;
+      const cols = Math.max(3, Math.floor(Number(location.w || 30) / 10));
+      const col = index % cols;
+      const row = Math.floor(index / cols);
+      const x = Number(location.x) + 6 + col * 9;
+      const y = Number(location.y) + 10 + row * 10;
+      return {
+        x: Number(Math.min(Number(location.x) + Number(location.w) - 5, x).toFixed(2)),
+        y: Number(Math.min(Number(location.y) + Number(location.h) - 5, y).toFixed(2))
+      };
     }
 
     function renderMap() {
@@ -1344,7 +1380,7 @@
           const alert = orderAlertForAsset(asset.id);
           return `
           <button class="machine-node" data-machine="${asset.id}" style="left:${asset.x}%;top:${asset.y}%;" title="${alert ? alert.label : asset.name}">
-            <span class="machine-icon">${asset.icon || "ME"}${alert ? `<span class="machine-alert ${alert.className}">${alert.count}</span>` : ""}</span>
+            <span class="machine-icon">${visualIcon(asset.icon)}${alert ? `<span class="machine-alert ${alert.className}">${alert.count}</span>` : ""}</span>
             <span class="machine-label">${asset.code}</span>
           </button>
         `}).join("");
@@ -1529,8 +1565,8 @@
       `).join("") || `<tr><td colspan="6" class="empty">Nenhuma máquina criada.</td></tr>`;
 
       $("locationRows").innerHTML = state.locations.map(item => `
-        <tr><td>${item.name}</td><td>${item.type}</td><td>${item.x}% / ${item.y}%</td><td class="actions"><button class="btn" onclick="editLocation('${item.id}')">Editar</button><button class="btn danger" onclick="deleteLocation('${item.id}')">Excluir</button></td></tr>
-      `).join("") || `<tr><td colspan="4" class="empty">Nenhum local criado.</td></tr>`;
+        <tr><td>${item.name}</td><td>${item.type}</td><td class="actions"><button class="btn" onclick="editLocation('${item.id}')">Editar</button><button class="btn danger" onclick="deleteLocation('${item.id}')">Excluir</button></td></tr>
+      `).join("") || `<tr><td colspan="3" class="empty">Nenhum local criado.</td></tr>`;
 
       const tagRows = state.tags.map(item => `
         <tr><td>Tag</td><td>${item.code}</td><td>${item.name}</td><td>${item.description || "-"}</td><td class="actions"><button class="btn" onclick="editTag('${item.id}')">Editar</button><button class="btn danger" onclick="deleteTag('${item.id}')">Excluir</button></td></tr>
@@ -1559,17 +1595,12 @@
     function resetAssetForm() {
       $("assetForm").reset();
       $("assetId").value = "";
-      $("assetX").value = 50;
-      $("assetY").value = 50;
       $("assetFormTitle").textContent = "Criar máquina";
     }
 
     function resetLocationForm() {
       $("locationForm").reset();
       $("locationId").value = "";
-      $("locationColor").value = "#123f8d";
-      $("locationX").value = 5;
-      $("locationY").value = 8;
       $("locationFormTitle").textContent = "Criar local";
     }
 
@@ -1744,12 +1775,12 @@
       return `
         <div class="form">
           <label>Entre as datas <input class="field" value="16/03/2026"></label>
-          <label>Até <input class="field" value="15/06/2026"></label>
-          <label>Tipo de Serviço <select class="field"><option>[Todos]</option></select></label>
+          <label>At? <input class="field" value="15/06/2026"></label>
+          <label>Tipo de Servi?o <select class="field"><option>[Todos]</option></select></label>
           <label>Status <select class="field"><option>${status || "[Todos]"}</option></select></label>
         </div>
-        <div class="table-wrap"><table><thead><tr><th>OS</th><th>Máquina</th><th>Tipo</th><th>Status</th><th>MTTR</th></tr></thead><tbody>
-          ${rows.map(order => `<tr><td>${order.number}</td><td>${machineName(order.assetId)}</td><td>${order.type}</td><td>${tag(order.status)}</td><td>${order.mttr}h</td></tr>`).join("") || `<tr><td colspan="5" class="empty">Nenhum registro encontrado</td></tr>`}
+        <div class="table-wrap"><table><thead><tr><th>OS</th><th>M?quina</th><th>Tipo</th><th>Status</th><th>MTTR</th><th>A??o</th></tr></thead><tbody>
+          ${rows.map(order => `<tr class="click-row" onclick="editOrder('${order.id}')"><td>${order.number}</td><td>${machineName(order.assetId)}</td><td>${order.type}</td><td>${tag(order.status)}</td><td>${order.mttr}h</td><td><button class="btn primary" type="button" onclick="event.stopPropagation(); editOrder('${order.id}')">Preencher</button></td></tr>`).join("") || `<tr><td colspan="6" class="empty">Nenhum registro encontrado</td></tr>`}
         </tbody></table></div>
       `;
     }
@@ -1772,7 +1803,7 @@
     function editAsset(id) {
       const item = byId(state.assets, id); if (!item) return;
       setView("assets");
-      $("assetId").value = item.id; $("assetCode").value = item.code; $("assetName").value = item.name; $("assetLocation").value = item.locationId || ""; $("assetTag").value = item.tagId || ""; $("assetSubtag").value = item.subtagId || ""; $("assetCriticality").value = item.criticality; $("assetStatus").value = item.status; $("assetBrand").value = item.brand || ""; $("assetModel").value = item.model || ""; $("assetIcon").value = item.icon || "ME"; $("assetX").value = item.x; $("assetY").value = item.y; $("assetDescription").value = item.description || "";
+      $("assetId").value = item.id; $("assetCode").value = item.code; $("assetName").value = item.name; $("assetLocation").value = item.locationId || ""; $("assetTag").value = item.tagId || ""; $("assetSubtag").value = item.subtagId || ""; $("assetCriticality").value = item.criticality; $("assetStatus").value = item.status; $("assetBrand").value = item.brand || ""; $("assetModel").value = item.model || ""; $("assetIcon").value = visualIcon(item.icon); $("assetDescription").value = item.description || "";
       $("assetFormTitle").textContent = "Editar máquina";
     }
 
@@ -1787,7 +1818,7 @@
     function editLocation(id) {
       const item = byId(state.locations, id); if (!item) return;
       setView("locations");
-      $("locationId").value = item.id; $("locationName").value = item.name; $("locationType").value = item.type; $("locationColor").value = item.color; $("locationX").value = item.x; $("locationY").value = item.y;
+      $("locationId").value = item.id; $("locationName").value = item.name; $("locationType").value = item.type;
       $("locationFormTitle").textContent = "Editar local";
     }
 
@@ -1903,12 +1934,16 @@
     $("assetForm").addEventListener("submit", event => {
       event.preventDefault();
       const id = $("assetId").value || uid("asset");
-      let x = numberValue("assetX", 50);
-      let y = numberValue("assetY", 50);
-      const selectedLocation = byId(state.locations, $("assetLocation").value);
-      if (selectedLocation && !pointInsideLocation(selectedLocation, x, y)) {
-        x = Number(selectedLocation.x) + Math.min(8, Number(selectedLocation.w || 38) / 2);
-        y = Number(selectedLocation.y) + Math.min(8, Number(selectedLocation.h || 28) / 2);
+      autoResizeLocations();
+      const existing = byId(state.assets, id);
+      const locationId = $("assetLocation").value;
+      const selectedLocation = byId(state.locations, locationId);
+      let x = existing?.x || 50;
+      let y = existing?.y || 50;
+      if (selectedLocation && (existing?.locationId !== locationId || !pointInsideLocation(selectedLocation, Number(x), Number(y)))) {
+        const pos = nextMachinePosition(locationId, id);
+        x = pos.x;
+        y = pos.y;
       }
       const payload = { id, code: value("assetCode"), name: value("assetName"), locationId: $("assetLocation").value, tagId: $("assetTag").value, subtagId: $("assetSubtag").value, criticality: $("assetCriticality").value, status: $("assetStatus").value, brand: value("assetBrand"), model: value("assetModel"), icon: $("assetIcon").value, x, y, description: value("assetDescription") };
       state.assets = state.assets.filter(item => item.id !== id).concat(payload);
@@ -1919,7 +1954,8 @@
       event.preventDefault();
       const id = $("locationId").value || uid("loc");
       const existing = byId(state.locations, id);
-      const payload = { id, name: value("locationName"), type: $("locationType").value, color: value("locationColor") || "#123f8d", x: numberValue("locationX", 5), y: numberValue("locationY", 8), w: existing?.w || 38, h: existing?.h || 28 };
+      const palette = ["#123f8d", "#0f766e", "#7c3aed", "#b45309", "#be123c", "#2563eb"];
+      const payload = { id, name: value("locationName"), type: $("locationType").value, color: existing?.color || palette[state.locations.length % palette.length], x: existing?.x || 2, y: existing?.y || 5, w: existing?.w || 36, h: existing?.h || 24 };
       state.locations = state.locations.filter(item => item.id !== id).concat(payload);
       saveState(); resetLocationForm(); render(); showToast("Local salvo.");
     });
