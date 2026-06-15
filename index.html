@@ -70,12 +70,13 @@
       width: 50px;
       height: 50px;
       border-radius: 12px;
-      background: linear-gradient(145deg, #ffffff, #dbe7ff);
+      background: linear-gradient(145deg, #ffffff, #dfe8fb);
       color: var(--blue-700);
       display: grid;
       place-items: center;
       position: relative;
-      box-shadow: 0 0 0 3px rgba(255,255,255,.12), 0 10px 24px rgba(0,0,0,.32);
+      border: 1px solid rgba(255,255,255,.1);
+      box-shadow: 0 0 0 3px rgba(255,255,255,.08), 0 10px 24px rgba(0,0,0,.32), inset 0 -8px 16px rgba(18,63,141,.12);
       animation: floatLogo 4.5s ease-in-out infinite;
     }
 
@@ -117,16 +118,29 @@
     }
 
     .brand-name {
-      font-family: "Segoe UI", Arial, Helvetica, sans-serif;
-      font-size: 31px;
+      font-family: Bahnschrift, "Segoe UI Variable", "Segoe UI", Arial, Helvetica, sans-serif;
+      font-size: 28px;
       font-weight: 900;
       letter-spacing: 0;
       line-height: .9;
       color: #fff;
       text-shadow: 0 6px 18px rgba(0,0,0,.34);
+      position: relative;
     }
 
     .brand-name span { color: var(--orange); }
+
+    .brand-name::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -7px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #fff, var(--orange), transparent);
+      opacity: .82;
+      animation: logoSweep 3.4s ease-in-out infinite;
+    }
 
     .brand-sub {
       color: rgba(255,255,255,.78);
@@ -198,47 +212,48 @@
       top: 62px;
       left: 0;
       bottom: 0;
-      width: 230px;
+      width: 196px;
       background: rgba(5, 18, 43, .86);
       border-right: 1px solid rgba(255,255,255,.14);
       display: flex;
       justify-content: flex-start;
       align-items: stretch;
       flex-direction: column;
-      gap: 12px;
-      padding: 14px;
+      gap: 8px;
+      padding: 10px;
       z-index: 20;
     }
 
     .tabs {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       align-items: stretch;
       overflow: visible;
     }
 
     .tab {
-      height: 42px;
+      height: 36px;
       border: 1px solid rgba(255,255,255,.22);
       border-radius: 5px;
       background: rgba(255,255,255,.08);
       color: var(--ink);
-      padding: 0 12px;
+      padding: 0 10px;
       white-space: nowrap;
       text-align: left;
       font-weight: 800;
+      font-size: 12px;
       letter-spacing: 0;
       transition: transform .18s ease, background .18s ease, border-color .18s ease;
       display: grid;
-      grid-template-columns: 26px minmax(0, 1fr);
+      grid-template-columns: 24px minmax(0, 1fr);
       align-items: center;
       gap: 8px;
     }
 
     .tab-icon {
-      width: 24px;
-      height: 24px;
+      width: 22px;
+      height: 22px;
       border-radius: 6px;
       display: grid;
       place-items: center;
@@ -271,7 +286,7 @@
 
     .workspace {
       height: calc(100vh - 62px);
-      margin-left: 230px;
+      margin-left: 196px;
       overflow: auto;
       padding: 16px;
     }
@@ -297,6 +312,15 @@
       padding: 16px;
       position: relative;
     }
+
+    .metric:nth-child(1) { background: linear-gradient(135deg, rgba(11,94,215,.96), rgba(8,23,52,.86)); }
+    .metric:nth-child(2) { background: linear-gradient(135deg, rgba(124,58,237,.95), rgba(8,23,52,.86)); }
+    .metric:nth-child(3) { background: linear-gradient(135deg, rgba(15,118,110,.95), rgba(8,23,52,.86)); }
+    .metric:nth-child(4) { background: linear-gradient(135deg, rgba(255,138,76,.96), rgba(8,23,52,.86)); }
+    .metric:nth-child(5) { background: linear-gradient(135deg, rgba(79,70,229,.95), rgba(8,23,52,.86)); }
+    .metric:nth-child(6) { background: linear-gradient(135deg, rgba(190,18,60,.9), rgba(8,23,52,.86)); }
+    .metric:nth-child(7) { background: linear-gradient(135deg, rgba(22,163,74,.92), rgba(8,23,52,.86)); }
+    .metric:nth-child(8) { background: linear-gradient(135deg, rgba(14,165,233,.92), rgba(8,23,52,.86)); }
 
     .metric::after {
       content: "";
@@ -378,6 +402,17 @@
       font-size: 11px;
       font-weight: 900;
       line-height: 1;
+    }
+
+    .action-icon svg {
+      width: 13px;
+      height: 13px;
+      display: block;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
 
     .action-icon.play { background: rgba(74,222,128,.22); color: var(--ok); }
@@ -471,6 +506,43 @@
       border-radius: 8px;
       padding: 8px;
       box-shadow: inset 0 0 30px rgba(255,255,255,.04);
+      color: #fff;
+      text-align: left;
+      cursor: pointer;
+      z-index: 2;
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+
+    .map-zone:hover {
+      transform: translateY(-2px);
+      border-color: var(--orange);
+      box-shadow: inset 0 0 30px rgba(255,255,255,.04), 0 0 24px rgba(255,138,76,.25);
+    }
+
+    .map-region {
+      position: absolute;
+      border: 1px solid rgba(255,255,255,.2);
+      background: rgba(5,18,43,.42);
+      border-radius: 10px;
+      box-shadow: inset 0 0 34px rgba(255,255,255,.04);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .map-region-title {
+      position: absolute;
+      left: 12px;
+      top: 9px;
+      color: #fff;
+      font-weight: 900;
+      font-size: 13px;
+    }
+
+    .map-zone-subtitle {
+      color: var(--muted);
+      display: block;
+      font-size: 10px;
+      margin-top: 3px;
     }
 
     .map-zone-title {
@@ -493,6 +565,7 @@
       padding: 0;
       cursor: grab;
       user-select: none;
+      z-index: 4;
     }
 
     .machine-node.dragging {
@@ -513,6 +586,17 @@
       color: #fff;
       position: relative;
       transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+
+    .machine-svg {
+      width: 30px;
+      height: 26px;
+      display: block;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
 
     .machine-node:hover .machine-icon {
@@ -1331,6 +1415,11 @@
       50% { opacity: 1; transform: scale(1.16); }
     }
 
+    @keyframes logoSweep {
+      0%,100% { transform: scaleX(.34); transform-origin: left center; opacity: .45; }
+      50% { transform: scaleX(1); transform-origin: left center; opacity: 1; }
+    }
+
     @keyframes pulse {
       0%,100% { transform: scale(1); box-shadow: 0 0 0 rgba(255,138,76,0); }
       50% { transform: scale(1.12); box-shadow: 0 0 18px rgba(255,138,76,.7); }
@@ -1357,6 +1446,18 @@
       .metrics, .two-col, .admin-grid, .map-shell { grid-template-columns: 1fr; }
       .searchbar { width: 100%; }
       .nav { position: static; width: auto; height: auto; align-items: stretch; flex-direction: column; border-right: 0; border-bottom: 1px solid rgba(255,255,255,.14); }
+      .tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 760px) {
+      .topbar { height: auto; padding: 10px 12px; flex-wrap: wrap; gap: 10px; }
+      .brand { grid-template-columns: 42px auto; gap: 10px; }
+      .brand-mark { width: 42px; height: 42px; }
+      .brand-name { font-size: 24px; }
+      .tabs { grid-template-columns: 1fr; }
+      .nav { padding: 8px; }
+      .tab { height: 34px; font-size: 11px; }
+      .workspace { padding: 12px; }
     }
   </style>
 </head>
@@ -1380,7 +1481,7 @@
           </svg>
         </div>
         <div>
-          <div class="brand-name">GestMan<span>365</span></div>
+      <div class="brand-name">GESTMAN<span>365</span></div>
           <div class="brand-sub">industrial maintenance intelligence</div>
         </div>
       </div>
@@ -1395,15 +1496,15 @@
     <div class="tabs">
       <button class="tab active" data-view="dashboard"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span><span>DASHBOARD</span></button>
       <button class="tab" data-view="map"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M9 18l-6 3V6l6-3 6 3 6-3v15l-6 3-6-3z"/><path d="M9 3v15M15 6v15"/></svg></span><span>MAPA INDUSTRIAL</span></button>
-      <button class="tab" data-view="assets"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 17h16v4H4z"/><path d="M7 17V9h10v8"/><circle cx="9" cy="13" r="1"/><circle cx="15" cy="13" r="1"/><path d="M12 9V3M9 5h6"/></svg></span><span>MAQUINAS</span></button>
-      <button class="tab" data-view="locations"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M6 21V8l6-5 6 5v13"/><path d="M10 21v-6h4v6"/></svg></span><span>LOCAIS</span></button>
+      <button class="tab" data-view="assets"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 17h16v4H4z"/><path d="M7 17V9h10v8"/><circle cx="9" cy="13" r="1"/><circle cx="15" cy="13" r="1"/><path d="M12 9V3M9 5h6"/></svg></span><span>EQUIPAMENTOS</span></button>
+      <button class="tab" data-view="locations"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M6 21V8l6-5 6 5v13"/><path d="M10 21v-6h4v6"/></svg></span><span>REGIOES</span></button>
       <button class="tab" data-view="orders"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M7 3h10l3 3v15H4V3h3z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg></span><span>ORDENS</span></button>
       <button class="tab" data-view="calendar"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg></span><span>CALENDARIO</span></button>
       <button class="tab" data-view="activeOrders"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/><circle cx="17" cy="16" r="2"/></svg></span><span>PAINEL O.S</span></button>
       <button class="tab" data-view="reports"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h17"/><path d="M8 16v-5M13 16V8M18 16v-9"/></svg></span><span>RELATORIOS</span></button>
       <button class="tab" data-view="checklists"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M7 12l3 3 7-7"/></svg></span><span>CHECKLISTS</span></button>
     </div>
-    <input class="searchbar" id="globalSearch" placeholder="Pesquisar máquina, local, tag ou O.S">
+    <input class="searchbar" id="globalSearch" placeholder="Pesquisar equipamento, regiao, local, tag ou O.S">
   </nav>
 
   <main class="workspace">
@@ -1412,7 +1513,11 @@
         <div class="metric"><span>MTTR médio</span><strong id="mttrMetric">0h</strong><small>Tempo médio para reparar</small></div>
         <div class="metric"><span>MTBF médio</span><strong id="mtbfMetric">0h</strong><small>Tempo médio entre falhas</small></div>
         <div class="metric"><span>Disponibilidade</span><strong id="availabilityMetric">0%</strong><small>Estimativa operacional</small></div>
-        <div class="metric"><span>Máquinas cadastradas</span><strong id="assetMetric">0</strong><small>Parque industrial criado</small></div>
+        <div class="metric"><span>Equipamentos cadastrados</span><strong id="assetMetric">0</strong><small>Parque industrial criado</small></div>
+        <div class="metric"><span>Locais de instalacao</span><strong id="locationMetric">0</strong><small>Areas mapeadas</small></div>
+        <div class="metric"><span>O.S abertas</span><strong id="openOsMetric">0</strong><small>Chamados aguardando</small></div>
+        <div class="metric"><span>O.S em execucao</span><strong id="runningOsMetric">0</strong><small>Atendimento ativo</small></div>
+        <div class="metric"><span>Paradas ativas</span><strong id="stoppedMetric">0</strong><small>Equipamentos parados</small></div>
       </div>
 
       <div class="grid two-col" style="margin-top:14px">
@@ -1438,8 +1543,8 @@
       </div>
       <div class="grid two-col" style="margin-top:14px">
         <div class="panel">
-          <div class="panel-head"><div class="panel-title">TOP 10 PARADAS DE MAQUINA</div></div>
-          <div class="table-wrap"><table><thead><tr><th>#</th><th>MAQUINA</th><th>PARADAS</th><th>TEMPO TOTAL</th></tr></thead><tbody id="dashboardStopsRows"></tbody></table></div>
+          <div class="panel-head"><div class="panel-title">TOP 10 PARADAS DE EQUIPAMENTO</div></div>
+          <div class="table-wrap"><table><thead><tr><th>#</th><th>EQUIPAMENTO</th><th>PARADAS</th><th>TEMPO TOTAL</th></tr></thead><tbody id="dashboardStopsRows"></tbody></table></div>
         </div>
         <div class="panel">
           <div class="panel-head"><div class="panel-title">EXECUTANTES POR ORDENS ATENDIDAS</div></div>
@@ -1453,16 +1558,16 @@
         <div class="panel-head">
           <div class="panel-title">Mapa industrial profissional</div>
           <div class="toolbar">
-            <button class="btn primary" data-view-button="locations">Criar local</button>
-            <button class="btn primary" data-view-button="assets">Criar máquina</button>
+            <button class="btn primary" data-view-button="locations">Criar regiao/local</button>
+            <button class="btn primary" data-view-button="assets">Criar equipamento</button>
           </div>
         </div>
         <div class="map-shell">
           <div class="industrial-map" id="industrialMap"></div>
           <div class="map-side">
             <div class="side-box" id="mapDetails">
-              <strong>Nenhuma máquina selecionada</strong>
-              <span class="muted">Clique em uma máquina no mapa para ver ações.</span>
+              <strong>Nenhum equipamento selecionado</strong>
+              <span class="muted">Clique em um equipamento no mapa para ver ações.</span>
             </div>
             <div class="side-box">
               <strong>Legenda</strong>
@@ -1478,29 +1583,30 @@
     <section class="view" id="assets">
       <div class="grid admin-grid">
         <div class="panel">
-          <div class="panel-head"><div class="panel-title" id="assetFormTitle">Criar máquina</div></div>
+          <div class="panel-head"><div class="panel-title" id="assetFormTitle">Criar equipamento</div></div>
           <form class="form" id="assetForm">
             <input type="hidden" id="assetId">
             <label>Código <input class="field" id="assetCode" required placeholder="RT-01"></label>
             <label>Nome <input class="field" id="assetName" required placeholder="Reator 01"></label>
-            <label>Local <select class="field" id="assetLocation"></select></label>
+            <label>Local de instalacao <select class="field" id="assetLocation"></select></label>
             <select class="field" id="assetTag" style="display:none"></select>
             <select class="field" id="assetSubtag" style="display:none"></select>
             <label>Criticidade <select class="field" id="assetCriticality"><option>Baixa</option><option>Média</option><option>Alta</option></select></label>
             <label>Status <select class="field" id="assetStatus"><option>Operando</option><option>Inspeção</option><option>Em manutenção</option><option>Inativo</option></select></label>
             <label>Marca <input class="field" id="assetBrand" placeholder="WEG, Muriel, Atlas"></label>
             <label>Modelo <input class="field" id="assetModel" placeholder="Modelo"></label>
-            <label>Imagem da tag <select class="field" id="assetIcon"><option value="⚙">Motor</option><option value="💧">Bomba</option><option value="▣">Compressor</option><option value="▥">Painel elétrico</option><option value="◉">Reator/Tanque</option><option value="▰">Esteira</option><option value="◆">Máquina geral</option></select></label>
-            <label class="full">Descrição <textarea class="field" id="assetDescription" placeholder="Descrição da máquina"></textarea></label>
+            <label>Imagem da tag <select class="field" id="assetIcon"><option value="motor">Motor</option><option value="bomba">Bomba</option><option value="compressor">Compressor</option><option value="painel">Painel eletrico</option><option value="tanque">Reator/Tanque</option><option value="esteira">Esteira</option><option value="geral">Equipamento geral</option></select></label>
+            <label class="full">Subtags / componentes <textarea class="field" id="assetComponents" placeholder="Ex: MOT-10, INV-01, SENSOR-02"></textarea></label>
+            <label class="full">Descrição <textarea class="field" id="assetDescription" placeholder="Descricao do equipamento"></textarea></label>
             <div class="full toolbar">
-              <button class="btn primary" type="submit">Salvar máquina</button>
+              <button class="btn primary" type="submit">Salvar equipamento</button>
               <button class="btn" type="button" id="resetAssetForm">Limpar formulário</button>
             </div>
           </form>
         </div>
         <div class="panel">
-          <div class="panel-head"><div class="panel-title">Máquinas cadastradas</div></div>
-          <div class="table-wrap"><table><thead><tr><th>Código</th><th>Nome</th><th>Local</th><th>Criticidade</th><th>Status</th><th>Ações</th></tr></thead><tbody id="assetRows"></tbody></table></div>
+          <div class="panel-head"><div class="panel-title">Equipamentos cadastrados</div></div>
+          <div class="table-wrap"><table><thead><tr><th>Tag</th><th>Equipamento</th><th>Regiao / local de instalacao</th><th>Criticidade</th><th>Status</th><th>Ações</th></tr></thead><tbody id="assetRows"></tbody></table></div>
         </div>
       </div>
     </section>
@@ -1508,20 +1614,32 @@
     <section class="view" id="locations">
       <div class="grid admin-grid">
         <div class="panel">
-          <div class="panel-head"><div class="panel-title" id="locationFormTitle">Criar local</div></div>
-          <form class="form" id="locationForm">
-            <input type="hidden" id="locationId">
-            <label>Nome <input class="field" id="locationName" required placeholder="Linha 01 - Produção"></label>
-            <label>Tipo <select class="field" id="locationType"><option>Linha</option><option>Área</option><option>Célula</option><option>Sala</option><option>Prédio</option></select></label>
+          <div class="panel-head"><div class="panel-title" id="regionFormTitle">Criar regiao</div></div>
+          <form class="form" id="regionForm">
+            <input type="hidden" id="regionId">
+            <label class="full">Nome da regiao <input class="field" id="regionName" required placeholder="UNIDADE 01 - FABRICA"></label>
             <div class="full toolbar">
-              <button class="btn primary" type="submit">Salvar local</button>
-              <button class="btn" type="button" id="resetLocationForm">Limpar formulário</button>
+              <button class="btn primary" type="submit">Salvar regiao</button>
+              <button class="btn" type="button" id="resetRegionForm">Limpar formulario</button>
             </div>
           </form>
+          <div class="panel-head"><div class="panel-title">Regioes cadastradas</div></div>
+          <div class="table-wrap"><table><thead><tr><th>Regiao</th><th>Locais</th><th>Ações</th></tr></thead><tbody id="regionRows"></tbody></table></div>
         </div>
         <div class="panel">
-          <div class="panel-head"><div class="panel-title">Locais cadastrados</div></div>
-          <div class="table-wrap"><table><thead><tr><th>Nome</th><th>Tipo</th><th>Ações</th></tr></thead><tbody id="locationRows"></tbody></table></div>
+          <div class="panel-head"><div class="panel-title" id="locationFormTitle">Criar local de instalacao</div></div>
+          <form class="form" id="locationForm">
+            <input type="hidden" id="locationId">
+            <label>Regiao <select class="field" id="locationRegion"></select></label>
+            <label>Tipo <select class="field" id="locationType"><option>Linha</option><option>Area</option><option>Celula</option><option>Sala</option><option>Predio</option></select></label>
+            <label class="full">Local de instalacao <input class="field" id="locationName" required placeholder="Linha 01 - Producao"></label>
+            <div class="full toolbar">
+              <button class="btn primary" type="submit">Salvar local</button>
+              <button class="btn" type="button" id="resetLocationForm">Limpar formulario</button>
+            </div>
+          </form>
+          <div class="panel-head"><div class="panel-title">Locais de instalacao</div></div>
+          <div class="table-wrap"><table><thead><tr><th>Regiao</th><th>Local de instalacao</th><th>Tipo</th><th>Equipamentos</th><th>Ações</th></tr></thead><tbody id="locationRows"></tbody></table></div>
         </div>
       </div>
     </section>
@@ -1567,7 +1685,7 @@
             <button class="btn primary" id="createOrderBtn">Nova O.S</button>
           </div>
         </div>
-        <div class="table-wrap"><table><thead><tr><th>O.S</th><th>MAQUINA</th><th>TIPO</th><th>PRIORIDADE</th><th>STATUS</th><th>EXECUTANTE</th><th>ACOES</th></tr></thead><tbody id="orderRows"></tbody></table></div>
+        <div class="table-wrap"><table><thead><tr><th>O.S</th><th>EQUIPAMENTO</th><th>TIPO</th><th>PRIORIDADE</th><th>STATUS</th><th>EXECUTANTE</th><th>ACOES</th></tr></thead><tbody id="orderRows"></tbody></table></div>
       </div>
     </section>
 
@@ -1580,7 +1698,7 @@
             <button class="btn" id="calendarTodayBtn" type="button">Hoje</button>
           </div>
         </div>
-        <div class="table-wrap"><table><thead><tr><th>O.S</th><th>Maquina</th><th>Tipo</th><th>Prioridade</th><th>Status</th><th>Executante</th><th>Abertura</th><th>Inicio</th><th>Fim</th></tr></thead><tbody id="calendarRows"></tbody></table></div>
+        <div class="table-wrap"><table><thead><tr><th>O.S</th><th>Equipamento</th><th>Tipo</th><th>Prioridade</th><th>Status</th><th>Executante</th><th>Abertura</th><th>Inicio</th><th>Fim</th></tr></thead><tbody id="calendarRows"></tbody></table></div>
       </div>
     </section>
 
@@ -1606,8 +1724,8 @@
       </div>
       <div class="grid two-col" style="margin-top:14px">
         <div class="panel">
-          <div class="panel-head"><div class="panel-title">Maquinas por local</div></div>
-          <div class="table-wrap"><table><thead><tr><th>Local</th><th>Maquinas</th><th>O.S ativas</th><th>Criticas</th></tr></thead><tbody id="reportLocationRows"></tbody></table></div>
+          <div class="panel-head"><div class="panel-title">Equipamentos por local</div></div>
+          <div class="table-wrap"><table><thead><tr><th>Regiao</th><th>Local de instalacao</th><th>Equipamentos</th><th>O.S ativas</th><th>Criticas</th></tr></thead><tbody id="reportLocationRows"></tbody></table></div>
         </div>
         <div class="panel">
           <div class="panel-head"><div class="panel-title">Executantes</div></div>
@@ -1642,7 +1760,7 @@
           <div class="panel-title">Checklists</div>
           <button class="btn primary" id="createChecklistBtn">Novo checklist</button>
         </div>
-        <div class="table-wrap"><table><thead><tr><th>ID</th><th>Máquina</th><th>Nome</th><th>Último preenchimento</th><th>Ações</th></tr></thead><tbody id="checklistRows"></tbody></table></div>
+        <div class="table-wrap"><table><thead><tr><th>ID</th><th>Equipamento</th><th>Nome</th><th>Ultimo preenchimento</th><th>Ações</th></tr></thead><tbody id="checklistRows"></tbody></table></div>
       </div>
     </section>
   </main>
@@ -1657,9 +1775,14 @@
     <button class="menu-item" data-machine-action="specialist"><span><svg class="ui-icon" viewBox="0 0 24 24"><rect x="5" y="6" width="14" height="12" rx="3"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4"/><circle cx="10" cy="12" r="1"/><circle cx="14" cy="12" r="1"/></svg></span><span>ESPECIALISTA GESTMAN365</span></button>
   </div>
 
+  <div class="context-menu" id="locationMenu">
+    <button class="menu-item" data-location-action="checklists"><span><svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M7 12l3 3 7-7"/></svg></span><span>CHECKLISTS DO LOCAL</span></button>
+    <button class="menu-item" data-location-action="movements"><span><svg class="ui-icon" viewBox="0 0 24 24"><path d="M7 7h10M7 17h10"/><path d="M14 4l3 3-3 3M10 14l-3 3 3 3"/></svg></span><span>LISTAR MOV. DE TAGS</span></button>
+  </div>
+
   <div class="modal-backdrop" id="genericModal">
     <div class="modal" id="genericModalBox">
-      <div class="modal-head"><span id="genericTitle">Janela</span><button class="close" data-close-modal>×</button></div>
+      <div class="modal-head"><span id="genericTitle">Janela</span><button class="close" data-close-modal><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
       <div class="modal-body" id="genericBody"></div>
     </div>
   </div>
@@ -1670,6 +1793,7 @@
     const STORAGE_KEY = "gestman365-admin-v2";
 
     const emptyState = () => ({
+      regions: [],
       locations: [],
       tags: [],
       subtags: [],
@@ -1682,16 +1806,39 @@
 
     let state = loadState();
     let selectedMachineId = null;
+    let selectedLocationId = null;
     let dragState = null;
     let pendingMove = null;
 
     function loadState() {
       try {
         const saved = localStorage.getItem(STORAGE_KEY);
-        return saved ? { ...emptyState(), ...JSON.parse(saved) } : emptyState();
+        return normalizeState(saved ? JSON.parse(saved) : emptyState());
       } catch {
-        return emptyState();
+        return normalizeState(emptyState());
       }
+    }
+
+    function normalizeState(raw) {
+      const normalized = { ...emptyState(), ...raw };
+      normalized.regions = Array.isArray(normalized.regions) ? normalized.regions : [];
+      normalized.locations = Array.isArray(normalized.locations) ? normalized.locations : [];
+      normalized.assets = Array.isArray(normalized.assets) ? normalized.assets : [];
+      if (!normalized.regions.length) {
+        normalized.regions = [{ id: uid("region"), name: "UNIDADE 01 - FABRICA", x: 2, y: 5, w: 94, h: 30 }];
+      }
+      const defaultRegionId = normalized.regions[0].id;
+      normalized.locations = normalized.locations.map((location, index) => ({
+        ...location,
+        regionId: location.regionId || defaultRegionId,
+        type: location.type || "Linha",
+        color: location.color || ["#123f8d", "#0f766e", "#7c3aed", "#b45309", "#be123c", "#2563eb"][index % 6]
+      }));
+      normalized.assets = normalized.assets.map(asset => ({
+        ...asset,
+        components: asset.components || ""
+      }));
+      return normalized;
     }
 
     function saveState() {
@@ -1732,7 +1879,29 @@
       return `<span class="tag ${tagClass(value)}">${value || "-"}</span>`;
     }
 
-    function locationName(id) { return byId(state.locations, id)?.name || "-"; }
+    function actionIcon(name, className = "edit") {
+      const icons = {
+        play: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7-11-7Z"/></svg>`,
+        done: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>`,
+        edit: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"/></svg>`,
+        delete: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"/><path d="M10 11v6M14 11v6"/><path d="M6 7l1 14h10l1-14"/><path d="M9 7V4h6v3"/></svg>`,
+        details: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg>`,
+        print: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8V4h10v4"/><path d="M6 18H4v-7h16v7h-2"/><path d="M7 14h10v6H7z"/></svg>`,
+        share: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.8 15.4 6.2M8.6 13.2l6.8 4.6"/></svg>`,
+        copy: `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><rect x="4" y="4" width="12" height="12" rx="2"/></svg>`,
+        pdf: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/><path d="M9 16h6"/></svg>`,
+        check: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="M7 12l3 3 7-7"/></svg>`,
+        move: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10M7 17h10"/><path d="M14 4l3 3-3 3M10 14l-3 3 3 3"/></svg>`
+      };
+      return `<span class="action-icon ${className}">${icons[name] || icons.details}</span>`;
+    }
+
+    function regionName(id) { return byId(state.regions, id)?.name || "-"; }
+    function locationShortName(id) { return byId(state.locations, id)?.name || "-"; }
+    function locationName(id) {
+      const location = byId(state.locations, id);
+      return location ? `${regionName(location.regionId)} / ${location.name}` : "-";
+    }
     function pointInsideLocation(location, x, y) {
       if (!location) return false;
       return x >= Number(location.x) &&
@@ -1749,9 +1918,29 @@
       return locationAt(x, y)?.name || "Fora de local definido";
     }
 
+    function normalizeIconValue(value = "") {
+      const raw = String(value || "").toLowerCase();
+      if (raw.includes("bomba") || raw.includes("pump")) return "bomba";
+      if (raw.includes("compressor") || raw === "mf") return "compressor";
+      if (raw.includes("painel") || raw.includes("eletr")) return "painel";
+      if (raw.includes("tanque") || raw.includes("reator") || raw === "rt") return "tanque";
+      if (raw.includes("esteira")) return "esteira";
+      if (raw.includes("motor") || raw === "me") return "motor";
+      return raw || "geral";
+    }
+
     function visualIcon(value) {
-      const icons = { RT: "◉", ME: "◆", MF: "▣", INK: "▽", OS: "▥", ILUP: "✦" };
-      return icons[value] || value || "◆";
+      const key = normalizeIconValue(value);
+      const icons = {
+        motor: `<svg class="machine-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="8" width="12" height="9" rx="2"/><path d="M16 11h3v3h-3M7 8V5h6v3M6 17v2M14 17v2"/></svg>`,
+        bomba: `<svg class="machine-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 13a5 5 0 1 0 10 0 5 5 0 0 0-10 0Z"/><path d="M12 3v5M17 13h4M3 13h4M12 18v3"/><path d="M10 13h4"/></svg>`,
+        compressor: `<svg class="machine-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="9" width="15" height="8" rx="2"/><path d="M8 9V6h7v3M7 17v2M17 17v2M19 12h2"/></svg>`,
+        painel: `<svg class="machine-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="16" rx="2"/><path d="M8 8h8M8 12h3M14 12h2M8 16h8"/></svg>`,
+        tanque: `<svg class="machine-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7c0-2 10-2 10 0v10c0 2-10 2-10 0Z"/><path d="M7 7c0 2 10 2 10 0M7 17c0 2 10 2 10 0"/></svg>`,
+        esteira: `<svg class="machine-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="12" width="16" height="5" rx="2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M6 9h12"/></svg>`,
+        geral: `<svg class="machine-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4v10l-8 4-8-4V7l8-4Z"/><path d="M12 12l8-5M12 12 4 7M12 12v9"/></svg>`
+      };
+      return icons[key] || icons.geral;
     }
 
     function tagName(id) { const item = byId(state.tags, id); return item ? `${item.code}` : "-"; }
@@ -1774,10 +1963,15 @@
 
     function renderDashboard() {
       const { mttr, mtbf, availability } = calcMetrics();
+      const counts = orderStatusCounts();
       $("mttrMetric").textContent = `${mttr.toFixed(1)}h`;
       $("mtbfMetric").textContent = `${mtbf.toFixed(0)}h`;
       $("availabilityMetric").textContent = `${availability.toFixed(1)}%`;
       $("assetMetric").textContent = state.assets.length;
+      if ($("locationMetric")) $("locationMetric").textContent = state.locations.length;
+      if ($("openOsMetric")) $("openOsMetric").textContent = counts.abertas;
+      if ($("runningOsMetric")) $("runningOsMetric").textContent = counts.execucao;
+      if ($("stoppedMetric")) $("stoppedMetric").textContent = state.orders.filter(order => !isClosedOrder(order.status) && order.machineStopped).length;
       renderTrendChart();
       renderStatusBars();
       renderCriticalityBars();
@@ -1856,11 +2050,12 @@
         ["O.S ABERTAS", counts.abertas],
         ["O.S EM EXECUCAO", counts.execucao],
         ["O.S CONCLUIDAS", counts.concluidas],
-        ["MAQUINAS", state.assets.length],
+        ["EQUIPAMENTOS", state.assets.length],
         ["MTTR MEDIO", `${metrics.mttr.toFixed(1)}H`],
         ["MTBF MEDIO", `${metrics.mtbf.toFixed(0)}H`],
         ["DISPONIBILIDADE", `${metrics.availability.toFixed(1)}%`],
-        ["LOCAIS", state.locations.length]
+        ["REGIOES", state.regions.length],
+        ["LOCAIS DE INSTALACAO", state.locations.length]
       ].map(item => `<div class="report-card"><span>${item[0]}</span><strong>${item[1]}</strong></div>`).join("");
     }
 
@@ -1880,9 +2075,9 @@
         const machineIds = new Set(machines.map(asset => asset.id));
         const active = state.orders.filter(order => machineIds.has(order.assetId) && !isClosedOrder(order.status)).length;
         const critical = machines.filter(asset => asset.criticality === "Alta").length;
-        return `<tr><td>${location.name}</td><td>${machines.length}</td><td>${active}</td><td>${critical}</td></tr>`;
+        return `<tr><td>${regionName(location.regionId)}</td><td>${location.name}</td><td>${machines.length}</td><td>${active}</td><td>${critical}</td></tr>`;
       }).join("");
-      $("reportLocationRows").innerHTML = locationRows || `<tr><td colspan="4" class="empty">Nenhum local cadastrado.</td></tr>`;
+      $("reportLocationRows").innerHTML = locationRows || `<tr><td colspan="5" class="empty">Nenhum local cadastrado.</td></tr>`;
       const executors = {};
       state.orders.forEach(order => {
         const name = (order.executor || "SEM EXECUTANTE").trim() || "SEM EXECUTANTE";
@@ -1957,7 +2152,7 @@
       if (!target) return;
       const stops = {};
       state.orders.filter(order => order.machineStopped).forEach(order => {
-        const key = order.assetId || "sem-maquina";
+        const key = order.assetId || "sem-equipamento";
         stops[key] ||= { machine: machineName(order.assetId), count: 0, hours: 0 };
         stops[key].count += 1;
         stops[key].hours += Number(order.mttr || 0);
@@ -1993,11 +2188,12 @@
         const names = [...new Set(state.orders.map(order => order.executor || "SEM EXECUTANTE"))];
         return names.length ? names.map(name => `${name}: ${state.orders.filter(order => (order.executor || "SEM EXECUTANTE") === name).length} O.S`).join("\n") : "NENHUM EXECUTANTE REGISTRADO.";
       }
-      if (q.includes("critic") || q.includes("alta")) return critical.length ? critical.map(asset => `${asset.code} - ${asset.name} | LOCAL: ${locationName(asset.locationId)}`).join("\n") : "NAO HA MAQUINAS DE ALTA CRITICIDADE CADASTRADAS.";
-      if (q.includes("local") || q.includes("linha") || q.includes("fase")) return state.locations.length ? state.locations.map(location => `${location.name}: ${state.assets.filter(asset => asset.locationId === location.id).length} MAQUINAS`).join("\n") : "NENHUM LOCAL CADASTRADO.";
-      if (q.includes("maquina") || q.includes("equip")) return state.assets.length ? state.assets.map(asset => `${asset.code} - ${asset.name} | ${locationName(asset.locationId)} | ${asset.status}`).join("\n") : "NENHUMA MAQUINA CADASTRADA.";
-      if (q.includes("resumo") || q.includes("geral")) return `RESUMO DO SISTEMA:\nO.S TOTAL: ${counts.total}\nABERTAS: ${counts.abertas}\nEM EXECUCAO: ${counts.execucao}\nCONCLUIDAS: ${counts.concluidas}\nMAQUINAS: ${state.assets.length}\nLOCAIS: ${state.locations.length}`;
-      return `TENHO DADOS DO SISTEMA SOBRE ${state.assets.length} MAQUINAS, ${state.locations.length} LOCAIS E ${state.orders.length} ORDENS DE SERVICO. PERGUNTE POR O.S ABERTAS, EM EXECUCAO, EXECUTANTE, MTTR, MTBF, DISPONIBILIDADE, LOCAL OU MAQUINA.`;
+      if (q.includes("critic") || q.includes("alta")) return critical.length ? critical.map(asset => `${asset.code} - ${asset.name} | REGIAO/LOCAL: ${locationName(asset.locationId)}`).join("\n") : "NAO HA EQUIPAMENTOS DE ALTA CRITICIDADE CADASTRADOS.";
+      if (q.includes("regiao")) return state.regions.length ? state.regions.map(region => `${region.name}: ${state.locations.filter(location => location.regionId === region.id).length} LOCAIS DE INSTALACAO`).join("\n") : "NENHUMA REGIAO CADASTRADA.";
+      if (q.includes("local") || q.includes("linha") || q.includes("fase")) return state.locations.length ? state.locations.map(location => `${regionName(location.regionId)} / ${location.name}: ${state.assets.filter(asset => asset.locationId === location.id).length} EQUIPAMENTOS`).join("\n") : "NENHUM LOCAL DE INSTALACAO CADASTRADO.";
+      if (q.includes("equipamento") || q.includes("equip")) return state.assets.length ? state.assets.map(asset => `${asset.code} - ${asset.name} | ${locationName(asset.locationId)} | ${asset.status}`).join("\n") : "NENHUMA EQUIPAMENTO CADASTRADA.";
+      if (q.includes("resumo") || q.includes("geral")) return `RESUMO DO SISTEMA:\nO.S TOTAL: ${counts.total}\nABERTAS: ${counts.abertas}\nEM EXECUCAO: ${counts.execucao}\nCONCLUIDAS: ${counts.concluidas}\nEQUIPAMENTOS: ${state.assets.length}\nREGIOES: ${state.regions.length}\nLOCAIS DE INSTALACAO: ${state.locations.length}`;
+      return `TENHO DADOS DO SISTEMA SOBRE ${state.assets.length} EQUIPAMENTOS, ${state.regions.length} REGIOES, ${state.locations.length} LOCAIS DE INSTALACAO E ${state.orders.length} ORDENS DE SERVICO. PERGUNTE POR O.S ABERTAS, EM EXECUCAO, EXECUTANTE, MTTR, MTBF, DISPONIBILIDADE, REGIAO, LOCAL OU EQUIPAMENTO.`;
     }
 
     function statusKey(status = "") {
@@ -2035,25 +2231,66 @@
     }
 
     function autoResizeLocations() {
-      let cursorX = 2;
-      let cursorY = 5;
-      let rowH = 0;
-      state.locations = state.locations.map((location) => {
-        const machines = state.assets.filter(asset => asset.locationId === location.id);
-        const count = machines.length;
-        const cols = Math.min(7, Math.max(3, Math.ceil(Math.sqrt(Math.max(1, count)))));
-        const rows = Math.max(1, Math.ceil(Math.max(1, count) / cols));
-        const w = Math.min(92, Math.max(30, 16 + cols * 10));
-        const h = Math.min(82, Math.max(24, 14 + rows * 12));
-        if (cursorX + w > 98) {
-          cursorX = 2;
-          cursorY += rowH + 4;
-          rowH = 0;
-        }
-        const arranged = { ...location, x: Number(cursorX.toFixed(2)), y: Number(cursorY.toFixed(2)), w: Number(w.toFixed(2)), h: Number(h.toFixed(2)) };
-        cursorX += w + 3;
-        rowH = Math.max(rowH, h);
-        return arranged;
+      const regionPalette = ["#ff8a4c", "#60a5fa", "#4ade80", "#facc15", "#fb7185", "#a78bfa"];
+      const localPalette = ["#123f8d", "#0f766e", "#7c3aed", "#b45309", "#be123c", "#2563eb"];
+      if (!state.regions.length) state.regions = [{ id: uid("region"), name: "UNIDADE 01 - FABRICA" }];
+      const defaultRegionId = state.regions[0].id;
+      state.locations = state.locations.map((location, index) => ({
+        ...location,
+        regionId: location.regionId || defaultRegionId,
+        color: location.color || localPalette[index % localPalette.length]
+      }));
+
+      const arrangedLocations = new Map();
+      let regionY = 4;
+      state.regions = state.regions.map((region, regionIndex) => {
+        const regionLocations = state.locations.filter(location => location.regionId === region.id);
+        let cursorX = 4;
+        let cursorY = regionY + 8;
+        let rowH = 0;
+        let bottom = cursorY + 10;
+        regionLocations.forEach((location) => {
+          const machines = state.assets.filter(asset => asset.locationId === location.id);
+          const count = Math.max(1, machines.length);
+          const cols = Math.min(8, Math.max(3, Math.ceil(Math.sqrt(count))));
+          const rows = Math.max(1, Math.ceil(count / cols));
+          const w = Math.min(88, Math.max(28, 14 + cols * 9));
+          const h = Math.min(70, Math.max(22, 13 + rows * 10));
+          if (cursorX + w > 96) {
+            cursorX = 4;
+            cursorY += rowH + 4;
+            rowH = 0;
+          }
+          const arranged = {
+            ...location,
+            x: Number(cursorX.toFixed(2)),
+            y: Number(cursorY.toFixed(2)),
+            w: Number(w.toFixed(2)),
+            h: Number(h.toFixed(2))
+          };
+          arrangedLocations.set(location.id, arranged);
+          cursorX += w + 3;
+          rowH = Math.max(rowH, h);
+          bottom = Math.max(bottom, cursorY + h);
+        });
+        const h = Math.min(90, Math.max(20, bottom - regionY + 2));
+        const arrangedRegion = {
+          ...region,
+          color: region.color || regionPalette[regionIndex % regionPalette.length],
+          x: 2,
+          y: Number(regionY.toFixed(2)),
+          w: 96,
+          h: Number(h.toFixed(2))
+        };
+        regionY += h + 4;
+        return arrangedRegion;
+      });
+      state.locations = state.locations.map(location => arrangedLocations.get(location.id) || {
+        ...location,
+        x: 4,
+        y: 12,
+        w: 32,
+        h: 24
       });
       state.assets = state.assets.map(asset => {
         const location = byId(state.locations, asset.locationId);
@@ -2111,17 +2348,27 @@
       autoResizeLocations();
       const q = $("globalSearch").value.toLowerCase();
       const map = $("industrialMap");
-      if (!state.locations.length && !state.assets.length) {
-        map.innerHTML = `<div class="empty">Mapa vazio. Crie locais e máquinas para montar o parque industrial.</div>`;
-        $("mapDetails").innerHTML = `<strong>Nenhuma máquina selecionada</strong><span class="muted">Clique em uma máquina no mapa para ver ações.</span>`;
+      if (!state.regions.length && !state.locations.length && !state.assets.length) {
+        map.innerHTML = `<div class="empty">Mapa vazio. Crie regioes, locais de instalacao e equipamentos para montar o parque industrial.</div>`;
+        $("mapDetails").innerHTML = `<strong>Nenhum equipamento selecionado</strong><span class="muted">Clique em um equipamento no mapa para ver ações.</span>`;
         return;
       }
 
-      const zones = state.locations.map(location => `
-        <div class="map-zone" style="left:${location.x}%;top:${location.y}%;width:${location.w}%;height:${location.h}%;border-color:${location.color};">
-          <div class="map-zone-title">${location.name}</div>
+      const regions = state.regions.map(region => `
+        <div class="map-region" style="left:${region.x}%;top:${region.y}%;width:${region.w}%;height:${region.h}%;border-color:${region.color || "rgba(255,255,255,.2)"};">
+          <div class="map-region-title">${region.name}</div>
         </div>
       `).join("");
+
+      const zones = state.locations.map(location => {
+        const count = state.assets.filter(asset => asset.locationId === location.id).length;
+        return `
+        <button type="button" class="map-zone" data-location="${location.id}" style="left:${location.x}%;top:${location.y}%;width:${location.w}%;height:${location.h}%;border-color:${location.color};">
+          <div class="map-zone-title">${location.name}</div>
+          <span class="map-zone-subtitle">${regionName(location.regionId)} - ${location.type || "Local"} - ${count} TAG(S)</span>
+        </button>
+      `;
+      }).join("");
 
       const machines = state.assets
         .filter(asset => !q || `${asset.code} ${asset.name} ${locationName(asset.locationId)}`.toLowerCase().includes(q))
@@ -2134,7 +2381,13 @@
           </button>
         `}).join("");
 
-      map.innerHTML = zones + machines;
+      map.innerHTML = regions + zones + machines;
+      document.querySelectorAll("[data-location]").forEach(button => {
+        button.addEventListener("click", event => {
+          showLocationDetails(button.dataset.location);
+          openLocationMenu(event, button.dataset.location);
+        });
+      });
       document.querySelectorAll("[data-machine]").forEach(button => {
         button.addEventListener("pointerdown", event => startMachineDrag(event, button.dataset.machine));
         button.addEventListener("click", event => {
@@ -2213,7 +2466,7 @@
         dragState = null;
         saveState();
         render();
-        showToast(`Máquina reposicionada dentro de ${toLocation.name}.`);
+        showToast(`Equipamento reposicionado dentro de ${toLocation.name}.`);
         return;
       }
       const snappedMove = snapMachineToLocation(toLocation.id, finished.newX ?? finished.originalX, finished.newY ?? finished.originalY, finished.id);
@@ -2225,8 +2478,8 @@
         newY: snappedMove.y,
         fromLocationId: fromLocation?.id || "",
         toLocationId: toLocation.id,
-        fromLocationName: fromLocation?.name || locationName(byId(state.assets, finished.id)?.locationId),
-        toLocationName: toLocation.name
+        fromLocationName: fromLocation ? locationName(fromLocation.id) : locationName(byId(state.assets, finished.id)?.locationId),
+        toLocationName: locationName(toLocation.id)
       };
       dragState = null;
       openMoveReasonModal();
@@ -2235,18 +2488,42 @@
     function showMachineDetails(id) {
       const asset = byId(state.assets, id);
       if (!asset) return;
+      const location = byId(state.locations, asset.locationId);
       $("mapDetails").innerHTML = `
         <strong>${asset.code} - ${asset.name}</strong>
         <span>${tag(asset.criticality)} ${tag(asset.status)}</span>
-        <span>Local: ${locationName(asset.locationId)}</span>
-        <span>Tag: ${tagName(asset.tagId)} / ${subtagName(asset.subtagId)}</span>
+        <span>Regiao: ${regionName(location?.regionId)}</span>
+        <span>Local de instalacao: ${locationShortName(asset.locationId)}</span>
+        <span>TAG: ${asset.code}</span>
+        <span>Subtags/componentes: ${asset.components || tagName(asset.tagId) + " / " + subtagName(asset.subtagId)}</span>
         <span>Marca: ${asset.brand || "-"}</span>
         <span>Modelo: ${asset.model || "-"}</span>
       `;
     }
 
+    function showLocationDetails(id) {
+      const location = byId(state.locations, id);
+      if (!location) return;
+      const machines = state.assets.filter(asset => asset.locationId === id);
+      const machineIds = new Set(machines.map(asset => asset.id));
+      const activeOrders = state.orders.filter(order => machineIds.has(order.assetId) && !isClosedOrder(order.status)).length;
+      $("mapDetails").innerHTML = `
+        <strong>${location.name}</strong>
+        <span>Regiao: ${regionName(location.regionId)}</span>
+        <span>Tipo: ${location.type || "Local de instalacao"}</span>
+        <span>TAGs cadastradas: ${machines.length}</span>
+        <span>O.S ativas: ${activeOrders}</span>
+        <div class="toolbar">
+          <button class="btn" type="button" onclick="openLocationChecklists('${id}')">${actionIcon("check", "edit")}Checklists</button>
+          <button class="btn" type="button" onclick="openLocationMovements('${id}')">${actionIcon("move", "edit")}Mov. TAGs</button>
+        </div>
+      `;
+    }
+
     function fillSelects() {
-      const locOptions = [`<option value="">Sem local</option>`].concat(state.locations.map(item => `<option value="${item.id}">${item.name}</option>`)).join("");
+      const regionOptions = state.regions.map(item => `<option value="${item.id}">${item.name}</option>`).join("");
+      if ($("locationRegion")) $("locationRegion").innerHTML = regionOptions || `<option value="">Crie uma regiao</option>`;
+      const locOptions = [`<option value="">Sem local de instalacao</option>`].concat(state.locations.map(item => `<option value="${item.id}">${locationName(item.id)}</option>`)).join("");
       $("assetLocation").innerHTML = locOptions;
       const tagOptions = [`<option value="">Sem tag</option>`].concat(state.tags.map(item => `<option value="${item.id}">${item.code} - ${item.name}</option>`)).join("");
       $("assetTag").innerHTML = tagOptions;
@@ -2259,12 +2536,17 @@
       const filter = text => !q || text.toLowerCase().includes(q);
 
       $("assetRows").innerHTML = state.assets.filter(asset => filter(`${asset.code} ${asset.name} ${locationName(asset.locationId)}`)).map(asset => `
-        <tr><td>${asset.code}</td><td>${asset.name}</td><td>${locationName(asset.locationId)}</td><td>${tag(asset.criticality)}</td><td>${tag(asset.status)}</td><td class="actions"><button class="btn" onclick="editAsset('${asset.id}')">Editar</button><button class="btn danger" onclick="deleteAsset('${asset.id}')">Excluir</button></td></tr>
-      `).join("") || `<tr><td colspan="6" class="empty">Nenhuma máquina criada.</td></tr>`;
+        <tr><td>${asset.code}</td><td>${asset.name}</td><td>${locationName(asset.locationId)}</td><td>${tag(asset.criticality)}</td><td>${tag(asset.status)}</td><td class="actions"><button class="btn" onclick="duplicateAsset('${asset.id}')">Copiar</button><button class="btn" onclick="editAsset('${asset.id}')">Editar</button><button class="btn danger" onclick="deleteAsset('${asset.id}')">Excluir</button></td></tr>
+      `).join("") || `<tr><td colspan="6" class="empty">Nenhum equipamento criado.</td></tr>`;
+
+      $("regionRows").innerHTML = state.regions.map(item => {
+        const localCount = state.locations.filter(location => location.regionId === item.id).length;
+        return `<tr><td>${item.name}</td><td>${localCount}</td><td class="actions"><button class="btn" onclick="editRegion('${item.id}')">Editar</button><button class="btn danger" onclick="deleteRegion('${item.id}')">Excluir</button></td></tr>`;
+      }).join("") || `<tr><td colspan="3" class="empty">Nenhuma regiao criada.</td></tr>`;
 
       $("locationRows").innerHTML = state.locations.map(item => `
-        <tr><td>${item.name}</td><td>${item.type}</td><td class="actions"><button class="btn" onclick="editLocation('${item.id}')">Editar</button><button class="btn danger" onclick="deleteLocation('${item.id}')">Excluir</button></td></tr>
-      `).join("") || `<tr><td colspan="3" class="empty">Nenhum local criado.</td></tr>`;
+        <tr><td>${regionName(item.regionId)}</td><td>${item.name}</td><td>${item.type}</td><td>${state.assets.filter(asset => asset.locationId === item.id).length}</td><td class="actions"><button class="btn" onclick="editLocation('${item.id}')">Editar</button><button class="btn danger" onclick="deleteLocation('${item.id}')">Excluir</button></td></tr>
+      `).join("") || `<tr><td colspan="5" class="empty">Nenhum local de instalacao criado.</td></tr>`;
 
       const tagRows = state.tags.map(item => `
         <tr><td>Tag</td><td>${item.code}</td><td>${item.name}</td><td>${item.description || "-"}</td><td class="actions"><button class="btn" onclick="editTag('${item.id}')">Editar</button><button class="btn danger" onclick="deleteTag('${item.id}')">Excluir</button></td></tr>
@@ -2275,7 +2557,22 @@
       $("tagRows").innerHTML = tagRows + subRows || `<tr><td colspan="5" class="empty">Nenhuma tag criada.</td></tr>`;
 
       $("orderRows").innerHTML = state.orders.map(order => `
-        <tr><td>${order.number}</td><td>${machineName(order.assetId)}</td><td>${order.type}</td><td>${tag(order.priority)}</td><td>${tag(order.status)}</td><td>${order.executor || "Sem executante"}</td><td><div class="os-panel-actions">${!isRunningOrder(order.status) && !isClosedOrder(order.status) ? `<button class="btn primary" onclick="confirmStartOrder('${order.id}')"><span class="action-icon play">▶</span>Iniciar</button>` : ""}${isRunningOrder(order.status) ? `<button class="btn primary" onclick="finishOrder('${order.id}')"><span class="action-icon done">✓</span>Finalizar</button>` : ""}<button class="btn" onclick="editOrder('${order.id}')"><span class="action-icon edit">✎</span>Editar</button><button class="btn danger" onclick="deleteOrder('${order.id}')"><span class="action-icon delete">×</span>Excluir</button></div></td></tr>
+        <tr>
+          <td>${order.number}</td>
+          <td>${machineName(order.assetId)}</td>
+          <td>${order.type}</td>
+          <td>${tag(order.priority)}</td>
+          <td>${tag(order.status)}</td>
+          <td>${order.executor || "Sem executante"}</td>
+          <td>
+            <div class="os-panel-actions">
+              ${!isRunningOrder(order.status) && !isClosedOrder(order.status) ? `<button class="btn primary" onclick="confirmStartOrder('${order.id}')">${actionIcon("play", "play")}Iniciar</button>` : ""}
+              ${isRunningOrder(order.status) ? `<button class="btn primary" onclick="finishOrder('${order.id}')">${actionIcon("done", "done")}Finalizar</button>` : ""}
+              <button class="btn" onclick="editOrder('${order.id}')">${actionIcon("edit", "edit")}Editar</button>
+              <button class="btn danger" onclick="deleteOrder('${order.id}')">${actionIcon("delete", "delete")}Excluir</button>
+            </div>
+          </td>
+        </tr>
       `).join("") || `<tr><td colspan="7" class="empty">Nenhuma O.S criada.</td></tr>`;
 
       $("checklistRows").innerHTML = state.checklists.map(item => `
@@ -2293,7 +2590,7 @@
       target.innerHTML = `
         <div class="table-wrap">
           <table>
-            <thead><tr><th>O.S</th><th>Maquina</th><th>Tipo</th><th>Prioridade</th><th>Status</th><th>Executante</th><th>Acoes</th></tr></thead>
+            <thead><tr><th>O.S</th><th>Equipamento</th><th>Tipo</th><th>Prioridade</th><th>Status</th><th>Executante</th><th>Acoes</th></tr></thead>
             <tbody>
               ${visible.map(order => `
                 <tr>
@@ -2304,7 +2601,7 @@
                   <td>${tag(order.status)}</td>
                   <td>${order.executor || "Sem executante"}</td>
                   <td><div class="os-panel-actions">
-                    <button class="btn" onclick="showOrderDetails('${order.id}')"><span class="action-icon edit">□</span>Detalhes</button>
+                    <button class="btn" onclick="showOrderDetails('${order.id}')">${actionIcon("details", "edit")}Detalhes</button>
                   </div></td>
                 </tr>
               `).join("") || `<tr><td colspan="7" class="empty">Nao tem ordens em aberto ou em execucao.</td></tr>`}
@@ -2328,13 +2625,20 @@
     function resetAssetForm() {
       $("assetForm").reset();
       $("assetId").value = "";
-      $("assetFormTitle").textContent = "Criar máquina";
+      $("assetFormTitle").textContent = "Criar equipamento";
+    }
+
+    function resetRegionForm() {
+      $("regionForm").reset();
+      $("regionId").value = "";
+      $("regionFormTitle").textContent = "Criar regiao";
     }
 
     function resetLocationForm() {
       $("locationForm").reset();
       $("locationId").value = "";
-      $("locationFormTitle").textContent = "Criar local";
+      $("locationFormTitle").textContent = "Criar local de instalacao";
+      if (state.regions[0]) $("locationRegion").value = state.regions[0].id;
     }
 
     function resetTagForm() { $("tagForm").reset(); $("tagId").value = ""; $("tagFormTitle").textContent = "Criar tag/subtag"; }
@@ -2342,6 +2646,7 @@
 
     function openMachineMenu(event, id) {
       selectedMachineId = id;
+      closeLocationMenu();
       showMachineDetails(id);
       const menu = $("machineMenu");
       menu.style.left = `${Math.min(window.innerWidth - 260, event.clientX + 8)}px`;
@@ -2351,6 +2656,19 @@
 
     function closeMachineMenu() {
       $("machineMenu").classList.remove("open");
+    }
+
+    function openLocationMenu(event, id) {
+      selectedLocationId = id;
+      closeMachineMenu();
+      const menu = $("locationMenu");
+      menu.style.left = `${Math.min(window.innerWidth - 260, event.clientX + 8)}px`;
+      menu.style.top = `${Math.min(window.innerHeight - 160, event.clientY + 8)}px`;
+      menu.classList.add("open");
+    }
+
+    function closeLocationMenu() {
+      $("locationMenu").classList.remove("open");
     }
 
     function openModal(title, html, large = false) {
@@ -2419,7 +2737,7 @@
       openModal("Confirmar inicio", `
         <div class="side-box">
           <strong>Confirma o inicio da ${order.number}?</strong>
-          <span>Maquina: ${machineName(order.assetId)}</span>
+          <span>Equipamento: ${machineName(order.assetId)}</span>
           <span>A data e hora de inicio serao registradas automaticamente.</span>
           <label>Executante <input class="field" id="startExecutor" value="${order.executor || ""}" placeholder="Nome de quem esta atendendo"></label>
         </div>
@@ -2565,7 +2883,7 @@
             <label>Num. O.S</label><input class="field" id="detailNumber" value="${order.number}" readonly>
             <label>Plano</label><input class="field" id="detailPlan" value="${plan}">
 
-            <label>Local</label><input class="field detail-span" value="${locationName(asset.locationId)}" readonly>
+            <label>Regiao / local de instalacao</label><input class="field detail-span" value="${locationName(asset.locationId)}" readonly>
             <label>LI</label><input class="field detail-span" value="${asset.name || "-"}" readonly>
             <label>TAG</label><input class="field detail-span" value="${tagName(asset.tagId)} ${subtagName(asset.subtagId)}" readonly>
             <label>Solicitante</label><input class="field detail-span" id="detailRequester" value="${order.requester || ""}" placeholder="Quem abriu a O.S">
@@ -2585,7 +2903,7 @@
           </div>
           <div class="side-box">
             <label class="switch-line"><input type="checkbox" id="detailPending" ${order.pendingExecution ? "checked" : ""}> O.S pendente de execucao</label>
-            <label class="switch-line"><input type="checkbox" id="detailStopped" ${order.machineStopped ? "checked" : ""}> Maquina parada durante o servico</label>
+            <label class="switch-line"><input type="checkbox" id="detailStopped" ${order.machineStopped ? "checked" : ""}> Equipamento parado durante o servico</label>
           </div>
           <div class="toolbar">
             <button class="btn danger" type="button" onclick="closeModal()">Cancelar</button>
@@ -2663,7 +2981,7 @@
             <span><strong>De:</strong> ${pendingMove.fromLocationName}</span>
             <span><strong>Para:</strong> ${pendingMove.toLocationName}</span>
           </div>
-          <label class="full">Motivo do deslocamento <textarea class="field" id="moveReason" required placeholder="Ex: reposicionada para dentro da Fase 1 após reorganização da linha"></textarea></label>
+          <label class="full">Motivo do deslocamento <textarea class="field" id="moveReason" required placeholder="Ex: reposicionado para dentro da Fase 1 após reorganização da linha"></textarea></label>
           <label>Responsável <input class="field" id="moveResponsible" placeholder="Nome do responsável"></label>
           <label>Tipo <select class="field" id="moveType"><option>Ajuste de layout</option><option>Movimentação física</option><option>Correção de cadastro</option><option>Manutenção</option></select></label>
           <div class="full toolbar">
@@ -2732,7 +3050,7 @@
       const machines = state.assets.map(asset => `<option value="${asset.id}" ${asset.id === selectedAssetId ? "selected" : ""}>${asset.code} - ${asset.name}</option>`).join("");
       openModal(editing ? "Preencher O.S" : "Criar O.S", `
         <form class="form" id="orderForm">
-          <label>Maquina <select class="field" id="orderAsset">${machines || `<option value="">Cadastre uma maquina</option>`}</select></label>
+          <label>Equipamento <select class="field" id="orderAsset">${machines || `<option value="">Cadastre um equipamento</option>`}</select></label>
           <label>Solicitante <input class="field" id="orderRequester" required placeholder="Quem abriu a ordem"></label>
           <label>Executante <input class="field" id="orderExecutor" required placeholder="Quem vai atender a ordem"></label>
           <label>Tipo <select class="field" id="orderType"><option>Corretiva</option><option>Preventiva</option><option>Inspecao</option></select></label>
@@ -2780,10 +3098,10 @@
       const machines = state.assets.map(asset => `<option value="${asset.id}" ${asset.id === assetId ? "selected" : ""}>${asset.code} - ${asset.name}</option>`).join("");
       openModal("CheckLists Disponíveis", `
         <form class="form" id="checkForm">
-          <label>Máquina <select class="field" id="checkAsset">${machines || `<option value="">Cadastre uma máquina</option>`}</select></label>
+          <label>Equipamento <select class="field" id="checkAsset">${machines || `<option value="">Cadastre um equipamento</option>`}</select></label>
           <label>ID <input class="field" id="checkCode" value="CK-${String(state.checklists.length + 1).padStart(2, "0")}"></label>
           <label class="full">Nome <input class="field" id="checkName" placeholder="Inspeção operacional"></label>
-          <label class="full">Último preenchimento <input class="field" id="checkLast" placeholder="14/06/2026 08:20"></label>
+          <label class="full">Ultimo preenchimento <input class="field" id="checkLast" placeholder="14/06/2026 08:20"></label>
           <div class="full toolbar"><button class="btn primary" type="submit">Salvar checklist</button></div>
         </form>
       `);
@@ -2792,6 +3110,50 @@
         state.checklists.unshift({ id: uid("ck"), assetId: $("checkAsset").value, code: $("checkCode").value, name: $("checkName").value || "Checklist operacional", lastFill: $("checkLast").value });
         saveState(); closeModal(); render(); showToast("Checklist salvo.");
       });
+    }
+
+    function renderLocationChecklists(locationId) {
+      const location = byId(state.locations, locationId);
+      const machines = state.assets.filter(asset => asset.locationId === locationId);
+      const machineIds = new Set(machines.map(asset => asset.id));
+      const rows = state.checklists.filter(item => machineIds.has(item.assetId));
+      return `
+        <div class="side-box"><strong>${location?.name || "Local"}</strong><span>Regiao: ${regionName(location?.regionId)}</span><span>TAGs no local: ${machines.length}</span></div>
+        <div class="table-wrap"><table><thead><tr><th>TAG</th><th>Equipamento</th><th>Checklist</th><th>Ultimo preenchimento</th></tr></thead><tbody>
+          ${rows.map(item => {
+            const asset = byId(state.assets, item.assetId) || {};
+            return `<tr><td>${asset.code || "-"}</td><td>${asset.name || "-"}</td><td>${item.name}</td><td>${item.lastFill || "-"}</td></tr>`;
+          }).join("") || `<tr><td colspan="4" class="empty">Nenhum checklist vinculado a este local.</td></tr>`}
+        </tbody></table></div>
+      `;
+    }
+
+    function renderLocationMovements(locationId) {
+      const rows = state.movements.filter(item => item.fromLocationId === locationId || item.toLocationId === locationId);
+      return `
+        <div class="table-wrap"><table><thead><tr><th>TAG</th><th>De</th><th>Para</th><th>Motivo</th><th>Responsavel</th><th>Data</th></tr></thead><tbody>
+          ${rows.map(item => `
+            <tr><td>${item.assetCode} - ${item.assetName}</td><td>${item.fromLocationName || "-"}</td><td>${item.toLocationName || "-"}</td><td>${item.reason || "-"}</td><td>${item.responsible || "-"}</td><td>${formatDateTime(item.createdAt)}</td></tr>
+          `).join("") || `<tr><td colspan="6" class="empty">Nenhuma movimentacao de TAG registrada neste local.</td></tr>`}
+        </tbody></table></div>
+      `;
+    }
+
+    function openLocationChecklists(id) {
+      closeLocationMenu();
+      openModal("Checklists do local", renderLocationChecklists(id), true);
+    }
+
+    function openLocationMovements(id) {
+      closeLocationMenu();
+      openModal("Movimentacao de TAGs", renderLocationMovements(id), true);
+    }
+
+    function locationAction(action) {
+      const location = byId(state.locations, selectedLocationId);
+      if (!location) return;
+      if (action === "checklists") return openLocationChecklists(location.id);
+      if (action === "movements") return openLocationMovements(location.id);
     }
 
     function machineAction(action) {
@@ -2821,14 +3183,14 @@
             <div class="os-action-head"><span>${order.number} - ${machineName(order.assetId)}</span><span>${tag(order.status)}</span></div>
             <div class="side-box" style="margin:10px"><span>Aberta: ${formatDateTime(order.createdAt)}</span><span>Inicio: ${formatDateTime(order.startedAt)}</span><span>Finalizacao: ${formatDateTime(order.finishedAt)}</span></div>
             <div class="os-actions">
-              <button class="btn" onclick="showOrderDetails('${order.id}')"><span class="action-icon edit">□</span>Detalhes</button>
-              <button class="btn" onclick="editOrder('${order.id}')"><span class="action-icon edit">✎</span>Editar / Preencher</button>
-              ${isRunningOrder(order.status) ? `<button class="btn" onclick="finishOrder('${order.id}')"><span class="action-icon done">✓</span>Encerrar</button>` : ""}
-              <button class="btn" onclick="simpleOrderAction('${order.id}', 'Impressao')"><span class="action-icon edit">▣</span>Imprimir</button>
-              <button class="btn" onclick="simpleOrderAction('${order.id}', 'Compartilhamento')"><span class="action-icon edit">↗</span>Compartilhar O.S</button>
-              <button class="btn" onclick="simpleOrderAction('${order.id}', 'copy')"><span class="action-icon edit">⧉</span>Copiar O.S</button>
-              ${!isRunningOrder(order.status) && !isClosedOrder(order.status) ? `<button class="btn primary" onclick="confirmStartOrder('${order.id}')"><span class="action-icon play">▶</span>Iniciar O.S</button>` : ""}
-              <button class="btn danger" onclick="simpleOrderAction('${order.id}', 'PDF')"><span class="action-icon delete">PDF</span>Gerar PDF</button>
+              <button class="btn" onclick="showOrderDetails('${order.id}')">${actionIcon("details", "edit")}Detalhes</button>
+              <button class="btn" onclick="editOrder('${order.id}')">${actionIcon("edit", "edit")}Editar / Preencher</button>
+              ${isRunningOrder(order.status) ? `<button class="btn" onclick="finishOrder('${order.id}')">${actionIcon("done", "done")}Encerrar</button>` : ""}
+              <button class="btn" onclick="simpleOrderAction('${order.id}', 'Impressao')">${actionIcon("print", "edit")}Imprimir</button>
+              <button class="btn" onclick="simpleOrderAction('${order.id}', 'Compartilhamento')">${actionIcon("share", "edit")}Compartilhar O.S</button>
+              <button class="btn" onclick="simpleOrderAction('${order.id}', 'copy')">${actionIcon("copy", "edit")}Copiar O.S</button>
+              ${!isRunningOrder(order.status) && !isClosedOrder(order.status) ? `<button class="btn primary" onclick="confirmStartOrder('${order.id}')">${actionIcon("play", "play")}Iniciar O.S</button>` : ""}
+              <button class="btn danger" onclick="simpleOrderAction('${order.id}', 'PDF')">${actionIcon("pdf", "delete")}Gerar PDF</button>
             </div>
           </div>
         `).join("") || `<div class="empty">Nenhum registro encontrado</div>`}
@@ -2842,7 +3204,7 @@
             <div style="background:#ff4b68;color:#fff;padding:12px 18px">GestMan365</div>
             <h2 style="color:#4055b9;margin:0">Compilado de Checklist</h2>
           </div>
-          <p><strong>Região:</strong> UNIDADE 01 - FÁBRICA &nbsp; <strong>Local:</strong> ${locationName(asset.locationId)} &nbsp; <strong>Equipamento:</strong> ${asset.name} - ${asset.code}</p>
+          <p><strong>Regiao:</strong> ${regionName(byId(state.locations, asset.locationId)?.regionId)} &nbsp; <strong>Local:</strong> ${locationShortName(asset.locationId)} &nbsp; <strong>Equipamento:</strong> ${asset.name} - ${asset.code}</p>
           <div style="border:1px solid #999;border-radius:5px;padding:4px;margin:22px 0 4px">Não existem checklists preenchidos no período selecionado</div>
           <div style="border:1px solid #999;border-radius:5px;height:100px;padding:6px">Observações gerais</div>
           <div style="text-align:center;margin-top:120px"><button>Limpar Assinatura</button><div style="width:220px;border-top:1px solid #111;margin:12px auto 6px"></div><small>Técnico Responsável</small></div>
@@ -2853,27 +3215,66 @@
     function editAsset(id) {
       const item = byId(state.assets, id); if (!item) return;
       setView("assets");
-      $("assetId").value = item.id; $("assetCode").value = item.code; $("assetName").value = item.name; $("assetLocation").value = item.locationId || ""; $("assetTag").value = item.tagId || ""; $("assetSubtag").value = item.subtagId || ""; $("assetCriticality").value = item.criticality; $("assetStatus").value = item.status; $("assetBrand").value = item.brand || ""; $("assetModel").value = item.model || ""; $("assetIcon").value = visualIcon(item.icon); $("assetDescription").value = item.description || "";
-      $("assetFormTitle").textContent = "Editar máquina";
+      $("assetId").value = item.id; $("assetCode").value = item.code; $("assetName").value = item.name; $("assetLocation").value = item.locationId || ""; $("assetTag").value = item.tagId || ""; $("assetSubtag").value = item.subtagId || ""; $("assetCriticality").value = item.criticality; $("assetStatus").value = item.status; $("assetBrand").value = item.brand || ""; $("assetModel").value = item.model || ""; $("assetIcon").value = normalizeIconValue(item.icon); $("assetComponents").value = item.components || ""; $("assetDescription").value = item.description || "";
+      $("assetFormTitle").textContent = "Editar equipamento";
+    }
+
+    function duplicateAsset(id) {
+      const item = byId(state.assets, id); if (!item) return;
+      setView("assets");
+      $("assetId").value = "";
+      $("assetCode").value = `${item.code}-COPIA`;
+      $("assetName").value = item.name;
+      $("assetLocation").value = item.locationId || "";
+      $("assetTag").value = item.tagId || "";
+      $("assetSubtag").value = item.subtagId || "";
+      $("assetCriticality").value = item.criticality || "Baixa";
+      $("assetStatus").value = item.status || "Operando";
+      $("assetBrand").value = item.brand || "";
+      $("assetModel").value = item.model || "";
+      $("assetIcon").value = normalizeIconValue(item.icon);
+      $("assetComponents").value = item.components || "";
+      $("assetDescription").value = item.description || "";
+      $("assetFormTitle").textContent = "Copiar equipamento";
+      showToast("Ajuste apenas o codigo e salve o equipamento copiado.");
     }
 
     function deleteAsset(id) {
-      if (!confirm("Excluir esta máquina e seus vínculos?")) return;
+      if (!confirm("Excluir esta equipamento e seus vínculos?")) return;
       state.assets = state.assets.filter(item => item.id !== id);
       state.orders = state.orders.filter(item => item.assetId !== id);
       state.checklists = state.checklists.filter(item => item.assetId !== id);
-      saveState(); render(); showToast("Máquina excluída.");
+      saveState(); render(); showToast("Equipamento excluído.");
+    }
+
+    function editRegion(id) {
+      const item = byId(state.regions, id); if (!item) return;
+      setView("locations");
+      $("regionId").value = item.id;
+      $("regionName").value = item.name;
+      $("regionFormTitle").textContent = "Editar regiao";
+    }
+
+    function deleteRegion(id) {
+      const linked = state.locations.filter(location => location.regionId === id).length;
+      if (linked) {
+        showToast("Nao e possivel excluir uma regiao com locais vinculados.");
+        return;
+      }
+      if (!confirm("Excluir esta regiao?")) return;
+      state.regions = state.regions.filter(item => item.id !== id);
+      saveState(); render(); showToast("Regiao excluida.");
     }
 
     function editLocation(id) {
       const item = byId(state.locations, id); if (!item) return;
       setView("locations");
-      $("locationId").value = item.id; $("locationName").value = item.name; $("locationType").value = item.type;
-      $("locationFormTitle").textContent = "Editar local";
+      $("locationId").value = item.id; $("locationRegion").value = item.regionId || state.regions[0]?.id || ""; $("locationName").value = item.name; $("locationType").value = item.type;
+      $("locationFormTitle").textContent = "Editar local de instalacao";
     }
 
     function deleteLocation(id) {
-      if (!confirm("Excluir este local? As máquinas ficarão sem local.")) return;
+      if (!confirm("Excluir este local? Os equipamentos ficarão sem local.")) return;
       state.locations = state.locations.filter(item => item.id !== id);
       state.assets = state.assets.map(asset => asset.locationId === id ? { ...asset, locationId: "" } : asset);
       saveState(); render(); showToast("Local excluído.");
@@ -2972,7 +3373,7 @@
             <div class="detail-grid">
               <label>Num. O.S</label><input class="field" value="${order.number}" readonly>
               <label>Plano</label><input class="field" id="finishPlan" value="${order.plan || "42"}">
-              <label>Local</label><input class="field detail-span" value="${locationName(asset.locationId)}" readonly>
+              <label>Regiao / local de instalacao</label><input class="field detail-span" value="${locationName(asset.locationId)}" readonly>
               <label>LI</label><input class="field detail-span" value="${asset.name || "-"}" readonly>
               <label>TAG</label><input class="field detail-span" value="${tagName(asset.tagId)} ${subtagName(asset.subtagId)}" readonly>
               <label>Tipo de Servico</label><select class="field detail-span" id="finishType"><option>Corretiva</option><option>Preventiva</option><option>Inspecao</option><option>Eletrica</option><option>Mecanica</option></select>
@@ -2989,7 +3390,7 @@
             </div>
             <div class="side-box">
               <label class="switch-line"><input type="checkbox" id="finishPending" ${order.pendingExecution ? "checked" : ""}> O.S pendente de execucao</label>
-              <label class="switch-line"><input type="checkbox" id="finishStopped" ${order.machineStopped ? "checked" : ""}> Maquina parada durante o servico</label>
+              <label class="switch-line"><input type="checkbox" id="finishStopped" ${order.machineStopped ? "checked" : ""}> Equipamento parado durante o servico</label>
             </div>
             <div class="toolbar">
               <button class="btn danger" type="button" onclick="closeModal()">Cancelar</button>
@@ -3061,13 +3462,17 @@
       if (ask) showToast("Checklist excluído.");
     }
 
-    window.editAsset = editAsset; window.deleteAsset = deleteAsset; window.editLocation = editLocation; window.deleteLocation = deleteLocation; window.editTag = editTag; window.deleteTag = deleteTag; window.editSubtag = editSubtag; window.deleteSubtag = deleteSubtag; window.editOrder = editOrder; window.deleteOrder = deleteOrder; window.startOrder = startOrder; window.confirmStartOrder = confirmStartOrder; window.finishOrder = finishOrder; window.showOrderDetails = showOrderDetails; window.simpleOrderAction = simpleOrderAction; window.editChecklist = editChecklist; window.deleteChecklist = deleteChecklist;
+    window.editAsset = editAsset; window.deleteAsset = deleteAsset; window.duplicateAsset = duplicateAsset; window.editRegion = editRegion; window.deleteRegion = deleteRegion; window.editLocation = editLocation; window.deleteLocation = deleteLocation; window.editTag = editTag; window.deleteTag = deleteTag; window.editSubtag = editSubtag; window.deleteSubtag = deleteSubtag; window.editOrder = editOrder; window.deleteOrder = deleteOrder; window.startOrder = startOrder; window.confirmStartOrder = confirmStartOrder; window.finishOrder = finishOrder; window.showOrderDetails = showOrderDetails; window.simpleOrderAction = simpleOrderAction; window.editChecklist = editChecklist; window.deleteChecklist = deleteChecklist; window.openLocationChecklists = openLocationChecklists; window.openLocationMovements = openLocationMovements;
 
     document.querySelectorAll("[data-view]").forEach(button => button.addEventListener("click", () => setView(button.dataset.view)));
     document.querySelectorAll("[data-view-button]").forEach(button => button.addEventListener("click", () => setView(button.dataset.viewButton)));
     $("globalSearch").addEventListener("input", render);
-    document.addEventListener("click", event => { if (!event.target.closest("#machineMenu") && !event.target.closest("[data-machine]")) closeMachineMenu(); });
+    document.addEventListener("click", event => {
+      if (!event.target.closest("#machineMenu") && !event.target.closest("[data-machine]")) closeMachineMenu();
+      if (!event.target.closest("#locationMenu") && !event.target.closest("[data-location]")) closeLocationMenu();
+    });
     $("machineMenu").addEventListener("click", event => { const action = event.target.closest("[data-machine-action]"); if (action) machineAction(action.dataset.machineAction); });
+    $("locationMenu").addEventListener("click", event => { const action = event.target.closest("[data-location-action]"); if (action) locationAction(action.dataset.locationAction); });
     document.querySelectorAll("[data-close-modal]").forEach(button => button.addEventListener("click", closeModal));
     $("genericModal").addEventListener("click", event => { if (event.target.id === "genericModal") closeModal(); });
     $("profileBtn").addEventListener("click", openProfileModal);
@@ -3102,9 +3507,18 @@
         x = pos.x;
         y = pos.y;
       }
-      const payload = { id, code: value("assetCode"), name: value("assetName"), locationId: $("assetLocation").value, tagId: $("assetTag").value, subtagId: $("assetSubtag").value, criticality: $("assetCriticality").value, status: $("assetStatus").value, brand: value("assetBrand"), model: value("assetModel"), icon: $("assetIcon").value, x, y, description: value("assetDescription") };
+      const payload = { id, code: value("assetCode"), name: value("assetName"), locationId: $("assetLocation").value, tagId: $("assetTag").value, subtagId: $("assetSubtag").value, criticality: $("assetCriticality").value, status: $("assetStatus").value, brand: value("assetBrand"), model: value("assetModel"), icon: $("assetIcon").value, components: value("assetComponents"), x, y, description: value("assetDescription") };
       state.assets = state.assets.filter(item => item.id !== id).concat(payload);
-      saveState(); resetAssetForm(); render(); showToast("Máquina salva.");
+      saveState(); resetAssetForm(); render(); showToast("Equipamento salvo.");
+    });
+
+    $("regionForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const id = $("regionId").value || uid("region");
+      const existing = byId(state.regions, id);
+      const payload = { id, name: value("regionName"), color: existing?.color || "#ff8a4c", x: existing?.x || 2, y: existing?.y || 4, w: existing?.w || 96, h: existing?.h || 24 };
+      state.regions = state.regions.filter(item => item.id !== id).concat(payload);
+      saveState(); resetRegionForm(); render(); showToast("Regiao salva.");
     });
 
     $("locationForm").addEventListener("submit", event => {
@@ -3112,7 +3526,7 @@
       const id = $("locationId").value || uid("loc");
       const existing = byId(state.locations, id);
       const palette = ["#123f8d", "#0f766e", "#7c3aed", "#b45309", "#be123c", "#2563eb"];
-      const payload = { id, name: value("locationName"), type: $("locationType").value, color: existing?.color || palette[state.locations.length % palette.length], x: existing?.x || 2, y: existing?.y || 5, w: existing?.w || 36, h: existing?.h || 24 };
+      const payload = { id, regionId: $("locationRegion").value || state.regions[0]?.id || "", name: value("locationName"), type: $("locationType").value, color: existing?.color || palette[state.locations.length % palette.length], x: existing?.x || 4, y: existing?.y || 12, w: existing?.w || 32, h: existing?.h || 24 };
       state.locations = state.locations.filter(item => item.id !== id).concat(payload);
       saveState(); resetLocationForm(); render(); showToast("Local salvo.");
     });
@@ -3134,6 +3548,7 @@
     });
 
     $("resetAssetForm").addEventListener("click", resetAssetForm);
+    $("resetRegionForm").addEventListener("click", resetRegionForm);
     $("resetLocationForm").addEventListener("click", resetLocationForm);
     $("resetTagForm").addEventListener("click", resetTagForm);
     $("resetSubtagForm").addEventListener("click", resetSubtagForm);
