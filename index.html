@@ -2447,7 +2447,35 @@
       .form { grid-template-columns: 1fr !important; }
       .btn { min-width: 0; max-width: 100%; white-space: normal; }
       table { min-width: 640px; }
-      .industrial-map { min-height: 520px; }
+      .map-shell {
+        display: block;
+        overflow-x: auto;
+        overflow-y: visible;
+        padding: 10px;
+        -webkit-overflow-scrolling: touch;
+      }
+      .industrial-map {
+        width: 1080px;
+        max-width: none;
+        min-height: 620px;
+        margin-bottom: 12px;
+      }
+      .machine-node {
+        width: 74px;
+        min-width: 74px;
+      }
+      .machine-icon {
+        width: 54px;
+        height: 42px;
+        flex: 0 0 auto;
+      }
+      .map-side {
+        width: calc(100vw - 40px);
+        max-width: 420px;
+        min-width: 300px;
+        position: sticky;
+        left: 0;
+      }
     }
 </style>
 </head>
