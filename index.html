@@ -2816,6 +2816,7 @@
 
   <script>
     const STORAGE_KEY = "gestman365-admin-v2";
+    const PROFILE_STORAGE_KEY = "gestman365-profile-v1";
     const THEME_KEY = "gestman365-theme";
     const THEME_DEFAULT_KEY = "gestman365-light-default-applied";
     const SUPABASE_URL = "https://zkkyiqtzmimcoderjrrm.supabase.co";
@@ -2855,7 +2856,10 @@
     function loadState() {
       try {
         const saved = localStorage.getItem(STORAGE_KEY);
-        return normalizeState(saved ? JSON.parse(saved) : emptyState());
+        const localProfile = JSON.parse(localStorage.getItem(PROFILE_STORAGE_KEY) || "null");
+        const loaded = saved ? JSON.parse(saved) : emptyState();
+        if (localProfile?.name) loaded.profile = { ...(loaded.profile || {}), ...localProfile };
+        return normalizeState(loaded);
       } catch {
         return normalizeState(emptyState());
       }
@@ -2881,6 +2885,7 @@
 
     function saveState() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(state.profile || {}));
       scheduleSupabaseSync();
     }
 
@@ -3090,13 +3095,18 @@
     }
 
     function stateFromDb(data) {
+      const localProfile = JSON.parse(localStorage.getItem(PROFILE_STORAGE_KEY) || "null");
+      const remoteProfile = {
+        name: data.perfis?.[0]?.nome || "Administrador",
+        role: data.perfis?.[0]?.cargo || "Administrador",
+        email: data.perfis?.[0]?.email || "",
+        photo: data.perfis?.[0]?.foto_url || ""
+      };
+      const useLocalProfile = localProfile?.name
+        && localProfile.name !== "Administrador"
+        && (!remoteProfile.name || remoteProfile.name === "Administrador");
       return normalizeState({
-        profile: {
-          name: data.perfis?.[0]?.nome || "Administrador",
-          role: data.perfis?.[0]?.cargo || "Administrador",
-          email: data.perfis?.[0]?.email || "",
-          photo: data.perfis?.[0]?.foto_url || ""
-        },
+        profile: useLocalProfile ? { ...remoteProfile, ...localProfile } : remoteProfile,
         regions: (data.regioes || []).map(item => ({ id: item.id, name: item.nome, description: item.descricao || "" })),
         locations: (data.locais_instalacao || []).map(item => ({ id: item.id, regionId: item.regiao_id, name: item.nome, type: item.tipo, order: item.ordem || 0 })),
         assets: (data.equipamentos || []).map(item => ({
@@ -3187,6 +3197,7 @@
         ]);
         state = stateFromDb({ perfis, regioes, locais_instalacao: locais, equipamentos, ordens_servico: ordens, checklists, movimentacoes_tags: movimentos });
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(state.profile || {}));
         render();
         if (showMessage) showToast("Dados carregados do Supabase.");
       } catch (error) {
@@ -4334,7 +4345,7 @@
         };
         reader.readAsDataURL(file);
       });
-      $("profileForm").addEventListener("submit", event => {
+      $("profileForm").addEventListener("submit", async event => {
         event.preventDefault();
         state.profile = {
           name: $("profileEditName").value.trim() || "Administrador",
@@ -4343,6 +4354,8 @@
           photo: $("profileEditPhoto").value.trim()
         };
         saveState();
+        localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(state.profile));
+        await syncSupabaseNow(false);
         closeModal();
         render();
         showToast("Perfil atualizado.");
