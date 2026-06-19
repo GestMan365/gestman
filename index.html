@@ -1682,6 +1682,45 @@
       animation: pulse 1.4s ease-in-out infinite;
     }
 
+    body.panel-mode {
+      overflow: auto;
+      background: linear-gradient(135deg, #f7f9fd 0%, #e9eef8 48%, #dce6f6 100%);
+    }
+
+    body.panel-mode .topbar,
+    body.panel-mode .nav {
+      display: none;
+    }
+
+    body.panel-mode .workspace {
+      margin-left: 0;
+      height: auto;
+      min-height: 100vh;
+      padding: 18px;
+      overflow: visible;
+    }
+
+    body.panel-mode .view:not(#activeOrders) {
+      display: none !important;
+    }
+
+    body.panel-mode #activeOrders {
+      display: block !important;
+    }
+
+    body.panel-mode #activeOrders .panel {
+      min-height: calc(100vh - 36px);
+    }
+
+    body.panel-mode .os-card-grid {
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      align-items: stretch;
+    }
+
+    body.panel-mode .os-live-card {
+      min-height: 260px;
+    }
+
     .os-panel-actions {
       display: grid;
       grid-template-columns: 1fr;
@@ -2772,7 +2811,7 @@
           <div class="chart" id="criticalityBars"></div>
         </div>
         <div class="panel">
-          <div class="panel-head"><div class="panel-title">O.S abertas e em execução</div><button class="btn" data-view-button="activeOrders">Abrir painel</button></div>
+          <div class="panel-head"><div class="panel-title">O.S abertas e em execução</div><button class="btn" id="openTvPanelBtn" type="button">Abrir painel</button></div>
           <div id="dashboardActiveOrders" class="active-os-list"></div>
         </div>
       </div>
@@ -3530,6 +3569,25 @@
       document.querySelectorAll(".view").forEach(section => section.classList.toggle("active", section.id === view));
       document.querySelectorAll(".tab").forEach(tab => tab.classList.toggle("active", tab.dataset.view === view));
       render();
+    }
+
+    function isPanelMode() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("panel") === "os";
+    }
+
+    function openOsPanelWindow() {
+      const url = new URL(window.location.href);
+      url.searchParams.set("panel", "os");
+      url.hash = "";
+      window.open(url.toString(), "_blank", "noopener,noreferrer");
+    }
+
+    function applyPanelMode() {
+      if (!isPanelMode()) return;
+      document.body.classList.add("panel-mode");
+      document.title = "Painel O.S - GestMan365";
+      setView("activeOrders");
     }
 
     function tagClass(value) {
@@ -5473,6 +5531,7 @@
       if (event.target.id === "genericModal") event.stopPropagation();
     });
     $("profileBtn").addEventListener("click", openProfileModal);
+    $("openTvPanelBtn").addEventListener("click", openOsPanelWindow);
     $("createOrderBtn").addEventListener("click", () => openOrderModal());
     $("createChecklistBtn").addEventListener("click", () => openChecklistModal());
     $("calendarDate").value = calendarDateKey(calendarViewDate);
@@ -5610,6 +5669,7 @@
 
     applyTheme(currentTheme);
     render();
+    applyPanelMode();
     loadSupabaseState(false);
   </script>
 </body>
