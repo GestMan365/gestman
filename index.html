@@ -1741,6 +1741,14 @@
       font-weight: 900;
     }
 
+    .os-live-time {
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
     .os-live-desc {
       border-left: 3px solid var(--orange);
       padding-left: 8px;
@@ -5033,8 +5041,8 @@
                   <span><small>Status</small>${tag(order.status)}</span>
                   <span><small>Prioridade</small>${tag(order.priority)}</span>
                   <span><small>Tipo</small>${escapeHtml(order.type || "-")}</span>
-                  <span><small>${running ? "Em atendimento" : "Aberta há"}</small>${elapsedLabel(running ? order.startedAt : order.createdAt)}</span>
-                  <span><small>Código</small>${escapeHtml(asset.code || "-")}</span>
+                  <span><small>${running ? "Em atendimento" : "Aberta há"}</small>${elapsedLabel(running ? order.startedAt : order.createdAt)}<em class="os-live-time">Abertura: ${formatTimeOnly(order.createdAt)}</em></span>
+                  <span><small>Equipamento</small>${escapeHtml(asset.code || "-")}</span>
                   <span><small>Região</small>${escapeHtml(regionName(location.regionId))}</span>
                   <span><small>Local</small>${escapeHtml(location.name || "-")}</span>
                   <span><small>Solicitante</small>${escapeHtml(order.requester || "-")}</span>
@@ -5178,6 +5186,11 @@
     function formatDateTime(value) {
       if (!value) return "-";
       return new Date(Number(value)).toLocaleString("pt-BR");
+    }
+
+    function formatTimeOnly(value) {
+      if (!value) return "-";
+      return new Date(Number(value)).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
     }
 
     function confirmStartOrder(id) {
