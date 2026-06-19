@@ -1762,7 +1762,7 @@
     }
 
     body.panel-mode {
-      overflow: auto;
+      overflow: hidden;
       background: linear-gradient(135deg, #f7f9fd 0%, #e9eef8 48%, #dce6f6 100%);
     }
 
@@ -1773,10 +1773,10 @@
 
     body.panel-mode .workspace {
       margin-left: 0;
-      height: auto;
+      height: 100vh;
       min-height: 100vh;
-      padding: 18px;
-      overflow: visible;
+      padding: 12px;
+      overflow: hidden;
     }
 
     body.panel-mode .view:not(#activeOrders) {
@@ -1788,16 +1788,61 @@
     }
 
     body.panel-mode #activeOrders .panel {
-      min-height: calc(100vh - 36px);
+      height: calc(100vh - 24px);
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+
+    body.panel-mode #activeOrdersPanel {
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 12px;
+      scrollbar-width: none;
+    }
+
+    body.panel-mode #activeOrdersPanel::-webkit-scrollbar {
+      width: 0;
+      height: 0;
     }
 
     body.panel-mode .os-card-grid {
-      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       align-items: stretch;
+      gap: 12px;
     }
 
     body.panel-mode .os-live-card {
-      min-height: 0;
+      min-height: calc((100vh - 128px) / 2);
+    }
+
+    @media (max-width: 1300px) {
+      body.panel-mode .os-card-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      body.panel-mode .os-live-card {
+        min-height: calc((100vh - 140px) / 3);
+      }
+    }
+
+    @media (max-width: 760px) {
+      body.panel-mode {
+        overflow: auto;
+      }
+      body.panel-mode .workspace,
+      body.panel-mode #activeOrders .panel {
+        height: auto;
+        overflow: visible;
+      }
+      body.panel-mode #activeOrdersPanel {
+        overflow: visible;
+      }
+      body.panel-mode .os-card-grid {
+        grid-template-columns: 1fr;
+      }
+      body.panel-mode .os-live-card {
+        min-height: 0;
+      }
     }
 
     .os-panel-actions {
@@ -3730,15 +3775,15 @@
     function startPanelAutoScroll() {
       if (!isPanelMode()) return;
       stopPanelAutoScroll();
-      const root = document.scrollingElement || document.documentElement;
-      const maxScroll = Math.max(0, root.scrollHeight - window.innerHeight);
+      const root = $("activeOrdersPanel") || document.scrollingElement || document.documentElement;
+      const maxScroll = Math.max(0, root.scrollHeight - root.clientHeight);
       if (maxScroll < 24) {
         schedulePanelAutoScroll(5000);
         return;
       }
       const step = () => {
         if (!isPanelMode()) return stopPanelAutoScroll();
-        const currentMax = Math.max(0, root.scrollHeight - window.innerHeight);
+        const currentMax = Math.max(0, root.scrollHeight - root.clientHeight);
         if (currentMax < 24) {
           schedulePanelAutoScroll(5000);
           return;
@@ -4942,7 +4987,13 @@
             `;
           }).join("")}
         </div>`;
-      if (targetId === "activeOrdersPanel") schedulePanelAutoScroll();
+      if (targetId === "activeOrdersPanel") {
+        if (rows.length > 6) schedulePanelAutoScroll();
+        else {
+          stopPanelAutoScroll();
+          target.scrollTop = 0;
+        }
+      }
     }
 
     function render() {
