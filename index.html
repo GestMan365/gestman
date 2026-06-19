@@ -1751,11 +1751,29 @@
 
     .os-live-desc {
       border-left: 3px solid var(--orange);
-      padding-left: 8px;
+      padding: 7px 8px;
       color: var(--muted);
-      line-height: 1.25;
-      min-height: 28px;
+      line-height: 1.35;
+      min-height: 62px;
       font-size: 12px;
+      background: rgba(255,255,255,.06);
+      border-radius: 6px;
+      display: grid;
+      align-content: start;
+      gap: 5px;
+    }
+
+    .os-live-desc strong {
+      color: var(--ink);
+      font-size: 10px;
+      letter-spacing: .03em;
+    }
+
+    .os-live-desc span {
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
     .os-live-foot {
@@ -5047,7 +5065,7 @@
                   <span><small>Local</small>${escapeHtml(location.name || "-")}</span>
                   <span><small>Solicitante</small>${escapeHtml(order.requester || "-")}</span>
                 </div>
-                <div class="os-live-desc">${escapeHtml(order.description || "Sem descrição informada.")}</div>
+                <div class="os-live-desc"><strong>DESCRIÇÃO</strong><span>${escapeHtml(order.description || "Sem descrição informada.")}</span></div>
                 <div class="os-live-foot">
                   <span class="live-dot ${liveState.className}">${liveState.label}</span>
                   <button class="btn" onclick="showOrderDetails('${order.id}')">${actionIcon("details", "edit")}Detalhes</button>
