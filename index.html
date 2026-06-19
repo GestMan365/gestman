@@ -1543,6 +1543,145 @@
       min-width: 980px;
     }
 
+    .os-card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 12px;
+    }
+
+    .os-live-card {
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 8px;
+      background: linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,.045));
+      box-shadow: 0 14px 32px rgba(0,0,0,.18);
+      padding: 12px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .os-live-head {
+      display: grid;
+      grid-template-columns: 54px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .executor-photo {
+      width: 54px;
+      height: 54px;
+      border-radius: 999px;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--blue-700), var(--orange));
+      color: #fff;
+      font-size: 17px;
+      font-weight: 900;
+      border: 2px solid rgba(255,255,255,.78);
+      box-shadow: 0 8px 18px rgba(0,0,0,.18);
+    }
+
+    .executor-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .os-live-title {
+      min-width: 0;
+      display: grid;
+      gap: 2px;
+    }
+
+    .os-live-title strong {
+      font-size: 14px;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .os-live-title span {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .os-live-number {
+      min-width: 72px;
+      min-height: 32px;
+      border-radius: 999px;
+      background: rgba(255,138,76,.18);
+      color: var(--orange);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      border: 1px solid rgba(255,138,76,.35);
+      padding: 0 10px;
+    }
+
+    .os-live-data {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .os-live-data span {
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 6px;
+      background: rgba(255,255,255,.055);
+      padding: 8px;
+      display: grid;
+      gap: 3px;
+      color: var(--ink);
+      font-weight: 900;
+      min-width: 0;
+    }
+
+    .os-live-data small {
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .os-live-desc {
+      border-left: 3px solid var(--orange);
+      padding-left: 9px;
+      color: var(--muted);
+      line-height: 1.35;
+      min-height: 36px;
+    }
+
+    .os-live-foot {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .live-dot {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--ok);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .live-dot::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: var(--ok);
+      box-shadow: 0 0 0 0 rgba(74,222,128,.55);
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+
     .os-panel-actions {
       display: grid;
       grid-template-columns: 1fr;
@@ -2119,6 +2258,8 @@
     body.theme-light label,
     body.theme-light .empty,
     body.theme-light .active-os-item,
+    body.theme-light .os-live-card,
+    body.theme-light .os-live-data span,
     body.theme-light .report-card,
     body.theme-light .ai-answer,
     body.theme-light .detail-grid label,
@@ -2133,6 +2274,8 @@
     body.theme-light .signature-panel,
     body.theme-light .epi-list,
     body.theme-light .active-os-item,
+    body.theme-light .os-live-card,
+    body.theme-light .os-live-data span,
     body.theme-light .report-card,
     body.theme-light .ai-answer {
       background: rgba(18,63,141,.05);
@@ -2446,6 +2589,26 @@
       .chart { padding: 10px; }
       .form { grid-template-columns: 1fr !important; }
       .btn { min-width: 0; max-width: 100%; white-space: normal; }
+      .os-card-grid {
+        grid-template-columns: 1fr;
+      }
+      .os-live-head {
+        grid-template-columns: 48px minmax(0, 1fr);
+      }
+      .os-live-number {
+        grid-column: 1 / -1;
+        justify-self: start;
+      }
+      .executor-photo {
+        width: 48px;
+        height: 48px;
+      }
+      .os-live-data {
+        grid-template-columns: 1fr;
+      }
+      .os-live-foot {
+        grid-template-columns: 1fr;
+      }
       table { min-width: 640px; }
       #dashboard .table-wrap,
       #reports .table-wrap,
@@ -3391,6 +3554,34 @@
     function subtagName(id) { const item = byId(state.subtags, id); return item ? `${item.code}` : "-"; }
     function machineName(id) { const item = byId(state.assets, id); return item ? `${item.code} - ${item.name}` : "-"; }
 
+    function initialsFromName(name) {
+      return String(name || "SE")
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map(part => part[0] || "")
+        .join("")
+        .toUpperCase() || "SE";
+    }
+
+    function executorPhotoHtml(name) {
+      const executor = String(name || "Sem executante").trim() || "Sem executante";
+      const profile = state.profile || {};
+      const sameProfile = profile.photo && statusKey(profile.name) === statusKey(executor);
+      return `<span class="executor-photo">${sameProfile ? `<img src="${profile.photo}" alt="${escapeHtml(executor)}">` : initialsFromName(executor)}</span>`;
+    }
+
+    function elapsedLabel(value) {
+      const start = Number(value || 0);
+      if (!start) return "-";
+      const minutes = Math.max(0, Math.floor((Date.now() - start) / 60000));
+      if (minutes < 60) return `${minutes}MIN`;
+      const hours = Math.floor(minutes / 60);
+      const rest = minutes % 60;
+      if (hours < 24) return `${hours}H ${rest}MIN`;
+      return `${Math.floor(hours / 24)}D ${hours % 24}H`;
+    }
+
     function subtagsForParent(parentId) {
       return state.subtags
         .filter(item => item.parentId === parentId)
@@ -4291,26 +4482,41 @@
         .filter(order => !isClosedOrder(order.status))
         .sort((a, b) => Number(b.startedAt || b.createdAt || 0) - Number(a.startedAt || a.createdAt || 0));
       const visible = limit ? rows.slice(0, limit) : rows;
+      if (!visible.length) {
+        target.innerHTML = `<div class="empty">Não tem ordens em aberto ou em execução.</div>`;
+        return;
+      }
       target.innerHTML = `
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>O.S</th><th>Equipamento</th><th>Tipo</th><th>Prioridade</th><th>Status</th><th>Executante</th><th>Acoes</th></tr></thead>
-            <tbody>
-              ${visible.map(order => `
-                <tr>
-                  <td data-label="O.S">${order.number}</td>
-                  <td data-label="Equipamento">${machineName(order.assetId)}</td>
-                  <td data-label="Tipo">${order.type || "-"}</td>
-                  <td data-label="Prioridade">${tag(order.priority)}</td>
-                  <td data-label="Status">${tag(order.status)}</td>
-                  <td data-label="Executante">${order.executor || "Sem executante"}</td>
-                  <td data-label="Ações"><div class="os-panel-actions">
-                    <button class="btn" onclick="showOrderDetails('${order.id}')">${actionIcon("details", "edit")}Detalhes</button>
-                  </div></td>
-                </tr>
-              `).join("") || `<tr><td colspan="7" class="empty">Nao tem ordens em aberto ou em execucao.</td></tr>`}
-            </tbody>
-          </table>
+        <div class="os-card-grid">
+          ${visible.map(order => {
+            const running = isRunningOrder(order.status);
+            const executor = order.executor || "Sem executante";
+            return `
+              <article class="os-live-card">
+                <div class="os-live-head">
+                  ${executorPhotoHtml(executor)}
+                  <div class="os-live-title">
+                    <strong>${escapeHtml(executor)}</strong>
+                    <span>${escapeHtml(machineName(order.assetId))}</span>
+                  </div>
+                  <div class="os-live-number">${order.number}</div>
+                </div>
+                <div class="os-live-data">
+                  <span><small>Status</small>${tag(order.status)}</span>
+                  <span><small>Prioridade</small>${tag(order.priority)}</span>
+                  <span><small>Tipo</small>${order.type || "-"}</span>
+                  <span><small>${running ? "Em atendimento" : "Aberta há"}</small>${elapsedLabel(running ? order.startedAt : order.createdAt)}</span>
+                  <span><small>Abertura</small>${formatDateTime(order.createdAt)}</span>
+                  <span><small>Início</small>${formatDateTime(order.startedAt)}</span>
+                </div>
+                <div class="os-live-desc">${escapeHtml(order.description || "Sem descrição informada.")}</div>
+                <div class="os-live-foot">
+                  <span class="live-dot">${running ? "ATENDIMENTO EM TEMPO REAL" : "AGUARDANDO INÍCIO"}</span>
+                  <button class="btn" onclick="showOrderDetails('${order.id}')">${actionIcon("details", "edit")}Detalhes</button>
+                </div>
+              </article>
+            `;
+          }).join("")}
         </div>`;
     }
 
@@ -5331,6 +5537,11 @@
       renderReports();
       renderAssistantSummary();
     }, 30000);
+
+    setInterval(() => {
+      if (!SUPABASE_READY || $("genericModal").classList.contains("open")) return;
+      loadSupabaseState(false);
+    }, 12000);
 
     applyTheme(currentTheme);
     render();
