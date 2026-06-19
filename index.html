@@ -3207,6 +3207,10 @@
     if (currentTheme !== "light" && currentTheme !== "dark") currentTheme = "light";
     let calendarMode = "month";
     let calendarViewDate = new Date();
+    let panelScrollFrame = null;
+    let panelScrollTimer = null;
+    let panelScrollDirection = 1;
+    let panelScrollPausedUntil = 0;
 
     function loadState() {
       try {
@@ -3695,6 +3699,71 @@
       document.body.classList.add("panel-mode");
       document.title = "Painel O.S - GestMan365";
       setView("activeOrders");
+      setupPanelAutoScrollInteractions();
+      schedulePanelAutoScroll();
+    }
+
+    function setupPanelAutoScrollInteractions() {
+      if (document.body.dataset.panelScrollEvents === "1") return;
+      document.body.dataset.panelScrollEvents = "1";
+      const pause = () => {
+        panelScrollPausedUntil = Date.now() + 8000;
+      };
+      window.addEventListener("wheel", pause, { passive: true });
+      window.addEventListener("touchstart", pause, { passive: true });
+      window.addEventListener("mousemove", pause, { passive: true });
+    }
+
+    function stopPanelAutoScroll() {
+      if (panelScrollFrame) cancelAnimationFrame(panelScrollFrame);
+      if (panelScrollTimer) clearTimeout(panelScrollTimer);
+      panelScrollFrame = null;
+      panelScrollTimer = null;
+    }
+
+    function schedulePanelAutoScroll(delay = 5000) {
+      if (!isPanelMode()) return;
+      if (panelScrollTimer) clearTimeout(panelScrollTimer);
+      panelScrollTimer = setTimeout(startPanelAutoScroll, delay);
+    }
+
+    function startPanelAutoScroll() {
+      if (!isPanelMode()) return;
+      stopPanelAutoScroll();
+      const root = document.scrollingElement || document.documentElement;
+      const maxScroll = Math.max(0, root.scrollHeight - window.innerHeight);
+      if (maxScroll < 24) {
+        schedulePanelAutoScroll(5000);
+        return;
+      }
+      const step = () => {
+        if (!isPanelMode()) return stopPanelAutoScroll();
+        const currentMax = Math.max(0, root.scrollHeight - window.innerHeight);
+        if (currentMax < 24) {
+          schedulePanelAutoScroll(5000);
+          return;
+        }
+        if (Date.now() < panelScrollPausedUntil || $("genericModal").classList.contains("open")) {
+          panelScrollFrame = requestAnimationFrame(step);
+          return;
+        }
+        const next = root.scrollTop + (panelScrollDirection * 0.55);
+        root.scrollTop = Math.max(0, Math.min(currentMax, next));
+        if (root.scrollTop >= currentMax - 1) {
+          panelScrollDirection = -1;
+          stopPanelAutoScroll();
+          schedulePanelAutoScroll(5000);
+          return;
+        }
+        if (root.scrollTop <= 1 && panelScrollDirection < 0) {
+          panelScrollDirection = 1;
+          stopPanelAutoScroll();
+          schedulePanelAutoScroll(5000);
+          return;
+        }
+        panelScrollFrame = requestAnimationFrame(step);
+      };
+      panelScrollFrame = requestAnimationFrame(step);
     }
 
     function tagClass(value) {
@@ -4828,6 +4897,7 @@
       const visible = limit ? rows.slice(0, limit) : rows;
       if (!visible.length) {
         target.innerHTML = `<div class="empty">Não tem ordens em aberto ou em execução.</div>`;
+        if (targetId === "activeOrdersPanel") stopPanelAutoScroll();
         return;
       }
       target.innerHTML = `
@@ -4872,6 +4942,7 @@
             `;
           }).join("")}
         </div>`;
+      if (targetId === "activeOrdersPanel") schedulePanelAutoScroll();
     }
 
     function render() {
