@@ -4229,35 +4229,71 @@
     }
 
     function renderTrendChart() {
-      const dayMs = 24 * 60 * 60 * 1000;
-      const today = new Date();
-      today.setHours(23, 59, 59, 999);
+      const target = $("trendChart");
+      if (!target) return;
+      const now = Date.now();
+      const monthLabel = date => date.toLocaleDateString("pt-BR", { month: "short" }).replace(".", "").toUpperCase();
+      const repairHours = order => {
+        const saved = Number(order.mttr || 0);
+        if (saved > 0) return saved;
+        const start = Number(order.startedAt || order.createdAt || 0);
+        const end = Number(order.finishedAt || 0);
+        return start && end && end > start ? (end - start) / 3600000 : 0;
+      };
       const buckets = Array.from({ length: 6 }, (_, index) => {
-        const end = new Date(today.getTime() - (5 - index) * dayMs);
-        const start = new Date(end.getTime() - dayMs + 1);
-        const orders = state.orders.filter(order => {
-          const date = Number(order.finishedAt || order.startedAt || order.createdAt || 0);
-          return date >= start.getTime() && date <= end.getTime();
+        const cursor = new Date();
+        cursor.setMonth(cursor.getMonth() - (5 - index), 1);
+        cursor.setHours(0, 0, 0, 0);
+        const start = cursor.getTime();
+        const endDate = new Date(cursor);
+        endDate.setMonth(endDate.getMonth() + 1, 0);
+        endDate.setHours(23, 59, 59, 999);
+        const end = Math.min(endDate.getTime(), now);
+        const opened = state.orders.filter(order => {
+          const date = Number(order.createdAt || 0);
+          return date >= start && date <= end && statusKey(order.status) !== "cancelada";
         });
-        const completed = orders.filter(order => isClosedOrder(order.status));
-        const mttr = completed.length ? completed.reduce((sum, order) => sum + Number(order.mttr || 0), 0) / completed.length : 0;
-        const failures = orders.filter(order => statusKey(order.status) !== "cancelada").length;
-        const mtbf = failures && state.assets.length ? (state.assets.length * 24) / failures : (state.assets.length ? 24 : 0);
-        return { mttr, mtbf };
+        const completed = state.orders.filter(order => {
+          const date = Number(order.finishedAt || 0);
+          return date >= start && date <= end && isClosedOrder(order.status);
+        });
+        const repairs = completed.map(repairHours).filter(value => value > 0);
+        const mttr = repairs.length ? repairs.reduce((sum, value) => sum + value, 0) / repairs.length : 0;
+        const periodHours = Math.max(0, (end - start) / 3600000) * Math.max(1, state.assets.length);
+        const mtbf = opened.length ? periodHours / opened.length : (state.assets.length ? periodHours : 0);
+        return { label: monthLabel(cursor), mttr, mtbf, opened: opened.length, completed: completed.length };
       });
+      const hasData = buckets.some(item => item.opened || item.completed || item.mttr || item.mtbf);
+      if (!hasData) {
+        target.innerHTML = `<div class="empty">Sem O.S registradas para calcular MTTR e MTBF.</div>`;
+        return;
+      }
       const mttrPoints = buckets.map(item => item.mttr);
       const mtbfPoints = buckets.map(item => item.mtbf);
-      const max = Math.max(10, ...mttrPoints, ...mtbfPoints);
-      const poly = arr => arr.map((v, i) => `${40 + i * 110},${180 - (v / max) * 145}`).join(" ");
-      $("trendChart").innerHTML = `
-        <svg viewBox="0 0 650 210" aria-label="Grafico MTTR e MTBF">
-          <line x1="40" y1="180" x2="620" y2="180" stroke="rgba(255,255,255,.25)"/>
-          <line x1="40" y1="30" x2="40" y2="180" stroke="rgba(255,255,255,.25)"/>
-          <polyline points="${poly(mtbfPoints)}" fill="none" stroke="#ffffff" stroke-width="4"/>
-          <polyline points="${poly(mttrPoints)}" fill="none" stroke="#ff8a4c" stroke-width="4"/>
-          <text x="460" y="28" fill="#fff">MTBF</text>
-          <text x="540" y="28" fill="#ff8a4c">MTTR</text>
-          <text x="38" y="202" fill="#aebfdf">ultimos periodos</text>
+      const maxMttr = Math.max(1, ...mttrPoints);
+      const maxMtbf = Math.max(1, ...mtbfPoints);
+      const x = index => 58 + index * 112;
+      const yMttr = value => 176 - (value / maxMttr) * 118;
+      const yMtbf = value => 176 - (value / maxMtbf) * 118;
+      const poly = (arr, yFn) => arr.map((value, index) => `${x(index)},${yFn(value)}`).join(" ");
+      target.innerHTML = `
+        <svg viewBox="0 0 690 230" aria-label="Gráfico real de MTTR e MTBF">
+          <rect x="0" y="0" width="690" height="230" rx="8" fill="transparent"/>
+          <line x1="46" y1="176" x2="642" y2="176" stroke="rgba(13,47,115,.24)"/>
+          <line x1="46" y1="58" x2="46" y2="176" stroke="rgba(13,47,115,.24)"/>
+          <line x1="46" y1="117" x2="642" y2="117" stroke="rgba(13,47,115,.10)"/>
+          <polyline points="${poly(mtbfPoints, yMtbf)}" fill="none" stroke="#123f8d" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="${poly(mttrPoints, yMttr)}" fill="none" stroke="#ff7a1a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          ${buckets.map((item, index) => `
+            <circle cx="${x(index)}" cy="${yMtbf(item.mtbf)}" r="5" fill="#123f8d"/>
+            <circle cx="${x(index)}" cy="${yMttr(item.mttr)}" r="5" fill="#ff7a1a"/>
+            <text x="${x(index)}" y="${Math.max(18, yMtbf(item.mtbf) - 10)}" text-anchor="middle" fill="#123f8d" font-size="11" font-weight="900">${item.mtbf.toFixed(0)}H</text>
+            <text x="${x(index)}" y="${Math.min(207, yMttr(item.mttr) + 19)}" text-anchor="middle" fill="#ff7a1a" font-size="11" font-weight="900">${item.mttr.toFixed(1)}H</text>
+            <text x="${x(index)}" y="202" text-anchor="middle" fill="#53627a" font-size="11" font-weight="800">${item.label}</text>
+          `).join("")}
+          <text x="475" y="30" fill="#123f8d" font-size="12" font-weight="900">MTBF</text>
+          <text x="548" y="30" fill="#ff7a1a" font-size="12" font-weight="900">MTTR</text>
+          <text x="46" y="220" fill="#53627a" font-size="10">Últimos 6 meses | valores em horas</text>
         </svg>`;
     }
 
