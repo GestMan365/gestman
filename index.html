@@ -5128,7 +5128,9 @@
     $("machineMenu").addEventListener("click", event => { const action = event.target.closest("[data-machine-action]"); if (action) machineAction(action.dataset.machineAction); });
     $("locationMenu").addEventListener("click", event => { const action = event.target.closest("[data-location-action]"); if (action) locationAction(action.dataset.locationAction); });
     document.querySelectorAll("[data-close-modal]").forEach(button => button.addEventListener("click", closeModal));
-    $("genericModal").addEventListener("click", event => { if (event.target.id === "genericModal") closeModal(); });
+    $("genericModal").addEventListener("click", event => {
+      if (event.target.id === "genericModal") event.stopPropagation();
+    });
     $("profileBtn").addEventListener("click", openProfileModal);
     $("createOrderBtn").addEventListener("click", () => openOrderModal());
     $("createChecklistBtn").addEventListener("click", () => openChecklistModal());
