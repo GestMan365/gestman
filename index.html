@@ -1610,6 +1610,48 @@
       gap: 8px;
     }
 
+    .os-live-card.recent {
+      border-color: rgba(239,68,68,.62);
+      background: linear-gradient(135deg, rgba(239,68,68,.18), rgba(255,255,255,.07));
+      box-shadow: 0 10px 24px rgba(239,68,68,.16);
+      animation: osCardRedPulse 1.4s ease-in-out infinite;
+    }
+
+    .os-live-card.waiting {
+      border-color: rgba(245,158,11,.68);
+      background: linear-gradient(135deg, rgba(245,158,11,.20), rgba(255,255,255,.08));
+      box-shadow: 0 10px 24px rgba(245,158,11,.15);
+    }
+
+    .os-live-card.running {
+      border-color: rgba(34,197,94,.62);
+      background: linear-gradient(135deg, rgba(34,197,94,.18), rgba(255,255,255,.07));
+      box-shadow: 0 10px 24px rgba(34,197,94,.15);
+      animation: osCardGreenPulse 1.8s ease-in-out infinite;
+    }
+
+    .os-live-card.recent .os-live-desc {
+      border-left-color: #ef4444;
+    }
+
+    .os-live-card.waiting .os-live-desc {
+      border-left-color: #f59e0b;
+    }
+
+    .os-live-card.running .os-live-desc {
+      border-left-color: #22c55e;
+    }
+
+    @keyframes osCardRedPulse {
+      0%, 100% { box-shadow: 0 10px 24px rgba(239,68,68,.14), 0 0 0 0 rgba(239,68,68,.34); }
+      50% { box-shadow: 0 12px 30px rgba(239,68,68,.26), 0 0 0 4px rgba(239,68,68,.10); }
+    }
+
+    @keyframes osCardGreenPulse {
+      0%, 100% { box-shadow: 0 10px 24px rgba(34,197,94,.14), 0 0 0 0 rgba(34,197,94,.25); }
+      50% { box-shadow: 0 12px 30px rgba(34,197,94,.24), 0 0 0 4px rgba(34,197,94,.09); }
+    }
+
     .os-live-head {
       display: grid;
       grid-template-columns: 42px minmax(0, 1fr) auto;
@@ -2456,6 +2498,21 @@
     body.theme-light .os-actions button {
       background: rgba(255,255,255,.92);
       color: #0b1d3d;
+    }
+
+    body.theme-light .os-live-card.recent {
+      background: linear-gradient(135deg, rgba(239,68,68,.18), rgba(255,255,255,.82));
+      border-color: rgba(239,68,68,.62);
+    }
+
+    body.theme-light .os-live-card.waiting {
+      background: linear-gradient(135deg, rgba(245,158,11,.22), rgba(255,255,255,.84));
+      border-color: rgba(245,158,11,.68);
+    }
+
+    body.theme-light .os-live-card.running {
+      background: linear-gradient(135deg, rgba(34,197,94,.18), rgba(255,255,255,.84));
+      border-color: rgba(34,197,94,.62);
     }
 
     body.theme-light .detail-tab {
@@ -4963,7 +5020,7 @@
                 ? { className: "recent", label: "ABERTA RECENTE" }
                 : { className: "waiting", label: "AGUARDANDO ATENDIMENTO" };
             return `
-              <article class="os-live-card">
+              <article class="os-live-card ${liveState.className}">
                 <div class="os-live-head">
                   ${executorPhotoHtml(executor)}
                   <div class="os-live-title">
