@@ -1180,12 +1180,12 @@
     }
 
     .calendar-hidden-date {
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      border: 0;
-      opacity: 0;
-      pointer-events: none;
+      width: 150px;
+      height: 31px;
+      padding: 0 8px;
+      border: 1px solid #cfcfcf;
+      opacity: 1;
+      pointer-events: auto;
     }
 
     .calendar-title {
@@ -4162,6 +4162,17 @@
       return parseCalendarDate(order.scheduledAt || order.programmedAt || order.dueAt);
     }
 
+    function orderCalendarDate(order) {
+      return orderProgrammedDate(order)
+        || (isClosedOrder(order.status) ? parseCalendarDate(order.finishedAt || order.startedAt || order.createdAt) : null)
+        || (isRunningOrder(order.status) ? parseCalendarDate(order.startedAt || order.createdAt) : null);
+    }
+
+    function orderSearchDate(order) {
+      return orderProgrammedDate(order)
+        || parseCalendarDate(order.finishedAt || order.startedAt || order.createdAt);
+    }
+
     function calendarEventClass(order) {
       const status = statusKey(order.status);
       if (status.includes("exec") || status.includes("conclu")) return "green";
@@ -4187,14 +4198,21 @@
 
     function calendarProgrammedOrders() {
       return state.orders
-        .map(order => ({ order, date: orderProgrammedDate(order) }))
+        .map(order => ({ order, date: orderCalendarDate(order) }))
+        .filter(item => item.date)
+        .sort((a, b) => a.date - b.date);
+    }
+
+    function calendarSearchOrders() {
+      return state.orders
+        .map(order => ({ order, date: orderSearchDate(order) }))
         .filter(item => item.date)
         .sort((a, b) => a.date - b.date);
     }
 
     function calendarUnscheduledOrders() {
       return state.orders
-        .filter(order => !orderProgrammedDate(order))
+        .filter(order => !orderCalendarDate(order) && !isClosedOrder(order.status))
         .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
     }
 
@@ -4260,13 +4278,13 @@
 
       if (calendarMode === "list") {
         grid.className = "calendar-grid calendar-list-mode";
-        grid.innerHTML = renderCalendarList(programmed);
+        grid.innerHTML = renderCalendarList(calendarSearchOrders());
         return;
       }
 
       if (calendarMode === "day") {
         grid.className = "calendar-grid calendar-list-mode";
-        grid.innerHTML = renderCalendarList(programmed, calendarViewDate);
+        grid.innerHTML = renderCalendarList(calendarSearchOrders(), calendarViewDate);
         return;
       }
 
@@ -5758,6 +5776,7 @@
     $("calendarDate").value = calendarDateKey(calendarViewDate);
     $("calendarDate").addEventListener("change", () => {
       calendarViewDate = parseCalendarDate($("calendarDate").value) || new Date();
+      calendarMode = "day";
       renderCalendar();
     });
     document.querySelectorAll("[data-calendar-mode]").forEach(button => {
