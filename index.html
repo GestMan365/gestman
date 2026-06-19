@@ -416,6 +416,57 @@
     .grid { display: grid; gap: 14px; }
     .metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .two-col { grid-template-columns: minmax(0, 1.25fr) minmax(360px, .75fr); align-items: start; }
+    .dashboard-toolbar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      align-items: start;
+    }
+    .dashboard-widget {
+      min-width: 0;
+    }
+    .dashboard-widget.full {
+      grid-column: 1 / -1;
+    }
+    .dashboard-metric-head {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 8px;
+    }
+    .dashboard-widget.is-hidden {
+      display: none !important;
+    }
+    .dashboard-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .widget-btn {
+      width: 30px;
+      height: 28px;
+      border-radius: 5px;
+      border: 1px solid rgba(13,47,115,.22);
+      background: rgba(255,255,255,.64);
+      color: var(--blue-900);
+      display: inline-grid;
+      place-items: center;
+      font-weight: 900;
+      cursor: pointer;
+    }
+    .widget-btn:hover {
+      transform: translateY(-1px);
+      border-color: var(--orange);
+      color: var(--orange);
+    }
     .admin-grid { grid-template-columns: 410px minmax(0, 1fr); align-items: start; }
     .location-admin {
       grid-template-columns: minmax(0, 1fr);
@@ -2645,7 +2696,7 @@
       .tab { height: auto; min-height: 38px; padding: 7px 8px; white-space: normal; }
       .searchbar { width: 100%; }
       .workspace { margin-left: 0; height: auto; min-height: calc(100vh - 120px); padding: 10px; overflow: visible; }
-      .grid, .metrics, .two-col, .admin-grid, .map-shell, .os-grid, .reports-grid, .location-admin .form { grid-template-columns: 1fr !important; }
+      .grid, .metrics, .two-col, .dashboard-layout, .admin-grid, .map-shell, .os-grid, .reports-grid, .location-admin .form { grid-template-columns: 1fr !important; }
       .panel-head { min-height: auto; align-items: flex-start; gap: 8px; flex-wrap: wrap; }
       .panel-title { font-size: 13px; line-height: 1.25; }
       .metric { min-height: 92px; padding: 13px; }
@@ -2811,45 +2862,45 @@
 
   <main class="workspace">
     <section class="view active" id="dashboard">
-      <div class="grid metrics">
-        <div class="metric"><span>MTTR médio</span><strong id="mttrMetric">0h</strong><small>Tempo médio para reparar</small></div>
-        <div class="metric"><span>MTBF médio</span><strong id="mtbfMetric">0h</strong><small>Tempo médio entre falhas</small></div>
-        <div class="metric"><span>Disponibilidade</span><strong id="availabilityMetric">0%</strong><small>Estimativa operacional</small></div>
-        <div class="metric"><span>Equipamentos cadastrados</span><strong id="assetMetric">0</strong><small>Parque industrial criado</small></div>
-        <div class="metric"><span>Locais de instalação</span><strong id="locationMetric">0</strong><small>Áreas mapeadas</small></div>
-        <div class="metric"><span>O.S abertas</span><strong id="openOsMetric">0</strong><small>Chamados aguardando</small></div>
-        <div class="metric"><span>O.S em execução</span><strong id="runningOsMetric">0</strong><small>Atendimento ativo</small></div>
-        <div class="metric"><span>Paradas ativas</span><strong id="stoppedMetric">0</strong><small>Equipamentos parados</small></div>
+      <div class="dashboard-toolbar">
+        <button class="btn" id="dashboardConfigBtn" type="button">Configurar dashboard</button>
       </div>
-
-      <div class="grid two-col" style="margin-top:14px">
-        <div class="panel">
-          <div class="panel-head"><div class="panel-title">Tendência MTTR x MTBF</div></div>
+      <div class="dashboard-layout" id="dashboardLayout">
+        <div class="dashboard-widget full" data-dashboard-widget="metrics">
+          <div class="dashboard-metric-head"><div class="dashboard-controls" data-dashboard-controls="metrics"></div></div>
+          <div class="grid metrics">
+            <div class="metric"><span>MTTR médio</span><strong id="mttrMetric">0h</strong><small>Tempo médio para reparar</small></div>
+            <div class="metric"><span>MTBF médio</span><strong id="mtbfMetric">0h</strong><small>Tempo médio entre falhas</small></div>
+            <div class="metric"><span>Disponibilidade</span><strong id="availabilityMetric">0%</strong><small>Estimativa operacional</small></div>
+            <div class="metric"><span>Equipamentos cadastrados</span><strong id="assetMetric">0</strong><small>Parque industrial criado</small></div>
+            <div class="metric"><span>Locais de instalação</span><strong id="locationMetric">0</strong><small>Áreas mapeadas</small></div>
+            <div class="metric"><span>O.S abertas</span><strong id="openOsMetric">0</strong><small>Chamados aguardando</small></div>
+            <div class="metric"><span>O.S em execução</span><strong id="runningOsMetric">0</strong><small>Atendimento ativo</small></div>
+            <div class="metric"><span>Paradas ativas</span><strong id="stoppedMetric">0</strong><small>Equipamentos parados</small></div>
+          </div>
+        </div>
+        <div class="panel dashboard-widget" data-dashboard-widget="trend">
+          <div class="panel-head"><div class="panel-title">Tendência MTTR x MTBF</div><div class="dashboard-controls" data-dashboard-controls="trend"></div></div>
           <div class="line-chart" id="trendChart"></div>
         </div>
-        <div class="panel">
-          <div class="panel-head"><div class="panel-title">Backlog por status</div><button class="btn" data-view-button="orders">Ver O.S</button></div>
+        <div class="panel dashboard-widget" data-dashboard-widget="status">
+          <div class="panel-head"><div class="panel-title">Backlog por status</div><div class="dashboard-controls" data-dashboard-controls="status"></div><button class="btn" data-view-button="orders">Ver O.S</button></div>
           <div class="chart" id="statusBars"></div>
         </div>
-      </div>
-
-      <div class="grid two-col" style="margin-top:14px">
-        <div class="panel">
-          <div class="panel-head"><div class="panel-title">Criticidade do parque</div></div>
+        <div class="panel dashboard-widget" data-dashboard-widget="criticality">
+          <div class="panel-head"><div class="panel-title">Criticidade do parque</div><div class="dashboard-controls" data-dashboard-controls="criticality"></div></div>
           <div class="chart" id="criticalityBars"></div>
         </div>
-        <div class="panel">
-          <div class="panel-head"><div class="panel-title">O.S abertas e em execução</div><button class="btn" id="openTvPanelBtn" type="button">Abrir painel</button></div>
+        <div class="panel dashboard-widget" data-dashboard-widget="activeOrders">
+          <div class="panel-head"><div class="panel-title">O.S abertas e em execução</div><div class="dashboard-controls" data-dashboard-controls="activeOrders"></div><button class="btn" id="openTvPanelBtn" type="button">Abrir painel</button></div>
           <div id="dashboardActiveOrders" class="active-os-list"></div>
         </div>
-      </div>
-      <div class="grid two-col" style="margin-top:14px">
-        <div class="panel">
-          <div class="panel-head"><div class="panel-title">TOP 10 PARADAS DE EQUIPAMENTO</div></div>
+        <div class="panel dashboard-widget" data-dashboard-widget="stops">
+          <div class="panel-head"><div class="panel-title">TOP 10 PARADAS DE EQUIPAMENTO</div><div class="dashboard-controls" data-dashboard-controls="stops"></div></div>
           <div class="table-wrap"><table><thead><tr><th>#</th><th>EQUIPAMENTO</th><th>PARADAS</th><th>TEMPO TOTAL</th></tr></thead><tbody id="dashboardStopsRows"></tbody></table></div>
         </div>
-        <div class="panel">
-          <div class="panel-head"><div class="panel-title">EXECUTANTES POR ORDENS ATENDIDAS</div></div>
+        <div class="panel dashboard-widget" data-dashboard-widget="executors">
+          <div class="panel-head"><div class="panel-title">EXECUTANTES POR ORDENS ATENDIDAS</div><div class="dashboard-controls" data-dashboard-controls="executors"></div></div>
           <div class="table-wrap"><table><thead><tr><th>EXECUTANTE</th><th>ORDENS</th><th>TEMPO HOJE</th><th>TOTAL MES</th></tr></thead><tbody id="dashboardExecutorRows"></tbody></table></div>
         </div>
       </div>
@@ -3119,6 +3170,7 @@
     const PROFILE_STORAGE_KEY = "gestman365-profile-v1";
     const PENDING_SYNC_KEY = "gestman365-pending-sync-v1";
     const THEME_KEY = "gestman365-theme";
+    const DASHBOARD_LAYOUT_KEY = "gestman365-dashboard-layout-v1";
     const THEME_DEFAULT_KEY = "gestman365-light-default-applied";
     const SUPABASE_URL = "https://zkkyiqtzmimcoderjrrm.supabase.co";
     const SUPABASE_KEY = "sb_publishable_h88SLb98aMdmGCJvEO6yFw_QuJ4I3bI";
@@ -3862,12 +3914,117 @@
       if ($("openOsMetric")) $("openOsMetric").textContent = counts.abertas;
       if ($("runningOsMetric")) $("runningOsMetric").textContent = counts.execucao;
       if ($("stoppedMetric")) $("stoppedMetric").textContent = state.orders.filter(order => !isClosedOrder(order.status) && order.machineStopped).length;
+      applyDashboardLayout();
       renderTrendChart();
       renderStatusBars();
       renderCriticalityBars();
       renderActiveOrdersPanel("dashboardActiveOrders", 4);
       renderDashboardStops();
       renderDashboardExecutors();
+    }
+
+    const dashboardWidgetDefaults = [
+      { id: "metrics", label: "Indicadores principais" },
+      { id: "trend", label: "Tendência MTTR x MTBF" },
+      { id: "status", label: "Backlog por status" },
+      { id: "criticality", label: "Criticidade do parque" },
+      { id: "activeOrders", label: "O.S abertas e em execução" },
+      { id: "stops", label: "TOP 10 paradas de equipamento" },
+      { id: "executors", label: "Executantes por ordens atendidas" }
+    ];
+
+    function loadDashboardLayout() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(DASHBOARD_LAYOUT_KEY) || "{}");
+        const defaultOrder = dashboardWidgetDefaults.map(item => item.id);
+        const order = Array.isArray(parsed.order)
+          ? parsed.order.filter(id => defaultOrder.includes(id)).concat(defaultOrder.filter(id => !parsed.order.includes(id)))
+          : defaultOrder;
+        const hidden = Array.isArray(parsed.hidden) ? parsed.hidden.filter(id => defaultOrder.includes(id)) : [];
+        return { order, hidden };
+      } catch {
+        return { order: dashboardWidgetDefaults.map(item => item.id), hidden: [] };
+      }
+    }
+
+    function saveDashboardLayout(layout) {
+      localStorage.setItem(DASHBOARD_LAYOUT_KEY, JSON.stringify(layout));
+    }
+
+    function dashboardControlsHtml(id) {
+      return `
+        <button class="widget-btn" type="button" title="Mover para cima" onclick="moveDashboardWidget('${id}', -1)">↑</button>
+        <button class="widget-btn" type="button" title="Mover para baixo" onclick="moveDashboardWidget('${id}', 1)">↓</button>
+        <button class="widget-btn" type="button" title="Ocultar bloco" onclick="hideDashboardWidget('${id}')">×</button>
+      `;
+    }
+
+    function applyDashboardLayout() {
+      const layout = loadDashboardLayout();
+      document.querySelectorAll("[data-dashboard-widget]").forEach(widget => {
+        const id = widget.dataset.dashboardWidget;
+        const index = layout.order.indexOf(id);
+        widget.style.order = index >= 0 ? index : 999;
+        widget.classList.toggle("is-hidden", layout.hidden.includes(id));
+      });
+      document.querySelectorAll("[data-dashboard-controls]").forEach(target => {
+        target.innerHTML = dashboardControlsHtml(target.dataset.dashboardControls);
+      });
+    }
+
+    function moveDashboardWidget(id, direction) {
+      const layout = loadDashboardLayout();
+      const index = layout.order.indexOf(id);
+      const nextIndex = index + direction;
+      if (index < 0 || nextIndex < 0 || nextIndex >= layout.order.length) return;
+      [layout.order[index], layout.order[nextIndex]] = [layout.order[nextIndex], layout.order[index]];
+      saveDashboardLayout(layout);
+      applyDashboardLayout();
+    }
+
+    function hideDashboardWidget(id) {
+      const layout = loadDashboardLayout();
+      if (!layout.hidden.includes(id)) layout.hidden.push(id);
+      saveDashboardLayout(layout);
+      applyDashboardLayout();
+      showToast("Bloco ocultado. Use Configurar dashboard para mostrar novamente.");
+    }
+
+    function openDashboardConfig() {
+      const layout = loadDashboardLayout();
+      openModal("Configurar dashboard", `
+        <div class="side-box">
+          <strong>Escolha os blocos visíveis no dashboard</strong>
+          ${dashboardWidgetDefaults.map(item => `
+            <label class="switch-line">
+              <input type="checkbox" data-dashboard-visible="${item.id}" ${layout.hidden.includes(item.id) ? "" : "checked"}>
+              ${item.label}
+            </label>
+          `).join("")}
+        </div>
+        <div class="toolbar">
+          <button class="btn" type="button" onclick="resetDashboardLayout()">Restaurar padrão</button>
+          <button class="btn primary" type="button" onclick="saveDashboardVisibility()">Salvar configuração</button>
+        </div>
+      `);
+    }
+
+    function saveDashboardVisibility() {
+      const layout = loadDashboardLayout();
+      layout.hidden = Array.from(document.querySelectorAll("[data-dashboard-visible]"))
+        .filter(input => !input.checked)
+        .map(input => input.dataset.dashboardVisible);
+      saveDashboardLayout(layout);
+      closeModal();
+      applyDashboardLayout();
+      showToast("Dashboard atualizado.");
+    }
+
+    function resetDashboardLayout() {
+      localStorage.removeItem(DASHBOARD_LAYOUT_KEY);
+      closeModal();
+      applyDashboardLayout();
+      showToast("Dashboard restaurado.");
     }
 
     function renderTrendChart() {
@@ -5578,7 +5735,7 @@
       if (ask) showToast("Checklist excluído.");
     }
 
-    window.editAsset = editAsset; window.deleteAsset = deleteAsset; window.duplicateAsset = duplicateAsset; window.editRegion = editRegion; window.deleteRegion = deleteRegion; window.editLocation = editLocation; window.deleteLocation = deleteLocation; window.editTag = editTag; window.deleteTag = deleteTag; window.editSubtag = editSubtag; window.deleteSubtag = deleteSubtag; window.editOrder = editOrder; window.deleteOrder = deleteOrder; window.startOrder = startOrder; window.confirmStartOrder = confirmStartOrder; window.finishOrder = finishOrder; window.showOrderDetails = showOrderDetails; window.simpleOrderAction = simpleOrderAction; window.editChecklist = editChecklist; window.deleteChecklist = deleteChecklist; window.openLocationChecklists = openLocationChecklists; window.openLocationMovements = openLocationMovements;
+    window.editAsset = editAsset; window.deleteAsset = deleteAsset; window.duplicateAsset = duplicateAsset; window.editRegion = editRegion; window.deleteRegion = deleteRegion; window.editLocation = editLocation; window.deleteLocation = deleteLocation; window.editTag = editTag; window.deleteTag = deleteTag; window.editSubtag = editSubtag; window.deleteSubtag = deleteSubtag; window.editOrder = editOrder; window.deleteOrder = deleteOrder; window.startOrder = startOrder; window.confirmStartOrder = confirmStartOrder; window.finishOrder = finishOrder; window.showOrderDetails = showOrderDetails; window.simpleOrderAction = simpleOrderAction; window.editChecklist = editChecklist; window.deleteChecklist = deleteChecklist; window.openLocationChecklists = openLocationChecklists; window.openLocationMovements = openLocationMovements; window.moveDashboardWidget = moveDashboardWidget; window.hideDashboardWidget = hideDashboardWidget; window.openDashboardConfig = openDashboardConfig; window.saveDashboardVisibility = saveDashboardVisibility; window.resetDashboardLayout = resetDashboardLayout;
 
     document.querySelectorAll("[data-view]").forEach(button => button.addEventListener("click", () => setView(button.dataset.view)));
     document.querySelectorAll("[data-view-button]").forEach(button => button.addEventListener("click", () => setView(button.dataset.viewButton)));
@@ -5594,6 +5751,7 @@
       if (event.target.id === "genericModal") event.stopPropagation();
     });
     $("profileBtn").addEventListener("click", openProfileModal);
+    $("dashboardConfigBtn").addEventListener("click", openDashboardConfig);
     $("openTvPanelBtn").addEventListener("click", openOsPanelWindow);
     $("createOrderBtn").addEventListener("click", () => openOrderModal());
     $("createChecklistBtn").addEventListener("click", () => openChecklistModal());
