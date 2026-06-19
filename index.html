@@ -3089,6 +3089,7 @@
   <script>
     const STORAGE_KEY = "gestman365-admin-v2";
     const PROFILE_STORAGE_KEY = "gestman365-profile-v1";
+    const PENDING_SYNC_KEY = "gestman365-pending-sync-v1";
     const THEME_KEY = "gestman365-theme";
     const THEME_DEFAULT_KEY = "gestman365-light-default-applied";
     const SUPABASE_URL = "https://zkkyiqtzmimcoderjrrm.supabase.co";
@@ -3116,7 +3117,7 @@
     let dragState = null;
     let pendingMove = null;
     let isLoadingRemote = false;
-    let hasPendingLocalSync = false;
+    let hasPendingLocalSync = localStorage.getItem(PENDING_SYNC_KEY) === "1";
     let syncTimer = null;
     if (localStorage.getItem(THEME_DEFAULT_KEY) !== "1") {
       localStorage.setItem(THEME_KEY, "light");
@@ -3161,6 +3162,7 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(state.profile || {}));
       hasPendingLocalSync = true;
+      localStorage.setItem(PENDING_SYNC_KEY, "1");
       scheduleSupabaseSync();
     }
 
@@ -3391,6 +3393,30 @@
       );
     }
 
+    function mergeById(remoteItems = [], localItems = []) {
+      const merged = new Map();
+      remoteItems.forEach(item => { if (item?.id) merged.set(item.id, item); });
+      localItems.forEach(item => { if (item?.id && !merged.has(item.id)) merged.set(item.id, item); });
+      return Array.from(merged.values());
+    }
+
+    function mergeRemoteWithLocal(remoteState, localState) {
+      const local = normalizeState(localState || emptyState());
+      const remote = normalizeState(remoteState || emptyState());
+      return normalizeState({
+        ...remote,
+        profile: (local.profile?.name && local.profile.name !== "Administrador") ? { ...remote.profile, ...local.profile } : remote.profile,
+        regions: mergeById(remote.regions, local.regions),
+        locations: mergeById(remote.locations, local.locations),
+        tags: mergeById(remote.tags, local.tags),
+        subtags: mergeById(remote.subtags, local.subtags),
+        assets: mergeById(remote.assets, local.assets),
+        orders: mergeById(remote.orders, local.orders),
+        checklists: mergeById(remote.checklists, local.checklists),
+        movements: mergeById(remote.movements, local.movements)
+      });
+    }
+
     async function upsertSupabaseRows(table, rows) {
       if (!rows?.length) return;
       await supabaseFetch(`${table}?on_conflict=id`, {
@@ -3502,7 +3528,6 @@
       if (!SUPABASE_READY) return;
       if (hasPendingLocalSync) {
         await syncSupabaseNow(false);
-        return;
       }
       try {
         isLoadingRemote = true;
@@ -3521,9 +3546,10 @@
           await syncSupabaseNow(false);
           return;
         }
-        state = stateFromDb(remoteData);
+        state = mergeRemoteWithLocal(stateFromDb(remoteData), state);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(state.profile || {}));
+        if (hasPendingLocalSync) await syncSupabaseNow(false);
         render();
         if (showMessage) showToast("Dados carregados do Supabase.");
       } catch (error) {
@@ -3552,6 +3578,7 @@
           });
         }
         hasPendingLocalSync = false;
+        localStorage.removeItem(PENDING_SYNC_KEY);
         if (showMessage) showToast("Banco Supabase salvo sem apagar cadastros.");
       } catch (error) {
         console.error(error);
