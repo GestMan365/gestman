@@ -5304,14 +5304,15 @@
         </div>
       `);
       $("cancelStartOrder").addEventListener("click", closeModal);
-      $("confirmStartOrderBtn").addEventListener("click", () => {
+      $("confirmStartOrderBtn").addEventListener("click", async () => {
         const executor = $("startExecutor").value.trim();
         if (!executor) {
           showToast("Informe o executante para iniciar a O.S.");
           return;
         }
+        $("confirmStartOrderBtn").disabled = true;
         closeModal();
-        startOrder(id, executor);
+        await startOrder(id, executor);
       });
     }
 
@@ -5910,22 +5911,28 @@
       if (ask) showToast("O.S excluída.");
     }
 
-    function startOrder(id, executorName = "") {
+    async function startOrder(id, executorName = "") {
       const now = Date.now();
       const current = byId(state.orders, id);
       if (!current || isClosedOrder(current.status)) {
         showToast("O.S concluida nao pode ser iniciada novamente.");
         return;
       }
+      let updatedOrder = null;
       state.orders = state.orders.map(order => order.id === id ? {
         ...order,
         executor: executorName || order.executor || "",
         status: "Em execucao",
         startedAt: order.startedAt || now
       } : order);
+      updatedOrder = byId(state.orders, id);
       saveState();
+      const remoteSaved = await saveOrderSupabaseNow(updatedOrder);
       render();
-      showToast("O.S iniciada. Alerta verde ativado no mapa.");
+      showToast(remoteSaved
+        ? "O.S iniciada e salva no Supabase."
+        : "O.S iniciada localmente. Sincronizacao pendente."
+      );
     }
 
     function finishOrder(id) {
@@ -6001,19 +6008,21 @@
           wireDetailTab(button.dataset.detailTab, id);
         });
       });
-      $("finishOrderForm").addEventListener("submit", event => {
+      $("finishOrderForm").addEventListener("submit", async event => {
         event.preventDefault();
-        confirmFinishOrder(id);
+        if (event.submitter) event.submitter.disabled = true;
+        await confirmFinishOrder(id);
       });
     }
 
-    function confirmFinishOrder(id) {
+    async function confirmFinishOrder(id) {
       const now = Date.now();
+      let updatedOrder = null;
       state.orders = state.orders.map(order => {
         if (order.id !== id) return order;
         const startedAt = Number(order.startedAt || order.createdAt || now);
         const calculatedMttr = Math.max(0.1, (now - startedAt) / 36e5);
-        return {
+        updatedOrder = {
           ...order,
           plan: $("finishPlan").value,
           type: $("finishType").value,
@@ -6032,11 +6041,16 @@
           finishedAt: now,
           mttr: Number(calculatedMttr.toFixed(1))
         };
+        return updatedOrder;
       });
       saveState();
+      const remoteSaved = await saveOrderSupabaseNow(updatedOrder);
       closeModal();
       render();
-      showToast("O.S finalizada. Alerta removido do mapa e ordem registrada.");
+      showToast(remoteSaved
+        ? "O.S finalizada e salva no Supabase."
+        : "O.S finalizada localmente. Sincronizacao pendente."
+      );
     }
 
     function editChecklist(id) {
