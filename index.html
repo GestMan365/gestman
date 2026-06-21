@@ -3493,6 +3493,7 @@
     let hasSessionLocalChange = false;
     let deletedRecords = loadDeletedRecords();
     let syncTimer = null;
+    let spareSupplierDraftId = "";
     if (localStorage.getItem(THEME_DEFAULT_KEY) !== "1") {
       localStorage.setItem(THEME_KEY, "light");
       localStorage.setItem(THEME_DEFAULT_KEY, "1");
@@ -3573,11 +3574,125 @@
       return errors;
     }
 
+    function normalizeTextKey(value) {
+      return String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function hasLogicalKey(key) {
+      return Boolean(String(key || "").replace(/[|:]/g, "").trim());
+    }
+
+    function dedupeByLogicalKey(items = [], keyFn = item => item?.id) {
+      const seen = new Map();
+      const idMap = new Map();
+      const output = [];
+      items.forEach((item, index) => {
+        if (!item) return;
+        const rawKey = keyFn(item);
+        const key = hasLogicalKey(rawKey) ? String(rawKey) : (item.id ? `id:${item.id}` : `idx:${index}`);
+        if (!seen.has(key)) {
+          seen.set(key, item);
+          output.push(item);
+          return;
+        }
+        const kept = seen.get(key);
+        if (item.id && kept?.id && item.id !== kept.id) idMap.set(item.id, kept.id);
+      });
+      return { items: output, idMap };
+    }
+
+    function remapId(value, idMap) {
+      return idMap?.get(value) || value || "";
+    }
+
+    function dedupeStateCollections(data) {
+      const regionDedupe = dedupeByLogicalKey(data.regions, item => normalizeTextKey(item.name));
+      data.regions = regionDedupe.items;
+      data.locations = data.locations.map(location => ({ ...location, regionId: remapId(location.regionId, regionDedupe.idMap) }));
+
+      const locationDedupe = dedupeByLogicalKey(data.locations, item => [
+        item.regionId || "",
+        normalizeTextKey(item.name),
+        normalizeTextKey(item.type)
+      ].join("|"));
+      data.locations = locationDedupe.items;
+      data.assets = data.assets.map(asset => ({ ...asset, locationId: remapId(asset.locationId, locationDedupe.idMap) }));
+      data.movements = data.movements.map(move => ({
+        ...move,
+        fromLocationId: remapId(move.fromLocationId, locationDedupe.idMap),
+        toLocationId: remapId(move.toLocationId, locationDedupe.idMap)
+      }));
+
+      const tagDedupe = dedupeByLogicalKey(data.tags, item => normalizeTextKey(item.code || item.name));
+      data.tags = tagDedupe.items;
+      data.subtags = data.subtags.map(subtag => ({ ...subtag, parentId: remapId(subtag.parentId, tagDedupe.idMap) }));
+      data.assets = data.assets.map(asset => ({ ...asset, tagId: remapId(asset.tagId, tagDedupe.idMap) }));
+
+      const subtagDedupe = dedupeByLogicalKey(data.subtags, item => [
+        item.parentId || "",
+        normalizeTextKey(item.code || item.name)
+      ].join("|"));
+      data.subtags = subtagDedupe.items;
+      data.assets = data.assets.map(asset => ({ ...asset, subtagId: remapId(asset.subtagId, subtagDedupe.idMap) }));
+
+      const supplierDedupe = dedupeByLogicalKey(data.suppliers, item => normalizeTextKey(item.cnpj || item.legalName || item.tradeName));
+      data.suppliers = supplierDedupe.items;
+      data.spareParts = data.spareParts.map(spare => ({ ...spare, supplierId: remapId(spare.supplierId, supplierDedupe.idMap) }));
+      data.inventoryMovements = data.inventoryMovements.map(move => ({ ...move, supplierId: remapId(move.supplierId, supplierDedupe.idMap) }));
+
+      const stockLocationDedupe = dedupeByLogicalKey(data.stockLocations, item => [
+        normalizeTextKey(item.name),
+        normalizeTextKey(item.place)
+      ].join("|"));
+      data.stockLocations = stockLocationDedupe.items;
+      data.inventoryMovements = data.inventoryMovements.map(move => ({ ...move, stockId: remapId(move.stockId, stockLocationDedupe.idMap) }));
+      data.materialRequests = data.materialRequests.map(request => ({ ...request, stockId: remapId(request.stockId, stockLocationDedupe.idMap) }));
+      data.stockTransfers = data.stockTransfers.map(transfer => ({
+        ...transfer,
+        originId: remapId(transfer.originId, stockLocationDedupe.idMap),
+        destinyId: remapId(transfer.destinyId, stockLocationDedupe.idMap)
+      }));
+
+      const spareDedupe = dedupeByLogicalKey(data.spareParts, item => normalizeTextKey(item.code || item.supplierCode || item.name));
+      data.spareParts = spareDedupe.items;
+      data.inventoryMovements = data.inventoryMovements.map(move => ({ ...move, spareId: remapId(move.spareId, spareDedupe.idMap) }));
+      data.materialRequests = data.materialRequests.map(request => ({ ...request, spareId: remapId(request.spareId, spareDedupe.idMap) }));
+      data.stockTransfers = data.stockTransfers.map(transfer => ({ ...transfer, spareId: remapId(transfer.spareId, spareDedupe.idMap) }));
+
+      const assetDedupe = dedupeByLogicalKey(data.assets, item => normalizeTextKey(item.code || `${item.locationId || ""}|${item.name || ""}`));
+      data.assets = assetDedupe.items;
+      data.orders = data.orders.map(order => ({ ...order, assetId: remapId(order.assetId, assetDedupe.idMap) }));
+      data.checklists = data.checklists.map(checklist => ({ ...checklist, assetId: remapId(checklist.assetId, assetDedupe.idMap) }));
+      data.movements = data.movements.map(move => ({ ...move, assetId: remapId(move.assetId, assetDedupe.idMap) }));
+
+      const orderDedupe = dedupeByLogicalKey(data.orders, item => normalizeTextKey(item.number));
+      data.orders = orderDedupe.items;
+      data.materialRequests = data.materialRequests.map(request => ({ ...request, orderId: remapId(request.orderId, orderDedupe.idMap) }));
+
+      data.checklists = dedupeByLogicalKey(data.checklists, item => [
+        item.assetId || "",
+        normalizeTextKey(item.code || item.name)
+      ].join("|")).items;
+      data.inventoryMovements = dedupeByLogicalKey(data.inventoryMovements, item => normalizeTextKey(item.number)).items;
+      data.materialRequests = dedupeByLogicalKey(data.materialRequests, item => normalizeTextKey(item.number)).items;
+      return data;
+    }
+
     function normalizeState(raw) {
       const normalized = { ...emptyState(), ...raw };
       normalized.regions = Array.isArray(normalized.regions) ? normalized.regions : [];
       normalized.locations = Array.isArray(normalized.locations) ? normalized.locations : [];
+      normalized.tags = Array.isArray(normalized.tags) ? normalized.tags : [];
+      normalized.subtags = Array.isArray(normalized.subtags) ? normalized.subtags : [];
       normalized.assets = Array.isArray(normalized.assets) ? normalized.assets : [];
+      normalized.orders = Array.isArray(normalized.orders) ? normalized.orders : [];
+      normalized.checklists = Array.isArray(normalized.checklists) ? normalized.checklists : [];
+      normalized.movements = Array.isArray(normalized.movements) ? normalized.movements : [];
       normalized.suppliers = Array.isArray(normalized.suppliers) ? normalized.suppliers : [];
       normalized.stockLocations = Array.isArray(normalized.stockLocations) ? normalized.stockLocations : [];
       normalized.spareParts = Array.isArray(normalized.spareParts) ? normalized.spareParts : [];
@@ -3594,7 +3709,7 @@
         ...asset,
         components: asset.components || ""
       }));
-      return migrateIdsToUuid(normalized);
+      return dedupeStateCollections(migrateIdsToUuid(normalized));
     }
 
     function saveState() {
@@ -5619,24 +5734,34 @@
       `;
     }
 
+    function setSelectOptionsPreservingValue(id, html, fallbackValue = "") {
+      const select = $(id);
+      if (!select) return;
+      const previousValue = select.value || fallbackValue || "";
+      if (select.innerHTML !== html) select.innerHTML = html;
+      if (previousValue && Array.from(select.options).some(option => option.value === previousValue)) {
+        select.value = previousValue;
+      }
+    }
+
     function fillSelects() {
       const regionOptions = state.regions.map(item => `<option value="${item.id}">${item.name}</option>`).join("");
-      if ($("locationRegion")) $("locationRegion").innerHTML = regionOptions || `<option value="">Crie uma regiao</option>`;
+      setSelectOptionsPreservingValue("locationRegion", regionOptions || `<option value="">Crie uma regiao</option>`);
       const locOptions = [`<option value="">Sem local de instalacao</option>`].concat(state.locations.map(item => `<option value="${item.id}">${locationName(item.id)}</option>`)).join("");
-      $("assetLocation").innerHTML = locOptions;
+      setSelectOptionsPreservingValue("assetLocation", locOptions);
       const tagOptions = [`<option value="">Sem tag</option>`].concat(state.tags.map(item => `<option value="${item.id}">${item.code} - ${item.name}</option>`)).join("");
-      $("assetTag").innerHTML = tagOptions;
-      $("subtagParent").innerHTML = tagOptions;
-      $("assetSubtag").innerHTML = [`<option value="">Sem subtag</option>`].concat(state.subtags.map(item => `<option value="${item.id}">${item.code} - ${item.name}</option>`)).join("");
-      if ($("spareSupplier")) $("spareSupplier").innerHTML = [`<option value="">Sem fornecedor</option>`].concat(state.suppliers.map(item => `<option value="${item.id}">${item.legalName}</option>`)).join("");
+      setSelectOptionsPreservingValue("assetTag", tagOptions);
+      setSelectOptionsPreservingValue("subtagParent", tagOptions);
+      setSelectOptionsPreservingValue("assetSubtag", [`<option value="">Sem subtag</option>`].concat(state.subtags.map(item => `<option value="${item.id}">${item.code} - ${item.name}</option>`)).join(""));
       const supplierOptions = [`<option value="">Sem fornecedor</option>`].concat(state.suppliers.map(item => `<option value="${item.id}">${item.legalName}</option>`)).join("");
+      setSelectOptionsPreservingValue("spareSupplier", supplierOptions, spareSupplierDraftId);
       const stockOptions = [`<option value="">Selecione o estoque</option>`].concat(state.stockLocations.map(item => `<option value="${item.id}">${item.name}</option>`)).join("");
       const spareOptions = [`<option value="">Selecione a peça</option>`].concat(state.spareParts.map(item => `<option value="${item.id}">${item.code} - ${item.name}</option>`)).join("");
       const orderOptions = [`<option value="">Sem O.S vinculada</option>`].concat(state.orders.map(item => `<option value="${item.id}">${item.number} - ${machineName(item.assetId)}</option>`)).join("");
-      ["stockMoveSupplier"].forEach(id => { if ($(id)) $(id).innerHTML = supplierOptions; });
-      ["stockMoveStock", "materialRequestStock", "stockTransferOrigin", "stockTransferDestiny"].forEach(id => { if ($(id)) $(id).innerHTML = stockOptions; });
-      ["stockMoveSpare", "materialRequestSpare", "stockTransferSpare"].forEach(id => { if ($(id)) $(id).innerHTML = spareOptions; });
-      if ($("materialRequestOrder")) $("materialRequestOrder").innerHTML = orderOptions;
+      ["stockMoveSupplier"].forEach(id => setSelectOptionsPreservingValue(id, supplierOptions));
+      ["stockMoveStock", "materialRequestStock", "stockTransferOrigin", "stockTransferDestiny"].forEach(id => setSelectOptionsPreservingValue(id, stockOptions));
+      ["stockMoveSpare", "materialRequestSpare", "stockTransferSpare"].forEach(id => setSelectOptionsPreservingValue(id, spareOptions));
+      setSelectOptionsPreservingValue("materialRequestOrder", orderOptions);
     }
 
     function supplierName(id) {
@@ -5826,7 +5951,7 @@
 
     function resetSupplierForm() { $("supplierForm").reset(); $("supplierId").value = ""; $("supplierFormTitle").textContent = "Criar fornecedor"; }
     function resetStockForm() { $("stockForm").reset(); $("stockId").value = ""; $("stockFormTitle").textContent = "Criar estoque"; }
-    function resetSpareForm() { $("spareForm").reset(); $("spareId").value = ""; $("spareFormTitle").textContent = "Criar peça"; $("spareUnit").value = "UN"; }
+    function resetSpareForm() { spareSupplierDraftId = ""; $("spareForm").reset(); $("spareId").value = ""; $("spareFormTitle").textContent = "Criar peça"; $("spareUnit").value = "UN"; }
 
     async function saveSingleSupabase(table, row) {
       if (!SUPABASE_READY) return true;
@@ -5881,10 +6006,11 @@
 
     function editSpare(id) {
       const item = byId(state.spareParts, id); if (!item) return;
+      spareSupplierDraftId = item.supplierId || "";
       $("spareId").value = item.id;
       $("spareCode").value = item.code || "";
       $("spareName").value = item.name || "";
-      $("spareSupplier").value = item.supplierId || "";
+      $("spareSupplier").value = spareSupplierDraftId;
       $("spareSupplierCode").value = item.supplierCode || "";
       $("spareUnit").value = item.unit || "UN";
       $("sparePlace").value = item.place || "";
@@ -6910,10 +7036,19 @@
       resetStockForm(); render(); showToast(saved ? "Estoque salvo no Supabase." : "Estoque salvo localmente. Sincronização pendente.");
     });
 
+    $("spareSupplier").addEventListener("change", () => {
+      spareSupplierDraftId = $("spareSupplier").value;
+    });
+
     $("spareForm").addEventListener("submit", async event => {
       event.preventDefault();
+      const supplierId = $("spareSupplier").value || spareSupplierDraftId;
+      if (supplierId && !byId(state.suppliers, supplierId)) {
+        showToast("O fornecedor selecionado não está disponível. Selecione novamente.");
+        return;
+      }
       const id = $("spareId").value || uid("spare");
-      const payload = { id, code: value("spareCode"), name: value("spareName"), supplierId: $("spareSupplier").value, supplierCode: value("spareSupplierCode"), unit: value("spareUnit") || "UN", place: value("sparePlace"), balance: numberValue("spareBalance"), minimum: numberValue("spareMinimum"), description: value("spareDescription"), active: true };
+      const payload = { id, code: value("spareCode"), name: value("spareName"), supplierId, supplierCode: value("spareSupplierCode"), unit: value("spareUnit") || "UN", place: value("sparePlace"), balance: numberValue("spareBalance"), minimum: numberValue("spareMinimum"), description: value("spareDescription"), active: true };
       state.spareParts = state.spareParts.filter(item => item.id !== id).concat(payload);
       saveState();
       const saved = await saveSingleSupabase("pecas", spareDbRow(payload));
