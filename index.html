@@ -2985,6 +2985,9 @@
       <button class="tab" data-view="suppliers"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M5 21V8l7-4 7 4v13"/><path d="M9 21v-6h6v6"/></svg></span><span>FORNECEDORES</span></button>
       <button class="tab" data-view="stock"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 7h16v13H4z"/><path d="M4 7l3-4h10l3 4"/><path d="M9 12h6"/></svg></span><span>ESTOQUE</span></button>
       <button class="tab" data-view="spares"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5 5L4 17v3h3l5.7-5.7a4 4 0 0 0 5-5l-2.8 2.8-3-3 2.8-2.8Z"/></svg></span><span>PEÇAS</span></button>
+      <button class="tab" data-view="stockMoves"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M7 7h11l-3-3"/><path d="M18 7l-3 3"/><path d="M17 17H6l3 3"/><path d="M6 17l3-3"/></svg></span><span>MOV. ESTOQUE</span></button>
+      <button class="tab" data-view="materialRequests"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M7 3h10l3 3v15H4V3h3z"/><path d="M8 10h8M8 14h8M8 18h5"/></svg></span><span>REQUISIÇÕES</span></button>
+      <button class="tab" data-view="stockTransfers"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M5 7h9"/><path d="M11 4l3 3-3 3"/><path d="M19 17h-9"/><path d="M13 14l-3 3 3 3"/></svg></span><span>TRANSFERÊNCIAS</span></button>
       <button class="tab" data-view="locations"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M6 21V8l6-5 6 5v13"/><path d="M10 21v-6h4v6"/></svg></span><span>REGIÕES</span></button>
       <button class="tab" data-view="orders"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M7 3h10l3 3v15H4V3h3z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg></span><span>ORDENS</span></button>
       <button class="tab" data-view="calendar"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg></span><span>CALENDÁRIO</span></button>
@@ -3163,6 +3166,77 @@
         <div class="panel">
           <div class="panel-head"><div class="panel-title">Peças cadastradas</div></div>
           <div class="table-wrap"><table><thead><tr><th>Código</th><th>Peça</th><th>Fornecedor</th><th>Saldo</th><th>Mínimo</th><th>Ações</th></tr></thead><tbody id="spareRows"></tbody></table></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="stockMoves">
+      <div class="grid admin-grid">
+        <div class="panel">
+          <div class="panel-head"><div class="panel-title" id="stockMoveFormTitle">Criar movimentação de estoque</div></div>
+          <form class="form" id="stockMoveForm">
+            <input type="hidden" id="stockMoveId"><input type="hidden" id="stockMoveItemId">
+            <label>Tipo <select class="field" id="stockMoveType"><option>Entrada</option><option>Saída</option><option>Ajuste</option></select></label>
+            <label>Estoque <select class="field" id="stockMoveStock"></select></label>
+            <label>Peça <select class="field" id="stockMoveSpare"></select></label>
+            <label>Fornecedor <select class="field" id="stockMoveSupplier"></select></label>
+            <label>Quantidade <input class="field" id="stockMoveQty" type="number" step="0.01" value="1"></label>
+            <label>Valor unitário <input class="field" id="stockMoveValue" type="number" step="0.01" value="0"></label>
+            <label>Responsável <input class="field" id="stockMoveOwner" placeholder="Quem registrou"></label>
+            <label>Status <select class="field" id="stockMoveStatus"><option>Aberta</option><option>Concluída</option><option>Cancelada</option></select></label>
+            <label class="full">Observação <textarea class="field" id="stockMoveNote"></textarea></label>
+            <div class="full toolbar"><button class="btn primary" type="submit">Salvar movimentação</button><button class="btn" type="button" id="resetStockMoveForm">Limpar formulário</button></div>
+          </form>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div class="panel-title">Movimentações registradas</div></div>
+          <div class="table-wrap"><table><thead><tr><th>Número</th><th>Tipo</th><th>Estoque</th><th>Peça</th><th>Qtd.</th><th>Status</th><th>Ações</th></tr></thead><tbody id="stockMoveRows"></tbody></table></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="materialRequests">
+      <div class="grid admin-grid">
+        <div class="panel">
+          <div class="panel-head"><div class="panel-title" id="materialRequestFormTitle">Criar requisição de material</div></div>
+          <form class="form" id="materialRequestForm">
+            <input type="hidden" id="materialRequestId"><input type="hidden" id="materialRequestItemId">
+            <label>Estoque <select class="field" id="materialRequestStock"></select></label>
+            <label>O.S <select class="field" id="materialRequestOrder"></select></label>
+            <label>Peça <select class="field" id="materialRequestSpare"></select></label>
+            <label>Quantidade <input class="field" id="materialRequestQty" type="number" step="0.01" value="1"></label>
+            <label>Solicitante <input class="field" id="materialRequestRequester" required placeholder="Quem solicitou"></label>
+            <label>Status <select class="field" id="materialRequestStatus"><option>Aberta</option><option>Atendida</option><option>Cancelada</option></select></label>
+            <label class="full">Observação <textarea class="field" id="materialRequestNote"></textarea></label>
+            <div class="full toolbar"><button class="btn primary" type="submit">Salvar requisição</button><button class="btn" type="button" id="resetMaterialRequestForm">Limpar formulário</button></div>
+          </form>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div class="panel-title">Requisições registradas</div></div>
+          <div class="table-wrap"><table><thead><tr><th>Número</th><th>O.S</th><th>Estoque</th><th>Peça</th><th>Qtd.</th><th>Status</th><th>Ações</th></tr></thead><tbody id="materialRequestRows"></tbody></table></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="stockTransfers">
+      <div class="grid admin-grid">
+        <div class="panel">
+          <div class="panel-head"><div class="panel-title" id="stockTransferFormTitle">Criar transferência de estoque</div></div>
+          <form class="form" id="stockTransferForm">
+            <input type="hidden" id="stockTransferId"><input type="hidden" id="stockTransferItemId">
+            <label>Origem <select class="field" id="stockTransferOrigin"></select></label>
+            <label>Destino <select class="field" id="stockTransferDestiny"></select></label>
+            <label>Peça <select class="field" id="stockTransferSpare"></select></label>
+            <label>Quantidade <input class="field" id="stockTransferQty" type="number" step="0.01" value="1"></label>
+            <label>Responsável <input class="field" id="stockTransferOwner" placeholder="Quem transferiu"></label>
+            <label>Status <select class="field" id="stockTransferStatus"><option>Aberta</option><option>Concluída</option><option>Cancelada</option></select></label>
+            <label class="full">Observação <textarea class="field" id="stockTransferNote"></textarea></label>
+            <div class="full toolbar"><button class="btn primary" type="submit">Salvar transferência</button><button class="btn" type="button" id="resetStockTransferForm">Limpar formulário</button></div>
+          </form>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div class="panel-title">Transferências registradas</div></div>
+          <div class="table-wrap"><table><thead><tr><th>Origem</th><th>Destino</th><th>Peça</th><th>Qtd.</th><th>Status</th><th>Ações</th></tr></thead><tbody id="stockTransferRows"></tbody></table></div>
         </div>
       </div>
     </section>
@@ -3378,9 +3452,9 @@
     const SUPABASE_URL = "https://zkkyiqtzmimcoderjrrm.supabase.co";
     const SUPABASE_KEY = "sb_publishable_h88SLb98aMdmGCJvEO6yFw_QuJ4I3bI";
     const SUPABASE_READY = SUPABASE_URL.startsWith("https://") && SUPABASE_KEY.startsWith("sb_");
-    const SUPABASE_TABLES_DELETE_ORDER = ["eventos_ordem_servico", "movimentacoes_tags", "checklists", "ordens_servico", "subtags_equipamento", "equipamentos", "locais_instalacao", "regioes", "pecas", "estoques", "fornecedores", "perfis"];
-    const SUPABASE_TABLES_INSERT_ORDER = ["perfis", "fornecedores", "estoques", "pecas", "regioes", "locais_instalacao", "equipamentos", "subtags_equipamento", "ordens_servico", "checklists", "movimentacoes_tags"];
-    const SUPABASE_TABLES_UPSERT_ORDER = ["fornecedores", "estoques", "pecas", "regioes", "locais_instalacao", "equipamentos", "subtags_equipamento", "ordens_servico", "checklists", "movimentacoes_tags"];
+    const SUPABASE_TABLES_DELETE_ORDER = ["eventos_ordem_servico", "movimentacoes_tags", "checklists", "ordens_servico", "subtags_equipamento", "equipamentos", "locais_instalacao", "regioes", "movimentacoes_estoque_itens", "movimentacoes_estoque", "requisicoes_materiais_itens", "requisicoes_materiais", "transferencias_estoque_itens", "transferencias_estoque", "pecas", "estoques", "fornecedores", "perfis"];
+    const SUPABASE_TABLES_INSERT_ORDER = ["perfis", "fornecedores", "estoques", "pecas", "regioes", "locais_instalacao", "equipamentos", "subtags_equipamento", "ordens_servico", "checklists", "movimentacoes_tags", "movimentacoes_estoque", "movimentacoes_estoque_itens", "requisicoes_materiais", "requisicoes_materiais_itens", "transferencias_estoque", "transferencias_estoque_itens"];
+    const SUPABASE_TABLES_UPSERT_ORDER = ["fornecedores", "estoques", "pecas", "regioes", "locais_instalacao", "equipamentos", "subtags_equipamento", "ordens_servico", "checklists", "movimentacoes_tags", "movimentacoes_estoque", "movimentacoes_estoque_itens", "requisicoes_materiais", "requisicoes_materiais_itens", "transferencias_estoque", "transferencias_estoque_itens"];
 
     const emptyState = () => ({
       regions: [],
@@ -3394,6 +3468,9 @@
       suppliers: [],
       stockLocations: [],
       spareParts: [],
+      inventoryMovements: [],
+      materialRequests: [],
+      stockTransfers: [],
       profile: { name: "Administrador", role: "Administrador", email: "", photo: "" }
     });
 
@@ -3438,6 +3515,9 @@
       normalized.suppliers = Array.isArray(normalized.suppliers) ? normalized.suppliers : [];
       normalized.stockLocations = Array.isArray(normalized.stockLocations) ? normalized.stockLocations : [];
       normalized.spareParts = Array.isArray(normalized.spareParts) ? normalized.spareParts : [];
+      normalized.inventoryMovements = Array.isArray(normalized.inventoryMovements) ? normalized.inventoryMovements : [];
+      normalized.materialRequests = Array.isArray(normalized.materialRequests) ? normalized.materialRequests : [];
+      normalized.stockTransfers = Array.isArray(normalized.stockTransfers) ? normalized.stockTransfers : [];
       normalized.locations = normalized.locations.map((location, index) => ({
         ...location,
         regionId: location.regionId || "",
@@ -3677,6 +3757,30 @@
       };
     }
 
+    function stockMoveDbRow(item) {
+      return { id: item.id, numero: item.number || null, tipo: item.type || "Entrada", estoque_id: item.stockId || null, fornecedor_id: item.supplierId || null, status: item.status || "Aberta", responsavel: item.owner || null, observacao: item.note || null };
+    }
+
+    function stockMoveItemDbRow(item) {
+      return { id: item.itemId || uid("stock_move_item"), movimentacao_id: item.id, peca_id: item.spareId || null, quantidade: Number(item.quantity || 0), valor_unitario: Number(item.unitValue || 0), observacao: item.note || null };
+    }
+
+    function materialRequestDbRow(item) {
+      return { id: item.id, numero: item.number || null, estoque_id: item.stockId || null, ordem_servico_id: item.orderId || null, solicitante: item.requester || "Nao informado", status: item.status || "Aberta", observacao: item.note || null };
+    }
+
+    function materialRequestItemDbRow(item) {
+      return { id: item.itemId || uid("request_item"), requisicao_id: item.id, peca_id: item.spareId || null, quantidade: Number(item.quantity || 0), observacao: item.note || null };
+    }
+
+    function stockTransferDbRow(item) {
+      return { id: item.id, estoque_origem_id: item.originId || null, estoque_destino_id: item.destinyId || null, responsavel: item.owner || null, status: item.status || "Aberta", observacao: item.note || null };
+    }
+
+    function stockTransferItemDbRow(item) {
+      return { id: item.itemId || uid("transfer_item"), transferencia_id: item.id, peca_id: item.spareId || null, quantidade: Number(item.quantity || 0) };
+    }
+
     function dbPayload() {
       return {
         perfis: [{
@@ -3689,6 +3793,12 @@
         fornecedores: state.suppliers.map(supplierDbRow),
         estoques: state.stockLocations.map(stockDbRow),
         pecas: state.spareParts.map(spareDbRow),
+        movimentacoes_estoque: state.inventoryMovements.map(stockMoveDbRow),
+        movimentacoes_estoque_itens: state.inventoryMovements.map(stockMoveItemDbRow),
+        requisicoes_materiais: state.materialRequests.map(materialRequestDbRow),
+        requisicoes_materiais_itens: state.materialRequests.map(materialRequestItemDbRow),
+        transferencias_estoque: state.stockTransfers.map(stockTransferDbRow),
+        transferencias_estoque_itens: state.stockTransfers.map(stockTransferItemDbRow),
         regioes: state.regions.map(region => ({
           id: region.id,
           nome: region.name,
@@ -3747,7 +3857,10 @@
         data.movements?.length ||
         data.suppliers?.length ||
         data.stockLocations?.length ||
-        data.spareParts?.length
+        data.spareParts?.length ||
+        data.inventoryMovements?.length ||
+        data.materialRequests?.length ||
+        data.stockTransfers?.length
       );
     }
 
@@ -3761,7 +3874,10 @@
         data.movimentacoes_tags?.length ||
         data.fornecedores?.length ||
         data.estoques?.length ||
-        data.pecas?.length
+        data.pecas?.length ||
+        data.movimentacoes_estoque?.length ||
+        data.requisicoes_materiais?.length ||
+        data.transferencias_estoque?.length
       );
     }
 
@@ -3788,7 +3904,10 @@
         movements: mergeById(remote.movements, local.movements),
         suppliers: mergeById(remote.suppliers, local.suppliers),
         stockLocations: mergeById(remote.stockLocations, local.stockLocations),
-        spareParts: mergeById(remote.spareParts, local.spareParts)
+        spareParts: mergeById(remote.spareParts, local.spareParts),
+        inventoryMovements: mergeById(remote.inventoryMovements, local.inventoryMovements),
+        materialRequests: mergeById(remote.materialRequests, local.materialRequests),
+        stockTransfers: mergeById(remote.stockTransfers, local.stockTransfers)
       });
     }
 
@@ -3893,6 +4012,18 @@
           note: item.observacao || "",
           active: item.ativo !== false
         })),
+        inventoryMovements: (data.movimentacoes_estoque || []).map(item => {
+          const firstItem = (data.movimentacoes_estoque_itens || []).find(row => row.movimentacao_id === item.id) || {};
+          return { id: item.id, itemId: firstItem.id || "", number: item.numero || "", type: item.tipo || "Entrada", stockId: item.estoque_id || "", supplierId: item.fornecedor_id || "", status: item.status || "Aberta", owner: item.responsavel || "", note: item.observacao || "", spareId: firstItem.peca_id || "", quantity: Number(firstItem.quantidade || 0), unitValue: Number(firstItem.valor_unitario || 0) };
+        }),
+        materialRequests: (data.requisicoes_materiais || []).map(item => {
+          const firstItem = (data.requisicoes_materiais_itens || []).find(row => row.requisicao_id === item.id) || {};
+          return { id: item.id, itemId: firstItem.id || "", number: item.numero || "", stockId: item.estoque_id || "", orderId: item.ordem_servico_id || "", requester: item.solicitante || "", status: item.status || "Aberta", note: item.observacao || "", spareId: firstItem.peca_id || "", quantity: Number(firstItem.quantidade || 0) };
+        }),
+        stockTransfers: (data.transferencias_estoque || []).map(item => {
+          const firstItem = (data.transferencias_estoque_itens || []).find(row => row.transferencia_id === item.id) || {};
+          return { id: item.id, itemId: firstItem.id || "", originId: item.estoque_origem_id || "", destinyId: item.estoque_destino_id || "", owner: item.responsavel || "", status: item.status || "Aberta", note: item.observacao || "", spareId: firstItem.peca_id || "", quantity: Number(firstItem.quantidade || 0) };
+        }),
         regions: (data.regioes || []).map(item => ({ id: item.id, name: item.nome, description: item.descricao || "" })),
         locations: (data.locais_instalacao || []).map(item => ({ id: item.id, regionId: item.regiao_id, name: item.nome, type: item.tipo, order: item.ordem || 0 })),
         assets: (data.equipamentos || []).map(item => ({
@@ -3975,11 +4106,17 @@
       }
       try {
         isLoadingRemote = true;
-        const [perfis, fornecedores, estoques, pecas, regioes, locais, equipamentos, ordens, checklists, movimentos] = await Promise.all([
+        const [perfis, fornecedores, estoques, pecas, movEstoque, movEstoqueItens, requisicoes, requisicaoItens, transferencias, transferenciaItens, regioes, locais, equipamentos, ordens, checklists, movimentos] = await Promise.all([
           supabaseFetch("perfis?select=*&order=created_at.asc"),
           supabaseFetch("fornecedores?select=*&order=created_at.asc"),
           supabaseFetch("estoques?select=*&order=created_at.asc"),
           supabaseFetch("pecas?select=*&order=created_at.asc"),
+          supabaseFetch("movimentacoes_estoque?select=*&order=created_at.asc"),
+          supabaseFetch("movimentacoes_estoque_itens?select=*"),
+          supabaseFetch("requisicoes_materiais?select=*&order=created_at.asc"),
+          supabaseFetch("requisicoes_materiais_itens?select=*"),
+          supabaseFetch("transferencias_estoque?select=*&order=data_transferencia.asc"),
+          supabaseFetch("transferencias_estoque_itens?select=*"),
           supabaseFetch("regioes?select=*&order=created_at.asc"),
           supabaseFetch("locais_instalacao?select=*&order=created_at.asc"),
           supabaseFetch("equipamentos?select=*&order=created_at.asc"),
@@ -3987,7 +4124,7 @@
           supabaseFetch("checklists?select=*&order=created_at.asc"),
           supabaseFetch("movimentacoes_tags?select=*&order=data_movimentacao.desc")
         ]);
-        const remoteData = { perfis, fornecedores, estoques, pecas, regioes, locais_instalacao: locais, equipamentos, ordens_servico: ordens, checklists, movimentacoes_tags: movimentos };
+        const remoteData = { perfis, fornecedores, estoques, pecas, movimentacoes_estoque: movEstoque, movimentacoes_estoque_itens: movEstoqueItens, requisicoes_materiais: requisicoes, requisicoes_materiais_itens: requisicaoItens, transferencias_estoque: transferencias, transferencias_estoque_itens: transferenciaItens, regioes, locais_instalacao: locais, equipamentos, ordens_servico: ordens, checklists, movimentacoes_tags: movimentos };
         if (!remoteHasBusinessData(remoteData) && hasBusinessData(state)) {
           if (showMessage) showToast("Supabase vazio. Mantive os dados locais para evitar perda.");
           await syncSupabaseNow(false);
@@ -5236,10 +5373,28 @@
       $("subtagParent").innerHTML = tagOptions;
       $("assetSubtag").innerHTML = [`<option value="">Sem subtag</option>`].concat(state.subtags.map(item => `<option value="${item.id}">${item.code} - ${item.name}</option>`)).join("");
       if ($("spareSupplier")) $("spareSupplier").innerHTML = [`<option value="">Sem fornecedor</option>`].concat(state.suppliers.map(item => `<option value="${item.id}">${item.legalName}</option>`)).join("");
+      const supplierOptions = [`<option value="">Sem fornecedor</option>`].concat(state.suppliers.map(item => `<option value="${item.id}">${item.legalName}</option>`)).join("");
+      const stockOptions = [`<option value="">Selecione o estoque</option>`].concat(state.stockLocations.map(item => `<option value="${item.id}">${item.name}</option>`)).join("");
+      const spareOptions = [`<option value="">Selecione a peça</option>`].concat(state.spareParts.map(item => `<option value="${item.id}">${item.code} - ${item.name}</option>`)).join("");
+      const orderOptions = [`<option value="">Sem O.S vinculada</option>`].concat(state.orders.map(item => `<option value="${item.id}">${item.number} - ${machineName(item.assetId)}</option>`)).join("");
+      ["stockMoveSupplier"].forEach(id => { if ($(id)) $(id).innerHTML = supplierOptions; });
+      ["stockMoveStock", "materialRequestStock", "stockTransferOrigin", "stockTransferDestiny"].forEach(id => { if ($(id)) $(id).innerHTML = stockOptions; });
+      ["stockMoveSpare", "materialRequestSpare", "stockTransferSpare"].forEach(id => { if ($(id)) $(id).innerHTML = spareOptions; });
+      if ($("materialRequestOrder")) $("materialRequestOrder").innerHTML = orderOptions;
     }
 
     function supplierName(id) {
       return byId(state.suppliers, id)?.legalName || "Sem fornecedor";
+    }
+
+    function stockName(id) { return byId(state.stockLocations, id)?.name || "Sem estoque"; }
+    function spareName(id) {
+      const item = byId(state.spareParts, id);
+      return item ? `${item.code} - ${item.name}` : "Sem peça";
+    }
+    function nextCode(list, prefix) {
+      const next = list.reduce((max, item) => Math.max(max, orderNumberValue(item.number)), 0) + 1;
+      return `${prefix}-${String(next).padStart(4, "0")}`;
     }
 
     function renderTables() {
@@ -5261,6 +5416,18 @@
       $("spareRows").innerHTML = state.spareParts.filter(item => filter(`${item.code} ${item.name} ${supplierName(item.supplierId)}`)).map(item => `
         <tr><td>${item.code}</td><td>${item.name}</td><td>${supplierName(item.supplierId)}</td><td>${Number(item.balance || 0)} ${item.unit || "UN"}</td><td>${Number(item.minimum || 0)} ${item.unit || "UN"}</td><td class="actions"><button class="btn" onclick="editSpare('${item.id}')">Editar</button><button class="btn danger" onclick="deleteSpare('${item.id}')">Excluir</button></td></tr>
       `).join("") || `<tr><td colspan="6" class="empty">Nenhuma peça criada.</td></tr>`;
+
+      $("stockMoveRows").innerHTML = state.inventoryMovements.filter(item => filter(`${item.number} ${item.type} ${stockName(item.stockId)} ${spareName(item.spareId)}`)).map(item => `
+        <tr><td>${item.number || "-"}</td><td>${item.type}</td><td>${stockName(item.stockId)}</td><td>${spareName(item.spareId)}</td><td>${Number(item.quantity || 0)}</td><td>${tag(item.status)}</td><td class="actions"><button class="btn" onclick="editStockMove('${item.id}')">Editar</button><button class="btn danger" onclick="deleteStockMove('${item.id}')">Excluir</button></td></tr>
+      `).join("") || `<tr><td colspan="7" class="empty">Nenhuma movimentação de estoque criada.</td></tr>`;
+
+      $("materialRequestRows").innerHTML = state.materialRequests.filter(item => filter(`${item.number} ${item.requester} ${stockName(item.stockId)} ${spareName(item.spareId)}`)).map(item => `
+        <tr><td>${item.number || "-"}</td><td>${byId(state.orders, item.orderId)?.number || "-"}</td><td>${stockName(item.stockId)}</td><td>${spareName(item.spareId)}</td><td>${Number(item.quantity || 0)}</td><td>${tag(item.status)}</td><td class="actions"><button class="btn" onclick="editMaterialRequest('${item.id}')">Editar</button><button class="btn danger" onclick="deleteMaterialRequest('${item.id}')">Excluir</button></td></tr>
+      `).join("") || `<tr><td colspan="7" class="empty">Nenhuma requisição criada.</td></tr>`;
+
+      $("stockTransferRows").innerHTML = state.stockTransfers.filter(item => filter(`${stockName(item.originId)} ${stockName(item.destinyId)} ${spareName(item.spareId)}`)).map(item => `
+        <tr><td>${stockName(item.originId)}</td><td>${stockName(item.destinyId)}</td><td>${spareName(item.spareId)}</td><td>${Number(item.quantity || 0)}</td><td>${tag(item.status)}</td><td class="actions"><button class="btn" onclick="editStockTransfer('${item.id}')">Editar</button><button class="btn danger" onclick="deleteStockTransfer('${item.id}')">Excluir</button></td></tr>
+      `).join("") || `<tr><td colspan="6" class="empty">Nenhuma transferência criada.</td></tr>`;
 
       $("regionRows").innerHTML = state.regions.map(item => {
         const localCount = state.locations.filter(location => location.regionId === item.id).length;
@@ -5478,6 +5645,31 @@
       state.spareParts = state.spareParts.filter(item => item.id !== id);
       saveState(); render(); showToast("Peça excluída.");
     }
+
+    function resetStockMoveForm() { $("stockMoveForm").reset(); $("stockMoveId").value = ""; $("stockMoveItemId").value = ""; $("stockMoveFormTitle").textContent = "Criar movimentação de estoque"; $("stockMoveQty").value = 1; $("stockMoveValue").value = 0; }
+    function resetMaterialRequestForm() { $("materialRequestForm").reset(); $("materialRequestId").value = ""; $("materialRequestItemId").value = ""; $("materialRequestFormTitle").textContent = "Criar requisição de material"; $("materialRequestQty").value = 1; }
+    function resetStockTransferForm() { $("stockTransferForm").reset(); $("stockTransferId").value = ""; $("stockTransferItemId").value = ""; $("stockTransferFormTitle").textContent = "Criar transferência de estoque"; $("stockTransferQty").value = 1; }
+
+    function editStockMove(id) {
+      const item = byId(state.inventoryMovements, id); if (!item) return;
+      $("stockMoveId").value = item.id; $("stockMoveItemId").value = item.itemId || ""; $("stockMoveType").value = item.type || "Entrada"; $("stockMoveStock").value = item.stockId || ""; $("stockMoveSpare").value = item.spareId || ""; $("stockMoveSupplier").value = item.supplierId || ""; $("stockMoveQty").value = item.quantity || 1; $("stockMoveValue").value = item.unitValue || 0; $("stockMoveOwner").value = item.owner || ""; $("stockMoveStatus").value = item.status || "Aberta"; $("stockMoveNote").value = item.note || "";
+      $("stockMoveFormTitle").textContent = "Editar movimentação de estoque"; setView("stockMoves");
+    }
+    function deleteStockMove(id) { if (!confirm("Excluir esta movimentação?")) return; deleteSupabaseRow("movimentacoes_estoque", id); state.inventoryMovements = state.inventoryMovements.filter(item => item.id !== id); saveState(); render(); showToast("Movimentação excluída."); }
+
+    function editMaterialRequest(id) {
+      const item = byId(state.materialRequests, id); if (!item) return;
+      $("materialRequestId").value = item.id; $("materialRequestItemId").value = item.itemId || ""; $("materialRequestStock").value = item.stockId || ""; $("materialRequestOrder").value = item.orderId || ""; $("materialRequestSpare").value = item.spareId || ""; $("materialRequestQty").value = item.quantity || 1; $("materialRequestRequester").value = item.requester || ""; $("materialRequestStatus").value = item.status || "Aberta"; $("materialRequestNote").value = item.note || "";
+      $("materialRequestFormTitle").textContent = "Editar requisição de material"; setView("materialRequests");
+    }
+    function deleteMaterialRequest(id) { if (!confirm("Excluir esta requisição?")) return; deleteSupabaseRow("requisicoes_materiais", id); state.materialRequests = state.materialRequests.filter(item => item.id !== id); saveState(); render(); showToast("Requisição excluída."); }
+
+    function editStockTransfer(id) {
+      const item = byId(state.stockTransfers, id); if (!item) return;
+      $("stockTransferId").value = item.id; $("stockTransferItemId").value = item.itemId || ""; $("stockTransferOrigin").value = item.originId || ""; $("stockTransferDestiny").value = item.destinyId || ""; $("stockTransferSpare").value = item.spareId || ""; $("stockTransferQty").value = item.quantity || 1; $("stockTransferOwner").value = item.owner || ""; $("stockTransferStatus").value = item.status || "Aberta"; $("stockTransferNote").value = item.note || "";
+      $("stockTransferFormTitle").textContent = "Editar transferência de estoque"; setView("stockTransfers");
+    }
+    function deleteStockTransfer(id) { if (!confirm("Excluir esta transferência?")) return; deleteSupabaseRow("transferencias_estoque", id); state.stockTransfers = state.stockTransfers.filter(item => item.id !== id); saveState(); render(); showToast("Transferência excluída."); }
 
     function openMachineMenu(event, id) {
       selectedMachineId = id;
@@ -6361,7 +6553,7 @@
       if (ask) showToast("Checklist excluído.");
     }
 
-    window.editAsset = editAsset; window.deleteAsset = deleteAsset; window.duplicateAsset = duplicateAsset; window.editRegion = editRegion; window.deleteRegion = deleteRegion; window.editLocation = editLocation; window.deleteLocation = deleteLocation; window.editTag = editTag; window.deleteTag = deleteTag; window.editSubtag = editSubtag; window.deleteSubtag = deleteSubtag; window.editSupplier = editSupplier; window.deleteSupplier = deleteSupplier; window.editStock = editStock; window.deleteStock = deleteStock; window.editSpare = editSpare; window.deleteSpare = deleteSpare; window.editOrder = editOrder; window.deleteOrder = deleteOrder; window.startOrder = startOrder; window.confirmStartOrder = confirmStartOrder; window.finishOrder = finishOrder; window.showOrderDetails = showOrderDetails; window.simpleOrderAction = simpleOrderAction; window.editChecklist = editChecklist; window.deleteChecklist = deleteChecklist; window.openLocationChecklists = openLocationChecklists; window.openLocationMovements = openLocationMovements; window.moveDashboardWidget = moveDashboardWidget; window.hideDashboardWidget = hideDashboardWidget; window.openDashboardConfig = openDashboardConfig; window.saveDashboardVisibility = saveDashboardVisibility; window.resetDashboardLayout = resetDashboardLayout;
+    window.editAsset = editAsset; window.deleteAsset = deleteAsset; window.duplicateAsset = duplicateAsset; window.editRegion = editRegion; window.deleteRegion = deleteRegion; window.editLocation = editLocation; window.deleteLocation = deleteLocation; window.editTag = editTag; window.deleteTag = deleteTag; window.editSubtag = editSubtag; window.deleteSubtag = deleteSubtag; window.editSupplier = editSupplier; window.deleteSupplier = deleteSupplier; window.editStock = editStock; window.deleteStock = deleteStock; window.editSpare = editSpare; window.deleteSpare = deleteSpare; window.editStockMove = editStockMove; window.deleteStockMove = deleteStockMove; window.editMaterialRequest = editMaterialRequest; window.deleteMaterialRequest = deleteMaterialRequest; window.editStockTransfer = editStockTransfer; window.deleteStockTransfer = deleteStockTransfer; window.editOrder = editOrder; window.deleteOrder = deleteOrder; window.startOrder = startOrder; window.confirmStartOrder = confirmStartOrder; window.finishOrder = finishOrder; window.showOrderDetails = showOrderDetails; window.simpleOrderAction = simpleOrderAction; window.editChecklist = editChecklist; window.deleteChecklist = deleteChecklist; window.openLocationChecklists = openLocationChecklists; window.openLocationMovements = openLocationMovements; window.moveDashboardWidget = moveDashboardWidget; window.hideDashboardWidget = hideDashboardWidget; window.openDashboardConfig = openDashboardConfig; window.saveDashboardVisibility = saveDashboardVisibility; window.resetDashboardLayout = resetDashboardLayout;
 
     document.querySelectorAll("[data-view]").forEach(button => button.addEventListener("click", () => {
       if (button.dataset.view === "activeOrders" && !isPanelMode()) {
@@ -6461,6 +6653,43 @@
       resetSpareForm(); render(); showToast(saved ? "Peça salva no Supabase." : "Peça salva localmente. Sincronização pendente.");
     });
 
+    $("stockMoveForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      if (!$("stockMoveStock").value || !$("stockMoveSpare").value) { showToast("Selecione estoque e peça."); return; }
+      const id = $("stockMoveId").value || uid("stock_move");
+      const payload = { id, itemId: $("stockMoveItemId").value || uid("stock_move_item"), number: byId(state.inventoryMovements, id)?.number || nextCode(state.inventoryMovements, "MOV"), type: $("stockMoveType").value, stockId: $("stockMoveStock").value, spareId: $("stockMoveSpare").value, supplierId: $("stockMoveSupplier").value, quantity: numberValue("stockMoveQty", 1), unitValue: numberValue("stockMoveValue"), owner: value("stockMoveOwner"), status: $("stockMoveStatus").value, note: value("stockMoveNote") };
+      state.inventoryMovements = state.inventoryMovements.filter(item => item.id !== id).concat(payload);
+      saveState();
+      const saved = await saveSingleSupabase("movimentacoes_estoque", stockMoveDbRow(payload));
+      if (saved) await saveSingleSupabase("movimentacoes_estoque_itens", stockMoveItemDbRow(payload));
+      resetStockMoveForm(); render(); showToast(saved ? "Movimentação salva no Supabase." : "Movimentação salva localmente. Sincronização pendente.");
+    });
+
+    $("materialRequestForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      if (!$("materialRequestStock").value || !$("materialRequestSpare").value) { showToast("Selecione estoque e peça."); return; }
+      const id = $("materialRequestId").value || uid("material_request");
+      const payload = { id, itemId: $("materialRequestItemId").value || uid("material_request_item"), number: byId(state.materialRequests, id)?.number || nextCode(state.materialRequests, "REQ"), stockId: $("materialRequestStock").value, orderId: $("materialRequestOrder").value, spareId: $("materialRequestSpare").value, quantity: numberValue("materialRequestQty", 1), requester: value("materialRequestRequester"), status: $("materialRequestStatus").value, note: value("materialRequestNote") };
+      state.materialRequests = state.materialRequests.filter(item => item.id !== id).concat(payload);
+      saveState();
+      const saved = await saveSingleSupabase("requisicoes_materiais", materialRequestDbRow(payload));
+      if (saved) await saveSingleSupabase("requisicoes_materiais_itens", materialRequestItemDbRow(payload));
+      resetMaterialRequestForm(); render(); showToast(saved ? "Requisição salva no Supabase." : "Requisição salva localmente. Sincronização pendente.");
+    });
+
+    $("stockTransferForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      if (!$("stockTransferOrigin").value || !$("stockTransferDestiny").value || !$("stockTransferSpare").value) { showToast("Selecione origem, destino e peça."); return; }
+      if ($("stockTransferOrigin").value === $("stockTransferDestiny").value) { showToast("Origem e destino devem ser diferentes."); return; }
+      const id = $("stockTransferId").value || uid("stock_transfer");
+      const payload = { id, itemId: $("stockTransferItemId").value || uid("stock_transfer_item"), originId: $("stockTransferOrigin").value, destinyId: $("stockTransferDestiny").value, spareId: $("stockTransferSpare").value, quantity: numberValue("stockTransferQty", 1), owner: value("stockTransferOwner"), status: $("stockTransferStatus").value, note: value("stockTransferNote") };
+      state.stockTransfers = state.stockTransfers.filter(item => item.id !== id).concat(payload);
+      saveState();
+      const saved = await saveSingleSupabase("transferencias_estoque", stockTransferDbRow(payload));
+      if (saved) await saveSingleSupabase("transferencias_estoque_itens", stockTransferItemDbRow(payload));
+      resetStockTransferForm(); render(); showToast(saved ? "Transferência salva no Supabase." : "Transferência salva localmente. Sincronização pendente.");
+    });
+
     $("assetForm").addEventListener("submit", event => {
       event.preventDefault();
       const id = $("assetId").value || uid("asset");
@@ -6527,6 +6756,9 @@
     $("resetSupplierForm").addEventListener("click", resetSupplierForm);
     $("resetStockForm").addEventListener("click", resetStockForm);
     $("resetSpareForm").addEventListener("click", resetSpareForm);
+    $("resetStockMoveForm").addEventListener("click", resetStockMoveForm);
+    $("resetMaterialRequestForm").addEventListener("click", resetMaterialRequestForm);
+    $("resetStockTransferForm").addEventListener("click", resetStockTransferForm);
     $("exportBtn").addEventListener("click", () => {
       const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
