@@ -3460,6 +3460,9 @@
     const SUPABASE_TABLES_DELETE_ORDER = ["eventos_ordem_servico", "movimentacoes_tags", "checklists", "ordens_servico", "subtags_equipamento", "equipamentos", "subtags", "tags", "locais_instalacao", "regioes", "movimentacoes_estoque_itens", "movimentacoes_estoque", "requisicoes_materiais_itens", "requisicoes_materiais", "transferencias_estoque_itens", "transferencias_estoque", "pecas", "estoques", "fornecedores", "perfis"];
     const SUPABASE_TABLES_INSERT_ORDER = ["perfis", "fornecedores", "estoques", "pecas", "regioes", "locais_instalacao", "tags", "subtags", "equipamentos", "subtags_equipamento", "ordens_servico", "checklists", "movimentacoes_tags", "movimentacoes_estoque", "movimentacoes_estoque_itens", "requisicoes_materiais", "requisicoes_materiais_itens", "transferencias_estoque", "transferencias_estoque_itens"];
     const SUPABASE_TABLES_UPSERT_ORDER = ["fornecedores", "estoques", "pecas", "regioes", "locais_instalacao", "tags", "subtags", "equipamentos", "subtags_equipamento", "ordens_servico", "checklists", "movimentacoes_tags", "movimentacoes_estoque", "movimentacoes_estoque_itens", "requisicoes_materiais", "requisicoes_materiais_itens", "transferencias_estoque", "transferencias_estoque_itens"];
+    const LOCAL_SYNC_DELAY_MS = 400;
+    const REMOTE_REFRESH_INTERVAL_MS = 2000;
+    const UI_REFRESH_INTERVAL_MS = 30000;
 
     const emptyState = () => ({
       regions: [],
@@ -4416,7 +4419,7 @@
     function scheduleSupabaseSync() {
       if (!SUPABASE_READY || isLoadingRemote) return;
       clearTimeout(syncTimer);
-      syncTimer = setTimeout(() => syncSupabaseNow(false), 1200);
+      syncTimer = setTimeout(() => syncSupabaseNow(false), LOCAL_SYNC_DELAY_MS);
     }
 
     function savedActiveView() {
@@ -7040,12 +7043,12 @@
       renderDashboardExecutors();
       renderReports();
       renderAssistantSummary();
-    }, 30000);
+    }, UI_REFRESH_INTERVAL_MS);
 
     setInterval(() => {
       if (!SUPABASE_READY || $("genericModal").classList.contains("open")) return;
       loadSupabaseState(false);
-    }, 12000);
+    }, REMOTE_REFRESH_INTERVAL_MS);
 
     window.addEventListener("focus", () => loadSupabaseState(false));
     window.addEventListener("online", () => loadSupabaseState(true));
