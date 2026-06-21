@@ -3,6 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>GestMan365</title>
   <style>
     :root {
@@ -3452,9 +3455,9 @@
     const SUPABASE_URL = "https://zkkyiqtzmimcoderjrrm.supabase.co";
     const SUPABASE_KEY = "sb_publishable_h88SLb98aMdmGCJvEO6yFw_QuJ4I3bI";
     const SUPABASE_READY = SUPABASE_URL.startsWith("https://") && SUPABASE_KEY.startsWith("sb_");
-    const SUPABASE_TABLES_DELETE_ORDER = ["eventos_ordem_servico", "movimentacoes_tags", "checklists", "ordens_servico", "subtags_equipamento", "equipamentos", "locais_instalacao", "regioes", "movimentacoes_estoque_itens", "movimentacoes_estoque", "requisicoes_materiais_itens", "requisicoes_materiais", "transferencias_estoque_itens", "transferencias_estoque", "pecas", "estoques", "fornecedores", "perfis"];
-    const SUPABASE_TABLES_INSERT_ORDER = ["perfis", "fornecedores", "estoques", "pecas", "regioes", "locais_instalacao", "equipamentos", "subtags_equipamento", "ordens_servico", "checklists", "movimentacoes_tags", "movimentacoes_estoque", "movimentacoes_estoque_itens", "requisicoes_materiais", "requisicoes_materiais_itens", "transferencias_estoque", "transferencias_estoque_itens"];
-    const SUPABASE_TABLES_UPSERT_ORDER = ["fornecedores", "estoques", "pecas", "regioes", "locais_instalacao", "equipamentos", "subtags_equipamento", "ordens_servico", "checklists", "movimentacoes_tags", "movimentacoes_estoque", "movimentacoes_estoque_itens", "requisicoes_materiais", "requisicoes_materiais_itens", "transferencias_estoque", "transferencias_estoque_itens"];
+    const SUPABASE_TABLES_DELETE_ORDER = ["eventos_ordem_servico", "movimentacoes_tags", "checklists", "ordens_servico", "subtags_equipamento", "equipamentos", "subtags", "tags", "locais_instalacao", "regioes", "movimentacoes_estoque_itens", "movimentacoes_estoque", "requisicoes_materiais_itens", "requisicoes_materiais", "transferencias_estoque_itens", "transferencias_estoque", "pecas", "estoques", "fornecedores", "perfis"];
+    const SUPABASE_TABLES_INSERT_ORDER = ["perfis", "fornecedores", "estoques", "pecas", "regioes", "locais_instalacao", "tags", "subtags", "equipamentos", "subtags_equipamento", "ordens_servico", "checklists", "movimentacoes_tags", "movimentacoes_estoque", "movimentacoes_estoque_itens", "requisicoes_materiais", "requisicoes_materiais_itens", "transferencias_estoque", "transferencias_estoque_itens"];
+    const SUPABASE_TABLES_UPSERT_ORDER = ["fornecedores", "estoques", "pecas", "regioes", "locais_instalacao", "tags", "subtags", "equipamentos", "subtags_equipamento", "ordens_servico", "checklists", "movimentacoes_tags", "movimentacoes_estoque", "movimentacoes_estoque_itens", "requisicoes_materiais", "requisicoes_materiais_itens", "transferencias_estoque", "transferencias_estoque_itens"];
 
     const emptyState = () => ({
       regions: [],
@@ -3480,6 +3483,7 @@
     let dragState = null;
     let pendingMove = null;
     let isLoadingRemote = false;
+    let taxonomySupabaseAvailable = false;
     let hasPendingLocalSync = localStorage.getItem(PENDING_SYNC_KEY) === "1";
     let syncTimer = null;
     if (localStorage.getItem(THEME_DEFAULT_KEY) !== "1") {
@@ -3682,6 +3686,15 @@
       return text ? JSON.parse(text) : null;
     }
 
+    async function safeSupabaseRead(key, path) {
+      try {
+        return { key, data: await supabaseFetch(path), error: null };
+      } catch (error) {
+        console.error(`Falha ao carregar ${key} do Supabase:`, error);
+        return { key, data: [], error };
+      }
+    }
+
     function orderDbRow(order) {
       return {
         id: order.id,
@@ -3802,20 +3815,52 @@
         regioes: state.regions.map(region => ({
           id: region.id,
           nome: region.name,
-          descricao: region.description || null
+          descricao: region.description || null,
+          ...(taxonomySupabaseAvailable ? {
+            cor: region.color || null,
+            pos_x: Number(region.x ?? 2),
+            pos_y: Number(region.y ?? 4),
+            largura: Number(region.w ?? 96),
+            altura: Number(region.h ?? 24)
+          } : {})
         })),
         locais_instalacao: state.locations.map(location => ({
           id: location.id,
           regiao_id: location.regionId || null,
           nome: location.name,
           tipo: location.type || "Linha",
-          ordem: Number(location.order || 0)
+          ordem: Number(location.order || 0),
+          ...(taxonomySupabaseAvailable ? {
+            cor: location.color || null,
+            pos_x: Number(location.x ?? 4),
+            pos_y: Number(location.y ?? 12),
+            largura: Number(location.w ?? 32),
+            altura: Number(location.h ?? 24)
+          } : {})
+        })),
+        tags: state.tags.map(item => ({
+          id: item.id,
+          codigo: item.code,
+          nome: item.name,
+          descricao: item.description || null
+        })),
+        subtags: state.subtags.map(item => ({
+          id: item.id,
+          tag_id: item.parentId || null,
+          codigo: item.code,
+          nome: item.name
         })),
         equipamentos: state.assets.map(asset => ({
           id: asset.id,
           codigo: asset.code,
           nome: asset.name,
           local_instalacao_id: asset.locationId || null,
+          ...(taxonomySupabaseAvailable ? {
+            tag_id: asset.tagId || null,
+            subtag_id: asset.subtagId || null,
+            pos_x: Number(asset.x ?? 50),
+            pos_y: Number(asset.y ?? 50)
+          } : {}),
           criticidade: asset.criticality || "Baixa",
           status: asset.status || "Operando",
           marca: asset.brand || null,
@@ -3855,12 +3900,24 @@
         data.orders?.length ||
         data.checklists?.length ||
         data.movements?.length ||
+        data.tags?.length ||
+        data.subtags?.length ||
         data.suppliers?.length ||
         data.stockLocations?.length ||
         data.spareParts?.length ||
         data.inventoryMovements?.length ||
         data.materialRequests?.length ||
         data.stockTransfers?.length
+      );
+    }
+
+    function hasLocalMobileSyncData(data = state) {
+      return Boolean(
+        data.tags?.length ||
+        data.subtags?.length ||
+        data.regions?.length ||
+        data.locations?.length ||
+        data.assets?.length
       );
     }
 
@@ -3875,39 +3932,45 @@
         data.fornecedores?.length ||
         data.estoques?.length ||
         data.pecas?.length ||
+        data.tags?.length ||
+        data.subtags?.length ||
         data.movimentacoes_estoque?.length ||
         data.requisicoes_materiais?.length ||
         data.transferencias_estoque?.length
       );
     }
 
-    function mergeById(remoteItems = [], localItems = []) {
+    function mergeById(remoteItems = [], localItems = [], preferLocal = false) {
       const merged = new Map();
       remoteItems.forEach(item => { if (item?.id) merged.set(item.id, item); });
-      localItems.forEach(item => { if (item?.id && !merged.has(item.id)) merged.set(item.id, item); });
+      localItems.forEach(item => {
+        if (!item?.id) return;
+        if (preferLocal || !merged.has(item.id)) merged.set(item.id, item);
+      });
       return Array.from(merged.values());
     }
 
-    function mergeRemoteWithLocal(remoteState, localState) {
+    function mergeRemoteWithLocal(remoteState, localState, preferLocal = false) {
       const local = normalizeState(localState || emptyState());
       const remote = normalizeState(remoteState || emptyState());
+      if (!preferLocal) return remote;
       return normalizeState({
         ...remote,
-        profile: (local.profile?.name && local.profile.name !== "Administrador") ? { ...remote.profile, ...local.profile } : remote.profile,
-        regions: mergeById(remote.regions, local.regions),
-        locations: mergeById(remote.locations, local.locations),
-        tags: mergeById(remote.tags, local.tags),
-        subtags: mergeById(remote.subtags, local.subtags),
-        assets: mergeById(remote.assets, local.assets),
-        orders: mergeById(remote.orders, local.orders),
-        checklists: mergeById(remote.checklists, local.checklists),
-        movements: mergeById(remote.movements, local.movements),
-        suppliers: mergeById(remote.suppliers, local.suppliers),
-        stockLocations: mergeById(remote.stockLocations, local.stockLocations),
-        spareParts: mergeById(remote.spareParts, local.spareParts),
-        inventoryMovements: mergeById(remote.inventoryMovements, local.inventoryMovements),
-        materialRequests: mergeById(remote.materialRequests, local.materialRequests),
-        stockTransfers: mergeById(remote.stockTransfers, local.stockTransfers)
+        profile: local.profile?.name ? { ...remote.profile, ...local.profile } : remote.profile,
+        regions: mergeById(remote.regions, local.regions, true),
+        locations: mergeById(remote.locations, local.locations, true),
+        tags: mergeById(remote.tags, local.tags, true),
+        subtags: mergeById(remote.subtags, local.subtags, true),
+        assets: mergeById(remote.assets, local.assets, true),
+        orders: mergeById(remote.orders, local.orders, true),
+        checklists: mergeById(remote.checklists, local.checklists, true),
+        movements: mergeById(remote.movements, local.movements, true),
+        suppliers: mergeById(remote.suppliers, local.suppliers, true),
+        stockLocations: mergeById(remote.stockLocations, local.stockLocations, true),
+        spareParts: mergeById(remote.spareParts, local.spareParts, true),
+        inventoryMovements: mergeById(remote.inventoryMovements, local.inventoryMovements, true),
+        materialRequests: mergeById(remote.materialRequests, local.materialRequests, true),
+        stockTransfers: mergeById(remote.stockTransfers, local.stockTransfers, true)
       });
     }
 
@@ -4024,13 +4087,19 @@
           const firstItem = (data.transferencias_estoque_itens || []).find(row => row.transferencia_id === item.id) || {};
           return { id: item.id, itemId: firstItem.id || "", originId: item.estoque_origem_id || "", destinyId: item.estoque_destino_id || "", owner: item.responsavel || "", status: item.status || "Aberta", note: item.observacao || "", spareId: firstItem.peca_id || "", quantity: Number(firstItem.quantidade || 0) };
         }),
-        regions: (data.regioes || []).map(item => ({ id: item.id, name: item.nome, description: item.descricao || "" })),
-        locations: (data.locais_instalacao || []).map(item => ({ id: item.id, regionId: item.regiao_id, name: item.nome, type: item.tipo, order: item.ordem || 0 })),
+        regions: (data.regioes || []).map(item => ({ id: item.id, name: item.nome, description: item.descricao || "", color: item.cor || "#ff8a4c", x: Number(item.pos_x ?? 2), y: Number(item.pos_y ?? 4), w: Number(item.largura ?? 96), h: Number(item.altura ?? 24) })),
+        locations: (data.locais_instalacao || []).map(item => ({ id: item.id, regionId: item.regiao_id, name: item.nome, type: item.tipo, order: item.ordem || 0, color: item.cor || "#123f8d", x: Number(item.pos_x ?? 4), y: Number(item.pos_y ?? 12), w: Number(item.largura ?? 32), h: Number(item.altura ?? 24) })),
+        tags: (data.tags || []).map(item => ({ id: item.id, code: item.codigo, name: item.nome, description: item.descricao || "" })),
+        subtags: (data.subtags || []).map(item => ({ id: item.id, parentId: item.tag_id || "", code: item.codigo, name: item.nome })),
         assets: (data.equipamentos || []).map(item => ({
           id: item.id,
           code: item.codigo,
           name: item.nome,
           locationId: item.local_instalacao_id || "",
+          tagId: item.tag_id || "",
+          subtagId: item.subtag_id || "",
+          x: Number(item.pos_x ?? 50),
+          y: Number(item.pos_y ?? 50),
           criticality: item.criticidade || "Baixa",
           status: item.status || "Operando",
           brand: item.marca || "",
@@ -4100,73 +4169,160 @@
     }
 
     async function loadSupabaseState(showMessage = true) {
-      if (!SUPABASE_READY) return;
-      if (hasPendingLocalSync) {
-        await syncSupabaseNow(false);
-      }
+      if (!SUPABASE_READY || isLoadingRemote) return false;
+      const previousState = state;
+      const pendingBeforeLoad = hasPendingLocalSync;
+      let shouldPushLocal = false;
+
       try {
         isLoadingRemote = true;
-        const [perfis, fornecedores, estoques, pecas, movEstoque, movEstoqueItens, requisicoes, requisicaoItens, transferencias, transferenciaItens, regioes, locais, equipamentos, ordens, checklists, movimentos] = await Promise.all([
-          supabaseFetch("perfis?select=*&order=created_at.asc"),
-          supabaseFetch("fornecedores?select=*&order=created_at.asc"),
-          supabaseFetch("estoques?select=*&order=created_at.asc"),
-          supabaseFetch("pecas?select=*&order=created_at.asc"),
-          supabaseFetch("movimentacoes_estoque?select=*&order=created_at.asc"),
-          supabaseFetch("movimentacoes_estoque_itens?select=*"),
-          supabaseFetch("requisicoes_materiais?select=*&order=created_at.asc"),
-          supabaseFetch("requisicoes_materiais_itens?select=*"),
-          supabaseFetch("transferencias_estoque?select=*&order=data_transferencia.asc"),
-          supabaseFetch("transferencias_estoque_itens?select=*"),
-          supabaseFetch("regioes?select=*&order=created_at.asc"),
-          supabaseFetch("locais_instalacao?select=*&order=created_at.asc"),
-          supabaseFetch("equipamentos?select=*&order=created_at.asc"),
-          supabaseFetch("ordens_servico?select=*&order=created_at.asc"),
-          supabaseFetch("checklists?select=*&order=created_at.asc"),
-          supabaseFetch("movimentacoes_tags?select=*&order=data_movimentacao.desc")
-        ]);
-        const remoteData = { perfis, fornecedores, estoques, pecas, movimentacoes_estoque: movEstoque, movimentacoes_estoque_itens: movEstoqueItens, requisicoes_materiais: requisicoes, requisicoes_materiais_itens: requisicaoItens, transferencias_estoque: transferencias, transferencias_estoque_itens: transferenciaItens, regioes, locais_instalacao: locais, equipamentos, ordens_servico: ordens, checklists, movimentacoes_tags: movimentos };
-        if (!remoteHasBusinessData(remoteData) && hasBusinessData(state)) {
-          if (showMessage) showToast("Supabase vazio. Mantive os dados locais para evitar perda.");
-          await syncSupabaseNow(false);
-          return;
+        const reads = [
+          ["perfis", "perfis?select=*&order=created_at.asc"],
+          ["fornecedores", "fornecedores?select=*&order=created_at.asc"],
+          ["estoques", "estoques?select=*&order=created_at.asc"],
+          ["pecas", "pecas?select=*&order=created_at.asc"],
+          ["movimentacoes_estoque", "movimentacoes_estoque?select=*&order=created_at.asc"],
+          ["movimentacoes_estoque_itens", "movimentacoes_estoque_itens?select=*"],
+          ["requisicoes_materiais", "requisicoes_materiais?select=*&order=created_at.asc"],
+          ["requisicoes_materiais_itens", "requisicoes_materiais_itens?select=*"],
+          ["transferencias_estoque", "transferencias_estoque?select=*&order=data_transferencia.asc"],
+          ["transferencias_estoque_itens", "transferencias_estoque_itens?select=*"],
+          ["regioes", "regioes?select=*&order=created_at.asc"],
+          ["locais_instalacao", "locais_instalacao?select=*&order=created_at.asc"],
+          ["tags", "tags?select=*&order=created_at.asc"],
+          ["subtags", "subtags?select=*&order=created_at.asc"],
+          ["equipamentos", "equipamentos?select=*&order=created_at.asc"],
+          ["ordens_servico", "ordens_servico?select=*&order=created_at.asc"],
+          ["checklists", "checklists?select=*&order=created_at.asc"],
+          ["movimentacoes_tags", "movimentacoes_tags?select=*&order=data_movimentacao.desc"]
+        ];
+        const results = await Promise.all(reads.map(([key, path]) => safeSupabaseRead(key, path)));
+        const failures = results.filter(item => item.error);
+        if (failures.length === results.length) throw new Error("Nenhuma tabela do Supabase pôde ser carregada.");
+
+        const remoteData = Object.fromEntries(results.map(item => [item.key, item.data || []]));
+        const failedKeys = new Set(failures.map(item => item.key));
+        taxonomySupabaseAvailable = !failedKeys.has("tags") && !failedKeys.has("subtags");
+        const remoteHasMobileSyncData = Boolean(
+          remoteData.tags?.length ||
+          remoteData.subtags?.length ||
+          remoteData.regioes?.some(item => item.pos_x != null || item.cor) ||
+          remoteData.locais_instalacao?.some(item => item.pos_x != null || item.cor) ||
+          remoteData.equipamentos?.some(item => item.pos_x != null || item.tag_id || item.subtag_id)
+        );
+        const needsMobileDataMigration = taxonomySupabaseAvailable
+          && hasLocalMobileSyncData(previousState)
+          && !remoteHasMobileSyncData;
+
+        if (!remoteHasBusinessData(remoteData) && hasBusinessData(previousState)) {
+          hasPendingLocalSync = true;
+          localStorage.setItem(PENDING_SYNC_KEY, "1");
+          shouldPushLocal = true;
+          if (showMessage) showToast("Supabase vazio. Enviando os dados deste aparelho sem apagar o cadastro local.");
+          return false;
         }
-        state = mergeRemoteWithLocal(stateFromDb(remoteData), state);
+
+        state = mergeRemoteWithLocal(stateFromDb(remoteData), previousState, pendingBeforeLoad || needsMobileDataMigration);
+        const failedStateProperties = {
+          perfis: ["profile"],
+          fornecedores: ["suppliers"],
+          estoques: ["stockLocations"],
+          pecas: ["spareParts"],
+          movimentacoes_estoque: ["inventoryMovements"],
+          movimentacoes_estoque_itens: ["inventoryMovements"],
+          requisicoes_materiais: ["materialRequests"],
+          requisicoes_materiais_itens: ["materialRequests"],
+          transferencias_estoque: ["stockTransfers"],
+          transferencias_estoque_itens: ["stockTransfers"],
+          regioes: ["regions"],
+          locais_instalacao: ["locations"],
+          tags: ["tags"],
+          subtags: ["subtags"],
+          equipamentos: ["assets"],
+          ordens_servico: ["orders"],
+          checklists: ["checklists"],
+          movimentacoes_tags: ["movements"]
+        };
+        failures.forEach(({ key }) => {
+          (failedStateProperties[key] || []).forEach(property => {
+            state[property] = previousState[property];
+          });
+        });
+
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(state.profile || {}));
-        if (hasPendingLocalSync) await syncSupabaseNow(false);
+        if (needsMobileDataMigration) {
+          hasPendingLocalSync = true;
+          localStorage.setItem(PENDING_SYNC_KEY, "1");
+        }
+        shouldPushLocal = pendingBeforeLoad || needsMobileDataMigration;
         render();
-        if (showMessage) showToast("Dados carregados do Supabase.");
+        if (showMessage) {
+          showToast(failures.length
+            ? `Dados atualizados. ${failures.length} tabela(s) precisam de configuração no Supabase.`
+            : "Dados atualizados do Supabase para este aparelho.");
+        }
+        return failures.length === 0;
       } catch (error) {
         console.error(error);
-        if (showMessage) showToast("Nao consegui carregar do Supabase. Verifique URL, chave e permissoes.");
+        if (showMessage) showToast("Nao consegui carregar o Supabase. Os dados locais foram preservados.");
+        return false;
       } finally {
         isLoadingRemote = false;
+        if (shouldPushLocal) await syncSupabaseNow(false);
       }
     }
 
     async function syncSupabaseNow(showMessage = true) {
-      if (!SUPABASE_READY || isLoadingRemote) return;
+      if (!SUPABASE_READY || isLoadingRemote) return false;
       try {
         const payload = dbPayload();
-        if (!hasBusinessData(state) && !showMessage) return;
-        for (const table of SUPABASE_TABLES_UPSERT_ORDER) {
+        if (!hasBusinessData(state) && !showMessage) return true;
+        const taxonomyPending = !taxonomySupabaseAvailable && hasLocalMobileSyncData(state);
+        const tables = taxonomySupabaseAvailable
+          ? SUPABASE_TABLES_UPSERT_ORDER
+          : SUPABASE_TABLES_UPSERT_ORDER.filter(table => table !== "tags" && table !== "subtags");
+        const errors = [];
+        for (const table of tables) {
           const rows = payload[table] || [];
-          await upsertSupabaseRows(table, rows);
+          try {
+            await upsertSupabaseRows(table, rows);
+          } catch (error) {
+            console.error(`Falha ao salvar ${table}:`, error);
+            errors.push({ table, error });
+          }
         }
         if (payload.perfis?.length) {
-          await supabaseFetch("perfis?tipo=eq.admin", { method: "DELETE", headers: { Prefer: "return=minimal" } });
-          await supabaseFetch("perfis", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", Prefer: "return=minimal" },
-            body: JSON.stringify(payload.perfis)
-          });
+          try {
+            await supabaseFetch("perfis?tipo=eq.admin", { method: "DELETE", headers: { Prefer: "return=minimal" } });
+            await supabaseFetch("perfis", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Prefer: "return=minimal" },
+              body: JSON.stringify(payload.perfis)
+            });
+          } catch (error) {
+            console.error("Falha ao salvar perfil:", error);
+            errors.push({ table: "perfis", error });
+          }
+        }
+        if (errors.length || taxonomyPending) {
+          hasPendingLocalSync = true;
+          localStorage.setItem(PENDING_SYNC_KEY, "1");
+          if (showMessage) showToast(taxonomyPending
+            ? "Dados principais salvos. Execute o Passo 20 para sincronizar tags e subtags."
+            : `Sincronização parcial: ${errors.length} tabela(s) apresentaram erro.`);
+          return false;
         }
         hasPendingLocalSync = false;
         localStorage.removeItem(PENDING_SYNC_KEY);
-        if (showMessage) showToast("Banco Supabase salvo sem apagar cadastros.");
+        if (showMessage) showToast("Dados enviados ao Supabase e disponíveis nos outros aparelhos.");
+        return true;
       } catch (error) {
         console.error(error);
-        if (showMessage) showToast("Falha ao sincronizar Supabase. Confira as permissoes do passo 05.");
+        hasPendingLocalSync = true;
+        localStorage.setItem(PENDING_SYNC_KEY, "1");
+        if (showMessage) showToast("Falha ao sincronizar Supabase. Os dados locais foram preservados.");
+        return false;
       }
     }
 
@@ -6359,6 +6515,10 @@
 
     function deleteTag(id) {
       if (!confirm("Excluir esta tag e subtags vinculadas?")) return;
+      if (taxonomySupabaseAvailable) {
+        state.subtags.filter(item => item.parentId === id).forEach(item => deleteSupabaseRow("subtags", item.id));
+        deleteSupabaseRow("tags", id);
+      }
       state.tags = state.tags.filter(item => item.id !== id);
       state.subtags = state.subtags.filter(item => item.parentId !== id);
       state.assets = state.assets.map(asset => asset.tagId === id ? { ...asset, tagId: "", subtagId: "" } : asset);
@@ -6373,6 +6533,7 @@
 
     function deleteSubtag(id) {
       if (!confirm("Excluir esta subtag?")) return;
+      if (taxonomySupabaseAvailable) deleteSupabaseRow("subtags", id);
       state.subtags = state.subtags.filter(item => item.id !== id);
       state.assets = state.assets.map(asset => asset.subtagId === id ? { ...asset, subtagId: "" } : asset);
       saveState(); render(); showToast("Subtag excluída.");
@@ -6621,7 +6782,7 @@
       $("aiAnswer").textContent = answerSystemAi("resumo");
     });
     $("themeBtn").addEventListener("click", () => applyTheme(currentTheme === "light" ? "dark" : "light"));
-    $("syncBtn").addEventListener("click", () => syncSupabaseNow(true));
+    $("syncBtn").addEventListener("click", () => loadSupabaseState(true));
 
     $("supplierForm").addEventListener("submit", async event => {
       event.preventDefault();
@@ -6785,6 +6946,12 @@
       if (!SUPABASE_READY || $("genericModal").classList.contains("open")) return;
       loadSupabaseState(false);
     }, 12000);
+
+    window.addEventListener("focus", () => loadSupabaseState(false));
+    window.addEventListener("online", () => loadSupabaseState(true));
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") loadSupabaseState(false);
+    });
 
     applyTheme(currentTheme);
     render();
