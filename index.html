@@ -3494,6 +3494,7 @@
     let deletedRecords = loadDeletedRecords();
     let syncTimer = null;
     let spareSupplierDraftId = "";
+    const changedSpareIds = new Set();
     if (localStorage.getItem(THEME_DEFAULT_KEY) !== "1") {
       localStorage.setItem(THEME_KEY, "light");
       localStorage.setItem(THEME_DEFAULT_KEY, "1");
@@ -3563,7 +3564,12 @@
       const errors = [];
       for (const { table, id } of pendingDeletedEntries()) {
         try {
-          await supabaseFetch(`${table}?id=eq.${encodeURIComponent(id)}`, { method: "DELETE", headers: { Prefer: "return=minimal" } });
+          if (table === "pecas") {
+            const dependenciesDeleted = await deleteSpareDependenciesSupabase(id);
+            if (!dependenciesDeleted) throw new Error("Falha ao excluir vinculos da peca.");
+          }
+          const confirmed = await performConfirmedDelete(table, id);
+          if (!confirmed) throw new Error("Exclusao nao confirmada pelo Supabase.");
           deletedRecords[table][id] = { ...(deletedRecords[table][id] || {}), confirmed: true };
         } catch (error) {
           console.error(`Falha ao confirmar exclusao em ${table}:`, error);
@@ -4203,7 +4209,8 @@
       if (options.remember !== false) rememberDeletedRecord(table, id);
       if (!SUPABASE_READY || !id || !isUuid(id)) return false;
       try {
-        await supabaseFetch(`${table}?id=eq.${encodeURIComponent(id)}`, { method: "DELETE", headers: { Prefer: "return=minimal" } });
+        const confirmed = await performConfirmedDelete(table, id);
+        if (!confirmed) throw new Error("Exclusao nao confirmada pelo Supabase.");
         if (deletedRecords?.[table]?.[id]) {
           deletedRecords[table][id] = { ...(deletedRecords[table][id] || {}), confirmed: true };
           saveDeletedRecords();
@@ -4211,9 +4218,20 @@
         return true;
       } catch (error) {
         console.error(error);
-        showToast("Nao consegui excluir no Supabase. Verifique conexao/permissoes.");
+        if (!options.silent) showToast("Nao consegui confirmar a exclusao no Supabase.");
         return false;
       }
+    }
+
+    async function performConfirmedDelete(table, id) {
+      const encodedId = encodeURIComponent(id);
+      const deletedRows = await supabaseFetch(`${table}?id=eq.${encodedId}&select=id`, {
+        method: "DELETE",
+        headers: { Prefer: "return=representation" }
+      });
+      if (Array.isArray(deletedRows) && deletedRows.some(row => row?.id === id)) return true;
+      const remainingRows = await supabaseFetch(`${table}?id=eq.${encodedId}&select=id`);
+      return Array.isArray(remainingRows) && remainingRows.length === 0;
     }
 
     async function deleteSupabaseWhere(table, query) {
@@ -4225,6 +4243,16 @@
         console.error(`Falha ao excluir registros vinculados em ${table}:`, error);
         return false;
       }
+    }
+
+    async function deleteSpareDependenciesSupabase(id) {
+      const encodedId = encodeURIComponent(id);
+      const results = await Promise.all([
+        deleteSupabaseWhere("movimentacoes_estoque_itens", `peca_id=eq.${encodedId}`),
+        deleteSupabaseWhere("requisicoes_materiais_itens", `peca_id=eq.${encodedId}`),
+        deleteSupabaseWhere("transferencias_estoque_itens", `peca_id=eq.${encodedId}`)
+      ]);
+      return results.every(Boolean);
     }
 
     function stateFromDb(data) {
@@ -4490,9 +4518,13 @@
           : SUPABASE_TABLES_UPSERT_ORDER.filter(table => table !== "tags" && table !== "subtags");
         const errors = [];
         for (const table of tables) {
-          const rows = payload[table] || [];
+          const tableRows = payload[table] || [];
+          const rows = table === "pecas"
+            ? tableRows.filter(row => changedSpareIds.has(row.id))
+            : tableRows;
           try {
             await upsertSupabaseRows(table, rows);
+            if (table === "pecas") rows.forEach(row => changedSpareIds.delete(row.id));
           } catch (error) {
             console.error(`Falha ao salvar ${table}:`, error);
             errors.push({ table, error });
@@ -5957,6 +5989,7 @@
       if (!SUPABASE_READY) return true;
       try {
         await upsertSupabaseRows(table, [row]);
+        if (table === "pecas" && row?.id) changedSpareIds.delete(row.id);
         return true;
       } catch (error) {
         console.error(error);
@@ -5981,6 +6014,7 @@
     function deleteSupplier(id) {
       if (!confirm("Excluir este fornecedor?")) return;
       deleteSupabaseRow("fornecedores", id);
+      state.spareParts.filter(item => item.supplierId === id).forEach(item => changedSpareIds.add(item.id));
       state.suppliers = state.suppliers.filter(item => item.id !== id);
       state.spareParts = state.spareParts.map(item => item.supplierId === id ? { ...item, supplierId: "" } : item);
       saveState(); render(); showToast("Fornecedor excluído.");
@@ -6023,10 +6057,15 @@
 
     async function deleteSpare(id) {
       if (!confirm("Excluir esta peça?")) return;
-      await deleteSupabaseWhere("movimentacoes_estoque_itens", `peca_id=eq.${encodeURIComponent(id)}`);
-      await deleteSupabaseWhere("requisicoes_materiais_itens", `peca_id=eq.${encodeURIComponent(id)}`);
-      await deleteSupabaseWhere("transferencias_estoque_itens", `peca_id=eq.${encodeURIComponent(id)}`);
-      await deleteSupabaseRow("pecas", id);
+      rememberDeletedRecord("pecas", id);
+      const dependenciesDeleted = await deleteSpareDependenciesSupabase(id);
+      const remoteDeleted = dependenciesDeleted
+        && await deleteSupabaseRow("pecas", id, { remember: false, silent: true });
+      if (!remoteDeleted) {
+        showToast("Exclusao pendente: nao foi confirmada no Supabase.");
+        return;
+      }
+      changedSpareIds.delete(id);
       state.spareParts = state.spareParts.filter(item => item.id !== id);
       state.inventoryMovements = state.inventoryMovements.map(item => item.spareId === id ? { ...item, spareId: "" } : item);
       state.materialRequests = state.materialRequests.map(item => item.spareId === id ? { ...item, spareId: "" } : item);
@@ -7049,6 +7088,7 @@
       }
       const id = $("spareId").value || uid("spare");
       const payload = { id, code: value("spareCode"), name: value("spareName"), supplierId, supplierCode: value("spareSupplierCode"), unit: value("spareUnit") || "UN", place: value("sparePlace"), balance: numberValue("spareBalance"), minimum: numberValue("spareMinimum"), description: value("spareDescription"), active: true };
+      changedSpareIds.add(id);
       state.spareParts = state.spareParts.filter(item => item.id !== id).concat(payload);
       saveState();
       const saved = await saveSingleSupabase("pecas", spareDbRow(payload));
