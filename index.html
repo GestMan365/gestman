@@ -3449,6 +3449,7 @@
     const STORAGE_KEY = "gestman365-admin-v2";
     const PROFILE_STORAGE_KEY = "gestman365-profile-v1";
     const PENDING_SYNC_KEY = "gestman365-pending-sync-v1";
+    const DELETED_RECORDS_KEY = "gestman365-deleted-records-v1";
     const THEME_KEY = "gestman365-theme";
     const DASHBOARD_LAYOUT_KEY = "gestman365-dashboard-layout-v1";
     const THEME_DEFAULT_KEY = "gestman365-light-default-applied";
@@ -3485,6 +3486,7 @@
     let isLoadingRemote = false;
     let taxonomySupabaseAvailable = false;
     let hasPendingLocalSync = localStorage.getItem(PENDING_SYNC_KEY) === "1";
+    let deletedRecords = loadDeletedRecords();
     let syncTimer = null;
     if (localStorage.getItem(THEME_DEFAULT_KEY) !== "1") {
       localStorage.setItem(THEME_KEY, "light");
@@ -3509,6 +3511,60 @@
       } catch {
         return normalizeState(emptyState());
       }
+    }
+
+    function loadDeletedRecords() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(DELETED_RECORDS_KEY) || "{}");
+        return parsed && typeof parsed === "object" ? parsed : {};
+      } catch {
+        return {};
+      }
+    }
+
+    function saveDeletedRecords() {
+      localStorage.setItem(DELETED_RECORDS_KEY, JSON.stringify(deletedRecords));
+    }
+
+    function rememberDeletedRecord(table, id) {
+      if (!table || !id) return;
+      deletedRecords[table] = deletedRecords[table] || {};
+      deletedRecords[table][id] = { at: Date.now(), confirmed: false };
+      saveDeletedRecords();
+      hasPendingLocalSync = true;
+      localStorage.setItem(PENDING_SYNC_KEY, "1");
+    }
+
+    function wasDeleted(table, id) {
+      return Boolean(table && id && deletedRecords?.[table]?.[id]);
+    }
+
+    function filterDeletedRows(table, rows = []) {
+      return Array.isArray(rows) ? rows.filter(row => !wasDeleted(table, row?.id)) : [];
+    }
+
+    function pendingDeletedEntries() {
+      return Object.entries(deletedRecords).flatMap(([table, items]) =>
+        Object.entries(items || {})
+          .filter(([, value]) => !(value && typeof value === "object" && value.confirmed))
+          .map(([id]) => ({ table, id }))
+      );
+    }
+
+    async function syncDeletedRecords() {
+      if (!SUPABASE_READY) return [];
+      const errors = [];
+      for (const { table, id } of pendingDeletedEntries()) {
+        try {
+          await supabaseFetch(`${table}?id=eq.${encodeURIComponent(id)}`, { method: "DELETE", headers: { Prefer: "return=minimal" } });
+          deletedRecords[table][id] = { ...(deletedRecords[table][id] || {}), confirmed: true };
+        } catch (error) {
+          console.error(`Falha ao confirmar exclusao em ${table}:`, error);
+          errors.push({ table, id, error });
+        }
+      }
+      saveDeletedRecords();
+      return errors;
     }
 
     function normalizeState(raw) {
@@ -4021,13 +4077,31 @@
       }
     }
 
-    async function deleteSupabaseRow(table, id) {
-      if (!SUPABASE_READY || !id || !isUuid(id)) return;
+    async function deleteSupabaseRow(table, id, options = {}) {
+      if (options.remember !== false) rememberDeletedRecord(table, id);
+      if (!SUPABASE_READY || !id || !isUuid(id)) return false;
       try {
         await supabaseFetch(`${table}?id=eq.${encodeURIComponent(id)}`, { method: "DELETE", headers: { Prefer: "return=minimal" } });
+        if (deletedRecords?.[table]?.[id]) {
+          deletedRecords[table][id] = { ...(deletedRecords[table][id] || {}), confirmed: true };
+          saveDeletedRecords();
+        }
+        return true;
       } catch (error) {
         console.error(error);
         showToast("Nao consegui excluir no Supabase. Verifique conexao/permissoes.");
+        return false;
+      }
+    }
+
+    async function deleteSupabaseWhere(table, query) {
+      if (!SUPABASE_READY || !table || !query) return false;
+      try {
+        await supabaseFetch(`${table}?${query}`, { method: "DELETE", headers: { Prefer: "return=minimal" } });
+        return true;
+      } catch (error) {
+        console.error(`Falha ao excluir registros vinculados em ${table}:`, error);
+        return false;
       }
     }
 
@@ -4201,6 +4275,9 @@
         if (failures.length === results.length) throw new Error("Nenhuma tabela do Supabase pôde ser carregada.");
 
         const remoteData = Object.fromEntries(results.map(item => [item.key, item.data || []]));
+        Object.keys(remoteData).forEach(key => {
+          remoteData[key] = filterDeletedRows(key, remoteData[key]);
+        });
         const failedKeys = new Set(failures.map(item => item.key));
         taxonomySupabaseAvailable = !failedKeys.has("tags") && !failedKeys.has("subtags");
         const remoteHasMobileSyncData = Boolean(
@@ -4285,7 +4362,8 @@
       if (!SUPABASE_READY || isLoadingRemote) return false;
       try {
         const payload = dbPayload();
-        if (!hasBusinessData(state) && !showMessage) return true;
+        const deleteErrors = await syncDeletedRecords();
+        if (!hasBusinessData(state) && !pendingDeletedEntries().length && !showMessage) return deleteErrors.length === 0;
         const taxonomyPending = !taxonomySupabaseAvailable && hasLocalMobileSyncData(state);
         const tables = taxonomySupabaseAvailable
           ? SUPABASE_TABLES_UPSERT_ORDER
@@ -4313,12 +4391,12 @@
             errors.push({ table: "perfis", error });
           }
         }
-        if (errors.length || taxonomyPending) {
+        if (errors.length || deleteErrors.length || taxonomyPending) {
           hasPendingLocalSync = true;
           localStorage.setItem(PENDING_SYNC_KEY, "1");
           if (showMessage) showToast(taxonomyPending
             ? "Dados principais salvos. Execute o Passo 20 para sincronizar tags e subtags."
-            : `Sincronização parcial: ${errors.length} tabela(s) apresentaram erro.`);
+            : `Sincronização parcial: ${errors.length + deleteErrors.length} operação(ões) apresentaram erro.`);
           return false;
         }
         hasPendingLocalSync = false;
@@ -5803,10 +5881,16 @@
       setView("spares");
     }
 
-    function deleteSpare(id) {
+    async function deleteSpare(id) {
       if (!confirm("Excluir esta peça?")) return;
-      deleteSupabaseRow("pecas", id);
+      await deleteSupabaseWhere("movimentacoes_estoque_itens", `peca_id=eq.${encodeURIComponent(id)}`);
+      await deleteSupabaseWhere("requisicoes_materiais_itens", `peca_id=eq.${encodeURIComponent(id)}`);
+      await deleteSupabaseWhere("transferencias_estoque_itens", `peca_id=eq.${encodeURIComponent(id)}`);
+      await deleteSupabaseRow("pecas", id);
       state.spareParts = state.spareParts.filter(item => item.id !== id);
+      state.inventoryMovements = state.inventoryMovements.map(item => item.spareId === id ? { ...item, spareId: "" } : item);
+      state.materialRequests = state.materialRequests.map(item => item.spareId === id ? { ...item, spareId: "" } : item);
+      state.stockTransfers = state.stockTransfers.map(item => item.spareId === id ? { ...item, spareId: "" } : item);
       saveState(); render(); showToast("Peça excluída.");
     }
 
