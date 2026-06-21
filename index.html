@@ -3683,6 +3683,33 @@
       }
     }
 
+    async function saveOrderEventSupabase(order, action, extraData = {}) {
+      if (!SUPABASE_READY || !order?.id || !action) return true;
+      try {
+        await supabaseFetch("eventos_ordem_servico", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Prefer: "return=minimal" },
+          body: JSON.stringify({
+            id: uid("evento_os"),
+            ordem_servico_id: order.id,
+            acao: action,
+            usuario: state.profile?.name || "Administrador",
+            dados: {
+              numero: order.number || "",
+              status: order.status || "",
+              solicitante: order.requester || "",
+              executante: order.executor || "",
+              ...extraData
+            }
+          })
+        });
+        return true;
+      } catch (error) {
+        console.error(error);
+        return false;
+      }
+    }
+
     async function deleteSupabaseRow(table, id) {
       if (!SUPABASE_READY || !id || !isUuid(id)) return;
       try {
@@ -5654,6 +5681,9 @@
         state.orders = state.orders.filter(order => order.id !== payload.id).concat(payload);
         saveState();
         const remoteSaved = await saveOrderSupabaseNow(payload);
+        if (remoteSaved && !editing) {
+          await saveOrderEventSupabase(payload, "CRIADA", { data_abertura: new Date(payload.createdAt).toISOString() });
+        }
         closeModal();
         render();
         showToast(editing
@@ -5928,6 +5958,9 @@
       updatedOrder = byId(state.orders, id);
       saveState();
       const remoteSaved = await saveOrderSupabaseNow(updatedOrder);
+      if (remoteSaved) {
+        await saveOrderEventSupabase(updatedOrder, "INICIADA", { data_inicio: new Date(updatedOrder.startedAt).toISOString() });
+      }
       render();
       showToast(remoteSaved
         ? "O.S iniciada e salva no Supabase."
@@ -6045,6 +6078,9 @@
       });
       saveState();
       const remoteSaved = await saveOrderSupabaseNow(updatedOrder);
+      if (remoteSaved) {
+        await saveOrderEventSupabase(updatedOrder, "FINALIZADA", { data_finalizacao: new Date(updatedOrder.finishedAt).toISOString() });
+      }
       closeModal();
       render();
       showToast(remoteSaved
