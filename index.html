@@ -3160,7 +3160,7 @@
             <label>Cód. fornecedor <input class="field" id="spareSupplierCode" placeholder="Código no fornecedor"></label>
             <label>Unidade <input class="field" id="spareUnit" value="UN" placeholder="UN, KG, L"></label>
             <label>Localização <input class="field" id="sparePlace" placeholder="Rua, prateleira, gaveta"></label>
-            <label>Saldo atual <input class="field" id="spareBalance" type="number" step="0.01" value="0"></label>
+            <label>Saldo inicial/atual <input class="field" id="spareBalance" type="number" step="0.01" value="0" title="Na edição, o saldo é controlado pelas movimentações"></label>
             <label>Saldo mínimo <input class="field" id="spareMinimum" type="number" step="0.01" value="0"></label>
             <label class="full">Descrição <textarea class="field" id="spareDescription" placeholder="Aplicação, especificação ou observação técnica"></textarea></label>
             <div class="full toolbar"><button class="btn primary" type="submit">Salvar peça</button><button class="btn" type="button" id="resetSpareForm">Limpar formulário</button></div>
@@ -3179,7 +3179,7 @@
           <div class="panel-head"><div class="panel-title" id="stockMoveFormTitle">Criar movimentação de estoque</div></div>
           <form class="form" id="stockMoveForm">
             <input type="hidden" id="stockMoveId"><input type="hidden" id="stockMoveItemId">
-            <label>Tipo <select class="field" id="stockMoveType"><option>Entrada</option><option>Saída</option><option>Ajuste</option></select></label>
+            <label>Tipo <select class="field" id="stockMoveType"><option>Entrada</option><option>Saída</option><option value="Ajuste">Ajuste (+/-)</option></select></label>
             <label>Estoque <select class="field" id="stockMoveStock"></select></label>
             <label>Peça <select class="field" id="stockMoveSpare"></select></label>
             <label>Fornecedor <select class="field" id="stockMoveSupplier"></select></label>
@@ -5933,6 +5933,53 @@
       const item = byId(state.spareParts, id);
       return item ? `${item.code} - ${item.name}` : "Sem peça";
     }
+
+    function roundStockValue(value) {
+      return Math.round((Number(value) + Number.EPSILON) * 10000) / 10000;
+    }
+
+    function stockMoveBalanceEffect(item) {
+      if (!item?.spareId || !statusKey(item.status).startsWith("conclu")) return 0;
+      const quantity = Number(item.quantity || 0);
+      const type = statusKey(item.type);
+      if (type === "entrada") return Math.abs(quantity);
+      if (type === "saida") return -Math.abs(quantity);
+      if (type === "ajuste") return quantity;
+      return 0;
+    }
+
+    function materialRequestBalanceEffect(item) {
+      if (!item?.spareId || statusKey(item.status) !== "atendida") return 0;
+      return -Math.abs(Number(item.quantity || 0));
+    }
+
+    function applyStockBalanceChange(previousItem, nextItem, effectFn) {
+      const deltas = new Map();
+      if (previousItem?.spareId) {
+        deltas.set(previousItem.spareId, (deltas.get(previousItem.spareId) || 0) - effectFn(previousItem));
+      }
+      if (nextItem?.spareId) {
+        deltas.set(nextItem.spareId, (deltas.get(nextItem.spareId) || 0) + effectFn(nextItem));
+      }
+      for (const [spareId, delta] of deltas) {
+        const spare = byId(state.spareParts, spareId);
+        if (!spare) {
+          showToast("A peça da movimentação não foi encontrada.");
+          return false;
+        }
+        const nextBalance = roundStockValue(Number(spare.balance || 0) + delta);
+        if (nextBalance < 0) {
+          showToast(`Saldo insuficiente para ${spare.code} - ${spare.name}. Disponível: ${Number(spare.balance || 0)}.`);
+          return false;
+        }
+      }
+      state.spareParts = state.spareParts.map(spare => {
+        const delta = deltas.get(spare.id);
+        return delta == null ? spare : { ...spare, balance: roundStockValue(Number(spare.balance || 0) + delta) };
+      });
+      return true;
+    }
+
     function nextCode(list, prefix) {
       const next = list.reduce((max, item) => Math.max(max, orderNumberValue(item.number)), 0) + 1;
       return `${prefix}-${String(next).padStart(4, "0")}`;
@@ -6111,7 +6158,7 @@
 
     function resetSupplierForm() { $("supplierForm").reset(); $("supplierId").value = ""; $("supplierFormTitle").textContent = "Criar fornecedor"; }
     function resetStockForm() { $("stockForm").reset(); $("stockId").value = ""; $("stockFormTitle").textContent = "Criar estoque"; }
-    function resetSpareForm() { spareSupplierDraftId = ""; $("spareForm").reset(); $("spareId").value = ""; $("spareFormTitle").textContent = "Criar peça"; $("spareUnit").value = "UN"; }
+    function resetSpareForm() { spareSupplierDraftId = ""; $("spareForm").reset(); $("spareId").value = ""; $("spareFormTitle").textContent = "Criar peça"; $("spareUnit").value = "UN"; $("spareBalance").readOnly = false; }
 
     async function saveSingleSupabase(table, row) {
       if (!SUPABASE_READY) return true;
@@ -6176,6 +6223,7 @@
       $("spareUnit").value = item.unit || "UN";
       $("sparePlace").value = item.place || "";
       $("spareBalance").value = item.balance || 0;
+      $("spareBalance").readOnly = true;
       $("spareMinimum").value = item.minimum || 0;
       $("spareDescription").value = item.description || "";
       $("spareFormTitle").textContent = "Editar peça";
@@ -6215,8 +6263,13 @@
     }
     async function deleteStockMove(id) {
       if (!confirm("Excluir esta movimentação?")) return;
+      const existing = byId(state.inventoryMovements, id);
+      if (!existing || !applyStockBalanceChange(existing, null, stockMoveBalanceEffect)) return;
       await deleteSupabaseWhere("movimentacoes_estoque_itens", `movimentacao_id=eq.${encodeURIComponent(id)}`);
-      if (!await confirmRemoteDelete("movimentacoes_estoque", id, "movimentação")) return;
+      if (!await confirmRemoteDelete("movimentacoes_estoque", id, "movimentação")) {
+        applyStockBalanceChange(null, existing, stockMoveBalanceEffect);
+        return;
+      }
       state.inventoryMovements = state.inventoryMovements.filter(item => item.id !== id);
       saveState(); render(); showToast("Movimentação excluída.");
     }
@@ -6228,8 +6281,13 @@
     }
     async function deleteMaterialRequest(id) {
       if (!confirm("Excluir esta requisição?")) return;
+      const existing = byId(state.materialRequests, id);
+      if (!existing || !applyStockBalanceChange(existing, null, materialRequestBalanceEffect)) return;
       await deleteSupabaseWhere("requisicoes_materiais_itens", `requisicao_id=eq.${encodeURIComponent(id)}`);
-      if (!await confirmRemoteDelete("requisicoes_materiais", id, "requisição")) return;
+      if (!await confirmRemoteDelete("requisicoes_materiais", id, "requisição")) {
+        applyStockBalanceChange(null, existing, materialRequestBalanceEffect);
+        return;
+      }
       state.materialRequests = state.materialRequests.filter(item => item.id !== id);
       saveState(); render(); showToast("Requisição excluída.");
     }
@@ -7249,7 +7307,8 @@
         return;
       }
       const id = $("spareId").value || uid("spare");
-      const payload = { id, code: value("spareCode"), name: value("spareName"), supplierId, supplierCode: value("spareSupplierCode"), unit: value("spareUnit") || "UN", place: value("sparePlace"), balance: numberValue("spareBalance"), minimum: numberValue("spareMinimum"), description: value("spareDescription"), active: true };
+      const existingSpare = byId(state.spareParts, id);
+      const payload = { id, code: value("spareCode"), name: value("spareName"), supplierId, supplierCode: value("spareSupplierCode"), unit: value("spareUnit") || "UN", place: value("sparePlace"), balance: existingSpare ? Number(existingSpare.balance || 0) : numberValue("spareBalance"), minimum: numberValue("spareMinimum"), description: value("spareDescription"), active: true };
       state.spareParts = state.spareParts.filter(item => item.id !== id).concat(payload);
       saveState();
       const saved = await saveSingleSupabase("pecas", spareDbRow(payload));
@@ -7261,11 +7320,13 @@
       if (!$("stockMoveStock").value || !$("stockMoveSpare").value) { showToast("Selecione estoque e peça."); return; }
       const id = $("stockMoveId").value || uid("stock_move");
       const payload = { id, itemId: $("stockMoveItemId").value || uid("stock_move_item"), number: byId(state.inventoryMovements, id)?.number || nextCode(state.inventoryMovements, "MOV"), type: $("stockMoveType").value, stockId: $("stockMoveStock").value, spareId: $("stockMoveSpare").value, supplierId: $("stockMoveSupplier").value, quantity: numberValue("stockMoveQty", 1), unitValue: numberValue("stockMoveValue"), owner: value("stockMoveOwner"), status: $("stockMoveStatus").value, note: value("stockMoveNote") };
+      const existingMove = byId(state.inventoryMovements, id);
+      if (!applyStockBalanceChange(existingMove, payload, stockMoveBalanceEffect)) return;
       state.inventoryMovements = state.inventoryMovements.filter(item => item.id !== id).concat(payload);
       saveState();
       const saved = await saveSingleSupabase("movimentacoes_estoque", stockMoveDbRow(payload));
       if (saved) await saveSingleSupabase("movimentacoes_estoque_itens", stockMoveItemDbRow(payload));
-      resetStockMoveForm(); render(); showToast(saved ? "Movimentação salva no Supabase." : "Movimentação salva localmente. Sincronização pendente.");
+      resetStockMoveForm(); render(); showToast(saved ? "Movimentação salva e saldo atualizado." : "Movimentação e saldo com sincronização pendente.");
     });
 
     $("materialRequestForm").addEventListener("submit", async event => {
@@ -7273,11 +7334,13 @@
       if (!$("materialRequestStock").value || !$("materialRequestSpare").value) { showToast("Selecione estoque e peça."); return; }
       const id = $("materialRequestId").value || uid("material_request");
       const payload = { id, itemId: $("materialRequestItemId").value || uid("material_request_item"), number: byId(state.materialRequests, id)?.number || nextCode(state.materialRequests, "REQ"), stockId: $("materialRequestStock").value, orderId: $("materialRequestOrder").value, spareId: $("materialRequestSpare").value, quantity: numberValue("materialRequestQty", 1), requester: value("materialRequestRequester"), status: $("materialRequestStatus").value, note: value("materialRequestNote") };
+      const existingRequest = byId(state.materialRequests, id);
+      if (!applyStockBalanceChange(existingRequest, payload, materialRequestBalanceEffect)) return;
       state.materialRequests = state.materialRequests.filter(item => item.id !== id).concat(payload);
       saveState();
       const saved = await saveSingleSupabase("requisicoes_materiais", materialRequestDbRow(payload));
       if (saved) await saveSingleSupabase("requisicoes_materiais_itens", materialRequestItemDbRow(payload));
-      resetMaterialRequestForm(); render(); showToast(saved ? "Requisição salva no Supabase." : "Requisição salva localmente. Sincronização pendente.");
+      resetMaterialRequestForm(); render(); showToast(saved ? "Requisição salva e saldo atualizado." : "Requisição e saldo com sincronização pendente.");
     });
 
     $("stockTransferForm").addEventListener("submit", async event => {
@@ -7290,7 +7353,7 @@
       saveState();
       const saved = await saveSingleSupabase("transferencias_estoque", stockTransferDbRow(payload));
       if (saved) await saveSingleSupabase("transferencias_estoque_itens", stockTransferItemDbRow(payload));
-      resetStockTransferForm(); render(); showToast(saved ? "Transferência salva no Supabase." : "Transferência salva localmente. Sincronização pendente.");
+      resetStockTransferForm(); render(); showToast(saved ? "Transferência salva. O saldo total não muda." : "Transferência salva localmente. Sincronização pendente.");
     });
 
     $("assetForm").addEventListener("submit", event => {
