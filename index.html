@@ -3147,7 +3147,7 @@
           </form>
         </div>
         <div class="panel">
-          <div class="panel-head"><div class="panel-title">Estoques cadastrados</div><button class="btn" id="stockBalanceBtn" type="button">Saldo por estoque</button></div>
+          <div class="panel-head"><div class="panel-title">Estoques cadastrados</div><button class="btn" id="bulkInventoryBtn" type="button">Inventário em lote</button><button class="btn" id="stockBalanceBtn" type="button">Saldo por estoque</button></div>
           <div class="table-wrap"><table><thead><tr><th>Estoque</th><th>Localização</th><th>Responsável</th><th>Status</th><th>Ações</th></tr></thead><tbody id="stockRows"></tbody></table></div>
         </div>
       </div>
@@ -6277,6 +6277,64 @@
       showToast(saved ? "Ajuste registrado e saldo atualizado." : "Ajuste registrado localmente. Sincronização pendente.");
     }
 
+    function openBulkInventoryCount() {
+      if (!state.stockLocations.length) { showToast("Crie um estoque antes de fazer inventário."); return; }
+      if (!state.spareParts.length) { showToast("Cadastre peças antes de fazer inventário."); return; }
+      const stockOptions = state.stockLocations.map(item => `<option value="${item.id}">${escapeHtml(item.name)}</option>`).join("");
+      const rows = state.spareParts
+        .slice()
+        .sort((a, b) => String(a.code || a.name).localeCompare(String(b.code || b.name), "pt-BR"))
+        .map(item => `<tr><td>${escapeHtml(item.code || "-")}</td><td>${escapeHtml(item.name || "Peça")}</td><td>${Number(item.balance || 0)} ${escapeHtml(item.unit || "UN")}</td><td><input class="field" type="number" min="0" step="0.01" data-bulk-count="${item.id}" value="${Number(item.balance || 0)}"></td></tr>`)
+        .join("");
+      openModal("Inventário físico em lote", `
+        <div class="side-box"><strong>Contagem em lote</strong><span>Escolha o estoque contado e ajuste apenas os saldos diferentes. O sistema criará movimentações tipo Ajuste concluído.</span></div>
+        <div class="form"><label>Estoque contado <select class="field" id="bulkInventoryStockId">${stockOptions}</select></label></div>
+        <div class="table-wrap"><table><thead><tr><th>Código</th><th>Peça</th><th>Saldo atual</th><th>Saldo contado</th></tr></thead><tbody>${rows}</tbody></table></div>
+        <div class="toolbar"><button class="btn primary" type="button" onclick="confirmBulkInventoryCount()">Aplicar diferenças</button></div>
+      `, true);
+    }
+
+    function confirmBulkInventoryCount() {
+      const stockId = $("bulkInventoryStockId")?.value || state.stockLocations[0]?.id || "";
+      if (!stockId) { showToast("Selecione o estoque contado."); return; }
+      const inputs = Array.from(document.querySelectorAll("[data-bulk-count]"));
+      const nextNumber = state.inventoryMovements.reduce((max, item) => Math.max(max, orderNumberValue(item.number)), 0) + 1;
+      const payloads = [];
+      for (const input of inputs) {
+        const spare = byId(state.spareParts, input.dataset.bulkCount);
+        if (!spare) continue;
+        const counted = Number(input.value || 0);
+        if (Number.isNaN(counted) || counted < 0) { showToast(`Saldo contado inválido para ${spare.code} - ${spare.name}.`); return; }
+        const current = Number(spare.balance || 0);
+        const delta = roundStockValue(counted - current);
+        if (!delta) continue;
+        payloads.push({
+          id: uid("stock_adjust"),
+          itemId: uid("stock_adjust_item"),
+          number: `MOV-${String(nextNumber + payloads.length).padStart(4, "0")}`,
+          type: "Ajuste",
+          stockId,
+          spareId: spare.id,
+          supplierId: spare.supplierId || "",
+          quantity: delta,
+          unitValue: 0,
+          owner: state.profile?.name || "Inventário físico",
+          status: "Concluída",
+          createdAt: Date.now(),
+          note: `Inventário físico em lote. Saldo anterior: ${current}. Saldo contado: ${counted}. Diferença: ${delta}.`
+        });
+      }
+      if (!payloads.length) { showToast("Nenhuma diferença encontrada no inventário."); return; }
+      for (const payload of payloads) {
+        if (!applyStockBalanceChange(null, payload, stockMoveBalanceEffect)) return;
+      }
+      state.inventoryMovements = state.inventoryMovements.concat(payloads);
+      saveState();
+      closeModal();
+      render();
+      showToast(`${payloads.length} ajuste(s) de inventário gerado(s).`);
+    }
+
     function nextCode(list, prefix) {
       const next = list.reduce((max, item) => Math.max(max, orderNumberValue(item.number)), 0) + 1;
       return `${prefix}-${String(next).padStart(4, "0")}`;
@@ -7528,6 +7586,7 @@
     $("dashboardConfigBtn").addEventListener("click", openDashboardConfig);
     $("purchaseListBtn").addEventListener("click", openPurchaseList);
     $("stockBalanceBtn").addEventListener("click", openStockBalanceModal);
+    $("bulkInventoryBtn").addEventListener("click", openBulkInventoryCount);
     $("openTvPanelBtn").addEventListener("click", openOsPanelWindow);
     $("createOrderBtn").addEventListener("click", () => openOrderModal());
     $("createChecklistBtn").addEventListener("click", () => openChecklistModal());
