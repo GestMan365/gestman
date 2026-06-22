@@ -3018,6 +3018,7 @@
             <div class="metric"><span>O.S abertas</span><strong id="openOsMetric">0</strong><small>Chamados aguardando</small></div>
             <div class="metric"><span>O.S em execução</span><strong id="runningOsMetric">0</strong><small>Atendimento ativo</small></div>
             <div class="metric"><span>Paradas ativas</span><strong id="stoppedMetric">0</strong><small>Equipamentos parados</small></div>
+            <div class="metric"><span>Peças abaixo mínimo</span><strong id="lowStockMetric">0</strong><small>Reposição necessária</small></div>
           </div>
         </div>
         <div class="panel dashboard-widget" data-dashboard-widget="trend">
@@ -3043,6 +3044,10 @@
         <div class="panel dashboard-widget" data-dashboard-widget="executors">
           <div class="panel-head"><div class="panel-title">EXECUTANTES POR ORDENS ATENDIDAS</div><div class="dashboard-controls" data-dashboard-controls="executors"></div></div>
           <div class="table-wrap"><table><thead><tr><th>EXECUTANTE</th><th>ORDENS</th><th>TEMPO HOJE</th><th>TOTAL MES</th></tr></thead><tbody id="dashboardExecutorRows"></tbody></table></div>
+        </div>
+        <div class="panel dashboard-widget" data-dashboard-widget="stockAlerts">
+          <div class="panel-head"><div class="panel-title">PEÇAS PARA REPOSIÇÃO</div><div class="dashboard-controls" data-dashboard-controls="stockAlerts"></div><button class="btn" data-view-button="spares">Ver peças</button></div>
+          <div class="table-wrap"><table><thead><tr><th>Peça</th><th>Saldo</th><th>Mínimo</th><th>Comprar</th><th>Situação</th></tr></thead><tbody id="dashboardLowStockRows"></tbody></table></div>
         </div>
       </div>
     </section>
@@ -3168,7 +3173,7 @@
         </div>
         <div class="panel">
           <div class="panel-head"><div class="panel-title">Peças cadastradas</div></div>
-          <div class="table-wrap"><table><thead><tr><th>Código</th><th>Peça</th><th>Fornecedor</th><th>Saldo</th><th>Mínimo</th><th>Ações</th></tr></thead><tbody id="spareRows"></tbody></table></div>
+          <div class="table-wrap"><table><thead><tr><th>Código</th><th>Peça</th><th>Fornecedor</th><th>Saldo</th><th>Mínimo</th><th>Situação</th><th>Ações</th></tr></thead><tbody id="spareRows"></tbody></table></div>
         </div>
       </div>
     </section>
@@ -4798,8 +4803,8 @@
     }
 
     function tagClass(value) {
-      if (value === "Alta" || value === "Em manutenção" || value === "Aberta") return "danger";
-      if (value === "Média" || value === "Inspeção" || value === "Planejada") return "warn";
+      if (value === "Alta" || value === "Em manutenção" || value === "Aberta" || value === "Crítico") return "danger";
+      if (value === "Média" || value === "Inspeção" || value === "Planejada" || value === "Abaixo mínimo" || value === "No mínimo") return "warn";
       return "ok";
     }
 
@@ -4989,6 +4994,23 @@
         .join("");
     }
 
+    function stockAlertStatus(item) {
+      const balance = Number(item.balance || 0);
+      const minimum = Number(item.minimum || 0);
+      if (minimum <= 0) return { label: "Sem mínimo", shortage: 0 };
+      if (balance <= 0) return { label: "Crítico", shortage: roundStockValue(minimum - balance) };
+      if (balance < minimum) return { label: "Abaixo mínimo", shortage: roundStockValue(minimum - balance) };
+      if (balance === minimum) return { label: "No mínimo", shortage: 0 };
+      return { label: "OK", shortage: 0 };
+    }
+
+    function lowStockItems() {
+      return state.spareParts
+        .map(item => ({ ...item, stockAlert: stockAlertStatus(item) }))
+        .filter(item => item.stockAlert.shortage > 0)
+        .sort((a, b) => b.stockAlert.shortage - a.stockAlert.shortage);
+    }
+
     function calcMetrics() {
       const completed = state.orders.filter(order => isClosedOrder(order.status));
       const active = state.orders.filter(order => !isClosedOrder(order.status));
@@ -5014,6 +5036,7 @@
       if ($("openOsMetric")) $("openOsMetric").textContent = counts.abertas;
       if ($("runningOsMetric")) $("runningOsMetric").textContent = counts.execucao;
       if ($("stoppedMetric")) $("stoppedMetric").textContent = state.orders.filter(order => !isClosedOrder(order.status) && order.machineStopped).length;
+      if ($("lowStockMetric")) $("lowStockMetric").textContent = lowStockItems().length;
       applyDashboardLayout();
       renderTrendChart();
       renderStatusBars();
@@ -5021,6 +5044,7 @@
       renderActiveOrdersPanel("dashboardActiveOrders", 4);
       renderDashboardStops();
       renderDashboardExecutors();
+      renderDashboardLowStock();
     }
 
     const dashboardWidgetDefaults = [
@@ -5030,7 +5054,8 @@
       { id: "criticality", label: "Criticidade do parque" },
       { id: "activeOrders", label: "O.S abertas e em execução" },
       { id: "stops", label: "TOP 10 paradas de equipamento" },
-      { id: "executors", label: "Executantes por ordens atendidas" }
+      { id: "executors", label: "Executantes por ordens atendidas" },
+      { id: "stockAlerts", label: "Peças para reposição" }
     ];
 
     function loadDashboardLayout() {
@@ -5238,7 +5263,8 @@
         ["MTBF MEDIO", `${metrics.mtbf.toFixed(0)}H`],
         ["DISPONIBILIDADE", `${metrics.availability.toFixed(1)}%`],
         ["REGIOES", state.regions.length],
-        ["LOCAIS DE INSTALACAO", state.locations.length]
+        ["LOCAIS DE INSTALACAO", state.locations.length],
+        ["PECAS ABAIXO MINIMO", lowStockItems().length]
       ].map(item => `<div class="report-card"><span>${item[0]}</span><strong>${item[1]}</strong></div>`).join("");
     }
 
@@ -5501,6 +5527,13 @@
       target.innerHTML = rows.map(item => `<tr><td data-label="Executante">${escapeHtml(item.name)}</td><td data-label="Ordens">${item.total}</td><td data-label="Tempo hoje">${item.todayHours.toFixed(1)}H</td><td data-label="Total mês">${item.monthHours.toFixed(1)}H</td></tr>`).join("") || `<tr><td colspan="4" class="empty">Nenhum executante registrado.</td></tr>`;
     }
 
+    function renderDashboardLowStock() {
+      const target = $("dashboardLowStockRows");
+      if (!target) return;
+      const rows = lowStockItems().slice(0, 12);
+      target.innerHTML = rows.map(item => `<tr><td data-label="Peça">${escapeHtml(item.code)} - ${escapeHtml(item.name)}</td><td data-label="Saldo">${Number(item.balance || 0)} ${escapeHtml(item.unit || "UN")}</td><td data-label="Mínimo">${Number(item.minimum || 0)} ${escapeHtml(item.unit || "UN")}</td><td data-label="Comprar">${item.stockAlert.shortage} ${escapeHtml(item.unit || "UN")}</td><td data-label="Situação">${tag(item.stockAlert.label)}</td></tr>`).join("") || `<tr><td colspan="5" class="empty">Nenhuma peça abaixo do mínimo.</td></tr>`;
+    }
+
     function renderAssistantSummary() {
       renderReportCards("aiSystemSummary");
     }
@@ -5522,11 +5555,15 @@
         return names.length ? names.map(name => `${name}: ${state.orders.filter(order => (order.executor || "SEM EXECUTANTE") === name).length} O.S`).join("\n") : "NENHUM EXECUTANTE REGISTRADO.";
       }
       if (q.includes("critic") || q.includes("alta")) return critical.length ? critical.map(asset => `${asset.code} - ${asset.name} | REGIAO/LOCAL: ${locationName(asset.locationId)}`).join("\n") : "NAO HA EQUIPAMENTOS DE ALTA CRITICIDADE CADASTRADOS.";
+      if (q.includes("estoque") || q.includes("peca") || q.includes("minimo") || q.includes("reposicao") || q.includes("compr")) {
+        const low = lowStockItems();
+        return low.length ? low.map(item => `${item.code} - ${item.name} | SALDO: ${Number(item.balance || 0)} ${item.unit || "UN"} | MINIMO: ${Number(item.minimum || 0)} | COMPRAR: ${item.stockAlert.shortage} ${item.unit || "UN"}`).join("\n") : "NAO HA PECAS ABAIXO DO MINIMO.";
+      }
       if (q.includes("regiao")) return state.regions.length ? state.regions.map(region => `${region.name}: ${state.locations.filter(location => location.regionId === region.id).length} LOCAIS DE INSTALACAO`).join("\n") : "NENHUMA REGIAO CADASTRADA.";
       if (q.includes("local") || q.includes("linha") || q.includes("fase")) return state.locations.length ? state.locations.map(location => `${regionName(location.regionId)} / ${location.name}: ${state.assets.filter(asset => asset.locationId === location.id).length} EQUIPAMENTOS`).join("\n") : "NENHUM LOCAL DE INSTALACAO CADASTRADO.";
       if (q.includes("equipamento") || q.includes("equip")) return state.assets.length ? state.assets.map(asset => `${asset.code} - ${asset.name} | ${locationName(asset.locationId)} | ${asset.status}`).join("\n") : "NENHUMA EQUIPAMENTO CADASTRADA.";
-      if (q.includes("resumo") || q.includes("geral")) return `RESUMO DO SISTEMA:\nO.S TOTAL: ${counts.total}\nABERTAS: ${counts.abertas}\nEM EXECUCAO: ${counts.execucao}\nCONCLUIDAS: ${counts.concluidas}\nEQUIPAMENTOS: ${state.assets.length}\nREGIOES: ${state.regions.length}\nLOCAIS DE INSTALACAO: ${state.locations.length}`;
-      return `TENHO DADOS DO SISTEMA SOBRE ${state.assets.length} EQUIPAMENTOS, ${state.regions.length} REGIOES, ${state.locations.length} LOCAIS DE INSTALACAO E ${state.orders.length} ORDENS DE SERVICO. PERGUNTE POR O.S ABERTAS, EM EXECUCAO, EXECUTANTE, MTTR, MTBF, DISPONIBILIDADE, REGIAO, LOCAL OU EQUIPAMENTO.`;
+      if (q.includes("resumo") || q.includes("geral")) return `RESUMO DO SISTEMA:\nO.S TOTAL: ${counts.total}\nABERTAS: ${counts.abertas}\nEM EXECUCAO: ${counts.execucao}\nCONCLUIDAS: ${counts.concluidas}\nEQUIPAMENTOS: ${state.assets.length}\nREGIOES: ${state.regions.length}\nLOCAIS DE INSTALACAO: ${state.locations.length}\nPECAS ABAIXO DO MINIMO: ${lowStockItems().length}`;
+      return `TENHO DADOS DO SISTEMA SOBRE ${state.assets.length} EQUIPAMENTOS, ${state.regions.length} REGIOES, ${state.locations.length} LOCAIS DE INSTALACAO, ${state.orders.length} ORDENS DE SERVICO E ${lowStockItems().length} PECAS ABAIXO DO MINIMO. PERGUNTE POR O.S ABERTAS, EM EXECUCAO, EXECUTANTE, ESTOQUE MINIMO, MTTR, MTBF, DISPONIBILIDADE, REGIAO, LOCAL OU EQUIPAMENTO.`;
     }
 
     function statusKey(status = "") {
@@ -6001,9 +6038,10 @@
         <tr><td>${item.name}</td><td>${item.place || "-"}</td><td>${item.owner || "-"}</td><td>${tag(item.active === false ? "Inativo" : "Ativo")}</td><td class="actions"><button class="btn" onclick="editStock('${item.id}')">Editar</button><button class="btn danger" onclick="deleteStock('${item.id}')">Excluir</button></td></tr>
       `).join("") || `<tr><td colspan="5" class="empty">Nenhum estoque criado.</td></tr>`;
 
-      $("spareRows").innerHTML = state.spareParts.filter(item => filter(`${item.code} ${item.name} ${supplierName(item.supplierId)}`)).map(item => `
-        <tr><td>${item.code}</td><td>${item.name}</td><td>${supplierName(item.supplierId)}</td><td>${Number(item.balance || 0)} ${item.unit || "UN"}</td><td>${Number(item.minimum || 0)} ${item.unit || "UN"}</td><td class="actions"><button class="btn" onclick="editSpare('${item.id}')">Editar</button><button class="btn danger" onclick="deleteSpare('${item.id}')">Excluir</button></td></tr>
-      `).join("") || `<tr><td colspan="6" class="empty">Nenhuma peça criada.</td></tr>`;
+      $("spareRows").innerHTML = state.spareParts.filter(item => filter(`${item.code} ${item.name} ${supplierName(item.supplierId)}`)).map(item => {
+        const stockAlert = stockAlertStatus(item);
+        return `<tr><td>${item.code}</td><td>${item.name}</td><td>${supplierName(item.supplierId)}</td><td>${Number(item.balance || 0)} ${item.unit || "UN"}</td><td>${Number(item.minimum || 0)} ${item.unit || "UN"}</td><td>${tag(stockAlert.label)}</td><td class="actions"><button class="btn" onclick="editSpare('${item.id}')">Editar</button><button class="btn danger" onclick="deleteSpare('${item.id}')">Excluir</button></td></tr>`;
+      }).join("") || `<tr><td colspan="7" class="empty">Nenhuma peça criada.</td></tr>`;
 
       $("stockMoveRows").innerHTML = state.inventoryMovements.filter(item => filter(`${item.number} ${item.type} ${stockName(item.stockId)} ${spareName(item.spareId)}`)).map(item => `
         <tr><td>${item.number || "-"}</td><td>${item.type}</td><td>${stockName(item.stockId)}</td><td>${spareName(item.spareId)}</td><td>${Number(item.quantity || 0)}</td><td>${tag(item.status)}</td><td class="actions"><button class="btn" onclick="editStockMove('${item.id}')">Editar</button><button class="btn danger" onclick="deleteStockMove('${item.id}')">Excluir</button></td></tr>
@@ -7443,6 +7481,7 @@
       renderCalendar();
       renderDashboardStops();
       renderDashboardExecutors();
+      renderDashboardLowStock();
       renderReports();
       renderAssistantSummary();
     }, UI_REFRESH_INTERVAL_MS);
