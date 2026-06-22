@@ -3449,6 +3449,7 @@
     const STORAGE_KEY = "gestman365-admin-v2";
     const PROFILE_STORAGE_KEY = "gestman365-profile-v1";
     const PENDING_SYNC_KEY = "gestman365-pending-sync-v1";
+    const PENDING_UPSERTS_KEY = "gestman365-pending-upserts-v2";
     const DELETED_RECORDS_KEY = "gestman365-deleted-records-v1";
     const THEME_KEY = "gestman365-theme";
     const DASHBOARD_LAYOUT_KEY = "gestman365-dashboard-layout-v1";
@@ -3489,12 +3490,13 @@
     let pendingMove = null;
     let isLoadingRemote = false;
     let taxonomySupabaseAvailable = false;
-    let hasPendingLocalSync = localStorage.getItem(PENDING_SYNC_KEY) === "1";
-    let hasSessionLocalChange = false;
+    let pendingUpserts = loadPendingUpserts();
+    let syncBaseline = {};
+    let hasPendingLocalSync = localStorage.getItem(PENDING_SYNC_KEY) === "1" || hasPendingUpserts();
+    let hasSessionLocalChange = hasPendingUpserts();
     let deletedRecords = loadDeletedRecords();
     let syncTimer = null;
     let spareSupplierDraftId = "";
-    const changedSpareIds = new Set();
     if (localStorage.getItem(THEME_DEFAULT_KEY) !== "1") {
       localStorage.setItem(THEME_KEY, "light");
       localStorage.setItem(THEME_DEFAULT_KEY, "1");
@@ -3529,6 +3531,99 @@
       }
     }
 
+    function loadPendingUpserts() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(PENDING_UPSERTS_KEY) || "{}");
+        return parsed && typeof parsed === "object" ? parsed : {};
+      } catch {
+        return {};
+      }
+    }
+
+    function hasPendingUpserts() {
+      return Object.values(pendingUpserts || {}).some(rows => rows && Object.keys(rows).length);
+    }
+
+    function savePendingUpserts() {
+      Object.keys(pendingUpserts).forEach(table => {
+        if (!pendingUpserts[table] || !Object.keys(pendingUpserts[table]).length) delete pendingUpserts[table];
+      });
+      if (hasPendingUpserts()) localStorage.setItem(PENDING_UPSERTS_KEY, JSON.stringify(pendingUpserts));
+      else localStorage.removeItem(PENDING_UPSERTS_KEY);
+    }
+
+    function pendingRowKey(table, row, index = 0) {
+      if (row?.id) return String(row.id);
+      if (table === "perfis") return String(row?.tipo || row?.email || "admin");
+      return `row-${index}`;
+    }
+
+    function createPayloadSnapshot(payload = {}) {
+      const snapshot = {};
+      Object.entries(payload).forEach(([table, rows]) => {
+        if (!Array.isArray(rows)) return;
+        snapshot[table] = {};
+        rows.forEach((row, index) => {
+          snapshot[table][pendingRowKey(table, row, index)] = JSON.stringify(row);
+        });
+      });
+      return snapshot;
+    }
+
+    function captureSyncBaseline(payload = dbPayload()) {
+      syncBaseline = createPayloadSnapshot(payload);
+    }
+
+    function queueChangedRowsFromState() {
+      const payload = dbPayload();
+      let queued = 0;
+      Object.entries(payload).forEach(([table, rows]) => {
+        if (!Array.isArray(rows)) return;
+        rows.forEach((row, index) => {
+          const key = pendingRowKey(table, row, index);
+          if (row?.id && wasDeleted(table, row.id)) return;
+          const serialized = JSON.stringify(row);
+          if (syncBaseline?.[table]?.[key] === serialized) return;
+          pendingUpserts[table] = pendingUpserts[table] || {};
+          pendingUpserts[table][key] = row;
+          queued += 1;
+        });
+      });
+      savePendingUpserts();
+      return queued;
+    }
+
+    function removePendingUpsert(table, id) {
+      const key = String(id || "");
+      if (!key || !pendingUpserts?.[table]) return;
+      delete pendingUpserts[table][key];
+      savePendingUpserts();
+    }
+
+    function removePendingUpsertsWhere(table, predicate) {
+      if (!pendingUpserts?.[table]) return;
+      Object.entries(pendingUpserts[table]).forEach(([key, row]) => {
+        if (predicate(row)) delete pendingUpserts[table][key];
+      });
+      savePendingUpserts();
+    }
+
+    function removeBaselineRow(table, id) {
+      const key = String(id || "");
+      if (key && syncBaseline?.[table]) delete syncBaseline[table][key];
+    }
+
+    function acknowledgePendingUpsert(table, row, index = 0) {
+      const key = pendingRowKey(table, row, index);
+      const serialized = JSON.stringify(row);
+      if (JSON.stringify(pendingUpserts?.[table]?.[key]) === serialized) {
+        delete pendingUpserts[table][key];
+      }
+      syncBaseline[table] = syncBaseline[table] || {};
+      syncBaseline[table][key] = serialized;
+      savePendingUpserts();
+    }
+
     function saveDeletedRecords() {
       localStorage.setItem(DELETED_RECORDS_KEY, JSON.stringify(deletedRecords));
     }
@@ -3537,10 +3632,28 @@
       if (!table || !id) return;
       deletedRecords[table] = deletedRecords[table] || {};
       deletedRecords[table][id] = { at: Date.now(), confirmed: false };
+      removePendingUpsert(table, id);
       saveDeletedRecords();
       hasPendingLocalSync = true;
       hasSessionLocalChange = true;
       localStorage.setItem(PENDING_SYNC_KEY, "1");
+    }
+
+    function forgetDeletedRecord(table, id) {
+      if (!table || !id || !deletedRecords?.[table]) return;
+      delete deletedRecords[table][id];
+      if (!Object.keys(deletedRecords[table]).length) delete deletedRecords[table];
+      saveDeletedRecords();
+    }
+
+    async function confirmRemoteDelete(table, id, label = "registro") {
+      const deleted = await deleteSupabaseRow(table, id, { silent: true });
+      if (!deleted) {
+        forgetDeletedRecord(table, id);
+        showToast(`Nao consegui confirmar a exclusao de ${label} no Supabase.`);
+        return false;
+      }
+      return true;
     }
 
     function wasDeleted(table, id) {
@@ -3570,6 +3683,8 @@
           }
           const confirmed = await performConfirmedDelete(table, id);
           if (!confirmed) throw new Error("Exclusao nao confirmada pelo Supabase.");
+          removePendingUpsert(table, id);
+          removeBaselineRow(table, id);
           deletedRecords[table][id] = { ...(deletedRecords[table][id] || {}), confirmed: true };
         } catch (error) {
           console.error(`Falha ao confirmar exclusao em ${table}:`, error);
@@ -3646,7 +3761,7 @@
       data.subtags = subtagDedupe.items;
       data.assets = data.assets.map(asset => ({ ...asset, subtagId: remapId(asset.subtagId, subtagDedupe.idMap) }));
 
-      const supplierDedupe = dedupeByLogicalKey(data.suppliers, item => normalizeTextKey(item.cnpj || item.legalName || item.tradeName));
+      const supplierDedupe = dedupeByLogicalKey(data.suppliers, item => item.id);
       data.suppliers = supplierDedupe.items;
       data.spareParts = data.spareParts.map(spare => ({ ...spare, supplierId: remapId(spare.supplierId, supplierDedupe.idMap) }));
       data.inventoryMovements = data.inventoryMovements.map(move => ({ ...move, supplierId: remapId(move.supplierId, supplierDedupe.idMap) }));
@@ -3721,10 +3836,15 @@
     function saveState() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(state.profile || {}));
-      hasPendingLocalSync = true;
-      hasSessionLocalChange = true;
-      localStorage.setItem(PENDING_SYNC_KEY, "1");
-      scheduleSupabaseSync();
+      queueChangedRowsFromState();
+      hasPendingLocalSync = hasPendingUpserts() || Boolean(pendingDeletedEntries().length);
+      hasSessionLocalChange = hasPendingLocalSync;
+      if (hasPendingLocalSync) {
+        localStorage.setItem(PENDING_SYNC_KEY, "1");
+        scheduleSupabaseSync();
+      } else {
+        localStorage.removeItem(PENDING_SYNC_KEY);
+      }
     }
 
     function uid(prefix) {
@@ -3959,7 +4079,7 @@
     }
 
     function stockMoveItemDbRow(item) {
-      return { id: item.itemId || uid("stock_move_item"), movimentacao_id: item.id, peca_id: item.spareId || null, quantidade: Number(item.quantity || 0), valor_unitario: Number(item.unitValue || 0), observacao: item.note || null };
+      return { id: item.itemId || item.id, movimentacao_id: item.id, peca_id: item.spareId || null, quantidade: Number(item.quantity || 0), valor_unitario: Number(item.unitValue || 0), observacao: item.note || null };
     }
 
     function materialRequestDbRow(item) {
@@ -3967,7 +4087,7 @@
     }
 
     function materialRequestItemDbRow(item) {
-      return { id: item.itemId || uid("request_item"), requisicao_id: item.id, peca_id: item.spareId || null, quantidade: Number(item.quantity || 0), observacao: item.note || null };
+      return { id: item.itemId || item.id, requisicao_id: item.id, peca_id: item.spareId || null, quantidade: Number(item.quantity || 0), observacao: item.note || null };
     }
 
     function stockTransferDbRow(item) {
@@ -3975,7 +4095,7 @@
     }
 
     function stockTransferItemDbRow(item) {
-      return { id: item.itemId || uid("transfer_item"), transferencia_id: item.id, peca_id: item.spareId || null, quantidade: Number(item.quantity || 0) };
+      return { id: item.itemId || item.id, transferencia_id: item.id, peca_id: item.spareId || null, quantidade: Number(item.quantity || 0) };
     }
 
     function dbPayload() {
@@ -4170,7 +4290,9 @@
     async function saveOrderSupabaseNow(order) {
       if (!SUPABASE_READY || !order?.id) return true;
       try {
-        await upsertSupabaseRows("ordens_servico", [orderDbRow(order)]);
+        const row = orderDbRow(order);
+        await upsertSupabaseRows("ordens_servico", [row]);
+        acknowledgePendingUpsert("ordens_servico", row);
         return true;
       } catch (error) {
         console.error(error);
@@ -4211,6 +4333,8 @@
       try {
         const confirmed = await performConfirmedDelete(table, id);
         if (!confirmed) throw new Error("Exclusao nao confirmada pelo Supabase.");
+        removePendingUpsert(table, id);
+        removeBaselineRow(table, id);
         if (deletedRecords?.[table]?.[id]) {
           deletedRecords[table][id] = { ...(deletedRecords[table][id] || {}), confirmed: true };
           saveDeletedRecords();
@@ -4482,6 +4606,9 @@
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(state.profile || {}));
         shouldPushLocal = shouldPreferLocal;
+        if (!shouldPreferLocal && failures.length === 0 && !hasPendingUpserts() && !pendingDeletedEntries().length) {
+          captureSyncBaseline();
+        }
         render();
         if (showMessage) {
           showToast(failures.length
@@ -4506,49 +4633,50 @@
       }
     }
 
-    async function syncSupabaseNow(showMessage = true) {
-      if (!SUPABASE_READY || isLoadingRemote) return false;
-      try {
-        const payload = dbPayload();
-        const deleteErrors = await syncDeletedRecords();
-        if (!hasBusinessData(state) && !pendingDeletedEntries().length && !showMessage) return deleteErrors.length === 0;
-        const taxonomyPending = !taxonomySupabaseAvailable && hasLocalMobileSyncData(state);
-        const tables = taxonomySupabaseAvailable
-          ? SUPABASE_TABLES_UPSERT_ORDER
-          : SUPABASE_TABLES_UPSERT_ORDER.filter(table => table !== "tags" && table !== "subtags");
-        const errors = [];
-        for (const table of tables) {
-          const tableRows = payload[table] || [];
-          const rows = table === "pecas"
-            ? tableRows.filter(row => changedSpareIds.has(row.id))
-            : tableRows;
-          try {
-            await upsertSupabaseRows(table, rows);
-            if (table === "pecas") rows.forEach(row => changedSpareIds.delete(row.id));
-          } catch (error) {
-            console.error(`Falha ao salvar ${table}:`, error);
-            errors.push({ table, error });
-          }
-        }
-        if (payload.perfis?.length) {
-          try {
+    function pendingTablesInOrder() {
+      const preferred = ["perfis"].concat(SUPABASE_TABLES_INSERT_ORDER.filter(table => table !== "perfis"));
+      return preferred.concat(Object.keys(pendingUpserts).filter(table => !preferred.includes(table)));
+    }
+
+    async function syncPendingUpserts() {
+      const errors = [];
+      for (const table of pendingTablesInOrder()) {
+        const rowsByKey = pendingUpserts?.[table];
+        const entries = rowsByKey ? Object.entries(rowsByKey) : [];
+        if (!entries.length) continue;
+        const rows = entries.map(([, row]) => row);
+        try {
+          if (table === "perfis") {
             await supabaseFetch("perfis?tipo=eq.admin", { method: "DELETE", headers: { Prefer: "return=minimal" } });
             await supabaseFetch("perfis", {
               method: "POST",
               headers: { "Content-Type": "application/json", Prefer: "return=minimal" },
-              body: JSON.stringify(payload.perfis)
+              body: JSON.stringify(rows)
             });
-          } catch (error) {
-            console.error("Falha ao salvar perfil:", error);
-            errors.push({ table: "perfis", error });
+          } else {
+            await upsertSupabaseRows(table, rows);
           }
+          rows.forEach((row, index) => acknowledgePendingUpsert(table, row, index));
+        } catch (error) {
+          console.error(`Falha ao salvar pendencias de ${table}:`, error);
+          errors.push({ table, error });
         }
-        if (errors.length || deleteErrors.length || taxonomyPending) {
+      }
+      savePendingUpserts();
+      return errors;
+    }
+
+    async function syncSupabaseNow(showMessage = true) {
+      if (!SUPABASE_READY || isLoadingRemote) return false;
+      try {
+        const deleteErrors = await syncDeletedRecords();
+        const upsertErrors = await syncPendingUpserts();
+        const stillPending = hasPendingUpserts() || Boolean(pendingDeletedEntries().length);
+        if (upsertErrors.length || deleteErrors.length || stillPending) {
           hasPendingLocalSync = true;
+          hasSessionLocalChange = true;
           localStorage.setItem(PENDING_SYNC_KEY, "1");
-          if (showMessage) showToast(taxonomyPending
-            ? "Dados principais salvos. Execute o Passo 20 para sincronizar tags e subtags."
-            : `Sincronização parcial: ${errors.length + deleteErrors.length} operação(ões) apresentaram erro.`);
+          if (showMessage) showToast(`Sincronização parcial: ${upsertErrors.length + deleteErrors.length} operação(ões) apresentaram erro.`);
           return false;
         }
         hasPendingLocalSync = false;
@@ -5989,7 +6117,7 @@
       if (!SUPABASE_READY) return true;
       try {
         await upsertSupabaseRows(table, [row]);
-        if (table === "pecas" && row?.id) changedSpareIds.delete(row.id);
+        acknowledgePendingUpsert(table, row);
         return true;
       } catch (error) {
         console.error(error);
@@ -6011,10 +6139,9 @@
       setView("suppliers");
     }
 
-    function deleteSupplier(id) {
+    async function deleteSupplier(id) {
       if (!confirm("Excluir este fornecedor?")) return;
-      deleteSupabaseRow("fornecedores", id);
-      state.spareParts.filter(item => item.supplierId === id).forEach(item => changedSpareIds.add(item.id));
+      if (!await confirmRemoteDelete("fornecedores", id, "fornecedor")) return;
       state.suppliers = state.suppliers.filter(item => item.id !== id);
       state.spareParts = state.spareParts.map(item => item.supplierId === id ? { ...item, supplierId: "" } : item);
       saveState(); render(); showToast("Fornecedor excluído.");
@@ -6031,9 +6158,9 @@
       setView("stock");
     }
 
-    function deleteStock(id) {
+    async function deleteStock(id) {
       if (!confirm("Excluir este estoque?")) return;
-      deleteSupabaseRow("estoques", id);
+      if (!await confirmRemoteDelete("estoques", id, "estoque")) return;
       state.stockLocations = state.stockLocations.filter(item => item.id !== id);
       saveState(); render(); showToast("Estoque excluído.");
     }
@@ -6058,14 +6185,18 @@
     async function deleteSpare(id) {
       if (!confirm("Excluir esta peça?")) return;
       rememberDeletedRecord("pecas", id);
+      removePendingUpsertsWhere("movimentacoes_estoque_itens", row => row?.peca_id === id);
+      removePendingUpsertsWhere("requisicoes_materiais_itens", row => row?.peca_id === id);
+      removePendingUpsertsWhere("transferencias_estoque_itens", row => row?.peca_id === id);
       const dependenciesDeleted = await deleteSpareDependenciesSupabase(id);
       const remoteDeleted = dependenciesDeleted
         && await deleteSupabaseRow("pecas", id, { remember: false, silent: true });
       if (!remoteDeleted) {
-        showToast("Exclusao pendente: nao foi confirmada no Supabase.");
+        forgetDeletedRecord("pecas", id);
+        showToast("Nao consegui confirmar a exclusao da peça no Supabase.");
         return;
       }
-      changedSpareIds.delete(id);
+      removePendingUpsert("pecas", id);
       state.spareParts = state.spareParts.filter(item => item.id !== id);
       state.inventoryMovements = state.inventoryMovements.map(item => item.spareId === id ? { ...item, spareId: "" } : item);
       state.materialRequests = state.materialRequests.map(item => item.spareId === id ? { ...item, spareId: "" } : item);
@@ -6082,21 +6213,39 @@
       $("stockMoveId").value = item.id; $("stockMoveItemId").value = item.itemId || ""; $("stockMoveType").value = item.type || "Entrada"; $("stockMoveStock").value = item.stockId || ""; $("stockMoveSpare").value = item.spareId || ""; $("stockMoveSupplier").value = item.supplierId || ""; $("stockMoveQty").value = item.quantity || 1; $("stockMoveValue").value = item.unitValue || 0; $("stockMoveOwner").value = item.owner || ""; $("stockMoveStatus").value = item.status || "Aberta"; $("stockMoveNote").value = item.note || "";
       $("stockMoveFormTitle").textContent = "Editar movimentação de estoque"; setView("stockMoves");
     }
-    function deleteStockMove(id) { if (!confirm("Excluir esta movimentação?")) return; deleteSupabaseRow("movimentacoes_estoque", id); state.inventoryMovements = state.inventoryMovements.filter(item => item.id !== id); saveState(); render(); showToast("Movimentação excluída."); }
+    async function deleteStockMove(id) {
+      if (!confirm("Excluir esta movimentação?")) return;
+      await deleteSupabaseWhere("movimentacoes_estoque_itens", `movimentacao_id=eq.${encodeURIComponent(id)}`);
+      if (!await confirmRemoteDelete("movimentacoes_estoque", id, "movimentação")) return;
+      state.inventoryMovements = state.inventoryMovements.filter(item => item.id !== id);
+      saveState(); render(); showToast("Movimentação excluída.");
+    }
 
     function editMaterialRequest(id) {
       const item = byId(state.materialRequests, id); if (!item) return;
       $("materialRequestId").value = item.id; $("materialRequestItemId").value = item.itemId || ""; $("materialRequestStock").value = item.stockId || ""; $("materialRequestOrder").value = item.orderId || ""; $("materialRequestSpare").value = item.spareId || ""; $("materialRequestQty").value = item.quantity || 1; $("materialRequestRequester").value = item.requester || ""; $("materialRequestStatus").value = item.status || "Aberta"; $("materialRequestNote").value = item.note || "";
       $("materialRequestFormTitle").textContent = "Editar requisição de material"; setView("materialRequests");
     }
-    function deleteMaterialRequest(id) { if (!confirm("Excluir esta requisição?")) return; deleteSupabaseRow("requisicoes_materiais", id); state.materialRequests = state.materialRequests.filter(item => item.id !== id); saveState(); render(); showToast("Requisição excluída."); }
+    async function deleteMaterialRequest(id) {
+      if (!confirm("Excluir esta requisição?")) return;
+      await deleteSupabaseWhere("requisicoes_materiais_itens", `requisicao_id=eq.${encodeURIComponent(id)}`);
+      if (!await confirmRemoteDelete("requisicoes_materiais", id, "requisição")) return;
+      state.materialRequests = state.materialRequests.filter(item => item.id !== id);
+      saveState(); render(); showToast("Requisição excluída.");
+    }
 
     function editStockTransfer(id) {
       const item = byId(state.stockTransfers, id); if (!item) return;
       $("stockTransferId").value = item.id; $("stockTransferItemId").value = item.itemId || ""; $("stockTransferOrigin").value = item.originId || ""; $("stockTransferDestiny").value = item.destinyId || ""; $("stockTransferSpare").value = item.spareId || ""; $("stockTransferQty").value = item.quantity || 1; $("stockTransferOwner").value = item.owner || ""; $("stockTransferStatus").value = item.status || "Aberta"; $("stockTransferNote").value = item.note || "";
       $("stockTransferFormTitle").textContent = "Editar transferência de estoque"; setView("stockTransfers");
     }
-    function deleteStockTransfer(id) { if (!confirm("Excluir esta transferência?")) return; deleteSupabaseRow("transferencias_estoque", id); state.stockTransfers = state.stockTransfers.filter(item => item.id !== id); saveState(); render(); showToast("Transferência excluída."); }
+    async function deleteStockTransfer(id) {
+      if (!confirm("Excluir esta transferência?")) return;
+      await deleteSupabaseWhere("transferencias_estoque_itens", `transferencia_id=eq.${encodeURIComponent(id)}`);
+      if (!await confirmRemoteDelete("transferencias_estoque", id, "transferência")) return;
+      state.stockTransfers = state.stockTransfers.filter(item => item.id !== id);
+      saveState(); render(); showToast("Transferência excluída.");
+    }
 
     function openMachineMenu(event, id) {
       selectedMachineId = id;
@@ -6715,12 +6864,20 @@
       showToast("Ajuste apenas o codigo e salve o equipamento copiado.");
     }
 
-    function deleteAsset(id) {
+    async function deleteAsset(id) {
       if (!confirm("Excluir esta equipamento e seus vínculos?")) return;
-      state.orders.filter(item => item.assetId === id).forEach(item => deleteSupabaseRow("ordens_servico", item.id));
-      state.checklists.filter(item => item.assetId === id).forEach(item => deleteSupabaseRow("checklists", item.id));
-      state.movements.filter(item => item.assetId === id).forEach(item => deleteSupabaseRow("movimentacoes_tags", item.id));
-      deleteSupabaseRow("equipamentos", id);
+      for (const order of state.orders.filter(item => item.assetId === id)) {
+        await deleteSupabaseWhere("eventos_ordem_servico", `ordem_servico_id=eq.${encodeURIComponent(order.id)}`);
+        if (!await confirmRemoteDelete("ordens_servico", order.id, "O.S vinculada")) return;
+      }
+      for (const checklist of state.checklists.filter(item => item.assetId === id)) {
+        if (!await confirmRemoteDelete("checklists", checklist.id, "checklist vinculado")) return;
+      }
+      for (const movement of state.movements.filter(item => item.assetId === id)) {
+        if (!await confirmRemoteDelete("movimentacoes_tags", movement.id, "movimentação vinculada")) return;
+      }
+      await deleteSupabaseWhere("subtags_equipamento", `equipamento_id=eq.${encodeURIComponent(id)}`);
+      if (!await confirmRemoteDelete("equipamentos", id, "equipamento")) return;
       state.assets = state.assets.filter(item => item.id !== id);
       state.orders = state.orders.filter(item => item.assetId !== id);
       state.checklists = state.checklists.filter(item => item.assetId !== id);
@@ -6735,15 +6892,17 @@
       $("regionFormTitle").textContent = "Editar regiao";
     }
 
-    function deleteRegion(id) {
+    async function deleteRegion(id) {
       const linkedLocations = state.locations.filter(location => location.regionId === id);
       const linkedIds = new Set(linkedLocations.map(location => location.id));
       const question = linkedLocations.length
         ? `Excluir esta regiao e ${linkedLocations.length} local(is) de instalacao vinculado(s)? Os equipamentos ficarao sem local.`
         : "Excluir esta regiao?";
       if (!confirm(question)) return;
-      linkedLocations.forEach(location => deleteSupabaseRow("locais_instalacao", location.id));
-      deleteSupabaseRow("regioes", id);
+      for (const location of linkedLocations) {
+        if (!await confirmRemoteDelete("locais_instalacao", location.id, "local vinculado")) return;
+      }
+      if (!await confirmRemoteDelete("regioes", id, "região")) return;
       state.regions = state.regions.filter(item => item.id !== id);
       state.locations = state.locations.filter(location => !linkedIds.has(location.id));
       state.assets = state.assets.map(asset => linkedIds.has(asset.locationId) ? { ...asset, locationId: "" } : asset);
@@ -6764,9 +6923,9 @@
       $("locationFormTitle").textContent = "Editar local de instalacao";
     }
 
-    function deleteLocation(id) {
+    async function deleteLocation(id) {
       if (!confirm("Excluir este local? Os equipamentos ficarão sem local.")) return;
-      deleteSupabaseRow("locais_instalacao", id);
+      if (!await confirmRemoteDelete("locais_instalacao", id, "local")) return;
       state.locations = state.locations.filter(item => item.id !== id);
       state.assets = state.assets.map(asset => asset.locationId === id ? { ...asset, locationId: "" } : asset);
       state.movements = state.movements.map(item => ({
@@ -6784,11 +6943,13 @@
       $("tagId").value = item.id; $("tagCode").value = item.code; $("tagName").value = item.name; $("tagDescription").value = item.description || "";
     }
 
-    function deleteTag(id) {
+    async function deleteTag(id) {
       if (!confirm("Excluir esta tag e subtags vinculadas?")) return;
       if (taxonomySupabaseAvailable) {
-        state.subtags.filter(item => item.parentId === id).forEach(item => deleteSupabaseRow("subtags", item.id));
-        deleteSupabaseRow("tags", id);
+        for (const subtag of state.subtags.filter(item => item.parentId === id)) {
+          if (!await confirmRemoteDelete("subtags", subtag.id, "subtag vinculada")) return;
+        }
+        if (!await confirmRemoteDelete("tags", id, "tag")) return;
       }
       state.tags = state.tags.filter(item => item.id !== id);
       state.subtags = state.subtags.filter(item => item.parentId !== id);
@@ -6802,9 +6963,9 @@
       $("subtagId").value = item.id; $("subtagParent").value = item.parentId; $("subtagCode").value = item.code; $("subtagName").value = item.name;
     }
 
-    function deleteSubtag(id) {
+    async function deleteSubtag(id) {
       if (!confirm("Excluir esta subtag?")) return;
-      if (taxonomySupabaseAvailable) deleteSupabaseRow("subtags", id);
+      if (taxonomySupabaseAvailable && !await confirmRemoteDelete("subtags", id, "subtag")) return;
       state.subtags = state.subtags.filter(item => item.id !== id);
       state.assets = state.assets.map(asset => asset.subtagId === id ? { ...asset, subtagId: "" } : asset);
       saveState(); render(); showToast("Subtag excluída.");
@@ -6815,9 +6976,10 @@
       openOrderModal(item.assetId, id);
     }
 
-    function deleteOrder(id, ask = true) {
+    async function deleteOrder(id, ask = true) {
       if (ask && !confirm("Excluir esta O.S?")) return;
-      deleteSupabaseRow("ordens_servico", id);
+      await deleteSupabaseWhere("eventos_ordem_servico", `ordem_servico_id=eq.${encodeURIComponent(id)}`);
+      if (!await confirmRemoteDelete("ordens_servico", id, "O.S")) return;
       state.orders = state.orders.filter(item => item.id !== id);
       saveState(); render();
       if (ask) showToast("O.S excluída.");
@@ -6977,9 +7139,9 @@
       setTimeout(() => { $("checkCode").value = item.code; $("checkName").value = item.name; $("checkLast").value = item.lastFill || ""; deleteChecklist(id, false); }, 0);
     }
 
-    function deleteChecklist(id, ask = true) {
+    async function deleteChecklist(id, ask = true) {
       if (ask && !confirm("Excluir este checklist?")) return;
-      deleteSupabaseRow("checklists", id);
+      if (!await confirmRemoteDelete("checklists", id, "checklist")) return;
       state.checklists = state.checklists.filter(item => item.id !== id);
       saveState(); render();
       if (ask) showToast("Checklist excluído.");
@@ -7088,7 +7250,6 @@
       }
       const id = $("spareId").value || uid("spare");
       const payload = { id, code: value("spareCode"), name: value("spareName"), supplierId, supplierCode: value("spareSupplierCode"), unit: value("spareUnit") || "UN", place: value("sparePlace"), balance: numberValue("spareBalance"), minimum: numberValue("spareMinimum"), description: value("spareDescription"), active: true };
-      changedSpareIds.add(id);
       state.spareParts = state.spareParts.filter(item => item.id !== id).concat(payload);
       saveState();
       const saved = await saveSingleSupabase("pecas", spareDbRow(payload));
@@ -7234,6 +7395,7 @@
       if (document.visibilityState === "visible") loadSupabaseState(false);
     });
 
+    captureSyncBaseline();
     applyTheme(currentTheme);
     setView(savedActiveView(), { persist: false });
     applyPanelMode();
