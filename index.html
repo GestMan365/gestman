@@ -3046,7 +3046,7 @@
           <div class="table-wrap"><table><thead><tr><th>EXECUTANTE</th><th>ORDENS</th><th>TEMPO HOJE</th><th>TOTAL MES</th></tr></thead><tbody id="dashboardExecutorRows"></tbody></table></div>
         </div>
         <div class="panel dashboard-widget" data-dashboard-widget="stockAlerts">
-          <div class="panel-head"><div class="panel-title">PEÇAS PARA REPOSIÇÃO</div><div class="dashboard-controls" data-dashboard-controls="stockAlerts"></div><button class="btn" data-view-button="spares">Ver peças</button></div>
+          <div class="panel-head"><div class="panel-title">PEÇAS PARA REPOSIÇÃO</div><div class="dashboard-controls" data-dashboard-controls="stockAlerts"></div><button class="btn" id="purchaseListBtn" type="button">Lista de compra</button><button class="btn" data-view-button="spares">Ver peças</button></div>
           <div class="table-wrap"><table><thead><tr><th>Peça</th><th>Saldo</th><th>Mínimo</th><th>Comprar</th><th>Situação</th></tr></thead><tbody id="dashboardLowStockRows"></tbody></table></div>
         </div>
       </div>
@@ -5534,6 +5534,69 @@
       target.innerHTML = rows.map(item => `<tr><td data-label="Peça">${escapeHtml(item.code)} - ${escapeHtml(item.name)}</td><td data-label="Saldo">${Number(item.balance || 0)} ${escapeHtml(item.unit || "UN")}</td><td data-label="Mínimo">${Number(item.minimum || 0)} ${escapeHtml(item.unit || "UN")}</td><td data-label="Comprar">${item.stockAlert.shortage} ${escapeHtml(item.unit || "UN")}</td><td data-label="Situação">${tag(item.stockAlert.label)}</td></tr>`).join("") || `<tr><td colspan="5" class="empty">Nenhuma peça abaixo do mínimo.</td></tr>`;
     }
 
+    function purchaseListItems() {
+      return lowStockItems().map(item => {
+        const supplier = byId(state.suppliers, item.supplierId);
+        return {
+          supplierId: item.supplierId || "sem-fornecedor",
+          supplierName: supplier?.legalName || "Sem fornecedor",
+          supplierCode: item.supplierCode || "",
+          code: item.code || "",
+          name: item.name || "",
+          unit: item.unit || "UN",
+          balance: Number(item.balance || 0),
+          minimum: Number(item.minimum || 0),
+          buyQuantity: item.stockAlert.shortage,
+          status: item.stockAlert.label
+        };
+      });
+    }
+
+    function purchaseListHtml() {
+      const items = purchaseListItems();
+      if (!items.length) return `<div class="empty">Nenhuma peça abaixo do mínimo para comprar.</div>`;
+      const groups = {};
+      items.forEach(item => {
+        groups[item.supplierName] ||= [];
+        groups[item.supplierName].push(item);
+      });
+      return `
+        <div class="toolbar"><button class="btn primary" type="button" onclick="exportPurchaseListCsv()">Exportar CSV</button></div>
+        ${Object.entries(groups).map(([supplier, rows]) => `
+          <div class="side-box">
+            <strong>${escapeHtml(supplier)}</strong>
+            <div class="table-wrap"><table><thead><tr><th>Código</th><th>Peça</th><th>Cód. fornecedor</th><th>Saldo</th><th>Mínimo</th><th>Comprar</th><th>Situação</th></tr></thead><tbody>
+              ${rows.map(item => `<tr><td>${escapeHtml(item.code)}</td><td>${escapeHtml(item.name)}</td><td>${escapeHtml(item.supplierCode || "-")}</td><td>${item.balance} ${escapeHtml(item.unit)}</td><td>${item.minimum} ${escapeHtml(item.unit)}</td><td>${item.buyQuantity} ${escapeHtml(item.unit)}</td><td>${tag(item.status)}</td></tr>`).join("")}
+            </tbody></table></div>
+          </div>
+        `).join("")}
+      `;
+    }
+
+    function openPurchaseList() {
+      openModal("Lista de compra / reposição", purchaseListHtml(), true);
+    }
+
+    function csvCell(value) {
+      return `"${String(value ?? "").replace(/"/g, '""')}"`;
+    }
+
+    function exportPurchaseListCsv() {
+      const rows = purchaseListItems();
+      if (!rows.length) { showToast("Nenhuma peça abaixo do mínimo para exportar."); return; }
+      const header = ["Fornecedor", "Codigo", "Peca", "Cod fornecedor", "Saldo", "Minimo", "Comprar", "Unidade", "Situacao"];
+      const lines = [header].concat(rows.map(item => [item.supplierName, item.code, item.name, item.supplierCode, item.balance, item.minimum, item.buyQuantity, item.unit, item.status]));
+      const csv = lines.map(line => line.map(csvCell).join(";")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "gestman365-lista-compras.csv";
+      link.click();
+      URL.revokeObjectURL(url);
+      showToast("Lista de compra exportada.");
+    }
+
     function renderAssistantSummary() {
       renderReportCards("aiSystemSummary");
     }
@@ -7266,6 +7329,7 @@
     });
     $("profileBtn").addEventListener("click", openProfileModal);
     $("dashboardConfigBtn").addEventListener("click", openDashboardConfig);
+    $("purchaseListBtn").addEventListener("click", openPurchaseList);
     $("openTvPanelBtn").addEventListener("click", openOsPanelWindow);
     $("createOrderBtn").addEventListener("click", () => openOrderModal());
     $("createChecklistBtn").addEventListener("click", () => openChecklistModal());
