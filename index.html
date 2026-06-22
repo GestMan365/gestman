@@ -3147,7 +3147,7 @@
           </form>
         </div>
         <div class="panel">
-          <div class="panel-head"><div class="panel-title">Estoques cadastrados</div></div>
+          <div class="panel-head"><div class="panel-title">Estoques cadastrados</div><button class="btn" id="stockBalanceBtn" type="button">Saldo por estoque</button></div>
           <div class="table-wrap"><table><thead><tr><th>Estoque</th><th>Localização</th><th>Responsável</th><th>Status</th><th>Ações</th></tr></thead><tbody id="stockRows"></tbody></table></div>
         </div>
       </div>
@@ -6176,6 +6176,57 @@
       openModal("Kardex da peça", html, true);
     }
 
+    function addStockBalance(map, stockId, spareId, delta) {
+      if (!spareId || !delta) return;
+      const key = `${stockId || "__unallocated"}|${spareId}`;
+      map.set(key, roundStockValue((map.get(key) || 0) + delta));
+    }
+
+    function stockBalanceRows() {
+      const balances = new Map();
+      state.inventoryMovements.forEach(item => {
+        addStockBalance(balances, item.stockId, item.spareId, stockMoveBalanceEffect(item));
+      });
+      state.materialRequests.forEach(item => {
+        addStockBalance(balances, item.stockId, item.spareId, materialRequestBalanceEffect(item));
+      });
+      state.stockTransfers.forEach(item => {
+        if (!item.spareId || !statusKey(item.status).startsWith("conclu")) return;
+        const quantity = Math.abs(Number(item.quantity || 0));
+        addStockBalance(balances, item.originId, item.spareId, -quantity);
+        addStockBalance(balances, item.destinyId, item.spareId, quantity);
+      });
+      const allocatedBySpare = {};
+      for (const [key, balance] of balances) {
+        const [, spareId] = key.split("|");
+        allocatedBySpare[spareId] = roundStockValue((allocatedBySpare[spareId] || 0) + balance);
+      }
+      state.spareParts.forEach(spare => {
+        const unallocated = roundStockValue(Number(spare.balance || 0) - Number(allocatedBySpare[spare.id] || 0));
+        if (unallocated) addStockBalance(balances, "__unallocated", spare.id, unallocated);
+      });
+      return Array.from(balances.entries())
+        .map(([key, balance]) => {
+          const [stockId, spareId] = key.split("|");
+          const spare = byId(state.spareParts, spareId) || {};
+          const stock = stockId === "__unallocated" ? null : byId(state.stockLocations, stockId);
+          return { stockId, stockName: stock?.name || "Não alocado / saldo inicial", spare, balance: roundStockValue(balance) };
+        })
+        .filter(row => row.balance !== 0)
+        .sort((a, b) => String(a.stockName).localeCompare(String(b.stockName), "pt-BR") || String(a.spare.code || a.spare.name).localeCompare(String(b.spare.code || b.spare.name), "pt-BR"));
+    }
+
+    function openStockBalanceModal() {
+      const rows = stockBalanceRows();
+      const html = `
+        <div class="side-box"><strong>Saldo por estoque</strong><span>Calculado por entradas, saídas, requisições atendidas e transferências concluídas. A linha "Não alocado" representa saldo inicial/manual sem movimentação vinculada a um estoque.</span></div>
+        <div class="table-wrap"><table><thead><tr><th>Estoque</th><th>Peça</th><th>Saldo</th><th>Mínimo global</th><th>Situação global</th></tr></thead><tbody>
+          ${rows.map(row => `<tr><td>${escapeHtml(row.stockName)}</td><td>${escapeHtml(row.spare.code || "-")} - ${escapeHtml(row.spare.name || "Peça")}</td><td>${row.balance} ${escapeHtml(row.spare.unit || "UN")}</td><td>${Number(row.spare.minimum || 0)} ${escapeHtml(row.spare.unit || "UN")}</td><td>${tag(stockAlertStatus(row.spare).label)}</td></tr>`).join("") || `<tr><td colspan="5" class="empty">Nenhum saldo por estoque calculado.</td></tr>`}
+        </tbody></table></div>
+      `;
+      openModal("Saldo por estoque", html, true);
+    }
+
     function nextCode(list, prefix) {
       const next = list.reduce((max, item) => Math.max(max, orderNumberValue(item.number)), 0) + 1;
       return `${prefix}-${String(next).padStart(4, "0")}`;
@@ -7426,6 +7477,7 @@
     $("profileBtn").addEventListener("click", openProfileModal);
     $("dashboardConfigBtn").addEventListener("click", openDashboardConfig);
     $("purchaseListBtn").addEventListener("click", openPurchaseList);
+    $("stockBalanceBtn").addEventListener("click", openStockBalanceModal);
     $("openTvPanelBtn").addEventListener("click", openOsPanelWindow);
     $("createOrderBtn").addEventListener("click", () => openOrderModal());
     $("createChecklistBtn").addEventListener("click", () => openChecklistModal());
