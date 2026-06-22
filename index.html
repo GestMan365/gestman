@@ -4430,15 +4430,15 @@
         })),
         inventoryMovements: (data.movimentacoes_estoque || []).map(item => {
           const firstItem = (data.movimentacoes_estoque_itens || []).find(row => row.movimentacao_id === item.id) || {};
-          return { id: item.id, itemId: firstItem.id || "", number: item.numero || "", type: item.tipo || "Entrada", stockId: item.estoque_id || "", supplierId: item.fornecedor_id || "", status: item.status || "Aberta", owner: item.responsavel || "", note: item.observacao || "", spareId: firstItem.peca_id || "", quantity: Number(firstItem.quantidade || 0), unitValue: Number(firstItem.valor_unitario || 0) };
+          return { id: item.id, itemId: firstItem.id || "", number: item.numero || "", type: item.tipo || "Entrada", stockId: item.estoque_id || "", supplierId: item.fornecedor_id || "", status: item.status || "Aberta", owner: item.responsavel || "", note: item.observacao || "", spareId: firstItem.peca_id || "", quantity: Number(firstItem.quantidade || 0), unitValue: Number(firstItem.valor_unitario || 0), createdAt: timeValue(item.created_at) };
         }),
         materialRequests: (data.requisicoes_materiais || []).map(item => {
           const firstItem = (data.requisicoes_materiais_itens || []).find(row => row.requisicao_id === item.id) || {};
-          return { id: item.id, itemId: firstItem.id || "", number: item.numero || "", stockId: item.estoque_id || "", orderId: item.ordem_servico_id || "", requester: item.solicitante || "", status: item.status || "Aberta", note: item.observacao || "", spareId: firstItem.peca_id || "", quantity: Number(firstItem.quantidade || 0) };
+          return { id: item.id, itemId: firstItem.id || "", number: item.numero || "", stockId: item.estoque_id || "", orderId: item.ordem_servico_id || "", requester: item.solicitante || "", status: item.status || "Aberta", note: item.observacao || "", spareId: firstItem.peca_id || "", quantity: Number(firstItem.quantidade || 0), createdAt: timeValue(item.created_at) };
         }),
         stockTransfers: (data.transferencias_estoque || []).map(item => {
           const firstItem = (data.transferencias_estoque_itens || []).find(row => row.transferencia_id === item.id) || {};
-          return { id: item.id, itemId: firstItem.id || "", originId: item.estoque_origem_id || "", destinyId: item.estoque_destino_id || "", owner: item.responsavel || "", status: item.status || "Aberta", note: item.observacao || "", spareId: firstItem.peca_id || "", quantity: Number(firstItem.quantidade || 0) };
+          return { id: item.id, itemId: firstItem.id || "", originId: item.estoque_origem_id || "", destinyId: item.estoque_destino_id || "", owner: item.responsavel || "", status: item.status || "Aberta", note: item.observacao || "", spareId: firstItem.peca_id || "", quantity: Number(firstItem.quantidade || 0), createdAt: timeValue(item.data_transferencia || item.created_at) };
         }),
         regions: (data.regioes || []).map(item => ({ id: item.id, name: item.nome, description: item.descricao || "", color: item.cor || "#ff8a4c", x: Number(item.pos_x ?? 2), y: Number(item.pos_y ?? 4), w: Number(item.largura ?? 96), h: Number(item.altura ?? 24) })),
         locations: (data.locais_instalacao || []).map(item => ({ id: item.id, regionId: item.regiao_id, name: item.nome, type: item.tipo, order: item.ordem || 0, color: item.cor || "#123f8d", x: Number(item.pos_x ?? 4), y: Number(item.pos_y ?? 12), w: Number(item.largura ?? 32), h: Number(item.altura ?? 24) })),
@@ -5623,6 +5623,7 @@
         unitValue: 0,
         owner: state.profile?.name || "Reposição automática",
         status: "Aberta",
+        createdAt: Date.now(),
         note: `Entrada aberta gerada pela lista de compra. Fornecedor: ${item.supplierName}. Saldo ${item.balance}, mínimo ${item.minimum}.`
       }));
       state.inventoryMovements = state.inventoryMovements.concat(moves);
@@ -6115,6 +6116,66 @@
       return true;
     }
 
+    function stockEffectLabel(value) {
+      const rounded = roundStockValue(value);
+      if (rounded > 0) return `+${rounded}`;
+      if (rounded < 0) return String(rounded);
+      return "0";
+    }
+
+    function spareLedgerRows(spareId) {
+      const rows = [];
+      state.inventoryMovements.filter(item => item.spareId === spareId).forEach(item => {
+        const effect = stockMoveBalanceEffect(item);
+        rows.push({
+          date: item.createdAt || 0,
+          type: `Mov. ${item.type || "Estoque"}`,
+          document: item.number || "-",
+          location: stockName(item.stockId),
+          quantity: Number(item.quantity || 0),
+          effect,
+          status: item.status || "Aberta"
+        });
+      });
+      state.materialRequests.filter(item => item.spareId === spareId).forEach(item => {
+        const effect = materialRequestBalanceEffect(item);
+        rows.push({
+          date: item.createdAt || 0,
+          type: "Requisição",
+          document: item.number || "-",
+          location: stockName(item.stockId),
+          quantity: Number(item.quantity || 0),
+          effect,
+          status: item.status || "Aberta"
+        });
+      });
+      state.stockTransfers.filter(item => item.spareId === spareId).forEach(item => {
+        rows.push({
+          date: item.createdAt || 0,
+          type: "Transferência",
+          document: "-",
+          location: `${stockName(item.originId)} → ${stockName(item.destinyId)}`,
+          quantity: Number(item.quantity || 0),
+          effect: 0,
+          status: item.status || "Aberta"
+        });
+      });
+      return rows.sort((a, b) => Number(b.date || 0) - Number(a.date || 0));
+    }
+
+    function openSpareLedger(id) {
+      const spare = byId(state.spareParts, id);
+      if (!spare) return;
+      const rows = spareLedgerRows(id);
+      const html = `
+        <div class="side-box"><strong>${escapeHtml(spare.code)} - ${escapeHtml(spare.name)}</strong><span>Saldo atual: ${Number(spare.balance || 0)} ${escapeHtml(spare.unit || "UN")} | Mínimo: ${Number(spare.minimum || 0)} ${escapeHtml(spare.unit || "UN")}</span></div>
+        <div class="table-wrap"><table><thead><tr><th>Data</th><th>Tipo</th><th>Documento</th><th>Estoque/Origem-Destino</th><th>Qtd.</th><th>Efeito</th><th>Status</th></tr></thead><tbody>
+          ${rows.map(row => `<tr><td>${row.date ? formatDateTime(row.date) : "-"}</td><td>${escapeHtml(row.type)}</td><td>${escapeHtml(row.document)}</td><td>${escapeHtml(row.location)}</td><td>${row.quantity}</td><td>${stockEffectLabel(row.effect)}</td><td>${tag(row.status)}</td></tr>`).join("") || `<tr><td colspan="7" class="empty">Nenhum histórico de estoque para esta peça.</td></tr>`}
+        </tbody></table></div>
+      `;
+      openModal("Kardex da peça", html, true);
+    }
+
     function nextCode(list, prefix) {
       const next = list.reduce((max, item) => Math.max(max, orderNumberValue(item.number)), 0) + 1;
       return `${prefix}-${String(next).padStart(4, "0")}`;
@@ -6138,7 +6199,7 @@
 
       $("spareRows").innerHTML = state.spareParts.filter(item => filter(`${item.code} ${item.name} ${supplierName(item.supplierId)}`)).map(item => {
         const stockAlert = stockAlertStatus(item);
-        return `<tr><td>${item.code}</td><td>${item.name}</td><td>${supplierName(item.supplierId)}</td><td>${Number(item.balance || 0)} ${item.unit || "UN"}</td><td>${Number(item.minimum || 0)} ${item.unit || "UN"}</td><td>${tag(stockAlert.label)}</td><td class="actions"><button class="btn" onclick="editSpare('${item.id}')">Editar</button><button class="btn danger" onclick="deleteSpare('${item.id}')">Excluir</button></td></tr>`;
+        return `<tr><td>${item.code}</td><td>${item.name}</td><td>${supplierName(item.supplierId)}</td><td>${Number(item.balance || 0)} ${item.unit || "UN"}</td><td>${Number(item.minimum || 0)} ${item.unit || "UN"}</td><td>${tag(stockAlert.label)}</td><td class="actions"><button class="btn" onclick="openSpareLedger('${item.id}')">Kardex</button><button class="btn" onclick="editSpare('${item.id}')">Editar</button><button class="btn danger" onclick="deleteSpare('${item.id}')">Excluir</button></td></tr>`;
       }).join("") || `<tr><td colspan="7" class="empty">Nenhuma peça criada.</td></tr>`;
 
       $("stockMoveRows").innerHTML = state.inventoryMovements.filter(item => filter(`${item.number} ${item.type} ${stockName(item.stockId)} ${spareName(item.spareId)}`)).map(item => `
@@ -7456,8 +7517,8 @@
       event.preventDefault();
       if (!$("stockMoveStock").value || !$("stockMoveSpare").value) { showToast("Selecione estoque e peça."); return; }
       const id = $("stockMoveId").value || uid("stock_move");
-      const payload = { id, itemId: $("stockMoveItemId").value || uid("stock_move_item"), number: byId(state.inventoryMovements, id)?.number || nextCode(state.inventoryMovements, "MOV"), type: $("stockMoveType").value, stockId: $("stockMoveStock").value, spareId: $("stockMoveSpare").value, supplierId: $("stockMoveSupplier").value, quantity: numberValue("stockMoveQty", 1), unitValue: numberValue("stockMoveValue"), owner: value("stockMoveOwner"), status: $("stockMoveStatus").value, note: value("stockMoveNote") };
       const existingMove = byId(state.inventoryMovements, id);
+      const payload = { id, itemId: $("stockMoveItemId").value || uid("stock_move_item"), number: existingMove?.number || nextCode(state.inventoryMovements, "MOV"), type: $("stockMoveType").value, stockId: $("stockMoveStock").value, spareId: $("stockMoveSpare").value, supplierId: $("stockMoveSupplier").value, quantity: numberValue("stockMoveQty", 1), unitValue: numberValue("stockMoveValue"), owner: value("stockMoveOwner"), status: $("stockMoveStatus").value, note: value("stockMoveNote"), createdAt: existingMove?.createdAt || Date.now() };
       if (!applyStockBalanceChange(existingMove, payload, stockMoveBalanceEffect)) return;
       state.inventoryMovements = state.inventoryMovements.filter(item => item.id !== id).concat(payload);
       saveState();
@@ -7470,8 +7531,8 @@
       event.preventDefault();
       if (!$("materialRequestStock").value || !$("materialRequestSpare").value) { showToast("Selecione estoque e peça."); return; }
       const id = $("materialRequestId").value || uid("material_request");
-      const payload = { id, itemId: $("materialRequestItemId").value || uid("material_request_item"), number: byId(state.materialRequests, id)?.number || nextCode(state.materialRequests, "REQ"), stockId: $("materialRequestStock").value, orderId: $("materialRequestOrder").value, spareId: $("materialRequestSpare").value, quantity: numberValue("materialRequestQty", 1), requester: value("materialRequestRequester"), status: $("materialRequestStatus").value, note: value("materialRequestNote") };
       const existingRequest = byId(state.materialRequests, id);
+      const payload = { id, itemId: $("materialRequestItemId").value || uid("material_request_item"), number: existingRequest?.number || nextCode(state.materialRequests, "REQ"), stockId: $("materialRequestStock").value, orderId: $("materialRequestOrder").value, spareId: $("materialRequestSpare").value, quantity: numberValue("materialRequestQty", 1), requester: value("materialRequestRequester"), status: $("materialRequestStatus").value, note: value("materialRequestNote"), createdAt: existingRequest?.createdAt || Date.now() };
       if (!applyStockBalanceChange(existingRequest, payload, materialRequestBalanceEffect)) return;
       state.materialRequests = state.materialRequests.filter(item => item.id !== id).concat(payload);
       saveState();
@@ -7485,7 +7546,8 @@
       if (!$("stockTransferOrigin").value || !$("stockTransferDestiny").value || !$("stockTransferSpare").value) { showToast("Selecione origem, destino e peça."); return; }
       if ($("stockTransferOrigin").value === $("stockTransferDestiny").value) { showToast("Origem e destino devem ser diferentes."); return; }
       const id = $("stockTransferId").value || uid("stock_transfer");
-      const payload = { id, itemId: $("stockTransferItemId").value || uid("stock_transfer_item"), originId: $("stockTransferOrigin").value, destinyId: $("stockTransferDestiny").value, spareId: $("stockTransferSpare").value, quantity: numberValue("stockTransferQty", 1), owner: value("stockTransferOwner"), status: $("stockTransferStatus").value, note: value("stockTransferNote") };
+      const existingTransfer = byId(state.stockTransfers, id);
+      const payload = { id, itemId: $("stockTransferItemId").value || uid("stock_transfer_item"), originId: $("stockTransferOrigin").value, destinyId: $("stockTransferDestiny").value, spareId: $("stockTransferSpare").value, quantity: numberValue("stockTransferQty", 1), owner: value("stockTransferOwner"), status: $("stockTransferStatus").value, note: value("stockTransferNote"), createdAt: existingTransfer?.createdAt || Date.now() };
       state.stockTransfers = state.stockTransfers.filter(item => item.id !== id).concat(payload);
       saveState();
       const saved = await saveSingleSupabase("transferencias_estoque", stockTransferDbRow(payload));
