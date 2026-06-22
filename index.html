@@ -5538,6 +5538,7 @@
       return lowStockItems().map(item => {
         const supplier = byId(state.suppliers, item.supplierId);
         return {
+          spareId: item.id,
           supplierId: item.supplierId || "sem-fornecedor",
           supplierName: supplier?.legalName || "Sem fornecedor",
           supplierCode: item.supplierCode || "",
@@ -5561,7 +5562,7 @@
         groups[item.supplierName].push(item);
       });
       return `
-        <div class="toolbar"><button class="btn primary" type="button" onclick="exportPurchaseListCsv()">Exportar CSV</button></div>
+        <div class="toolbar"><button class="btn primary" type="button" onclick="createPurchaseStockMoves()">Gerar entradas abertas</button><button class="btn" type="button" onclick="exportPurchaseListCsv()">Exportar CSV</button></div>
         ${Object.entries(groups).map(([supplier, rows]) => `
           <div class="side-box">
             <strong>${escapeHtml(supplier)}</strong>
@@ -5595,6 +5596,40 @@
       link.click();
       URL.revokeObjectURL(url);
       showToast("Lista de compra exportada.");
+    }
+
+    function createPurchaseStockMoves() {
+      const items = purchaseListItems();
+      if (!items.length) { showToast("Nenhuma peça abaixo do mínimo para gerar entrada."); return; }
+      const stock = state.stockLocations.find(item => item.active !== false) || state.stockLocations[0];
+      if (!stock) { showToast("Crie um estoque antes de gerar entradas de compra."); return; }
+      const pendingItems = items.filter(item => !state.inventoryMovements.some(move =>
+        move.spareId === item.spareId &&
+        statusKey(move.type) === "entrada" &&
+        statusKey(move.status).startsWith("aberta") &&
+        String(move.note || "").includes("lista de compra")
+      ));
+      if (!pendingItems.length) { showToast("As entradas abertas de reposição já foram geradas."); return; }
+      const nextNumber = state.inventoryMovements.reduce((max, item) => Math.max(max, orderNumberValue(item.number)), 0) + 1;
+      const moves = pendingItems.map((item, index) => ({
+        id: uid("stock_move"),
+        itemId: uid("stock_move_item"),
+        number: `MOV-${String(nextNumber + index).padStart(4, "0")}`,
+        type: "Entrada",
+        stockId: stock.id,
+        spareId: item.spareId,
+        supplierId: item.supplierId === "sem-fornecedor" ? "" : item.supplierId,
+        quantity: Number(item.buyQuantity || 0),
+        unitValue: 0,
+        owner: state.profile?.name || "Reposição automática",
+        status: "Aberta",
+        note: `Entrada aberta gerada pela lista de compra. Fornecedor: ${item.supplierName}. Saldo ${item.balance}, mínimo ${item.minimum}.`
+      }));
+      state.inventoryMovements = state.inventoryMovements.concat(moves);
+      saveState();
+      closeModal();
+      render();
+      showToast(`${moves.length} entrada(s) aberta(s) gerada(s). Conclua ao receber o material.`);
     }
 
     function renderAssistantSummary() {
