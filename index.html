@@ -3147,7 +3147,7 @@
           </form>
         </div>
         <div class="panel">
-          <div class="panel-head"><div class="panel-title">Estoques cadastrados</div><button class="btn" id="stockValuationBtn" type="button">Valor do estoque</button><button class="btn" id="bulkInventoryBtn" type="button">Inventário em lote</button><button class="btn" id="stockBalanceBtn" type="button">Saldo por estoque</button></div>
+          <div class="panel-head"><div class="panel-title">Estoques cadastrados</div><button class="btn" id="stockTurnoverBtn" type="button">Giro/consumo</button><button class="btn" id="stockValuationBtn" type="button">Valor do estoque</button><button class="btn" id="bulkInventoryBtn" type="button">Inventário em lote</button><button class="btn" id="stockBalanceBtn" type="button">Saldo por estoque</button></div>
           <div class="table-wrap"><table><thead><tr><th>Estoque</th><th>Localização</th><th>Responsável</th><th>Status</th><th>Ações</th></tr></thead><tbody id="stockRows"></tbody></table></div>
         </div>
       </div>
@@ -6403,6 +6403,104 @@
       showToast("Relatório de valor do estoque exportado.");
     }
 
+    function consumptionQuantityForSpare(spareId, days) {
+      const since = Date.now() - days * 24 * 60 * 60 * 1000;
+      const stockExit = state.inventoryMovements
+        .filter(item =>
+          item.spareId === spareId &&
+          Number(item.createdAt || 0) >= since &&
+          statusKey(item.type) === "saida" &&
+          statusKey(item.status).startsWith("conclu")
+        )
+        .reduce((sum, item) => sum + Math.abs(normalizeQuantityForSpareId(spareId, item.quantity)), 0);
+      const requestExit = state.materialRequests
+        .filter(item =>
+          item.spareId === spareId &&
+          Number(item.createdAt || 0) >= since &&
+          statusKey(item.status) === "atendida"
+        )
+        .reduce((sum, item) => sum + Math.abs(normalizeQuantityForSpareId(spareId, item.quantity)), 0);
+      return stockExit + requestExit;
+    }
+
+    function suggestedMinimumForConsumption(unit, averageMonthly) {
+      if (averageMonthly <= 0) return 0;
+      return unitRequiresInteger(unit || "UN") ? Math.ceil(averageMonthly) : roundStockValue(averageMonthly);
+    }
+
+    function stockTurnoverRows() {
+      return state.spareParts
+        .filter(item => item.active !== false)
+        .map(item => {
+          const balance = normalizeQuantityForUnit(item.unit || "UN", item.balance);
+          const consumed30 = consumptionQuantityForSpare(item.id, 30);
+          const consumed90 = consumptionQuantityForSpare(item.id, 90);
+          const averageMonthly = consumed90 / 3;
+          const dailyAverage = averageMonthly / 30;
+          const coverageDays = dailyAverage > 0 ? balance / dailyAverage : null;
+          const suggestedMinimum = suggestedMinimumForConsumption(item.unit || "UN", averageMonthly);
+          const shouldReviewMinimum = suggestedMinimum > normalizeQuantityForUnit(item.unit || "UN", item.minimum);
+          const status = averageMonthly <= 0 ? "Sem consumo" : coverageDays < 15 ? "Crítico" : coverageDays < 30 ? "Baixa cobertura" : shouldReviewMinimum ? "Revisar mínimo" : "OK";
+          return { spare: item, balance, consumed30, consumed90, averageMonthly, coverageDays, suggestedMinimum, status };
+        })
+        .sort((a, b) => b.consumed90 - a.consumed90 || String(a.spare.code || a.spare.name).localeCompare(String(b.spare.code || b.spare.name), "pt-BR"));
+    }
+
+    function formatCoverageDays(value) {
+      return value == null ? "-" : `${Math.round(value)} dias`;
+    }
+
+    function stockTurnoverHtml() {
+      const rows = stockTurnoverRows();
+      const withConsumption = rows.filter(row => row.averageMonthly > 0).length;
+      const lowCoverage = rows.filter(row => row.coverageDays != null && row.coverageDays < 30).length;
+      const reviewMinimum = rows.filter(row => row.suggestedMinimum > normalizeQuantityForUnit(row.spare.unit || "UN", row.spare.minimum)).length;
+      return `
+        <div class="grid admin-grid">
+          <div class="side-box"><strong>${withConsumption}</strong><span>Peças com consumo nos últimos 90 dias</span></div>
+          <div class="side-box"><strong>${lowCoverage}</strong><span>Peças com cobertura menor que 30 dias</span></div>
+          <div class="side-box"><strong>${reviewMinimum}</strong><span>Peças com sugestão de mínimo maior que o atual</span></div>
+        </div>
+        <div class="toolbar"><button class="btn" type="button" onclick="exportStockTurnoverCsv()">Exportar CSV</button></div>
+        <div class="side-box"><strong>Consumo e cobertura</strong><span>Baseado em saídas concluídas e requisições atendidas. A sugestão de mínimo usa a média mensal dos últimos 90 dias.</span></div>
+        <div class="table-wrap"><table><thead><tr><th>Peça</th><th>Saldo</th><th>Consumo 30d</th><th>Consumo 90d</th><th>Média mensal</th><th>Cobertura</th><th>Mínimo atual</th><th>Sugestão</th><th>Status</th></tr></thead><tbody>
+          ${rows.map(row => `<tr><td>${escapeHtml(row.spare.code || "-")} - ${escapeHtml(row.spare.name || "Peça")}</td><td>${formatQuantityForUnit(row.balance, row.spare.unit)} ${escapeHtml(row.spare.unit || "UN")}</td><td>${formatQuantityForUnit(row.consumed30, row.spare.unit)}</td><td>${formatQuantityForUnit(row.consumed90, row.spare.unit)}</td><td>${formatQuantityForUnit(row.averageMonthly, row.spare.unit)}</td><td>${formatCoverageDays(row.coverageDays)}</td><td>${formatQuantityForUnit(row.spare.minimum, row.spare.unit)}</td><td>${formatQuantityForUnit(row.suggestedMinimum, row.spare.unit)}</td><td>${tag(row.status)}</td></tr>`).join("") || `<tr><td colspan="9" class="empty">Nenhuma peça cadastrada.</td></tr>`}
+        </tbody></table></div>
+      `;
+    }
+
+    function openStockTurnoverModal() {
+      openModal("Giro, consumo e cobertura de estoque", stockTurnoverHtml(), true);
+    }
+
+    function exportStockTurnoverCsv() {
+      const rows = stockTurnoverRows();
+      if (!rows.length) { showToast("Nenhuma peça para exportar."); return; }
+      const header = ["Codigo", "Peca", "Saldo", "Unidade", "Consumo 30d", "Consumo 90d", "Media mensal", "Cobertura dias", "Minimo atual", "Sugestao minimo", "Status"];
+      const lines = [header].concat(rows.map(row => [
+        row.spare.code || "",
+        row.spare.name || "",
+        row.balance,
+        row.spare.unit || "UN",
+        row.consumed30,
+        row.consumed90,
+        row.averageMonthly.toFixed(2).replace(".", ","),
+        row.coverageDays == null ? "" : Math.round(row.coverageDays),
+        row.spare.minimum || 0,
+        row.suggestedMinimum,
+        row.status
+      ]));
+      const csv = lines.map(line => line.map(csvCell).join(";")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "gestman365-giro-consumo-estoque.csv";
+      link.click();
+      URL.revokeObjectURL(url);
+      showToast("Relatório de giro de estoque exportado.");
+    }
+
     function addStockBalance(map, stockId, spareId, delta) {
       if (!spareId || !delta) return;
       const key = `${stockId || "__unallocated"}|${spareId}`;
@@ -7874,6 +7972,7 @@
     $("profileBtn").addEventListener("click", openProfileModal);
     $("dashboardConfigBtn").addEventListener("click", openDashboardConfig);
     $("purchaseListBtn").addEventListener("click", openPurchaseList);
+    $("stockTurnoverBtn").addEventListener("click", openStockTurnoverModal);
     $("stockValuationBtn").addEventListener("click", openStockValuationModal);
     $("stockBalanceBtn").addEventListener("click", openStockBalanceModal);
     $("bulkInventoryBtn").addEventListener("click", openBulkInventoryCount);
