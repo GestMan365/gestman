@@ -3147,7 +3147,7 @@
           </form>
         </div>
         <div class="panel">
-          <div class="panel-head"><div class="panel-title">Estoques cadastrados</div><button class="btn" id="bulkInventoryBtn" type="button">Inventário em lote</button><button class="btn" id="stockBalanceBtn" type="button">Saldo por estoque</button></div>
+          <div class="panel-head"><div class="panel-title">Estoques cadastrados</div><button class="btn" id="stockValuationBtn" type="button">Valor do estoque</button><button class="btn" id="bulkInventoryBtn" type="button">Inventário em lote</button><button class="btn" id="stockBalanceBtn" type="button">Saldo por estoque</button></div>
           <div class="table-wrap"><table><thead><tr><th>Estoque</th><th>Localização</th><th>Responsável</th><th>Status</th><th>Ações</th></tr></thead><tbody id="stockRows"></tbody></table></div>
         </div>
       </div>
@@ -3982,6 +3982,9 @@
     function formatQuantityForUnit(value, unit = "UN") {
       const normalized = normalizeQuantityForUnit(unit, value);
       return unitRequiresInteger(unit) ? String(Math.round(normalized)) : String(roundStockValue(normalized)).replace(".", ",");
+    }
+    function formatCurrency(value) {
+      return Number(value || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
     }
     function normalizeQuantityForSpareId(spareId, value) {
       return normalizeQuantityForUnit(byId(state.spareParts, spareId)?.unit, value);
@@ -6297,6 +6300,109 @@
       openModal("Kardex da peça", html, true);
     }
 
+    function spareAverageCost(spareId) {
+      const candidates = state.inventoryMovements
+        .filter(item =>
+          item.spareId === spareId &&
+          statusKey(item.type) === "entrada" &&
+          statusKey(item.status) !== "cancelada" &&
+          Number(item.unitValue || 0) > 0 &&
+          Math.abs(normalizeQuantityForSpareId(spareId, item.quantity)) > 0
+        )
+        .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+      const completed = candidates.filter(item => statusKey(item.status).startsWith("conclu"));
+      if (completed.length) {
+        const totals = completed.reduce((result, item) => {
+          const quantity = Math.abs(normalizeQuantityForSpareId(spareId, item.quantity));
+          result.quantity += quantity;
+          result.value += quantity * Number(item.unitValue || 0);
+          return result;
+        }, { quantity: 0, value: 0 });
+        return { cost: totals.quantity ? totals.value / totals.quantity : 0, source: "Custo médio" };
+      }
+      const latest = candidates[0];
+      return latest ? { cost: Number(latest.unitValue || 0), source: "Último valor" } : { cost: 0, source: "Sem custo" };
+    }
+
+    function stockValuationRows() {
+      const rows = state.spareParts
+        .filter(item => item.active !== false)
+        .map(item => {
+          const balance = normalizeQuantityForUnit(item.unit || "UN", item.balance);
+          const costInfo = spareAverageCost(item.id);
+          return {
+            spare: item,
+            balance,
+            averageCost: roundStockValue(costInfo.cost),
+            totalValue: Math.round(balance * costInfo.cost * 100) / 100,
+            costSource: costInfo.source,
+            abc: "-",
+            percentage: 0
+          };
+        })
+        .sort((a, b) => b.totalValue - a.totalValue || String(a.spare.code || a.spare.name).localeCompare(String(b.spare.code || b.spare.name), "pt-BR"));
+      const grandTotal = rows.reduce((sum, row) => sum + row.totalValue, 0);
+      let cumulative = 0;
+      rows.forEach(row => {
+        row.percentage = grandTotal > 0 ? (row.totalValue / grandTotal) * 100 : 0;
+        if (row.totalValue > 0) {
+          const previousShare = cumulative / grandTotal;
+          row.abc = previousShare < 0.8 ? "A" : previousShare < 0.95 ? "B" : "C";
+        }
+        cumulative += row.totalValue;
+      });
+      return rows;
+    }
+
+    function stockValuationHtml() {
+      const rows = stockValuationRows();
+      const totalValue = rows.reduce((sum, row) => sum + row.totalValue, 0);
+      const valuedItems = rows.filter(row => row.averageCost > 0).length;
+      const missingCost = rows.length - valuedItems;
+      return `
+        <div class="grid admin-grid">
+          <div class="side-box"><strong>${formatCurrency(totalValue)}</strong><span>Valor atual estimado do estoque</span></div>
+          <div class="side-box"><strong>${valuedItems}</strong><span>Peças com custo calculado</span></div>
+          <div class="side-box"><strong>${missingCost}</strong><span>Peças sem valor de entrada</span></div>
+        </div>
+        <div class="toolbar"><button class="btn" type="button" onclick="exportStockValuationCsv()">Exportar CSV</button></div>
+        <div class="side-box"><strong>Classificação ABC</strong><span>A: itens que concentram aproximadamente 80% do valor; B: faixa seguinte até 95%; C: demais itens. O custo médio usa entradas concluídas.</span></div>
+        <div class="table-wrap"><table><thead><tr><th>Peça</th><th>Saldo</th><th>Custo unitário</th><th>Origem do custo</th><th>Valor total</th><th>% do estoque</th><th>ABC</th></tr></thead><tbody>
+          ${rows.map(row => `<tr><td>${escapeHtml(row.spare.code || "-")} - ${escapeHtml(row.spare.name || "Peça")}</td><td>${formatQuantityForUnit(row.balance, row.spare.unit)} ${escapeHtml(row.spare.unit || "UN")}</td><td>${formatCurrency(row.averageCost)}</td><td>${escapeHtml(row.costSource)}</td><td>${formatCurrency(row.totalValue)}</td><td>${row.percentage.toFixed(1).replace(".", ",")}%</td><td>${row.abc === "-" ? "-" : tag(`Classe ${row.abc}`)}</td></tr>`).join("") || `<tr><td colspan="7" class="empty">Nenhuma peça cadastrada.</td></tr>`}
+        </tbody></table></div>
+      `;
+    }
+
+    function openStockValuationModal() {
+      openModal("Valor do estoque e curva ABC", stockValuationHtml(), true);
+    }
+
+    function exportStockValuationCsv() {
+      const rows = stockValuationRows();
+      if (!rows.length) { showToast("Nenhuma peça para exportar."); return; }
+      const header = ["Codigo", "Peca", "Saldo", "Unidade", "Custo unitario", "Origem do custo", "Valor total", "Percentual", "Classe ABC"];
+      const lines = [header].concat(rows.map(row => [
+        row.spare.code || "",
+        row.spare.name || "",
+        row.balance,
+        row.spare.unit || "UN",
+        row.averageCost.toFixed(2).replace(".", ","),
+        row.costSource,
+        row.totalValue.toFixed(2).replace(".", ","),
+        row.percentage.toFixed(2).replace(".", ","),
+        row.abc
+      ]));
+      const csv = lines.map(line => line.map(csvCell).join(";")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "gestman365-valor-estoque-abc.csv";
+      link.click();
+      URL.revokeObjectURL(url);
+      showToast("Relatório de valor do estoque exportado.");
+    }
+
     function addStockBalance(map, stockId, spareId, delta) {
       if (!spareId || !delta) return;
       const key = `${stockId || "__unallocated"}|${spareId}`;
@@ -7714,6 +7820,7 @@
     $("profileBtn").addEventListener("click", openProfileModal);
     $("dashboardConfigBtn").addEventListener("click", openDashboardConfig);
     $("purchaseListBtn").addEventListener("click", openPurchaseList);
+    $("stockValuationBtn").addEventListener("click", openStockValuationModal);
     $("stockBalanceBtn").addEventListener("click", openStockBalanceModal);
     $("bulkInventoryBtn").addEventListener("click", openBulkInventoryCount);
     $("openTvPanelBtn").addEventListener("click", openOsPanelWindow);
