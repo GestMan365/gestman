@@ -6450,27 +6450,64 @@
       return value == null ? "-" : `${Math.round(value)} dias`;
     }
 
+    function shouldApplyMinimumSuggestion(row) {
+      return row?.suggestedMinimum > normalizeQuantityForUnit(row.spare.unit || "UN", row.spare.minimum);
+    }
+
     function stockTurnoverHtml() {
       const rows = stockTurnoverRows();
       const withConsumption = rows.filter(row => row.averageMonthly > 0).length;
       const lowCoverage = rows.filter(row => row.coverageDays != null && row.coverageDays < 30).length;
-      const reviewMinimum = rows.filter(row => row.suggestedMinimum > normalizeQuantityForUnit(row.spare.unit || "UN", row.spare.minimum)).length;
+      const reviewMinimum = rows.filter(shouldApplyMinimumSuggestion).length;
       return `
         <div class="grid admin-grid">
           <div class="side-box"><strong>${withConsumption}</strong><span>Peças com consumo nos últimos 90 dias</span></div>
           <div class="side-box"><strong>${lowCoverage}</strong><span>Peças com cobertura menor que 30 dias</span></div>
           <div class="side-box"><strong>${reviewMinimum}</strong><span>Peças com sugestão de mínimo maior que o atual</span></div>
         </div>
-        <div class="toolbar"><button class="btn" type="button" onclick="exportStockTurnoverCsv()">Exportar CSV</button></div>
+        <div class="toolbar"><button class="btn primary" type="button" onclick="applyAllSuggestedMinimums()">Aplicar sugestões</button><button class="btn" type="button" onclick="exportStockTurnoverCsv()">Exportar CSV</button></div>
         <div class="side-box"><strong>Consumo e cobertura</strong><span>Baseado em saídas concluídas e requisições atendidas. A sugestão de mínimo usa a média mensal dos últimos 90 dias.</span></div>
-        <div class="table-wrap"><table><thead><tr><th>Peça</th><th>Saldo</th><th>Consumo 30d</th><th>Consumo 90d</th><th>Média mensal</th><th>Cobertura</th><th>Mínimo atual</th><th>Sugestão</th><th>Status</th></tr></thead><tbody>
-          ${rows.map(row => `<tr><td>${escapeHtml(row.spare.code || "-")} - ${escapeHtml(row.spare.name || "Peça")}</td><td>${formatQuantityForUnit(row.balance, row.spare.unit)} ${escapeHtml(row.spare.unit || "UN")}</td><td>${formatQuantityForUnit(row.consumed30, row.spare.unit)}</td><td>${formatQuantityForUnit(row.consumed90, row.spare.unit)}</td><td>${formatQuantityForUnit(row.averageMonthly, row.spare.unit)}</td><td>${formatCoverageDays(row.coverageDays)}</td><td>${formatQuantityForUnit(row.spare.minimum, row.spare.unit)}</td><td>${formatQuantityForUnit(row.suggestedMinimum, row.spare.unit)}</td><td>${tag(row.status)}</td></tr>`).join("") || `<tr><td colspan="9" class="empty">Nenhuma peça cadastrada.</td></tr>`}
+        <div class="table-wrap"><table><thead><tr><th>Peça</th><th>Saldo</th><th>Consumo 30d</th><th>Consumo 90d</th><th>Média mensal</th><th>Cobertura</th><th>Mínimo atual</th><th>Sugestão</th><th>Status</th><th>Ação</th></tr></thead><tbody>
+          ${rows.map(row => `<tr><td>${escapeHtml(row.spare.code || "-")} - ${escapeHtml(row.spare.name || "Peça")}</td><td>${formatQuantityForUnit(row.balance, row.spare.unit)} ${escapeHtml(row.spare.unit || "UN")}</td><td>${formatQuantityForUnit(row.consumed30, row.spare.unit)}</td><td>${formatQuantityForUnit(row.consumed90, row.spare.unit)}</td><td>${formatQuantityForUnit(row.averageMonthly, row.spare.unit)}</td><td>${formatCoverageDays(row.coverageDays)}</td><td>${formatQuantityForUnit(row.spare.minimum, row.spare.unit)}</td><td>${formatQuantityForUnit(row.suggestedMinimum, row.spare.unit)}</td><td>${tag(row.status)}</td><td>${shouldApplyMinimumSuggestion(row) ? `<button class="btn" type="button" onclick="applySuggestedMinimum('${row.spare.id}')">Aplicar</button>` : "-"}</td></tr>`).join("") || `<tr><td colspan="10" class="empty">Nenhuma peça cadastrada.</td></tr>`}
         </tbody></table></div>
       `;
     }
 
     function openStockTurnoverModal() {
       openModal("Giro, consumo e cobertura de estoque", stockTurnoverHtml(), true);
+    }
+
+    function refreshStockTurnoverModal() {
+      if ($("genericModal")?.classList.contains("open") && $("genericTitle")?.textContent === "Giro, consumo e cobertura de estoque") {
+        $("genericBody").innerHTML = stockTurnoverHtml();
+      }
+    }
+
+    async function applySuggestedMinimum(spareId) {
+      const row = stockTurnoverRows().find(item => item.spare.id === spareId);
+      if (!row || !shouldApplyMinimumSuggestion(row)) { showToast("Esta peça já está com o mínimo atualizado."); return; }
+      const payload = { ...row.spare, minimum: normalizeQuantityForUnit(row.spare.unit || "UN", row.suggestedMinimum) };
+      state.spareParts = state.spareParts.map(item => item.id === spareId ? payload : item);
+      saveState();
+      const saved = await saveSingleSupabase("pecas", spareDbRow(payload));
+      render();
+      refreshStockTurnoverModal();
+      showToast(saved ? "Mínimo da peça atualizado." : "Mínimo atualizado localmente. Sincronização pendente.");
+    }
+
+    async function applyAllSuggestedMinimums() {
+      const updates = stockTurnoverRows()
+        .filter(shouldApplyMinimumSuggestion)
+        .map(row => ({ ...row.spare, minimum: normalizeQuantityForUnit(row.spare.unit || "UN", row.suggestedMinimum) }));
+      if (!updates.length) { showToast("Nenhuma sugestão pendente para aplicar."); return; }
+      const updateById = new Map(updates.map(item => [item.id, item]));
+      state.spareParts = state.spareParts.map(item => updateById.get(item.id) || item);
+      saveState();
+      const results = await Promise.all(updates.map(item => saveSingleSupabase("pecas", spareDbRow(item))));
+      render();
+      refreshStockTurnoverModal();
+      const saved = results.every(Boolean);
+      showToast(saved ? `${updates.length} mínimo(s) atualizado(s).` : `${updates.length} mínimo(s) atualizado(s) localmente. Sincronização pendente.`);
     }
 
     function exportStockTurnoverCsv() {
