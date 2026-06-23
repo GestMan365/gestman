@@ -3165,8 +3165,8 @@
             <label>Cód. fornecedor <input class="field" id="spareSupplierCode" placeholder="Código no fornecedor"></label>
             <label>Unidade <input class="field" id="spareUnit" value="UN" placeholder="UN, KG, L"></label>
             <label>Localização <input class="field" id="sparePlace" placeholder="Rua, prateleira, gaveta"></label>
-            <label>Saldo inicial/atual <input class="field" id="spareBalance" type="number" step="0.01" value="0" title="Na edição, o saldo é controlado pelas movimentações"></label>
-            <label>Saldo mínimo <input class="field" id="spareMinimum" type="number" step="0.01" value="0"></label>
+            <label>Saldo inicial/atual <input class="field" id="spareBalance" type="number" step="1" value="0" title="Na edição, o saldo é controlado pelas movimentações"></label>
+            <label>Saldo mínimo <input class="field" id="spareMinimum" type="number" step="1" value="0"></label>
             <label class="full">Descrição <textarea class="field" id="spareDescription" placeholder="Aplicação, especificação ou observação técnica"></textarea></label>
             <div class="full toolbar"><button class="btn primary" type="submit">Salvar peça</button><button class="btn" type="button" id="resetSpareForm">Limpar formulário</button></div>
           </form>
@@ -3188,7 +3188,7 @@
             <label>Estoque <select class="field" id="stockMoveStock"></select></label>
             <label>Peça <select class="field" id="stockMoveSpare"></select></label>
             <label>Fornecedor <select class="field" id="stockMoveSupplier"></select></label>
-            <label>Quantidade <input class="field" id="stockMoveQty" type="number" step="0.01" value="1"></label>
+            <label>Quantidade <input class="field" id="stockMoveQty" type="number" step="1" value="1"></label>
             <label>Valor unitário <input class="field" id="stockMoveValue" type="number" step="0.01" value="0"></label>
             <label>Responsável <input class="field" id="stockMoveOwner" placeholder="Quem registrou"></label>
             <label>Status <select class="field" id="stockMoveStatus"><option>Aberta</option><option>Concluída</option><option>Cancelada</option></select></label>
@@ -3212,7 +3212,7 @@
             <label>Estoque <select class="field" id="materialRequestStock"></select></label>
             <label>O.S <select class="field" id="materialRequestOrder"></select></label>
             <label>Peça <select class="field" id="materialRequestSpare"></select></label>
-            <label>Quantidade <input class="field" id="materialRequestQty" type="number" step="0.01" value="1"></label>
+            <label>Quantidade <input class="field" id="materialRequestQty" type="number" step="1" value="1"></label>
             <label>Solicitante <input class="field" id="materialRequestRequester" required placeholder="Quem solicitou"></label>
             <label>Status <select class="field" id="materialRequestStatus"><option>Aberta</option><option>Atendida</option><option>Cancelada</option></select></label>
             <label class="full">Observação <textarea class="field" id="materialRequestNote"></textarea></label>
@@ -3235,7 +3235,7 @@
             <label>Origem <select class="field" id="stockTransferOrigin"></select></label>
             <label>Destino <select class="field" id="stockTransferDestiny"></select></label>
             <label>Peça <select class="field" id="stockTransferSpare"></select></label>
-            <label>Quantidade <input class="field" id="stockTransferQty" type="number" step="0.01" value="1"></label>
+            <label>Quantidade <input class="field" id="stockTransferQty" type="number" step="1" value="1"></label>
             <label>Responsável <input class="field" id="stockTransferOwner" placeholder="Quem transferiu"></label>
             <label>Status <select class="field" id="stockTransferStatus"><option>Aberta</option><option>Concluída</option><option>Cancelada</option></select></label>
             <label class="full">Observação <textarea class="field" id="stockTransferNote"></textarea></label>
@@ -3598,6 +3598,53 @@
       return queued;
     }
 
+    function integerQuantityRepairTargets(remoteData = {}) {
+      const targets = {};
+      const add = (table, id) => {
+        if (!id) return;
+        targets[table] ||= new Set();
+        targets[table].add(String(id));
+      };
+      const unitBySpare = new Map((remoteData.pecas || []).map(item => [item.id, item.unidade || "UN"]));
+      (remoteData.pecas || []).forEach(item => {
+        if (!unitRequiresInteger(item.unidade || "UN")) return;
+        if (!isWholeNumber(item.saldo) || !isWholeNumber(item.saldo_minimo)) add("pecas", item.id);
+      });
+      [
+        ["movimentacoes_estoque_itens", remoteData.movimentacoes_estoque_itens || []],
+        ["requisicoes_materiais_itens", remoteData.requisicoes_materiais_itens || []],
+        ["transferencias_estoque_itens", remoteData.transferencias_estoque_itens || []]
+      ].forEach(([table, rows]) => {
+        rows.forEach(item => {
+          const unit = unitBySpare.get(item.peca_id);
+          if (unit && unitRequiresInteger(unit) && !isWholeNumber(item.quantidade)) add(table, item.id);
+        });
+      });
+      return targets;
+    }
+
+    function queueIntegerQuantityRepairs(targets = {}) {
+      const payload = dbPayload();
+      let queued = 0;
+      Object.entries(targets).forEach(([table, ids]) => {
+        const rows = payload[table] || [];
+        rows.forEach((row, index) => {
+          const key = pendingRowKey(table, row, index);
+          if (!ids.has(String(key))) return;
+          pendingUpserts[table] ||= {};
+          pendingUpserts[table][key] = row;
+          queued += 1;
+        });
+      });
+      if (queued) {
+        savePendingUpserts();
+        hasPendingLocalSync = true;
+        hasSessionLocalChange = true;
+        localStorage.setItem(PENDING_SYNC_KEY, "1");
+      }
+      return queued;
+    }
+
     function removePendingUpsert(table, id) {
       const key = String(id || "");
       if (!key || !pendingUpserts?.[table]) return;
@@ -3835,7 +3882,20 @@
         ...asset,
         components: asset.components || ""
       }));
-      return dedupeStateCollections(migrateIdsToUuid(normalized));
+      const data = dedupeStateCollections(migrateIdsToUuid(normalized));
+      data.spareParts = data.spareParts.map(spare => ({
+        ...spare,
+        balance: normalizeQuantityForUnit(spare.unit || "UN", spare.balance),
+        minimum: normalizeQuantityForUnit(spare.unit || "UN", spare.minimum)
+      }));
+      const normalizeTransactionQuantity = item => {
+        const spare = data.spareParts.find(candidate => candidate.id === item.spareId);
+        return { ...item, quantity: normalizeQuantityForUnit(spare?.unit || "UN", item.quantity) };
+      };
+      data.inventoryMovements = data.inventoryMovements.map(normalizeTransactionQuantity);
+      data.materialRequests = data.materialRequests.map(normalizeTransactionQuantity);
+      data.stockTransfers = data.stockTransfers.map(normalizeTransactionQuantity);
+      return data;
     }
 
     function saveState() {
@@ -3902,7 +3962,39 @@
     function $(id) { return document.getElementById(id); }
     function byId(list, id) { return list.find(item => item.id === id); }
     function value(id) { return $(id).value.trim(); }
-    function numberValue(id, fallback = 0) { return Number($(id).value || fallback); }
+    function parseNumber(value, fallback = 0) {
+      const parsed = Number(String(value ?? "").replace(",", "."));
+      return Number.isFinite(parsed) ? parsed : fallback;
+    }
+    function numberValue(id, fallback = 0) { return parseNumber($(id).value || fallback, fallback); }
+    function unitRequiresInteger(unit = "") {
+      const key = statusKey(unit);
+      return ["un", "und", "unid", "unidade", "unidades", "pc", "pcs", "peca", "pecas"].includes(key);
+    }
+    function isWholeNumber(value) {
+      const next = parseNumber(value, 0);
+      return Math.abs(next - Math.round(next)) < 0.000001;
+    }
+    function normalizeQuantityForUnit(unit, value) {
+      const next = parseNumber(value, 0);
+      return unitRequiresInteger(unit) ? Math.round(next) : next;
+    }
+    function formatQuantityForUnit(value, unit = "UN") {
+      const normalized = normalizeQuantityForUnit(unit, value);
+      return unitRequiresInteger(unit) ? String(Math.round(normalized)) : String(roundStockValue(normalized)).replace(".", ",");
+    }
+    function normalizeQuantityForSpareId(spareId, value) {
+      return normalizeQuantityForUnit(byId(state.spareParts, spareId)?.unit, value);
+    }
+    function validateWholeQuantityForUnit(unit, value, label = "quantidade") {
+      if (!unitRequiresInteger(unit) || isWholeNumber(value)) return true;
+      showToast(`${label} não pode ser quebrada para unidade ${unit || "UN"}.`);
+      return false;
+    }
+    function validateWholeQuantityForSpare(spareId, value, label = "quantidade") {
+      const spare = byId(state.spareParts, spareId);
+      return validateWholeQuantityForUnit(spare?.unit || "UN", value, label);
+    }
     function escapeHtml(text) {
       return String(text ?? "").replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
     }
@@ -4072,8 +4164,8 @@
         descricao: item.description || null,
         observacao: item.note || null,
         unidade: item.unit || "UN",
-        saldo: Number(item.balance || 0),
-        saldo_minimo: Number(item.minimum || 0),
+        saldo: normalizeQuantityForUnit(item.unit || "UN", item.balance),
+        saldo_minimo: normalizeQuantityForUnit(item.unit || "UN", item.minimum),
         localizacao: item.place || null,
         ativo: item.active !== false
       };
@@ -4084,7 +4176,7 @@
     }
 
     function stockMoveItemDbRow(item) {
-      return { id: item.itemId || item.id, movimentacao_id: item.id, peca_id: item.spareId || null, quantidade: Number(item.quantity || 0), valor_unitario: Number(item.unitValue || 0), observacao: item.note || null };
+      return { id: item.itemId || item.id, movimentacao_id: item.id, peca_id: item.spareId || null, quantidade: normalizeQuantityForSpareId(item.spareId, item.quantity), valor_unitario: Number(item.unitValue || 0), observacao: item.note || null };
     }
 
     function materialRequestDbRow(item) {
@@ -4092,7 +4184,7 @@
     }
 
     function materialRequestItemDbRow(item) {
-      return { id: item.itemId || item.id, requisicao_id: item.id, peca_id: item.spareId || null, quantidade: Number(item.quantity || 0), observacao: item.note || null };
+      return { id: item.itemId || item.id, requisicao_id: item.id, peca_id: item.spareId || null, quantidade: normalizeQuantityForSpareId(item.spareId, item.quantity), observacao: item.note || null };
     }
 
     function stockTransferDbRow(item) {
@@ -4100,7 +4192,7 @@
     }
 
     function stockTransferItemDbRow(item) {
-      return { id: item.itemId || item.id, transferencia_id: item.id, peca_id: item.spareId || null, quantidade: Number(item.quantity || 0) };
+      return { id: item.itemId || item.id, transferencia_id: item.id, peca_id: item.spareId || null, quantidade: normalizeQuantityForSpareId(item.spareId, item.quantity) };
     }
 
     function dbPayload() {
@@ -4558,6 +4650,7 @@
         Object.keys(remoteData).forEach(key => {
           remoteData[key] = filterDeletedRows(key, remoteData[key]);
         });
+        const integerRepairTargets = integerQuantityRepairTargets(remoteData);
         const failedKeys = new Set(failures.map(item => item.key));
         taxonomySupabaseAvailable = !failedKeys.has("tags") && !failedKeys.has("subtags");
         const remoteHasMobileSyncData = Boolean(
@@ -4610,10 +4703,11 @@
 
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(state.profile || {}));
-        shouldPushLocal = shouldPreferLocal;
         if (!shouldPreferLocal && failures.length === 0 && !hasPendingUpserts() && !pendingDeletedEntries().length) {
           captureSyncBaseline();
         }
+        const repairedIntegerRows = failures.length === 0 ? queueIntegerQuantityRepairs(integerRepairTargets) : 0;
+        shouldPushLocal = shouldPreferLocal || repairedIntegerRows > 0;
         render();
         if (showMessage) {
           showToast(failures.length
@@ -4995,11 +5089,11 @@
     }
 
     function stockAlertStatus(item) {
-      const balance = Number(item.balance || 0);
-      const minimum = Number(item.minimum || 0);
+      const balance = normalizeQuantityForUnit(item.unit || "UN", item.balance);
+      const minimum = normalizeQuantityForUnit(item.unit || "UN", item.minimum);
       if (minimum <= 0) return { label: "Sem mínimo", shortage: 0 };
-      if (balance <= 0) return { label: "Crítico", shortage: roundStockValue(minimum - balance) };
-      if (balance < minimum) return { label: "Abaixo mínimo", shortage: roundStockValue(minimum - balance) };
+      if (balance <= 0) return { label: "Crítico", shortage: normalizeQuantityForUnit(item.unit || "UN", minimum - balance) };
+      if (balance < minimum) return { label: "Abaixo mínimo", shortage: normalizeQuantityForUnit(item.unit || "UN", minimum - balance) };
       if (balance === minimum) return { label: "No mínimo", shortage: 0 };
       return { label: "OK", shortage: 0 };
     }
@@ -5531,7 +5625,7 @@
       const target = $("dashboardLowStockRows");
       if (!target) return;
       const rows = lowStockItems().slice(0, 12);
-      target.innerHTML = rows.map(item => `<tr><td data-label="Peça">${escapeHtml(item.code)} - ${escapeHtml(item.name)}</td><td data-label="Saldo">${Number(item.balance || 0)} ${escapeHtml(item.unit || "UN")}</td><td data-label="Mínimo">${Number(item.minimum || 0)} ${escapeHtml(item.unit || "UN")}</td><td data-label="Comprar">${item.stockAlert.shortage} ${escapeHtml(item.unit || "UN")}</td><td data-label="Situação">${tag(item.stockAlert.label)}</td></tr>`).join("") || `<tr><td colspan="5" class="empty">Nenhuma peça abaixo do mínimo.</td></tr>`;
+      target.innerHTML = rows.map(item => `<tr><td data-label="Peça">${escapeHtml(item.code)} - ${escapeHtml(item.name)}</td><td data-label="Saldo">${formatQuantityForUnit(item.balance, item.unit)} ${escapeHtml(item.unit || "UN")}</td><td data-label="Mínimo">${formatQuantityForUnit(item.minimum, item.unit)} ${escapeHtml(item.unit || "UN")}</td><td data-label="Comprar">${formatQuantityForUnit(item.stockAlert.shortage, item.unit)} ${escapeHtml(item.unit || "UN")}</td><td data-label="Situação">${tag(item.stockAlert.label)}</td></tr>`).join("") || `<tr><td colspan="5" class="empty">Nenhuma peça abaixo do mínimo.</td></tr>`;
     }
 
     function purchaseListItems() {
@@ -5545,9 +5639,9 @@
           code: item.code || "",
           name: item.name || "",
           unit: item.unit || "UN",
-          balance: Number(item.balance || 0),
-          minimum: Number(item.minimum || 0),
-          buyQuantity: item.stockAlert.shortage,
+          balance: normalizeQuantityForUnit(item.unit || "UN", item.balance),
+          minimum: normalizeQuantityForUnit(item.unit || "UN", item.minimum),
+          buyQuantity: normalizeQuantityForUnit(item.unit || "UN", item.stockAlert.shortage),
           status: item.stockAlert.label
         };
       });
@@ -5619,7 +5713,7 @@
         stockId: stock.id,
         spareId: item.spareId,
         supplierId: item.supplierId === "sem-fornecedor" ? "" : item.supplierId,
-        quantity: Number(item.buyQuantity || 0),
+        quantity: normalizeQuantityForUnit(item.unit || "UN", item.buyQuantity),
         unitValue: 0,
         owner: state.profile?.name || "Reposição automática",
         status: "Aberta",
@@ -5656,7 +5750,7 @@
       if (q.includes("critic") || q.includes("alta")) return critical.length ? critical.map(asset => `${asset.code} - ${asset.name} | REGIAO/LOCAL: ${locationName(asset.locationId)}`).join("\n") : "NAO HA EQUIPAMENTOS DE ALTA CRITICIDADE CADASTRADOS.";
       if (q.includes("estoque") || q.includes("peca") || q.includes("minimo") || q.includes("reposicao") || q.includes("compr")) {
         const low = lowStockItems();
-        return low.length ? low.map(item => `${item.code} - ${item.name} | SALDO: ${Number(item.balance || 0)} ${item.unit || "UN"} | MINIMO: ${Number(item.minimum || 0)} | COMPRAR: ${item.stockAlert.shortage} ${item.unit || "UN"}`).join("\n") : "NAO HA PECAS ABAIXO DO MINIMO.";
+        return low.length ? low.map(item => `${item.code} - ${item.name} | SALDO: ${formatQuantityForUnit(item.balance, item.unit)} ${item.unit || "UN"} | MINIMO: ${formatQuantityForUnit(item.minimum, item.unit)} | COMPRAR: ${formatQuantityForUnit(item.stockAlert.shortage, item.unit)} ${item.unit || "UN"}`).join("\n") : "NAO HA PECAS ABAIXO DO MINIMO.";
       }
       if (q.includes("regiao")) return state.regions.length ? state.regions.map(region => `${region.name}: ${state.locations.filter(location => location.regionId === region.id).length} LOCAIS DE INSTALACAO`).join("\n") : "NENHUMA REGIAO CADASTRADA.";
       if (q.includes("local") || q.includes("linha") || q.includes("fase")) return state.locations.length ? state.locations.map(location => `${regionName(location.regionId)} / ${location.name}: ${state.assets.filter(asset => asset.locationId === location.id).length} EQUIPAMENTOS`).join("\n") : "NENHUM LOCAL DE INSTALACAO CADASTRADO.";
@@ -6040,6 +6134,31 @@
       }
     }
 
+    function setQuantityInputStep(inputId, spareId) {
+      const input = $(inputId);
+      if (!input) return;
+      const spare = byId(state.spareParts, spareId);
+      const integerOnly = unitRequiresInteger(spare?.unit || "UN");
+      input.step = integerOnly ? "1" : "0.01";
+      input.title = integerOnly ? "Esta peça aceita somente quantidades inteiras." : "Esta peça aceita casas decimais.";
+    }
+
+    function refreshQuantityInputSteps() {
+      setQuantityInputStep("stockMoveQty", $("stockMoveSpare")?.value);
+      setQuantityInputStep("materialRequestQty", $("materialRequestSpare")?.value);
+      setQuantityInputStep("stockTransferQty", $("stockTransferSpare")?.value);
+    }
+
+    function refreshSpareUnitSteps() {
+      const integerOnly = unitRequiresInteger($("spareUnit")?.value || "UN");
+      ["spareBalance", "spareMinimum"].forEach(id => {
+        const input = $(id);
+        if (!input) return;
+        input.step = integerOnly ? "1" : "0.01";
+        input.title = integerOnly ? "Esta unidade aceita somente números inteiros." : "Esta unidade aceita casas decimais.";
+      });
+    }
+
     function fillSelects() {
       const regionOptions = state.regions.map(item => `<option value="${item.id}">${item.name}</option>`).join("");
       setSelectOptionsPreservingValue("locationRegion", regionOptions || `<option value="">Crie uma regiao</option>`);
@@ -6058,6 +6177,8 @@
       ["stockMoveStock", "materialRequestStock", "stockTransferOrigin", "stockTransferDestiny"].forEach(id => setSelectOptionsPreservingValue(id, stockOptions));
       ["stockMoveSpare", "materialRequestSpare", "stockTransferSpare"].forEach(id => setSelectOptionsPreservingValue(id, spareOptions));
       setSelectOptionsPreservingValue("materialRequestOrder", orderOptions);
+      refreshQuantityInputSteps();
+      refreshSpareUnitSteps();
     }
 
     function supplierName(id) {
@@ -6076,7 +6197,7 @@
 
     function stockMoveBalanceEffect(item) {
       if (!item?.spareId || !statusKey(item.status).startsWith("conclu")) return 0;
-      const quantity = Number(item.quantity || 0);
+      const quantity = normalizeQuantityForSpareId(item.spareId, item.quantity);
       const type = statusKey(item.type);
       if (type === "entrada") return Math.abs(quantity);
       if (type === "saida") return -Math.abs(quantity);
@@ -6086,7 +6207,7 @@
 
     function materialRequestBalanceEffect(item) {
       if (!item?.spareId || statusKey(item.status) !== "atendida") return 0;
-      return -Math.abs(Number(item.quantity || 0));
+      return -Math.abs(normalizeQuantityForSpareId(item.spareId, item.quantity));
     }
 
     function applyStockBalanceChange(previousItem, nextItem, effectFn) {
@@ -6103,15 +6224,15 @@
           showToast("A peça da movimentação não foi encontrada.");
           return false;
         }
-        const nextBalance = roundStockValue(Number(spare.balance || 0) + delta);
+        const nextBalance = normalizeQuantityForUnit(spare.unit || "UN", Number(spare.balance || 0) + delta);
         if (nextBalance < 0) {
-          showToast(`Saldo insuficiente para ${spare.code} - ${spare.name}. Disponível: ${Number(spare.balance || 0)}.`);
+          showToast(`Saldo insuficiente para ${spare.code} - ${spare.name}. Disponível: ${formatQuantityForUnit(spare.balance, spare.unit)}.`);
           return false;
         }
       }
       state.spareParts = state.spareParts.map(spare => {
         const delta = deltas.get(spare.id);
-        return delta == null ? spare : { ...spare, balance: roundStockValue(Number(spare.balance || 0) + delta) };
+        return delta == null ? spare : { ...spare, balance: normalizeQuantityForUnit(spare.unit || "UN", Number(spare.balance || 0) + delta) };
       });
       return true;
     }
@@ -6132,7 +6253,7 @@
           type: `Mov. ${item.type || "Estoque"}`,
           document: item.number || "-",
           location: stockName(item.stockId),
-          quantity: Number(item.quantity || 0),
+          quantity: normalizeQuantityForSpareId(item.spareId, item.quantity),
           effect,
           status: item.status || "Aberta"
         });
@@ -6144,7 +6265,7 @@
           type: "Requisição",
           document: item.number || "-",
           location: stockName(item.stockId),
-          quantity: Number(item.quantity || 0),
+          quantity: normalizeQuantityForSpareId(item.spareId, item.quantity),
           effect,
           status: item.status || "Aberta"
         });
@@ -6155,7 +6276,7 @@
           type: "Transferência",
           document: "-",
           location: `${stockName(item.originId)} → ${stockName(item.destinyId)}`,
-          quantity: Number(item.quantity || 0),
+          quantity: normalizeQuantityForSpareId(item.spareId, item.quantity),
           effect: 0,
           status: item.status || "Aberta"
         });
@@ -6168,7 +6289,7 @@
       if (!spare) return;
       const rows = spareLedgerRows(id);
       const html = `
-        <div class="side-box"><strong>${escapeHtml(spare.code)} - ${escapeHtml(spare.name)}</strong><span>Saldo atual: ${Number(spare.balance || 0)} ${escapeHtml(spare.unit || "UN")} | Mínimo: ${Number(spare.minimum || 0)} ${escapeHtml(spare.unit || "UN")}</span></div>
+        <div class="side-box"><strong>${escapeHtml(spare.code)} - ${escapeHtml(spare.name)}</strong><span>Saldo atual: ${formatQuantityForUnit(spare.balance, spare.unit)} ${escapeHtml(spare.unit || "UN")} | Mínimo: ${formatQuantityForUnit(spare.minimum, spare.unit)} ${escapeHtml(spare.unit || "UN")}</span></div>
         <div class="table-wrap"><table><thead><tr><th>Data</th><th>Tipo</th><th>Documento</th><th>Estoque/Origem-Destino</th><th>Qtd.</th><th>Efeito</th><th>Status</th></tr></thead><tbody>
           ${rows.map(row => `<tr><td>${row.date ? formatDateTime(row.date) : "-"}</td><td>${escapeHtml(row.type)}</td><td>${escapeHtml(row.document)}</td><td>${escapeHtml(row.location)}</td><td>${row.quantity}</td><td>${stockEffectLabel(row.effect)}</td><td>${tag(row.status)}</td></tr>`).join("") || `<tr><td colspan="7" class="empty">Nenhum histórico de estoque para esta peça.</td></tr>`}
         </tbody></table></div>
@@ -6179,7 +6300,7 @@
     function addStockBalance(map, stockId, spareId, delta) {
       if (!spareId || !delta) return;
       const key = `${stockId || "__unallocated"}|${spareId}`;
-      map.set(key, roundStockValue((map.get(key) || 0) + delta));
+      map.set(key, normalizeQuantityForSpareId(spareId, (map.get(key) || 0) + delta));
     }
 
     function stockBalanceRows() {
@@ -6192,7 +6313,7 @@
       });
       state.stockTransfers.forEach(item => {
         if (!item.spareId || !statusKey(item.status).startsWith("conclu")) return;
-        const quantity = Math.abs(Number(item.quantity || 0));
+        const quantity = Math.abs(normalizeQuantityForSpareId(item.spareId, item.quantity));
         addStockBalance(balances, item.originId, item.spareId, -quantity);
         addStockBalance(balances, item.destinyId, item.spareId, quantity);
       });
@@ -6202,7 +6323,7 @@
         allocatedBySpare[spareId] = roundStockValue((allocatedBySpare[spareId] || 0) + balance);
       }
       state.spareParts.forEach(spare => {
-        const unallocated = roundStockValue(Number(spare.balance || 0) - Number(allocatedBySpare[spare.id] || 0));
+        const unallocated = normalizeQuantityForUnit(spare.unit || "UN", Number(spare.balance || 0) - Number(allocatedBySpare[spare.id] || 0));
         if (unallocated) addStockBalance(balances, "__unallocated", spare.id, unallocated);
       });
       return Array.from(balances.entries())
@@ -6210,7 +6331,7 @@
           const [stockId, spareId] = key.split("|");
           const spare = byId(state.spareParts, spareId) || {};
           const stock = stockId === "__unallocated" ? null : byId(state.stockLocations, stockId);
-          return { stockId, stockName: stock?.name || "Não alocado / saldo inicial", spare, balance: roundStockValue(balance) };
+          return { stockId, stockName: stock?.name || "Não alocado / saldo inicial", spare, balance: normalizeQuantityForUnit(spare.unit || "UN", balance) };
         })
         .filter(row => row.balance !== 0)
         .sort((a, b) => String(a.stockName).localeCompare(String(b.stockName), "pt-BR") || String(a.spare.code || a.spare.name).localeCompare(String(b.spare.code || b.spare.name), "pt-BR"));
@@ -6221,7 +6342,7 @@
       const html = `
         <div class="side-box"><strong>Saldo por estoque</strong><span>Calculado por entradas, saídas, requisições atendidas e transferências concluídas. A linha "Não alocado" representa saldo inicial/manual sem movimentação vinculada a um estoque.</span></div>
         <div class="table-wrap"><table><thead><tr><th>Estoque</th><th>Peça</th><th>Saldo</th><th>Mínimo global</th><th>Situação global</th></tr></thead><tbody>
-          ${rows.map(row => `<tr><td>${escapeHtml(row.stockName)}</td><td>${escapeHtml(row.spare.code || "-")} - ${escapeHtml(row.spare.name || "Peça")}</td><td>${row.balance} ${escapeHtml(row.spare.unit || "UN")}</td><td>${Number(row.spare.minimum || 0)} ${escapeHtml(row.spare.unit || "UN")}</td><td>${tag(stockAlertStatus(row.spare).label)}</td></tr>`).join("") || `<tr><td colspan="5" class="empty">Nenhum saldo por estoque calculado.</td></tr>`}
+          ${rows.map(row => `<tr><td>${escapeHtml(row.stockName)}</td><td>${escapeHtml(row.spare.code || "-")} - ${escapeHtml(row.spare.name || "Peça")}</td><td>${formatQuantityForUnit(row.balance, row.spare.unit)} ${escapeHtml(row.spare.unit || "UN")}</td><td>${formatQuantityForUnit(row.spare.minimum, row.spare.unit)} ${escapeHtml(row.spare.unit || "UN")}</td><td>${tag(stockAlertStatus(row.spare).label)}</td></tr>`).join("") || `<tr><td colspan="5" class="empty">Nenhum saldo por estoque calculado.</td></tr>`}
         </tbody></table></div>
       `;
       openModal("Saldo por estoque", html, true);
@@ -6233,10 +6354,10 @@
       if (!state.stockLocations.length) { showToast("Crie um estoque antes de ajustar saldo."); return; }
       const stockOptions = state.stockLocations.map(item => `<option value="${item.id}">${escapeHtml(item.name)}</option>`).join("");
       openModal("Ajuste físico de saldo", `
-        <div class="side-box"><strong>${escapeHtml(spare.code)} - ${escapeHtml(spare.name)}</strong><span>Saldo atual: ${Number(spare.balance || 0)} ${escapeHtml(spare.unit || "UN")}</span><span>Informe o saldo contado fisicamente. O sistema criará uma movimentação de ajuste no Kardex.</span></div>
+        <div class="side-box"><strong>${escapeHtml(spare.code)} - ${escapeHtml(spare.name)}</strong><span>Saldo atual: ${formatQuantityForUnit(spare.balance, spare.unit)} ${escapeHtml(spare.unit || "UN")}</span><span>Informe o saldo contado fisicamente. O sistema criará uma movimentação de ajuste no Kardex.</span></div>
         <div class="form">
           <label>Estoque contado <select class="field" id="adjustStockId">${stockOptions}</select></label>
-          <label>Saldo contado <input class="field" id="adjustCountedBalance" type="number" min="0" step="0.01" value="${Number(spare.balance || 0)}"></label>
+          <label>Saldo contado <input class="field" id="adjustCountedBalance" type="number" min="0" step="${unitRequiresInteger(spare.unit || "UN") ? "1" : "0.01"}" value="${normalizeQuantityForUnit(spare.unit || "UN", spare.balance)}" title="${unitRequiresInteger(spare.unit || "UN") ? "Esta peça aceita somente quantidades inteiras." : "Esta peça aceita casas decimais."}"></label>
           <div class="full toolbar"><button class="btn primary" type="button" onclick="confirmStockAdjustment('${id}')">Confirmar ajuste</button></div>
         </div>
       `);
@@ -6246,11 +6367,13 @@
       const spare = byId(state.spareParts, spareId);
       if (!spare) return;
       const stockId = $("adjustStockId")?.value || state.stockLocations[0]?.id || "";
-      const counted = Number($("adjustCountedBalance")?.value || 0);
+      const counted = parseNumber($("adjustCountedBalance")?.value, 0);
       if (!stockId) { showToast("Selecione um estoque para o ajuste."); return; }
       if (Number.isNaN(counted) || counted < 0) { showToast("Informe um saldo contado válido."); return; }
-      const current = Number(spare.balance || 0);
-      const delta = roundStockValue(counted - current);
+      if (!validateWholeQuantityForUnit(spare.unit || "UN", counted, "Saldo contado")) return;
+      const normalizedCounted = normalizeQuantityForUnit(spare.unit || "UN", counted);
+      const current = normalizeQuantityForUnit(spare.unit || "UN", spare.balance);
+      const delta = normalizeQuantityForUnit(spare.unit || "UN", normalizedCounted - current);
       if (delta === 0) { showToast("Saldo contado igual ao saldo atual. Nenhum ajuste criado."); return; }
       const payload = {
         id: uid("stock_adjust"),
@@ -6265,7 +6388,7 @@
         owner: state.profile?.name || "Inventário físico",
         status: "Concluída",
         createdAt: Date.now(),
-        note: `Ajuste de inventário físico. Saldo anterior: ${current}. Saldo contado: ${counted}. Diferença: ${delta}.`
+        note: `Ajuste de inventário físico. Saldo anterior: ${current}. Saldo contado: ${normalizedCounted}. Diferença: ${delta}.`
       };
       if (!applyStockBalanceChange(null, payload, stockMoveBalanceEffect)) return;
       state.inventoryMovements = state.inventoryMovements.concat(payload);
@@ -6284,7 +6407,7 @@
       const rows = state.spareParts
         .slice()
         .sort((a, b) => String(a.code || a.name).localeCompare(String(b.code || b.name), "pt-BR"))
-        .map(item => `<tr><td>${escapeHtml(item.code || "-")}</td><td>${escapeHtml(item.name || "Peça")}</td><td>${Number(item.balance || 0)} ${escapeHtml(item.unit || "UN")}</td><td><input class="field" type="number" min="0" step="0.01" data-bulk-count="${item.id}" value="${Number(item.balance || 0)}"></td></tr>`)
+        .map(item => `<tr><td>${escapeHtml(item.code || "-")}</td><td>${escapeHtml(item.name || "Peça")}</td><td>${formatQuantityForUnit(item.balance, item.unit)} ${escapeHtml(item.unit || "UN")}</td><td><input class="field" type="number" min="0" step="${unitRequiresInteger(item.unit || "UN") ? "1" : "0.01"}" data-bulk-count="${item.id}" value="${normalizeQuantityForUnit(item.unit || "UN", item.balance)}" title="${unitRequiresInteger(item.unit || "UN") ? "Esta peça aceita somente quantidades inteiras." : "Esta peça aceita casas decimais."}"></td></tr>`)
         .join("");
       openModal("Inventário físico em lote", `
         <div class="side-box"><strong>Contagem em lote</strong><span>Escolha o estoque contado e ajuste apenas os saldos diferentes. O sistema criará movimentações tipo Ajuste concluído.</span></div>
@@ -6303,10 +6426,12 @@
       for (const input of inputs) {
         const spare = byId(state.spareParts, input.dataset.bulkCount);
         if (!spare) continue;
-        const counted = Number(input.value || 0);
+        const counted = parseNumber(input.value, 0);
         if (Number.isNaN(counted) || counted < 0) { showToast(`Saldo contado inválido para ${spare.code} - ${spare.name}.`); return; }
-        const current = Number(spare.balance || 0);
-        const delta = roundStockValue(counted - current);
+        if (!validateWholeQuantityForUnit(spare.unit || "UN", counted, `Saldo contado de ${spare.code}`)) return;
+        const normalizedCounted = normalizeQuantityForUnit(spare.unit || "UN", counted);
+        const current = normalizeQuantityForUnit(spare.unit || "UN", spare.balance);
+        const delta = normalizeQuantityForUnit(spare.unit || "UN", normalizedCounted - current);
         if (!delta) continue;
         payloads.push({
           id: uid("stock_adjust"),
@@ -6321,7 +6446,7 @@
           owner: state.profile?.name || "Inventário físico",
           status: "Concluída",
           createdAt: Date.now(),
-          note: `Inventário físico em lote. Saldo anterior: ${current}. Saldo contado: ${counted}. Diferença: ${delta}.`
+          note: `Inventário físico em lote. Saldo anterior: ${current}. Saldo contado: ${normalizedCounted}. Diferença: ${delta}.`
         });
       }
       if (!payloads.length) { showToast("Nenhuma diferença encontrada no inventário."); return; }
@@ -6358,19 +6483,19 @@
 
       $("spareRows").innerHTML = state.spareParts.filter(item => filter(`${item.code} ${item.name} ${supplierName(item.supplierId)}`)).map(item => {
         const stockAlert = stockAlertStatus(item);
-        return `<tr><td>${item.code}</td><td>${item.name}</td><td>${supplierName(item.supplierId)}</td><td>${Number(item.balance || 0)} ${item.unit || "UN"}</td><td>${Number(item.minimum || 0)} ${item.unit || "UN"}</td><td>${tag(stockAlert.label)}</td><td class="actions"><button class="btn" onclick="openSpareLedger('${item.id}')">Kardex</button><button class="btn" onclick="openStockAdjustment('${item.id}')">Ajustar</button><button class="btn" onclick="editSpare('${item.id}')">Editar</button><button class="btn danger" onclick="deleteSpare('${item.id}')">Excluir</button></td></tr>`;
+        return `<tr><td>${item.code}</td><td>${item.name}</td><td>${supplierName(item.supplierId)}</td><td>${formatQuantityForUnit(item.balance, item.unit)} ${item.unit || "UN"}</td><td>${formatQuantityForUnit(item.minimum, item.unit)} ${item.unit || "UN"}</td><td>${tag(stockAlert.label)}</td><td class="actions"><button class="btn" onclick="openSpareLedger('${item.id}')">Kardex</button><button class="btn" onclick="openStockAdjustment('${item.id}')">Ajustar</button><button class="btn" onclick="editSpare('${item.id}')">Editar</button><button class="btn danger" onclick="deleteSpare('${item.id}')">Excluir</button></td></tr>`;
       }).join("") || `<tr><td colspan="7" class="empty">Nenhuma peça criada.</td></tr>`;
 
       $("stockMoveRows").innerHTML = state.inventoryMovements.filter(item => filter(`${item.number} ${item.type} ${stockName(item.stockId)} ${spareName(item.spareId)}`)).map(item => `
-        <tr><td>${item.number || "-"}</td><td>${item.type}</td><td>${stockName(item.stockId)}</td><td>${spareName(item.spareId)}</td><td>${Number(item.quantity || 0)}</td><td>${tag(item.status)}</td><td class="actions"><button class="btn" onclick="editStockMove('${item.id}')">Editar</button><button class="btn danger" onclick="deleteStockMove('${item.id}')">Excluir</button></td></tr>
+        <tr><td>${item.number || "-"}</td><td>${item.type}</td><td>${stockName(item.stockId)}</td><td>${spareName(item.spareId)}</td><td>${formatQuantityForUnit(item.quantity, byId(state.spareParts, item.spareId)?.unit)}</td><td>${tag(item.status)}</td><td class="actions"><button class="btn" onclick="editStockMove('${item.id}')">Editar</button><button class="btn danger" onclick="deleteStockMove('${item.id}')">Excluir</button></td></tr>
       `).join("") || `<tr><td colspan="7" class="empty">Nenhuma movimentação de estoque criada.</td></tr>`;
 
       $("materialRequestRows").innerHTML = state.materialRequests.filter(item => filter(`${item.number} ${item.requester} ${stockName(item.stockId)} ${spareName(item.spareId)}`)).map(item => `
-        <tr><td>${item.number || "-"}</td><td>${byId(state.orders, item.orderId)?.number || "-"}</td><td>${stockName(item.stockId)}</td><td>${spareName(item.spareId)}</td><td>${Number(item.quantity || 0)}</td><td>${tag(item.status)}</td><td class="actions"><button class="btn" onclick="editMaterialRequest('${item.id}')">Editar</button><button class="btn danger" onclick="deleteMaterialRequest('${item.id}')">Excluir</button></td></tr>
+        <tr><td>${item.number || "-"}</td><td>${byId(state.orders, item.orderId)?.number || "-"}</td><td>${stockName(item.stockId)}</td><td>${spareName(item.spareId)}</td><td>${formatQuantityForUnit(item.quantity, byId(state.spareParts, item.spareId)?.unit)}</td><td>${tag(item.status)}</td><td class="actions"><button class="btn" onclick="editMaterialRequest('${item.id}')">Editar</button><button class="btn danger" onclick="deleteMaterialRequest('${item.id}')">Excluir</button></td></tr>
       `).join("") || `<tr><td colspan="7" class="empty">Nenhuma requisição criada.</td></tr>`;
 
       $("stockTransferRows").innerHTML = state.stockTransfers.filter(item => filter(`${stockName(item.originId)} ${stockName(item.destinyId)} ${spareName(item.spareId)}`)).map(item => `
-        <tr><td>${stockName(item.originId)}</td><td>${stockName(item.destinyId)}</td><td>${spareName(item.spareId)}</td><td>${Number(item.quantity || 0)}</td><td>${tag(item.status)}</td><td class="actions"><button class="btn" onclick="editStockTransfer('${item.id}')">Editar</button><button class="btn danger" onclick="deleteStockTransfer('${item.id}')">Excluir</button></td></tr>
+        <tr><td>${stockName(item.originId)}</td><td>${stockName(item.destinyId)}</td><td>${spareName(item.spareId)}</td><td>${formatQuantityForUnit(item.quantity, byId(state.spareParts, item.spareId)?.unit)}</td><td>${tag(item.status)}</td><td class="actions"><button class="btn" onclick="editStockTransfer('${item.id}')">Editar</button><button class="btn danger" onclick="deleteStockTransfer('${item.id}')">Excluir</button></td></tr>
       `).join("") || `<tr><td colspan="6" class="empty">Nenhuma transferência criada.</td></tr>`;
 
       $("regionRows").innerHTML = state.regions.map(item => {
@@ -6514,7 +6639,7 @@
 
     function resetSupplierForm() { $("supplierForm").reset(); $("supplierId").value = ""; $("supplierFormTitle").textContent = "Criar fornecedor"; }
     function resetStockForm() { $("stockForm").reset(); $("stockId").value = ""; $("stockFormTitle").textContent = "Criar estoque"; }
-    function resetSpareForm() { spareSupplierDraftId = ""; $("spareForm").reset(); $("spareId").value = ""; $("spareFormTitle").textContent = "Criar peça"; $("spareUnit").value = "UN"; $("spareBalance").readOnly = false; }
+    function resetSpareForm() { spareSupplierDraftId = ""; $("spareForm").reset(); $("spareId").value = ""; $("spareFormTitle").textContent = "Criar peça"; $("spareUnit").value = "UN"; $("spareBalance").readOnly = false; refreshSpareUnitSteps(); }
 
     async function saveSingleSupabase(table, row) {
       if (!SUPABASE_READY) return true;
@@ -6583,6 +6708,7 @@
       $("spareMinimum").value = item.minimum || 0;
       $("spareDescription").value = item.description || "";
       $("spareFormTitle").textContent = "Editar peça";
+      refreshSpareUnitSteps();
       setView("spares");
     }
 
@@ -6615,6 +6741,7 @@
     function editStockMove(id) {
       const item = byId(state.inventoryMovements, id); if (!item) return;
       $("stockMoveId").value = item.id; $("stockMoveItemId").value = item.itemId || ""; $("stockMoveType").value = item.type || "Entrada"; $("stockMoveStock").value = item.stockId || ""; $("stockMoveSpare").value = item.spareId || ""; $("stockMoveSupplier").value = item.supplierId || ""; $("stockMoveQty").value = item.quantity || 1; $("stockMoveValue").value = item.unitValue || 0; $("stockMoveOwner").value = item.owner || ""; $("stockMoveStatus").value = item.status || "Aberta"; $("stockMoveNote").value = item.note || "";
+      setQuantityInputStep("stockMoveQty", item.spareId);
       $("stockMoveFormTitle").textContent = "Editar movimentação de estoque"; setView("stockMoves");
     }
     async function deleteStockMove(id) {
@@ -6633,6 +6760,7 @@
     function editMaterialRequest(id) {
       const item = byId(state.materialRequests, id); if (!item) return;
       $("materialRequestId").value = item.id; $("materialRequestItemId").value = item.itemId || ""; $("materialRequestStock").value = item.stockId || ""; $("materialRequestOrder").value = item.orderId || ""; $("materialRequestSpare").value = item.spareId || ""; $("materialRequestQty").value = item.quantity || 1; $("materialRequestRequester").value = item.requester || ""; $("materialRequestStatus").value = item.status || "Aberta"; $("materialRequestNote").value = item.note || "";
+      setQuantityInputStep("materialRequestQty", item.spareId);
       $("materialRequestFormTitle").textContent = "Editar requisição de material"; setView("materialRequests");
     }
     async function deleteMaterialRequest(id) {
@@ -6651,6 +6779,7 @@
     function editStockTransfer(id) {
       const item = byId(state.stockTransfers, id); if (!item) return;
       $("stockTransferId").value = item.id; $("stockTransferItemId").value = item.itemId || ""; $("stockTransferOrigin").value = item.originId || ""; $("stockTransferDestiny").value = item.destinyId || ""; $("stockTransferSpare").value = item.spareId || ""; $("stockTransferQty").value = item.quantity || 1; $("stockTransferOwner").value = item.owner || ""; $("stockTransferStatus").value = item.status || "Aberta"; $("stockTransferNote").value = item.note || "";
+      setQuantityInputStep("stockTransferQty", item.spareId);
       $("stockTransferFormTitle").textContent = "Editar transferência de estoque"; setView("stockTransfers");
     }
     async function deleteStockTransfer(id) {
@@ -7657,6 +7786,14 @@
     $("spareSupplier").addEventListener("change", () => {
       spareSupplierDraftId = $("spareSupplier").value;
     });
+    $("spareUnit").addEventListener("input", refreshSpareUnitSteps);
+    [
+      ["stockMoveSpare", "stockMoveQty"],
+      ["materialRequestSpare", "materialRequestQty"],
+      ["stockTransferSpare", "stockTransferQty"]
+    ].forEach(([selectId, inputId]) => {
+      $(selectId).addEventListener("change", () => setQuantityInputStep(inputId, $(selectId).value));
+    });
 
     $("spareForm").addEventListener("submit", async event => {
       event.preventDefault();
@@ -7667,7 +7804,12 @@
       }
       const id = $("spareId").value || uid("spare");
       const existingSpare = byId(state.spareParts, id);
-      const payload = { id, code: value("spareCode"), name: value("spareName"), supplierId, supplierCode: value("spareSupplierCode"), unit: value("spareUnit") || "UN", place: value("sparePlace"), balance: existingSpare ? Number(existingSpare.balance || 0) : numberValue("spareBalance"), minimum: numberValue("spareMinimum"), description: value("spareDescription"), active: true };
+      const unit = value("spareUnit") || "UN";
+      const balance = existingSpare ? normalizeQuantityForUnit(unit, existingSpare.balance) : numberValue("spareBalance");
+      const minimum = numberValue("spareMinimum");
+      if (balance < 0 || minimum < 0) { showToast("Saldo e saldo mínimo não podem ser negativos."); return; }
+      if (!validateWholeQuantityForUnit(unit, balance, "Saldo") || !validateWholeQuantityForUnit(unit, minimum, "Saldo mínimo")) return;
+      const payload = { id, code: value("spareCode"), name: value("spareName"), supplierId, supplierCode: value("spareSupplierCode"), unit, place: value("sparePlace"), balance: normalizeQuantityForUnit(unit, balance), minimum: normalizeQuantityForUnit(unit, minimum), description: value("spareDescription"), active: true };
       state.spareParts = state.spareParts.filter(item => item.id !== id).concat(payload);
       saveState();
       const saved = await saveSingleSupabase("pecas", spareDbRow(payload));
@@ -7679,7 +7821,10 @@
       if (!$("stockMoveStock").value || !$("stockMoveSpare").value) { showToast("Selecione estoque e peça."); return; }
       const id = $("stockMoveId").value || uid("stock_move");
       const existingMove = byId(state.inventoryMovements, id);
-      const payload = { id, itemId: $("stockMoveItemId").value || uid("stock_move_item"), number: existingMove?.number || nextCode(state.inventoryMovements, "MOV"), type: $("stockMoveType").value, stockId: $("stockMoveStock").value, spareId: $("stockMoveSpare").value, supplierId: $("stockMoveSupplier").value, quantity: numberValue("stockMoveQty", 1), unitValue: numberValue("stockMoveValue"), owner: value("stockMoveOwner"), status: $("stockMoveStatus").value, note: value("stockMoveNote"), createdAt: existingMove?.createdAt || Date.now() };
+      const spareId = $("stockMoveSpare").value;
+      const quantity = numberValue("stockMoveQty", 1);
+      if (!validateWholeQuantityForSpare(spareId, quantity, "Quantidade")) return;
+      const payload = { id, itemId: $("stockMoveItemId").value || uid("stock_move_item"), number: existingMove?.number || nextCode(state.inventoryMovements, "MOV"), type: $("stockMoveType").value, stockId: $("stockMoveStock").value, spareId, supplierId: $("stockMoveSupplier").value, quantity: normalizeQuantityForSpareId(spareId, quantity), unitValue: numberValue("stockMoveValue"), owner: value("stockMoveOwner"), status: $("stockMoveStatus").value, note: value("stockMoveNote"), createdAt: existingMove?.createdAt || Date.now() };
       if (!applyStockBalanceChange(existingMove, payload, stockMoveBalanceEffect)) return;
       state.inventoryMovements = state.inventoryMovements.filter(item => item.id !== id).concat(payload);
       saveState();
@@ -7693,7 +7838,10 @@
       if (!$("materialRequestStock").value || !$("materialRequestSpare").value) { showToast("Selecione estoque e peça."); return; }
       const id = $("materialRequestId").value || uid("material_request");
       const existingRequest = byId(state.materialRequests, id);
-      const payload = { id, itemId: $("materialRequestItemId").value || uid("material_request_item"), number: existingRequest?.number || nextCode(state.materialRequests, "REQ"), stockId: $("materialRequestStock").value, orderId: $("materialRequestOrder").value, spareId: $("materialRequestSpare").value, quantity: numberValue("materialRequestQty", 1), requester: value("materialRequestRequester"), status: $("materialRequestStatus").value, note: value("materialRequestNote"), createdAt: existingRequest?.createdAt || Date.now() };
+      const spareId = $("materialRequestSpare").value;
+      const quantity = numberValue("materialRequestQty", 1);
+      if (!validateWholeQuantityForSpare(spareId, quantity, "Quantidade")) return;
+      const payload = { id, itemId: $("materialRequestItemId").value || uid("material_request_item"), number: existingRequest?.number || nextCode(state.materialRequests, "REQ"), stockId: $("materialRequestStock").value, orderId: $("materialRequestOrder").value, spareId, quantity: normalizeQuantityForSpareId(spareId, quantity), requester: value("materialRequestRequester"), status: $("materialRequestStatus").value, note: value("materialRequestNote"), createdAt: existingRequest?.createdAt || Date.now() };
       if (!applyStockBalanceChange(existingRequest, payload, materialRequestBalanceEffect)) return;
       state.materialRequests = state.materialRequests.filter(item => item.id !== id).concat(payload);
       saveState();
@@ -7708,7 +7856,10 @@
       if ($("stockTransferOrigin").value === $("stockTransferDestiny").value) { showToast("Origem e destino devem ser diferentes."); return; }
       const id = $("stockTransferId").value || uid("stock_transfer");
       const existingTransfer = byId(state.stockTransfers, id);
-      const payload = { id, itemId: $("stockTransferItemId").value || uid("stock_transfer_item"), originId: $("stockTransferOrigin").value, destinyId: $("stockTransferDestiny").value, spareId: $("stockTransferSpare").value, quantity: numberValue("stockTransferQty", 1), owner: value("stockTransferOwner"), status: $("stockTransferStatus").value, note: value("stockTransferNote"), createdAt: existingTransfer?.createdAt || Date.now() };
+      const spareId = $("stockTransferSpare").value;
+      const quantity = numberValue("stockTransferQty", 1);
+      if (!validateWholeQuantityForSpare(spareId, quantity, "Quantidade")) return;
+      const payload = { id, itemId: $("stockTransferItemId").value || uid("stock_transfer_item"), originId: $("stockTransferOrigin").value, destinyId: $("stockTransferDestiny").value, spareId, quantity: normalizeQuantityForSpareId(spareId, quantity), owner: value("stockTransferOwner"), status: $("stockTransferStatus").value, note: value("stockTransferNote"), createdAt: existingTransfer?.createdAt || Date.now() };
       state.stockTransfers = state.stockTransfers.filter(item => item.id !== id).concat(payload);
       saveState();
       const saved = await saveSingleSupabase("transferencias_estoque", stockTransferDbRow(payload));
