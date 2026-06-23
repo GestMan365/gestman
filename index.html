@@ -6571,6 +6571,11 @@
       return `${prefix}-${String(next).padStart(4, "0")}`;
     }
 
+    function stockMoveActionButtons(item) {
+      const canReceive = statusKey(item.type) === "entrada" && !statusKey(item.status).startsWith("conclu") && statusKey(item.status) !== "cancelada";
+      return `${canReceive ? `<button class="btn primary" onclick="openPurchaseReceipt('${item.id}')">Receber</button>` : ""}<button class="btn" onclick="editStockMove('${item.id}')">Editar</button><button class="btn danger" onclick="deleteStockMove('${item.id}')">Excluir</button>`;
+    }
+
     function renderTables() {
       const q = $("globalSearch").value.toLowerCase();
       const filter = text => !q || text.toLowerCase().includes(q);
@@ -6593,7 +6598,7 @@
       }).join("") || `<tr><td colspan="7" class="empty">Nenhuma peça criada.</td></tr>`;
 
       $("stockMoveRows").innerHTML = state.inventoryMovements.filter(item => filter(`${item.number} ${item.type} ${stockName(item.stockId)} ${spareName(item.spareId)}`)).map(item => `
-        <tr><td>${item.number || "-"}</td><td>${item.type}</td><td>${stockName(item.stockId)}</td><td>${spareName(item.spareId)}</td><td>${formatQuantityForUnit(item.quantity, byId(state.spareParts, item.spareId)?.unit)}</td><td>${tag(item.status)}</td><td class="actions"><button class="btn" onclick="editStockMove('${item.id}')">Editar</button><button class="btn danger" onclick="deleteStockMove('${item.id}')">Excluir</button></td></tr>
+        <tr><td>${item.number || "-"}</td><td>${item.type}</td><td>${stockName(item.stockId)}</td><td>${spareName(item.spareId)}</td><td>${formatQuantityForUnit(item.quantity, byId(state.spareParts, item.spareId)?.unit)}</td><td>${tag(item.status)}</td><td class="actions">${stockMoveActionButtons(item)}</td></tr>
       `).join("") || `<tr><td colspan="7" class="empty">Nenhuma movimentação de estoque criada.</td></tr>`;
 
       $("materialRequestRows").innerHTML = state.materialRequests.filter(item => filter(`${item.number} ${item.requester} ${stockName(item.stockId)} ${spareName(item.spareId)}`)).map(item => `
@@ -6757,6 +6762,55 @@
         console.error(error);
         return false;
       }
+    }
+
+    function openPurchaseReceipt(id) {
+      const item = byId(state.inventoryMovements, id);
+      if (!item) return;
+      const spare = byId(state.spareParts, item.spareId);
+      if (!spare) { showToast("Selecione uma peça antes de receber a compra."); return; }
+      if (statusKey(item.type) !== "entrada") { showToast("Somente entradas de estoque podem ser recebidas."); return; }
+      const step = unitRequiresInteger(spare.unit || "UN") ? "1" : "0.01";
+      openModal("Receber compra / entrada", `
+        <div class="side-box"><strong>${escapeHtml(item.number || "Entrada")}</strong><span>${escapeHtml(spare.code || "-")} - ${escapeHtml(spare.name || "Peça")}</span><span>Estoque: ${escapeHtml(stockName(item.stockId))} | Fornecedor: ${escapeHtml(supplierName(item.supplierId || spare.supplierId))}</span></div>
+        <div class="form">
+          <label>Quantidade recebida <input class="field" id="receiveStockQty" type="number" min="0" step="${step}" value="${normalizeQuantityForSpareId(item.spareId, item.quantity || 1)}" title="${unitRequiresInteger(spare.unit || "UN") ? "Esta peça aceita somente quantidades inteiras." : "Esta peça aceita casas decimais."}"></label>
+          <label>Valor unitário <input class="field" id="receiveStockValue" type="number" min="0" step="0.01" value="${Number(item.unitValue || 0)}"></label>
+          <label>Responsável <input class="field" id="receiveStockOwner" value="${escapeHtml(item.owner || state.profile?.name || "")}" placeholder="Quem recebeu"></label>
+          <label class="full">Observação <textarea class="field" id="receiveStockNote" placeholder="Nota fiscal, lote, condição do recebimento">${escapeHtml(item.note || "")}</textarea></label>
+          <div class="full toolbar"><button class="btn primary" type="button" onclick="confirmPurchaseReceipt('${id}')">Confirmar recebimento</button></div>
+        </div>
+      `);
+    }
+
+    async function confirmPurchaseReceipt(id) {
+      const existing = byId(state.inventoryMovements, id);
+      if (!existing) return;
+      const spare = byId(state.spareParts, existing.spareId);
+      if (!spare) { showToast("A peça desta entrada não foi encontrada."); return; }
+      const quantity = parseNumber($("receiveStockQty")?.value, 0);
+      const unitValue = parseNumber($("receiveStockValue")?.value, 0);
+      if (quantity <= 0) { showToast("Informe a quantidade recebida."); return; }
+      if (unitValue < 0) { showToast("Valor unitário não pode ser negativo."); return; }
+      if (!validateWholeQuantityForSpare(existing.spareId, quantity, "Quantidade recebida")) return;
+      const receivedAt = Date.now();
+      const payload = {
+        ...existing,
+        quantity: normalizeQuantityForSpareId(existing.spareId, quantity),
+        unitValue,
+        owner: value("receiveStockOwner") || existing.owner || state.profile?.name || "Recebimento",
+        status: "Concluída",
+        note: value("receiveStockNote"),
+        receivedAt
+      };
+      if (!applyStockBalanceChange(existing, payload, stockMoveBalanceEffect)) return;
+      state.inventoryMovements = state.inventoryMovements.map(item => item.id === id ? payload : item);
+      saveState();
+      const saved = await saveSingleSupabase("movimentacoes_estoque", stockMoveDbRow(payload));
+      if (saved) await saveSingleSupabase("movimentacoes_estoque_itens", stockMoveItemDbRow(payload));
+      closeModal();
+      render();
+      showToast(saved ? "Compra recebida e saldo atualizado." : "Compra recebida localmente. Sincronização pendente.");
     }
 
     function editSupplier(id) {
