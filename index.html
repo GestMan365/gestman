@@ -3255,7 +3255,7 @@
           <div class="panel-head"><div class="panel-title" id="regionFormTitle">Criar região</div></div>
           <form class="form" id="regionForm">
             <input type="hidden" id="regionId">
-            <label class="full">Nome da região <input class="field" id="regionName" required placeholder="UNIDADE 01 - FABRICA"></label>
+            <label class="full">Nome da região <input class="field" id="regionName" required placeholder="UNIDADE 01 - FÁBRICA"></label>
             <div class="full toolbar">
               <button class="btn primary" type="submit">Salvar região</button>
               <button class="btn" type="button" id="resetRegionForm">Limpar formulário</button>
@@ -3267,7 +3267,7 @@
           <form class="form" id="locationForm">
             <input type="hidden" id="locationId">
             <label>Região <select class="field" id="locationRegion"></select></label>
-            <label>Tipo <select class="field" id="locationType"><option>Linha</option><option>Area</option><option>Celula</option><option>Sala</option><option>Predio</option></select></label>
+            <label>Tipo <select class="field" id="locationType"><option>Linha</option><option value="Area">Área</option><option value="Celula">Célula</option><option>Sala</option><option value="Predio">Prédio</option></select></label>
             <label class="full">Local de instalação <input class="field" id="locationName" required placeholder="Linha 01 - Produção"></label>
             <div class="full toolbar">
               <button class="btn primary" type="submit">Salvar local</button>
@@ -3407,7 +3407,7 @@
             <div class="ai-answer" id="aiAnswer">PERGUNTE SOBRE OS DADOS CADASTRADOS NO GESTMAN365.</div>
           </div>
           <form class="ai-form" id="aiForm">
-            <label>Pergunta <textarea class="field" id="aiQuestion" placeholder="Ex: QUAIS O.S ESTAO EM EXECUCAO"></textarea></label>
+            <label>Pergunta <textarea class="field" id="aiQuestion" placeholder="Ex: QUAIS O.S ESTÃO EM EXECUÇÃO"></textarea></label>
             <button class="btn primary" type="submit">Perguntar IA</button>
             <div class="side-box"><strong>Base da IA</strong><span id="aiScopeText">Somente dados registrados no sistema.</span></div>
           </form>
@@ -3429,9 +3429,9 @@
   <div class="context-menu" id="machineMenu">
     <button class="menu-item" data-machine-action="checklists"><span><svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M7 12l3 3 7-7"/></svg></span><span>CHECKLISTS</span></button>
     <button class="menu-item" data-machine-action="newOrder"><span><svg class="ui-icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><span>NOVA O.S</span></button>
-    <button class="menu-item" data-machine-action="history"><span><svg class="ui-icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v6h6"/><path d="M12 7v6l4 2"/></svg></span><span>HISTORICO DE O.S</span></button>
+    <button class="menu-item" data-machine-action="history"><span><svg class="ui-icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v6h6"/><path d="M12 7v6l4 2"/></svg></span><span>HISTÓRICO DE O.S</span></button>
     <button class="menu-item" data-machine-action="openOrders"><span><svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/><circle cx="17" cy="16" r="2"/></svg></span><span>LISTAR O.S ABERTAS</span></button>
-    <button class="menu-item" data-machine-action="pending"><span><svg class="ui-icon" viewBox="0 0 24 24"><path d="M12 3l10 18H2L12 3z"/><path d="M12 9v5M12 18h.01"/></svg></span><span>LISTAR PENDENCIAS ABERTAS</span></button>
+    <button class="menu-item" data-machine-action="pending"><span><svg class="ui-icon" viewBox="0 0 24 24"><path d="M12 3l10 18H2L12 3z"/><path d="M12 9v5M12 18h.01"/></svg></span><span>LISTAR PENDÊNCIAS ABERTAS</span></button>
     <button class="menu-item" data-machine-action="compiled"><span><svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h17"/><path d="M8 16v-5M13 16V8M18 16v-9"/></svg></span><span>COMPILADO DE CHECKLIST</span></button>
     <button class="menu-item" data-machine-action="specialist"><span><svg class="ui-icon" viewBox="0 0 24 24"><rect x="5" y="6" width="14" height="12" rx="3"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4"/><circle cx="10" cy="12" r="1"/><circle cx="14" cy="12" r="1"/></svg></span><span>ESPECIALISTA GESTMAN365</span></button>
   </div>
@@ -4002,8 +4002,84 @@
       return String(text ?? "").replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
     }
 
+    const PT_BR_ACCENTS = [
+      ["SINCRONIZACAO", "SINCRONIZAÇÃO"], ["Sincronizacao", "Sincronização"], ["sincronizacao", "sincronização"],
+      ["TRANSFERENCIA", "TRANSFERÊNCIA"], ["Transferencia", "Transferência"], ["transferencia", "transferência"],
+      ["REQUISICAO", "REQUISIÇÃO"], ["Requisicao", "Requisição"], ["requisicao", "requisição"],
+      ["SAIDA", "SAÍDA"], ["Saida", "Saída"], ["saida", "saída"],
+      ["SEGURANCA", "SEGURANÇA"], ["Seguranca", "Segurança"], ["seguranca", "segurança"],
+      ["ALTERACOES", "ALTERAÇÕES"], ["Alteracoes", "Alterações"], ["alteracoes", "alterações"],
+      ["OBSERVACAO", "OBSERVAÇÃO"], ["Observacao", "Observação"], ["observacao", "observação"],
+      ["ESPECIFICACAO", "ESPECIFICAÇÃO"], ["Especificacao", "Especificação"], ["especificacao", "especificação"],
+      ["APLICACAO", "APLICAÇÃO"], ["Aplicacao", "Aplicação"], ["aplicacao", "aplicação"],
+      ["INFORMACOES", "INFORMAÇÕES"], ["Informacoes", "Informações"], ["informacoes", "informações"],
+      ["INFORMACAO", "INFORMAÇÃO"], ["Informacao", "Informação"], ["informacao", "informação"],
+      ["ATUALIZACAO", "ATUALIZAÇÃO"], ["Atualizacao", "Atualização"], ["atualizacao", "atualização"],
+      ["CRIACAO", "CRIAÇÃO"], ["Criacao", "Criação"], ["criacao", "criação"],
+      ["MOVIMENTACAO", "MOVIMENTAÇÃO"], ["Movimentacao", "Movimentação"], ["movimentacao", "movimentação"],
+      ["INSTALACAO", "INSTALAÇÃO"], ["Instalacao", "Instalação"], ["instalacao", "instalação"],
+      ["MANUTENCAO", "MANUTENÇÃO"], ["Manutencao", "Manutenção"], ["manutencao", "manutenção"],
+      ["VISUALIZACAO", "VISUALIZAÇÃO"], ["Visualizacao", "Visualização"], ["visualizacao", "visualização"],
+      ["REPOSICAO", "REPOSIÇÃO"], ["Reposicao", "Reposição"], ["reposicao", "reposição"],
+      ["EXECUCAO", "EXECUÇÃO"], ["Execucao", "Execução"], ["execucao", "execução"],
+      ["DURACAO", "DURAÇÃO"], ["Duracao", "Duração"], ["duracao", "duração"],
+      ["SERVICO", "SERVIÇO"], ["Servico", "Serviço"], ["servico", "serviço"],
+      ["RESPONSAVEL", "RESPONSÁVEL"], ["Responsavel", "Responsável"], ["responsavel", "responsável"],
+      ["EXCLUSAO", "EXCLUSÃO"], ["Exclusao", "Exclusão"], ["exclusao", "exclusão"],
+      ["EXCLUIDA", "EXCLUÍDA"], ["Excluida", "Excluída"], ["excluida", "excluída"],
+      ["DESCRICAO", "DESCRIÇÃO"], ["Descricao", "Descrição"], ["descricao", "descrição"],
+      ["SITUACAO", "SITUAÇÃO"], ["Situacao", "Situação"], ["situacao", "situação"],
+      ["HISTORICO", "HISTÓRICO"], ["Historico", "Histórico"], ["historico", "histórico"],
+      ["REGIOES", "REGIÕES"], ["Regioes", "Regiões"], ["regioes", "regiões"],
+      ["REGIAO", "REGIÃO"], ["Regiao", "Região"], ["regiao", "região"],
+      ["CONCLUIDAS", "CONCLUÍDAS"], ["Concluidas", "Concluídas"], ["concluidas", "concluídas"],
+      ["CONCLUIDA", "CONCLUÍDA"], ["Concluida", "Concluída"], ["concluida", "concluída"],
+      ["CRITICAS", "CRÍTICAS"], ["Criticas", "Críticas"], ["criticas", "críticas"],
+      ["CRITICO", "CRÍTICO"], ["Critico", "Crítico"], ["critico", "crítico"],
+      ["MINIMO", "MÍNIMO"], ["Minimo", "Mínimo"], ["minimo", "mínimo"],
+      ["CODIGO", "CÓDIGO"], ["Codigo", "Código"], ["codigo", "código"],
+      ["NUMERO", "NÚMERO"], ["Numero", "Número"], ["numero", "número"],
+      ["ELETRICA", "ELÉTRICA"], ["Eletrica", "Elétrica"], ["eletrica", "elétrica"],
+      ["MECANICA", "MECÂNICA"], ["Mecanica", "Mecânica"], ["mecanica", "mecânica"],
+      ["INSPECAO", "INSPEÇÃO"], ["Inspecao", "Inspeção"], ["inspecao", "inspeção"],
+      ["PENDENCIAS", "PENDÊNCIAS"], ["Pendencias", "Pendências"], ["pendencias", "pendências"],
+      ["NECESSARIOS", "NECESSÁRIOS"], ["Necessarios", "Necessários"], ["necessarios", "necessários"],
+      ["NECESSARIO", "NECESSÁRIO"], ["Necessario", "Necessário"], ["necessario", "necessário"],
+      ["VINCULOS", "VÍNCULOS"], ["Vinculos", "Vínculos"], ["vinculos", "vínculos"],
+      ["ANALISE", "ANÁLISE"], ["Analise", "Análise"], ["analise", "análise"],
+      ["FABRICA", "FÁBRICA"], ["Fabrica", "Fábrica"], ["fabrica", "fábrica"],
+      ["CELULA", "CÉLULA"], ["Celula", "Célula"], ["celula", "célula"],
+      ["PREDIO", "PRÉDIO"], ["Predio", "Prédio"], ["predio", "prédio"],
+      ["AREA", "ÁREA"], ["Area", "Área"], ["area", "área"],
+      ["AUTOMATICO", "AUTOMÁTICO"], ["Automatico", "Automático"], ["automatico", "automático"],
+      ["FISICO", "FÍSICO"], ["Fisico", "Físico"], ["fisico", "físico"],
+      ["TECNICO", "TÉCNICO"], ["Tecnico", "Técnico"], ["tecnico", "técnico"],
+      ["ULTIMO", "ÚLTIMO"], ["Ultimo", "Último"], ["ultimo", "último"],
+      ["PROXIMO", "PRÓXIMO"], ["Proximo", "Próximo"], ["proximo", "próximo"],
+      ["MEDIO", "MÉDIO"], ["Medio", "Médio"], ["medio", "médio"],
+      ["MEDIA", "MÉDIA"], ["Media", "Média"], ["media", "média"],
+      ["TEMPORARIO", "TEMPORÁRIO"], ["Temporario", "Temporário"], ["temporario", "temporário"],
+      ["RELATORIO", "RELATÓRIO"], ["Relatorio", "Relatório"], ["relatorio", "relatório"],
+      ["GRAFICO", "GRÁFICO"], ["Grafico", "Gráfico"], ["grafico", "gráfico"],
+      ["MAQUINA", "MÁQUINA"], ["Maquina", "Máquina"], ["maquina", "máquina"],
+      ["ESTAO", "ESTÃO"], ["Estao", "Estão"], ["estao", "estão"],
+      ["DISPONIVEIS", "DISPONÍVEIS"], ["Disponiveis", "Disponíveis"], ["disponiveis", "disponíveis"],
+      ["ACOES", "AÇÕES"], ["Acoes", "Ações"], ["acoes", "ações"],
+      ["PECAS", "PEÇAS"], ["Pecas", "Peças"], ["pecas", "peças"],
+      ["PECA", "PEÇA"], ["Peca", "Peça"], ["peca", "peça"],
+      ["NAO", "NÃO"], ["Nao", "Não"], ["nao", "não"]
+    ];
+
+    function ptBrText(value) {
+      let text = String(value ?? "");
+      PT_BR_ACCENTS.forEach(([source, target]) => {
+        text = text.replace(new RegExp(`\\b${source}\\b`, "g"), target);
+      });
+      return text;
+    }
+
     function showToast(message) {
-      $("toast").textContent = message;
+      $("toast").textContent = ptBrText(message);
       $("toast").classList.add("open");
       setTimeout(() => $("toast").classList.remove("open"), 2200);
     }
@@ -4104,13 +4180,13 @@
         id: order.id,
         numero: order.number,
         equipamento_id: order.assetId || null,
-        solicitante: order.requester || "NAO INFORMADO",
-        executante: order.executor || "NAO INFORMADO",
+        solicitante: order.requester || "NÃO INFORMADO",
+        executante: order.executor || "NÃO INFORMADO",
         tipo_servico: order.type || "Corretiva",
         tipo_manutencao: order.maintenance || null,
         prioridade: order.priority || "Baixa",
         status: order.status || "Aberta",
-        descricao: order.description || "NAO INFORMADO",
+        descricao: order.description || "NÃO INFORMADO",
         comentario: order.comment || null,
         categoria: order.category || null,
         equipamento_parado: Boolean(order.machineStopped),
@@ -4161,7 +4237,7 @@
       return {
         id: item.id,
         codigo: item.code || "SEM-CODIGO",
-        nome: item.name || "Peca",
+        nome: item.name || "Peça",
         fornecedor_id: item.supplierId || null,
         cod_fornecedor: item.supplierCode || null,
         descricao: item.description || null,
@@ -4183,7 +4259,7 @@
     }
 
     function materialRequestDbRow(item) {
-      return { id: item.id, numero: item.number || null, estoque_id: item.stockId || null, ordem_servico_id: item.orderId || null, solicitante: item.requester || "Nao informado", status: item.status || "Aberta", observacao: item.note || null };
+      return { id: item.id, numero: item.number || null, estoque_id: item.stockId || null, ordem_servico_id: item.orderId || null, solicitante: item.requester || "Não informado", status: item.status || "Aberta", observacao: item.note || null };
     }
 
     function materialRequestItemDbRow(item) {
@@ -4289,7 +4365,7 @@
           equipamento_id: item.assetId || null,
           de_local_id: item.fromLocationId || null,
           para_local_id: item.toLocationId || null,
-          motivo: item.reason || "Movimentacao registrada",
+          motivo: item.reason || "Movimentação registrada",
           responsavel: item.responsible || null,
           data_movimentacao: isoDate(item.createdAt) || new Date().toISOString()
         }))
@@ -4906,7 +4982,8 @@
     }
 
     function tag(value) {
-      return `<span class="tag ${tagClass(value)}">${value || "-"}</span>`;
+      const label = ptBrText(value || "-");
+      return `<span class="tag ${tagClass(label)}">${label}</span>`;
     }
 
     function actionIcon(name, className = "edit") {
@@ -5319,7 +5396,7 @@
     }
 
     function renderStatusBars() {
-      const statuses = [{ label: "Aberta", match: "aberta" }, { label: "Em execucao", match: "em exec" }, { label: "Planejada", match: "planejada" }, { label: "Concluida", match: "conclu" }];
+      const statuses = [{ label: "Aberta", match: "aberta" }, { label: "Em execução", match: "em exec" }, { label: "Planejada", match: "planejada" }, { label: "Concluída", match: "conclu" }];
       const countFor = status => state.orders.filter(order => statusKey(order.status).startsWith(status.match)).length;
       const max = Math.max(1, ...statuses.map(countFor));
       $("statusBars").innerHTML = statuses.map(status => {
@@ -5362,7 +5439,7 @@
         ["REGIOES", state.regions.length],
         ["LOCAIS DE INSTALACAO", state.locations.length],
         ["PECAS ABAIXO MINIMO", lowStockItems().length]
-      ].map(item => `<div class="report-card"><span>${item[0]}</span><strong>${item[1]}</strong></div>`).join("");
+      ].map(item => `<div class="report-card"><span>${ptBrText(item[0])}</span><strong>${item[1]}</strong></div>`).join("");
     }
 
     function renderReports() {
@@ -5375,7 +5452,7 @@
         { label: "CONCLUIDAS", count: counts.concluidas }
       ];
       const maxStatus = Math.max(1, ...statuses.map(item => item.count));
-      $("reportStatusBars").innerHTML = statuses.map(item => `<div class="bar-row"><strong>${item.label}</strong><div class="bar-track"><div class="bar" style="width:${(item.count / maxStatus) * 100}%"></div></div><span>${item.count}</span></div>`).join("");
+      $("reportStatusBars").innerHTML = statuses.map(item => `<div class="bar-row"><strong>${ptBrText(item.label)}</strong><div class="bar-track"><div class="bar" style="width:${(item.count / maxStatus) * 100}%"></div></div><span>${item.count}</span></div>`).join("");
       const locationRows = state.locations.map(location => {
         const machines = state.assets.filter(asset => asset.locationId === location.id);
         const machineIds = new Set(machines.map(asset => asset.id));
@@ -5395,7 +5472,7 @@
       $("reportExecutorRows").innerHTML = Object.entries(executors).map(([name, data]) => `<tr><td>${escapeHtml(name)}</td><td>${data.total}</td><td>${data.running}</td><td>${data.closed}</td></tr>`).join("") || `<tr><td colspan="4" class="empty">Nenhum executante registrado.</td></tr>`;
     }
 
-    const calendarMonths = ["janeiro", "fevereiro", "marco", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+    const calendarMonths = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
 
     function calendarDateKey(date) {
       const y = date.getFullYear();
@@ -5682,7 +5759,7 @@
     function exportPurchaseListCsv() {
       const rows = purchaseListItems();
       if (!rows.length) { showToast("Nenhuma peça abaixo do mínimo para exportar."); return; }
-      const header = ["Fornecedor", "Codigo", "Peca", "Cod fornecedor", "Saldo", "Minimo", "Comprar", "Unidade", "Situacao"];
+      const header = ["Fornecedor", "Código", "Peça", "Cód. fornecedor", "Saldo", "Mínimo", "Comprar", "Unidade", "Situação"];
       const lines = [header].concat(rows.map(item => [item.supplierName, item.code, item.name, item.supplierCode, item.balance, item.minimum, item.buyQuantity, item.unit, item.status]));
       const csv = lines.map(line => line.map(csvCell).join(";")).join("\n");
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
@@ -5786,14 +5863,14 @@
       const active = activeOrdersForAsset(assetId);
       if (!active.length) return null;
       if (active.some(order => isRunningOrder(order.status))) {
-        return { className: "running", count: active.length, label: "O.S em execucao" };
+        return { className: "running", count: active.length, label: "O.S em execução" };
       }
       const newest = active.reduce((latest, order) => Math.max(latest, Number(order.createdAt || 0)), 0);
       const ageMs = Date.now() - newest;
       if (ageMs <= 5 * 60 * 1000) {
         return { className: "recent", count: active.length, label: "O.S aberta recentemente" };
       }
-      return { className: "waiting", count: active.length, label: "O.S aberta aguardando inicio" };
+      return { className: "waiting", count: active.length, label: "O.S aberta aguardando início" };
     }
 
     function autoResizeLocations() {
@@ -5951,7 +6028,7 @@
       const q = $("globalSearch").value.toLowerCase();
       const map = $("industrialMap");
       if (!state.regions.length && !state.locations.length && !state.assets.length) {
-        map.innerHTML = `<div class="empty">Mapa vazio. Crie regioes, locais de instalacao e equipamentos para montar o parque industrial.</div>`;
+        map.innerHTML = `<div class="empty">Mapa vazio. Crie regiões, locais de instalação e equipamentos para montar o parque industrial.</div>`;
         $("mapDetails").innerHTML = `<strong>Nenhum equipamento selecionado</strong><span class="muted">Clique em um equipamento no mapa para ver ações.</span>`;
         return;
       }
@@ -6098,8 +6175,8 @@
       $("mapDetails").innerHTML = `
         <strong>${asset.code} - ${asset.name}</strong>
         <span>${tag(asset.criticality)} ${tag(asset.status)}</span>
-        <span>Regiao: ${regionName(location?.regionId)}</span>
-        <span>Local de instalacao: ${locationShortName(asset.locationId)}</span>
+        <span>Região: ${regionName(location?.regionId)}</span>
+        <span>Local de instalação: ${locationShortName(asset.locationId)}</span>
         <span>TAG: ${asset.code}</span>
         <span>Subtags/componentes: ${asset.components || tagName(asset.tagId) + " / " + subtagName(asset.subtagId)}</span>
         <span>Marca: ${asset.brand || "-"}</span>
@@ -6116,8 +6193,8 @@
       const activeOrders = state.orders.filter(order => machineIds.has(order.assetId) && !isClosedOrder(order.status)).length;
       $("mapDetails").innerHTML = `
         <strong>${location.name}</strong>
-        <span>Regiao: ${regionName(location.regionId)}</span>
-        <span>Tipo: ${location.type || "Local de instalacao"}</span>
+        <span>Região: ${regionName(location.regionId)}</span>
+        <span>Tipo: ${ptBrText(location.type || "Local de instalação")}</span>
         <span>TAGs cadastradas: ${machines.length}</span>
         <span>O.S ativas: ${activeOrders}</span>
         <div class="toolbar">
@@ -6164,8 +6241,8 @@
 
     function fillSelects() {
       const regionOptions = state.regions.map(item => `<option value="${item.id}">${item.name}</option>`).join("");
-      setSelectOptionsPreservingValue("locationRegion", regionOptions || `<option value="">Crie uma regiao</option>`);
-      const locOptions = [`<option value="">Sem local de instalacao</option>`].concat(state.locations.map(item => `<option value="${item.id}">${locationName(item.id)}</option>`)).join("");
+      setSelectOptionsPreservingValue("locationRegion", regionOptions || `<option value="">Crie uma região</option>`);
+      const locOptions = [`<option value="">Sem local de instalação</option>`].concat(state.locations.map(item => `<option value="${item.id}">${locationName(item.id)}</option>`)).join("");
       setSelectOptionsPreservingValue("assetLocation", locOptions);
       const tagOptions = [`<option value="">Sem tag</option>`].concat(state.tags.map(item => `<option value="${item.id}">${item.code} - ${item.name}</option>`)).join("");
       setSelectOptionsPreservingValue("assetTag", tagOptions);
@@ -6380,7 +6457,7 @@
     function exportStockValuationCsv() {
       const rows = stockValuationRows();
       if (!rows.length) { showToast("Nenhuma peça para exportar."); return; }
-      const header = ["Codigo", "Peca", "Saldo", "Unidade", "Custo unitario", "Origem do custo", "Valor total", "Percentual", "Classe ABC"];
+      const header = ["Código", "Peça", "Saldo", "Unidade", "Custo unitário", "Origem do custo", "Valor total", "Percentual", "Classe ABC"];
       const lines = [header].concat(rows.map(row => [
         row.spare.code || "",
         row.spare.name || "",
@@ -6513,7 +6590,7 @@
     function exportStockTurnoverCsv() {
       const rows = stockTurnoverRows();
       if (!rows.length) { showToast("Nenhuma peça para exportar."); return; }
-      const header = ["Codigo", "Peca", "Saldo", "Unidade", "Consumo 30d", "Consumo 90d", "Media mensal", "Cobertura dias", "Minimo atual", "Sugestao minimo", "Status"];
+      const header = ["Código", "Peça", "Saldo", "Unidade", "Consumo 30d", "Consumo 90d", "Média mensal", "Cobertura em dias", "Mínimo atual", "Sugestão de mínimo", "Status"];
       const lines = [header].concat(rows.map(row => [
         row.spare.code || "",
         row.spare.name || "",
@@ -6733,7 +6810,7 @@
       }).join("") || `<tr><td colspan="7" class="empty">Nenhuma peça criada.</td></tr>`;
 
       $("stockMoveRows").innerHTML = state.inventoryMovements.filter(item => filter(`${item.number} ${item.type} ${stockName(item.stockId)} ${spareName(item.spareId)}`)).map(item => `
-        <tr><td>${item.number || "-"}</td><td>${item.type}</td><td>${stockName(item.stockId)}</td><td>${spareName(item.spareId)}</td><td>${formatQuantityForUnit(item.quantity, byId(state.spareParts, item.spareId)?.unit)}</td><td>${tag(item.status)}</td><td class="actions">${stockMoveActionButtons(item)}</td></tr>
+        <tr><td>${item.number || "-"}</td><td>${ptBrText(item.type)}</td><td>${stockName(item.stockId)}</td><td>${spareName(item.spareId)}</td><td>${formatQuantityForUnit(item.quantity, byId(state.spareParts, item.spareId)?.unit)}</td><td>${tag(item.status)}</td><td class="actions">${stockMoveActionButtons(item)}</td></tr>
       `).join("") || `<tr><td colspan="7" class="empty">Nenhuma movimentação de estoque criada.</td></tr>`;
 
       $("materialRequestRows").innerHTML = state.materialRequests.filter(item => filter(`${item.number} ${item.requester} ${stockName(item.stockId)} ${spareName(item.spareId)}`)).map(item => `
@@ -6746,12 +6823,12 @@
 
       $("regionRows").innerHTML = state.regions.map(item => {
         const localCount = state.locations.filter(location => location.regionId === item.id).length;
-        return `<tr><td data-label="Regiao">${item.name}</td><td data-label="Locais">${localCount}</td><td data-label="Acoes" class="actions"><button class="btn" onclick="editRegion('${item.id}')">Editar</button><button class="btn danger" onclick="deleteRegion('${item.id}')">Excluir</button></td></tr>`;
-      }).join("") || `<tr><td colspan="3" class="empty">Nenhuma regiao criada.</td></tr>`;
+        return `<tr><td data-label="Região">${item.name}</td><td data-label="Locais">${localCount}</td><td data-label="Ações" class="actions"><button class="btn" onclick="editRegion('${item.id}')">Editar</button><button class="btn danger" onclick="deleteRegion('${item.id}')">Excluir</button></td></tr>`;
+      }).join("") || `<tr><td colspan="3" class="empty">Nenhuma região criada.</td></tr>`;
 
       $("locationRows").innerHTML = state.locations.map(item => `
-        <tr><td data-label="Regiao">${regionName(item.regionId)}</td><td data-label="Local">${item.name}</td><td data-label="Tipo">${item.type}</td><td data-label="Equipamentos">${state.assets.filter(asset => asset.locationId === item.id).length}</td><td data-label="Acoes" class="actions"><button class="btn" onclick="editLocation('${item.id}')">Editar</button><button class="btn danger" onclick="deleteLocation('${item.id}')">Excluir</button></td></tr>
-      `).join("") || `<tr><td colspan="5" class="empty">Nenhum local de instalacao criado.</td></tr>`;
+        <tr><td data-label="Região">${regionName(item.regionId)}</td><td data-label="Local">${item.name}</td><td data-label="Tipo">${ptBrText(item.type)}</td><td data-label="Equipamentos">${state.assets.filter(asset => asset.locationId === item.id).length}</td><td data-label="Ações" class="actions"><button class="btn" onclick="editLocation('${item.id}')">Editar</button><button class="btn danger" onclick="deleteLocation('${item.id}')">Excluir</button></td></tr>
+      `).join("") || `<tr><td colspan="5" class="empty">Nenhum local de instalação criado.</td></tr>`;
 
       const tagRows = state.tags.map(item => `
         <tr><td>Tag</td><td>${item.code}</td><td>${item.name}</td><td>${item.description || "-"}</td><td class="actions"><button class="btn" onclick="editTag('${item.id}')">Editar</button><button class="btn danger" onclick="deleteTag('${item.id}')">Excluir</button></td></tr>
@@ -6766,7 +6843,7 @@
         <tr>
           <td>${order.number}</td>
           <td>${machineName(order.assetId)}</td>
-          <td>${order.type}</td>
+          <td>${ptBrText(order.type)}</td>
           <td>${tag(order.priority)}</td>
           <td>${tag(order.status)}</td>
           <td>${order.executor || "Sem executante"}</td>
@@ -6870,13 +6947,13 @@
     function resetRegionForm() {
       $("regionForm").reset();
       $("regionId").value = "";
-      $("regionFormTitle").textContent = "Criar regiao";
+      $("regionFormTitle").textContent = "Criar região";
     }
 
     function resetLocationForm() {
       $("locationForm").reset();
       $("locationId").value = "";
-      $("locationFormTitle").textContent = "Criar local de instalacao";
+      $("locationFormTitle").textContent = "Criar local de instalação";
       if (state.regions[0]) $("locationRegion").value = state.regions[0].id;
     }
 
@@ -7113,7 +7190,7 @@
     }
 
     function openModal(title, html, large = false) {
-      $("genericTitle").textContent = title;
+      $("genericTitle").textContent = ptBrText(title);
       $("genericBody").innerHTML = html;
       $("genericModalBox").classList.toggle("large", large);
       $("genericModalBox").style.width = "";
@@ -7182,11 +7259,11 @@
     function confirmStartOrder(id) {
       const order = byId(state.orders, id);
       if (!order) return;
-      openModal("Confirmar inicio", `
+      openModal("Confirmar início", `
         <div class="side-box">
-          <strong>Confirma o inicio da ${order.number}?</strong>
+          <strong>Confirma o início da ${order.number}?</strong>
           <span>Equipamento: ${machineName(order.assetId)}</span>
-          <span>A data e hora de inicio serao registradas automaticamente.</span>
+          <span>A data e hora de início serão registradas automaticamente.</span>
           <label>Executante <input class="field" id="startExecutor" value="${order.executor || ""}" placeholder="Nome de quem esta atendendo"></label>
         </div>
         <div class="toolbar">
@@ -7209,22 +7286,22 @@
 
     function detailTabText(tabName) {
       const texts = {
-        "CheckLists": "Checklist da manutencao, itens verificados e pendencias encontradas.",
-        "Outros Custos": "Registro de custos adicionais ligados a servicos, terceiros ou despesas.",
-        "Assinatura": "Area reservada para assinatura do tecnico ou responsavel.",
+        "CheckLists": "Checklist da manutenção, itens verificados e pendências encontradas.",
+        "Outros Custos": "Registro de custos adicionais ligados a serviços, terceiros ou despesas.",
+        "Assinatura": "Área reservada para assinatura do técnico ou responsável.",
         "Detalhes": "Dados completos da ordem, datas, executantes e prioridade.",
-        "Historico": "Historico de alteracoes, movimentacoes e execucoes desta O.S.",
-        "Geral": "Dados principais da ordem de servico.",
-        "Equipe": "Equipe responsavel pela execucao.",
+        "Historico": "Histórico de alterações, movimentações e execuções desta O.S.",
+        "Geral": "Dados principais da ordem de serviço.",
+        "Equipe": "Equipe responsável pela execução.",
         "Tarefas": "Tarefas planejadas e executadas durante a O.S.",
-        "Seguranca": "Informacoes de seguranca e bloqueios necessarios.",
-        "Fotos": "Fotos vinculadas a ordem de servico.",
+        "Seguranca": "Informações de segurança e bloqueios necessários.",
+        "Fotos": "Fotos vinculadas à ordem de serviço.",
         "Anexos": "Arquivos anexados na O.S.",
-        "Documentos": "Documentos tecnicos e procedimentos relacionados.",
+        "Documentos": "Documentos técnicos e procedimentos relacionados.",
         "Materiais": "Materiais aplicados ou previstos.",
-        "Recursos": "Recursos, ferramentas e apoio necessario."
+        "Recursos": "Recursos, ferramentas e apoio necessário."
       };
-      return texts[tabName] || "Secao da ordem de servico.";
+      return texts[tabName] || "Seção da ordem de serviço.";
     }
 
     function orderMaterials(orderId) {
@@ -7314,13 +7391,13 @@
           </div>`;
       }
       if (tabName === "CheckLists") return `<strong>CHECKLISTS</strong><textarea class="field" placeholder="Itens de checklist desta O.S">${order.checklist || ""}</textarea>`;
-      if (tabName === "Outros Custos") return `<strong>OUTROS CUSTOS</strong><div class="form"><label>Descricao <input class="field" placeholder="Servico, terceiro ou despesa"></label><label>Valor <input class="field" placeholder="R$ 0,00"></label></div>`;
+      if (tabName === "Outros Custos") return `<strong>OUTROS CUSTOS</strong><div class="form"><label>Descrição <input class="field" placeholder="Serviço, terceiro ou despesa"></label><label>Valor <input class="field" placeholder="R$ 0,00"></label></div>`;
       if (tabName === "Equipe") return `<strong>EQUIPE</strong><div class="form"><label>Executante principal <input class="field" value="${order.executor || ""}"></label><label>Quantidade <input class="field" value="${order.executors || 1}"></label></div>`;
-      if (tabName === "Tarefas") return `<strong>TAREFAS</strong><div class="epi-list"><label class="epi-item"><input type="checkbox"> ANALISAR FALHA</label><label class="epi-item"><input type="checkbox"> EXECUTAR MANUTENCAO</label><label class="epi-item"><input type="checkbox"> TESTAR EQUIPAMENTO</label></div>`;
+      if (tabName === "Tarefas") return `<strong>TAREFAS</strong><div class="epi-list"><label class="epi-item"><input type="checkbox"> ANALISAR FALHA</label><label class="epi-item"><input type="checkbox"> EXECUTAR MANUTENÇÃO</label><label class="epi-item"><input type="checkbox"> TESTAR EQUIPAMENTO</label></div>`;
       if (tabName === "Fotos" || tabName === "Anexos" || tabName === "Documentos") return `<strong>${tabName.toUpperCase()}</strong><input class="field" type="file"><span class="muted">Arquivo fica vinculado visualmente nesta O.S.</span>`;
       if (tabName === "Materiais") return orderMaterialTabContent(order);
-      if (tabName === "Recursos") return `<strong>RECURSOS</strong><textarea class="field" placeholder="Ferramentas, bancada, apoio externo ou recursos necessarios"></textarea>`;
-      return `<strong>${tabName.toUpperCase()}</strong><span>${detailTabText(tabName)}</span>`;
+      if (tabName === "Recursos") return `<strong>RECURSOS</strong><textarea class="field" placeholder="Ferramentas, bancada, apoio externo ou recursos necessários"></textarea>`;
+      return `<strong>${ptBrText(tabName.toUpperCase())}</strong><span>${detailTabText(tabName)}</span>`;
     }
 
     function updateOrderExtras(id, patch) {
@@ -7439,7 +7516,7 @@
       openModal("Visualizacao de O.S", `
         <form class="order-detail" id="orderDetailForm">
           <div class="detail-tabs">
-            ${["CheckLists", "Outros Custos", "Assinatura", "Detalhes", "Historico", "Geral", "Equipe", "Tarefas", "Seguranca", "Fotos", "Anexos", "Documentos", "Materiais", "Recursos"].map((tab, index) => `<button class="detail-tab ${index === 5 ? "active" : ""}" type="button" data-detail-tab="${tab}">${tab}</button>`).join("")}
+            ${["CheckLists", "Outros Custos", "Assinatura", "Detalhes", "Historico", "Geral", "Equipe", "Tarefas", "Seguranca", "Fotos", "Anexos", "Documentos", "Materiais", "Recursos"].map((tab, index) => `<button class="detail-tab ${index === 5 ? "active" : ""}" type="button" data-detail-tab="${tab}">${ptBrText(tab)}</button>`).join("")}
           </div>
           <div class="detail-main">
           <div class="detail-toolbar">
@@ -7461,27 +7538,27 @@
             <label>Num. O.S</label><input class="field" id="detailNumber" value="${order.number}" readonly>
             <label>Plano</label><input class="field" id="detailPlan" value="${plan}">
 
-            <label>Regiao / local de instalacao</label><input class="field detail-span" value="${locationName(asset.locationId)}" readonly>
+            <label>Região / local de instalação</label><input class="field detail-span" value="${locationName(asset.locationId)}" readonly>
             <label>LI</label><input class="field detail-span" value="${asset.name || "-"}" readonly>
             <label>TAG</label><input class="field detail-span" value="${tagName(asset.tagId)} ${subtagName(asset.subtagId)}" readonly>
             <label>Solicitante</label><input class="field detail-span" id="detailRequester" value="${order.requester || ""}" placeholder="Quem abriu a O.S">
 
-            <label>Tipo de Servico</label><select class="field detail-span" id="detailType"><option>Corretiva</option><option>Preventiva</option><option>Inspecao</option><option>Eletrica</option><option>Mecanica</option></select>
-            <label>Tipo de Manutencao</label><select class="field detail-span" id="detailMaintenance"><option>Preventiva</option><option>Corretiva</option><option>Preditiva</option><option>Melhoria</option></select>
-            <label>Prioridade</label><select class="field detail-span" id="detailPriority"><option>Baixa</option><option>Media</option><option>Alta</option></select>
-            <label>Status</label><select class="field detail-span" id="detailStatus"><option>Aberta</option><option>Planejada</option><option>Em execucao</option><option>Concluida</option></select>
+            <label>Tipo de Serviço</label><select class="field detail-span" id="detailType"><option>Corretiva</option><option>Preventiva</option><option value="Inspecao">Inspeção</option><option value="Eletrica">Elétrica</option><option value="Mecanica">Mecânica</option></select>
+            <label>Tipo de Manutenção</label><select class="field detail-span" id="detailMaintenance"><option>Preventiva</option><option>Corretiva</option><option>Preditiva</option><option>Melhoria</option></select>
+            <label>Prioridade</label><select class="field detail-span" id="detailPriority"><option>Baixa</option><option value="Media">Média</option><option>Alta</option></select>
+            <label>Status</label><select class="field detail-span" id="detailStatus"><option>Aberta</option><option>Planejada</option><option value="Em execucao">Em execução</option><option value="Concluida">Concluída</option></select>
             <label>Data/Hora Programada</label><input class="field detail-span" id="detailScheduled" value="${order.scheduledAt || ""}" placeholder="dd/mm/aaaa --:--">
-            <label>Duracao Estimada</label><div class="detail-span detail-two"><input class="field" id="detailDays" type="number" min="0" value="${order.durationDays || 0}"><input class="field" id="detailHours" value="${order.durationHours || "01:00"}" placeholder="01:00 hrs"></div>
+            <label>Duração estimada</label><div class="detail-span detail-two"><input class="field" id="detailDays" type="number" min="0" value="${order.durationDays || 0}"><input class="field" id="detailHours" value="${order.durationHours || "01:00"}" placeholder="01:00 hrs"></div>
             <label>Executante</label><input class="field detail-span" id="detailExecutor" value="${order.executor || ""}" placeholder="Nome do executante">
             <label>Numero de Executantes</label><input class="field detail-span" id="detailExecutors" type="number" min="1" value="${order.executors || 1}">
-            <label>Data e Hora de Inicio</label><input class="field detail-span" value="${formatDateTime(order.startedAt)}" readonly>
+            <label>Data e hora de início</label><input class="field detail-span" value="${formatDateTime(order.startedAt)}" readonly>
             <label>Data e Hora de Termino</label><input class="field detail-span" value="${formatDateTime(order.finishedAt)}" readonly>
             <label>Descrição do defeito</label><textarea class="field detail-span" id="detailDescription" readonly>${order.description || ""}</textarea>
             <label>Comentário</label><textarea class="field detail-span" id="detailComment" placeholder="Descreva o que foi feito pelo executante">${order.comment || ""}</textarea>
           </div>
           <div class="side-box">
-            <label class="switch-line"><input type="checkbox" id="detailPending" ${order.pendingExecution ? "checked" : ""}> O.S pendente de execucao</label>
-            <label class="switch-line"><input type="checkbox" id="detailStopped" ${order.machineStopped ? "checked" : ""}> Equipamento parado durante o servico</label>
+            <label class="switch-line"><input type="checkbox" id="detailPending" ${order.pendingExecution ? "checked" : ""}> O.S pendente de execução</label>
+            <label class="switch-line"><input type="checkbox" id="detailStopped" ${order.machineStopped ? "checked" : ""}> Equipamento parado durante o serviço</label>
           </div>
           <div class="toolbar">
             <button class="btn danger" type="button" onclick="closeModal()">Cancelar</button>
@@ -7630,11 +7707,11 @@
           <label>Equipamento <select class="field" id="orderAsset">${machines || `<option value="">Cadastre um equipamento</option>`}</select></label>
           <label>Solicitante <input class="field" id="orderRequester" required placeholder="Quem abriu a ordem"></label>
           <label>Executante <input class="field" id="orderExecutor" required placeholder="Quem vai atender a ordem"></label>
-          <label>Tipo <select class="field" id="orderType"><option>Corretiva</option><option>Preventiva</option><option>Inspecao</option></select></label>
-          <label>Prioridade <select class="field" id="orderPriority"><option>Baixa</option><option>Media</option><option>Alta</option></select></label>
+          <label>Tipo <select class="field" id="orderType"><option>Corretiva</option><option>Preventiva</option><option value="Inspecao">Inspeção</option></select></label>
+          <label>Prioridade <select class="field" id="orderPriority"><option>Baixa</option><option value="Media">Média</option><option>Alta</option></select></label>
           <label>Data programada <input class="field" id="orderScheduled" type="date"></label>
           <label class="full">Descrição do defeito <textarea class="field" id="orderDescription" required ${editing ? "readonly" : ""} placeholder="Descreva o defeito informado na abertura da O.S"></textarea></label>
-          ${editing ? `<div class="full side-box"><strong>Registro automatico</strong><span>Abertura: ${formatDateTime(editing.createdAt)}</span><span>Inicio: ${formatDateTime(editing.startedAt)}</span><span>Finalizacao: ${formatDateTime(editing.finishedAt)}</span><span>Status atual: ${editing.status || "Aberta"}</span></div>` : `<div class="full side-box"><strong>Registro automatico</strong><span>Status inicial: Aberta</span><span>Data e hora de abertura serao gravadas ao salvar.</span></div>`}
+          ${editing ? `<div class="full side-box"><strong>Registro automático</strong><span>Abertura: ${formatDateTime(editing.createdAt)}</span><span>Início: ${formatDateTime(editing.startedAt)}</span><span>Finalização: ${formatDateTime(editing.finishedAt)}</span><span>Status atual: ${ptBrText(editing.status || "Aberta")}</span></div>` : `<div class="full side-box"><strong>Registro automático</strong><span>Status inicial: Aberta</span><span>Data e hora de abertura serão gravadas ao salvar.</span></div>`}
           <div class="full toolbar"><button class="btn primary" type="submit">Salvar O.S</button></div>
         </form>
       `);
@@ -7693,7 +7770,7 @@
           <label>Equipamento <select class="field" id="checkAsset">${machines || `<option value="">Cadastre um equipamento</option>`}</select></label>
           <label>ID <input class="field" id="checkCode" value="CK-${String(state.checklists.length + 1).padStart(2, "0")}"></label>
           <label class="full">Nome <input class="field" id="checkName" placeholder="Inspeção operacional"></label>
-          <label class="full">Ultimo preenchimento <input class="field" id="checkLast" placeholder="14/06/2026 08:20"></label>
+          <label class="full">Último preenchimento <input class="field" id="checkLast" placeholder="14/06/2026 08:20"></label>
           <div class="full toolbar"><button class="btn primary" type="submit">Salvar checklist</button></div>
         </form>
       `);
@@ -7710,8 +7787,8 @@
       const machineIds = new Set(machines.map(asset => asset.id));
       const rows = state.checklists.filter(item => machineIds.has(item.assetId));
       return `
-        <div class="side-box"><strong>${location?.name || "Local"}</strong><span>Regiao: ${regionName(location?.regionId)}</span><span>TAGs no local: ${machines.length}</span></div>
-        <div class="table-wrap"><table><thead><tr><th>TAG</th><th>Equipamento</th><th>Checklist</th><th>Ultimo preenchimento</th></tr></thead><tbody>
+        <div class="side-box"><strong>${location?.name || "Local"}</strong><span>Região: ${regionName(location?.regionId)}</span><span>TAGs no local: ${machines.length}</span></div>
+        <div class="table-wrap"><table><thead><tr><th>TAG</th><th>Equipamento</th><th>Checklist</th><th>Último preenchimento</th></tr></thead><tbody>
           ${rows.map(item => {
             const asset = byId(state.assets, item.assetId) || {};
             return `<tr><td>${asset.code || "-"}</td><td>${asset.name || "-"}</td><td>${item.name}</td><td>${item.lastFill || "-"}</td></tr>`;
@@ -7723,10 +7800,10 @@
     function renderLocationMovements(locationId) {
       const rows = state.movements.filter(item => item.fromLocationId === locationId || item.toLocationId === locationId);
       return `
-        <div class="table-wrap"><table><thead><tr><th>TAG</th><th>De</th><th>Para</th><th>Motivo</th><th>Responsavel</th><th>Data</th></tr></thead><tbody>
+        <div class="table-wrap"><table><thead><tr><th>TAG</th><th>De</th><th>Para</th><th>Motivo</th><th>Responsável</th><th>Data</th></tr></thead><tbody>
           ${rows.map(item => `
             <tr><td>${item.assetCode} - ${item.assetName}</td><td>${item.fromLocationName || "-"}</td><td>${item.toLocationName || "-"}</td><td>${item.reason || "-"}</td><td>${item.responsible || "-"}</td><td>${formatDateTime(item.createdAt)}</td></tr>
-          `).join("") || `<tr><td colspan="6" class="empty">Nenhuma movimentacao de TAG registrada neste local.</td></tr>`}
+          `).join("") || `<tr><td colspan="6" class="empty">Nenhuma movimentação de TAG registrada neste local.</td></tr>`}
         </tbody></table></div>
       `;
     }
@@ -7767,13 +7844,13 @@
         <div class="form">
           <label>Entre as datas <input class="field" value="16/03/2026"></label>
           <label>Ate <input class="field" value="15/06/2026"></label>
-          <label>Tipo de Servico <select class="field"><option>[Todos]</option></select></label>
-          <label>Status <select class="field"><option>${status === "active" ? "Abertas e em execucao" : status || "[Todos]"}</option></select></label>
+          <label>Tipo de Serviço <select class="field"><option>[Todos]</option></select></label>
+          <label>Status <select class="field"><option>${status === "active" ? "Abertas e em execução" : status || "[Todos]"}</option></select></label>
         </div>
         ${rows.map(order => `
           <div class="os-action-card">
             <div class="os-action-head"><span>${order.number} - ${machineName(order.assetId)}</span><span>${tag(order.status)}</span></div>
-            <div class="side-box" style="margin:10px"><span>Aberta: ${formatDateTime(order.createdAt)}</span><span>Inicio: ${formatDateTime(order.startedAt)}</span><span>Finalizacao: ${formatDateTime(order.finishedAt)}</span></div>
+            <div class="side-box" style="margin:10px"><span>Aberta: ${formatDateTime(order.createdAt)}</span><span>Início: ${formatDateTime(order.startedAt)}</span><span>Finalização: ${formatDateTime(order.finishedAt)}</span></div>
             <div class="os-actions">
               <button class="btn" onclick="showOrderDetails('${order.id}')">${actionIcon("details", "edit")}Detalhes</button>
               <button class="btn" onclick="editOrder('${order.id}')">${actionIcon("edit", "edit")}Editar / Preencher</button>
@@ -7796,7 +7873,7 @@
             <div style="background:#ff4b68;color:#fff;padding:12px 18px">GestMan365</div>
             <h2 style="color:#4055b9;margin:0">Compilado de Checklist</h2>
           </div>
-          <p><strong>Regiao:</strong> ${regionName(byId(state.locations, asset.locationId)?.regionId)} &nbsp; <strong>Local:</strong> ${locationShortName(asset.locationId)} &nbsp; <strong>Equipamento:</strong> ${asset.name} - ${asset.code}</p>
+          <p><strong>Região:</strong> ${regionName(byId(state.locations, asset.locationId)?.regionId)} &nbsp; <strong>Local:</strong> ${locationShortName(asset.locationId)} &nbsp; <strong>Equipamento:</strong> ${asset.name} - ${asset.code}</p>
           <div style="border:1px solid #999;border-radius:5px;padding:4px;margin:22px 0 4px">Não existem checklists preenchidos no período selecionado</div>
           <div style="border:1px solid #999;border-radius:5px;height:100px;padding:6px">Observações gerais</div>
           <div style="text-align:center;margin-top:120px"><button>Limpar Assinatura</button><div style="width:220px;border-top:1px solid #111;margin:12px auto 6px"></div><small>Técnico Responsável</small></div>
@@ -7856,15 +7933,15 @@
       setView("locations");
       $("regionId").value = item.id;
       $("regionName").value = item.name;
-      $("regionFormTitle").textContent = "Editar regiao";
+      $("regionFormTitle").textContent = "Editar região";
     }
 
     async function deleteRegion(id) {
       const linkedLocations = state.locations.filter(location => location.regionId === id);
       const linkedIds = new Set(linkedLocations.map(location => location.id));
       const question = linkedLocations.length
-        ? `Excluir esta regiao e ${linkedLocations.length} local(is) de instalacao vinculado(s)? Os equipamentos ficarao sem local.`
-        : "Excluir esta regiao?";
+        ? `Excluir esta região e ${linkedLocations.length} local(is) de instalação vinculado(s)? Os equipamentos ficarão sem local.`
+        : "Excluir esta região?";
       if (!confirm(question)) return;
       for (const location of linkedLocations) {
         if (!await confirmRemoteDelete("locais_instalacao", location.id, "local vinculado")) return;
@@ -7887,7 +7964,7 @@
       const item = byId(state.locations, id); if (!item) return;
       setView("locations");
       $("locationId").value = item.id; $("locationRegion").value = item.regionId || state.regions[0]?.id || ""; $("locationName").value = item.name; $("locationType").value = item.type;
-      $("locationFormTitle").textContent = "Editar local de instalacao";
+      $("locationFormTitle").textContent = "Editar local de instalação";
     }
 
     async function deleteLocation(id) {
@@ -7999,7 +8076,7 @@
       openModal("Encerramento de O.S", `
         <form class="order-detail" id="finishOrderForm">
           <div class="detail-tabs">
-            ${["CheckLists", "Outros Custos", "Assinatura", "Detalhes", "Historico", "Geral", "Equipe", "Tarefas", "Seguranca", "Fotos", "Anexos", "Documentos", "Materiais", "Recursos"].map((tab, index) => `<button class="detail-tab ${index === 5 ? "active" : ""}" type="button" data-detail-tab="${tab}">${tab}</button>`).join("")}
+            ${["CheckLists", "Outros Custos", "Assinatura", "Detalhes", "Historico", "Geral", "Equipe", "Tarefas", "Seguranca", "Fotos", "Anexos", "Documentos", "Materiais", "Recursos"].map((tab, index) => `<button class="detail-tab ${index === 5 ? "active" : ""}" type="button" data-detail-tab="${tab}">${ptBrText(tab)}</button>`).join("")}
           </div>
           <div class="detail-main">
             <div class="detail-toolbar">
@@ -8015,24 +8092,24 @@
             <div class="detail-grid">
               <label>Num. O.S</label><input class="field" value="${order.number}" readonly>
               <label>Plano</label><input class="field" id="finishPlan" value="${order.plan || "42"}">
-              <label>Regiao / local de instalacao</label><input class="field detail-span" value="${locationName(asset.locationId)}" readonly>
+              <label>Região / local de instalação</label><input class="field detail-span" value="${locationName(asset.locationId)}" readonly>
               <label>LI</label><input class="field detail-span" value="${asset.name || "-"}" readonly>
               <label>TAG</label><input class="field detail-span" value="${tagName(asset.tagId)} ${subtagName(asset.subtagId)}" readonly>
-              <label>Tipo de Servico</label><select class="field detail-span" id="finishType"><option>Corretiva</option><option>Preventiva</option><option>Inspecao</option><option>Eletrica</option><option>Mecanica</option></select>
-              <label>Tipo de Manutencao</label><select class="field detail-span" id="finishMaintenance"><option>Preventiva</option><option>Corretiva</option><option>Preditiva</option><option>Melhoria</option></select>
-              <label>Prioridade</label><select class="field detail-span" id="finishPriority"><option>Baixa</option><option>Media</option><option>Alta</option></select>
+              <label>Tipo de Serviço</label><select class="field detail-span" id="finishType"><option>Corretiva</option><option>Preventiva</option><option value="Inspecao">Inspeção</option><option value="Eletrica">Elétrica</option><option value="Mecanica">Mecânica</option></select>
+              <label>Tipo de Manutenção</label><select class="field detail-span" id="finishMaintenance"><option>Preventiva</option><option>Corretiva</option><option>Preditiva</option><option>Melhoria</option></select>
+              <label>Prioridade</label><select class="field detail-span" id="finishPriority"><option>Baixa</option><option value="Media">Média</option><option>Alta</option></select>
               <label>Data/Hora Programada</label><input class="field detail-span" id="finishScheduled" value="${order.scheduledAt || ""}" placeholder="dd/mm/aaaa --:--">
-              <label>Duracao Estimada</label><div class="detail-span detail-two"><input class="field" id="finishDays" type="number" min="0" value="${order.durationDays || 0}"><input class="field" id="finishHours" value="${order.durationHours || "01:00"}" placeholder="01:00 hrs"></div>
+              <label>Duração estimada</label><div class="detail-span detail-two"><input class="field" id="finishDays" type="number" min="0" value="${order.durationDays || 0}"><input class="field" id="finishHours" value="${order.durationHours || "01:00"}" placeholder="01:00 hrs"></div>
               <label>Executante</label><input class="field detail-span" id="finishExecutor" value="${order.executor || ""}" required placeholder="Nome do executante">
               <label>Numero de Executantes</label><input class="field detail-span" id="finishExecutors" type="number" min="1" value="${order.executors || 1}">
-              <label>Data e Hora de Inicio</label><input class="field detail-span" value="${formatDateTime(order.startedAt)}" readonly>
+              <label>Data e hora de início</label><input class="field detail-span" value="${formatDateTime(order.startedAt)}" readonly>
               <label>Data e Hora de Termino</label><input class="field detail-span" value="${formatDateTime(Date.now())}" readonly>
               <label>Descrição do defeito</label><textarea class="field detail-span" id="finishDescription" readonly>${order.description || ""}</textarea>
               <label>Comentário</label><textarea class="field detail-span" id="finishComment" required placeholder="Descreva o que foi feito pelo executante">${order.comment || ""}</textarea>
             </div>
             <div class="side-box">
-              <label class="switch-line"><input type="checkbox" id="finishPending" ${order.pendingExecution ? "checked" : ""}> O.S pendente de execucao</label>
-              <label class="switch-line"><input type="checkbox" id="finishStopped" ${order.machineStopped ? "checked" : ""}> Equipamento parado durante o servico</label>
+              <label class="switch-line"><input type="checkbox" id="finishPending" ${order.pendingExecution ? "checked" : ""}> O.S pendente de execução</label>
+              <label class="switch-line"><input type="checkbox" id="finishStopped" ${order.machineStopped ? "checked" : ""}> Equipamento parado durante o serviço</label>
             </div>
             <div class="toolbar">
               <button class="btn danger" type="button" onclick="closeModal()">Cancelar</button>
@@ -8180,11 +8257,11 @@
     });
     $("aiForm").addEventListener("submit", event => {
       event.preventDefault();
-      $("aiAnswer").textContent = answerSystemAi($("aiQuestion").value);
+      $("aiAnswer").textContent = ptBrText(answerSystemAi($("aiQuestion").value));
     });
     $("aiRefreshBtn").addEventListener("click", () => {
       renderAssistantSummary();
-      $("aiAnswer").textContent = answerSystemAi("resumo");
+      $("aiAnswer").textContent = ptBrText(answerSystemAi("resumo"));
     });
     $("themeBtn").addEventListener("click", () => applyTheme(currentTheme === "light" ? "dark" : "light"));
     $("syncBtn").addEventListener("click", () => loadSupabaseState(true));
