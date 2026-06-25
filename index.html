@@ -3112,6 +3112,35 @@
       box-shadow: 0 6px 0 -2px var(--h28-orange);
     }
 
+    body.theme-light .tab {
+      color: var(--h28-blue-dark);
+      background: rgba(255, 255, 255, .92);
+      border-color: rgba(13, 47, 115, .18);
+    }
+
+    body.theme-light .tab-icon {
+      color: currentColor;
+      background: rgba(18, 63, 141, .1);
+    }
+
+    body.theme-light .tab:hover:not(.active) {
+      color: var(--h28-blue-dark);
+      background: rgba(242, 139, 87, .16);
+      border-color: var(--h28-orange);
+    }
+
+    body.theme-light .tab.active {
+      color: #fff;
+      background: var(--h28-blue);
+      border-color: var(--h28-blue);
+    }
+
+    body.theme-light .tab.active .tab-icon,
+    body.theme-light .tab.active:hover .tab-icon {
+      color: #fff;
+      background: rgba(255, 255, 255, .16);
+    }
+
     .searchbar {
       width: 100%;
       height: 38px;
