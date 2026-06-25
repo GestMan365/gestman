@@ -504,6 +504,19 @@
       background: linear-gradient(90deg, rgba(255,138,76,.22), rgba(18,63,141,.18));
     }
 
+    .admin-grid > .form-panel ~ .panel,
+    .location-admin > .form-panel ~ .panel {
+      grid-column: 1 / -1;
+      min-width: 0;
+      width: 100%;
+    }
+
+    .admin-grid > .form-panel ~ .panel .table-wrap,
+    .location-admin > .form-panel ~ .panel .table-wrap {
+      width: 100%;
+      max-width: 100%;
+    }
+
     .crud-create-toolbar {
       margin-left: auto;
       justify-content: flex-end;
