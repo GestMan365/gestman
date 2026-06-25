@@ -490,6 +490,29 @@
       max-width: 680px;
     }
 
+    .form-panel {
+      grid-column: 1 / -1;
+      border-color: rgba(255,138,76,.45);
+      box-shadow: 0 18px 40px rgba(255,138,76,.12);
+    }
+
+    .form-panel.is-hidden {
+      display: none !important;
+    }
+
+    .form-panel.is-open .panel-head {
+      background: linear-gradient(90deg, rgba(255,138,76,.22), rgba(18,63,141,.18));
+    }
+
+    .crud-create-toolbar {
+      margin-left: auto;
+      justify-content: flex-end;
+    }
+
+    .crud-managed-form.is-crud-hidden {
+      display: none !important;
+    }
+
     .panel, .metric {
       background: var(--panel);
       border: 1px solid var(--line);
@@ -3584,7 +3607,7 @@
 
     <section class="view" id="assets">
       <div class="grid admin-grid">
-        <div class="panel">
+        <div class="panel form-panel is-hidden">
           <div class="panel-head"><div class="panel-title" id="assetFormTitle">Criar equipamento</div></div>
           <form class="form" id="assetForm">
             <input type="hidden" id="assetId">
@@ -3602,7 +3625,7 @@
             <label class="full">Descrição <textarea class="field" id="assetDescription" placeholder="Descrição do equipamento"></textarea></label>
             <div class="full toolbar">
               <button class="btn primary" type="submit">Salvar equipamento</button>
-              <button class="btn" type="button" id="resetAssetForm">Limpar formulário</button>
+              <button class="btn" type="button" id="resetAssetForm">Cancelar</button>
             </div>
           </form>
         </div>
@@ -3615,7 +3638,7 @@
 
     <section class="view" id="suppliers">
       <div class="grid admin-grid">
-        <div class="panel">
+        <div class="panel form-panel is-hidden">
           <div class="panel-head"><div class="panel-title" id="supplierFormTitle">Criar fornecedor</div></div>
           <form class="form" id="supplierForm">
             <input type="hidden" id="supplierId">
@@ -3626,7 +3649,7 @@
             <label>Email <input class="field" id="supplierEmail" placeholder="compras@fornecedor.com"></label>
             <label>Status <select class="field" id="supplierActive"><option value="true">Ativo</option><option value="false">Inativo</option></select></label>
             <label class="full">Observação <textarea class="field" id="supplierNote" placeholder="Condições, contato principal ou observações"></textarea></label>
-            <div class="full toolbar"><button class="btn primary" type="submit">Salvar fornecedor</button><button class="btn" type="button" id="resetSupplierForm">Limpar formulário</button></div>
+            <div class="full toolbar"><button class="btn primary" type="submit">Salvar fornecedor</button><button class="btn" type="button" id="resetSupplierForm">Cancelar</button></div>
           </form>
         </div>
         <div class="panel">
@@ -3638,7 +3661,7 @@
 
     <section class="view" id="stock">
       <div class="grid admin-grid">
-        <div class="panel">
+        <div class="panel form-panel is-hidden">
           <div class="panel-head"><div class="panel-title" id="stockFormTitle">Criar estoque</div></div>
           <form class="form" id="stockForm">
             <input type="hidden" id="stockId">
@@ -3646,7 +3669,7 @@
             <label>Localização <input class="field" id="stockPlace" placeholder="Prédio, sala ou setor"></label>
             <label>Responsável <input class="field" id="stockOwner" placeholder="Nome do responsável"></label>
             <label>Status <select class="field" id="stockActive"><option value="true">Ativo</option><option value="false">Inativo</option></select></label>
-            <div class="full toolbar"><button class="btn primary" type="submit">Salvar estoque</button><button class="btn" type="button" id="resetStockForm">Limpar formulário</button></div>
+            <div class="full toolbar"><button class="btn primary" type="submit">Salvar estoque</button><button class="btn" type="button" id="resetStockForm">Cancelar</button></div>
           </form>
         </div>
         <div class="panel">
@@ -3658,7 +3681,7 @@
 
     <section class="view" id="spares">
       <div class="grid admin-grid">
-        <div class="panel">
+        <div class="panel form-panel is-hidden">
           <div class="panel-head"><div class="panel-title" id="spareFormTitle">Criar peça</div></div>
           <form class="form" id="spareForm">
             <input type="hidden" id="spareId">
@@ -3671,7 +3694,7 @@
             <label>Saldo inicial/atual <input class="field" id="spareBalance" type="number" step="1" value="0" title="Na edição, o saldo é controlado pelas movimentações"></label>
             <label>Saldo mínimo <input class="field" id="spareMinimum" type="number" step="1" value="0"></label>
             <label class="full">Descrição <textarea class="field" id="spareDescription" placeholder="Aplicação, especificação ou observação técnica"></textarea></label>
-            <div class="full toolbar"><button class="btn primary" type="submit">Salvar peça</button><button class="btn" type="button" id="resetSpareForm">Limpar formulário</button></div>
+            <div class="full toolbar"><button class="btn primary" type="submit">Salvar peça</button><button class="btn" type="button" id="resetSpareForm">Cancelar</button></div>
           </form>
         </div>
         <div class="panel">
@@ -3683,7 +3706,7 @@
 
     <section class="view" id="stockMoves">
       <div class="grid admin-grid">
-        <div class="panel">
+        <div class="panel form-panel is-hidden">
           <div class="panel-head"><div class="panel-title" id="stockMoveFormTitle">Criar movimentação de estoque</div></div>
           <form class="form" id="stockMoveForm">
             <input type="hidden" id="stockMoveId"><input type="hidden" id="stockMoveItemId">
@@ -3696,7 +3719,7 @@
             <label>Responsável <input class="field" id="stockMoveOwner" placeholder="Quem registrou"></label>
             <label>Status <select class="field" id="stockMoveStatus"><option>Aberta</option><option>Concluída</option><option>Cancelada</option></select></label>
             <label class="full">Observação <textarea class="field" id="stockMoveNote"></textarea></label>
-            <div class="full toolbar"><button class="btn primary" type="submit">Salvar movimentação</button><button class="btn" type="button" id="resetStockMoveForm">Limpar formulário</button></div>
+            <div class="full toolbar"><button class="btn primary" type="submit">Salvar movimentação</button><button class="btn" type="button" id="resetStockMoveForm">Cancelar</button></div>
           </form>
         </div>
         <div class="panel">
@@ -3708,7 +3731,7 @@
 
     <section class="view" id="materialRequests">
       <div class="grid admin-grid">
-        <div class="panel">
+        <div class="panel form-panel is-hidden">
           <div class="panel-head"><div class="panel-title" id="materialRequestFormTitle">Criar requisição de material</div></div>
           <form class="form" id="materialRequestForm">
             <input type="hidden" id="materialRequestId"><input type="hidden" id="materialRequestItemId">
@@ -3719,7 +3742,7 @@
             <label>Solicitante <input class="field" id="materialRequestRequester" required placeholder="Quem solicitou"></label>
             <label>Status <select class="field" id="materialRequestStatus"><option>Aberta</option><option>Atendida</option><option>Cancelada</option></select></label>
             <label class="full">Observação <textarea class="field" id="materialRequestNote"></textarea></label>
-            <div class="full toolbar"><button class="btn primary" type="submit">Salvar requisição</button><button class="btn" type="button" id="resetMaterialRequestForm">Limpar formulário</button></div>
+            <div class="full toolbar"><button class="btn primary" type="submit">Salvar requisição</button><button class="btn" type="button" id="resetMaterialRequestForm">Cancelar</button></div>
           </form>
         </div>
         <div class="panel">
@@ -3731,7 +3754,7 @@
 
     <section class="view" id="stockTransfers">
       <div class="grid admin-grid">
-        <div class="panel">
+        <div class="panel form-panel is-hidden">
           <div class="panel-head"><div class="panel-title" id="stockTransferFormTitle">Criar transferência de estoque</div></div>
           <form class="form" id="stockTransferForm">
             <input type="hidden" id="stockTransferId"><input type="hidden" id="stockTransferItemId">
@@ -3742,7 +3765,7 @@
             <label>Responsável <input class="field" id="stockTransferOwner" placeholder="Quem transferiu"></label>
             <label>Status <select class="field" id="stockTransferStatus"><option>Aberta</option><option>Concluída</option><option>Cancelada</option></select></label>
             <label class="full">Observação <textarea class="field" id="stockTransferNote"></textarea></label>
-            <div class="full toolbar"><button class="btn primary" type="submit">Salvar transferência</button><button class="btn" type="button" id="resetStockTransferForm">Limpar formulário</button></div>
+            <div class="full toolbar"><button class="btn primary" type="submit">Salvar transferência</button><button class="btn" type="button" id="resetStockTransferForm">Cancelar</button></div>
           </form>
         </div>
         <div class="panel">
@@ -3754,18 +3777,18 @@
 
     <section class="view" id="locations">
       <div class="grid location-admin">
-        <div class="panel region-panel">
+        <div class="panel region-panel form-panel is-hidden">
           <div class="panel-head"><div class="panel-title" id="regionFormTitle">Criar região</div></div>
           <form class="form" id="regionForm">
             <input type="hidden" id="regionId">
             <label class="full">Nome da região <input class="field" id="regionName" required placeholder="UNIDADE 01 - FÁBRICA"></label>
             <div class="full toolbar">
               <button class="btn primary" type="submit">Salvar região</button>
-              <button class="btn" type="button" id="resetRegionForm">Limpar formulário</button>
+              <button class="btn" type="button" id="resetRegionForm">Cancelar</button>
             </div>
           </form>
         </div>
-        <div class="panel">
+        <div class="panel form-panel is-hidden">
           <div class="panel-head"><div class="panel-title" id="locationFormTitle">Criar local de instalação</div></div>
           <form class="form" id="locationForm">
             <input type="hidden" id="locationId">
@@ -3774,7 +3797,7 @@
             <label class="full">Local de instalação <input class="field" id="locationName" required placeholder="Linha 01 - Produção"></label>
             <div class="full toolbar">
               <button class="btn primary" type="submit">Salvar local</button>
-              <button class="btn" type="button" id="resetLocationForm">Limpar formulário</button>
+              <button class="btn" type="button" id="resetLocationForm">Cancelar</button>
             </div>
           </form>
         </div>
@@ -3791,7 +3814,7 @@
 
     <section class="view" id="tags">
       <div class="grid admin-grid">
-        <div class="panel">
+        <div class="panel form-panel is-hidden">
           <div class="panel-head"><div class="panel-title" id="tagFormTitle">Criar tag/subtag</div></div>
           <form class="form" id="tagForm">
             <input type="hidden" id="tagId">
@@ -3800,7 +3823,7 @@
             <label class="full">Descrição <textarea class="field" id="tagDescription"></textarea></label>
             <div class="full toolbar">
               <button class="btn primary" type="submit">Salvar tag</button>
-              <button class="btn" type="button" id="resetTagForm">Limpar</button>
+              <button class="btn" type="button" id="resetTagForm">Cancelar</button>
             </div>
           </form>
           <form class="form" id="subtagForm" style="border-top:1px solid var(--line)">
@@ -3810,7 +3833,7 @@
             <label class="full">Nome <input class="field" id="subtagName" required placeholder="Rolamento"></label>
             <div class="full toolbar">
               <button class="btn primary" type="submit">Salvar subtag</button>
-              <button class="btn" type="button" id="resetSubtagForm">Limpar</button>
+              <button class="btn" type="button" id="resetSubtagForm">Cancelar</button>
             </div>
           </form>
         </div>
@@ -5391,6 +5414,7 @@
       if (options.persist !== false) localStorage.setItem(ACTIVE_VIEW_KEY, nextView);
       document.querySelectorAll(".view").forEach(section => section.classList.toggle("active", section.id === nextView));
       document.querySelectorAll(".tab").forEach(tab => tab.classList.toggle("active", tab.dataset.view === nextView));
+      if (!options.keepCrudForm) hideCrudFormsInView(nextView);
       render();
     }
 
@@ -5671,7 +5695,9 @@
     function renderMachineSubtagTree(asset) {
       const tagItem = matchingTagForAsset(asset);
       const items = machineSubtagItems(asset);
-      const action = `<div class="subtag-tree-actions"><button class="tree-mini-btn" type="button" onclick="setView('tags')">Criar</button></div>`;
+      const actionForm = tagItem ? "subtagForm" : "tagForm";
+      const selectParent = tagItem ? `;$('subtagParent').value='${tagItem.id}'` : "";
+      const action = `<div class="subtag-tree-actions"><button class="tree-mini-btn" type="button" onclick="setView('tags');openCrudFormForCreate('${actionForm}')${selectParent}">Criar</button></div>`;
       const label = tagItem ? `${tagItem.code} - ${tagItem.name}` : asset.name;
       return renderSubtagTree(asset.code, label, items, false, action);
     }
@@ -7548,16 +7574,136 @@
       renderProfile();
     }
 
+    const CRUD_FORM_CONFIG = {
+      assetForm: { panelId: "assetFormPanel", tableBodyId: "assetRows", createLabel: "Criar equipamento", firstField: "assetCode", reset: resetAssetForm },
+      supplierForm: { panelId: "supplierFormPanel", tableBodyId: "supplierRows", createLabel: "Criar fornecedor", firstField: "supplierLegalName", reset: resetSupplierForm },
+      stockForm: { panelId: "stockFormPanel", tableBodyId: "stockRows", createLabel: "Criar estoque", firstField: "stockName", reset: resetStockForm },
+      spareForm: { panelId: "spareFormPanel", tableBodyId: "spareRows", createLabel: "Criar peça", firstField: "spareCode", reset: resetSpareForm },
+      stockMoveForm: { panelId: "stockMoveFormPanel", tableBodyId: "stockMoveRows", createLabel: "Criar movimentação", firstField: "stockMoveType", reset: resetStockMoveForm },
+      materialRequestForm: { panelId: "materialRequestFormPanel", tableBodyId: "materialRequestRows", createLabel: "Criar requisição", firstField: "materialRequestStock", reset: resetMaterialRequestForm },
+      stockTransferForm: { panelId: "stockTransferFormPanel", tableBodyId: "stockTransferRows", createLabel: "Criar transferência", firstField: "stockTransferOrigin", reset: resetStockTransferForm },
+      regionForm: { panelId: "regionFormPanel", tableBodyId: "regionRows", createLabel: "Criar região", firstField: "regionName", reset: resetRegionForm },
+      locationForm: { panelId: "locationFormPanel", tableBodyId: "locationRows", createLabel: "Criar local", firstField: "locationRegion", reset: resetLocationForm },
+      tagForm: { panelId: "taxonomyFormPanel", tableBodyId: "tagRows", createLabel: "Criar tag", firstField: "tagCode", reset: resetTagForm },
+      subtagForm: { panelId: "taxonomyFormPanel", tableBodyId: "tagRows", createLabel: "Criar subtag", firstField: "subtagParent", reset: resetSubtagForm }
+    };
+
+    function crudPanelFor(formId) {
+      const config = CRUD_FORM_CONFIG[formId] || {};
+      const configuredPanel = config.panelId ? $(config.panelId) : null;
+      return configuredPanel || $(formId)?.closest(".panel") || null;
+    }
+
+    function hideCrudForm(formId) {
+      const panel = crudPanelFor(formId);
+      if (!panel) return;
+      panel.classList.add("is-hidden");
+      panel.classList.remove("is-open");
+    }
+
+    function hideCrudFormsInView(viewId) {
+      const section = $(viewId);
+      if (!section) return;
+      section.querySelectorAll(".form-panel").forEach(panel => {
+        panel.classList.add("is-hidden");
+        panel.classList.remove("is-open");
+      });
+    }
+
+    function showCrudForm(formId) {
+      const config = CRUD_FORM_CONFIG[formId] || {};
+      const form = $(formId);
+      const panel = crudPanelFor(formId);
+      if (!form || !panel) return;
+      if (formId === "tagForm" || formId === "subtagForm") {
+        $("tagForm")?.classList.toggle("is-crud-hidden", formId === "subtagForm");
+        $("subtagForm")?.classList.toggle("is-crud-hidden", formId === "tagForm");
+      }
+      panel.classList.remove("is-hidden");
+      panel.classList.add("is-open");
+      requestAnimationFrame(() => {
+        panel.scrollIntoView({ behavior: "smooth", block: "start" });
+        const target = (config.firstField && $(config.firstField)) || form.querySelector("input, select, textarea");
+        if (target) {
+          try { target.focus({ preventScroll: true }); }
+          catch (error) { target.focus(); }
+        }
+      });
+    }
+
+    function openCrudFormForCreate(formId) {
+      const config = CRUD_FORM_CONFIG[formId];
+      if (!config) return;
+      if (formId === "tagForm" || formId === "subtagForm") {
+        resetTagForm();
+        resetSubtagForm();
+        $("tagFormTitle").textContent = formId === "tagForm" ? "Criar tag" : "Criar subtag";
+      } else {
+        config.reset?.();
+      }
+      showCrudForm(formId);
+    }
+
+    function addCreateButtonForTable(tbodyId, buttonId, label, formId) {
+      if ($(buttonId)) return;
+      const head = $(tbodyId)?.closest(".panel")?.querySelector(".panel-head");
+      if (!head) return;
+      let toolbar = head.querySelector(".crud-create-toolbar");
+      if (!toolbar) {
+        toolbar = document.createElement("div");
+        toolbar.className = "toolbar crud-create-toolbar";
+        head.appendChild(toolbar);
+      }
+      const button = document.createElement("button");
+      button.className = "btn primary";
+      button.type = "button";
+      button.id = buttonId;
+      button.textContent = label;
+      button.addEventListener("click", () => openCrudFormForCreate(formId));
+      toolbar.appendChild(button);
+    }
+
+    function prepareCrudUi() {
+      Object.entries(CRUD_FORM_CONFIG).forEach(([formId, config]) => {
+        const form = $(formId);
+        const panel = form?.closest(".panel");
+        if (!form || !panel) return;
+        if (config.panelId) panel.id = config.panelId;
+        panel.classList.add("form-panel", "is-hidden");
+        form.classList.add("crud-managed-form");
+      });
+      [
+        ["assetRows", "showAssetFormBtn", "Criar equipamento", "assetForm"],
+        ["supplierRows", "showSupplierFormBtn", "Criar fornecedor", "supplierForm"],
+        ["stockRows", "showStockFormBtn", "Criar estoque", "stockForm"],
+        ["spareRows", "showSpareFormBtn", "Criar peça", "spareForm"],
+        ["stockMoveRows", "showStockMoveFormBtn", "Criar movimentação", "stockMoveForm"],
+        ["materialRequestRows", "showMaterialRequestFormBtn", "Criar requisição", "materialRequestForm"],
+        ["stockTransferRows", "showStockTransferFormBtn", "Criar transferência", "stockTransferForm"],
+        ["regionRows", "showRegionFormBtn", "Criar região", "regionForm"],
+        ["locationRows", "showLocationFormBtn", "Criar local", "locationForm"],
+        ["tagRows", "showTagFormBtn", "Criar tag", "tagForm"],
+        ["tagRows", "showSubtagFormBtn", "Criar subtag", "subtagForm"]
+      ].forEach(args => addCreateButtonForTable(...args));
+      [
+        "resetAssetForm", "resetSupplierForm", "resetStockForm", "resetSpareForm",
+        "resetStockMoveForm", "resetMaterialRequestForm", "resetStockTransferForm",
+        "resetRegionForm", "resetLocationForm", "resetTagForm", "resetSubtagForm"
+      ].forEach(id => { if ($(id)) $(id).textContent = "Cancelar"; });
+    }
+
     function resetAssetForm() {
       $("assetForm").reset();
       $("assetId").value = "";
       $("assetFormTitle").textContent = "Criar equipamento";
+      hideCrudForm("assetForm");
     }
 
     function resetRegionForm() {
       $("regionForm").reset();
       $("regionId").value = "";
       $("regionFormTitle").textContent = "Criar região";
+      hideCrudForm("regionForm");
     }
 
     function resetLocationForm() {
@@ -7565,14 +7711,15 @@
       $("locationId").value = "";
       $("locationFormTitle").textContent = "Criar local de instalação";
       if (state.regions[0]) $("locationRegion").value = state.regions[0].id;
+      hideCrudForm("locationForm");
     }
 
-    function resetTagForm() { $("tagForm").reset(); $("tagId").value = ""; $("tagFormTitle").textContent = "Criar tag/subtag"; }
-    function resetSubtagForm() { $("subtagForm").reset(); $("subtagId").value = ""; }
+    function resetTagForm() { $("tagForm").reset(); $("tagId").value = ""; $("tagFormTitle").textContent = "Criar tag/subtag"; hideCrudForm("tagForm"); }
+    function resetSubtagForm() { $("subtagForm").reset(); $("subtagId").value = ""; hideCrudForm("subtagForm"); }
 
-    function resetSupplierForm() { $("supplierForm").reset(); $("supplierId").value = ""; $("supplierFormTitle").textContent = "Criar fornecedor"; }
-    function resetStockForm() { $("stockForm").reset(); $("stockId").value = ""; $("stockFormTitle").textContent = "Criar estoque"; }
-    function resetSpareForm() { spareSupplierDraftId = ""; $("spareForm").reset(); $("spareId").value = ""; $("spareFormTitle").textContent = "Criar peça"; $("spareUnit").value = "UN"; $("spareBalance").readOnly = false; refreshSpareUnitSteps(); }
+    function resetSupplierForm() { $("supplierForm").reset(); $("supplierId").value = ""; $("supplierFormTitle").textContent = "Criar fornecedor"; hideCrudForm("supplierForm"); }
+    function resetStockForm() { $("stockForm").reset(); $("stockId").value = ""; $("stockFormTitle").textContent = "Criar estoque"; hideCrudForm("stockForm"); }
+    function resetSpareForm() { spareSupplierDraftId = ""; $("spareForm").reset(); $("spareId").value = ""; $("spareFormTitle").textContent = "Criar peça"; $("spareUnit").value = "UN"; $("spareBalance").readOnly = false; refreshSpareUnitSteps(); hideCrudForm("spareForm"); }
 
     async function saveSingleSupabase(table, row) {
       if (!SUPABASE_READY) return true;
@@ -7647,6 +7794,7 @@
       $("supplierActive").value = item.active === false ? "false" : "true";
       $("supplierFormTitle").textContent = "Editar fornecedor";
       setView("suppliers");
+      showCrudForm("supplierForm");
     }
 
     async function deleteSupplier(id) {
@@ -7666,6 +7814,7 @@
       $("stockActive").value = item.active === false ? "false" : "true";
       $("stockFormTitle").textContent = "Editar estoque";
       setView("stock");
+      showCrudForm("stockForm");
     }
 
     async function deleteStock(id) {
@@ -7692,6 +7841,7 @@
       $("spareFormTitle").textContent = "Editar peça";
       refreshSpareUnitSteps();
       setView("spares");
+      showCrudForm("spareForm");
     }
 
     async function deleteSpare(id) {
@@ -7716,15 +7866,16 @@
       saveState(); render(); showToast("Peça excluída.");
     }
 
-    function resetStockMoveForm() { $("stockMoveForm").reset(); $("stockMoveId").value = ""; $("stockMoveItemId").value = ""; $("stockMoveFormTitle").textContent = "Criar movimentação de estoque"; $("stockMoveQty").value = 1; $("stockMoveValue").value = 0; }
-    function resetMaterialRequestForm() { $("materialRequestForm").reset(); $("materialRequestId").value = ""; $("materialRequestItemId").value = ""; $("materialRequestFormTitle").textContent = "Criar requisição de material"; $("materialRequestQty").value = 1; }
-    function resetStockTransferForm() { $("stockTransferForm").reset(); $("stockTransferId").value = ""; $("stockTransferItemId").value = ""; $("stockTransferFormTitle").textContent = "Criar transferência de estoque"; $("stockTransferQty").value = 1; }
+    function resetStockMoveForm() { $("stockMoveForm").reset(); $("stockMoveId").value = ""; $("stockMoveItemId").value = ""; $("stockMoveFormTitle").textContent = "Criar movimentação de estoque"; $("stockMoveQty").value = 1; $("stockMoveValue").value = 0; hideCrudForm("stockMoveForm"); }
+    function resetMaterialRequestForm() { $("materialRequestForm").reset(); $("materialRequestId").value = ""; $("materialRequestItemId").value = ""; $("materialRequestFormTitle").textContent = "Criar requisição de material"; $("materialRequestQty").value = 1; hideCrudForm("materialRequestForm"); }
+    function resetStockTransferForm() { $("stockTransferForm").reset(); $("stockTransferId").value = ""; $("stockTransferItemId").value = ""; $("stockTransferFormTitle").textContent = "Criar transferência de estoque"; $("stockTransferQty").value = 1; hideCrudForm("stockTransferForm"); }
 
     function editStockMove(id) {
       const item = byId(state.inventoryMovements, id); if (!item) return;
       $("stockMoveId").value = item.id; $("stockMoveItemId").value = item.itemId || ""; $("stockMoveType").value = item.type || "Entrada"; $("stockMoveStock").value = item.stockId || ""; $("stockMoveSpare").value = item.spareId || ""; $("stockMoveSupplier").value = item.supplierId || ""; $("stockMoveQty").value = item.quantity || 1; $("stockMoveValue").value = item.unitValue || 0; $("stockMoveOwner").value = item.owner || ""; $("stockMoveStatus").value = item.status || "Aberta"; $("stockMoveNote").value = item.note || "";
       setQuantityInputStep("stockMoveQty", item.spareId);
       $("stockMoveFormTitle").textContent = "Editar movimentação de estoque"; setView("stockMoves");
+      showCrudForm("stockMoveForm");
     }
     async function deleteStockMove(id) {
       if (!confirm("Excluir esta movimentação?")) return;
@@ -7744,6 +7895,7 @@
       $("materialRequestId").value = item.id; $("materialRequestItemId").value = item.itemId || ""; $("materialRequestStock").value = item.stockId || ""; $("materialRequestOrder").value = item.orderId || ""; $("materialRequestSpare").value = item.spareId || ""; $("materialRequestQty").value = item.quantity || 1; $("materialRequestRequester").value = item.requester || ""; $("materialRequestStatus").value = item.status || "Aberta"; $("materialRequestNote").value = item.note || "";
       setQuantityInputStep("materialRequestQty", item.spareId);
       $("materialRequestFormTitle").textContent = "Editar requisição de material"; setView("materialRequests");
+      showCrudForm("materialRequestForm");
     }
     async function deleteMaterialRequest(id) {
       if (!confirm("Excluir esta requisição?")) return;
@@ -7763,6 +7915,7 @@
       $("stockTransferId").value = item.id; $("stockTransferItemId").value = item.itemId || ""; $("stockTransferOrigin").value = item.originId || ""; $("stockTransferDestiny").value = item.destinyId || ""; $("stockTransferSpare").value = item.spareId || ""; $("stockTransferQty").value = item.quantity || 1; $("stockTransferOwner").value = item.owner || ""; $("stockTransferStatus").value = item.status || "Aberta"; $("stockTransferNote").value = item.note || "";
       setQuantityInputStep("stockTransferQty", item.spareId);
       $("stockTransferFormTitle").textContent = "Editar transferência de estoque"; setView("stockTransfers");
+      showCrudForm("stockTransferForm");
     }
     async function deleteStockTransfer(id) {
       if (!confirm("Excluir esta transferência?")) return;
@@ -8502,6 +8655,7 @@
       setView("assets");
       $("assetId").value = item.id; $("assetCode").value = item.code; $("assetName").value = item.name; $("assetLocation").value = item.locationId || ""; $("assetTag").value = item.tagId || ""; $("assetSubtag").value = item.subtagId || ""; $("assetCriticality").value = item.criticality; $("assetStatus").value = item.status; $("assetBrand").value = item.brand || ""; $("assetModel").value = item.model || ""; $("assetIcon").value = normalizeIconValue(item.icon); $("assetComponents").value = item.components || ""; $("assetDescription").value = item.description || "";
       $("assetFormTitle").textContent = "Editar equipamento";
+      showCrudForm("assetForm");
     }
 
     function duplicateAsset(id) {
@@ -8521,6 +8675,7 @@
       $("assetComponents").value = item.components || "";
       $("assetDescription").value = item.description || "";
       $("assetFormTitle").textContent = "Copiar equipamento";
+      showCrudForm("assetForm");
       showToast("Ajuste apenas o codigo e salve o equipamento copiado.");
     }
 
@@ -8550,6 +8705,7 @@
       $("regionId").value = item.id;
       $("regionName").value = item.name;
       $("regionFormTitle").textContent = "Editar região";
+      showCrudForm("regionForm");
     }
 
     async function deleteRegion(id) {
@@ -8581,6 +8737,7 @@
       setView("locations");
       $("locationId").value = item.id; $("locationRegion").value = item.regionId || state.regions[0]?.id || ""; $("locationName").value = item.name; $("locationType").value = item.type;
       $("locationFormTitle").textContent = "Editar local de instalação";
+      showCrudForm("locationForm");
     }
 
     async function deleteLocation(id) {
@@ -8601,6 +8758,8 @@
       const item = byId(state.tags, id); if (!item) return;
       setView("tags");
       $("tagId").value = item.id; $("tagCode").value = item.code; $("tagName").value = item.name; $("tagDescription").value = item.description || "";
+      $("tagFormTitle").textContent = "Editar tag";
+      showCrudForm("tagForm");
     }
 
     async function deleteTag(id) {
@@ -8621,6 +8780,8 @@
       const item = byId(state.subtags, id); if (!item) return;
       setView("tags");
       $("subtagId").value = item.id; $("subtagParent").value = item.parentId; $("subtagCode").value = item.code; $("subtagName").value = item.name;
+      $("tagFormTitle").textContent = "Editar subtag";
+      showCrudForm("subtagForm");
     }
 
     async function deleteSubtag(id) {
@@ -8809,6 +8970,8 @@
 
     window.editAsset = editAsset; window.deleteAsset = deleteAsset; window.duplicateAsset = duplicateAsset; window.editRegion = editRegion; window.deleteRegion = deleteRegion; window.editLocation = editLocation; window.deleteLocation = deleteLocation; window.editTag = editTag; window.deleteTag = deleteTag; window.editSubtag = editSubtag; window.deleteSubtag = deleteSubtag; window.editSupplier = editSupplier; window.deleteSupplier = deleteSupplier; window.editStock = editStock; window.deleteStock = deleteStock; window.editSpare = editSpare; window.deleteSpare = deleteSpare; window.editStockMove = editStockMove; window.deleteStockMove = deleteStockMove; window.editMaterialRequest = editMaterialRequest; window.deleteMaterialRequest = deleteMaterialRequest; window.editStockTransfer = editStockTransfer; window.deleteStockTransfer = deleteStockTransfer; window.editOrder = editOrder; window.deleteOrder = deleteOrder; window.startOrder = startOrder; window.confirmStartOrder = confirmStartOrder; window.finishOrder = finishOrder; window.showOrderDetails = showOrderDetails; window.simpleOrderAction = simpleOrderAction; window.editChecklist = editChecklist; window.deleteChecklist = deleteChecklist; window.openLocationChecklists = openLocationChecklists; window.openLocationMovements = openLocationMovements; window.moveDashboardWidget = moveDashboardWidget; window.resizeDashboardWidget = resizeDashboardWidget; window.hideDashboardWidget = hideDashboardWidget; window.openDashboardConfig = openDashboardConfig; window.saveDashboardVisibility = saveDashboardVisibility; window.resetDashboardLayout = resetDashboardLayout;
 
+    prepareCrudUi();
+
     document.querySelectorAll("[data-view]").forEach(button => button.addEventListener("click", () => {
       if (button.dataset.view === "activeOrders" && !isPanelMode()) {
         openOsPanelWindow();
@@ -8827,7 +8990,16 @@
       const action = moduleActions[button.dataset.moduleAction];
       if (action) action();
     }));
-    document.querySelectorAll("[data-view-button]").forEach(button => button.addEventListener("click", () => setView(button.dataset.viewButton)));
+    document.querySelectorAll("[data-view-button]").forEach(button => button.addEventListener("click", () => {
+      const view = button.dataset.viewButton;
+      setView(view);
+      const label = button.textContent.toLowerCase();
+      if (view === "assets" && label.includes("criar")) openCrudFormForCreate("assetForm");
+      if (view === "locations" && label.includes("criar")) {
+        openCrudFormForCreate("regionForm");
+        openCrudFormForCreate("locationForm");
+      }
+    }));
     $("globalSearch").addEventListener("input", render);
     document.addEventListener("click", event => {
       if (!event.target.closest("#machineMenu") && !event.target.closest("[data-machine]")) closeMachineMenu();
