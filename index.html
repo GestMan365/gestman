@@ -8277,12 +8277,12 @@
       }
     }
 
-    function showOrderDetails(id) {
+    function showOrderDetails(id, mode = "view") {
       const order = byId(state.orders, id);
       if (!order) return;
       const asset = byId(state.assets, order.assetId) || {};
       const plan = order.plan || "43";
-      openModal("Visualizacao de O.S", `
+      openModal(mode === "edit" ? "Preencher O.S" : "Visualização de O.S", `
         <form class="order-detail" id="orderDetailForm">
           <div class="detail-tabs">
             ${["CheckLists", "Outros Custos", "Assinatura", "Detalhes", "Historico", "Geral", "Equipe", "Tarefas", "Seguranca", "Fotos", "Anexos", "Documentos", "Materiais", "Recursos"].map((tab, index) => `<button class="detail-tab ${index === 5 ? "active" : ""}" type="button" data-detail-tab="${tab}">${ptBrText(tab)}</button>`).join("")}
@@ -8349,34 +8349,51 @@
           wireDetailTab(tabName, id);
         });
       });
-      $("orderDetailForm").addEventListener("submit", event => {
+      $("orderDetailForm").addEventListener("submit", async event => {
         event.preventDefault();
+        if (event.submitter) event.submitter.disabled = true;
         const now = Date.now();
         const status = $("detailStatus").value;
-        state.orders = state.orders.map(item => item.id === id ? {
-          ...item,
-          plan: $("detailPlan").value,
-          type: $("detailType").value,
-          maintenance: $("detailMaintenance").value,
-          priority: $("detailPriority").value,
-          status,
-          scheduledAt: $("detailScheduled").value,
-          durationDays: $("detailDays").value,
-          durationHours: $("detailHours").value,
-          executor: $("detailExecutor").value,
-          executors: $("detailExecutors").value,
-          requester: $("detailRequester").value,
-          comment: $("detailComment").value,
-          description: item.description || "",
-          pendingExecution: $("detailPending").checked,
-          machineStopped: $("detailStopped").checked,
-          startedAt: isRunningOrder(status) ? (item.startedAt || now) : item.startedAt || null,
-          finishedAt: isClosedOrder(status) ? (item.finishedAt || now) : item.finishedAt || null
-        } : item);
+        let updatedOrder = null;
+        const previousStatus = order.status || "Aberta";
+        state.orders = state.orders.map(item => {
+          if (item.id !== id) return item;
+          updatedOrder = {
+            ...item,
+            plan: $("detailPlan").value,
+            type: $("detailType").value,
+            maintenance: $("detailMaintenance").value,
+            priority: $("detailPriority").value,
+            status,
+            scheduledAt: $("detailScheduled").value,
+            durationDays: $("detailDays").value,
+            durationHours: $("detailHours").value,
+            executor: $("detailExecutor").value,
+            executors: $("detailExecutors").value,
+            requester: $("detailRequester").value,
+            comment: $("detailComment").value,
+            description: item.description || "",
+            pendingExecution: $("detailPending").checked,
+            machineStopped: $("detailStopped").checked,
+            startedAt: isRunningOrder(status) ? (item.startedAt || now) : item.startedAt || null,
+            finishedAt: isClosedOrder(status) ? (item.finishedAt || now) : item.finishedAt || null
+          };
+          return updatedOrder;
+        });
         saveState();
+        const remoteSaved = await saveOrderSupabaseNow(updatedOrder);
+        if (remoteSaved) {
+          await saveOrderEventSupabase(updatedOrder, "ATUALIZADA", {
+            status_anterior: previousStatus,
+            status_atual: updatedOrder.status || ""
+          });
+        }
         closeModal();
         render();
-        showToast("Detalhes da O.S salvos.");
+        showToast(remoteSaved
+          ? "Detalhes da O.S salvos no Supabase."
+          : "Detalhes da O.S salvos localmente. Sincronização pendente."
+        );
       });
     }
 
@@ -8794,7 +8811,7 @@
 
     function editOrder(id) {
       const item = byId(state.orders, id); if (!item) return;
-      openOrderModal(item.assetId, id);
+      showOrderDetails(item.id, "edit");
     }
 
     async function deleteOrder(id, ask = true) {
