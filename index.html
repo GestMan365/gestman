@@ -4047,7 +4047,7 @@
       const deleted = await deleteSupabaseRow(table, id, { silent: true });
       if (!deleted) {
         forgetDeletedRecord(table, id);
-        showToast(`Nao consegui confirmar a exclusao de ${label} no Supabase.`);
+        showToast(`Não consegui confirmar a exclusão de ${label} no Supabase.`);
         return false;
       }
       return true;
@@ -4076,15 +4076,15 @@
         try {
           if (table === "pecas") {
             const dependenciesDeleted = await deleteSpareDependenciesSupabase(id);
-            if (!dependenciesDeleted) throw new Error("Falha ao excluir vinculos da peca.");
+            if (!dependenciesDeleted) throw new Error("Falha ao excluir vínculos da peça.");
           }
           const confirmed = await performConfirmedDelete(table, id);
-          if (!confirmed) throw new Error("Exclusao nao confirmada pelo Supabase.");
+          if (!confirmed) throw new Error("Exclusão não confirmada pelo Supabase.");
           removePendingUpsert(table, id);
           removeBaselineRow(table, id);
           deletedRecords[table][id] = { ...(deletedRecords[table][id] || {}), confirmed: true };
         } catch (error) {
-          console.error(`Falha ao confirmar exclusao em ${table}:`, error);
+          console.error(`Falha ao confirmar exclusão em ${table}:`, error);
           errors.push({ table, id, error });
         }
       }
@@ -4483,7 +4483,7 @@
         return typeof data === "string" ? data : nextOrderNumber();
       } catch (error) {
         console.error(error);
-        showToast("Nao consegui buscar numero no Supabase. Usei numero local temporario.");
+        showToast("Não consegui buscar número no Supabase. Usei número local temporário.");
         return nextOrderNumber();
       }
     }
@@ -4497,7 +4497,7 @@
     }
 
     async function supabaseFetch(path, options = {}) {
-      if (!SUPABASE_READY) throw new Error("Supabase nao configurado.");
+      if (!SUPABASE_READY) throw new Error("Supabase não configurado.");
       const response = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
         ...options,
         headers: supabaseHeaders(options.headers || {})
@@ -4853,7 +4853,7 @@
       if (!SUPABASE_READY || !id || !isUuid(id)) return false;
       try {
         const confirmed = await performConfirmedDelete(table, id);
-        if (!confirmed) throw new Error("Exclusao nao confirmada pelo Supabase.");
+        if (!confirmed) throw new Error("Exclusão não confirmada pelo Supabase.");
         removePendingUpsert(table, id);
         removeBaselineRow(table, id);
         if (deletedRecords?.[table]?.[id]) {
@@ -4863,7 +4863,7 @@
         return true;
       } catch (error) {
         console.error(error);
-        if (!options.silent) showToast("Nao consegui confirmar a exclusao no Supabase.");
+        if (!options.silent) showToast("Não consegui confirmar a exclusão no Supabase.");
         return false;
       }
     }
@@ -5141,7 +5141,7 @@
         return failures.length === 0;
       } catch (error) {
         console.error(error);
-        if (showMessage) showToast("Nao consegui carregar o Supabase. Os dados locais foram preservados.");
+        if (showMessage) showToast("Não consegui carregar o Supabase. Os dados locais foram preservados.");
         return false;
       } finally {
         isLoadingRemote = false;
@@ -5150,7 +5150,7 @@
           if (showMessage) {
             showToast(uploaded
               ? "Cadastro enviado ao Supabase para alinhar os aparelhos."
-              : "Alguns dados continuam pendentes. Verifique a conexao e tente novamente.");
+              : "Alguns dados continuam pendentes. Verifique a conexão e tente novamente.");
           }
         }
       }
@@ -5775,15 +5775,15 @@
       const counts = orderStatusCounts();
       target.innerHTML = [
         ["O.S ABERTAS", counts.abertas],
-        ["O.S EM EXECUCAO", counts.execucao],
-        ["O.S CONCLUIDAS", counts.concluidas],
+        ["O.S EM EXECUÇÃO", counts.execucao],
+        ["O.S CONCLUÍDAS", counts.concluidas],
         ["EQUIPAMENTOS", state.assets.length],
-        ["MTTR MEDIO", `${metrics.mttr.toFixed(1)}H`],
-        ["MTBF MEDIO", `${metrics.mtbf.toFixed(0)}H`],
+        ["MTTR MÉDIO", `${metrics.mttr.toFixed(1)}H`],
+        ["MTBF MÉDIO", `${metrics.mtbf.toFixed(0)}H`],
         ["DISPONIBILIDADE", `${metrics.availability.toFixed(1)}%`],
-        ["REGIOES", state.regions.length],
-        ["LOCAIS DE INSTALACAO", state.locations.length],
-        ["PECAS ABAIXO MINIMO", lowStockItems().length]
+        ["REGIÕES", state.regions.length],
+        ["LOCAIS DE INSTALAÇÃO", state.locations.length],
+        ["PEÇAS ABAIXO DO MÍNIMO", lowStockItems().length]
       ].map(item => `<div class="report-card"><span>${ptBrText(item[0])}</span><strong>${item[1]}</strong></div>`).join("");
     }
 
@@ -5793,8 +5793,8 @@
       const counts = orderStatusCounts();
       const statuses = [
         { label: "ABERTAS", count: counts.abertas },
-        { label: "EM EXECUCAO", count: counts.execucao },
-        { label: "CONCLUIDAS", count: counts.concluidas }
+        { label: "EM EXECUÇÃO", count: counts.execucao },
+        { label: "CONCLUÍDAS", count: counts.concluidas }
       ];
       const maxStatus = Math.max(1, ...statuses.map(item => item.count));
       $("reportStatusBars").innerHTML = statuses.map(item => `<div class="bar-row"><strong>${ptBrText(item.label)}</strong><div class="bar-track"><div class="bar" style="width:${(item.count / maxStatus) * 100}%"></div></div><span>${item.count}</span></div>`).join("");
@@ -6164,24 +6164,24 @@
       const open = state.orders.filter(order => statusKey(order.status).startsWith("aberta"));
       const critical = state.assets.filter(asset => asset.criticality === "Alta");
       if (!question.trim()) return "DIGITE UMA PERGUNTA SOBRE OS DADOS DO SISTEMA.";
-      if (q.includes("internet") || q.includes("fora")) return "ESTA IA ESTA RESTRITA AOS DADOS CADASTRADOS NO GESTMAN365. NAO CONSULTO INTERNET NEM FONTES EXTERNAS.";
-      if (q.includes("mttr") || q.includes("mtbf") || q.includes("dispon")) return `MTTR MEDIO: ${metrics.mttr.toFixed(1)}H.\nMTBF MEDIO: ${metrics.mtbf.toFixed(0)}H.\nDISPONIBILIDADE: ${metrics.availability.toFixed(1)}%.`;
-      if (q.includes("execu")) return running.length ? running.map(order => `${order.number} | ${machineName(order.assetId)} | EXECUTANTE: ${order.executor || "SEM EXECUTANTE"}`).join("\n") : "NAO HA O.S EM EXECUCAO.";
-      if (q.includes("abert")) return open.length ? open.map(order => `${order.number} | ${machineName(order.assetId)} | PRIORIDADE: ${order.priority} | EXECUTANTE: ${order.executor || "SEM EXECUTANTE"}`).join("\n") : "NAO HA O.S ABERTA.";
+      if (q.includes("internet") || q.includes("fora")) return "ESTA IA ESTÁ RESTRITA AOS DADOS CADASTRADOS NO GESTMAN365. NÃO CONSULTO INTERNET NEM FONTES EXTERNAS.";
+      if (q.includes("mttr") || q.includes("mtbf") || q.includes("dispon")) return `MTTR MÉDIO: ${metrics.mttr.toFixed(1)}H.\nMTBF MÉDIO: ${metrics.mtbf.toFixed(0)}H.\nDISPONIBILIDADE: ${metrics.availability.toFixed(1)}%.`;
+      if (q.includes("execu")) return running.length ? running.map(order => `${order.number} | ${machineName(order.assetId)} | EXECUTANTE: ${order.executor || "SEM EXECUTANTE"}`).join("\n") : "NÃO HÁ O.S EM EXECUÇÃO.";
+      if (q.includes("abert")) return open.length ? open.map(order => `${order.number} | ${machineName(order.assetId)} | PRIORIDADE: ${order.priority} | EXECUTANTE: ${order.executor || "SEM EXECUTANTE"}`).join("\n") : "NÃO HÁ O.S ABERTA.";
       if (q.includes("execut")) {
         const names = [...new Set(state.orders.map(order => order.executor || "SEM EXECUTANTE"))];
         return names.length ? names.map(name => `${name}: ${state.orders.filter(order => (order.executor || "SEM EXECUTANTE") === name).length} O.S`).join("\n") : "NENHUM EXECUTANTE REGISTRADO.";
       }
-      if (q.includes("critic") || q.includes("alta")) return critical.length ? critical.map(asset => `${asset.code} - ${asset.name} | REGIAO/LOCAL: ${locationName(asset.locationId)}`).join("\n") : "NAO HA EQUIPAMENTOS DE ALTA CRITICIDADE CADASTRADOS.";
+      if (q.includes("critic") || q.includes("alta")) return critical.length ? critical.map(asset => `${asset.code} - ${asset.name} | REGIÃO/LOCAL: ${locationName(asset.locationId)}`).join("\n") : "NÃO HÁ EQUIPAMENTOS DE ALTA CRITICIDADE CADASTRADOS.";
       if (q.includes("estoque") || q.includes("peca") || q.includes("minimo") || q.includes("reposicao") || q.includes("compr")) {
         const low = lowStockItems();
-        return low.length ? low.map(item => `${item.code} - ${item.name} | SALDO: ${formatQuantityForUnit(item.balance, item.unit)} ${item.unit || "UN"} | MINIMO: ${formatQuantityForUnit(item.minimum, item.unit)} | COMPRAR: ${formatQuantityForUnit(item.stockAlert.shortage, item.unit)} ${item.unit || "UN"}`).join("\n") : "NAO HA PECAS ABAIXO DO MINIMO.";
+        return low.length ? low.map(item => `${item.code} - ${item.name} | SALDO: ${formatQuantityForUnit(item.balance, item.unit)} ${item.unit || "UN"} | MÍNIMO: ${formatQuantityForUnit(item.minimum, item.unit)} | COMPRAR: ${formatQuantityForUnit(item.stockAlert.shortage, item.unit)} ${item.unit || "UN"}`).join("\n") : "NÃO HÁ PEÇAS ABAIXO DO MÍNIMO.";
       }
-      if (q.includes("regiao")) return state.regions.length ? state.regions.map(region => `${region.name}: ${state.locations.filter(location => location.regionId === region.id).length} LOCAIS DE INSTALACAO`).join("\n") : "NENHUMA REGIAO CADASTRADA.";
-      if (q.includes("local") || q.includes("linha") || q.includes("fase")) return state.locations.length ? state.locations.map(location => `${regionName(location.regionId)} / ${location.name}: ${state.assets.filter(asset => asset.locationId === location.id).length} EQUIPAMENTOS`).join("\n") : "NENHUM LOCAL DE INSTALACAO CADASTRADO.";
-      if (q.includes("equipamento") || q.includes("equip")) return state.assets.length ? state.assets.map(asset => `${asset.code} - ${asset.name} | ${locationName(asset.locationId)} | ${asset.status}`).join("\n") : "NENHUMA EQUIPAMENTO CADASTRADA.";
-      if (q.includes("resumo") || q.includes("geral")) return `RESUMO DO SISTEMA:\nO.S TOTAL: ${counts.total}\nABERTAS: ${counts.abertas}\nEM EXECUCAO: ${counts.execucao}\nCONCLUIDAS: ${counts.concluidas}\nEQUIPAMENTOS: ${state.assets.length}\nREGIOES: ${state.regions.length}\nLOCAIS DE INSTALACAO: ${state.locations.length}\nPECAS ABAIXO DO MINIMO: ${lowStockItems().length}`;
-      return `TENHO DADOS DO SISTEMA SOBRE ${state.assets.length} EQUIPAMENTOS, ${state.regions.length} REGIOES, ${state.locations.length} LOCAIS DE INSTALACAO, ${state.orders.length} ORDENS DE SERVICO E ${lowStockItems().length} PECAS ABAIXO DO MINIMO. PERGUNTE POR O.S ABERTAS, EM EXECUCAO, EXECUTANTE, ESTOQUE MINIMO, MTTR, MTBF, DISPONIBILIDADE, REGIAO, LOCAL OU EQUIPAMENTO.`;
+      if (q.includes("regiao")) return state.regions.length ? state.regions.map(region => `${region.name}: ${state.locations.filter(location => location.regionId === region.id).length} LOCAIS DE INSTALAÇÃO`).join("\n") : "NENHUMA REGIÃO CADASTRADA.";
+      if (q.includes("local") || q.includes("linha") || q.includes("fase")) return state.locations.length ? state.locations.map(location => `${regionName(location.regionId)} / ${location.name}: ${state.assets.filter(asset => asset.locationId === location.id).length} EQUIPAMENTOS`).join("\n") : "NENHUM LOCAL DE INSTALAÇÃO CADASTRADO.";
+      if (q.includes("equipamento") || q.includes("equip")) return state.assets.length ? state.assets.map(asset => `${asset.code} - ${asset.name} | ${locationName(asset.locationId)} | ${asset.status}`).join("\n") : "NENHUM EQUIPAMENTO CADASTRADO.";
+      if (q.includes("resumo") || q.includes("geral")) return `RESUMO DO SISTEMA:\nO.S TOTAL: ${counts.total}\nABERTAS: ${counts.abertas}\nEM EXECUÇÃO: ${counts.execucao}\nCONCLUÍDAS: ${counts.concluidas}\nEQUIPAMENTOS: ${state.assets.length}\nREGIÕES: ${state.regions.length}\nLOCAIS DE INSTALAÇÃO: ${state.locations.length}\nPEÇAS ABAIXO DO MÍNIMO: ${lowStockItems().length}`;
+      return `TENHO DADOS DO SISTEMA SOBRE ${state.assets.length} EQUIPAMENTOS, ${state.regions.length} REGIÕES, ${state.locations.length} LOCAIS DE INSTALAÇÃO, ${state.orders.length} ORDENS DE SERVIÇO E ${lowStockItems().length} PEÇAS ABAIXO DO MÍNIMO. PERGUNTE POR O.S ABERTAS, EM EXECUÇÃO, EXECUTANTE, ESTOQUE MÍNIMO, MTTR, MTBF, DISPONIBILIDADE, REGIÃO, LOCAL OU EQUIPAMENTO.`;
     }
 
     function statusKey(status = "") {
@@ -7440,7 +7440,7 @@
         && await deleteSupabaseRow("pecas", id, { remember: false, silent: true });
       if (!remoteDeleted) {
         forgetDeletedRecord("pecas", id);
-        showToast("Nao consegui confirmar a exclusao da peça no Supabase.");
+        showToast("Não consegui confirmar a exclusão da peça no Supabase.");
         return;
       }
       removePendingUpsert("pecas", id);
@@ -7895,7 +7895,7 @@
             <label>Data/Hora Programada</label><input class="field detail-span" id="detailScheduled" value="${order.scheduledAt || ""}" placeholder="dd/mm/aaaa --:--">
             <label>Duração estimada</label><div class="detail-span detail-two"><input class="field" id="detailDays" type="number" min="0" value="${order.durationDays || 0}"><input class="field" id="detailHours" value="${order.durationHours || "01:00"}" placeholder="01:00 hrs"></div>
             <label>Executante</label><input class="field detail-span" id="detailExecutor" value="${order.executor || ""}" placeholder="Nome do executante">
-            <label>Numero de Executantes</label><input class="field detail-span" id="detailExecutors" type="number" min="1" value="${order.executors || 1}">
+            <label>Número de executantes</label><input class="field detail-span" id="detailExecutors" type="number" min="1" value="${order.executors || 1}">
             <label>Data e hora de início</label><input class="field detail-span" value="${formatDateTime(order.startedAt)}" readonly>
             <label>Data e Hora de Termino</label><input class="field detail-span" value="${formatDateTime(order.finishedAt)}" readonly>
             <label>Descrição do defeito</label><textarea class="field detail-span" id="detailDescription" readonly>${order.description || ""}</textarea>
@@ -8073,7 +8073,7 @@
       $("orderForm").addEventListener("submit", async event => {
         event.preventDefault();
         if (!value("orderRequester") || !value("orderExecutor") || !value("orderDescription")) {
-          showToast("Preencha solicitante, executante e descricao da O.S.");
+          showToast("Preencha solicitante, executante e descrição da O.S.");
           return;
         }
         const submitButton = event.submitter;
@@ -8102,8 +8102,8 @@
         closeModal();
         render();
         showToast(editing
-          ? (remoteSaved ? "O.S atualizada no Supabase." : "O.S atualizada localmente. Sincronizacao pendente.")
-          : (remoteSaved ? "O.S criada e salva no Supabase." : "O.S criada localmente. Sincronizacao pendente.")
+          ? (remoteSaved ? "O.S atualizada no Supabase." : "O.S atualizada localmente. Sincronização pendente.")
+          : (remoteSaved ? "O.S criada e salva no Supabase." : "O.S criada localmente. Sincronização pendente.")
         );
       });
     }
@@ -8160,7 +8160,7 @@
 
     function openLocationMovements(id) {
       closeLocationMenu();
-      openModal("Movimentacao de TAGs", renderLocationMovements(id), true);
+      openModal("Movimentação de TAGs", renderLocationMovements(id), true);
     }
 
     function locationAction(action) {
@@ -8188,7 +8188,7 @@
       return `
         <div class="form">
           <label>Entre as datas <input class="field" value="16/03/2026"></label>
-          <label>Ate <input class="field" value="15/06/2026"></label>
+          <label>Até <input class="field" value="15/06/2026"></label>
           <label>Tipo de Serviço <select class="field"><option>[Todos]</option></select></label>
           <label>Status <select class="field"><option>${status === "active" ? "Abertas e em execução" : status || "[Todos]"}</option></select></label>
         </div>
@@ -8302,7 +8302,7 @@
       }));
       resetRegionForm();
       resetLocationForm();
-      saveState(); render(); showToast("Regiao excluida. Equipamentos vinculados ficaram sem local.");
+      saveState(); render(); showToast("Região excluída. Equipamentos vinculados ficaram sem local.");
     }
 
     function editLocation(id) {
@@ -8378,7 +8378,7 @@
       const now = Date.now();
       const current = byId(state.orders, id);
       if (!current || isClosedOrder(current.status)) {
-        showToast("O.S concluida nao pode ser iniciada novamente.");
+        showToast("O.S concluída não pode ser iniciada novamente.");
         return;
       }
       let updatedOrder = null;
@@ -8397,7 +8397,7 @@
       render();
       showToast(remoteSaved
         ? "O.S iniciada e salva no Supabase."
-        : "O.S iniciada localmente. Sincronizacao pendente."
+        : "O.S iniciada localmente. Sincronização pendente."
       );
     }
 
@@ -8405,7 +8405,7 @@
       const now = Date.now();
       const current = byId(state.orders, id);
       if (!current || isClosedOrder(current.status)) {
-        showToast("O.S ja esta concluida.");
+        showToast("O.S já está concluída.");
         return;
       }
       openFinishOrderModal(id);
@@ -8414,7 +8414,7 @@
     function openFinishOrderModal(id) {
       const order = byId(state.orders, id);
       if (!order || isClosedOrder(order.status)) {
-        showToast("O.S ja esta concluida.");
+        showToast("O.S já está concluída.");
         return;
       }
       const asset = byId(state.assets, order.assetId) || {};
@@ -8446,7 +8446,7 @@
               <label>Data/Hora Programada</label><input class="field detail-span" id="finishScheduled" value="${order.scheduledAt || ""}" placeholder="dd/mm/aaaa --:--">
               <label>Duração estimada</label><div class="detail-span detail-two"><input class="field" id="finishDays" type="number" min="0" value="${order.durationDays || 0}"><input class="field" id="finishHours" value="${order.durationHours || "01:00"}" placeholder="01:00 hrs"></div>
               <label>Executante</label><input class="field detail-span" id="finishExecutor" value="${order.executor || ""}" required placeholder="Nome do executante">
-              <label>Numero de Executantes</label><input class="field detail-span" id="finishExecutors" type="number" min="1" value="${order.executors || 1}">
+              <label>Número de executantes</label><input class="field detail-span" id="finishExecutors" type="number" min="1" value="${order.executors || 1}">
               <label>Data e hora de início</label><input class="field detail-span" value="${formatDateTime(order.startedAt)}" readonly>
               <label>Data e Hora de Termino</label><input class="field detail-span" value="${formatDateTime(Date.now())}" readonly>
               <label>Descrição do defeito</label><textarea class="field detail-span" id="finishDescription" readonly>${order.description || ""}</textarea>
@@ -8518,7 +8518,7 @@
       render();
       showToast(remoteSaved
         ? "O.S finalizada e salva no Supabase."
-        : "O.S finalizada localmente. Sincronizacao pendente."
+        : "O.S finalizada localmente. Sincronização pendente."
       );
     }
 
@@ -8594,7 +8594,7 @@
     $("calendarRefreshBtn").addEventListener("click", () => {
       renderCalendar();
       loadSupabaseState(false);
-      showToast("Calendario atualizado.");
+      showToast("Calendário atualizado.");
     });
     $("calendarTodayBtn").addEventListener("click", () => {
       calendarViewDate = new Date();
@@ -8740,7 +8740,7 @@
       const existing = byId(state.regions, id);
       const payload = { id, name: value("regionName"), color: existing?.color || "#ff8a4c", x: existing?.x || 2, y: existing?.y || 4, w: existing?.w || 96, h: existing?.h || 24 };
       state.regions = state.regions.filter(item => item.id !== id).concat(payload);
-      saveState(); resetRegionForm(); render(); showToast("Regiao salva.");
+      saveState(); resetRegionForm(); render(); showToast("Região salva.");
     });
 
     $("locationForm").addEventListener("submit", event => {
