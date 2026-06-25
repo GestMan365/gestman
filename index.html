@@ -3038,54 +3038,71 @@
     }
 
     .nav {
-      position: relative;
-      inset: auto;
-      width: 100%;
+      position: fixed;
+      top: var(--topbar-h);
+      left: 0;
+      bottom: 0;
+      width: 224px;
       min-height: 0;
-      padding: 28px max(28px, calc((100vw - 1180px) / 2)) 18px;
+      padding: 14px 10px;
       display: flex;
       flex-direction: column;
       align-items: stretch;
-      gap: 16px;
-      background: transparent;
-      border: 0;
-      z-index: 10;
+      gap: 12px;
+      background: linear-gradient(180deg, var(--h28-blue-dark), #0d2359);
+      border-right: 4px solid var(--h28-orange);
+      box-shadow: 14px 0 30px rgba(20, 40, 95, .18);
+      z-index: 20;
     }
 
     .tabs {
       display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 9px;
-      overflow: visible;
+      flex-direction: column;
+      flex-wrap: nowrap;
+      align-items: stretch;
+      gap: 7px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-right: 2px;
+      scrollbar-width: thin;
     }
 
     .tab {
-      width: auto;
+      width: 100%;
       min-width: 0;
-      height: 46px;
-      display: inline-flex;
+      height: 38px;
+      display: grid;
+      grid-template-columns: 22px minmax(0, 1fr);
       align-items: center;
-      justify-content: center;
-      padding: 0 16px;
-      color: var(--h28-blue);
-      background: #fff;
-      border: 1px solid var(--h28-line);
+      justify-content: start;
+      gap: 9px;
+      padding: 0 10px;
+      color: #fff;
+      background: rgba(255, 255, 255, .09);
+      border: 1px solid rgba(255, 255, 255, .18);
       border-radius: 6px;
-      text-align: center;
+      text-align: left;
       font-size: 12px;
       font-weight: 800;
-      box-shadow: 0 3px 10px rgba(22, 44, 96, .04);
+      box-shadow: none;
+      white-space: nowrap;
     }
 
-    .tab-icon { display: none; }
+    .tab-icon {
+      width: 22px;
+      height: 22px;
+      display: grid;
+      place-items: center;
+      border-radius: 6px;
+      color: currentColor;
+      background: rgba(255, 255, 255, .12);
+    }
 
     body.theme-light .tab:hover, .tab:hover {
-      color: var(--h28-blue);
-      background: #f8faff;
+      color: #fff;
+      background: rgba(242, 139, 87, .18);
       border-color: var(--h28-orange);
-      transform: translateY(-1px);
+      transform: translateX(4px);
     }
 
     body.theme-light .tab.active, .tab.active {
@@ -3097,26 +3114,90 @@
 
     .searchbar {
       width: 100%;
-      height: 45px;
-      padding: 0 14px;
-      color: var(--h28-ink);
-      background: #fff;
-      border: 1px solid #c9d3e1;
+      height: 38px;
+      padding: 0 10px;
+      color: #fff;
+      background: rgba(255, 255, 255, .11);
+      border: 1px solid rgba(255, 255, 255, .24);
       border-radius: 6px;
-      font-size: 13px;
+      font-size: 11px;
       font-weight: 700;
       box-shadow: none;
     }
 
-    .searchbar::placeholder { color: #78859a; }
+    .searchbar::placeholder { color: rgba(255, 255, 255, .72); }
 
     .workspace {
-      width: min(1180px, calc(100% - 56px));
-      height: auto;
-      min-height: calc(100vh - var(--topbar-h) - 150px);
-      margin: 0 auto;
-      padding: 0 0 64px;
-      overflow: visible;
+      width: auto;
+      height: calc(100vh - var(--topbar-h));
+      min-height: 0;
+      margin: 0 0 0 224px;
+      padding: 18px 24px 64px;
+      overflow: auto;
+    }
+
+    .dashboard-layout {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      grid-auto-flow: dense;
+      align-items: stretch;
+    }
+
+    .dashboard-widget {
+      grid-column: span 6;
+      transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+    }
+
+    .dashboard-widget.full,
+    .dashboard-widget.size-full { grid-column: 1 / -1; }
+    .dashboard-widget.size-wide { grid-column: span 8; }
+    .dashboard-widget.size-large {
+      grid-column: 1 / -1;
+      min-height: 420px;
+    }
+
+    .dashboard-widget.is-dragging {
+      opacity: .55;
+      transform: scale(.985);
+    }
+
+    .dashboard-widget.drag-over {
+      outline: 2px dashed var(--h28-orange);
+      outline-offset: 6px;
+    }
+
+    .dashboard-controls {
+      gap: 6px;
+      padding: 4px;
+      border-radius: 10px;
+      background: rgba(20, 40, 95, .08);
+      border: 1px solid rgba(47, 68, 147, .14);
+    }
+
+    .widget-btn {
+      width: 32px;
+      height: 30px;
+      border-radius: 7px;
+      color: var(--h28-blue);
+      background: #fff;
+      border: 1px solid var(--h28-line);
+      box-shadow: 0 3px 9px rgba(25, 48, 94, .08);
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .widget-btn.widget-drag { cursor: grab; }
+
+    .widget-btn:hover {
+      color: #fff;
+      background: var(--h28-blue);
+      border-color: var(--h28-blue);
+      box-shadow: 0 5px 0 -2px var(--h28-orange);
+    }
+
+    .widget-btn.widget-hide:hover {
+      background: #b42335;
+      border-color: #b42335;
+      box-shadow: none;
     }
 
     body.theme-light .panel,
@@ -3273,13 +3354,22 @@
       .topbar .admin-pill { min-height: 34px; }
 
       .nav {
-        padding: 18px 10px 14px;
+        position: sticky;
+        top: 0;
+        left: auto;
+        bottom: auto;
+        width: 100%;
+        padding: 12px 10px 10px;
         gap: 12px;
+        border-right: 0;
+        border-bottom: 4px solid var(--h28-orange);
       }
 
       .tabs {
+        flex-direction: row;
         flex-wrap: nowrap;
         overflow-x: auto;
+        overflow-y: hidden;
         padding: 0 0 8px;
         scroll-snap-type: x proximity;
         scrollbar-width: thin;
@@ -3294,10 +3384,18 @@
 
       .workspace {
         width: calc(100% - 20px);
+        height: auto;
         min-height: 0;
         margin: 0 auto;
         padding: 0 0 48px;
+        overflow: visible;
       }
+
+      .dashboard-layout { grid-template-columns: 1fr; }
+      .dashboard-widget,
+      .dashboard-widget.size-wide,
+      .dashboard-widget.size-full,
+      .dashboard-widget.size-large { grid-column: 1 / -1; }
 
       body.theme-light .panel,
       body.theme-light .metric { border-left-width: 3px; }
@@ -5577,6 +5675,13 @@
       { id: "stockAlerts", label: "Peças para reposição" }
     ];
 
+    let draggedDashboardWidgetId = "";
+    const dashboardWidgetSizeCycle = ["normal", "wide", "full", "large"];
+
+    function dashboardWidgetDefaultSize(id) {
+      return id === "metrics" ? "full" : "normal";
+    }
+
     function loadDashboardLayout() {
       try {
         const parsed = JSON.parse(localStorage.getItem(DASHBOARD_LAYOUT_KEY) || "{}");
@@ -5585,9 +5690,16 @@
           ? parsed.order.filter(id => defaultOrder.includes(id)).concat(defaultOrder.filter(id => !parsed.order.includes(id)))
           : defaultOrder;
         const hidden = Array.isArray(parsed.hidden) ? parsed.hidden.filter(id => defaultOrder.includes(id)) : [];
-        return { order, hidden };
+        const parsedSizes = parsed.sizes && typeof parsed.sizes === "object" ? parsed.sizes : {};
+        const sizes = {};
+        defaultOrder.forEach(id => {
+          const size = parsedSizes[id] || dashboardWidgetDefaultSize(id);
+          sizes[id] = dashboardWidgetSizeCycle.includes(size) ? size : dashboardWidgetDefaultSize(id);
+        });
+        return { order, hidden, sizes };
       } catch {
-        return { order: dashboardWidgetDefaults.map(item => item.id), hidden: [] };
+        const order = dashboardWidgetDefaults.map(item => item.id);
+        return { order, hidden: [], sizes: Object.fromEntries(order.map(id => [id, dashboardWidgetDefaultSize(id)])) };
       }
     }
 
@@ -5597,9 +5709,11 @@
 
     function dashboardControlsHtml(id) {
       return `
+        <button class="widget-btn widget-drag" type="button" title="Arrastar e encaixar bloco">↕</button>
         <button class="widget-btn" type="button" title="Mover para cima" onclick="moveDashboardWidget('${id}', -1)">↑</button>
         <button class="widget-btn" type="button" title="Mover para baixo" onclick="moveDashboardWidget('${id}', 1)">↓</button>
-        <button class="widget-btn" type="button" title="Ocultar bloco" onclick="hideDashboardWidget('${id}')">×</button>
+        <button class="widget-btn" type="button" title="Aumentar ou reduzir bloco" onclick="resizeDashboardWidget('${id}')">⤢</button>
+        <button class="widget-btn widget-hide" type="button" title="Ocultar bloco" onclick="hideDashboardWidget('${id}')">×</button>
       `;
     }
 
@@ -5608,12 +5722,17 @@
       document.querySelectorAll("[data-dashboard-widget]").forEach(widget => {
         const id = widget.dataset.dashboardWidget;
         const index = layout.order.indexOf(id);
+        const size = layout.sizes?.[id] || dashboardWidgetDefaultSize(id);
         widget.style.order = index >= 0 ? index : 999;
+        widget.classList.remove("full", "size-normal", "size-wide", "size-full", "size-large", "is-dragging", "drag-over");
+        widget.classList.add(`size-${size}`);
+        widget.draggable = !layout.hidden.includes(id);
         widget.classList.toggle("is-hidden", layout.hidden.includes(id));
       });
       document.querySelectorAll("[data-dashboard-controls]").forEach(target => {
         target.innerHTML = dashboardControlsHtml(target.dataset.dashboardControls);
       });
+      setupDashboardDragAndDrop();
     }
 
     function moveDashboardWidget(id, direction) {
@@ -5624,6 +5743,73 @@
       [layout.order[index], layout.order[nextIndex]] = [layout.order[nextIndex], layout.order[index]];
       saveDashboardLayout(layout);
       applyDashboardLayout();
+    }
+
+    function resizeDashboardWidget(id) {
+      const layout = loadDashboardLayout();
+      const current = layout.sizes?.[id] || dashboardWidgetDefaultSize(id);
+      const index = dashboardWidgetSizeCycle.indexOf(current);
+      const next = dashboardWidgetSizeCycle[(index + 1) % dashboardWidgetSizeCycle.length];
+      layout.sizes = { ...(layout.sizes || {}), [id]: next };
+      saveDashboardLayout(layout);
+      applyDashboardLayout();
+      const labels = { normal: "normal", wide: "mais largo", full: "largura total", large: "grande" };
+      showToast(`Bloco ajustado para tamanho ${labels[next] || next}.`);
+    }
+
+    function clearDashboardDragState() {
+      document.querySelectorAll(".dashboard-widget.is-dragging, .dashboard-widget.drag-over").forEach(widget => {
+        widget.classList.remove("is-dragging", "drag-over");
+      });
+      draggedDashboardWidgetId = "";
+    }
+
+    function dropDashboardWidget(draggedId, targetId, event) {
+      if (!draggedId || !targetId || draggedId === targetId) return;
+      const layout = loadDashboardLayout();
+      const order = layout.order.filter(id => id !== draggedId);
+      const targetIndex = order.indexOf(targetId);
+      if (targetIndex < 0) return;
+      const target = document.querySelector(`[data-dashboard-widget="${targetId}"]`);
+      const rect = target?.getBoundingClientRect();
+      const after = rect ? (event.clientY > rect.top + rect.height / 2 || event.clientX > rect.left + rect.width / 2) : false;
+      order.splice(targetIndex + (after ? 1 : 0), 0, draggedId);
+      layout.order = order;
+      saveDashboardLayout(layout);
+      applyDashboardLayout();
+      showToast("Bloco movido e encaixado automaticamente.");
+    }
+
+    function setupDashboardDragAndDrop() {
+      document.querySelectorAll("[data-dashboard-widget]").forEach(widget => {
+        widget.ondragstart = event => {
+          if (!event.target.closest(".widget-drag")) {
+            event.preventDefault();
+            return;
+          }
+          draggedDashboardWidgetId = widget.dataset.dashboardWidget;
+          widget.classList.add("is-dragging");
+          event.dataTransfer.effectAllowed = "move";
+          event.dataTransfer.setData("text/plain", draggedDashboardWidgetId);
+        };
+        widget.ondragover = event => {
+          if (!draggedDashboardWidgetId || draggedDashboardWidgetId === widget.dataset.dashboardWidget) return;
+          event.preventDefault();
+          event.dataTransfer.dropEffect = "move";
+          widget.classList.add("drag-over");
+        };
+        widget.ondragleave = event => {
+          if (!widget.contains(event.relatedTarget)) widget.classList.remove("drag-over");
+        };
+        widget.ondrop = event => {
+          event.preventDefault();
+          const draggedId = event.dataTransfer.getData("text/plain") || draggedDashboardWidgetId;
+          const targetId = widget.dataset.dashboardWidget;
+          dropDashboardWidget(draggedId, targetId, event);
+          clearDashboardDragState();
+        };
+        widget.ondragend = clearDashboardDragState;
+      });
     }
 
     function hideDashboardWidget(id) {
@@ -5639,6 +5825,7 @@
       openModal("Configurar dashboard", `
         <div class="side-box">
           <strong>Escolha os blocos visíveis no dashboard</strong>
+          <span>Arraste os blocos pelo botão ↕ para mover. Use ⤢ para aumentar ou reduzir o tamanho.</span>
           ${dashboardWidgetDefaults.map(item => `
             <label class="switch-line">
               <input type="checkbox" data-dashboard-visible="${item.id}" ${layout.hidden.includes(item.id) ? "" : "checked"}>
@@ -8542,7 +8729,7 @@
       if (ask) showToast("Checklist excluído.");
     }
 
-    window.editAsset = editAsset; window.deleteAsset = deleteAsset; window.duplicateAsset = duplicateAsset; window.editRegion = editRegion; window.deleteRegion = deleteRegion; window.editLocation = editLocation; window.deleteLocation = deleteLocation; window.editTag = editTag; window.deleteTag = deleteTag; window.editSubtag = editSubtag; window.deleteSubtag = deleteSubtag; window.editSupplier = editSupplier; window.deleteSupplier = deleteSupplier; window.editStock = editStock; window.deleteStock = deleteStock; window.editSpare = editSpare; window.deleteSpare = deleteSpare; window.editStockMove = editStockMove; window.deleteStockMove = deleteStockMove; window.editMaterialRequest = editMaterialRequest; window.deleteMaterialRequest = deleteMaterialRequest; window.editStockTransfer = editStockTransfer; window.deleteStockTransfer = deleteStockTransfer; window.editOrder = editOrder; window.deleteOrder = deleteOrder; window.startOrder = startOrder; window.confirmStartOrder = confirmStartOrder; window.finishOrder = finishOrder; window.showOrderDetails = showOrderDetails; window.simpleOrderAction = simpleOrderAction; window.editChecklist = editChecklist; window.deleteChecklist = deleteChecklist; window.openLocationChecklists = openLocationChecklists; window.openLocationMovements = openLocationMovements; window.moveDashboardWidget = moveDashboardWidget; window.hideDashboardWidget = hideDashboardWidget; window.openDashboardConfig = openDashboardConfig; window.saveDashboardVisibility = saveDashboardVisibility; window.resetDashboardLayout = resetDashboardLayout;
+    window.editAsset = editAsset; window.deleteAsset = deleteAsset; window.duplicateAsset = duplicateAsset; window.editRegion = editRegion; window.deleteRegion = deleteRegion; window.editLocation = editLocation; window.deleteLocation = deleteLocation; window.editTag = editTag; window.deleteTag = deleteTag; window.editSubtag = editSubtag; window.deleteSubtag = deleteSubtag; window.editSupplier = editSupplier; window.deleteSupplier = deleteSupplier; window.editStock = editStock; window.deleteStock = deleteStock; window.editSpare = editSpare; window.deleteSpare = deleteSpare; window.editStockMove = editStockMove; window.deleteStockMove = deleteStockMove; window.editMaterialRequest = editMaterialRequest; window.deleteMaterialRequest = deleteMaterialRequest; window.editStockTransfer = editStockTransfer; window.deleteStockTransfer = deleteStockTransfer; window.editOrder = editOrder; window.deleteOrder = deleteOrder; window.startOrder = startOrder; window.confirmStartOrder = confirmStartOrder; window.finishOrder = finishOrder; window.showOrderDetails = showOrderDetails; window.simpleOrderAction = simpleOrderAction; window.editChecklist = editChecklist; window.deleteChecklist = deleteChecklist; window.openLocationChecklists = openLocationChecklists; window.openLocationMovements = openLocationMovements; window.moveDashboardWidget = moveDashboardWidget; window.resizeDashboardWidget = resizeDashboardWidget; window.hideDashboardWidget = hideDashboardWidget; window.openDashboardConfig = openDashboardConfig; window.saveDashboardVisibility = saveDashboardVisibility; window.resetDashboardLayout = resetDashboardLayout;
 
     document.querySelectorAll("[data-view]").forEach(button => button.addEventListener("click", () => {
       if (button.dataset.view === "activeOrders" && !isPanelMode()) {
