@@ -5497,6 +5497,23 @@
     function subtagName(id) { const item = byId(state.subtags, id); return item ? `${item.code}` : "-"; }
     function machineName(id) { const item = byId(state.assets, id); return item ? `${item.code} - ${item.name}` : "-"; }
 
+    function materialRequestOrder(item = {}) {
+      return item.orderId ? byId(state.orders, item.orderId) : null;
+    }
+
+    function materialRequestDocumentLabel(item = {}) {
+      const order = materialRequestOrder(item);
+      return [item.number || "-", order?.number ? `O.S ${order.number}` : ""].filter(Boolean).join(" | ");
+    }
+
+    function materialRequestOriginDestinationLabel(item = {}) {
+      const origin = stockName(item.stockId);
+      const order = materialRequestOrder(item);
+      if (!order) return origin;
+      const destination = machineName(order.assetId);
+      return `${origin} → ${destination && destination !== "-" ? destination : "Equipamento não informado"}`;
+    }
+
     function initialsFromName(name) {
       return String(name || "SE")
         .trim()
@@ -6872,11 +6889,12 @@
       });
       state.materialRequests.filter(item => item.spareId === spareId).forEach(item => {
         const effect = materialRequestBalanceEffect(item);
+        const order = materialRequestOrder(item);
         rows.push({
           date: item.createdAt || 0,
-          type: "Requisição",
-          document: item.number || "-",
-          location: stockName(item.stockId),
+          type: order ? "Consumo O.S" : "Requisição",
+          document: materialRequestDocumentLabel(item),
+          location: materialRequestOriginDestinationLabel(item),
           quantity: normalizeQuantityForSpareId(item.spareId, item.quantity),
           effect,
           status: item.status || "Aberta"
@@ -6902,7 +6920,7 @@
       const rows = spareLedgerRows(id);
       const html = `
         <div class="side-box"><strong>${escapeHtml(spare.code)} - ${escapeHtml(spare.name)}</strong><span>Saldo atual: ${formatQuantityForUnit(spare.balance, spare.unit)} ${escapeHtml(spare.unit || "UN")} | Mínimo: ${formatQuantityForUnit(spare.minimum, spare.unit)} ${escapeHtml(spare.unit || "UN")}</span></div>
-        <div class="table-wrap"><table><thead><tr><th>Data</th><th>Tipo</th><th>Documento</th><th>Estoque/Origem-Destino</th><th>Qtd.</th><th>Efeito</th><th>Status</th></tr></thead><tbody>
+        <div class="table-wrap"><table><thead><tr><th>Data</th><th>Tipo</th><th>Documento / O.S</th><th>Origem → Destino</th><th>Qtd.</th><th>Efeito</th><th>Status</th></tr></thead><tbody>
           ${rows.map(row => `<tr><td>${row.date ? formatDateTime(row.date) : "-"}</td><td>${escapeHtml(row.type)}</td><td>${escapeHtml(row.document)}</td><td>${escapeHtml(row.location)}</td><td>${row.quantity}</td><td>${stockEffectLabel(row.effect)}</td><td>${tag(row.status)}</td></tr>`).join("") || `<tr><td colspan="7" class="empty">Nenhum histórico de estoque para esta peça.</td></tr>`}
         </tbody></table></div>
       `;
