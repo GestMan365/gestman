@@ -3483,6 +3483,11 @@
       <button class="tab" data-view="assets"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 17h16v4H4z"/><path d="M7 17V9h10v8"/><circle cx="9" cy="13" r="1"/><circle cx="15" cy="13" r="1"/><path d="M12 9V3M9 5h6"/></svg></span><span>EQUIPAMENTOS</span></button>
       <button class="tab" data-view="suppliers"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M5 21V8l7-4 7 4v13"/><path d="M9 21v-6h6v6"/></svg></span><span>FORNECEDORES</span></button>
       <button class="tab" data-view="stock"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 7h16v13H4z"/><path d="M4 7l3-4h10l3 4"/><path d="M9 12h6"/></svg></span><span>ESTOQUE</span></button>
+      <button class="tab" data-module-action="purchaseList"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M6 6h15l-2 8H8L6 6Z"/><path d="M6 6 5 3H2"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg></span><span>LISTA COMPRA</span></button>
+      <button class="tab" data-module-action="stockTurnover"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 13-6"/><path d="M17 3v5h-5"/><path d="M20 12a8 8 0 0 1-13 6"/><path d="M7 21v-5h5"/></svg></span><span>GIRO/CONSUMO</span></button>
+      <button class="tab" data-module-action="stockValuation"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M12 3v18"/><path d="M17 7H9.5a3.5 3.5 0 0 0 0 7H14a3 3 0 0 1 0 6H6"/><path d="M5 7h14"/></svg></span><span>VALOR ESTOQUE</span></button>
+      <button class="tab" data-module-action="stockBalance"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 6h16v14H4z"/><path d="M8 10h8M8 14h8"/><path d="M4 6l4-3h8l4 3"/></svg></span><span>SALDO ESTOQUE</span></button>
+      <button class="tab" data-module-action="bulkInventory"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/><path d="M17 16l2 2 3-4"/></svg></span><span>INVENTÁRIO</span></button>
       <button class="tab" data-view="spares"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5 5L4 17v3h3l5.7-5.7a4 4 0 0 0 5-5l-2.8 2.8-3-3 2.8-2.8Z"/></svg></span><span>PEÇAS</span></button>
       <button class="tab" data-view="stockMoves"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M7 7h11l-3-3"/><path d="M18 7l-3 3"/><path d="M17 17H6l3 3"/><path d="M6 17l3-3"/></svg></span><span>MOV. ESTOQUE</span></button>
       <button class="tab" data-view="materialRequests"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M7 3h10l3 3v15H4V3h3z"/><path d="M8 10h8M8 14h8M8 18h5"/></svg></span><span>REQUISIÇÕES</span></button>
@@ -8810,6 +8815,17 @@
         return;
       }
       setView(button.dataset.view);
+    }));
+    const moduleActions = {
+      purchaseList: openPurchaseList,
+      stockTurnover: openStockTurnoverModal,
+      stockValuation: openStockValuationModal,
+      stockBalance: openStockBalanceModal,
+      bulkInventory: openBulkInventoryCount
+    };
+    document.querySelectorAll("[data-module-action]").forEach(button => button.addEventListener("click", () => {
+      const action = moduleActions[button.dataset.moduleAction];
+      if (action) action();
     }));
     document.querySelectorAll("[data-view-button]").forEach(button => button.addEventListener("click", () => setView(button.dataset.viewButton)));
     $("globalSearch").addEventListener("input", render);
