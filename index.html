@@ -7693,13 +7693,13 @@
       return `
         <strong>MATERIAIS DE CONSUMO</strong>
         <div class="side-box"><span>Digite o código ou nome da peça, informe a quantidade usada e o sistema dará baixa automaticamente no estoque.</span></div>
-        <form class="form" id="orderMaterialForm">
+        <div class="form" id="orderMaterialForm">
           <label>Peça consumida <input class="field" id="orderMaterialSpareInput" list="orderMaterialSpareList" placeholder="Código ou nome da peça" autocomplete="off"><datalist id="orderMaterialSpareList">${spareOptions}</datalist></label>
           <label>Quantidade <input class="field" id="orderMaterialQty" type="number" min="0" step="1" value="1"></label>
           <label>Estoque de baixa <select class="field" id="orderMaterialStock">${stockOptions || `<option value="">Crie um estoque</option>`}</select></label>
           <label>Observação <input class="field" id="orderMaterialNote" placeholder="Aplicação, local, observação"></label>
-          <div class="full toolbar"><button class="btn primary" type="submit">Adicionar e baixar estoque</button></div>
-        </form>
+          <div class="full toolbar"><button class="btn primary" type="button" id="orderMaterialAddBtn">ADICIONAR</button></div>
+        </div>
         <div class="table-wrap"><table><thead><tr><th>Req.</th><th>Peça</th><th>Qtd.</th><th>Estoque</th><th>Data</th><th>Status</th><th>Ação</th></tr></thead><tbody>${rows || `<tr><td colspan="7" class="empty">Nenhum material consumido nesta O.S.</td></tr>`}</tbody></table></div>
       `;
     }
@@ -7837,6 +7837,7 @@
       }
       if (tabName === "Materiais") {
         const form = $("orderMaterialForm");
+        const addBtn = $("orderMaterialAddBtn");
         const spareInput = $("orderMaterialSpareInput");
         const qtyInput = $("orderMaterialQty");
         const updateQtyStep = () => {
@@ -7846,7 +7847,12 @@
           qtyInput.title = unitRequiresInteger(spare.unit || "UN") ? "Esta peça aceita somente quantidades inteiras." : "Esta peça aceita casas decimais.";
         };
         if (spareInput) spareInput.addEventListener("input", updateQtyStep);
-        if (form) form.addEventListener("submit", event => {
+        if (addBtn) addBtn.addEventListener("click", event => {
+          event.preventDefault();
+          addOrderMaterialConsumption(orderId);
+        });
+        if (form) form.addEventListener("keydown", event => {
+          if (event.key !== "Enter") return;
           event.preventDefault();
           addOrderMaterialConsumption(orderId);
         });
