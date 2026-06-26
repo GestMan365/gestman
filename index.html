@@ -443,51 +443,13 @@
     body.auth-required .auth-screen { display: flex; }
 
     .auth-card {
-      width: min(920px, 100%);
-      display: grid;
-      grid-template-columns: minmax(240px, .8fr) minmax(300px, 1fr);
+      width: min(620px, 100%);
+      display: block;
       overflow: hidden;
       border: 1px solid rgba(255, 255, 255, .16);
       border-radius: 18px;
       background: rgba(5, 18, 43, .88);
       box-shadow: 0 24px 70px rgba(0, 0, 0, .38);
-    }
-
-    .auth-side {
-      padding: 34px;
-      color: #fff;
-      border-right: 1px solid rgba(255, 255, 255, .12);
-      background: linear-gradient(160deg, rgba(255, 138, 76, .18), rgba(18, 63, 141, .2));
-    }
-
-    .auth-side h1 {
-      margin: 0 0 12px;
-      font-size: clamp(28px, 4vw, 44px);
-      line-height: 1;
-      letter-spacing: -.03em;
-    }
-
-    .auth-side p {
-      color: rgba(255, 255, 255, .78);
-      line-height: 1.55;
-      margin: 0;
-    }
-
-    .auth-badges {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 24px;
-    }
-
-    .auth-badge {
-      padding: 6px 10px;
-      border-radius: 999px;
-      color: #061533;
-      background: var(--orange);
-      font-size: 11px;
-      font-weight: 900;
-      text-transform: uppercase;
     }
 
     .auth-main {
@@ -503,6 +465,18 @@
     .auth-main .muted { color: rgba(255, 255, 255, .7); }
 
     .auth-form.is-hidden { display: none; }
+
+    .auth-divider {
+      height: 1px;
+      margin: 24px 0;
+      background: rgba(255, 255, 255, .14);
+    }
+
+    .auth-login-preview {
+      color: var(--orange);
+      font-weight: 900;
+      letter-spacing: .01em;
+    }
 
     .auth-note {
       margin-top: 14px;
@@ -3722,35 +3696,29 @@
 <body class="theme-light">
   <div class="auth-screen" id="authScreen">
     <div class="auth-card">
-      <div class="auth-side">
-        <h1>GestMan365</h1>
-        <p>Sistema preparado para planos mensais, empresas separadas e usuários com permissões por módulo.</p>
-        <div class="auth-badges">
-          <span class="auth-badge">Multiempresa</span>
-          <span class="auth-badge">Admin inicial</span>
-          <span class="auth-badge">Permissões</span>
-        </div>
-      </div>
       <div class="auth-main">
-        <h2 id="authTitle">Acessar empresa</h2>
-        <p class="muted" id="authSubtitle">Entre com a empresa, email e senha do usuário.</p>
+        <h2 id="authTitle">Acessar GestMan365</h2>
+        <p class="muted" id="authSubtitle">Use o login aprovado no padrão gestman.nomedaempresa.</p>
 
         <form class="form auth-form" id="authLoginForm">
-          <label class="full">Empresa <select class="field" id="authCompany"></select></label>
+          <label class="full">Login da empresa <input class="field" id="authCompanyLogin" autocomplete="organization" placeholder="gestman.nomedaempresa"></label>
           <label>Email <input class="field" id="authEmail" type="email" autocomplete="username" placeholder="usuario@empresa.com"></label>
           <label>Senha <input class="field" id="authPassword" type="password" autocomplete="current-password" placeholder="Senha"></label>
           <div class="full toolbar"><button class="btn primary" type="submit">Entrar</button></div>
-          <div class="full auth-note">Cada empresa abre somente o seu banco local. Usuários de uma empresa não entram em outra sem conta cadastrada pelo administrador.</div>
+          <div class="full auth-note">A empresa só acessa depois que a conta GestMan aprovar o cadastro no Supabase.</div>
         </form>
 
-        <form class="form auth-form is-hidden" id="authSetupForm">
+        <div class="auth-divider"></div>
+
+        <form class="form auth-form" id="authSetupForm">
           <label>Nome da empresa <input class="field" id="setupCompanyName" required placeholder="Ex: H28 Manutenção"></label>
+          <label>Login gerado <input class="field auth-login-preview" id="setupCompanyLogin" readonly placeholder="gestman.h28manutencao"></label>
           <label>Plano <select class="field" id="setupPlan"><option>Mensal</option><option>Teste</option><option>Enterprise</option></select></label>
           <label>Nome do administrador <input class="field" id="setupAdminName" required placeholder="Administrador"></label>
           <label>Email do administrador <input class="field" id="setupAdminEmail" required type="email" autocomplete="username" placeholder="admin@empresa.com"></label>
           <label class="full">Senha inicial <input class="field" id="setupAdminPassword" required type="password" autocomplete="new-password" minlength="4" placeholder="Crie uma senha"></label>
-          <div class="full toolbar"><button class="btn primary" type="submit">Criar primeira empresa</button></div>
-          <div class="full auth-note">A primeira conta criada será administrador da empresa e poderá criar os demais usuários com suas permissões.</div>
+          <div class="full toolbar"><button class="btn primary" type="submit">Solicitar aprovação</button></div>
+          <div class="full auth-note">Após solicitar, entre no Supabase da GestMan, aprove a empresa e então o cliente poderá entrar com o login gerado.</div>
         </form>
       </div>
     </div>
@@ -4311,6 +4279,9 @@
     const THEME_DEFAULT_KEY = "gestman365-light-default-applied";
     const ACTIVE_VIEW_KEY = "gestman365-active-view-v1";
     const AUTH_STORAGE_KEY = "gestman365-empresas-usuarios-v1";
+    const GESTMAN_LOGIN_PREFIX = "gestman.";
+    const GESTMAN_COMPANIES_TABLE = "gestman_empresas";
+    const GESTMAN_USERS_TABLE = "gestman_usuarios";
     const SUPABASE_URL = "https://zkkyiqtzmimcoderjrrm.supabase.co";
     const SUPABASE_KEY = "sb_publishable_h88SLb98aMdmGCJvEO6yFw_QuJ4I3bI";
     const SUPABASE_READY = SUPABASE_URL.startsWith("https://") && SUPABASE_KEY.startsWith("sb_");
@@ -4445,6 +4416,36 @@
       return String(value || "").trim().toLowerCase();
     }
 
+    function slugText(value) {
+      return String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "");
+    }
+
+    function normalizeCompanyLogin(value) {
+      let login = String(value || "").trim().toLowerCase();
+      login = login.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      login = login.replace(/^@+/, "").replace(/\s+/g, "");
+      if (!login.startsWith(GESTMAN_LOGIN_PREFIX)) {
+        login = `${GESTMAN_LOGIN_PREFIX}${login.replace(/^gestman[.-]?/, "")}`;
+      }
+      const suffix = slugText(login.slice(GESTMAN_LOGIN_PREFIX.length));
+      return suffix ? `${GESTMAN_LOGIN_PREFIX}${suffix}` : "";
+    }
+
+    function companyLoginFromName(name) {
+      const suffix = slugText(name);
+      return suffix ? `${GESTMAN_LOGIN_PREFIX}${suffix}` : "";
+    }
+
+    function companyIsApproved(company) {
+      if (!company) return false;
+      const status = statusKey(company.status || "");
+      return company.approved === true || company.aprovado === true || status === "ativa" || status === "ativo";
+    }
+
     function normalizeAuthStore(store) {
       const normalized = store && typeof store === "object" ? store : {};
       normalized.companies = Array.isArray(normalized.companies) ? normalized.companies : [];
@@ -4452,9 +4453,11 @@
       normalized.session = normalized.session && typeof normalized.session === "object" ? normalized.session : null;
       normalized.companies = normalized.companies.map(company => ({
         id: company.id,
+        login: normalizeCompanyLogin(company.login || company.slug || company.name),
         name: company.name || "Empresa",
         plan: company.plan || "Mensal",
-        status: company.status || "Ativa",
+        status: company.status || (company.approved || company.aprovado ? "Ativa" : "Pendente"),
+        approved: company.approved === true || company.aprovado === true,
         remoteSync: company.remoteSync === true,
         createdAt: company.createdAt || Date.now()
       })).filter(company => company.id);
@@ -4489,7 +4492,7 @@
     function resolveCurrentAccount(store = authStore) {
       const session = store?.session;
       if (!session?.companyId || !session?.userId) return null;
-      const company = store.companies.find(item => item.id === session.companyId && item.status !== "Bloqueada");
+      const company = store.companies.find(item => item.id === session.companyId && item.status !== "Bloqueada" && companyIsApproved(item));
       const user = store.users.find(item => item.id === session.userId && item.companyId === session.companyId && item.active !== false);
       return company && user ? { company, user } : null;
     }
@@ -4561,6 +4564,109 @@
 
     function tenantRemoteSyncEnabled() {
       return currentAccount?.company?.remoteSync === true;
+    }
+
+    function companyApprovalRow(company = {}) {
+      return {
+        id: company.id,
+        login: company.login,
+        nome: company.name,
+        plano: company.plan || "Mensal",
+        status: company.status || "Pendente",
+        aprovado: company.approved === true || companyIsApproved(company),
+        ativo: company.status !== "Bloqueada",
+        remote_sync: company.remoteSync === true
+      };
+    }
+
+    function tenantUserApprovalRow(user = {}) {
+      return {
+        id: user.id,
+        empresa_id: user.companyId,
+        nome: user.name,
+        email: normalizeEmail(user.email),
+        senha: user.password || "",
+        perfil: user.role || "user",
+        ativo: user.active !== false,
+        permissoes: user.permissions || {},
+        foto_url: user.photo || ""
+      };
+    }
+
+    function companyFromApprovalRow(row = {}) {
+      return {
+        id: row.id,
+        login: normalizeCompanyLogin(row.login || row.slug || row.nome || row.name),
+        name: row.nome || row.name || row.razao_social || "Empresa",
+        plan: row.plano || row.plan || "Mensal",
+        status: row.status || (row.aprovado ? "Ativa" : "Pendente"),
+        approved: row.aprovado === true || statusKey(row.status || "") === "ativa",
+        remoteSync: row.remote_sync === true,
+        createdAt: timeValue(row.created_at) || Date.now()
+      };
+    }
+
+    function userFromApprovalRow(row = {}, companyId = "") {
+      return {
+        id: row.id,
+        companyId: row.empresa_id || row.company_id || companyId,
+        name: row.nome || row.name || "Usuário",
+        email: normalizeEmail(row.email),
+        password: String(row.senha || row.password || ""),
+        role: row.perfil === "admin" || row.role === "admin" ? "admin" : "user",
+        active: row.ativo !== false && row.active !== false,
+        permissions: row.permissoes || row.permissions || allPermissions(row.perfil === "admin" || row.role === "admin"),
+        photo: row.foto_url || row.photo || "",
+        createdAt: timeValue(row.created_at) || Date.now()
+      };
+    }
+
+    function mergeApprovalData(company, users = []) {
+      if (!company?.id) return;
+      authStore.companies = authStore.companies.filter(item => item.id !== company.id && item.login !== company.login).concat(company);
+      users.forEach(user => {
+        if (!user?.id) return;
+        authStore.users = authStore.users.filter(item => item.id !== user.id).concat(user);
+      });
+      saveAuthStore(authStore);
+    }
+
+    async function saveCompanyApprovalRequest(company, admin) {
+      if (!SUPABASE_READY) return false;
+      try {
+        await supabaseFetch(`${GESTMAN_COMPANIES_TABLE}?on_conflict=id`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" },
+          body: JSON.stringify([companyApprovalRow(company)])
+        });
+        await supabaseFetch(`${GESTMAN_USERS_TABLE}?on_conflict=id`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" },
+          body: JSON.stringify([tenantUserApprovalRow(admin)])
+        });
+        return true;
+      } catch (error) {
+        console.error("Falha ao enviar solicitação de empresa ao Supabase:", error);
+        return false;
+      }
+    }
+
+    async function loadApprovalCompanyFromSupabase(login) {
+      if (!SUPABASE_READY || !login) return false;
+      try {
+        const encodedLogin = encodeURIComponent(normalizeCompanyLogin(login));
+        const rows = await supabaseFetch(`${GESTMAN_COMPANIES_TABLE}?select=*&login=eq.${encodedLogin}&limit=1`);
+        const companyRow = Array.isArray(rows) ? rows[0] : null;
+        if (!companyRow?.id) return false;
+        const company = companyFromApprovalRow(companyRow);
+        const userRows = await supabaseFetch(`${GESTMAN_USERS_TABLE}?select=*&empresa_id=eq.${encodeURIComponent(company.id)}`);
+        const users = Array.isArray(userRows) ? userRows.map(row => userFromApprovalRow(row, company.id)) : [];
+        mergeApprovalData(company, users);
+        return true;
+      } catch (error) {
+        console.error("Falha ao consultar aprovação no Supabase:", error);
+        return false;
+      }
     }
 
     const emptyState = () => ({
@@ -5203,19 +5309,18 @@
     }
 
     function renderAuthScreen() {
-      const hasCompanies = authStore.companies.length > 0;
       document.body.classList.toggle("auth-required", !currentAccount);
       if (!$("authLoginForm") || !$("authSetupForm")) return;
-      $("authLoginForm").classList.toggle("is-hidden", !hasCompanies);
-      $("authSetupForm").classList.toggle("is-hidden", hasCompanies);
-      $("authTitle").textContent = hasCompanies ? "Acessar empresa" : "Criar primeira empresa";
-      $("authSubtitle").textContent = hasCompanies
-        ? "Entre com a empresa, email e senha do usuário."
-        : "Cadastre a primeira empresa. Ela começará com todos os módulos zerados.";
-      $("authCompany").innerHTML = authStore.companies
-        .filter(company => company.status !== "Bloqueada")
-        .map(company => `<option value="${company.id}">${escapeHtml(company.name)} - ${escapeHtml(company.plan || "Mensal")}</option>`)
-        .join("");
+      $("authLoginForm").classList.remove("is-hidden");
+      $("authSetupForm").classList.remove("is-hidden");
+      $("authTitle").textContent = "Acessar GestMan365";
+      $("authSubtitle").textContent = "Use o login aprovado no padrão gestman.nomedaempresa.";
+      updateSetupCompanyLogin();
+    }
+
+    function updateSetupCompanyLogin() {
+      if (!$("setupCompanyName") || !$("setupCompanyLogin")) return;
+      $("setupCompanyLogin").value = companyLoginFromName($("setupCompanyName").value);
     }
 
     function applyAuthState() {
@@ -5235,11 +5340,22 @@
       captureSyncBaseline();
     }
 
-    function loginTenantUser(companyId, email, password) {
+    async function loginTenantUser(companyLogin, email, password) {
+      const login = normalizeCompanyLogin(companyLogin);
       const normalizedEmail = normalizeEmail(email);
-      const company = authStore.companies.find(item => item.id === companyId && item.status !== "Bloqueada");
+      if (!login || !normalizedEmail || !password) {
+        showToast("Informe login da empresa, email e senha.");
+        return false;
+      }
+      await loadApprovalCompanyFromSupabase(login);
+      authStore = loadAuthStore();
+      const company = authStore.companies.find(item => item.login === login && item.status !== "Bloqueada");
+      if (company && !companyIsApproved(company)) {
+        showToast("Empresa aguardando aprovação da GestMan no Supabase.");
+        return false;
+      }
       const user = authStore.users.find(item =>
-        item.companyId === companyId &&
+        item.companyId === company?.id &&
         normalizeEmail(item.email) === normalizedEmail &&
         item.password === String(password || "") &&
         item.active !== false
@@ -5259,18 +5375,33 @@
       return true;
     }
 
-    function createInitialCompany() {
+    async function createInitialCompany() {
       const companyName = $("setupCompanyName").value.trim();
+      const companyLogin = normalizeCompanyLogin($("setupCompanyLogin").value || companyLoginFromName(companyName));
       const adminName = $("setupAdminName").value.trim();
       const adminEmail = normalizeEmail($("setupAdminEmail").value);
       const adminPassword = $("setupAdminPassword").value;
-      if (!companyName || !adminName || !adminEmail || !adminPassword) {
+      if (!companyName || !companyLogin || !adminName || !adminEmail || !adminPassword) {
         showToast("Preencha empresa, administrador, email e senha.");
         return false;
       }
-      const company = { id: uid("company"), name: companyName, plan: $("setupPlan").value || "Mensal", status: "Ativa", remoteSync: false, createdAt: Date.now() };
+      const duplicate = authStore.companies.find(item => item.login === companyLogin);
+      if (duplicate && companyIsApproved(duplicate)) {
+        showToast("Este login de empresa já está aprovado.");
+        return false;
+      }
+      const company = {
+        id: duplicate?.id || uid("company"),
+        login: companyLogin,
+        name: companyName,
+        plan: $("setupPlan").value || "Mensal",
+        status: "Pendente",
+        approved: false,
+        remoteSync: false,
+        createdAt: duplicate?.createdAt || Date.now()
+      };
       const admin = {
-        id: uid("user"),
+        id: authStore.users.find(item => item.companyId === company.id && normalizeEmail(item.email) === adminEmail)?.id || uid("user"),
         companyId: company.id,
         name: adminName,
         email: adminEmail,
@@ -5281,21 +5412,20 @@
         photo: "",
         createdAt: Date.now()
       };
-      authStore = normalizeAuthStore({ companies: [company], users: [admin], session: { companyId: company.id, userId: admin.id, at: Date.now() } });
+      authStore.companies = authStore.companies.filter(item => item.id !== company.id && item.login !== company.login).concat(company);
+      authStore.users = authStore.users.filter(item => item.id !== admin.id).concat(admin);
+      authStore.session = null;
+      authStore = normalizeAuthStore(authStore);
       saveAuthStore(authStore);
-      currentAccount = resolveCurrentAccount(authStore);
-      state = normalizeState(emptyState());
-      scopedSetItem(STORAGE_KEY, JSON.stringify(state));
-      scopedSetItem(PROFILE_STORAGE_KEY, JSON.stringify(state.profile || {}));
-      pendingUpserts = loadPendingUpserts();
-      deletedRecords = loadDeletedRecords();
-      hasPendingLocalSync = false;
-      hasSessionLocalChange = false;
-      syncBaseline = {};
-      captureSyncBaseline();
+      const sent = await saveCompanyApprovalRequest(company, admin);
+      $("authCompanyLogin").value = company.login;
+      $("authEmail").value = admin.email;
+      $("setupAdminPassword").value = "";
       applyAuthState();
-      setView("dashboard", { persist: false, silent: true });
-      showToast("Empresa criada com dados zerados.");
+      showToast(sent
+        ? `Solicitação enviada. Aprove no Supabase e use o login ${company.login}.`
+        : `Solicitação criada. Crie/aprove no Supabase o login ${company.login}.`
+      );
       return true;
     }
 
@@ -10424,11 +10554,15 @@
 
     if ($("authLoginForm")) $("authLoginForm").addEventListener("submit", event => {
       event.preventDefault();
-      loginTenantUser($("authCompany").value, $("authEmail").value, $("authPassword").value);
+      loginTenantUser($("authCompanyLogin").value, $("authEmail").value, $("authPassword").value);
     });
     if ($("authSetupForm")) $("authSetupForm").addEventListener("submit", event => {
       event.preventDefault();
       createInitialCompany();
+    });
+    if ($("setupCompanyName")) $("setupCompanyName").addEventListener("input", updateSetupCompanyLogin);
+    if ($("authCompanyLogin")) $("authCompanyLogin").addEventListener("blur", () => {
+      $("authCompanyLogin").value = normalizeCompanyLogin($("authCompanyLogin").value);
     });
 
     document.querySelectorAll("[data-view]").forEach(button => button.addEventListener("click", () => {
