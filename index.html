@@ -415,6 +415,140 @@
 
     .view { display: none; }
     .view.active { display: block; }
+    .tab.is-permission-hidden,
+    [data-module-action].is-permission-hidden,
+    [data-view-button].is-permission-hidden {
+      display: none !important;
+    }
+
+    body.auth-required .topbar,
+    body.auth-required .nav,
+    body.auth-required .workspace,
+    body.auth-required .context-menu {
+      display: none !important;
+    }
+
+    .auth-screen {
+      min-height: 100vh;
+      padding: 24px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 20% 15%, rgba(255, 138, 76, .26), transparent 28%),
+        radial-gradient(circle at 80% 20%, rgba(47, 68, 147, .35), transparent 30%),
+        linear-gradient(135deg, #061633, #0b2857 55%, #102d61);
+    }
+
+    body.auth-required .auth-screen { display: flex; }
+
+    .auth-card {
+      width: min(920px, 100%);
+      display: grid;
+      grid-template-columns: minmax(240px, .8fr) minmax(300px, 1fr);
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, .16);
+      border-radius: 18px;
+      background: rgba(5, 18, 43, .88);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, .38);
+    }
+
+    .auth-side {
+      padding: 34px;
+      color: #fff;
+      border-right: 1px solid rgba(255, 255, 255, .12);
+      background: linear-gradient(160deg, rgba(255, 138, 76, .18), rgba(18, 63, 141, .2));
+    }
+
+    .auth-side h1 {
+      margin: 0 0 12px;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1;
+      letter-spacing: -.03em;
+    }
+
+    .auth-side p {
+      color: rgba(255, 255, 255, .78);
+      line-height: 1.55;
+      margin: 0;
+    }
+
+    .auth-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 24px;
+    }
+
+    .auth-badge {
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: #061533;
+      background: var(--orange);
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .auth-main {
+      padding: 34px;
+    }
+
+    .auth-main h2 {
+      margin: 0 0 8px;
+      color: #fff;
+      font-size: 22px;
+    }
+
+    .auth-main .muted { color: rgba(255, 255, 255, .7); }
+
+    .auth-form.is-hidden { display: none; }
+
+    .auth-note {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 12px;
+      color: rgba(255, 255, 255, .78);
+      background: rgba(255, 255, 255, .08);
+      border: 1px solid rgba(255, 255, 255, .12);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .tenant-pill {
+      min-height: 28px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.22);
+      padding: 0 11px;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: #fff;
+      background: rgba(255,255,255,.09);
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    .permission-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 8px;
+    }
+
+    .permission-item {
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 10px 12px;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 10px;
+      background: rgba(255,255,255,.06);
+      color: var(--ink);
+      font-weight: 800;
+    }
+
+    .permission-item input { width: auto; }
 
     .grid { display: grid; gap: 14px; }
     .metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
@@ -1051,6 +1185,94 @@
       color: rgba(232,238,252,.62);
       font-size: 11px;
       padding: 3px 0 3px 30px;
+    }
+
+    .api-tree {
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .api-folder {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,.04);
+      overflow: hidden;
+    }
+
+    .api-folder-head {
+      width: 100%;
+      min-height: 42px;
+      border: 0;
+      background: rgba(255,255,255,.07);
+      color: #fff;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      cursor: pointer;
+      font-weight: 900;
+      text-align: left;
+    }
+
+    .api-folder-head span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .api-folder-head small {
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .api-folder-body {
+      padding: 8px;
+      display: grid;
+      gap: 7px;
+    }
+
+    .api-command {
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 7px;
+      background: rgba(8,23,52,.35);
+      color: #fff;
+      padding: 8px 10px;
+      display: grid;
+      grid-template-columns: 82px minmax(160px, .9fr) minmax(240px, 1.5fr) auto;
+      gap: 8px;
+      align-items: center;
+      text-align: left;
+    }
+
+    .api-method {
+      display: inline-flex;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 4px 8px;
+      background: rgba(255,138,76,.18);
+      color: var(--orange);
+      border: 1px solid rgba(255,138,76,.45);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .api-route {
+      color: var(--muted);
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .api-command-name {
+      font-weight: 900;
+    }
+
+    @media (max-width: 900px) {
+      .api-command {
+        grid-template-columns: 1fr;
+      }
     }
 
     .form {
@@ -3498,6 +3720,42 @@
 </style>
 </head>
 <body class="theme-light">
+  <div class="auth-screen" id="authScreen">
+    <div class="auth-card">
+      <div class="auth-side">
+        <h1>GestMan365</h1>
+        <p>Sistema preparado para planos mensais, empresas separadas e usuários com permissões por módulo.</p>
+        <div class="auth-badges">
+          <span class="auth-badge">Multiempresa</span>
+          <span class="auth-badge">Admin inicial</span>
+          <span class="auth-badge">Permissões</span>
+        </div>
+      </div>
+      <div class="auth-main">
+        <h2 id="authTitle">Acessar empresa</h2>
+        <p class="muted" id="authSubtitle">Entre com a empresa, email e senha do usuário.</p>
+
+        <form class="form auth-form" id="authLoginForm">
+          <label class="full">Empresa <select class="field" id="authCompany"></select></label>
+          <label>Email <input class="field" id="authEmail" type="email" autocomplete="username" placeholder="usuario@empresa.com"></label>
+          <label>Senha <input class="field" id="authPassword" type="password" autocomplete="current-password" placeholder="Senha"></label>
+          <div class="full toolbar"><button class="btn primary" type="submit">Entrar</button></div>
+          <div class="full auth-note">Cada empresa abre somente o seu banco local. Usuários de uma empresa não entram em outra sem conta cadastrada pelo administrador.</div>
+        </form>
+
+        <form class="form auth-form is-hidden" id="authSetupForm">
+          <label>Nome da empresa <input class="field" id="setupCompanyName" required placeholder="Ex: H28 Manutenção"></label>
+          <label>Plano <select class="field" id="setupPlan"><option>Mensal</option><option>Teste</option><option>Enterprise</option></select></label>
+          <label>Nome do administrador <input class="field" id="setupAdminName" required placeholder="Administrador"></label>
+          <label>Email do administrador <input class="field" id="setupAdminEmail" required type="email" autocomplete="username" placeholder="admin@empresa.com"></label>
+          <label class="full">Senha inicial <input class="field" id="setupAdminPassword" required type="password" autocomplete="new-password" minlength="4" placeholder="Crie uma senha"></label>
+          <div class="full toolbar"><button class="btn primary" type="submit">Criar primeira empresa</button></div>
+          <div class="full auth-note">A primeira conta criada será administrador da empresa e poderá criar os demais usuários com suas permissões.</div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <header class="topbar">
     <div>
       <div class="brand">
@@ -3505,10 +3763,12 @@
       </div>
     </div>
     <div class="top-actions">
+      <span class="tenant-pill" id="companyName">Empresa</span>
       <button class="admin-pill" id="profileBtn" type="button"><span class="admin-avatar" id="profileAvatar">AD</span><span id="profileName">Administrador</span></button>
       <button class="btn theme-toggle" id="themeBtn" type="button" title="Alternar tema claro/escuro" aria-label="Alternar tema claro/escuro"></button>
       <button class="btn" id="syncBtn">Sincronizar banco</button>
       <button class="btn" id="exportBtn">Exportar</button>
+      <button class="btn" id="logoutBtn" type="button">Sair</button>
     </div>
   </header>
 
@@ -3536,6 +3796,8 @@
       <button class="tab" data-view="reports"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h17"/><path d="M8 16v-5M13 16V8M18 16v-9"/></svg></span><span>RELATÓRIOS</span></button>
       <button class="tab" data-view="assistant"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><rect x="5" y="6" width="14" height="12" rx="3"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4"/><circle cx="10" cy="12" r="1"/><circle cx="14" cy="12" r="1"/><path d="M9 15h6"/></svg></span><span>IA GESTMAN365</span></button>
       <button class="tab" data-view="checklists"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M7 12l3 3 7-7"/></svg></span><span>CHECKLISTS</span></button>
+      <button class="tab" data-view="users"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span>USUÁRIOS</span></button>
+      <button class="tab" data-view="apiDocs"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/><path d="M18 15l2 2-2 2"/></svg></span><span>API SGMAN</span></button>
     </div>
     <input class="searchbar" id="globalSearch" placeholder="Pesquisar equipamento, região, local, tag ou O.S">
   </nav>
@@ -3963,6 +4225,55 @@
         <div class="table-wrap"><table><thead><tr><th>ID</th><th>Equipamento</th><th>Nome</th><th>Último preenchimento</th><th>Ações</th></tr></thead><tbody id="checklistRows"></tbody></table></div>
       </div>
     </section>
+
+    <section class="view" id="users">
+      <div class="grid two-col">
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">Usuários da empresa</div>
+              <small class="muted">Somente administradores criam usuários e definem permissões por módulo.</small>
+            </div>
+          </div>
+          <form class="form" id="tenantUserForm">
+            <input type="hidden" id="tenantUserId">
+            <label>Nome <input class="field" id="tenantUserName" required placeholder="Nome do usuário"></label>
+            <label>Email <input class="field" id="tenantUserEmail" required type="email" placeholder="usuario@empresa.com"></label>
+            <label>Senha <input class="field" id="tenantUserPassword" type="password" placeholder="Senha inicial ou nova senha"></label>
+            <label>Perfil <select class="field" id="tenantUserRole"><option value="user">Usuário</option><option value="admin">Administrador</option></select></label>
+            <label>Status <select class="field" id="tenantUserActive"><option value="true">Ativo</option><option value="false">Bloqueado</option></select></label>
+            <div class="full">
+              <label>Permissões de acesso</label>
+              <div class="permission-grid" id="tenantPermissionGrid"></div>
+            </div>
+            <div class="full toolbar">
+              <button class="btn primary" type="submit">Salvar usuário</button>
+              <button class="btn" type="button" id="resetTenantUserForm">Limpar</button>
+            </div>
+          </form>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div class="panel-title">Contas cadastradas</div></div>
+          <div class="table-wrap"><table><thead><tr><th>Nome</th><th>Email</th><th>Perfil</th><th>Status</th><th>Ações</th></tr></thead><tbody id="tenantUserRows"></tbody></table></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="apiDocs">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <div class="panel-title">Árvore de comandos API SGMAN</div>
+            <small class="muted">Copiada da documentação Postman informada. Use para conferir os módulos e rotas faltantes.</small>
+          </div>
+          <button class="btn" type="button" id="copyApiTreeBtn">Copiar árvore</button>
+        </div>
+        <div class="form">
+          <label class="full">Pesquisar módulo, comando ou rota <input class="field" id="apiTreeSearch" placeholder="Ex: parada, listar, /os/criar"></label>
+        </div>
+        <div id="apiTree" class="api-tree"></div>
+      </div>
+    </section>
   </main>
 
   <div class="context-menu" id="machineMenu">
@@ -3999,6 +4310,7 @@
     const DASHBOARD_LAYOUT_KEY = "gestman365-dashboard-layout-v1";
     const THEME_DEFAULT_KEY = "gestman365-light-default-applied";
     const ACTIVE_VIEW_KEY = "gestman365-active-view-v1";
+    const AUTH_STORAGE_KEY = "gestman365-empresas-usuarios-v1";
     const SUPABASE_URL = "https://zkkyiqtzmimcoderjrrm.supabase.co";
     const SUPABASE_KEY = "sb_publishable_h88SLb98aMdmGCJvEO6yFw_QuJ4I3bI";
     const SUPABASE_READY = SUPABASE_URL.startsWith("https://") && SUPABASE_KEY.startsWith("sb_");
@@ -4008,6 +4320,248 @@
     const LOCAL_SYNC_DELAY_MS = 400;
     const REMOTE_REFRESH_INTERVAL_MS = 2000;
     const UI_REFRESH_INTERVAL_MS = 30000;
+    const PERMISSION_MODULES = [
+      { key: "dashboard", label: "Dashboard", views: ["dashboard"] },
+      { key: "map", label: "Mapa industrial", views: ["map"] },
+      { key: "assets", label: "Equipamentos", views: ["assets"] },
+      { key: "suppliers", label: "Fornecedores", views: ["suppliers"] },
+      { key: "stock", label: "Estoque e peças", views: ["stock", "spares", "stockMoves", "materialRequests", "stockTransfers"], actions: ["purchaseList", "stockTurnover", "stockValuation", "stockBalance", "bulkInventory"] },
+      { key: "locations", label: "Regiões e locais", views: ["locations"] },
+      { key: "tags", label: "TAGs e subtags", views: ["tags"] },
+      { key: "orders", label: "Ordens de serviço", views: ["orders", "calendar", "activeOrders"] },
+      { key: "reports", label: "Relatórios", views: ["reports"] },
+      { key: "assistant", label: "IA GestMan365", views: ["assistant"] },
+      { key: "checklists", label: "Checklists", views: ["checklists"] },
+      { key: "apiDocs", label: "API SGMAN", views: ["apiDocs"] },
+      { key: "users", label: "Usuários e permissões", views: ["users"], adminOnly: true }
+    ];
+    const MODULE_ACTION_PERMISSION = Object.fromEntries(PERMISSION_MODULES.flatMap(module => (module.actions || []).map(action => [action, module.key])));
+    const VIEW_PERMISSION = Object.fromEntries(PERMISSION_MODULES.flatMap(module => module.views.map(view => [view, module.key])));
+    const SGMAN_API_TREE = [
+      { module: "Peças Sobressalentes", commands: [
+        ["Criar Peça", "POST", "https://api.sgman.com.br/spare/criar"],
+        ["Editar Peça", "POST", "https://api.sgman.com.br/spare/editar"],
+        ["Set Config", "POST", "https://api.sgman.com.br/spare/set_config"],
+        ["Listar Peça", "POST", "https://api.sgman.com.br/spare/listar"],
+        ["Listar Consumo de Peças", "POST", "https://api.sgman.com.br/spare/listar_consumo"]
+      ] },
+      { module: "Movimentação de Estoque", commands: [
+        ["Criar Mov Estoque", "POST", "https://api.sgman.com.br/mov_estoque/criar"],
+        ["Editar Mov Estoque", "POST", "https://api.sgman.com.br/mov_estoque/editar"],
+        ["Excluir Mov Estoque", "POST", "https://api.sgman.com.br/mov_estoque/excluir"],
+        ["Listar Mov Estoque", "POST", "https://api.sgman.com.br/mov_estoque/listar"],
+        ["Listar Itens Mov Estoque", "POST", "https://api.sgman.com.br/mov_estoque/listar_itens"]
+      ] },
+      { module: "Requisição", commands: [
+        ["Criar Requisição", "POST", "https://api.sgman.com.br/requisicao/criar"],
+        ["Editar Requisição", "POST", "https://api.sgman.com.br/requisicao/editar"],
+        ["Excluir Requisição", "POST", "https://api.sgman.com.br/requisicao/excluir"],
+        ["Listar Requisições", "POST", "https://api.sgman.com.br/requisicao/listar"],
+        ["Listar Itens Requisição", "POST", "https://api.sgman.com.br/requisicao/listar_itens"]
+      ] },
+      { module: "Medição", commands: [
+        ["Criar Medição", "POST", "https://api.sgman.com.br/medicao/criar"],
+        ["Editar Medição", "POST", "https://api.sgman.com.br/medicao/editar"],
+        ["Excluir Medição", "POST", "https://api.sgman.com.br/medicao/excluir"],
+        ["Listar Medições", "POST", "https://api.sgman.com.br/medicao/listar"]
+      ] },
+      { module: "Ordens de Serviço", commands: [
+        ["Listar OSs", "POST", "https://api.sgman.com.br/os/listar"],
+        ["Listar Tarefas", "POST", "https://api.sgman.com.br/os/tarefas"],
+        ["Excluir OS", "POST", "https://api.sgman.com.br/os/excluir"],
+        ["Utilização de Mão de Obra", "POST", "https://api.sgman.com.br/os/mao_obra"],
+        ["Criar OS", "POST", "https://api.sgman.com.br/os/criar"],
+        ["Editar OS", "POST", "https://api.sgman.com.br/os/editar"]
+      ] },
+      { module: "Estoque", commands: [["Listar Estoque", "POST", "https://api.sgman.com.br/estoque/listar"]] },
+      { module: "Local de instalação (LI)", commands: [
+        ["Listar LI", "POST", "https://api.sgman.com.br/li/listar"],
+        ["Criar LI", "POST", "https://api.sgman.com.br/li/criar"],
+        ["Editar LI", "POST", "https://api.sgman.com.br/li/editar"]
+      ] },
+      { module: "Local", commands: [
+        ["Listar Local", "POST", "https://api.sgman.com.br/local/listar"],
+        ["Criar Local", "POST", "https://api.sgman.com.br/local/criar"],
+        ["Editar Local", "POST", "https://api.sgman.com.br/local/editar"],
+        ["Replace Local", "POST", "https://api.sgman.com.br/local/replace"]
+      ] },
+      { module: "Parada", commands: [
+        ["Criar Parada", "POST", "https://api.sgman.com.br/parada/criar"],
+        ["Editar Parada", "POST", "https://api.sgman.com.br/parada/editar"],
+        ["Listar Parada", "POST", "https://api.sgman.com.br/parada/listar"],
+        ["Excluir Parada", "POST", "https://api.sgman.com.br/parada/excluir"]
+      ] },
+      { module: "Pendência", commands: [
+        ["Criar", "POST", "https://api.sgman.com.br/pendencia/criar"],
+        ["Listar", "POST", "https://api.sgman.com.br/pendencia/listar"]
+      ] },
+      { module: "Histórico de TAG", commands: [
+        ["Listar", "POST", "https://api.sgman.com.br/hist_tag/listar"],
+        ["Criar", "POST", "https://api.sgman.com.br/hist_tag/criar"]
+      ] },
+      { module: "Tipo de Equipamento", commands: [["Criar", "POST", "https://api.sgman.com.br/tipo_equip/criar"]] },
+      { module: "Equipamento", commands: [
+        ["Criar", "POST", "https://api.sgman.com.br/equipamento/criar"],
+        ["Listar", "POST", "https://api.sgman.com.br/equipamento/listar"]
+      ] },
+      { module: "TAG", commands: [
+        ["Criar", "POST", "https://api.sgman.com.br/tag/criar"],
+        ["Listar", "POST", "https://api.sgman.com.br/tag/listar"],
+        ["Listar Movimentações", "POST", "https://api.sgman.com.br/tag/listar_mov"]
+      ] },
+      { module: "Fornecedor", commands: [
+        ["Criar", "POST", "https://api.sgman.com.br/fornecedor/criar"],
+        ["Listar", "POST", "https://api.sgman.com.br/fornecedor/listar"]
+      ] },
+      { module: "Parâmetro", commands: [["Vincular", "POST", "https://api.sgman.com.br/parametro/vincular"]] },
+      { module: "Plano", commands: [["Listar", "POST", "https://api.sgman.com.br/plano/listar"]] },
+      { module: "Recurso", commands: [
+        ["Listar", "POST", "https://api.sgman.com.br/recurso/listar"],
+        ["Listar utilização", "POST", "https://api.sgman.com.br/recurso/listar_utilizacao"]
+      ] },
+      { module: "Gatilho", commands: [["Listar", "POST", "https://api.sgman.com.br/gatilho/listar"]] },
+      { module: "Documento", commands: [["Listar", "POST", "https://api.sgman.com.br/documento/listar"]] },
+      { module: "Checklist", commands: [
+        ["Listar preenchimentos", "POST", "https://api.sgman.com.br/checklist/preenchimento/listar"],
+        ["Listar", "POST", "https://api.sgman.com.br/checklist/listar"],
+        ["Criar Checklist", "POST", "https://api.sgman.com.br/checklist/criar"]
+      ] },
+      { module: "Usuário", commands: [["Listar", "POST", "https://api.sgman.com.br/usuario/listar"]] },
+      { module: "Webhook", commands: [["Listar logs", "POST", "https://api.sgman.com.br/webhook/listar_log"]] },
+      { module: "Região", commands: [["Criar Região", "POST", "https://api.sgman.com.br/regiao/criar"]] },
+      { module: "Transferência de Estoque", commands: [["Criar", "POST", "https://api.sgman.com.br/transferencia/criar"]] }
+    ];
+
+    function safeParseJson(text, fallback) {
+      try {
+        const parsed = JSON.parse(text || "");
+        return parsed ?? fallback;
+      } catch {
+        return fallback;
+      }
+    }
+
+    function normalizeEmail(value) {
+      return String(value || "").trim().toLowerCase();
+    }
+
+    function normalizeAuthStore(store) {
+      const normalized = store && typeof store === "object" ? store : {};
+      normalized.companies = Array.isArray(normalized.companies) ? normalized.companies : [];
+      normalized.users = Array.isArray(normalized.users) ? normalized.users : [];
+      normalized.session = normalized.session && typeof normalized.session === "object" ? normalized.session : null;
+      normalized.companies = normalized.companies.map(company => ({
+        id: company.id,
+        name: company.name || "Empresa",
+        plan: company.plan || "Mensal",
+        status: company.status || "Ativa",
+        remoteSync: company.remoteSync === true,
+        createdAt: company.createdAt || Date.now()
+      })).filter(company => company.id);
+      normalized.users = normalized.users.map(user => ({
+        id: user.id,
+        companyId: user.companyId,
+        name: user.name || "Usuário",
+        email: normalizeEmail(user.email),
+        password: String(user.password || ""),
+        role: user.role === "admin" ? "admin" : "user",
+        active: user.active !== false,
+        permissions: user.permissions && typeof user.permissions === "object" ? user.permissions : {},
+        photo: user.photo || "",
+        createdAt: user.createdAt || Date.now()
+      })).filter(user => user.id && user.companyId && user.email);
+      return normalized;
+    }
+
+    function loadAuthStore() {
+      return normalizeAuthStore(safeParseJson(localStorage.getItem(AUTH_STORAGE_KEY), {}));
+    }
+
+    function saveAuthStore(store = authStore) {
+      authStore = normalizeAuthStore(store);
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authStore));
+    }
+
+    function allPermissions(enabled = true) {
+      return Object.fromEntries(PERMISSION_MODULES.map(module => [module.key, Boolean(enabled)]));
+    }
+
+    function resolveCurrentAccount(store = authStore) {
+      const session = store?.session;
+      if (!session?.companyId || !session?.userId) return null;
+      const company = store.companies.find(item => item.id === session.companyId && item.status !== "Bloqueada");
+      const user = store.users.find(item => item.id === session.userId && item.companyId === session.companyId && item.active !== false);
+      return company && user ? { company, user } : null;
+    }
+
+    let authStore = loadAuthStore();
+    let currentAccount = resolveCurrentAccount(authStore);
+
+    function tenantStorageKey(key) {
+      const companyId = currentAccount?.company?.id;
+      return companyId ? `${key}::${companyId}` : key;
+    }
+
+    function userStorageKey(key) {
+      const companyId = currentAccount?.company?.id;
+      const userId = currentAccount?.user?.id;
+      return companyId && userId ? `${key}::${companyId}::${userId}` : tenantStorageKey(key);
+    }
+
+    function scopedGetItem(key, scope = "tenant") {
+      return localStorage.getItem(scope === "user" ? userStorageKey(key) : tenantStorageKey(key));
+    }
+
+    function scopedSetItem(key, value, scope = "tenant") {
+      localStorage.setItem(scope === "user" ? userStorageKey(key) : tenantStorageKey(key), value);
+    }
+
+    function scopedRemoveItem(key, scope = "tenant") {
+      localStorage.removeItem(scope === "user" ? userStorageKey(key) : tenantStorageKey(key));
+    }
+
+    function isAdminUser(user = currentAccount?.user) {
+      return user?.role === "admin";
+    }
+
+    function hasPermission(permissionKey, user = currentAccount?.user) {
+      if (!user) return false;
+      if (isAdminUser(user)) return true;
+      return user.permissions?.[permissionKey] === true;
+    }
+
+    function canAccessView(view) {
+      if (!currentAccount) return false;
+      const permissionKey = VIEW_PERMISSION[view];
+      if (!permissionKey) return true;
+      const module = PERMISSION_MODULES.find(item => item.key === permissionKey);
+      if (module?.adminOnly) return isAdminUser();
+      return hasPermission(permissionKey);
+    }
+
+    function canRunModuleAction(action) {
+      const permissionKey = MODULE_ACTION_PERMISSION[action];
+      return permissionKey ? hasPermission(permissionKey) : true;
+    }
+
+    function firstAllowedView() {
+      const module = PERMISSION_MODULES.find(item => item.views.some(view => canAccessView(view)));
+      return module?.views.find(view => canAccessView(view)) || "dashboard";
+    }
+
+    function defaultProfileForAccount() {
+      const user = currentAccount?.user;
+      return {
+        name: user?.name || "Administrador",
+        role: isAdminUser(user) ? "Administrador" : "Usuário",
+        email: user?.email || "",
+        photo: user?.photo || ""
+      };
+    }
+
+    function tenantRemoteSyncEnabled() {
+      return currentAccount?.company?.remoteSync === true;
+    }
 
     const emptyState = () => ({
       regions: [],
@@ -4024,7 +4578,7 @@
       inventoryMovements: [],
       materialRequests: [],
       stockTransfers: [],
-      profile: { name: "Administrador", role: "Administrador", email: "", photo: "" }
+      profile: defaultProfileForAccount()
     });
 
     let state = loadState();
@@ -4036,7 +4590,7 @@
     let taxonomySupabaseAvailable = false;
     let pendingUpserts = loadPendingUpserts();
     let syncBaseline = {};
-    let hasPendingLocalSync = localStorage.getItem(PENDING_SYNC_KEY) === "1" || hasPendingUpserts();
+    let hasPendingLocalSync = scopedGetItem(PENDING_SYNC_KEY) === "1" || hasPendingUpserts();
     let hasSessionLocalChange = hasPendingUpserts();
     let deletedRecords = loadDeletedRecords();
     let syncTimer = null;
@@ -4056,8 +4610,8 @@
 
     function loadState() {
       try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        const localProfile = JSON.parse(localStorage.getItem(PROFILE_STORAGE_KEY) || "null");
+        const saved = scopedGetItem(STORAGE_KEY);
+        const localProfile = JSON.parse(scopedGetItem(PROFILE_STORAGE_KEY) || "null");
         const loaded = saved ? JSON.parse(saved) : emptyState();
         if (localProfile?.name) loaded.profile = { ...(loaded.profile || {}), ...localProfile };
         return normalizeState(loaded);
@@ -4068,7 +4622,7 @@
 
     function loadDeletedRecords() {
       try {
-        const parsed = JSON.parse(localStorage.getItem(DELETED_RECORDS_KEY) || "{}");
+        const parsed = JSON.parse(scopedGetItem(DELETED_RECORDS_KEY) || "{}");
         return parsed && typeof parsed === "object" ? parsed : {};
       } catch {
         return {};
@@ -4077,7 +4631,7 @@
 
     function loadPendingUpserts() {
       try {
-        const parsed = JSON.parse(localStorage.getItem(PENDING_UPSERTS_KEY) || "{}");
+        const parsed = JSON.parse(scopedGetItem(PENDING_UPSERTS_KEY) || "{}");
         return parsed && typeof parsed === "object" ? parsed : {};
       } catch {
         return {};
@@ -4092,8 +4646,8 @@
       Object.keys(pendingUpserts).forEach(table => {
         if (!pendingUpserts[table] || !Object.keys(pendingUpserts[table]).length) delete pendingUpserts[table];
       });
-      if (hasPendingUpserts()) localStorage.setItem(PENDING_UPSERTS_KEY, JSON.stringify(pendingUpserts));
-      else localStorage.removeItem(PENDING_UPSERTS_KEY);
+      if (hasPendingUpserts()) scopedSetItem(PENDING_UPSERTS_KEY, JSON.stringify(pendingUpserts));
+      else scopedRemoveItem(PENDING_UPSERTS_KEY);
     }
 
     function pendingRowKey(table, row, index = 0) {
@@ -4179,7 +4733,7 @@
         savePendingUpserts();
         hasPendingLocalSync = true;
         hasSessionLocalChange = true;
-        localStorage.setItem(PENDING_SYNC_KEY, "1");
+        scopedSetItem(PENDING_SYNC_KEY, "1");
       }
       return queued;
     }
@@ -4216,10 +4770,11 @@
     }
 
     function saveDeletedRecords() {
-      localStorage.setItem(DELETED_RECORDS_KEY, JSON.stringify(deletedRecords));
+      scopedSetItem(DELETED_RECORDS_KEY, JSON.stringify(deletedRecords));
     }
 
     function rememberDeletedRecord(table, id) {
+      if (!tenantRemoteSyncEnabled()) return;
       if (!table || !id) return;
       deletedRecords[table] = deletedRecords[table] || {};
       deletedRecords[table][id] = { at: Date.now(), confirmed: false };
@@ -4227,7 +4782,7 @@
       saveDeletedRecords();
       hasPendingLocalSync = true;
       hasSessionLocalChange = true;
-      localStorage.setItem(PENDING_SYNC_KEY, "1");
+      scopedSetItem(PENDING_SYNC_KEY, "1");
     }
 
     function forgetDeletedRecord(table, id) {
@@ -4238,6 +4793,7 @@
     }
 
     async function confirmRemoteDelete(table, id, label = "registro") {
+      if (!tenantRemoteSyncEnabled()) return true;
       const deleted = await deleteSupabaseRow(table, id, { silent: true });
       if (!deleted) {
         forgetDeletedRecord(table, id);
@@ -4451,16 +5007,26 @@
     }
 
     function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(state.profile || {}));
-      queueChangedRowsFromState();
-      hasPendingLocalSync = hasPendingUpserts() || Boolean(pendingDeletedEntries().length);
-      hasSessionLocalChange = hasPendingLocalSync;
-      if (hasPendingLocalSync) {
-        localStorage.setItem(PENDING_SYNC_KEY, "1");
-        scheduleSupabaseSync();
+      scopedSetItem(STORAGE_KEY, JSON.stringify(state));
+      scopedSetItem(PROFILE_STORAGE_KEY, JSON.stringify(state.profile || {}));
+      if (tenantRemoteSyncEnabled()) {
+        queueChangedRowsFromState();
+        hasPendingLocalSync = hasPendingUpserts() || Boolean(pendingDeletedEntries().length);
+        hasSessionLocalChange = hasPendingLocalSync;
+        if (hasPendingLocalSync) {
+          scopedSetItem(PENDING_SYNC_KEY, "1");
+          scheduleSupabaseSync();
+        } else {
+          scopedRemoveItem(PENDING_SYNC_KEY);
+        }
       } else {
-        localStorage.removeItem(PENDING_SYNC_KEY);
+        pendingUpserts = {};
+        deletedRecords = {};
+        savePendingUpserts();
+        saveDeletedRecords();
+        hasPendingLocalSync = false;
+        hasSessionLocalChange = false;
+        scopedRemoveItem(PENDING_SYNC_KEY);
       }
     }
 
@@ -4636,6 +5202,255 @@
       setTimeout(() => $("toast").classList.remove("open"), 2200);
     }
 
+    function renderAuthScreen() {
+      const hasCompanies = authStore.companies.length > 0;
+      document.body.classList.toggle("auth-required", !currentAccount);
+      if (!$("authLoginForm") || !$("authSetupForm")) return;
+      $("authLoginForm").classList.toggle("is-hidden", !hasCompanies);
+      $("authSetupForm").classList.toggle("is-hidden", hasCompanies);
+      $("authTitle").textContent = hasCompanies ? "Acessar empresa" : "Criar primeira empresa";
+      $("authSubtitle").textContent = hasCompanies
+        ? "Entre com a empresa, email e senha do usuário."
+        : "Cadastre a primeira empresa. Ela começará com todos os módulos zerados.";
+      $("authCompany").innerHTML = authStore.companies
+        .filter(company => company.status !== "Bloqueada")
+        .map(company => `<option value="${company.id}">${escapeHtml(company.name)} - ${escapeHtml(company.plan || "Mensal")}</option>`)
+        .join("");
+    }
+
+    function applyAuthState() {
+      currentAccount = resolveCurrentAccount(authStore);
+      renderAuthScreen();
+      applyPermissionVisibility();
+      renderProfile();
+    }
+
+    function reloadTenantData() {
+      state = loadState();
+      pendingUpserts = loadPendingUpserts();
+      deletedRecords = loadDeletedRecords();
+      hasPendingLocalSync = scopedGetItem(PENDING_SYNC_KEY) === "1" || hasPendingUpserts();
+      hasSessionLocalChange = hasPendingUpserts();
+      syncBaseline = {};
+      captureSyncBaseline();
+    }
+
+    function loginTenantUser(companyId, email, password) {
+      const normalizedEmail = normalizeEmail(email);
+      const company = authStore.companies.find(item => item.id === companyId && item.status !== "Bloqueada");
+      const user = authStore.users.find(item =>
+        item.companyId === companyId &&
+        normalizeEmail(item.email) === normalizedEmail &&
+        item.password === String(password || "") &&
+        item.active !== false
+      );
+      if (!company || !user) {
+        showToast("Empresa, email ou senha inválidos.");
+        return false;
+      }
+      authStore.session = { companyId: company.id, userId: user.id, at: Date.now() };
+      saveAuthStore(authStore);
+      currentAccount = resolveCurrentAccount(authStore);
+      reloadTenantData();
+      applyAuthState();
+      setView(savedActiveView(), { persist: false, silent: true });
+      loadSupabaseState(false);
+      showToast(`Bem-vindo, ${user.name}.`);
+      return true;
+    }
+
+    function createInitialCompany() {
+      const companyName = $("setupCompanyName").value.trim();
+      const adminName = $("setupAdminName").value.trim();
+      const adminEmail = normalizeEmail($("setupAdminEmail").value);
+      const adminPassword = $("setupAdminPassword").value;
+      if (!companyName || !adminName || !adminEmail || !adminPassword) {
+        showToast("Preencha empresa, administrador, email e senha.");
+        return false;
+      }
+      const company = { id: uid("company"), name: companyName, plan: $("setupPlan").value || "Mensal", status: "Ativa", remoteSync: false, createdAt: Date.now() };
+      const admin = {
+        id: uid("user"),
+        companyId: company.id,
+        name: adminName,
+        email: adminEmail,
+        password: String(adminPassword),
+        role: "admin",
+        active: true,
+        permissions: allPermissions(true),
+        photo: "",
+        createdAt: Date.now()
+      };
+      authStore = normalizeAuthStore({ companies: [company], users: [admin], session: { companyId: company.id, userId: admin.id, at: Date.now() } });
+      saveAuthStore(authStore);
+      currentAccount = resolveCurrentAccount(authStore);
+      state = normalizeState(emptyState());
+      scopedSetItem(STORAGE_KEY, JSON.stringify(state));
+      scopedSetItem(PROFILE_STORAGE_KEY, JSON.stringify(state.profile || {}));
+      pendingUpserts = loadPendingUpserts();
+      deletedRecords = loadDeletedRecords();
+      hasPendingLocalSync = false;
+      hasSessionLocalChange = false;
+      syncBaseline = {};
+      captureSyncBaseline();
+      applyAuthState();
+      setView("dashboard", { persist: false, silent: true });
+      showToast("Empresa criada com dados zerados.");
+      return true;
+    }
+
+    function logoutTenantUser() {
+      if (!confirm("Sair desta empresa?")) return;
+      authStore.session = null;
+      saveAuthStore(authStore);
+      currentAccount = null;
+      state = normalizeState(emptyState());
+      selectedMachineId = null;
+      selectedLocationId = null;
+      applyAuthState();
+      renderAuthScreen();
+    }
+
+    function applyPermissionVisibility() {
+      if (!document.body) return;
+      document.querySelectorAll("[data-view]").forEach(button => {
+        const view = button.dataset.view;
+        button.classList.toggle("is-permission-hidden", Boolean(currentAccount) && !canAccessView(view));
+      });
+      document.querySelectorAll("[data-module-action]").forEach(button => {
+        button.classList.toggle("is-permission-hidden", Boolean(currentAccount) && !canRunModuleAction(button.dataset.moduleAction));
+      });
+      document.querySelectorAll("[data-view-button]").forEach(button => {
+        const view = button.dataset.viewButton;
+        button.classList.toggle("is-permission-hidden", Boolean(currentAccount) && !canAccessView(view));
+      });
+      if ($("syncBtn")) {
+        $("syncBtn").style.display = isAdminUser() ? "" : "none";
+        $("syncBtn").textContent = tenantRemoteSyncEnabled() ? "Sincronizar banco" : "Nuvem off";
+        $("syncBtn").title = tenantRemoteSyncEnabled()
+          ? "Sincronizar dados desta empresa"
+          : "Nuvem desativada para evitar misturar empresas no banco antigo";
+      }
+      if ($("exportBtn")) $("exportBtn").style.display = isAdminUser() ? "" : "none";
+    }
+
+    function renderPermissionGrid(selected = {}, role = "user") {
+      if (!$("tenantPermissionGrid")) return;
+      const disabled = role === "admin";
+      const permissions = disabled ? allPermissions(true) : selected;
+      $("tenantPermissionGrid").innerHTML = PERMISSION_MODULES
+        .filter(module => !module.adminOnly)
+        .map(module => `
+          <label class="permission-item">
+            <input type="checkbox" data-permission-key="${module.key}" ${permissions[module.key] ? "checked" : ""} ${disabled ? "disabled" : ""}>
+            <span>${escapeHtml(module.label)}</span>
+          </label>
+        `).join("");
+    }
+
+    function resetTenantUserForm() {
+      if (!$("tenantUserForm")) return;
+      $("tenantUserId").value = "";
+      $("tenantUserName").value = "";
+      $("tenantUserEmail").value = "";
+      $("tenantUserPassword").value = "";
+      $("tenantUserRole").value = "user";
+      $("tenantUserActive").value = "true";
+      renderPermissionGrid({}, "user");
+    }
+
+    function selectedPermissionPayload() {
+      const role = $("tenantUserRole")?.value || "user";
+      if (role === "admin") return allPermissions(true);
+      const payload = {};
+      document.querySelectorAll("[data-permission-key]").forEach(input => {
+        payload[input.dataset.permissionKey] = Boolean(input.checked);
+      });
+      return payload;
+    }
+
+    function renderUsers() {
+      if (!$("tenantUserRows") || !$("tenantPermissionGrid")) return;
+      if (!currentAccount) return;
+      renderPermissionGrid({}, $("tenantUserRole")?.value || "user");
+      const users = authStore.users.filter(user => user.companyId === currentAccount.company.id);
+      $("tenantUserRows").innerHTML = users.map(user => {
+        const isCurrent = user.id === currentAccount.user.id;
+        const statusClass = user.active !== false ? "ok" : "danger";
+        return `
+          <tr>
+            <td>${escapeHtml(user.name)}</td>
+            <td>${escapeHtml(user.email)}</td>
+            <td>${user.role === "admin" ? "Administrador" : "Usuário"}</td>
+            <td><span class="tag ${statusClass}">${user.active !== false ? "Ativo" : "Bloqueado"}</span></td>
+            <td class="actions">
+              <button class="btn" onclick="editTenantUser('${user.id}')">Editar</button>
+              <button class="btn danger" onclick="deleteTenantUser('${user.id}')" ${isCurrent ? "disabled" : ""}>Excluir</button>
+            </td>
+          </tr>
+        `;
+      }).join("") || `<tr><td colspan="5">Nenhum usuário cadastrado.</td></tr>`;
+    }
+
+    function editTenantUser(id) {
+      if (!isAdminUser()) { showToast("Somente administrador pode editar usuários."); return; }
+      const user = authStore.users.find(item => item.id === id && item.companyId === currentAccount?.company?.id);
+      if (!user) return;
+      $("tenantUserId").value = user.id;
+      $("tenantUserName").value = user.name || "";
+      $("tenantUserEmail").value = user.email || "";
+      $("tenantUserPassword").value = "";
+      $("tenantUserRole").value = user.role || "user";
+      $("tenantUserActive").value = String(user.active !== false);
+      renderPermissionGrid(user.permissions || {}, user.role || "user");
+    }
+
+    function deleteTenantUser(id) {
+      if (!isAdminUser()) { showToast("Somente administrador pode excluir usuários."); return; }
+      if (id === currentAccount?.user?.id) { showToast("Você não pode excluir o próprio usuário logado."); return; }
+      const user = authStore.users.find(item => item.id === id && item.companyId === currentAccount?.company?.id);
+      if (!user || !confirm(`Excluir o usuário ${user.name}?`)) return;
+      authStore.users = authStore.users.filter(item => item.id !== id);
+      saveAuthStore(authStore);
+      renderUsers();
+      showToast("Usuário excluído.");
+    }
+
+    function saveTenantUserFromForm(event) {
+      event.preventDefault();
+      if (!isAdminUser()) { showToast("Somente administrador pode criar usuários."); return; }
+      const id = $("tenantUserId").value || uid("user");
+      const companyId = currentAccount?.company?.id;
+      const existing = authStore.users.find(item => item.id === id && item.companyId === companyId);
+      const email = normalizeEmail($("tenantUserEmail").value);
+      const duplicate = authStore.users.find(item => item.companyId === companyId && item.id !== id && normalizeEmail(item.email) === email);
+      if (duplicate) { showToast("Já existe usuário com este email nesta empresa."); return; }
+      if (!existing && !$("tenantUserPassword").value) { showToast("Informe uma senha inicial para o novo usuário."); return; }
+      const payload = {
+        id,
+        companyId,
+        name: $("tenantUserName").value.trim() || "Usuário",
+        email,
+        password: $("tenantUserPassword").value || existing?.password || "",
+        role: $("tenantUserRole").value === "admin" ? "admin" : "user",
+        active: $("tenantUserActive").value === "true",
+        permissions: selectedPermissionPayload(),
+        photo: existing?.photo || "",
+        createdAt: existing?.createdAt || Date.now()
+      };
+      if (id === currentAccount.user.id) payload.active = true;
+      authStore.users = authStore.users.filter(item => item.id !== id).concat(payload);
+      if (id === currentAccount.user.id) {
+        authStore.session = { companyId, userId: id, at: Date.now() };
+      }
+      saveAuthStore(authStore);
+      currentAccount = resolveCurrentAccount(authStore);
+      resetTenantUserForm();
+      applyAuthState();
+      renderUsers();
+      showToast("Usuário salvo.");
+    }
+
     function themeIcon(theme) {
       if (theme === "light") {
         return `<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 12h2M19 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/><circle cx="12" cy="12" r="4"/></svg>`;
@@ -4680,7 +5495,7 @@
     }
 
     async function nextOrderNumberSafe() {
-      if (!SUPABASE_READY) return nextOrderNumber();
+      if (!SUPABASE_READY || !tenantRemoteSyncEnabled()) return nextOrderNumber();
       try {
         const data = await supabaseFetch("rpc/proxima_ordem_servico_numero", {
           method: "POST",
@@ -5028,6 +5843,7 @@
     }
 
     async function saveOrderSupabaseNow(order) {
+      if (!tenantRemoteSyncEnabled()) return false;
       if (!SUPABASE_READY || !order?.id) return true;
       try {
         const row = orderDbRow(order);
@@ -5041,6 +5857,7 @@
     }
 
     async function saveOrderEventSupabase(order, action, extraData = {}) {
+      if (!tenantRemoteSyncEnabled()) return false;
       if (!SUPABASE_READY || !order?.id || !action) return true;
       try {
         await supabaseFetch("eventos_ordem_servico", {
@@ -5068,6 +5885,7 @@
     }
 
     async function deleteSupabaseRow(table, id, options = {}) {
+      if (!tenantRemoteSyncEnabled()) return true;
       if (options.remember !== false) rememberDeletedRecord(table, id);
       if (!SUPABASE_READY || !id || !isUuid(id)) return false;
       try {
@@ -5099,6 +5917,7 @@
     }
 
     async function deleteSupabaseWhere(table, query) {
+      if (!tenantRemoteSyncEnabled()) return true;
       if (!SUPABASE_READY || !table || !query) return false;
       try {
         await supabaseFetch(`${table}?${query}`, { method: "DELETE", headers: { Prefer: "return=minimal" } });
@@ -5120,7 +5939,7 @@
     }
 
     function stateFromDb(data) {
-      const localProfile = JSON.parse(localStorage.getItem(PROFILE_STORAGE_KEY) || "null");
+      const localProfile = JSON.parse(scopedGetItem(PROFILE_STORAGE_KEY) || "null");
       const remoteProfile = {
         name: data.perfis?.[0]?.nome || "Administrador",
         role: data.perfis?.[0]?.cargo || "Administrador",
@@ -5269,7 +6088,11 @@
     }
 
     async function loadSupabaseState(showMessage = true) {
-      if (!SUPABASE_READY || isLoadingRemote) return false;
+      if (!currentAccount || !SUPABASE_READY || isLoadingRemote) return false;
+      if (!tenantRemoteSyncEnabled()) {
+        if (showMessage) showToast("Sincronização em nuvem desativada para manter a empresa isolada. Configure banco multiempresa para ativar.");
+        return false;
+      }
       const previousState = state;
       const pendingBeforeLoad = hasSessionLocalChange && hasPendingLocalSync;
       let shouldPushLocal = false;
@@ -5323,7 +6146,7 @@
         if (!remoteHasBusinessData(remoteData) && hasBusinessData(previousState) && shouldPreferLocal) {
           hasPendingLocalSync = true;
           hasSessionLocalChange = true;
-          localStorage.setItem(PENDING_SYNC_KEY, "1");
+          scopedSetItem(PENDING_SYNC_KEY, "1");
           shouldPushLocal = true;
           if (showMessage) showToast("Supabase vazio. Enviando o cadastro atual sem apagar dados locais.");
           return false;
@@ -5356,8 +6179,8 @@
           });
         });
 
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-        localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(state.profile || {}));
+        scopedSetItem(STORAGE_KEY, JSON.stringify(state));
+        scopedSetItem(PROFILE_STORAGE_KEY, JSON.stringify(state.profile || {}));
         if (!shouldPreferLocal && failures.length === 0 && !hasPendingUpserts() && !pendingDeletedEntries().length) {
           captureSyncBaseline();
         }
@@ -5421,7 +6244,11 @@
     }
 
     async function syncSupabaseNow(showMessage = true) {
-      if (!SUPABASE_READY || isLoadingRemote) return false;
+      if (!currentAccount || !SUPABASE_READY || isLoadingRemote) return false;
+      if (!tenantRemoteSyncEnabled()) {
+        if (showMessage) showToast("Sincronização em nuvem desativada para esta empresa.");
+        return false;
+      }
       try {
         const deleteErrors = await syncDeletedRecords();
         const upsertErrors = await syncPendingUpserts();
@@ -5429,42 +6256,48 @@
         if (upsertErrors.length || deleteErrors.length || stillPending) {
           hasPendingLocalSync = true;
           hasSessionLocalChange = true;
-          localStorage.setItem(PENDING_SYNC_KEY, "1");
+          scopedSetItem(PENDING_SYNC_KEY, "1");
           if (showMessage) showToast(`Sincronização parcial: ${upsertErrors.length + deleteErrors.length} operação(ões) apresentaram erro.`);
           return false;
         }
         hasPendingLocalSync = false;
         hasSessionLocalChange = false;
-        localStorage.removeItem(PENDING_SYNC_KEY);
+        scopedRemoveItem(PENDING_SYNC_KEY);
         if (showMessage) showToast("Dados enviados ao Supabase e disponíveis nos outros aparelhos.");
         return true;
       } catch (error) {
         console.error(error);
         hasPendingLocalSync = true;
         hasSessionLocalChange = true;
-        localStorage.setItem(PENDING_SYNC_KEY, "1");
+        scopedSetItem(PENDING_SYNC_KEY, "1");
         if (showMessage) showToast("Falha ao sincronizar Supabase. Os dados locais foram preservados.");
         return false;
       }
     }
 
     function scheduleSupabaseSync() {
-      if (!SUPABASE_READY || isLoadingRemote) return;
+      if (!tenantRemoteSyncEnabled() || !SUPABASE_READY || isLoadingRemote) return;
       clearTimeout(syncTimer);
       syncTimer = setTimeout(() => syncSupabaseNow(false), LOCAL_SYNC_DELAY_MS);
     }
 
     function savedActiveView() {
-      const view = localStorage.getItem(ACTIVE_VIEW_KEY) || "dashboard";
-      return document.getElementById(view) ? view : "dashboard";
+      const view = scopedGetItem(ACTIVE_VIEW_KEY, "user") || "dashboard";
+      return document.getElementById(view) && canAccessView(view) ? view : firstAllowedView();
     }
 
     function setView(view, options = {}) {
-      const nextView = document.getElementById(view) ? view : "dashboard";
-      if (options.persist !== false) localStorage.setItem(ACTIVE_VIEW_KEY, nextView);
+      if (!currentAccount) return;
+      let nextView = document.getElementById(view) ? view : firstAllowedView();
+      if (!canAccessView(nextView)) {
+        nextView = firstAllowedView();
+        if (options.silent !== true) showToast("Seu usuário não tem permissão para acessar este módulo.");
+      }
+      if (options.persist !== false) scopedSetItem(ACTIVE_VIEW_KEY, nextView, "user");
       document.querySelectorAll(".view").forEach(section => section.classList.toggle("active", section.id === nextView));
       document.querySelectorAll(".tab").forEach(tab => tab.classList.toggle("active", tab.dataset.view === nextView));
       if (!options.keepCrudForm) hideCrudFormsInView(nextView);
+      applyPermissionVisibility();
       render();
     }
 
@@ -5837,7 +6670,7 @@
 
     function loadDashboardLayout() {
       try {
-        const parsed = JSON.parse(localStorage.getItem(DASHBOARD_LAYOUT_KEY) || "{}");
+        const parsed = JSON.parse(scopedGetItem(DASHBOARD_LAYOUT_KEY, "user") || "{}");
         const defaultOrder = dashboardWidgetDefaults.map(item => item.id);
         const order = Array.isArray(parsed.order)
           ? parsed.order.filter(id => defaultOrder.includes(id)).concat(defaultOrder.filter(id => !parsed.order.includes(id)))
@@ -5857,7 +6690,7 @@
     }
 
     function saveDashboardLayout(layout) {
-      localStorage.setItem(DASHBOARD_LAYOUT_KEY, JSON.stringify(layout));
+      scopedSetItem(DASHBOARD_LAYOUT_KEY, JSON.stringify(layout), "user");
     }
 
     function dashboardControlsHtml(id) {
@@ -6005,7 +6838,7 @@
     }
 
     function resetDashboardLayout() {
-      localStorage.removeItem(DASHBOARD_LAYOUT_KEY);
+      scopedRemoveItem(DASHBOARD_LAYOUT_KEY, "user");
       closeModal();
       applyDashboardLayout();
       showToast("Dashboard restaurado.");
@@ -6391,6 +7224,90 @@
       if (!target) return;
       const rows = lowStockItems().slice(0, 12);
       target.innerHTML = rows.map(item => `<tr><td data-label="Peça">${escapeHtml(item.code)} - ${escapeHtml(item.name)}</td><td data-label="Saldo">${formatQuantityForUnit(item.balance, item.unit)} ${escapeHtml(item.unit || "UN")}</td><td data-label="Mínimo">${formatQuantityForUnit(item.minimum, item.unit)} ${escapeHtml(item.unit || "UN")}</td><td data-label="Comprar">${formatQuantityForUnit(item.stockAlert.shortage, item.unit)} ${escapeHtml(item.unit || "UN")}</td><td data-label="Situação">${tag(item.stockAlert.label)}</td></tr>`).join("") || `<tr><td colspan="5" class="empty">Nenhuma peça abaixo do mínimo.</td></tr>`;
+    }
+
+    function apiTreeText() {
+      return SGMAN_API_TREE.map(group => [
+        `📁 ${group.module}`,
+        ...group.commands.map(command => `  - ${command[0]} | ${command[1]} | ${command[2]}`)
+      ].join("\n")).join("\n");
+    }
+
+    function renderApiTree() {
+      const target = $("apiTree");
+      if (!target) return;
+      const localSearch = statusKey($("apiTreeSearch")?.value || "");
+      const globalSearch = $("apiDocs")?.classList.contains("active") ? statusKey($("globalSearch")?.value || "") : "";
+      const query = [localSearch, globalSearch].filter(Boolean).join(" ");
+      const matches = (group, command) => {
+        if (!query) return true;
+        const text = statusKey(`${group.module} ${command ? command.join(" ") : ""}`);
+        return query.split(/\s+/).filter(Boolean).every(term => text.includes(term));
+      };
+      const html = SGMAN_API_TREE.map((group, groupIndex) => {
+        const commands = group.commands.filter(command => matches(group, command));
+        if (query && !commands.length && !matches(group, null)) return "";
+        const visibleCommands = commands.length ? commands : group.commands;
+        return `
+          <div class="api-folder">
+            <button class="api-folder-head" type="button" onclick="toggleApiFolder(${groupIndex})">
+              <span>▾ 📁 ${escapeHtml(group.module)}</span>
+              <small>${visibleCommands.length} comando(s)</small>
+            </button>
+            <div class="api-folder-body" id="apiFolder${groupIndex}">
+              ${visibleCommands.map((command, commandIndex) => `
+                <div class="api-command">
+                  <span class="api-method">${escapeHtml(command[1])}</span>
+                  <span class="api-command-name">${escapeHtml(command[0])}</span>
+                  <span class="api-route">${escapeHtml(command[2])}</span>
+                  <button class="btn" type="button" onclick="openApiCommand(${groupIndex}, ${commandIndex})">Abrir</button>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        `;
+      }).join("");
+      target.innerHTML = html || `<div class="empty">Nenhum comando encontrado na árvore SGMAN.</div>`;
+    }
+
+    function toggleApiFolder(index) {
+      const body = $(`apiFolder${index}`);
+      if (!body) return;
+      body.style.display = body.style.display === "none" ? "grid" : "none";
+    }
+
+    function apiCommandPayload(command) {
+      return JSON.stringify({ token: "TOKEN" }, null, 2);
+    }
+
+    function openApiCommand(groupIndex, commandIndex) {
+      const group = SGMAN_API_TREE[groupIndex];
+      const command = group?.commands?.[commandIndex];
+      if (!group || !command) return;
+      const payload = apiCommandPayload(command);
+      openModal(`${group.module} / ${command[0]}`, `
+        <div class="side-box">
+          <strong>${escapeHtml(command[0])}</strong>
+          <span><strong>Método:</strong> ${escapeHtml(command[1])}</span>
+          <span><strong>Rota:</strong> ${escapeHtml(command[2])}</span>
+        </div>
+        <div class="form">
+          <label class="full">JSON base <textarea class="field" id="apiCommandPayload">${escapeHtml(payload)}</textarea></label>
+          <div class="full toolbar">
+            <button class="btn primary" type="button" onclick="copyTextFromElement('apiCommandPayload')">Copiar JSON</button>
+            <button class="btn" type="button" onclick="copyPlainText('${escapeHtml(command[2])}')">Copiar rota</button>
+          </div>
+        </div>
+      `);
+    }
+
+    function copyPlainText(text) {
+      navigator.clipboard?.writeText(text).then(() => showToast("Copiado para a área de transferência.")).catch(() => showToast("Não consegui copiar automaticamente."));
+    }
+
+    function copyTextFromElement(id) {
+      const text = $(id)?.value || $(id)?.textContent || "";
+      copyPlainText(text);
     }
 
     function purchaseListItems() {
@@ -7613,6 +8530,11 @@
     }
 
     function render() {
+      if (!currentAccount) {
+        renderAuthScreen();
+        return;
+      }
+      applyPermissionVisibility();
       fillSelects();
       renderDashboard();
       renderMap();
@@ -7622,6 +8544,8 @@
       renderReports();
       renderAssistantSummary();
       renderProfile();
+      renderApiTree();
+      renderUsers();
     }
 
     const CRUD_FORM_CONFIG = {
@@ -7772,6 +8696,7 @@
     function resetSpareForm() { spareSupplierDraftId = ""; $("spareForm").reset(); $("spareId").value = ""; $("spareFormTitle").textContent = "Criar peça"; $("spareUnit").value = "UN"; $("spareBalance").readOnly = false; refreshSpareUnitSteps(); hideCrudForm("spareForm"); }
 
     async function saveSingleSupabase(table, row) {
+      if (!tenantRemoteSyncEnabled()) return false;
       if (!SUPABASE_READY) return true;
       try {
         await upsertSupabaseRows(table, [row]);
@@ -8013,22 +8938,28 @@
     function closeModal() { $("genericModal").classList.remove("open"); }
 
     function renderProfile() {
+      if (!currentAccount) return;
       const profile = state.profile || {};
-      const name = profile.name || "Administrador";
+      const user = currentAccount.user || {};
+      const company = currentAccount.company || {};
+      const name = user.name || profile.name || "Usuário";
+      if ($("companyName")) $("companyName").textContent = company.name || "Empresa";
       $("profileName").textContent = name;
-      $("profileAvatar").innerHTML = profile.photo ? `<img src="${profile.photo}" alt="${name}">` : name.slice(0, 2).toUpperCase();
+      $("profileAvatar").innerHTML = (user.photo || profile.photo) ? `<img src="${user.photo || profile.photo}" alt="${name}">` : name.slice(0, 2).toUpperCase();
     }
 
     function openProfileModal() {
       const profile = state.profile || {};
-      openModal("Perfil do administrador", `
+      const user = currentAccount?.user || {};
+      openModal("Perfil do usuário", `
         <form class="form" id="profileForm">
-          <label>Nome <input class="field" id="profileEditName" value="${profile.name || "Administrador"}"></label>
-          <label>Cargo <input class="field" id="profileEditRole" value="${profile.role || "Administrador"}"></label>
-          <label>Email <input class="field" id="profileEditEmail" value="${profile.email || ""}" placeholder="email@empresa.com"></label>
-          <label>Foto por URL <input class="field" id="profileEditPhoto" value="${profile.photo || ""}" placeholder="https://..."></label>
+          <label>Empresa <input class="field" value="${escapeHtml(currentAccount?.company?.name || "")}" disabled></label>
+          <label>Perfil <input class="field" value="${isAdminUser() ? "Administrador" : "Usuário"}" disabled></label>
+          <label>Nome <input class="field" id="profileEditName" value="${escapeHtml(user.name || profile.name || "Usuário")}"></label>
+          <label>Email <input class="field" id="profileEditEmail" value="${escapeHtml(user.email || profile.email || "")}" placeholder="email@empresa.com"></label>
+          <label>Foto por URL <input class="field" id="profileEditPhoto" value="${escapeHtml(user.photo || profile.photo || "")}" placeholder="https://..."></label>
           <label class="full">Enviar foto <input class="field" id="profilePhotoFile" type="file" accept="image/*"></label>
-          <div class="full side-box"><strong>Previa</strong><span id="profilePreview">${profile.photo ? `<img src="${profile.photo}" style="width:72px;height:72px;border-radius:999px;object-fit:cover">` : "Sem foto cadastrada"}</span></div>
+          <div class="full side-box"><strong>Prévia</strong><span id="profilePreview">${(user.photo || profile.photo) ? `<img src="${user.photo || profile.photo}" style="width:72px;height:72px;border-radius:999px;object-fit:cover">` : "Sem foto cadastrada"}</span></div>
           <div class="full toolbar"><button class="btn primary" type="submit">Salvar perfil</button></div>
         </form>
       `);
@@ -8044,14 +8975,20 @@
       });
       $("profileForm").addEventListener("submit", async event => {
         event.preventDefault();
+        const currentUserId = currentAccount?.user?.id;
+        const nextName = $("profileEditName").value.trim() || "Usuário";
+        const nextEmail = normalizeEmail($("profileEditEmail").value);
+        const nextPhoto = $("profileEditPhoto").value.trim();
+        authStore.users = authStore.users.map(item => item.id === currentUserId ? { ...item, name: nextName, email: nextEmail, photo: nextPhoto } : item);
+        saveAuthStore(authStore);
+        currentAccount = resolveCurrentAccount(authStore);
         state.profile = {
-          name: $("profileEditName").value.trim() || "Administrador",
-          role: $("profileEditRole").value.trim() || "Administrador",
-          email: $("profileEditEmail").value.trim(),
-          photo: $("profileEditPhoto").value.trim()
+          name: nextName,
+          role: isAdminUser() ? "Administrador" : "Usuário",
+          email: nextEmail,
+          photo: nextPhoto
         };
         saveState();
-        localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(state.profile));
         await syncSupabaseNow(false);
         closeModal();
         render();
@@ -9481,11 +10418,24 @@
       if (ask) showToast("Checklist excluído.");
     }
 
-    window.editAsset = editAsset; window.deleteAsset = deleteAsset; window.duplicateAsset = duplicateAsset; window.editRegion = editRegion; window.deleteRegion = deleteRegion; window.editLocation = editLocation; window.deleteLocation = deleteLocation; window.editTag = editTag; window.deleteTag = deleteTag; window.editSubtag = editSubtag; window.deleteSubtag = deleteSubtag; window.editSupplier = editSupplier; window.deleteSupplier = deleteSupplier; window.editStock = editStock; window.deleteStock = deleteStock; window.editSpare = editSpare; window.deleteSpare = deleteSpare; window.editStockMove = editStockMove; window.deleteStockMove = deleteStockMove; window.editMaterialRequest = editMaterialRequest; window.deleteMaterialRequest = deleteMaterialRequest; window.editStockTransfer = editStockTransfer; window.deleteStockTransfer = deleteStockTransfer; window.editOrder = editOrder; window.deleteOrder = deleteOrder; window.startOrder = startOrder; window.confirmStartOrder = confirmStartOrder; window.finishOrder = finishOrder; window.showOrderDetails = showOrderDetails; window.simpleOrderAction = simpleOrderAction; window.editChecklist = editChecklist; window.deleteChecklist = deleteChecklist; window.openLocationChecklists = openLocationChecklists; window.openLocationMovements = openLocationMovements; window.moveDashboardWidget = moveDashboardWidget; window.resizeDashboardWidget = resizeDashboardWidget; window.hideDashboardWidget = hideDashboardWidget; window.openDashboardConfig = openDashboardConfig; window.saveDashboardVisibility = saveDashboardVisibility; window.resetDashboardLayout = resetDashboardLayout;
+    window.editAsset = editAsset; window.deleteAsset = deleteAsset; window.duplicateAsset = duplicateAsset; window.editRegion = editRegion; window.deleteRegion = deleteRegion; window.editLocation = editLocation; window.deleteLocation = deleteLocation; window.editTag = editTag; window.deleteTag = deleteTag; window.editSubtag = editSubtag; window.deleteSubtag = deleteSubtag; window.editSupplier = editSupplier; window.deleteSupplier = deleteSupplier; window.editStock = editStock; window.deleteStock = deleteStock; window.editSpare = editSpare; window.deleteSpare = deleteSpare; window.editStockMove = editStockMove; window.deleteStockMove = deleteStockMove; window.editMaterialRequest = editMaterialRequest; window.deleteMaterialRequest = deleteMaterialRequest; window.editStockTransfer = editStockTransfer; window.deleteStockTransfer = deleteStockTransfer; window.editOrder = editOrder; window.deleteOrder = deleteOrder; window.startOrder = startOrder; window.confirmStartOrder = confirmStartOrder; window.finishOrder = finishOrder; window.showOrderDetails = showOrderDetails; window.simpleOrderAction = simpleOrderAction; window.editChecklist = editChecklist; window.deleteChecklist = deleteChecklist; window.openLocationChecklists = openLocationChecklists; window.openLocationMovements = openLocationMovements; window.moveDashboardWidget = moveDashboardWidget; window.resizeDashboardWidget = resizeDashboardWidget; window.hideDashboardWidget = hideDashboardWidget; window.openDashboardConfig = openDashboardConfig; window.saveDashboardVisibility = saveDashboardVisibility; window.resetDashboardLayout = resetDashboardLayout; window.toggleApiFolder = toggleApiFolder; window.openApiCommand = openApiCommand; window.copyPlainText = copyPlainText; window.copyTextFromElement = copyTextFromElement; window.editTenantUser = editTenantUser; window.deleteTenantUser = deleteTenantUser;
 
     prepareCrudUi();
 
+    if ($("authLoginForm")) $("authLoginForm").addEventListener("submit", event => {
+      event.preventDefault();
+      loginTenantUser($("authCompany").value, $("authEmail").value, $("authPassword").value);
+    });
+    if ($("authSetupForm")) $("authSetupForm").addEventListener("submit", event => {
+      event.preventDefault();
+      createInitialCompany();
+    });
+
     document.querySelectorAll("[data-view]").forEach(button => button.addEventListener("click", () => {
+      if (!canAccessView(button.dataset.view)) {
+        showToast("Seu usuário não tem permissão para acessar este módulo.");
+        return;
+      }
       if (button.dataset.view === "activeOrders" && !isPanelMode()) {
         openOsPanelWindow();
         return;
@@ -9500,11 +10450,19 @@
       bulkInventory: openBulkInventoryCount
     };
     document.querySelectorAll("[data-module-action]").forEach(button => button.addEventListener("click", () => {
+      if (!canRunModuleAction(button.dataset.moduleAction)) {
+        showToast("Seu usuário não tem permissão para esta função.");
+        return;
+      }
       const action = moduleActions[button.dataset.moduleAction];
       if (action) action();
     }));
     document.querySelectorAll("[data-view-button]").forEach(button => button.addEventListener("click", () => {
       const view = button.dataset.viewButton;
+      if (!canAccessView(view)) {
+        showToast("Seu usuário não tem permissão para acessar este módulo.");
+        return;
+      }
       setView(view);
       const label = button.textContent.toLowerCase();
       if (view === "assets" && label.includes("criar")) openCrudFormForCreate("assetForm");
@@ -9514,6 +10472,8 @@
       }
     }));
     $("globalSearch").addEventListener("input", render);
+    if ($("apiTreeSearch")) $("apiTreeSearch").addEventListener("input", renderApiTree);
+    if ($("copyApiTreeBtn")) $("copyApiTreeBtn").addEventListener("click", () => copyPlainText(apiTreeText()));
     document.addEventListener("click", event => {
       if (!event.target.closest("#machineMenu") && !event.target.closest("[data-machine]")) closeMachineMenu();
       if (!event.target.closest("#locationMenu") && !event.target.closest("[data-location]")) closeLocationMenu();
@@ -9525,6 +10485,10 @@
       if (event.target.id === "genericModal") event.stopPropagation();
     });
     $("profileBtn").addEventListener("click", openProfileModal);
+    $("logoutBtn").addEventListener("click", logoutTenantUser);
+    $("tenantUserForm").addEventListener("submit", saveTenantUserFromForm);
+    $("resetTenantUserForm").addEventListener("click", resetTenantUserForm);
+    $("tenantUserRole").addEventListener("change", () => renderPermissionGrid(selectedPermissionPayload(), $("tenantUserRole").value));
     $("dashboardConfigBtn").addEventListener("click", openDashboardConfig);
     $("purchaseListBtn").addEventListener("click", openPurchaseList);
     $("stockTurnoverBtn").addEventListener("click", openStockTurnoverModal);
@@ -9762,6 +10726,7 @@
     });
 
     setInterval(() => {
+      if (!currentAccount) return;
       renderMap();
       renderTables();
       renderActiveOrdersPanel("dashboardActiveOrders", 4);
@@ -9775,21 +10740,27 @@
     }, UI_REFRESH_INTERVAL_MS);
 
     setInterval(() => {
-      if (!SUPABASE_READY || $("genericModal").classList.contains("open")) return;
+      if (!currentAccount || !SUPABASE_READY || $("genericModal").classList.contains("open")) return;
       loadSupabaseState(false);
     }, REMOTE_REFRESH_INTERVAL_MS);
 
-    window.addEventListener("focus", () => loadSupabaseState(false));
-    window.addEventListener("online", () => loadSupabaseState(true));
+    window.addEventListener("focus", () => { if (currentAccount) loadSupabaseState(false); });
+    window.addEventListener("online", () => { if (currentAccount) loadSupabaseState(true); });
     document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "visible") loadSupabaseState(false);
+      if (currentAccount && document.visibilityState === "visible") loadSupabaseState(false);
     });
 
-    captureSyncBaseline();
     applyTheme(currentTheme);
-    setView(savedActiveView(), { persist: false });
-    applyPanelMode();
-    loadSupabaseState(false);
+    renderAuthScreen();
+    if (currentAccount) {
+      captureSyncBaseline();
+      applyAuthState();
+      setView(savedActiveView(), { persist: false, silent: true });
+      applyPanelMode();
+      loadSupabaseState(false);
+    } else {
+      applyAuthState();
+    }
   </script>
 </body>
 </html>
