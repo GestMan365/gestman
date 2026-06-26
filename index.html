@@ -4434,6 +4434,19 @@
       data.inventoryMovements = data.inventoryMovements.map(normalizeTransactionQuantity);
       data.materialRequests = data.materialRequests.map(normalizeTransactionQuantity);
       data.stockTransfers = data.stockTransfers.map(normalizeTransactionQuantity);
+      data.orders = data.orders.map(order => ({
+        ...order,
+        epis: order.epis && typeof order.epis === "object" ? order.epis : {},
+        linkedChecklists: Array.isArray(order.linkedChecklists) ? order.linkedChecklists : [],
+        costs: Array.isArray(order.costs) ? order.costs : [],
+        team: Array.isArray(order.team) ? order.team : [],
+        tasks: Array.isArray(order.tasks) ? order.tasks : [],
+        photos: Array.isArray(order.photos) ? order.photos : [],
+        attachments: Array.isArray(order.attachments) ? order.attachments : [],
+        documents: Array.isArray(order.documents) ? order.documents : [],
+        resources: Array.isArray(order.resources) ? order.resources : [],
+        history: Array.isArray(order.history) ? order.history : []
+      }));
       return data;
     }
 
@@ -4744,7 +4757,19 @@
           scheduledAt: order.scheduledAt || "",
           durationDays: order.durationDays || "",
           durationHours: order.durationHours || "",
-          executors: order.executors || 1
+          executors: order.executors || 1,
+          generalNote: order.generalNote || "",
+          linkedChecklists: order.linkedChecklists || [],
+          costs: order.costs || [],
+          team: order.team || [],
+          tasks: order.tasks || [],
+          safetyNotes: order.safetyNotes || "",
+          photos: order.photos || [],
+          documents: order.documents || [],
+          resources: order.resources || [],
+          history: order.history || [],
+          signatureText: order.signatureText || "",
+          signatureAt: order.signatureAt || null
         }
       };
     }
@@ -5192,6 +5217,8 @@
           mttr: Number(item.mttr_horas || 0),
           signatureName: item.assinatura_nome || "",
           signatureImage: item.assinatura_imagem || "",
+          signatureText: item.detalhes?.signatureText || item.assinatura_nome || "",
+          signatureAt: item.detalhes?.signatureAt || null,
           epis: item.epis || {},
           attachments: item.anexos || [],
           plan: item.detalhes?.plan || "",
@@ -5199,7 +5226,17 @@
           scheduledAt: item.detalhes?.scheduledAt || "",
           durationDays: item.detalhes?.durationDays || "",
           durationHours: item.detalhes?.durationHours || "",
-          executors: item.detalhes?.executors || 1
+          executors: item.detalhes?.executors || 1,
+          generalNote: item.detalhes?.generalNote || "",
+          linkedChecklists: item.detalhes?.linkedChecklists || [],
+          costs: item.detalhes?.costs || [],
+          team: item.detalhes?.team || [],
+          tasks: item.detalhes?.tasks || [],
+          safetyNotes: item.detalhes?.safetyNotes || "",
+          photos: item.detalhes?.photos || [],
+          documents: item.detalhes?.documents || [],
+          resources: item.detalhes?.resources || [],
+          history: item.detalhes?.history || []
         })),
         checklists: (data.checklists || []).map(item => ({
           id: item.id,
@@ -8135,58 +8172,317 @@
       `;
     }
 
+    function orderTabArray(order, key) {
+      return Array.isArray(order?.[key]) ? order[key] : [];
+    }
+
+    function orderRowsEmpty(label, colspan = 4) {
+      return `<tr><td colspan="${colspan}" class="empty">${label}</td></tr>`;
+    }
+
+    function orderFileTabContent(tabName, order, key, accept = "") {
+      const files = orderTabArray(order, key);
+      const rows = files.map(file => `
+        <tr>
+          <td>${escapeHtml(file.name || "Arquivo")}</td>
+          <td>${escapeHtml(file.note || "-")}</td>
+          <td>${file.size ? `${Math.round(Number(file.size) / 1024)} KB` : "-"}</td>
+          <td>${formatDateTime(file.createdAt)}</td>
+          <td class="actions"><button class="btn danger" type="button" data-remove-list="${key}" data-item-id="${escapeHtml(file.id)}">Remover</button></td>
+        </tr>
+      `).join("") || orderRowsEmpty(`Nenhum item vinculado em ${ptBrText(tabName)}.`, 5);
+      return `
+        <div class="tab-workspace">
+          <strong>${ptBrText(tabName.toUpperCase())}</strong>
+          <div class="form">
+            <label class="full">Selecionar arquivo <input class="field" id="orderFileInput" type="file" ${accept ? `accept="${accept}"` : ""} multiple></label>
+            <label class="full">Observação <input class="field" id="orderFileNote" placeholder="Ex: antes do reparo, nota fiscal, manual, evidência"></label>
+            <div class="full toolbar"><button class="btn primary" type="button" id="orderFileAddBtn">Vincular ${ptBrText(tabName)}</button></div>
+          </div>
+          <div class="table-wrap"><table><thead><tr><th>Arquivo</th><th>Observação</th><th>Tamanho</th><th>Data</th><th>Ação</th></tr></thead><tbody>${rows}</tbody></table></div>
+          <span class="muted">O arquivo fica registrado na O.S pelo nome e dados do arquivo. Para anexar conteúdo online, envie o arquivo ao seu repositório/armazenamento e registre a referência aqui.</span>
+        </div>`;
+    }
+
+    function orderHistoryRows(order) {
+      const rows = [
+        order.createdAt ? { date: order.createdAt, type: "Abertura", text: `O.S criada por ${order.requester || "solicitante não informado"}` } : null,
+        order.startedAt ? { date: order.startedAt, type: "Início", text: `Atendimento iniciado por ${order.executor || "executante não informado"}` } : null,
+        order.finishedAt ? { date: order.finishedAt, type: "Finalização", text: `O.S finalizada. MTTR: ${Number(order.mttr || 0)}h` } : null,
+        ...state.materialRequests.filter(item => item.orderId === order.id).map(item => ({ date: item.createdAt, type: "Material", text: `${spareName(item.spareId)} - ${formatQuantityForUnit(item.quantity, byId(state.spareParts, item.spareId)?.unit)} baixado de ${stockName(item.stockId)}` })),
+        ...orderTabArray(order, "history").map(item => ({ date: item.date || item.createdAt, type: item.type || "Registro", text: item.text || item.note || "" }))
+      ].filter(Boolean).sort((a, b) => Number(b.date || 0) - Number(a.date || 0));
+      return rows.map(item => `
+        <tr>
+          <td>${formatDateTime(item.date)}</td>
+          <td>${escapeHtml(item.type || "Registro")}</td>
+          <td>${escapeHtml(item.text || item.note || "-")}</td>
+        </tr>
+      `).join("") || orderRowsEmpty("Nenhum histórico registrado para esta O.S.", 3);
+    }
+
     function detailTabContent(tabName, order = {}) {
+      const tabKey = statusKey(tabName);
       const epis = order.epis || {};
       const checked = key => epis[key] ? "checked" : "";
-      if (tabName === "Assinatura") {
+      const asset = byId(state.assets, order.assetId) || {};
+
+      if (tabKey === "geral") {
+        return `
+          <div class="tab-workspace">
+            <strong>GERAL DA O.S</strong>
+            <div class="side-box">
+              <span><strong>Número:</strong> ${escapeHtml(order.number || "-")}</span>
+              <span><strong>Equipamento:</strong> ${escapeHtml(machineName(order.assetId))}</span>
+              <span><strong>Local:</strong> ${escapeHtml(locationName(asset.locationId))}</span>
+              <span><strong>Status:</strong> ${tag(order.status || "Aberta")}</span>
+              <span><strong>Abertura:</strong> ${formatDateTime(order.createdAt)}</span>
+            </div>
+            <div class="form">
+              <label>Solicitante <input class="field" id="tabGeneralRequester" value="${escapeHtml(order.requester || "")}"></label>
+              <label>Comentário <input class="field" id="tabGeneralComment" value="${escapeHtml(order.comment || "")}" placeholder="Resumo do que foi feito"></label>
+              <label class="full">Observação geral <textarea class="field" id="tabGeneralNote" placeholder="Anotações gerais desta O.S">${escapeHtml(order.generalNote || "")}</textarea></label>
+              <div class="full toolbar"><button class="btn primary" type="button" id="saveGeneralTab">Salvar geral</button></div>
+            </div>
+          </div>`;
+      }
+
+      if (tabKey === "detalhes") {
+        return `
+          <div class="tab-workspace">
+            <strong>DETALHES TÉCNICOS</strong>
+            <div class="form">
+              <label>Plano <input class="field" id="tabDetailPlan" value="${escapeHtml(order.plan || "")}"></label>
+              <label>Categoria <input class="field" id="tabDetailCategory" value="${escapeHtml(order.category || "")}" placeholder="Mecânica, elétrica, lubrificação..."></label>
+              <label>Tipo de serviço <select class="field" id="tabDetailType"><option>Corretiva</option><option>Preventiva</option><option value="Inspecao">Inspeção</option><option value="Eletrica">Elétrica</option><option value="Mecanica">Mecânica</option></select></label>
+              <label>Tipo de manutenção <select class="field" id="tabDetailMaintenance"><option>Preventiva</option><option>Corretiva</option><option>Preditiva</option><option>Melhoria</option></select></label>
+              <label>Prioridade <select class="field" id="tabDetailPriority"><option>Baixa</option><option value="Media">Média</option><option>Alta</option></select></label>
+              <label>Status <select class="field" id="tabDetailStatus"><option>Aberta</option><option>Planejada</option><option value="Em execucao">Em execução</option><option value="Concluida">Concluída</option></select></label>
+              <label>Data/Hora Programada <input class="field" id="tabDetailScheduled" value="${escapeHtml(order.scheduledAt || "")}" placeholder="dd/mm/aaaa --:--"></label>
+              <label>Duração estimada <input class="field" id="tabDetailHours" value="${escapeHtml(order.durationHours || "01:00")}" placeholder="01:00 hrs"></label>
+              <label><span class="switch-line"><input type="checkbox" id="tabDetailPending" ${order.pendingExecution ? "checked" : ""}> Pendente de execução</span></label>
+              <label><span class="switch-line"><input type="checkbox" id="tabDetailStopped" ${order.machineStopped ? "checked" : ""}> Equipamento parado</span></label>
+              <div class="full toolbar"><button class="btn primary" type="button" id="saveDetailsTab">Salvar detalhes</button></div>
+            </div>
+          </div>`;
+      }
+
+      if (tabKey === "historico") {
+        return `
+          <div class="tab-workspace">
+            <strong>HISTÓRICO DA O.S</strong>
+            <div class="form">
+              <label class="full">Novo registro no histórico <input class="field" id="orderHistoryNote" placeholder="Ex: Técnico aguardando peça, teste realizado, equipamento liberado"></label>
+              <div class="full toolbar"><button class="btn primary" type="button" id="addHistoryBtn">Adicionar histórico</button></div>
+            </div>
+            <div class="table-wrap"><table><thead><tr><th>Data</th><th>Tipo</th><th>Registro</th></tr></thead><tbody>${orderHistoryRows(order)}</tbody></table></div>
+          </div>`;
+      }
+
+      if (tabKey === "assinatura") {
         const signed = order.signatureText || "";
         return `
           <div class="tab-workspace">
             <div class="toolbar"><button class="btn primary" type="button" id="addSignatureBtn">Adicionar assinatura</button><button class="btn danger" type="button" id="clearSignatureBtn">Limpar</button></div>
             <div class="signature-panel">
-              <div class="signature-box ${signed ? "signed" : ""}" id="signatureBox">${signed || "Assine Aqui"}</div>
+              <div class="signature-box ${signed ? "signed" : ""}" id="signatureBox">${escapeHtml(signed || "Assine Aqui")}</div>
               <div class="form">
-                <label>Nome / empresa / cargo <input class="field" id="signatureName" value="${order.signatureName || order.executor || ""}" placeholder="Nome / Empresa / Cargo"></label>
+                <label>Nome / empresa / cargo <input class="field" id="signatureName" value="${escapeHtml(order.signatureName || order.executor || "")}" placeholder="Nome / Empresa / Cargo"></label>
                 <label>Data <input class="field" value="${formatDateTime(order.signatureAt)}" readonly></label>
               </div>
             </div>
           </div>`;
       }
-      if (tabName === "Seguranca") {
+
+      if (tabKey === "seguranca") {
         return `
           <div class="tab-workspace">
-            <strong>EPIS/EPCS RECOMENDADOS</strong>
+            <strong>EPIs / EPCs recomendados</strong>
             <div class="epi-list">
-              <label class="epi-item"><input type="checkbox" data-epi="bota" ${checked("bota")}> BOTA DE SEGURANCA</label>
-              <label class="epi-item"><input type="checkbox" data-epi="luva" ${checked("luva")}> LUVA</label>
-              <label class="epi-item"><input type="checkbox" data-epi="oculos" ${checked("oculos")}> OCULOS DE PROTECAO</label>
-              <label class="epi-item"><input type="checkbox" data-epi="uniforme" ${checked("uniforme")}> UNIFORME</label>
-              <label class="epi-item"><input type="checkbox" data-epi="protetor" ${checked("protetor")}> PROTETOR AURICULAR</label>
-              <label class="epi-item"><input type="checkbox" data-epi="bloqueio" ${checked("bloqueio")}> BLOQUEIO E ETIQUETAGEM</label>
+              <label class="epi-item"><input type="checkbox" data-epi="bota" ${checked("bota")}> Bota de segurança</label>
+              <label class="epi-item"><input type="checkbox" data-epi="luva" ${checked("luva")}> Luva</label>
+              <label class="epi-item"><input type="checkbox" data-epi="oculos" ${checked("oculos")}> Óculos de proteção</label>
+              <label class="epi-item"><input type="checkbox" data-epi="uniforme" ${checked("uniforme")}> Uniforme</label>
+              <label class="epi-item"><input type="checkbox" data-epi="protetor" ${checked("protetor")}> Protetor auricular</label>
+              <label class="epi-item"><input type="checkbox" data-epi="bloqueio" ${checked("bloqueio")}> Bloqueio e etiquetagem</label>
+            </div>
+            <div class="form">
+              <label class="full">Observação de segurança <textarea class="field" id="safetyNotes" placeholder="Riscos, bloqueios, permissões, liberação de área">${escapeHtml(order.safetyNotes || "")}</textarea></label>
+              <div class="full toolbar"><button class="btn primary" type="button" id="saveSafetyNotes">Salvar segurança</button></div>
             </div>
           </div>`;
       }
-      if (tabName === "CheckLists") return `<strong>CHECKLISTS</strong><textarea class="field" placeholder="Itens de checklist desta O.S">${order.checklist || ""}</textarea>`;
-      if (tabName === "Outros Custos") return `<strong>OUTROS CUSTOS</strong><div class="form"><label>Descrição <input class="field" placeholder="Serviço, terceiro ou despesa"></label><label>Valor <input class="field" placeholder="R$ 0,00"></label></div>`;
-      if (tabName === "Equipe") return `<strong>EQUIPE</strong><div class="form"><label>Executante principal <input class="field" value="${order.executor || ""}"></label><label>Quantidade <input class="field" value="${order.executors || 1}"></label></div>`;
-      if (tabName === "Tarefas") return `<strong>TAREFAS</strong><div class="epi-list"><label class="epi-item"><input type="checkbox"> ANALISAR FALHA</label><label class="epi-item"><input type="checkbox"> EXECUTAR MANUTENÇÃO</label><label class="epi-item"><input type="checkbox"> TESTAR EQUIPAMENTO</label></div>`;
-      if (tabName === "Fotos" || tabName === "Anexos" || tabName === "Documentos") return `<strong>${tabName.toUpperCase()}</strong><input class="field" type="file"><span class="muted">Arquivo fica vinculado visualmente nesta O.S.</span>`;
-      if (tabName === "Materiais") return orderMaterialTabContent(order);
-      if (tabName === "Recursos") return `<strong>RECURSOS</strong><textarea class="field" placeholder="Ferramentas, bancada, apoio externo ou recursos necessários"></textarea>`;
+
+      if (tabKey === "checklists") {
+        const linked = new Set(orderTabArray(order, "linkedChecklists").map(String));
+        const available = state.checklists.filter(item => item.assetId === order.assetId);
+        const checklistRows = available.map(item => `
+          <tr>
+            <td>${escapeHtml(item.code || "-")}</td>
+            <td>${escapeHtml(item.name || "Checklist")}</td>
+            <td>${escapeHtml(item.lastFill || "-")}</td>
+            <td>${linked.has(String(item.id)) ? tag("Vinculado") : tag("Disponível")}</td>
+            <td class="actions"><button class="btn" type="button" data-link-checklist="${escapeHtml(item.id)}">${linked.has(String(item.id)) ? "Desvincular" : "Vincular"}</button></td>
+          </tr>
+        `).join("") || orderRowsEmpty("Nenhum checklist cadastrado para este equipamento.", 5);
+        return `
+          <div class="tab-workspace">
+            <strong>CHECKLISTS DA O.S</strong>
+            <div class="form">
+              <label class="full">Itens / observações do checklist <textarea class="field" id="osChecklistText" placeholder="Itens verificados nesta O.S">${escapeHtml(order.checklist || "")}</textarea></label>
+              <div class="full toolbar"><button class="btn primary" type="button" id="saveChecklistTab">Salvar checklist da O.S</button></div>
+            </div>
+            <div class="table-wrap"><table><thead><tr><th>Código</th><th>Checklist disponível</th><th>Último preenchimento</th><th>Status</th><th>Ação</th></tr></thead><tbody>${checklistRows}</tbody></table></div>
+          </div>`;
+      }
+
+      if (tabKey === "outros custos") {
+        const costs = orderTabArray(order, "costs");
+        const total = costs.reduce((sum, item) => sum + Number(item.value || 0), 0);
+        const rows = costs.map(item => `
+          <tr>
+            <td>${escapeHtml(item.description || "-")}</td>
+            <td>${escapeHtml(item.supplier || "-")}</td>
+            <td>${formatCurrency(item.value)}</td>
+            <td>${formatDateTime(item.createdAt)}</td>
+            <td class="actions"><button class="btn danger" type="button" data-remove-list="costs" data-item-id="${escapeHtml(item.id)}">Remover</button></td>
+          </tr>
+        `).join("") || orderRowsEmpty("Nenhum custo extra vinculado.", 5);
+        return `
+          <div class="tab-workspace">
+            <strong>OUTROS CUSTOS</strong>
+            <div class="side-box"><strong>${formatCurrency(total)}</strong><span>Total de custos adicionais desta O.S.</span></div>
+            <div class="form">
+              <label>Descrição <input class="field" id="costDescription" placeholder="Serviço, terceiro ou despesa"></label>
+              <label>Fornecedor / responsável <input class="field" id="costSupplier" placeholder="Fornecedor ou responsável"></label>
+              <label>Valor <input class="field" id="costValue" type="number" min="0" step="0.01" value="0"></label>
+              <div class="toolbar"><button class="btn primary" type="button" id="addCostBtn">Adicionar custo</button></div>
+            </div>
+            <div class="table-wrap"><table><thead><tr><th>Descrição</th><th>Fornecedor</th><th>Valor</th><th>Data</th><th>Ação</th></tr></thead><tbody>${rows}</tbody></table></div>
+          </div>`;
+      }
+
+      if (tabKey === "equipe") {
+        const team = orderTabArray(order, "team");
+        const rows = team.map(item => `
+          <tr>
+            <td>${escapeHtml(item.name || "-")}</td>
+            <td>${escapeHtml(item.role || "-")}</td>
+            <td>${escapeHtml(item.hours || "-")}</td>
+            <td class="actions"><button class="btn danger" type="button" data-remove-list="team" data-item-id="${escapeHtml(item.id)}">Remover</button></td>
+          </tr>
+        `).join("") || orderRowsEmpty("Nenhum membro adicional vinculado.", 4);
+        return `
+          <div class="tab-workspace">
+            <strong>EQUIPE</strong>
+            <div class="form">
+              <label>Executante principal <input class="field" id="teamMainExecutor" value="${escapeHtml(order.executor || "")}"></label>
+              <label>Número de executantes <input class="field" id="teamExecutors" type="number" min="1" value="${escapeHtml(order.executors || 1)}"></label>
+              <label>Nome <input class="field" id="teamName" placeholder="Nome do integrante"></label>
+              <label>Função <input class="field" id="teamRole" placeholder="Mecânico, eletricista, apoio..."></label>
+              <label>Horas <input class="field" id="teamHours" placeholder="Ex: 02:30"></label>
+              <div class="toolbar"><button class="btn primary" type="button" id="addTeamBtn">Adicionar à equipe</button></div>
+              <div class="full toolbar"><button class="btn" type="button" id="saveTeamMainBtn">Salvar executante principal</button></div>
+            </div>
+            <div class="table-wrap"><table><thead><tr><th>Nome</th><th>Função</th><th>Horas</th><th>Ação</th></tr></thead><tbody>${rows}</tbody></table></div>
+          </div>`;
+      }
+
+      if (tabKey === "tarefas") {
+        const tasks = orderTabArray(order, "tasks");
+        const rows = tasks.map(item => `
+          <tr>
+            <td><label class="switch-line"><input type="checkbox" data-toggle-task="${escapeHtml(item.id)}" ${item.done ? "checked" : ""}> ${escapeHtml(item.description || "-")}</label></td>
+            <td>${escapeHtml(item.owner || "-")}</td>
+            <td>${escapeHtml(item.due || "-")}</td>
+            <td>${tag(item.done ? "Concluída" : "Aberta")}</td>
+            <td class="actions"><button class="btn danger" type="button" data-remove-list="tasks" data-item-id="${escapeHtml(item.id)}">Remover</button></td>
+          </tr>
+        `).join("") || orderRowsEmpty("Nenhuma tarefa vinculada.", 5);
+        return `
+          <div class="tab-workspace">
+            <strong>TAREFAS</strong>
+            <div class="form">
+              <label class="full">Tarefa <input class="field" id="taskDescription" placeholder="Ex: analisar falha, trocar rolamento, testar equipamento"></label>
+              <label>Responsável <input class="field" id="taskOwner" placeholder="Responsável"></label>
+              <label>Prazo <input class="field" id="taskDue" placeholder="Data ou turno"></label>
+              <div class="full toolbar"><button class="btn primary" type="button" id="addTaskBtn">Adicionar tarefa</button></div>
+            </div>
+            <div class="table-wrap"><table><thead><tr><th>Tarefa</th><th>Responsável</th><th>Prazo</th><th>Status</th><th>Ação</th></tr></thead><tbody>${rows}</tbody></table></div>
+          </div>`;
+      }
+
+      if (tabKey === "fotos") return orderFileTabContent("Fotos", order, "photos", "image/*");
+      if (tabKey === "anexos") return orderFileTabContent("Anexos", order, "attachments");
+      if (tabKey === "documentos") return orderFileTabContent("Documentos", order, "documents", ".pdf,.doc,.docx,.xls,.xlsx,.txt,image/*");
+      if (tabKey === "materiais") return orderMaterialTabContent(order);
+
+      if (tabKey === "recursos") {
+        const resources = orderTabArray(order, "resources");
+        const rows = resources.map(item => `
+          <tr>
+            <td>${escapeHtml(item.type || "-")}</td>
+            <td>${escapeHtml(item.name || "-")}</td>
+            <td>${escapeHtml(item.status || "-")}</td>
+            <td class="actions"><button class="btn danger" type="button" data-remove-list="resources" data-item-id="${escapeHtml(item.id)}">Remover</button></td>
+          </tr>
+        `).join("") || orderRowsEmpty("Nenhum recurso vinculado.", 4);
+        return `
+          <div class="tab-workspace">
+            <strong>RECURSOS</strong>
+            <div class="form">
+              <label>Tipo <select class="field" id="resourceType"><option>Ferramenta</option><option>Bancada</option><option>Apoio externo</option><option>Equipamento de medição</option><option>Outro</option></select></label>
+              <label>Recurso <input class="field" id="resourceName" placeholder="Ex: multímetro, talha, torno, fornecedor externo"></label>
+              <label>Status <select class="field" id="resourceStatus"><option>Necessário</option><option>Reservado</option><option>Utilizado</option><option>Indisponível</option></select></label>
+              <div class="toolbar"><button class="btn primary" type="button" id="addResourceBtn">Adicionar recurso</button></div>
+            </div>
+            <div class="table-wrap"><table><thead><tr><th>Tipo</th><th>Recurso</th><th>Status</th><th>Ação</th></tr></thead><tbody>${rows}</tbody></table></div>
+          </div>`;
+      }
       return `<strong>${ptBrText(tabName.toUpperCase())}</strong><span>${detailTabText(tabName)}</span>`;
     }
 
     function updateOrderExtras(id, patch) {
-      state.orders = state.orders.map(order => order.id === id ? { ...order, ...patch } : order);
+      let updatedOrder = null;
+      state.orders = state.orders.map(order => {
+        if (order.id !== id) return order;
+        updatedOrder = { ...order, ...patch };
+        return updatedOrder;
+      });
       saveState();
+      if (updatedOrder) saveOrderSupabaseNow(updatedOrder);
+    }
+
+    function refreshOrderDetailTab(tabName, orderId) {
+      const panel = $("detailTabPanel");
+      if (!panel) return;
+      const order = byId(state.orders, orderId) || {};
+      panel.innerHTML = detailTabContent(tabName, order);
+      wireDetailTab(tabName, orderId);
     }
 
     function refreshOrderMaterialsTab(orderId) {
       const panel = $("detailTabPanel");
       if (!panel || !$("orderMaterialForm")) return;
+      refreshOrderDetailTab("Materiais", orderId);
+    }
+
+    function addOrderListItem(orderId, key, item, tabName) {
       const order = byId(state.orders, orderId) || {};
-      panel.innerHTML = detailTabContent("Materiais", order);
-      wireDetailTab("Materiais", orderId);
+      updateOrderExtras(orderId, { [key]: orderTabArray(order, key).concat({ id: uid(key), createdAt: Date.now(), ...item }) });
+      refreshOrderDetailTab(tabName, orderId);
+    }
+
+    function removeOrderListItem(orderId, key, itemId, tabName) {
+      const order = byId(state.orders, orderId) || {};
+      updateOrderExtras(orderId, { [key]: orderTabArray(order, key).filter(item => item.id !== itemId) });
+      refreshOrderDetailTab(tabName, orderId);
+    }
+
+    function updateOrderListItem(orderId, key, itemId, patch, tabName) {
+      const order = byId(state.orders, orderId) || {};
+      updateOrderExtras(orderId, { [key]: orderTabArray(order, key).map(item => item.id === itemId ? { ...item, ...patch } : item) });
+      refreshOrderDetailTab(tabName, orderId);
     }
 
     async function addOrderMaterialConsumption(orderId) {
@@ -8240,7 +8536,153 @@
     }
 
     function wireDetailTab(tabName, orderId) {
-      if (tabName === "Assinatura") {
+      const tabKey = statusKey(tabName);
+      const panel = $("detailTabPanel");
+      if (!panel) return;
+
+      panel.querySelectorAll("[data-remove-list]").forEach(button => {
+        button.addEventListener("click", () => removeOrderListItem(orderId, button.dataset.removeList, button.dataset.itemId, tabName));
+      });
+
+      if (tabKey === "geral") {
+        const save = $("saveGeneralTab");
+        if (save) save.addEventListener("click", () => {
+          const requester = value("tabGeneralRequester");
+          const comment = value("tabGeneralComment");
+          updateOrderExtras(orderId, {
+            requester,
+            comment,
+            generalNote: value("tabGeneralNote")
+          });
+          if ($("detailRequester")) $("detailRequester").value = requester;
+          if ($("detailComment")) $("detailComment").value = comment;
+          if ($("finishComment")) $("finishComment").value = comment;
+          showToast("Aba Geral salva na O.S.");
+        });
+      }
+
+      if (tabKey === "detalhes") {
+        const order = byId(state.orders, orderId) || {};
+        if ($("tabDetailType")) $("tabDetailType").value = order.type || "Corretiva";
+        if ($("tabDetailMaintenance")) $("tabDetailMaintenance").value = order.maintenance || "Preventiva";
+        if ($("tabDetailPriority")) $("tabDetailPriority").value = order.priority || "Baixa";
+        if ($("tabDetailStatus")) $("tabDetailStatus").value = isRunningOrder(order.status) ? "Em execucao" : isClosedOrder(order.status) ? "Concluida" : order.status || "Aberta";
+        const save = $("saveDetailsTab");
+        if (save) save.addEventListener("click", () => {
+          const current = byId(state.orders, orderId) || {};
+          const now = Date.now();
+          const status = $("tabDetailStatus").value;
+          const patch = {
+            plan: value("tabDetailPlan"),
+            category: value("tabDetailCategory"),
+            type: $("tabDetailType").value,
+            maintenance: $("tabDetailMaintenance").value,
+            priority: $("tabDetailPriority").value,
+            status,
+            scheduledAt: $("tabDetailScheduled").value,
+            durationHours: $("tabDetailHours").value,
+            pendingExecution: $("tabDetailPending").checked,
+            machineStopped: $("tabDetailStopped").checked,
+            startedAt: isRunningOrder(status) ? (current.startedAt || now) : current.startedAt || null,
+            finishedAt: isClosedOrder(status) ? (current.finishedAt || now) : current.finishedAt || null
+          };
+          updateOrderExtras(orderId, patch);
+          if ($("detailPlan")) $("detailPlan").value = patch.plan;
+          if ($("detailType")) $("detailType").value = patch.type;
+          if ($("detailMaintenance")) $("detailMaintenance").value = patch.maintenance;
+          if ($("detailPriority")) $("detailPriority").value = patch.priority;
+          if ($("detailStatus")) $("detailStatus").value = patch.status;
+          if ($("detailScheduled")) $("detailScheduled").value = patch.scheduledAt;
+          if ($("detailHours")) $("detailHours").value = patch.durationHours;
+          if ($("detailPending")) $("detailPending").checked = patch.pendingExecution;
+          if ($("detailStopped")) $("detailStopped").checked = patch.machineStopped;
+          if ($("finishPlan")) $("finishPlan").value = patch.plan;
+          if ($("finishType")) $("finishType").value = patch.type;
+          if ($("finishMaintenance")) $("finishMaintenance").value = patch.maintenance;
+          if ($("finishPriority")) $("finishPriority").value = patch.priority;
+          if ($("finishScheduled")) $("finishScheduled").value = patch.scheduledAt;
+          if ($("finishHours")) $("finishHours").value = patch.durationHours;
+          if ($("finishPending")) $("finishPending").checked = patch.pendingExecution;
+          if ($("finishStopped")) $("finishStopped").checked = patch.machineStopped;
+          showToast("Aba Detalhes salva na O.S.");
+        });
+      }
+
+      if (tabKey === "historico") {
+        const add = $("addHistoryBtn");
+        if (add) add.addEventListener("click", () => {
+          const text = value("orderHistoryNote");
+          if (!text) { showToast("Informe o registro do histórico."); return; }
+          addOrderListItem(orderId, "history", { type: "Registro manual", text }, tabName);
+          showToast("Histórico adicionado à O.S.");
+        });
+      }
+
+      if (tabKey === "checklists") {
+        const save = $("saveChecklistTab");
+        if (save) save.addEventListener("click", () => {
+          updateOrderExtras(orderId, { checklist: $("osChecklistText").value.trim() });
+          showToast("Checklist salvo na O.S.");
+        });
+        panel.querySelectorAll("[data-link-checklist]").forEach(button => {
+          button.addEventListener("click", () => {
+            const order = byId(state.orders, orderId) || {};
+            const id = button.dataset.linkChecklist;
+            const current = orderTabArray(order, "linkedChecklists").map(String);
+            const next = current.includes(String(id)) ? current.filter(item => item !== String(id)) : current.concat(String(id));
+            updateOrderExtras(orderId, { linkedChecklists: next });
+            refreshOrderDetailTab(tabName, orderId);
+          });
+        });
+      }
+
+      if (tabKey === "outros custos") {
+        const add = $("addCostBtn");
+        if (add) add.addEventListener("click", () => {
+          const description = value("costDescription");
+          const valueNumber = parseNumber($("costValue")?.value, 0);
+          if (!description) { showToast("Informe a descrição do custo."); return; }
+          if (valueNumber < 0) { showToast("Valor do custo não pode ser negativo."); return; }
+          addOrderListItem(orderId, "costs", { description, supplier: value("costSupplier"), value: valueNumber }, tabName);
+          showToast("Custo vinculado à O.S.");
+        });
+      }
+
+      if (tabKey === "equipe") {
+        const saveMain = $("saveTeamMainBtn");
+        if (saveMain) saveMain.addEventListener("click", () => {
+          const executor = value("teamMainExecutor");
+          const executors = parseNumber($("teamExecutors")?.value, 1);
+          updateOrderExtras(orderId, { executor, executors });
+          if ($("detailExecutor")) $("detailExecutor").value = executor;
+          if ($("detailExecutors")) $("detailExecutors").value = executors;
+          if ($("finishExecutor")) $("finishExecutor").value = executor;
+          if ($("finishExecutors")) $("finishExecutors").value = executors;
+          showToast("Executante principal salvo na O.S.");
+        });
+        const add = $("addTeamBtn");
+        if (add) add.addEventListener("click", () => {
+          const name = value("teamName");
+          if (!name) { showToast("Informe o nome do integrante."); return; }
+          addOrderListItem(orderId, "team", { name, role: value("teamRole"), hours: value("teamHours") }, tabName);
+          showToast("Integrante vinculado à O.S.");
+        });
+      }
+
+      if (tabKey === "tarefas") {
+        const add = $("addTaskBtn");
+        if (add) add.addEventListener("click", () => {
+          const description = value("taskDescription");
+          if (!description) { showToast("Informe a tarefa."); return; }
+          addOrderListItem(orderId, "tasks", { description, owner: value("taskOwner"), due: value("taskDue"), done: false }, tabName);
+          showToast("Tarefa vinculada à O.S.");
+        });
+        panel.querySelectorAll("[data-toggle-task]").forEach(input => {
+          input.addEventListener("change", () => updateOrderListItem(orderId, "tasks", input.dataset.toggleTask, { done: input.checked }, tabName));
+        });
+      }
+
+      if (tabKey === "assinatura") {
         const add = $("addSignatureBtn");
         const clear = $("clearSignatureBtn");
         const box = $("signatureBox");
@@ -8258,15 +8700,54 @@
           showToast("Assinatura removida.");
         });
       }
-      if (tabName === "Seguranca") {
-        document.querySelectorAll("[data-epi]").forEach(input => {
+
+      if (tabKey === "seguranca") {
+        panel.querySelectorAll("[data-epi]").forEach(input => {
           input.addEventListener("change", () => {
             const order = byId(state.orders, orderId) || {};
             updateOrderExtras(orderId, { epis: { ...(order.epis || {}), [input.dataset.epi]: input.checked } });
           });
         });
+        const save = $("saveSafetyNotes");
+        if (save) save.addEventListener("click", () => {
+          updateOrderExtras(orderId, { safetyNotes: $("safetyNotes").value.trim() });
+          showToast("Segurança salva na O.S.");
+        });
       }
-      if (tabName === "Materiais") {
+
+      if (tabKey === "fotos" || tabKey === "anexos" || tabKey === "documentos") {
+        const key = tabKey === "fotos" ? "photos" : tabKey === "documentos" ? "documents" : "attachments";
+        const add = $("orderFileAddBtn");
+        if (add) add.addEventListener("click", () => {
+          const files = Array.from($("orderFileInput")?.files || []);
+          const note = value("orderFileNote");
+          if (!files.length) { showToast("Selecione um arquivo para vincular."); return; }
+          const order = byId(state.orders, orderId) || {};
+          const nextFiles = files.map(file => ({
+            id: uid("file"),
+            name: file.name,
+            type: file.type || "",
+            size: file.size || 0,
+            note,
+            createdAt: Date.now()
+          }));
+          updateOrderExtras(orderId, { [key]: orderTabArray(order, key).concat(nextFiles) });
+          refreshOrderDetailTab(tabName, orderId);
+          showToast(`${ptBrText(tabName)} vinculado à O.S.`);
+        });
+      }
+
+      if (tabKey === "recursos") {
+        const add = $("addResourceBtn");
+        if (add) add.addEventListener("click", () => {
+          const name = value("resourceName");
+          if (!name) { showToast("Informe o recurso."); return; }
+          addOrderListItem(orderId, "resources", { type: $("resourceType").value, name, status: $("resourceStatus").value }, tabName);
+          showToast("Recurso vinculado à O.S.");
+        });
+      }
+
+      if (tabKey === "materiais") {
         const form = $("orderMaterialForm");
         const addBtn = $("orderMaterialAddBtn");
         const spareInput = $("orderMaterialSpareInput");
@@ -8353,6 +8834,7 @@
       $("detailMaintenance").value = order.maintenance || "Preventiva";
       $("detailPriority").value = order.priority || "Baixa";
       $("detailStatus").value = isRunningOrder(order.status) ? "Em execucao" : isClosedOrder(order.status) ? "Concluida" : order.status || "Aberta";
+      wireDetailTab("Geral", id);
       document.querySelectorAll("[data-detail-tab]").forEach(button => {
         button.addEventListener("click", () => {
           document.querySelectorAll("[data-detail-tab]").forEach(tab => tab.classList.toggle("active", tab === button));
@@ -8928,6 +9410,7 @@
       $("finishType").value = order.type || "Corretiva";
       $("finishMaintenance").value = order.maintenance || "Preventiva";
       $("finishPriority").value = order.priority || "Baixa";
+      wireDetailTab("Geral", id);
       document.querySelectorAll("[data-detail-tab]").forEach(button => {
         button.addEventListener("click", () => {
           document.querySelectorAll("[data-detail-tab]").forEach(tab => tab.classList.toggle("active", tab === button));
