@@ -462,7 +462,7 @@
     }
 
     .auth-brand-strip {
-      height: 48px;
+      height: 52px;
       position: fixed;
       top: 0;
       left: 0;
@@ -470,7 +470,8 @@
       z-index: 2;
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
+      padding: 0 52px;
       border-bottom: 1px solid rgba(0, 0, 0, .35);
       background: rgba(7, 20, 48, .76);
       box-shadow: 0 2px 8px rgba(0, 0, 0, .18);
@@ -489,16 +490,22 @@
       line-height: 1;
     }
 
-    .auth-brand-logo::before {
-      content: "";
-      width: 25px;
-      height: 20px;
+    .auth-brand-mark {
+      width: 34px;
+      height: 34px;
       display: inline-block;
-      border: 4px solid currentColor;
-      border-left-color: transparent;
-      border-right-color: transparent;
-      border-radius: 7px;
-      transform: rotate(-28deg);
+      color: #fff;
+    }
+
+    .auth-brand-mark svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 3.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
 
     .auth-card {
@@ -4024,7 +4031,7 @@
 </head>
 <body class="theme-light">
   <div class="auth-screen" id="authScreen">
-    <div class="auth-brand-strip"><div class="auth-brand-logo">GESTMAN365</div></div>
+    <div class="auth-brand-strip"><div class="auth-brand-logo"><span class="auth-brand-mark"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 16 L30 5"/><path d="M18 36 L40 25"/></svg></span><span>GESTMAN365</span></div></div>
     <div class="auth-card">
       <div class="auth-main">
         <div class="auth-company-badge" id="authCompanyBadge"></div>
