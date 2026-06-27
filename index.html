@@ -4409,10 +4409,7 @@
   <script>
     window.__gestmanReleaseAuthLoading = function () {
       if (!document.body) return;
-      if (document.body.classList.contains("auth-loading")) {
-        document.body.classList.remove("auth-loading");
-        document.body.classList.add("auth-required");
-      }
+      document.body.classList.remove("auth-loading");
     };
     window.__gestmanAuthFallback = setTimeout(window.__gestmanReleaseAuthLoading, 1200);
     window.addEventListener("error", window.__gestmanReleaseAuthLoading, { once: true });
@@ -6185,6 +6182,11 @@
     }
 
     function renderAuthScreen() {
+      if (window.__gestmanAuthFallback) {
+        clearTimeout(window.__gestmanAuthFallback);
+        window.__gestmanAuthFallback = null;
+      }
+      document.body.classList.remove("auth-loading");
       document.body.classList.toggle("auth-required", !currentAccount);
       if (!$("authLoginForm") || !$("authSetupForm")) return;
       $("authLoginForm").classList.remove("is-hidden");
