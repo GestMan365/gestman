@@ -714,18 +714,26 @@
 
     .auth-help {
       align-self: center;
-      display: inline-flex;
+      display: flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
       color: #2f384f;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 400;
       line-height: 1.25;
       text-align: center;
       white-space: normal;
       width: 100%;
+      max-width: 100%;
       padding: 0 4px;
+      flex-wrap: wrap;
+      overflow: hidden;
+    }
+
+    .auth-help-text {
+      min-width: 0;
+      overflow-wrap: anywhere;
     }
 
     .auth-whatsapp {
@@ -3969,7 +3977,7 @@
           <label class="auth-remember"><input id="rememberLogin" type="checkbox"><span class="auth-switch"></span><span>Continuar conectado</span></label>
           <div class="auth-actions"><button class="btn primary auth-submit" type="submit">Continuar</button></div>
           <a class="auth-forgot" id="forgotPasswordLink" href="#">esqueci minha senha 🔒</a>
-          <div class="auth-help">Dúvidas para acessar? nos chame no Zap! <span class="auth-whatsapp">☏</span></div>
+          <div class="auth-help"><span class="auth-help-text">Dúvidas para acessar? nos chame no Zap!</span><span class="auth-whatsapp">☏</span></div>
         </form>
 
         <div class="auth-divider is-hidden"></div>
@@ -4704,6 +4712,11 @@
       return suffix ? `${GESTMAN_LOGIN_PREFIX}${suffix}` : "";
     }
 
+    function companyLoginDisplay(value) {
+      const login = normalizeCompanyLogin(value);
+      return login ? login.slice(GESTMAN_LOGIN_PREFIX.length) : "";
+    }
+
     function companyLoginFromName(name) {
       const suffix = slugText(name);
       return suffix ? `${GESTMAN_LOGIN_PREFIX}${suffix}` : "";
@@ -4789,7 +4802,7 @@
       if (!checkbox || !companyInput || !emailInput || checkbox.dataset.loaded === "1") return;
       const remembered = loadRememberedLogin();
       if (remembered?.login) {
-        companyInput.value = remembered.login;
+        companyInput.value = companyLoginDisplay(remembered.login);
         emailInput.value = remembered.email || emailInput.value;
         checkbox.checked = true;
       }
@@ -5694,7 +5707,7 @@
       document.body.classList.toggle("auth-link-company", Boolean(routeLogin));
       if ($("authCompanyBadge")) $("authCompanyBadge").textContent = routeLogin ? companyDisplayNameFromLogin(routeLogin) : "";
       if (routeLogin && $("authCompanyLogin")) {
-        $("authCompanyLogin").value = routeLogin;
+        $("authCompanyLogin").value = companyLoginDisplay(routeLogin);
         $("authCompanyLogin").dataset.routeLogin = "1";
       } else {
         delete $("authCompanyLogin")?.dataset.routeLogin;
@@ -5805,7 +5818,7 @@
       authStore = normalizeAuthStore(authStore);
       saveAuthStore(authStore);
       const sent = await saveCompanyApprovalRequest(company, admin);
-      $("authCompanyLogin").value = company.login;
+      $("authCompanyLogin").value = companyLoginDisplay(company.login);
       $("authEmail").value = admin.email;
       $("setupAdminPassword").value = "";
       applyAuthState();
@@ -10949,7 +10962,7 @@
     });
     if ($("setupCompanyName")) $("setupCompanyName").addEventListener("input", updateSetupCompanyLogin);
     if ($("authCompanyLogin")) $("authCompanyLogin").addEventListener("blur", () => {
-      $("authCompanyLogin").value = normalizeCompanyLogin($("authCompanyLogin").value);
+      $("authCompanyLogin").value = companyLoginDisplay($("authCompanyLogin").value);
     });
     if ($("authEmail")) $("authEmail").addEventListener("blur", () => {
       $("authEmail").value = normalizeEmail($("authEmail").value);
