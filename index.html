@@ -449,6 +449,14 @@
 
     body.auth-required .auth-screen { display: flex; }
 
+    body.auth-loading .topbar,
+    body.auth-loading .nav,
+    body.auth-loading .workspace,
+    body.auth-loading .context-menu,
+    body.auth-loading .auth-screen {
+      display: none !important;
+    }
+
     .auth-screen::after {
       content: "";
       position: absolute;
@@ -859,6 +867,149 @@
     }
 
     .permission-item input { width: auto; }
+
+    .tenant-user-admin { overflow: hidden; }
+    .tenant-user-list table th,
+    .tenant-user-list table td { white-space: nowrap; }
+    .tenant-user-editor {
+      margin: 12px;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 8px;
+      background: rgba(5,17,42,.45);
+      overflow: hidden;
+    }
+    .tenant-user-editor.is-hidden { display: none; }
+    .tenant-user-editor-head {
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 0 12px;
+      border-bottom: 1px solid rgba(255,255,255,.14);
+      background: linear-gradient(90deg, rgba(18,63,141,.95), rgba(7,22,54,.95));
+      color: #fff;
+      font-weight: 900;
+    }
+    .tenant-user-tabs {
+      display: flex;
+      gap: 2px;
+      padding: 7px 8px 0;
+      background: rgba(0,0,0,.22);
+      border-bottom: 1px solid rgba(255,255,255,.14);
+      overflow-x: auto;
+    }
+    .tenant-user-tab {
+      min-height: 30px;
+      border: 1px solid rgba(255,255,255,.18);
+      border-bottom: 0;
+      border-radius: 6px 6px 0 0;
+      background: rgba(255,255,255,.08);
+      color: var(--muted);
+      padding: 0 12px;
+      font-size: 11px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+    .tenant-user-tab.active {
+      background: var(--blue-700);
+      color: #fff;
+      box-shadow: inset 0 -3px 0 var(--orange);
+    }
+    .tenant-user-body {
+      display: grid;
+      grid-template-columns: 170px minmax(0,1fr);
+      gap: 14px;
+      padding: 14px;
+    }
+    .tenant-user-photo-card {
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 8px;
+      background: rgba(255,255,255,.05);
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      align-content: start;
+      justify-items: center;
+    }
+    .tenant-user-photo-preview {
+      width: 112px;
+      height: 112px;
+      border-radius: 8px;
+      border: 2px solid rgba(255,138,76,.65);
+      background: rgba(255,255,255,.08);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      color: var(--muted);
+      font-weight: 900;
+      text-align: center;
+    }
+    .tenant-user-photo-preview img { width: 100%; height: 100%; object-fit: cover; }
+    .tenant-user-panel { display: none; }
+    .tenant-user-panel.active { display: block; }
+    .tenant-user-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 10px;
+    }
+    .tenant-user-switch-line {
+      min-height: 34px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 10px;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 6px;
+      background: rgba(255,255,255,.06);
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: none;
+    }
+    .tenant-user-switch-line input { width: auto; }
+    .tenant-user-editor-foot {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 12px 14px;
+      border-top: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+    }
+    .tenant-user-editor-foot .btn.cancel { min-width: 120px; }
+    .tenant-user-editor-foot .btn.primary {
+      min-width: 140px;
+      background: var(--blue-700);
+      color: #fff;
+      border-color: var(--blue-700);
+      box-shadow: inset 0 -4px 0 var(--orange);
+    }
+    body.theme-light .tenant-user-editor {
+      background: #f7f9ff;
+      border-color: rgba(18,63,141,.20);
+    }
+    body.theme-light .tenant-user-tabs,
+    body.theme-light .tenant-user-editor-foot {
+      background: #edf3ff;
+      border-color: rgba(18,63,141,.16);
+    }
+    body.theme-light .tenant-user-tab {
+      background: #fff;
+      color: #4c5b7a;
+      border-color: rgba(18,63,141,.18);
+    }
+    body.theme-light .tenant-user-photo-card,
+    body.theme-light .tenant-user-switch-line {
+      background: #fff;
+      border-color: rgba(18,63,141,.16);
+      color: #17223d;
+    }
+    @media (max-width: 760px) {
+      .tenant-user-body,
+      .tenant-user-grid { grid-template-columns: 1fr; }
+      .tenant-user-photo-card { justify-items: stretch; }
+      .tenant-user-photo-preview { margin: 0 auto; }
+    }
 
     .grid { display: grid; gap: 14px; }
     .metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
@@ -4029,7 +4180,7 @@
     }
 </style>
 </head>
-<body class="theme-light auth-required">
+<body class="theme-light auth-loading">
   <div class="auth-screen" id="authScreen">
     <div class="auth-brand-strip"><div class="auth-brand-logo"><span class="auth-brand-mark"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 16 L30 5"/><path d="M18 36 L40 25"/></svg></span><span>GESTMAN365</span></div></div>
     <div class="auth-card">
@@ -4775,18 +4926,35 @@
         remoteSync: company.remoteSync === true,
         createdAt: company.createdAt || Date.now()
       })).filter(company => company.id);
-      normalized.users = normalized.users.map(user => ({
-        id: user.id,
-        companyId: user.companyId,
-        name: user.name || "Usuário",
-        email: normalizeEmail(user.email),
-        password: String(user.password || ""),
-        role: user.role === "admin" ? "admin" : "user",
-        active: user.active !== false,
-        permissions: user.permissions && typeof user.permissions === "object" ? user.permissions : {},
-        photo: user.photo || "",
-        createdAt: user.createdAt || Date.now()
-      })).filter(user => user.id && user.companyId && user.email);
+      normalized.users = normalized.users.map(user => {
+        const rawPermissions = user.permissions && typeof user.permissions === "object" ? user.permissions : {};
+        const details = tenantUserDetailsFromPermissions(rawPermissions);
+        const loginUser = normalizeEmail(user.email || user.username || details.username);
+        return {
+          id: user.id,
+          companyId: user.companyId,
+          name: user.name || [user.firstName || details.firstName, user.lastName || details.lastName].filter(Boolean).join(" ") || "Usuário",
+          email: loginUser,
+          username: user.username || details.username || loginUser,
+          contactEmail: normalizeEmail(user.contactEmail || details.contactEmail),
+          jobTitle: user.jobTitle || details.jobTitle || "",
+          firstName: user.firstName || details.firstName || "",
+          lastName: user.lastName || details.lastName || "",
+          productiveCalendar: user.productiveCalendar || details.productiveCalendar || "07:00-17:00",
+          executor: user.executor === true || details.executor === true,
+          specialties: user.specialties || details.specialties || "",
+          tools: user.tools || details.tools || "",
+          vacations: user.vacations || details.vacations || "",
+          contractType: user.contractType || details.contractType || "CLT",
+          contractNote: user.contractNote || details.contractNote || "",
+          password: String(user.password || ""),
+          role: user.role === "admin" ? "admin" : "user",
+          active: user.active !== false,
+          permissions: stripTenantPermissionProfile(rawPermissions),
+          photo: user.photo || "",
+          createdAt: user.createdAt || Date.now()
+        };
+      }).filter(user => user.id && user.companyId && user.email);
       return normalized;
     }
 
@@ -4929,6 +5097,37 @@
       };
     }
 
+    function tenantUserProfileDetails(user = {}) {
+      return {
+        username: user.username || user.email || "",
+        contactEmail: user.contactEmail || "",
+        jobTitle: user.jobTitle || "",
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        productiveCalendar: user.productiveCalendar || "07:00-17:00",
+        executor: user.executor === true,
+        specialties: user.specialties || "",
+        tools: user.tools || "",
+        vacations: user.vacations || "",
+        contractType: user.contractType || "CLT",
+        contractNote: user.contractNote || ""
+      };
+    }
+
+    function stripTenantPermissionProfile(permissions = {}) {
+      const clean = permissions && typeof permissions === "object" ? { ...permissions } : {};
+      delete clean._profile;
+      return clean;
+    }
+
+    function tenantUserDetailsFromPermissions(permissions = {}) {
+      const profile = permissions && typeof permissions === "object" ? permissions._profile || {} : {};
+      return tenantUserProfileDetails(profile);
+    }
+
+    function tenantUserPermissionsPayload(user = {}) {
+      return { ...stripTenantPermissionProfile(user.permissions), _profile: tenantUserProfileDetails(user) };
+    }
     function tenantUserApprovalRow(user = {}) {
       return {
         id: user.id,
@@ -4957,15 +5156,30 @@
     }
 
     function userFromApprovalRow(row = {}, companyId = "") {
+      const rawPermissions = row.permissoes || row.permissions || allPermissions(row.perfil === "admin" || row.role === "admin");
+      const details = tenantUserDetailsFromPermissions(rawPermissions);
+      const loginUser = normalizeEmail(row.email);
       return {
         id: row.id,
         companyId: row.empresa_id || row.company_id || companyId,
-        name: row.nome || row.name || "Usuário",
-        email: normalizeEmail(row.email),
+        name: row.nome || row.name || [details.firstName, details.lastName].filter(Boolean).join(" ") || "Usuário",
+        email: loginUser,
+        username: details.username || loginUser,
+        contactEmail: normalizeEmail(details.contactEmail),
+        jobTitle: details.jobTitle || "",
+        firstName: details.firstName || "",
+        lastName: details.lastName || "",
+        productiveCalendar: details.productiveCalendar || "07:00-17:00",
+        executor: details.executor === true,
+        specialties: details.specialties || "",
+        tools: details.tools || "",
+        vacations: details.vacations || "",
+        contractType: details.contractType || "CLT",
+        contractNote: details.contractNote || "",
         password: String(row.senha || row.password || ""),
         role: row.perfil === "admin" || row.role === "admin" ? "admin" : "user",
         active: row.ativo !== false && row.active !== false,
-        permissions: row.permissoes || row.permissions || allPermissions(row.perfil === "admin" || row.role === "admin"),
+        permissions: stripTenantPermissionProfile(rawPermissions),
         photo: row.foto_url || row.photo || "",
         createdAt: timeValue(row.created_at) || Date.now()
       };
@@ -4995,15 +5209,30 @@
     }
 
     function userFromLoginRpcRow(row = {}) {
+      const rawPermissions = row.usuario_permissoes || allPermissions(row.usuario_perfil === "admin");
+      const details = tenantUserDetailsFromPermissions(rawPermissions);
+      const loginUser = normalizeEmail(row.usuario_email);
       return {
         id: row.usuario_id,
         companyId: row.empresa_id,
-        name: row.usuario_nome || "Usuário",
-        email: normalizeEmail(row.usuario_email),
+        name: row.usuario_nome || [details.firstName, details.lastName].filter(Boolean).join(" ") || "Usuário",
+        email: loginUser,
+        username: details.username || loginUser,
+        contactEmail: normalizeEmail(details.contactEmail),
+        jobTitle: details.jobTitle || "",
+        firstName: details.firstName || "",
+        lastName: details.lastName || "",
+        productiveCalendar: details.productiveCalendar || "07:00-17:00",
+        executor: details.executor === true,
+        specialties: details.specialties || "",
+        tools: details.tools || "",
+        vacations: details.vacations || "",
+        contractType: details.contractType || "CLT",
+        contractNote: details.contractNote || "",
         password: String(row.usuario_senha || ""),
         role: row.usuario_perfil === "admin" ? "admin" : "user",
         active: row.usuario_ativo !== false,
-        permissions: row.usuario_permissoes || allPermissions(row.usuario_perfil === "admin"),
+        permissions: stripTenantPermissionProfile(rawPermissions),
         photo: row.usuario_foto_url || "",
         createdAt: Date.now()
       };
@@ -5897,15 +6126,63 @@
         `).join("");
     }
 
+    function tenantUserDisplayName(user = {}) {
+      return [user.firstName, user.lastName].filter(Boolean).join(" ") || user.name || user.username || user.email || "Usuário";
+    }
+
+    function renderTenantUserPhotoPreview(photo = "") {
+      if (!$("tenantUserPhotoPreview")) return;
+      $("tenantUserPhotoPreview").innerHTML = photo
+        ? `<img src="${photo}" alt="Foto do usuário">`
+        : `<span>Sem<br>foto</span>`;
+    }
+
+    function selectTenantUserTab(tab = "general") {
+      document.querySelectorAll("[data-tenant-user-tab]").forEach(button => {
+        button.classList.toggle("active", button.dataset.tenantUserTab === tab);
+      });
+      document.querySelectorAll("[data-tenant-user-panel]").forEach(panel => {
+        panel.classList.toggle("active", panel.dataset.tenantUserPanel === tab);
+      });
+    }
+
+    function openTenantUserEditor(mode = "create") {
+      if (!$("tenantUserForm")) return;
+      $("tenantUserForm").classList.remove("is-hidden");
+      if ($("tenantUserEditorTitle")) $("tenantUserEditorTitle").textContent = mode === "edit" ? "Editar Usuário" : "Criar Usuário";
+      selectTenantUserTab("general");
+      $("tenantUserForm").scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function closeTenantUserEditor() {
+      if ($("tenantUserForm")) $("tenantUserForm").classList.add("is-hidden");
+      resetTenantUserForm();
+    }
+
     function resetTenantUserForm() {
       if (!$("tenantUserForm")) return;
       $("tenantUserId").value = "";
-      $("tenantUserName").value = "";
       $("tenantUserEmail").value = "";
+      $("tenantUserContactEmail").value = "";
       $("tenantUserPassword").value = "";
       $("tenantUserRole").value = "user";
       $("tenantUserActive").value = "true";
+      $("tenantUserJobTitle").value = "";
+      $("tenantUserFirstName").value = "";
+      $("tenantUserLastName").value = "";
+      $("tenantUserCalendar").value = "07:00-17:00";
+      $("tenantUserExecutor").checked = false;
+      $("tenantUserPhoto").value = "";
+      if ($("tenantUserPhotoFile")) $("tenantUserPhotoFile").value = "";
+      $("tenantUserSpecialties").value = "";
+      $("tenantUserTools").value = "";
+      $("tenantUserVacations").value = "";
+      $("tenantUserContractType").value = "CLT";
+      $("tenantUserContractNote").value = "";
+      if ($("tenantUserEditorTitle")) $("tenantUserEditorTitle").textContent = "Criar Usuário";
+      renderTenantUserPhotoPreview("");
       renderPermissionGrid({}, "user");
+      selectTenantUserTab("general");
     }
 
     function selectedPermissionPayload() {
@@ -5919,18 +6196,19 @@
     }
 
     function renderUsers() {
-      if (!$("tenantUserRows") || !$("tenantPermissionGrid")) return;
+      if (!$("tenantUserRows")) return;
       if (!currentAccount) return;
-      renderPermissionGrid({}, $("tenantUserRole")?.value || "user");
+      if ($("tenantPermissionGrid") && !$("tenantUserId")?.value) renderPermissionGrid({}, $("tenantUserRole")?.value || "user");
       const users = authStore.users.filter(user => user.companyId === currentAccount.company.id);
       $("tenantUserRows").innerHTML = users.map(user => {
         const isCurrent = user.id === currentAccount.user.id;
         const statusClass = user.active !== false ? "ok" : "danger";
         return `
           <tr>
-            <td>${escapeHtml(user.name)}</td>
-            <td>${escapeHtml(user.email)}</td>
-            <td>${user.role === "admin" ? "Administrador" : "Usuário"}</td>
+            <td>${escapeHtml(user.username || user.email)}</td>
+            <td>${escapeHtml(tenantUserDisplayName(user))}</td>
+            <td>${escapeHtml(user.jobTitle || (user.role === "admin" ? "Administrador" : "Usuário"))}</td>
+            <td>${user.executor ? "Sim" : "Não"}</td>
             <td><span class="tag ${statusClass}">${user.active !== false ? "Ativo" : "Bloqueado"}</span></td>
             <td class="actions">
               <button class="btn" onclick="editTenantUser('${user.id}')">Editar</button>
@@ -5938,7 +6216,7 @@
             </td>
           </tr>
         `;
-      }).join("") || `<tr><td colspan="5">Nenhum usuário cadastrado.</td></tr>`;
+      }).join("") || `<tr><td colspan="6">Nenhum usuário cadastrado.</td></tr>`;
     }
 
     function editTenantUser(id) {
@@ -5946,60 +6224,88 @@
       const user = authStore.users.find(item => item.id === id && item.companyId === currentAccount?.company?.id);
       if (!user) return;
       $("tenantUserId").value = user.id;
-      $("tenantUserName").value = user.name || "";
-      $("tenantUserEmail").value = user.email || "";
+      $("tenantUserEmail").value = user.username || user.email || "";
+      $("tenantUserContactEmail").value = user.contactEmail || "";
       $("tenantUserPassword").value = "";
       $("tenantUserRole").value = user.role || "user";
       $("tenantUserActive").value = String(user.active !== false);
+      $("tenantUserJobTitle").value = user.jobTitle || "";
+      $("tenantUserFirstName").value = user.firstName || (user.name || "").split(" ")[0] || "";
+      $("tenantUserLastName").value = user.lastName || (user.name || "").split(" ").slice(1).join(" ");
+      $("tenantUserCalendar").value = user.productiveCalendar || "07:00-17:00";
+      $("tenantUserExecutor").checked = user.executor === true;
+      $("tenantUserPhoto").value = user.photo || "";
+      $("tenantUserSpecialties").value = user.specialties || "";
+      $("tenantUserTools").value = user.tools || "";
+      $("tenantUserVacations").value = user.vacations || "";
+      $("tenantUserContractType").value = user.contractType || "CLT";
+      $("tenantUserContractNote").value = user.contractNote || "";
+      renderTenantUserPhotoPreview(user.photo || "");
       renderPermissionGrid(user.permissions || {}, user.role || "user");
+      openTenantUserEditor("edit");
     }
 
     function deleteTenantUser(id) {
       if (!isAdminUser()) { showToast("Somente administrador pode excluir usuários."); return; }
       if (id === currentAccount?.user?.id) { showToast("Você não pode excluir o próprio usuário logado."); return; }
       const user = authStore.users.find(item => item.id === id && item.companyId === currentAccount?.company?.id);
-      if (!user || !confirm(`Excluir o usuário ${user.name}?`)) return;
+      if (!user || !confirm(`Excluir o usuário ${tenantUserDisplayName(user)}?`)) return;
       authStore.users = authStore.users.filter(item => item.id !== id);
       saveAuthStore(authStore);
       renderUsers();
       showToast("Usuário excluído.");
     }
 
-    function saveTenantUserFromForm(event) {
+    async function saveTenantUserFromForm(event) {
       event.preventDefault();
       if (!isAdminUser()) { showToast("Somente administrador pode criar usuários."); return; }
       const id = $("tenantUserId").value || uid("user");
       const companyId = currentAccount?.company?.id;
       const existing = authStore.users.find(item => item.id === id && item.companyId === companyId);
-      const email = normalizeEmail($("tenantUserEmail").value);
-      const duplicate = authStore.users.find(item => item.companyId === companyId && item.id !== id && normalizeEmail(item.email) === email);
-      if (duplicate) { showToast("Já existe usuário com este email nesta empresa."); return; }
-      if (!existing && !$("tenantUserPassword").value) { showToast("Informe uma senha inicial para o novo usuário."); return; }
+      const loginUser = normalizeEmail($("tenantUserEmail").value);
+      if (!loginUser) { showToast("Informe o usuário de acesso."); return; }
+      const duplicate = authStore.users.find(item => item.companyId === companyId && item.id !== id && normalizeEmail(item.email) === loginUser);
+      if (duplicate) { showToast("Já existe usuário com este login nesta empresa."); return; }
+      const password = normalizeAuthPassword($("tenantUserPassword").value);
+      if (!existing && !password) { showToast("Informe uma senha inicial para o novo usuário."); return; }
+      const firstName = $("tenantUserFirstName").value.trim();
+      const lastName = $("tenantUserLastName").value.trim();
+      const fullName = [firstName, lastName].filter(Boolean).join(" ") || loginUser;
       const payload = {
         id,
         companyId,
-        name: $("tenantUserName").value.trim() || "Usuário",
-        email,
-        password: $("tenantUserPassword").value || existing?.password || "",
+        name: fullName,
+        email: loginUser,
+        username: loginUser,
+        contactEmail: normalizeEmail($("tenantUserContactEmail").value),
+        jobTitle: $("tenantUserJobTitle").value.trim(),
+        firstName,
+        lastName,
+        productiveCalendar: $("tenantUserCalendar").value || "07:00-17:00",
+        executor: $("tenantUserExecutor").checked,
+        specialties: $("tenantUserSpecialties").value.trim(),
+        tools: $("tenantUserTools").value.trim(),
+        vacations: $("tenantUserVacations").value.trim(),
+        contractType: $("tenantUserContractType").value || "CLT",
+        contractNote: $("tenantUserContractNote").value.trim(),
+        password: password || existing?.password || "",
         role: $("tenantUserRole").value === "admin" ? "admin" : "user",
         active: $("tenantUserActive").value === "true",
         permissions: selectedPermissionPayload(),
-        photo: existing?.photo || "",
+        photo: $("tenantUserPhoto").value || existing?.photo || "",
         createdAt: existing?.createdAt || Date.now()
       };
       if (id === currentAccount.user.id) payload.active = true;
       authStore.users = authStore.users.filter(item => item.id !== id).concat(payload);
-      if (id === currentAccount.user.id) {
-        authStore.session = { companyId, userId: id, at: Date.now() };
-      }
+      if (id === currentAccount.user.id) authStore.session = { companyId, userId: id, at: Date.now() };
       saveAuthStore(authStore);
       currentAccount = resolveCurrentAccount(authStore);
       resetTenantUserForm();
+      closeTenantUserEditor();
       applyAuthState();
       renderUsers();
       showToast("Usuário salvo.");
     }
-
     function themeIcon(theme) {
       if (theme === "light") {
         return `<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 12h2M19 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/><circle cx="12" cy="12" r="4"/></svg>`;
@@ -9538,24 +9844,81 @@
           <div class="full toolbar"><button class="btn primary" type="submit">Salvar perfil</button></div>
         </form>
         ${isAdminUser() ? `
-          <div class="panel profile-admin-users">
+          <div class="panel profile-admin-users tenant-user-admin">
             <div class="panel-head">
               <div>
                 <div class="panel-title">Usuários da empresa</div>
-                <small class="muted">Somente o administrador visualiza e cria contas de acesso.</small>
+                <small class="muted">Somente o administrador cria contas e define permissões.</small>
               </div>
+              <button class="btn primary" type="button" id="startTenantUserCreate">Criar usuário</button>
             </div>
-            <form class="form" id="tenantUserForm">
+            <div class="table-wrap tenant-user-list" id="tenantUserListPanel">
+              <table>
+                <thead><tr><th>Usuário</th><th>Nome</th><th>Cargo</th><th>Executante</th><th>Status</th><th>Ações</th></tr></thead>
+                <tbody id="tenantUserRows"></tbody>
+              </table>
+            </div>
+            <form class="tenant-user-editor is-hidden" id="tenantUserForm">
               <input type="hidden" id="tenantUserId">
-              <label>Nome <input class="field" id="tenantUserName" required placeholder="Nome do usuário"></label>
-              <label>Email <input class="field" id="tenantUserEmail" required type="email" placeholder="usuario@empresa.com"></label>
-              <label>Senha <input class="field" id="tenantUserPassword" type="password" placeholder="Senha inicial ou nova senha"></label>
-              <label>Perfil <select class="field" id="tenantUserRole"><option value="user">Usuário</option><option value="admin">Administrador</option></select></label>
-              <label>Status <select class="field" id="tenantUserActive"><option value="true">Ativo</option><option value="false">Bloqueado</option></select></label>
-              <div class="full"><label>Permissões de acesso</label><div class="permission-grid" id="tenantPermissionGrid"></div></div>
-              <div class="full toolbar"><button class="btn primary" type="submit">Salvar usuário</button><button class="btn" type="button" id="resetTenantUserForm">Limpar</button></div>
+              <input type="hidden" id="tenantUserPhoto">
+              <div class="tenant-user-editor-head">
+                <span id="tenantUserEditorTitle">Criar Usuário</span>
+                <small class="muted">Cadastro no modelo GestMan</small>
+              </div>
+              <div class="tenant-user-tabs" role="tablist">
+                <button type="button" class="tenant-user-tab active" data-tenant-user-tab="general">Geral</button>
+                <button type="button" class="tenant-user-tab" data-tenant-user-tab="specialties">Especialidades</button>
+                <button type="button" class="tenant-user-tab" data-tenant-user-tab="tools">Ferramentas</button>
+                <button type="button" class="tenant-user-tab" data-tenant-user-tab="vacations">Férias</button>
+                <button type="button" class="tenant-user-tab" data-tenant-user-tab="contract">Contrato</button>
+                <button type="button" class="tenant-user-tab" data-tenant-user-tab="permissions">Permissões</button>
+              </div>
+              <div class="tenant-user-body">
+                <div class="tenant-user-photo-card">
+                  <div class="tenant-user-photo-preview" id="tenantUserPhotoPreview"><span>Sem<br>foto</span></div>
+                  <label class="full">Foto <input class="field" id="tenantUserPhotoFile" type="file" accept="image/*"></label>
+                </div>
+                <div class="tenant-user-panels">
+                  <section class="tenant-user-panel active" data-tenant-user-panel="general">
+                    <div class="tenant-user-grid">
+                      <label>Usuário <input class="field" id="tenantUserEmail" required placeholder="teste.nadir" autocapitalize="none" spellcheck="false"></label>
+                      <label>Cargo <input class="field" id="tenantUserJobTitle" placeholder="Mecânico, eletricista, gestor..."></label>
+                      <label>E-mail <input class="field" id="tenantUserContactEmail" type="email" placeholder="email@empresa.com" autocapitalize="none" spellcheck="false"></label>
+                      <label>Senha <input class="field" id="tenantUserPassword" type="password" placeholder="Senha inicial ou nova senha"></label>
+                      <label>Nome <input class="field" id="tenantUserFirstName" placeholder="Nome"></label>
+                      <label>Sobrenome <input class="field" id="tenantUserLastName" placeholder="Sobrenome"></label>
+                      <label>Calendário produtivo <select class="field" id="tenantUserCalendar"><option>07:00-17:00</option><option>06:00-14:00</option><option>14:00-22:00</option><option>22:00-06:00</option><option>Administrativo</option></select></label>
+                      <label>Perfil <select class="field" id="tenantUserRole"><option value="user">Usuário</option><option value="admin">Administrador</option></select></label>
+                      <label>Status <select class="field" id="tenantUserActive"><option value="true">Ativo</option><option value="false">Bloqueado</option></select></label>
+                      <label class="tenant-user-switch-line full"><input type="checkbox" id="tenantUserExecutor"><span>Usuário Executante</span></label>
+                    </div>
+                  </section>
+                  <section class="tenant-user-panel" data-tenant-user-panel="specialties">
+                    <label>Especialidades <textarea class="field" id="tenantUserSpecialties" placeholder="Ex: mecânica, elétrica, pneumática, solda..."></textarea></label>
+                  </section>
+                  <section class="tenant-user-panel" data-tenant-user-panel="tools">
+                    <label>Ferramentas <textarea class="field" id="tenantUserTools" placeholder="Ferramentas liberadas ou observações..."></textarea></label>
+                  </section>
+                  <section class="tenant-user-panel" data-tenant-user-panel="vacations">
+                    <label>Férias <textarea class="field" id="tenantUserVacations" placeholder="Períodos de férias, folgas ou afastamentos..."></textarea></label>
+                  </section>
+                  <section class="tenant-user-panel" data-tenant-user-panel="contract">
+                    <div class="tenant-user-grid">
+                      <label>Tipo de contrato <select class="field" id="tenantUserContractType"><option>CLT</option><option>PJ</option><option>Temporário</option><option>Terceiro</option><option>Estágio</option></select></label>
+                      <label class="full">Observação do contrato <textarea class="field" id="tenantUserContractNote" placeholder="Informações de contrato..."></textarea></label>
+                    </div>
+                  </section>
+                  <section class="tenant-user-panel" data-tenant-user-panel="permissions">
+                    <label>Permissões de acesso</label>
+                    <div class="permission-grid" id="tenantPermissionGrid"></div>
+                  </section>
+                </div>
+              </div>
+              <div class="tenant-user-editor-foot">
+                <button class="btn cancel" type="button" id="cancelTenantUserForm">Cancelar</button>
+                <button class="btn primary" type="submit">Continuar</button>
+              </div>
             </form>
-            <div class="table-wrap"><table><thead><tr><th>Nome</th><th>Email</th><th>Perfil</th><th>Status</th><th>Ações</th></tr></thead><tbody id="tenantUserRows"></tbody></table></div>
           </div>
         ` : ""}
       `, true);
@@ -9589,8 +9952,25 @@
         resetTenantUserForm();
         renderUsers();
         $("tenantUserForm").addEventListener("submit", saveTenantUserFromForm);
-        $("resetTenantUserForm").addEventListener("click", resetTenantUserForm);
+        $("startTenantUserCreate").addEventListener("click", () => {
+          resetTenantUserForm();
+          openTenantUserEditor("create");
+        });
+        $("cancelTenantUserForm").addEventListener("click", closeTenantUserEditor);
+        document.querySelectorAll("[data-tenant-user-tab]").forEach(button => {
+          button.addEventListener("click", () => selectTenantUserTab(button.dataset.tenantUserTab));
+        });
         $("tenantUserRole").addEventListener("change", () => renderPermissionGrid(selectedPermissionPayload(), $("tenantUserRole").value));
+        $("tenantUserPhotoFile").addEventListener("change", event => {
+          const file = event.target.files?.[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = () => {
+            $("tenantUserPhoto").value = reader.result;
+            renderTenantUserPhotoPreview(reader.result);
+          };
+          reader.readAsDataURL(file);
+        });
       }
     }
 
@@ -11097,7 +11477,6 @@
     $("profileBtn").addEventListener("click", openProfileModal);
     $("logoutBtn").addEventListener("click", logoutTenantUser);
     if ($("tenantUserForm")) $("tenantUserForm").addEventListener("submit", saveTenantUserFromForm);
-    if ($("resetTenantUserForm")) $("resetTenantUserForm").addEventListener("click", resetTenantUserForm);
     if ($("tenantUserRole")) $("tenantUserRole").addEventListener("change", () => renderPermissionGrid(selectedPermissionPayload(), $("tenantUserRole").value));
     $("dashboardConfigBtn").addEventListener("click", openDashboardConfig);
     $("purchaseListBtn").addEventListener("click", openPurchaseList);
