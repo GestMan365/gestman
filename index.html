@@ -696,16 +696,59 @@
     .auth-card .btn.primary,
     .auth-submit {
       width: 100%;
-      height: 34px;
-      min-height: 34px;
-      justify-content: center;
+      height: 40px;
+      min-height: 40px;
+      justify-content: flex-start;
+      gap: 10px;
       border: 0;
-      border-radius: 12px;
+      border-radius: 7px;
       background: var(--blue-700);
       color: #fff;
       box-shadow: none;
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 900;
+      padding: 0 14px 4px 12px;
+      position: relative;
+      overflow: hidden;
+      text-align: left;
+    }
+
+    .auth-submit::after {
+      content: "";
+      height: 4px;
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--orange);
+    }
+
+    .auth-submit-icon {
+      width: 24px;
+      height: 24px;
+      flex: 0 0 24px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, .14);
+      color: #fff;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .34);
+    }
+
+    .auth-submit-icon svg {
+      width: 16px;
+      height: 16px;
+      display: block;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .auth-submit-text {
+      flex: 1;
+      text-align: left;
     }
 
     .auth-card .btn.primary:hover,
@@ -716,19 +759,7 @@
 
     .auth-actions {
       margin: 0 4px;
-      padding-bottom: 14px;
       position: relative;
-    }
-
-    .auth-actions::after {
-      content: "";
-      width: 70px;
-      height: 4px;
-      display: block;
-      margin: 8px auto 0;
-      border-radius: 999px;
-      background: var(--orange);
-      box-shadow: 0 3px 10px rgba(255, 138, 76, .28);
     }
 
     .auth-forgot {
@@ -4005,7 +4036,7 @@
           <label>Usuário <input class="field" id="authEmail" type="text" autocomplete="username" autocapitalize="none" spellcheck="false"></label>
           <label>Senha <input class="field" id="authPassword" type="password" autocomplete="current-password" autocapitalize="none" spellcheck="false"></label>
           <label class="auth-remember"><input id="rememberLogin" type="checkbox"><span class="auth-switch"></span><span>Continuar conectado</span></label>
-          <div class="auth-actions"><button class="btn primary auth-submit" type="submit">Continuar</button></div>
+          <div class="auth-actions"><button class="btn primary auth-submit" type="submit"><span class="auth-submit-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h12"/><path d="M12 7l5 5-5 5"/><path d="M5 5h6"/><path d="M5 19h6"/></svg></span><span class="auth-submit-text">Continuar</span></button></div>
           <a class="auth-forgot" id="forgotPasswordLink" href="#">esqueci minha senha 🔒</a>
           <div class="auth-help"><span class="auth-help-text">Dúvidas para acessar? nos chame no Zap!</span><span class="auth-whatsapp">☏</span></div>
         </form>
