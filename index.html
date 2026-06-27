@@ -433,18 +433,33 @@
 
     .auth-screen {
       min-height: 100vh;
-      padding: 72px 12.5vw 24px 24px;
+      padding: 24px;
       display: none;
       align-items: center;
-      justify-content: flex-end;
+      justify-content: center;
       position: relative;
+      overflow: hidden;
       background:
-        linear-gradient(118deg, #003746 0%, #0c2d61 52%, #652487 100%);
+        radial-gradient(circle at 14% 14%, rgba(255, 138, 76, .26), transparent 24%),
+        radial-gradient(circle at 88% 8%, rgba(255, 255, 255, .10), transparent 26%),
+        linear-gradient(135deg, var(--blue-900) 0%, var(--blue-800) 50%, var(--blue-700) 100%);
       font-family: Roboto, "Helvetica Neue", Arial, sans-serif;
       text-transform: none;
     }
 
     body.auth-required .auth-screen { display: flex; }
+
+    .auth-screen::after {
+      content: "";
+      position: absolute;
+      left: -12%;
+      bottom: -42px;
+      width: 124%;
+      height: 92px;
+      background: linear-gradient(90deg, transparent 0%, rgba(255, 138, 76, .34) 48%, transparent 100%);
+      transform: skewY(-2.5deg);
+      pointer-events: none;
+    }
 
     .auth-brand-strip {
       height: 48px;
@@ -489,6 +504,8 @@
     .auth-card {
       width: min(280px, calc(100vw - 40px));
       display: block;
+      position: relative;
+      z-index: 1;
       overflow: hidden;
       border: 0;
       border-radius: 7px;
@@ -684,7 +701,7 @@
       justify-content: center;
       border: 0;
       border-radius: 12px;
-      background: #6f3ccc;
+      background: var(--blue-700);
       color: #fff;
       box-shadow: none;
       font-size: 12px;
@@ -693,12 +710,25 @@
 
     .auth-card .btn.primary:hover,
     .auth-submit:hover {
-      background: #5e31b4;
+      background: var(--blue-800);
       transform: none;
     }
 
     .auth-actions {
       margin: 0 4px;
+      padding-bottom: 14px;
+      position: relative;
+    }
+
+    .auth-actions::after {
+      content: "";
+      width: 70px;
+      height: 4px;
+      display: block;
+      margin: 8px auto 0;
+      border-radius: 999px;
+      background: var(--orange);
+      box-shadow: 0 3px 10px rgba(255, 138, 76, .28);
     }
 
     .auth-forgot {
@@ -752,7 +782,7 @@
 
     @media (max-width: 760px) {
       .auth-screen {
-        padding: 72px 24px 24px;
+        padding: 24px;
         justify-content: center;
       }
     }
