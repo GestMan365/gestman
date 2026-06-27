@@ -7,6 +7,9 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>GestMan365</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
   <style>
     :root {
       --blue-900: #071a3e;
@@ -430,17 +433,58 @@
 
     .auth-screen {
       min-height: 100vh;
-      padding: 24px 12.5vw 24px 24px;
+      padding: 72px 12.5vw 24px 24px;
       display: none;
       align-items: center;
       justify-content: flex-end;
+      position: relative;
       background:
-        radial-gradient(circle at 12% 10%, rgba(255, 138, 76, .16), transparent 25%),
-        radial-gradient(circle at 86% 8%, rgba(255, 255, 255, .08), transparent 24%),
-        linear-gradient(135deg, var(--blue-900) 0%, var(--blue-800) 54%, var(--blue-700) 100%);
+        linear-gradient(118deg, #003746 0%, #0c2d61 52%, #652487 100%);
+      font-family: Roboto, "Helvetica Neue", Arial, sans-serif;
+      text-transform: none;
     }
 
     body.auth-required .auth-screen { display: flex; }
+
+    .auth-brand-strip {
+      height: 48px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid rgba(0, 0, 0, .35);
+      background: rgba(7, 20, 48, .76);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .18);
+      font-family: Roboto, "Helvetica Neue", Arial, sans-serif;
+      text-transform: none;
+    }
+
+    .auth-brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -.02em;
+      line-height: 1;
+    }
+
+    .auth-brand-logo::before {
+      content: "";
+      width: 25px;
+      height: 20px;
+      display: inline-block;
+      border: 4px solid currentColor;
+      border-left-color: transparent;
+      border-right-color: transparent;
+      border-radius: 7px;
+      transform: rotate(-28deg);
+    }
 
     .auth-card {
       width: min(280px, calc(100vw - 40px));
@@ -451,6 +495,8 @@
       background: #fff;
       color: #263047;
       box-shadow: 0 16px 30px rgba(0, 0, 0, .28);
+      font-family: Roboto, "Helvetica Neue", Arial, sans-serif;
+      text-transform: none;
     }
 
     .auth-main {
@@ -461,15 +507,21 @@
     }
 
     .auth-main h2 {
-      margin: 0 0 54px;
-      color: #202536;
+      margin: 0 0 52px;
+      color: #151922;
       font-size: 16px;
       line-height: 1.3;
       text-align: center;
-      font-weight: 800;
+      font-weight: 700;
+      text-transform: none;
     }
 
     .auth-main .muted { display: none; }
+
+    .auth-card,
+    .auth-card * {
+      text-transform: none !important;
+    }
 
     .auth-card input,
     .auth-card button {
@@ -490,7 +542,7 @@
       font-size: 20px;
       font-weight: 900;
       letter-spacing: .08em;
-      text-transform: uppercase;
+      text-transform: uppercase !important;
     }
 
     body.auth-link-company .auth-company-badge {
@@ -516,7 +568,7 @@
     .auth-login-form label {
       color: #5b637a;
       font-size: 12px;
-      font-weight: 500;
+      font-weight: 400;
       text-transform: none;
       letter-spacing: 0;
     }
@@ -532,6 +584,7 @@
       background: transparent;
       color: #22283b;
       font-size: 13px;
+      font-weight: 400;
       box-shadow: none;
     }
 
@@ -578,6 +631,8 @@
       align-items: center;
       gap: 9px;
       color: #2c344a;
+      font-size: 12px;
+      font-weight: 400;
       cursor: pointer;
       user-select: none;
     }
@@ -632,7 +687,8 @@
       background: #6f3ccc;
       color: #fff;
       box-shadow: none;
-      font-weight: 800;
+      font-size: 12px;
+      font-weight: 700;
     }
 
     .auth-card .btn.primary:hover,
@@ -652,17 +708,24 @@
       color: #0000ee;
       font-size: 12px;
       text-decoration: underline;
-      font-weight: 500;
+      font-weight: 400;
+      text-align: center;
     }
 
     .auth-help {
       align-self: center;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
       color: #2f384f;
       font-size: 12px;
-      white-space: nowrap;
+      font-weight: 400;
+      line-height: 1.25;
+      text-align: center;
+      white-space: normal;
+      width: 100%;
+      padding: 0 4px;
     }
 
     .auth-whatsapp {
@@ -681,7 +744,7 @@
 
     @media (max-width: 760px) {
       .auth-screen {
-        padding: 24px;
+        padding: 72px 24px 24px;
         justify-content: center;
       }
     }
@@ -3892,6 +3955,7 @@
 </head>
 <body class="theme-light">
   <div class="auth-screen" id="authScreen">
+    <div class="auth-brand-strip"><div class="auth-brand-logo">GESTMAN365</div></div>
     <div class="auth-card">
       <div class="auth-main">
         <div class="auth-company-badge" id="authCompanyBadge"></div>
