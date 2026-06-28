@@ -5242,6 +5242,41 @@
       .auth-main { min-height: 560px; padding: 32px 28px 28px; }
       .auth-card-logo-wrap .auth-logo-img { height: 42px; max-width: 240px; }
     }
+
+    /* Ajustes finais do login */
+    .auth-company-badge,
+    body.auth-link-company .auth-company-badge {
+      display: none !important;
+    }
+
+    .auth-domain-field,
+    body.auth-link-company .auth-domain-field {
+      display: block !important;
+    }
+
+    body.auth-link-company .auth-main h2 {
+      margin-bottom: 36px;
+    }
+
+    .auth-card .btn.primary.auth-submit,
+    .auth-submit {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center !important;
+      text-align: center !important;
+      padding: 0 16px 4px;
+    }
+
+    .auth-submit-icon {
+      display: none !important;
+    }
+
+    .auth-submit-text {
+      width: 100%;
+      flex: 0 0 auto;
+      text-align: center !important;
+      line-height: 1;
+    }
 </style>
 </head>
 <body class="theme-light auth-required auth-loading">
@@ -5273,7 +5308,7 @@
           <label>Usuário <input class="field" id="authEmail" type="text" autocomplete="username" autocapitalize="none" spellcheck="false"></label>
           <label>Senha <input class="field" id="authPassword" type="password" autocomplete="current-password" autocapitalize="none" spellcheck="false"></label>
           <label class="auth-remember"><input id="rememberLogin" type="checkbox"><span class="auth-switch"></span><span>Continuar conectado</span></label>
-          <div class="auth-actions"><button class="btn primary auth-submit" type="submit"><span class="auth-submit-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h12"/><path d="M12 7l5 5-5 5"/><path d="M5 5h6"/><path d="M5 19h6"/></svg></span><span class="auth-submit-text">Continuar</span></button></div>
+          <div class="auth-actions"><button class="btn primary auth-submit" type="submit"><span class="auth-submit-text">Continuar</span></button></div>
           <a class="auth-forgot" id="forgotPasswordLink" href="#">esqueci minha senha 🔒</a>
           <div class="auth-help"><span class="auth-help-text">Dúvidas para acessar? nos chame no Zap!</span><span class="auth-whatsapp">☏</span></div>
         </form>
