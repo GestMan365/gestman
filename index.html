@@ -5942,7 +5942,7 @@
     }
 </style>
 </head>
-<body class="theme-light auth-required auth-loading">
+<body class="auth-required auth-loading">
   <script>
     window.__gestmanReleaseAuthLoading = function () {
       if (!document.body) return;
@@ -6001,7 +6001,6 @@
     <div class="top-actions">
       <span class="tenant-pill" id="companyName">Empresa</span>
       <button class="admin-pill" id="profileBtn" type="button"><span class="admin-avatar" id="profileAvatar">AD</span><span id="profileName">Administrador</span></button>
-      <button class="btn theme-toggle" id="themeBtn" type="button" title="Alternar tema claro/escuro" aria-label="Alternar tema claro/escuro"></button>
       <button class="btn" id="logoutBtn" type="button">Sair</button>
     </div>
   </header>
@@ -6491,7 +6490,6 @@
     const DELETED_RECORDS_KEY = "gestman365-deleted-records-v1";
     const THEME_KEY = "gestman365-theme";
     const DASHBOARD_LAYOUT_KEY = "gestman365-dashboard-layout-v1";
-    const THEME_DEFAULT_KEY = "gestman365-light-default-applied";
     const ACTIVE_VIEW_KEY = "gestman365-active-view-v1";
     const AUTH_STORAGE_KEY = "gestman365-empresas-usuarios-v1";
     const REMEMBER_LOGIN_KEY = "gestman365-login-lembrado-v1";
@@ -7118,12 +7116,8 @@
     let deletedRecords = loadDeletedRecords();
     let syncTimer = null;
     let spareSupplierDraftId = "";
-    if (localStorage.getItem(THEME_DEFAULT_KEY) !== "1") {
-      localStorage.setItem(THEME_KEY, "light");
-      localStorage.setItem(THEME_DEFAULT_KEY, "1");
-    }
-    let currentTheme = localStorage.getItem(THEME_KEY);
-    if (currentTheme !== "light" && currentTheme !== "dark") currentTheme = "light";
+    localStorage.setItem(THEME_KEY, "dark");
+    let currentTheme = "dark";
     let calendarMode = "month";
     let calendarViewDate = new Date();
     let panelScrollFrame = null;
@@ -8104,15 +8098,13 @@
       return `<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.5A8.2 8.2 0 0 1 9.5 3 8.5 8.5 0 1 0 21 14.5Z"/></svg>`;
     }
 
-    function applyTheme(theme) {
-      currentTheme = theme === "light" ? "light" : "dark";
-      document.body.classList.toggle("theme-light", currentTheme === "light");
+    function applyTheme() {
+      currentTheme = "dark";
+      document.body.classList.remove("theme-light");
       localStorage.setItem(THEME_KEY, currentTheme);
       const button = $("themeBtn");
       if (button) {
-        button.innerHTML = themeIcon(currentTheme);
-        button.title = currentTheme === "light" ? "Mudar para tema escuro" : "Mudar para tema claro";
-        button.setAttribute("aria-label", button.title);
+        button.remove();
       }
     }
 
@@ -13319,7 +13311,7 @@
       renderAssistantSummary();
       $("aiAnswer").textContent = ptBrText(answerSystemAi("resumo"));
     });
-    $("themeBtn").addEventListener("click", () => applyTheme(currentTheme === "light" ? "dark" : "light"));
+    if ($("themeBtn")) $("themeBtn").remove();
 
     $("supplierForm").addEventListener("submit", async event => {
       event.preventDefault();
