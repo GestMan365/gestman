@@ -460,6 +460,10 @@
       display: flex !important;
     }
 
+    body.auth-restoring .auth-screen {
+      display: none !important;
+    }
+
     body.auth-loading .auth-card {
       opacity: 0;
       pointer-events: none;
@@ -6074,10 +6078,32 @@
     }
 </style>
 </head>
-<body class="auth-required auth-loading">
+<body class="auth-loading">
   <script>
+    window.__gestmanHasSavedSession = function () {
+      try {
+        const store = JSON.parse(localStorage.getItem("gestman365-empresas-usuarios-v1") || "{}");
+        const session = store && store.session;
+        if (!session || !session.companyId || !session.userId) return false;
+        const companies = Array.isArray(store.companies) ? store.companies : [];
+        const users = Array.isArray(store.users) ? store.users : [];
+        const company = companies.find(item => item && item.id === session.companyId && item.status !== "Bloqueada");
+        const user = users.find(item => item && item.id === session.userId && item.companyId === session.companyId && item.active !== false);
+        if (!company || !user) return false;
+        const status = String(company.status || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        return company.approved === true || company.aprovado === true || status === "ativa" || status === "ativo";
+      } catch {
+        return false;
+      }
+    };
+    if (window.__gestmanHasSavedSession()) {
+      document.body.classList.add("auth-restoring");
+    }
     window.__gestmanReleaseAuthLoading = function () {
       if (!document.body) return;
+      const hasSession = typeof window.__gestmanHasSavedSession === "function" && window.__gestmanHasSavedSession();
+      document.body.classList.toggle("auth-required", !hasSession);
+      document.body.classList.remove("auth-restoring");
       document.body.classList.remove("auth-loading");
     };
     window.__gestmanAuthFallback = setTimeout(window.__gestmanReleaseAuthLoading, 1200);
@@ -7863,6 +7889,7 @@
         window.__gestmanAuthFallback = null;
       }
       document.body.classList.remove("auth-loading");
+      document.body.classList.remove("auth-restoring");
       document.body.classList.toggle("auth-required", !currentAccount);
       if (!$("authLoginForm") || !$("authSetupForm")) return;
       $("authLoginForm").classList.remove("is-hidden");
