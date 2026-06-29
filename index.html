@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
@@ -6267,6 +6267,126 @@
     .btn.danger::after {
       background: #ff6878 !important;
       box-shadow: 0 0 14px rgba(255,104,120,.72) !important;
+    }
+
+    /* Ajustes pequenos para estabilizar uso no celular */
+    html,
+    body {
+      max-width: 100%;
+      overflow-x: hidden;
+      touch-action: manipulation;
+    }
+
+    input.field,
+    select.field,
+    textarea.field,
+    .auth-login-form .field,
+    .searchbar {
+      text-align: center !important;
+      text-align-last: center;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      text-align: center;
+    }
+
+    @media (max-width: 900px) {
+      input,
+      select,
+      textarea,
+      .field,
+      .searchbar {
+        font-size: 16px !important;
+        line-height: 1.35 !important;
+      }
+
+      body:not(.auth-required):not(.auth-loading) .nav,
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) .nav {
+        display: flex !important;
+        position: sticky !important;
+        top: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        max-height: none !important;
+        transform: none !important;
+        overflow: visible !important;
+        border-right: 0 !important;
+        border-bottom: 1px solid rgba(151, 174, 213, .22) !important;
+        z-index: 40 !important;
+      }
+
+      .nav .tabs {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 8px !important;
+        max-height: none !important;
+        overflow: visible !important;
+        padding-right: 0 !important;
+        margin-right: 0 !important;
+      }
+
+      .nav .tab {
+        width: 100% !important;
+        min-height: 42px !important;
+        margin-right: 0 !important;
+        justify-content: flex-start !important;
+        white-space: normal !important;
+      }
+
+      .nav-rail-toggle {
+        display: none !important;
+      }
+
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) .workspace,
+      .workspace {
+        width: 100% !important;
+        margin-left: 0 !important;
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+        overflow-x: hidden !important;
+      }
+
+      .auth-screen {
+        min-height: 100dvh !important;
+        padding: 16px !important;
+        align-items: center !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+      }
+
+      .auth-shell {
+        width: min(430px, 100%) !important;
+        max-width: 100% !important;
+      }
+
+      .auth-main {
+        padding-left: 18px !important;
+        padding-right: 18px !important;
+      }
+
+      .auth-login-form label,
+      .auth-remember {
+        text-align: center !important;
+      }
+
+      .auth-remember {
+        justify-content: center !important;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .topbar,
+      .workspace {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+      }
+    }
+
+    @media (max-width: 340px) {
+      .nav .tabs {
+        grid-template-columns: 1fr !important;
+      }
     }
 
     /* Remove movimentos automáticos e pequenos zooms contínuos */
