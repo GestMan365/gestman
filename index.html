@@ -6164,6 +6164,100 @@
       animation: none !important;
     }
 
+    /* Botões padronizados no mesmo visual da árvore de módulos */
+    .btn,
+    .auth-submit,
+    .tenant-user-editor-foot .btn,
+    .calendar-top-btn,
+    .calendar-arrow,
+    .calendar-mode,
+    .widget-btn,
+    .os-actions button {
+      position: relative !important;
+      min-height: 36px !important;
+      border-radius: 12px !important;
+      border: 1px solid rgba(83,136,255,.70) !important;
+      background: linear-gradient(180deg, #244a9f, #1d3f8c) !important;
+      color: #fff !important;
+      box-shadow: 0 16px 28px rgba(16,59,156,.24) !important;
+      font-weight: 950 !important;
+      letter-spacing: -.01em;
+      text-transform: uppercase;
+      overflow: visible !important;
+    }
+
+    .btn::after,
+    .auth-submit::after,
+    .tenant-user-editor-foot .btn::after,
+    .calendar-top-btn::after,
+    .calendar-arrow::after,
+    .calendar-mode::after,
+    .widget-btn::after,
+    .os-actions button::after {
+      content: "" !important;
+      display: block !important;
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      bottom: -1px;
+      height: 3px;
+      border-radius: 999px;
+      background: var(--orange);
+      box-shadow: 0 0 14px rgba(255,135,70,.70);
+      pointer-events: none;
+    }
+
+    .btn:hover,
+    .auth-submit:hover,
+    .tenant-user-editor-foot .btn:hover,
+    .calendar-top-btn:hover,
+    .calendar-arrow:hover,
+    .calendar-mode:hover,
+    .widget-btn:hover,
+    .os-actions button:hover {
+      transform: translateY(-1px) !important;
+      background: linear-gradient(180deg, #2b56b4, #244a9f) !important;
+      border-color: rgba(255,135,70,.72) !important;
+      box-shadow: 0 16px 30px rgba(16,59,156,.30), 0 0 0 3px rgba(255,135,70,.08) !important;
+    }
+
+    .btn.primary,
+    .auth-card .btn.primary,
+    .auth-submit,
+    .tenant-user-editor-foot .btn.primary,
+    .calendar-mode.active {
+      background: linear-gradient(180deg, #244a9f, #1d3f8c) !important;
+      border-color: rgba(83,136,255,.70) !important;
+      color: #fff !important;
+      box-shadow: 0 16px 28px rgba(16,59,156,.24) !important;
+    }
+
+    .auth-submit,
+    .auth-card .btn.primary.auth-submit {
+      justify-content: center !important;
+      text-align: center !important;
+      padding: 0 18px 4px !important;
+    }
+
+    .auth-submit .auth-submit-text {
+      width: auto !important;
+      flex: 0 1 auto !important;
+      text-align: center !important;
+      margin: 0 auto !important;
+    }
+
+    .btn.danger {
+      background: linear-gradient(180deg, #7f2436, #641a2a) !important;
+      border-color: rgba(255,104,120,.62) !important;
+      color: #fff !important;
+      box-shadow: 0 16px 28px rgba(127,36,54,.22) !important;
+    }
+
+    .btn.danger::after {
+      background: #ff6878 !important;
+      box-shadow: 0 0 14px rgba(255,104,120,.72) !important;
+    }
+
     /* Remove movimentos automáticos e pequenos zooms contínuos */
     *,
     *::before,
