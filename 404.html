@@ -13883,7 +13883,9 @@
       const id = $("stockMoveId").value || uid("stock_move");
       const existingMove = byId(state.inventoryMovements, id);
       const spareId = $("stockMoveSpare").value;
-      const quantity = numberValue("stockMoveQty", 1);
+      const quantityRaw = $("stockMoveQty").value;
+      const quantity = parseNumber(quantityRaw, 0);
+      if (!String(quantityRaw ?? "").trim() || quantity <= 0) { showToast("Informe uma quantidade maior que zero."); return; }
       if (!validateWholeQuantityForSpare(spareId, quantity, "Quantidade")) return;
       const payload = { id, itemId: $("stockMoveItemId").value || uid("stock_move_item"), number: existingMove?.number || nextCode(state.inventoryMovements, "MOV"), type: $("stockMoveType").value, stockId: $("stockMoveStock").value, spareId, supplierId: $("stockMoveSupplier").value, quantity: normalizeQuantityForSpareId(spareId, quantity), unitValue: numberValue("stockMoveValue"), owner: value("stockMoveOwner"), status: $("stockMoveStatus").value, note: value("stockMoveNote"), createdAt: existingMove?.createdAt || Date.now() };
       if (!applyStockBalanceChange(existingMove, payload, stockMoveBalanceEffect)) return;
