@@ -11620,7 +11620,7 @@
       $("tagRows").innerHTML = tagRows + subRows || `<tr><td colspan="5" class="empty">Nenhuma tag criada.</td></tr>`;
       if ($("tagTree")) $("tagTree").innerHTML = renderTaxonomyTree();
 
-      $("orderRows").innerHTML = state.orders.map(order => `
+      $("orderRows").innerHTML = state.orders.filter(order => filter(`${order.number || ""} ${machineName(order.assetId)} ${ptBrText(order.type)} ${ptBrText(order.priority)} ${ptBrText(order.status)} ${order.executor || ""} ${order.requester || ""} ${order.description || ""}`)).map(order => `
         <tr>
           <td>${order.number}</td>
           <td>${machineName(order.assetId)}</td>
@@ -11637,7 +11637,7 @@
             </div>
           </td>
         </tr>
-      `).join("") || `<tr><td colspan="7" class="empty">Nenhuma O.S criada.</td></tr>`;
+      `).join("") || `<tr><td colspan="7" class="empty">${q ? "Nenhuma O.S encontrada." : "Nenhuma O.S criada."}</td></tr>`;
 
       $("checklistRows").innerHTML = state.checklists.map(item => `
         <tr><td>${item.code}</td><td>${machineName(item.assetId)}</td><td>${item.name}</td><td>${item.lastFill || "-"}</td><td class="actions"><button class="btn" onclick="editChecklist('${item.id}')">Editar</button><button class="btn danger" onclick="deleteChecklist('${item.id}')">Excluir</button></td></tr>
@@ -13194,7 +13194,7 @@
       const machines = state.assets.map(asset => `<option value="${asset.id}" ${asset.id === selectedAssetId ? "selected" : ""}>${asset.code} - ${asset.name}</option>`).join("");
       openModal(editing ? "Preencher O.S" : "Criar O.S", `
         <form class="form" id="orderForm">
-          <label>Equipamento <select class="field" id="orderAsset">${machines || `<option value="">Cadastre um equipamento</option>`}</select></label>
+          <label>Equipamento <select class="field" id="orderAsset" required>${machines || `<option value="">Cadastre um equipamento</option>`}</select></label>
           <label>Solicitante <input class="field" id="orderRequester" required placeholder="Quem abriu a ordem"></label>
           <label>Executante <input class="field" id="orderExecutor" required placeholder="Quem vai atender a ordem"></label>
           <label>Tipo <select class="field" id="orderType"><option>Corretiva</option><option>Preventiva</option><option value="Inspecao">Inspeção</option></select></label>
@@ -13217,8 +13217,8 @@
       }
       $("orderForm").addEventListener("submit", async event => {
         event.preventDefault();
-        if (!value("orderRequester") || !value("orderExecutor") || !value("orderDescription")) {
-          showToast("Preencha solicitante, executante e descrição da O.S.");
+        if (!$("orderAsset").value || !value("orderRequester") || !value("orderExecutor") || !value("orderDescription")) {
+          showToast("Preencha equipamento, solicitante, executante e descrição da O.S.");
           return;
         }
         const submitButton = event.submitter;
