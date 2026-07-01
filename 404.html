@@ -11639,7 +11639,9 @@
         </tr>
       `).join("") || `<tr><td colspan="7" class="empty">${q ? "Nenhuma O.S encontrada." : "Nenhuma O.S criada."}</td></tr>`;
 
-      $("checklistRows").innerHTML = state.checklists.map(item => `
+      $("checklistRows").innerHTML = state.checklists
+        .filter(item => filter(`${item.code || ""} ${machineName(item.assetId)} ${item.name || ""} ${item.lastFill || ""}`))
+        .map(item => `
         <tr><td>${item.code}</td><td>${machineName(item.assetId)}</td><td>${item.name}</td><td>${item.lastFill || "-"}</td><td class="actions"><button class="btn" onclick="editChecklist('${item.id}')">Editar</button><button class="btn danger" onclick="deleteChecklist('${item.id}')">Excluir</button></td></tr>
       `).join("") || `<tr><td colspan="5" class="empty">Nenhum checklist criado.</td></tr>`;
     }
@@ -13253,21 +13255,26 @@
       });
     }
 
-    function openChecklistModal(assetId = "") {
-      const machines = state.assets.map(asset => `<option value="${asset.id}" ${asset.id === assetId ? "selected" : ""}>${asset.code} - ${asset.name}</option>`).join("");
-      openModal("CheckLists Disponíveis", `
+    function openChecklistModal(assetId = "", checklistId = "") {
+      const editing = byId(state.checklists, checklistId);
+      const selectedAssetId = editing?.assetId || assetId;
+      const nextCode = `CK-${String(state.checklists.length + 1).padStart(2, "0")}`;
+      const machines = state.assets.map(asset => `<option value="${asset.id}" ${asset.id === selectedAssetId ? "selected" : ""}>${asset.code} - ${asset.name}</option>`).join("");
+      openModal(editing ? "Editar checklist" : "CheckLists Disponíveis", `
         <form class="form" id="checkForm">
           <label>Equipamento <select class="field" id="checkAsset">${machines || `<option value="">Cadastre um equipamento</option>`}</select></label>
-          <label>ID <input class="field" id="checkCode" value="CK-${String(state.checklists.length + 1).padStart(2, "0")}"></label>
-          <label class="full">Nome <input class="field" id="checkName" placeholder="Inspeção operacional"></label>
-          <label class="full">Último preenchimento <input class="field" id="checkLast" placeholder="14/06/2026 08:20"></label>
-          <div class="full toolbar"><button class="btn primary" type="submit">Salvar checklist</button></div>
+          <label>ID <input class="field" id="checkCode" value="${escapeHtml(editing?.code || nextCode)}"></label>
+          <label class="full">Nome <input class="field" id="checkName" placeholder="Inspeção operacional" value="${escapeHtml(editing?.name || "")}"></label>
+          <label class="full">Último preenchimento <input class="field" id="checkLast" placeholder="14/06/2026 08:20" value="${escapeHtml(editing?.lastFill || "")}"></label>
+          <div class="full toolbar"><button class="btn primary" type="submit">${editing ? "Salvar alterações" : "Salvar checklist"}</button></div>
         </form>
       `);
       $("checkForm").addEventListener("submit", event => {
         event.preventDefault();
-        state.checklists.unshift({ id: uid("ck"), assetId: $("checkAsset").value, code: $("checkCode").value, name: $("checkName").value || "Checklist operacional", lastFill: $("checkLast").value });
-        saveState(); closeModal(); render(); showToast("Checklist salvo.");
+        const payload = { id: editing?.id || uid("ck"), assetId: $("checkAsset").value, code: $("checkCode").value, name: $("checkName").value || "Checklist operacional", lastFill: $("checkLast").value };
+        if (editing) state.checklists = state.checklists.map(item => item.id === editing.id ? payload : item);
+        else state.checklists.unshift(payload);
+        saveState(); closeModal(); render(); showToast(editing ? "Checklist atualizado." : "Checklist salvo.");
       });
     }
 
@@ -13678,8 +13685,7 @@
 
     function editChecklist(id) {
       const item = byId(state.checklists, id); if (!item) return;
-      openChecklistModal(item.assetId);
-      setTimeout(() => { $("checkCode").value = item.code; $("checkName").value = item.name; $("checkLast").value = item.lastFill || ""; deleteChecklist(id, false); }, 0);
+      openChecklistModal(item.assetId, item.id);
     }
 
     async function deleteChecklist(id, ask = true) {
