@@ -6514,6 +6514,7 @@
       <button class="tab" data-view="tags"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M4 12h12"/><path d="M4 17h8"/><circle cx="18" cy="12" r="3"/><path d="M18 9V5M18 19v-4"/></svg></span><span>TAGS/SUBTAGS</span></button>
       <button class="tab" data-view="orders"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M7 3h10l3 3v15H4V3h3z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg></span><span>ORDENS</span></button>
       <button class="tab" data-view="calendar"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg></span><span>CALENDÁRIO</span></button>
+      <button class="tab" data-view="preventivePlans"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M7 3h10l3 3v15H4V3h3z"/><path d="M8 9h8M8 13h5"/><path d="M15 17l2 2 4-5"/></svg></span><span>PLANOS PREVENTIVOS</span></button>
       <button class="tab" data-view="activeOrders"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/><circle cx="17" cy="16" r="2"/></svg></span><span>PAINEL O.S</span></button>
       <button class="tab" data-view="reports"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h17"/><path d="M8 16v-5M13 16V8M18 16v-9"/></svg></span><span>RELATÓRIOS</span></button>
       <button class="tab" data-view="assistant"><span class="tab-icon"><svg class="ui-icon" viewBox="0 0 24 24"><rect x="5" y="6" width="14" height="12" rx="3"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4"/><circle cx="10" cy="12" r="1"/><circle cx="14" cy="12" r="1"/><path d="M9 15h6"/></svg></span><span>IA GESTMAN365</span></button>
@@ -6885,6 +6886,16 @@
       </div>
     </section>
 
+    <section class="view" id="preventivePlans">
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Planos Preventivos</div>
+          <button class="btn primary" id="createPreventivePlanBtn" type="button">Novo plano</button>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>ID</th><th>Equipamento</th><th>Plano</th><th>Periodicidade</th><th>Última execução</th><th>Próxima execução</th><th>Status</th><th>Situação</th><th>Ações</th></tr></thead><tbody id="preventivePlanRows"></tbody></table></div>
+      </div>
+    </section>
+
     <section class="view" id="activeOrders">
       <div class="panel">
         <div class="panel-head">
@@ -7011,6 +7022,7 @@
       { key: "locations", label: "Regiões e locais", views: ["locations"] },
       { key: "tags", label: "TAGs e subtags", views: ["tags"] },
       { key: "orders", label: "Ordens de serviço", views: ["orders", "calendar", "activeOrders"] },
+      { key: "preventivePlans", label: "Planos preventivos", views: ["preventivePlans"] },
       { key: "reports", label: "Relatórios", views: ["reports"] },
       { key: "assistant", label: "IA GestMan365", views: ["assistant"] },
       { key: "checklists", label: "Checklists", views: ["checklists"] },
@@ -7581,6 +7593,7 @@
       subtags: [],
       assets: [],
       orders: [],
+      preventivePlans: [],
       checklists: [],
       movements: [],
       suppliers: [],
@@ -7615,6 +7628,7 @@
     let panelScrollTimer = null;
     let panelScrollDirection = 1;
     let panelScrollPausedUntil = 0;
+    const preventivePlanGenerationLocks = new Set();
 
     function loadState() {
       try {
@@ -7943,6 +7957,7 @@
       const assetDedupe = dedupeByLogicalKey(data.assets, item => normalizeTextKey(item.code || `${item.locationId || ""}|${item.name || ""}`));
       data.assets = assetDedupe.items;
       data.orders = data.orders.map(order => ({ ...order, assetId: remapId(order.assetId, assetDedupe.idMap) }));
+      data.preventivePlans = data.preventivePlans.map(plan => ({ ...plan, assetId: remapId(plan.assetId, assetDedupe.idMap) }));
       data.checklists = data.checklists.map(checklist => ({ ...checklist, assetId: remapId(checklist.assetId, assetDedupe.idMap) }));
       data.movements = data.movements.map(move => ({ ...move, assetId: remapId(move.assetId, assetDedupe.idMap) }));
 
@@ -7953,6 +7968,10 @@
       data.checklists = dedupeByLogicalKey(data.checklists, item => [
         item.assetId || "",
         normalizeTextKey(item.code || item.name)
+      ].join("|")).items;
+      data.preventivePlans = dedupeByLogicalKey(data.preventivePlans, item => item.id || [
+        item.assetId || "",
+        normalizeTextKey(item.name)
       ].join("|")).items;
       data.inventoryMovements = dedupeByLogicalKey(data.inventoryMovements, item => normalizeTextKey(item.number)).items;
       data.materialRequests = dedupeByLogicalKey(data.materialRequests, item => normalizeTextKey(item.number)).items;
@@ -7967,6 +7986,7 @@
       normalized.subtags = Array.isArray(normalized.subtags) ? normalized.subtags : [];
       normalized.assets = Array.isArray(normalized.assets) ? normalized.assets : [];
       normalized.orders = Array.isArray(normalized.orders) ? normalized.orders : [];
+      normalized.preventivePlans = Array.isArray(normalized.preventivePlans) ? normalized.preventivePlans : [];
       normalized.checklists = Array.isArray(normalized.checklists) ? normalized.checklists : [];
       normalized.movements = Array.isArray(normalized.movements) ? normalized.movements : [];
       normalized.suppliers = Array.isArray(normalized.suppliers) ? normalized.suppliers : [];
@@ -8011,6 +8031,19 @@
         resources: Array.isArray(order.resources) ? order.resources : [],
         history: Array.isArray(order.history) ? order.history : []
       }));
+      data.preventivePlans = data.preventivePlans.map(plan => ({
+        ...plan,
+        id: plan.id || uid("plan"),
+        assetId: plan.assetId || "",
+        name: String(plan.name || "").trim(),
+        description: String(plan.description || ""),
+        intervalDays: Math.max(0, parseInt(plan.intervalDays || plan.periodicityDays || 0, 10) || 0),
+        lastExecution: String(plan.lastExecution || "").slice(0, 10),
+        nextExecution: String(plan.nextExecution || "").slice(0, 10),
+        status: plan.status === "Pausado" ? "Pausado" : "Ativo",
+        createdAt: Number(plan.createdAt || Date.now()),
+        updatedAt: Number(plan.updatedAt || plan.createdAt || Date.now())
+      }));
       return data;
     }
 
@@ -8052,7 +8085,7 @@
     }
 
     function migrateIdsToUuid(data) {
-      const maps = { region: new Map(), location: new Map(), asset: new Map(), tag: new Map(), subtag: new Map(), order: new Map(), checklist: new Map(), movement: new Map() };
+      const maps = { region: new Map(), location: new Map(), asset: new Map(), tag: new Map(), subtag: new Map(), order: new Map(), checklist: new Map(), movement: new Map(), preventivePlan: new Map() };
       const ensure = (item, map) => {
         if (!item?.id || isUuid(item.id)) return item?.id;
         const next = uid("id");
@@ -8066,6 +8099,7 @@
       data.subtags.forEach(item => ensure(item, maps.subtag));
       data.assets.forEach(item => ensure(item, maps.asset));
       data.orders.forEach(item => ensure(item, maps.order));
+      data.preventivePlans.forEach(item => ensure(item, maps.preventivePlan));
       data.checklists.forEach(item => ensure(item, maps.checklist));
       data.movements.forEach(item => ensure(item, maps.movement));
       data.locations.forEach(item => { item.regionId = maps.region.get(item.regionId) || item.regionId; });
@@ -8076,6 +8110,7 @@
         item.subtagId = maps.subtag.get(item.subtagId) || item.subtagId;
       });
       data.orders.forEach(item => { item.assetId = maps.asset.get(item.assetId) || item.assetId; });
+      data.preventivePlans.forEach(item => { item.assetId = maps.asset.get(item.assetId) || item.assetId; });
       data.checklists.forEach(item => { item.assetId = maps.asset.get(item.assetId) || item.assetId; });
       data.movements.forEach(item => {
         item.assetId = maps.asset.get(item.assetId) || item.assetId;
@@ -9538,7 +9573,8 @@
 
     function tagClass(value) {
       if (value === "Alta" || value === "Em manutenção" || value === "Aberta" || value === "Crítico") return "danger";
-      if (value === "Média" || value === "Inspeção" || value === "Planejada" || value === "Abaixo mínimo" || value === "No mínimo") return "warn";
+      if (value === "Vencido") return "danger";
+      if (value === "Média" || value === "Inspeção" || value === "Planejada" || value === "Abaixo mínimo" || value === "No mínimo" || value === "Vence hoje" || value === "Pausado") return "warn";
       return "ok";
     }
 
@@ -9646,6 +9682,47 @@
     function tagName(id) { const item = byId(state.tags, id); return item ? `${item.code}` : "-"; }
     function subtagName(id) { const item = byId(state.subtags, id); return item ? `${item.code}` : "-"; }
     function machineName(id) { const item = byId(state.assets, id); return item ? `${item.code} - ${item.name}` : "-"; }
+
+    function planDateFromInput(value) {
+      const text = String(value || "").slice(0, 10);
+      const match = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (!match) return null;
+      const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+      return Number.isNaN(date.getTime()) ? null : date;
+    }
+
+    function dateInputValue(date) {
+      const source = date instanceof Date ? date : new Date();
+      const year = source.getFullYear();
+      const month = String(source.getMonth() + 1).padStart(2, "0");
+      const day = String(source.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function todayPlanDate() {
+      return dateInputValue(new Date());
+    }
+
+    function addDaysToPlanDate(value, days) {
+      const date = planDateFromInput(value) || new Date();
+      date.setDate(date.getDate() + Number(days || 0));
+      return dateInputValue(date);
+    }
+
+    function formatPlanDate(value) {
+      const date = planDateFromInput(value);
+      return date ? date.toLocaleDateString("pt-BR") : "-";
+    }
+
+    function preventivePlanSituation(plan = {}) {
+      if (plan.status === "Pausado") return "Pausado";
+      const next = planDateFromInput(plan.nextExecution);
+      const today = planDateFromInput(todayPlanDate());
+      if (!next || !today) return "-";
+      if (next < today) return "Vencido";
+      if (next.getTime() === today.getTime()) return "Vence hoje";
+      return "Em dia";
+    }
 
     function materialRequestOrder(item = {}) {
       return item.orderId ? byId(state.orders, item.orderId) : null;
@@ -11649,6 +11726,25 @@
         </tr>
       `).join("") || `<tr><td colspan="7" class="empty">${q ? "Nenhuma O.S encontrada." : "Nenhuma O.S criada."}</td></tr>`;
 
+      $("preventivePlanRows").innerHTML = state.preventivePlans
+        .filter(plan => filter(`${plan.id || ""} ${machineName(plan.assetId)} ${plan.name || ""} ${plan.description || ""} ${plan.status || ""} ${plan.nextExecution || ""} ${formatPlanDate(plan.nextExecution)} ${preventivePlanSituation(plan)}`))
+        .map(plan => {
+          const situation = preventivePlanSituation(plan);
+          return `
+            <tr>
+              <td>${escapeHtml(plan.id || "-")}</td>
+              <td>${escapeHtml(machineName(plan.assetId))}</td>
+              <td>${escapeHtml(plan.name || "-")}</td>
+              <td>${Number(plan.intervalDays || 0)} dia(s)</td>
+              <td>${formatPlanDate(plan.lastExecution)}</td>
+              <td>${formatPlanDate(plan.nextExecution)}</td>
+              <td>${tag(plan.status || "Ativo")}</td>
+              <td>${tag(situation)}</td>
+              <td class="actions"><button class="btn" onclick="editPreventivePlan('${plan.id}')">Editar</button><button class="btn primary" onclick="generatePreventivePlanOrder('${plan.id}', this)">Gerar O.S.</button><button class="btn danger" onclick="deletePreventivePlan('${plan.id}')">Excluir</button></td>
+            </tr>
+          `;
+        }).join("") || `<tr><td colspan="9" class="empty">${q ? "Nenhum plano preventivo encontrado." : "Nenhum plano preventivo criado."}</td></tr>`;
+
       $("checklistRows").innerHTML = state.checklists
         .filter(item => filter(`${item.code || ""} ${machineName(item.assetId)} ${item.name || ""} ${item.lastFill || ""}`))
         .map(item => `
@@ -13265,6 +13361,141 @@
       });
     }
 
+    function openPreventivePlanModal(planId = "") {
+      const editing = byId(state.preventivePlans, planId);
+      const selectedAssetId = editing?.assetId || "";
+      const machines = state.assets.map(asset => `<option value="${asset.id}" ${asset.id === selectedAssetId ? "selected" : ""}>${escapeHtml(asset.code)} - ${escapeHtml(asset.name)}</option>`).join("");
+      openModal(editing ? "Editar plano preventivo" : "Novo plano preventivo", `
+        <form class="form" id="preventivePlanForm">
+          <label>ID do sistema <input class="field" id="planIdPreview" value="${escapeHtml(editing?.id || "Gerado automaticamente")}" readonly></label>
+          <label>Equipamento <select class="field" id="planAsset" required><option value="">Selecione um equipamento</option>${machines}</select></label>
+          <label class="full">Nome do plano <input class="field" id="planName" required placeholder="Ex: Inspeção mensal da bomba" value="${escapeHtml(editing?.name || "")}"></label>
+          <label class="full">Descrição <textarea class="field" id="planDescription" placeholder="Descreva a atividade preventiva">${escapeHtml(editing?.description || "")}</textarea></label>
+          <label>Periodicidade (dias) <input class="field" id="planIntervalDays" required type="number" min="1" step="1" value="${editing?.intervalDays || ""}"></label>
+          <label>Última execução <input class="field" id="planLastExecution" type="date" value="${escapeHtml(editing?.lastExecution || "")}"></label>
+          <label>Próxima execução <input class="field" id="planNextExecution" required type="date" value="${escapeHtml(editing?.nextExecution || "")}"></label>
+          <label>Status <select class="field" id="planStatus"><option ${editing?.status !== "Pausado" ? "selected" : ""}>Ativo</option><option ${editing?.status === "Pausado" ? "selected" : ""}>Pausado</option></select></label>
+          <div class="full toolbar"><button class="btn primary" type="submit">${editing ? "Salvar plano" : "Criar plano"}</button></div>
+        </form>
+      `);
+      $("genericModalBox").classList.remove("large");
+      $("genericModalBox").style.width = "760px";
+      $("preventivePlanForm").addEventListener("submit", event => {
+        event.preventDefault();
+        const assetId = $("planAsset").value;
+        const name = value("planName");
+        const intervalDays = Number($("planIntervalDays").value);
+        const lastExecution = $("planLastExecution").value;
+        const nextExecution = $("planNextExecution").value;
+        if (!assetId || !byId(state.assets, assetId)) {
+          showToast("Selecione um equipamento válido para o plano.");
+          return;
+        }
+        if (!name) {
+          showToast("Informe o nome do plano preventivo.");
+          return;
+        }
+        if (!Number.isInteger(intervalDays) || intervalDays <= 0) {
+          showToast("A periodicidade deve ser um número inteiro maior que zero.");
+          return;
+        }
+        if (lastExecution && !planDateFromInput(lastExecution)) {
+          showToast("Informe uma data válida para a última execução.");
+          return;
+        }
+        if (!nextExecution || !planDateFromInput(nextExecution)) {
+          showToast("Informe uma data válida para a próxima execução.");
+          return;
+        }
+        const now = Date.now();
+        const payload = {
+          id: editing?.id || uid("plan"),
+          assetId,
+          name,
+          description: $("planDescription").value.trim(),
+          intervalDays,
+          lastExecution,
+          nextExecution,
+          status: $("planStatus").value === "Pausado" ? "Pausado" : "Ativo",
+          createdAt: Number(editing?.createdAt || now),
+          updatedAt: now
+        };
+        if (editing) state.preventivePlans = state.preventivePlans.map(item => item.id === editing.id ? payload : item);
+        else state.preventivePlans.unshift(payload);
+        saveState();
+        closeModal();
+        render();
+        showToast(editing ? "Plano preventivo atualizado." : "Plano preventivo criado.");
+      });
+    }
+
+    function editPreventivePlan(id) {
+      if (!byId(state.preventivePlans, id)) return;
+      openPreventivePlanModal(id);
+    }
+
+    function deletePreventivePlan(id) {
+      const plan = byId(state.preventivePlans, id);
+      if (!plan) return;
+      if (!confirm("Excluir este plano preventivo?")) return;
+      state.preventivePlans = state.preventivePlans.filter(item => item.id !== id);
+      saveState();
+      render();
+      showToast("Plano preventivo excluído.");
+    }
+
+    function generatePreventivePlanOrder(id, button = null) {
+      const plan = byId(state.preventivePlans, id);
+      if (!plan) return;
+      const asset = byId(state.assets, plan.assetId);
+      if (!asset) {
+        showToast("Equipamento do plano não encontrado.");
+        return;
+      }
+      if (preventivePlanGenerationLocks.has(id)) return;
+      preventivePlanGenerationLocks.add(id);
+      if (button) button.disabled = true;
+      let generated = false;
+      try {
+        const now = Date.now();
+        const executionDate = todayPlanDate();
+        const requester = state.profile?.name || currentAccount?.user?.name || currentAccount?.user?.email || "Preventiva";
+        const order = {
+          id: uid("os"),
+          number: nextOrderNumber(),
+          createdAt: now,
+          status: "Aberta",
+          startedAt: null,
+          finishedAt: null,
+          assetId: plan.assetId,
+          requester,
+          executor: requester,
+          type: "Preventiva",
+          maintenance: "Preventiva",
+          priority: "Baixa",
+          mttr: 0,
+          scheduledAt: executionDate,
+          description: [plan.name, plan.description].filter(Boolean).join(" - "),
+          preventivePlanId: plan.id
+        };
+        state.orders = state.orders.concat(order);
+        state.preventivePlans = state.preventivePlans.map(item => item.id === id ? {
+          ...item,
+          lastExecution: executionDate,
+          nextExecution: addDaysToPlanDate(executionDate, item.intervalDays),
+          updatedAt: now
+        } : item);
+        saveState();
+        render();
+        generated = true;
+        showToast(`O.S ${order.number} gerada para ${asset.code} - ${asset.name}.`);
+      } finally {
+        if (generated) setTimeout(() => preventivePlanGenerationLocks.delete(id), 1500);
+        else preventivePlanGenerationLocks.delete(id);
+        if (button) button.disabled = false;
+      }
+    }
+
     function openChecklistModal(assetId = "", checklistId = "") {
       const editing = byId(state.checklists, checklistId);
       const selectedAssetId = editing?.assetId || assetId;
@@ -13706,7 +13937,7 @@
       if (ask) showToast("Checklist excluído.");
     }
 
-    window.editAsset = editAsset; window.deleteAsset = deleteAsset; window.duplicateAsset = duplicateAsset; window.editRegion = editRegion; window.deleteRegion = deleteRegion; window.editLocation = editLocation; window.deleteLocation = deleteLocation; window.editTag = editTag; window.deleteTag = deleteTag; window.editSubtag = editSubtag; window.deleteSubtag = deleteSubtag; window.editSupplier = editSupplier; window.deleteSupplier = deleteSupplier; window.editStock = editStock; window.deleteStock = deleteStock; window.editSpare = editSpare; window.deleteSpare = deleteSpare; window.editStockMove = editStockMove; window.deleteStockMove = deleteStockMove; window.editMaterialRequest = editMaterialRequest; window.deleteMaterialRequest = deleteMaterialRequest; window.editStockTransfer = editStockTransfer; window.deleteStockTransfer = deleteStockTransfer; window.editOrder = editOrder; window.deleteOrder = deleteOrder; window.startOrder = startOrder; window.confirmStartOrder = confirmStartOrder; window.finishOrder = finishOrder; window.showOrderDetails = showOrderDetails; window.simpleOrderAction = simpleOrderAction; window.editChecklist = editChecklist; window.deleteChecklist = deleteChecklist; window.openLocationChecklists = openLocationChecklists; window.openLocationMovements = openLocationMovements; window.moveDashboardWidget = moveDashboardWidget; window.resizeDashboardWidget = resizeDashboardWidget; window.hideDashboardWidget = hideDashboardWidget; window.openDashboardConfig = openDashboardConfig; window.saveDashboardVisibility = saveDashboardVisibility; window.resetDashboardLayout = resetDashboardLayout; window.toggleApiFolder = toggleApiFolder; window.openApiCommand = openApiCommand; window.copyPlainText = copyPlainText; window.copyTextFromElement = copyTextFromElement; window.editTenantUser = editTenantUser; window.deleteTenantUser = deleteTenantUser;
+    window.editAsset = editAsset; window.deleteAsset = deleteAsset; window.duplicateAsset = duplicateAsset; window.editRegion = editRegion; window.deleteRegion = deleteRegion; window.editLocation = editLocation; window.deleteLocation = deleteLocation; window.editTag = editTag; window.deleteTag = deleteTag; window.editSubtag = editSubtag; window.deleteSubtag = deleteSubtag; window.editSupplier = editSupplier; window.deleteSupplier = deleteSupplier; window.editStock = editStock; window.deleteStock = deleteStock; window.editSpare = editSpare; window.deleteSpare = deleteSpare; window.editStockMove = editStockMove; window.deleteStockMove = deleteStockMove; window.editMaterialRequest = editMaterialRequest; window.deleteMaterialRequest = deleteMaterialRequest; window.editStockTransfer = editStockTransfer; window.deleteStockTransfer = deleteStockTransfer; window.editOrder = editOrder; window.deleteOrder = deleteOrder; window.startOrder = startOrder; window.confirmStartOrder = confirmStartOrder; window.finishOrder = finishOrder; window.showOrderDetails = showOrderDetails; window.simpleOrderAction = simpleOrderAction; window.editPreventivePlan = editPreventivePlan; window.deletePreventivePlan = deletePreventivePlan; window.generatePreventivePlanOrder = generatePreventivePlanOrder; window.editChecklist = editChecklist; window.deleteChecklist = deleteChecklist; window.openLocationChecklists = openLocationChecklists; window.openLocationMovements = openLocationMovements; window.moveDashboardWidget = moveDashboardWidget; window.resizeDashboardWidget = resizeDashboardWidget; window.hideDashboardWidget = hideDashboardWidget; window.openDashboardConfig = openDashboardConfig; window.saveDashboardVisibility = saveDashboardVisibility; window.resetDashboardLayout = resetDashboardLayout; window.toggleApiFolder = toggleApiFolder; window.openApiCommand = openApiCommand; window.copyPlainText = copyPlainText; window.copyTextFromElement = copyTextFromElement; window.editTenantUser = editTenantUser; window.deleteTenantUser = deleteTenantUser;
 
     prepareCrudUi();
 
@@ -13796,6 +14027,7 @@
     $("bulkInventoryBtn").addEventListener("click", openBulkInventoryCount);
     $("openTvPanelBtn").addEventListener("click", openOsPanelWindow);
     $("createOrderBtn").addEventListener("click", () => openOrderModal());
+    $("createPreventivePlanBtn").addEventListener("click", () => openPreventivePlanModal());
     $("createChecklistBtn").addEventListener("click", () => openChecklistModal());
     $("calendarDate").value = calendarDateKey(calendarViewDate);
     $("calendarDate").addEventListener("change", () => {
