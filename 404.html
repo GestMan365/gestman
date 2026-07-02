@@ -6954,7 +6954,7 @@
           <div class="panel-title">Checklists</div>
           <button class="btn primary" id="createChecklistBtn">Novo checklist</button>
         </div>
-        <div class="table-wrap"><table><thead><tr><th>ID</th><th>Equipamento</th><th>Nome</th><th>Último preenchimento</th><th>Ações</th></tr></thead><tbody id="checklistRows"></tbody></table></div>
+        <div class="table-wrap"><table><thead><tr><th>ID</th><th>Equipamento</th><th>Nome</th><th>Itens</th><th>Status</th><th>Último preenchimento</th><th>Ações</th></tr></thead><tbody id="checklistRows"></tbody></table></div>
       </div>
     </section>
 </main>
@@ -7595,6 +7595,7 @@
       orders: [],
       preventivePlans: [],
       checklists: [],
+      checklistExecutions: [],
       movements: [],
       suppliers: [],
       stockLocations: [],
@@ -7629,6 +7630,7 @@
     let panelScrollDirection = 1;
     let panelScrollPausedUntil = 0;
     const preventivePlanGenerationLocks = new Set();
+    const checklistExecutionLocks = new Set();
 
     function loadState() {
       try {
@@ -7959,20 +7961,24 @@
       data.orders = data.orders.map(order => ({ ...order, assetId: remapId(order.assetId, assetDedupe.idMap) }));
       data.preventivePlans = data.preventivePlans.map(plan => ({ ...plan, assetId: remapId(plan.assetId, assetDedupe.idMap) }));
       data.checklists = data.checklists.map(checklist => ({ ...checklist, assetId: remapId(checklist.assetId, assetDedupe.idMap) }));
+      data.checklistExecutions = data.checklistExecutions.map(execution => ({ ...execution, assetId: remapId(execution.assetId, assetDedupe.idMap) }));
       data.movements = data.movements.map(move => ({ ...move, assetId: remapId(move.assetId, assetDedupe.idMap) }));
 
       const orderDedupe = dedupeByLogicalKey(data.orders, item => normalizeTextKey(item.number));
       data.orders = orderDedupe.items;
       data.materialRequests = data.materialRequests.map(request => ({ ...request, orderId: remapId(request.orderId, orderDedupe.idMap) }));
 
-      data.checklists = dedupeByLogicalKey(data.checklists, item => [
+      const checklistDedupe = dedupeByLogicalKey(data.checklists, item => [
         item.assetId || "",
         normalizeTextKey(item.code || item.name)
-      ].join("|")).items;
+      ].join("|"));
+      data.checklists = checklistDedupe.items;
+      data.checklistExecutions = data.checklistExecutions.map(execution => ({ ...execution, checklistId: remapId(execution.checklistId, checklistDedupe.idMap) }));
       data.preventivePlans = dedupeByLogicalKey(data.preventivePlans, item => item.id || [
         item.assetId || "",
         normalizeTextKey(item.name)
       ].join("|")).items;
+      data.checklistExecutions = dedupeByLogicalKey(data.checklistExecutions, item => item.id).items;
       data.inventoryMovements = dedupeByLogicalKey(data.inventoryMovements, item => normalizeTextKey(item.number)).items;
       data.materialRequests = dedupeByLogicalKey(data.materialRequests, item => normalizeTextKey(item.number)).items;
       return data;
@@ -7988,6 +7994,7 @@
       normalized.orders = Array.isArray(normalized.orders) ? normalized.orders : [];
       normalized.preventivePlans = Array.isArray(normalized.preventivePlans) ? normalized.preventivePlans : [];
       normalized.checklists = Array.isArray(normalized.checklists) ? normalized.checklists : [];
+      normalized.checklistExecutions = Array.isArray(normalized.checklistExecutions) ? normalized.checklistExecutions : [];
       normalized.movements = Array.isArray(normalized.movements) ? normalized.movements : [];
       normalized.suppliers = Array.isArray(normalized.suppliers) ? normalized.suppliers : [];
       normalized.stockLocations = Array.isArray(normalized.stockLocations) ? normalized.stockLocations : [];
@@ -8031,6 +8038,14 @@
         resources: Array.isArray(order.resources) ? order.resources : [],
         history: Array.isArray(order.history) ? order.history : []
       }));
+      data.checklists = data.checklists.map(checklist => ({
+        ...checklist,
+        items: normalizeChecklistItems(checklist.items),
+        status: checklist.status === "Inativo" ? "Inativo" : "Ativo",
+        createdAt: checklist.createdAt || "",
+        updatedAt: checklist.updatedAt || ""
+      }));
+      data.checklistExecutions = data.checklistExecutions.map(execution => normalizeChecklistExecution(execution));
       data.preventivePlans = data.preventivePlans.map(plan => ({
         ...plan,
         id: plan.id || uid("plan"),
@@ -8085,7 +8100,7 @@
     }
 
     function migrateIdsToUuid(data) {
-      const maps = { region: new Map(), location: new Map(), asset: new Map(), tag: new Map(), subtag: new Map(), order: new Map(), checklist: new Map(), movement: new Map(), preventivePlan: new Map() };
+      const maps = { region: new Map(), location: new Map(), asset: new Map(), tag: new Map(), subtag: new Map(), order: new Map(), checklist: new Map(), checklistExecution: new Map(), movement: new Map(), preventivePlan: new Map() };
       const ensure = (item, map) => {
         if (!item?.id || isUuid(item.id)) return item?.id;
         const next = uid("id");
@@ -8101,6 +8116,7 @@
       data.orders.forEach(item => ensure(item, maps.order));
       data.preventivePlans.forEach(item => ensure(item, maps.preventivePlan));
       data.checklists.forEach(item => ensure(item, maps.checklist));
+      data.checklistExecutions.forEach(item => ensure(item, maps.checklistExecution));
       data.movements.forEach(item => ensure(item, maps.movement));
       data.locations.forEach(item => { item.regionId = maps.region.get(item.regionId) || item.regionId; });
       data.subtags.forEach(item => { item.parentId = maps.tag.get(item.parentId) || item.parentId; });
@@ -8112,6 +8128,10 @@
       data.orders.forEach(item => { item.assetId = maps.asset.get(item.assetId) || item.assetId; });
       data.preventivePlans.forEach(item => { item.assetId = maps.asset.get(item.assetId) || item.assetId; });
       data.checklists.forEach(item => { item.assetId = maps.asset.get(item.assetId) || item.assetId; });
+      data.checklistExecutions.forEach(item => {
+        item.assetId = maps.asset.get(item.assetId) || item.assetId;
+        item.checklistId = maps.checklist.get(item.checklistId) || item.checklistId;
+      });
       data.movements.forEach(item => {
         item.assetId = maps.asset.get(item.assetId) || item.assetId;
         item.fromLocationId = maps.location.get(item.fromLocationId) || item.fromLocationId;
@@ -8947,6 +8967,7 @@
         data.assets?.length ||
         data.orders?.length ||
         data.checklists?.length ||
+        data.checklistExecutions?.length ||
         data.movements?.length ||
         data.tags?.length ||
         data.subtags?.length ||
@@ -9574,7 +9595,9 @@
     function tagClass(value) {
       if (value === "Alta" || value === "Em manutenção" || value === "Aberta" || value === "Crítico") return "danger";
       if (value === "Vencido") return "danger";
+      if (value === "Não conforme") return "danger";
       if (value === "Média" || value === "Inspeção" || value === "Planejada" || value === "Abaixo mínimo" || value === "No mínimo" || value === "Vence hoje" || value === "Pausado") return "warn";
+      if (value === "Inativo") return "warn";
       return "ok";
     }
 
@@ -9682,6 +9705,58 @@
     function tagName(id) { const item = byId(state.tags, id); return item ? `${item.code}` : "-"; }
     function subtagName(id) { const item = byId(state.subtags, id); return item ? `${item.code}` : "-"; }
     function machineName(id) { const item = byId(state.assets, id); return item ? `${item.code} - ${item.name}` : "-"; }
+
+    function normalizeChecklistItems(items = []) {
+      return (Array.isArray(items) ? items : []).map((item, index) => {
+        const source = typeof item === "string" ? { description: item } : (item || {});
+        return {
+          id: source.id || uid("chkitem"),
+          description: String(source.description || source.text || source.name || "").trim(),
+          order: Math.max(1, Number(source.order || index + 1) || index + 1)
+        };
+      }).sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
+    }
+
+    function normalizeChecklistExecution(execution = {}) {
+      const responses = (Array.isArray(execution.responses) ? execution.responses : []).map((response, index) => ({
+        itemId: response.itemId || response.id || uid("chkresp"),
+        description: String(response.description || "").trim(),
+        order: Math.max(1, Number(response.order || index + 1) || index + 1),
+        answer: response.answer === "Não conforme" ? "Não conforme" : "Conforme"
+      })).sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
+      const conformCount = Number.isFinite(Number(execution.conformCount))
+        ? Number(execution.conformCount)
+        : responses.filter(item => item.answer === "Conforme").length;
+      const nonConformCount = Number.isFinite(Number(execution.nonConformCount))
+        ? Number(execution.nonConformCount)
+        : responses.filter(item => item.answer === "Não conforme").length;
+      return {
+        ...execution,
+        id: execution.id || uid("chkexec"),
+        checklistId: execution.checklistId || "",
+        assetId: execution.assetId || "",
+        checklistName: String(execution.checklistName || "").trim(),
+        executedAt: Number(execution.executedAt || Date.now()),
+        responses,
+        note: String(execution.note || "").trim(),
+        conformCount,
+        nonConformCount,
+        result: execution.result === "Não conforme" || nonConformCount > 0 ? "Não conforme" : "Conforme"
+      };
+    }
+
+    function checklistItems(checklist = {}) {
+      return normalizeChecklistItems(checklist.items);
+    }
+
+    function checklistItemsLabel(checklist = {}) {
+      const total = checklistItems(checklist).filter(item => item.description).length;
+      return total ? `${total} item(ns)` : "Sem itens cadastrados";
+    }
+
+    function checklistExecutionDateLabel(value) {
+      return value ? formatDateTime(value) : "-";
+    }
 
     function planDateFromInput(value) {
       const text = String(value || "").slice(0, 10);
@@ -11746,10 +11821,18 @@
         }).join("") || `<tr><td colspan="9" class="empty">${q ? "Nenhum plano preventivo encontrado." : "Nenhum plano preventivo criado."}</td></tr>`;
 
       $("checklistRows").innerHTML = state.checklists
-        .filter(item => filter(`${item.code || ""} ${machineName(item.assetId)} ${item.name || ""} ${item.lastFill || ""}`))
+        .filter(item => filter(`${item.code || ""} ${machineName(item.assetId)} ${item.name || ""} ${item.status || "Ativo"} ${item.lastFill || ""}`))
         .map(item => `
-        <tr><td>${item.code}</td><td>${machineName(item.assetId)}</td><td>${item.name}</td><td>${item.lastFill || "-"}</td><td class="actions"><button class="btn" onclick="editChecklist('${item.id}')">Editar</button><button class="btn danger" onclick="deleteChecklist('${item.id}')">Excluir</button></td></tr>
-      `).join("") || `<tr><td colspan="5" class="empty">Nenhum checklist criado.</td></tr>`;
+        <tr>
+          <td>${escapeHtml(item.code || "-")}</td>
+          <td>${escapeHtml(machineName(item.assetId))}</td>
+          <td>${escapeHtml(item.name || "-")}</td>
+          <td>${escapeHtml(checklistItemsLabel(item))}</td>
+          <td>${tag(item.status || "Ativo")}</td>
+          <td>${escapeHtml(item.lastFill || "-")}</td>
+          <td class="actions"><div class="os-panel-actions"><button class="btn primary" onclick="openChecklistExecution('${item.id}')">Preencher</button><button class="btn" onclick="openChecklistHistory('${item.id}')">Histórico</button><button class="btn" onclick="editChecklist('${item.id}')">Editar</button><button class="btn danger" onclick="deleteChecklist('${item.id}')">Excluir</button></div></td>
+        </tr>
+      `).join("") || `<tr><td colspan="7" class="empty">Nenhum checklist criado.</td></tr>`;
     }
 
     function renderActiveOrdersPanel(targetId, limit = 0) {
@@ -13496,27 +13579,243 @@
       }
     }
 
+    function renderChecklistItemRows(items = []) {
+      return items.map((item, index) => `
+        <div class="side-box" data-checklist-item-id="${escapeHtml(item.id)}">
+          <label>Item ${index + 1}<input class="field" data-checklist-item-description placeholder="Descrição do item" value="${escapeHtml(item.description || "")}"></label>
+          <div class="toolbar">
+            <button class="btn" type="button" data-checklist-item-action="up">Subir</button>
+            <button class="btn" type="button" data-checklist-item-action="down">Descer</button>
+            <button class="btn danger" type="button" data-checklist-item-action="remove">Remover</button>
+          </div>
+        </div>
+      `).join("") || `<div class="side-box"><strong>Sem itens cadastrados</strong><span>Use o botão "Adicionar item" para montar o checklist.</span></div>`;
+    }
+
+    function currentChecklistItemDraft() {
+      return Array.from(document.querySelectorAll("#checkItemRows [data-checklist-item-id]")).map((row, index) => ({
+        id: row.dataset.checklistItemId || uid("chkitem"),
+        description: row.querySelector("[data-checklist-item-description]")?.value.trim() || "",
+        order: index + 1
+      }));
+    }
+
+    function setupChecklistItemEditor(initialItems = []) {
+      const renderItems = items => { $("checkItemRows").innerHTML = renderChecklistItemRows(items); };
+      renderItems(initialItems);
+      $("addChecklistItemBtn").addEventListener("click", () => {
+        const items = currentChecklistItemDraft();
+        items.push({ id: uid("chkitem"), description: "", order: items.length + 1 });
+        renderItems(items);
+      });
+      $("checkItemRows").addEventListener("click", event => {
+        const button = event.target.closest("[data-checklist-item-action]");
+        if (!button) return;
+        const row = button.closest("[data-checklist-item-id]");
+        if (!row) return;
+        const items = currentChecklistItemDraft();
+        const index = items.findIndex(item => item.id === row.dataset.checklistItemId);
+        if (index < 0) return;
+        if (button.dataset.checklistItemAction === "remove") items.splice(index, 1);
+        if (button.dataset.checklistItemAction === "up" && index > 0) [items[index - 1], items[index]] = [items[index], items[index - 1]];
+        if (button.dataset.checklistItemAction === "down" && index < items.length - 1) [items[index + 1], items[index]] = [items[index], items[index + 1]];
+        renderItems(items.map((item, nextIndex) => ({ ...item, order: nextIndex + 1 })));
+      });
+    }
+
     function openChecklistModal(assetId = "", checklistId = "") {
       const editing = byId(state.checklists, checklistId);
       const selectedAssetId = editing?.assetId || assetId;
       const nextCode = `CK-${String(state.checklists.length + 1).padStart(2, "0")}`;
-      const machines = state.assets.map(asset => `<option value="${asset.id}" ${asset.id === selectedAssetId ? "selected" : ""}>${asset.code} - ${asset.name}</option>`).join("");
+      const machines = state.assets.map(asset => `<option value="${asset.id}" ${asset.id === selectedAssetId ? "selected" : ""}>${escapeHtml(asset.code)} - ${escapeHtml(asset.name)}</option>`).join("");
       openModal(editing ? "Editar checklist" : "CheckLists Disponíveis", `
         <form class="form" id="checkForm">
-          <label>Equipamento <select class="field" id="checkAsset">${machines || `<option value="">Cadastre um equipamento</option>`}</select></label>
+          <label>Equipamento <select class="field" id="checkAsset" required><option value="">Selecione um equipamento</option>${machines}</select></label>
           <label>ID <input class="field" id="checkCode" value="${escapeHtml(editing?.code || nextCode)}"></label>
-          <label class="full">Nome <input class="field" id="checkName" placeholder="Inspeção operacional" value="${escapeHtml(editing?.name || "")}"></label>
-          <label class="full">Último preenchimento <input class="field" id="checkLast" placeholder="14/06/2026 08:20" value="${escapeHtml(editing?.lastFill || "")}"></label>
+          <label>Status <select class="field" id="checkStatus"><option ${editing?.status !== "Inativo" ? "selected" : ""}>Ativo</option><option ${editing?.status === "Inativo" ? "selected" : ""}>Inativo</option></select></label>
+          <label>Último preenchimento <input class="field" id="checkLast" placeholder="14/06/2026 08:20" value="${escapeHtml(editing?.lastFill || "")}"></label>
+          <label class="full">Nome <input class="field" id="checkName" required placeholder="Inspeção operacional" value="${escapeHtml(editing?.name || "")}"></label>
+          <div class="full side-box">
+            <strong>Itens do checklist</strong>
+            <span>Adicione pelo menos um item. Itens vazios não serão aceitos.</span>
+            <div class="toolbar"><button class="btn primary" id="addChecklistItemBtn" type="button">Adicionar item</button></div>
+            <div id="checkItemRows"></div>
+          </div>
           <div class="full toolbar"><button class="btn primary" type="submit">${editing ? "Salvar alterações" : "Salvar checklist"}</button></div>
         </form>
-      `);
+      `, true);
+      setupChecklistItemEditor(checklistItems(editing || {}));
       $("checkForm").addEventListener("submit", event => {
         event.preventDefault();
-        const payload = { id: editing?.id || uid("ck"), assetId: $("checkAsset").value, code: $("checkCode").value, name: $("checkName").value || "Checklist operacional", lastFill: $("checkLast").value };
+        const assetId = $("checkAsset").value;
+        const name = value("checkName");
+        const items = currentChecklistItemDraft();
+        if (!assetId || !byId(state.assets, assetId)) {
+          showToast("Selecione um equipamento válido para o checklist.");
+          return;
+        }
+        if (!name) {
+          showToast("Informe o nome do checklist.");
+          return;
+        }
+        if (!items.length) {
+          showToast("Adicione pelo menos um item ao checklist.");
+          return;
+        }
+        if (items.some(item => !item.description)) {
+          showToast("Preencha a descrição de todos os itens do checklist.");
+          return;
+        }
+        const now = Date.now();
+        const payload = {
+          ...(editing || {}),
+          id: editing?.id || uid("ck"),
+          assetId,
+          code: value("checkCode") || (editing?.code || nextCode),
+          name,
+          lastFill: value("checkLast"),
+          status: $("checkStatus").value === "Inativo" ? "Inativo" : "Ativo",
+          items: items.map((item, index) => ({ ...item, order: index + 1 })),
+          createdAt: editing?.createdAt || now,
+          updatedAt: now
+        };
         if (editing) state.checklists = state.checklists.map(item => item.id === editing.id ? payload : item);
         else state.checklists.unshift(payload);
         saveState(); closeModal(); render(); showToast(editing ? "Checklist atualizado." : "Checklist salvo.");
       });
+    }
+
+    function openChecklistExecution(id) {
+      const checklist = byId(state.checklists, id);
+      if (!checklist) return;
+      if (checklist.status === "Inativo") {
+        showToast("Checklist inativo não pode ser preenchido.");
+        return;
+      }
+      const items = checklistItems(checklist).filter(item => item.description);
+      if (!items.length) {
+        showToast("Checklist sem itens cadastrados.");
+        return;
+      }
+      const startedAt = Date.now();
+      openModal("Preencher checklist", `
+        <form class="form" id="checklistExecutionForm">
+          <div class="full side-box"><strong>${escapeHtml(checklist.name || "Checklist")}</strong><span>Equipamento: ${escapeHtml(machineName(checklist.assetId))}</span><span>Data/hora: ${formatDateTime(startedAt)}</span></div>
+          ${items.map((item, index) => `
+            <div class="full side-box">
+              <strong>${index + 1}. ${escapeHtml(item.description)}</strong>
+              <div class="toolbar">
+                <label><input type="radio" name="checkAnswer_${escapeHtml(item.id)}" data-check-item-id="${escapeHtml(item.id)}" value="Conforme"> Conforme</label>
+                <label><input type="radio" name="checkAnswer_${escapeHtml(item.id)}" data-check-item-id="${escapeHtml(item.id)}" value="Não conforme"> Não conforme</label>
+              </div>
+            </div>
+          `).join("")}
+          <label class="full">Observação geral <textarea class="field" id="checkExecutionNote" placeholder="Observação geral do preenchimento"></textarea></label>
+          <div class="full toolbar"><button class="btn primary" type="submit">Finalizar preenchimento</button></div>
+        </form>
+      `, true);
+      $("checklistExecutionForm").addEventListener("submit", event => {
+        event.preventDefault();
+        const radios = Array.from(document.querySelectorAll("#checklistExecutionForm input[data-check-item-id]"));
+        const responses = items.map(item => {
+          const checked = radios.find(input => input.dataset.checkItemId === item.id && input.checked);
+          return checked ? { itemId: item.id, description: item.description, order: item.order, answer: checked.value } : null;
+        });
+        if (responses.some(Boolean) === false || responses.some(item => !item)) {
+          showToast("Responda todos os itens antes de finalizar.");
+          return;
+        }
+        if (checklistExecutionLocks.has(id)) return;
+        checklistExecutionLocks.add(id);
+        const submitButton = event.submitter;
+        if (submitButton) submitButton.disabled = true;
+        const now = Date.now();
+        const conformCount = responses.filter(item => item.answer === "Conforme").length;
+        const nonConformCount = responses.filter(item => item.answer === "Não conforme").length;
+        const execution = {
+          id: uid("chkexec"),
+          checklistId: checklist.id,
+          assetId: checklist.assetId,
+          checklistName: checklist.name,
+          executedAt: now,
+          responses,
+          note: $("checkExecutionNote").value.trim(),
+          conformCount,
+          nonConformCount,
+          result: nonConformCount > 0 ? "Não conforme" : "Conforme"
+        };
+        state.checklistExecutions.unshift(execution);
+        state.checklists = state.checklists.map(item => item.id === checklist.id ? { ...item, lastFill: formatDateTime(now), updatedAt: now } : item);
+        saveState();
+        closeModal();
+        render();
+        showToast(`Checklist finalizado: ${execution.result}.`);
+        setTimeout(() => checklistExecutionLocks.delete(id), 1500);
+      });
+    }
+
+    function refreshChecklistLastFill(checklistId) {
+      const latest = state.checklistExecutions
+        .filter(item => item.checklistId === checklistId)
+        .sort((a, b) => Number(b.executedAt || 0) - Number(a.executedAt || 0))[0];
+      state.checklists = state.checklists.map(item => item.id === checklistId ? { ...item, lastFill: latest ? formatDateTime(latest.executedAt) : "", updatedAt: Date.now() } : item);
+    }
+
+    function renderChecklistHistoryRows(checklistId) {
+      const target = $("checklistHistoryRows");
+      if (!target) return;
+      const q = ($("checklistHistorySearch")?.value || "").toLowerCase();
+      const rows = state.checklistExecutions
+        .filter(item => item.checklistId === checklistId)
+        .sort((a, b) => Number(b.executedAt || 0) - Number(a.executedAt || 0))
+        .filter(item => !q || `${item.checklistName || ""} ${machineName(item.assetId)} ${item.result || ""} ${checklistExecutionDateLabel(item.executedAt)} ${item.note || ""}`.toLowerCase().includes(q));
+      target.innerHTML = rows.map(item => `
+        <tr>
+          <td>${checklistExecutionDateLabel(item.executedAt)}</td>
+          <td>${escapeHtml(machineName(item.assetId))}</td>
+          <td>${tag(item.result)}</td>
+          <td>${Number(item.conformCount || 0)}</td>
+          <td>${Number(item.nonConformCount || 0)}</td>
+          <td>${escapeHtml(item.note || "-")}</td>
+          <td class="actions"><div class="os-panel-actions"><button class="btn" onclick="showChecklistExecutionDetails('${item.id}')">Ver detalhes</button><button class="btn danger" onclick="deleteChecklistExecution('${item.id}', '${checklistId}')">Excluir execução</button></div></td>
+        </tr>
+      `).join("") || `<tr><td colspan="7" class="empty">Nenhum preenchimento encontrado.</td></tr>`;
+    }
+
+    function openChecklistHistory(id) {
+      const checklist = byId(state.checklists, id);
+      if (!checklist) return;
+      openModal("Histórico de checklist", `
+        <div class="side-box"><strong>${escapeHtml(checklist.name || "Checklist")}</strong><span>Equipamento: ${escapeHtml(machineName(checklist.assetId))}</span></div>
+        <label style="margin:12px">Pesquisar histórico <input class="field" id="checklistHistorySearch" placeholder="Nome, equipamento, resultado, data ou observação"></label>
+        <div class="table-wrap"><table><thead><tr><th>Data/hora</th><th>Equipamento</th><th>Resultado</th><th>Conformes</th><th>Não conformes</th><th>Observação</th><th>Ações</th></tr></thead><tbody id="checklistHistoryRows"></tbody></table></div>
+      `, true);
+      renderChecklistHistoryRows(id);
+      $("checklistHistorySearch").addEventListener("input", () => renderChecklistHistoryRows(id));
+    }
+
+    function showChecklistExecutionDetails(id) {
+      const execution = byId(state.checklistExecutions, id);
+      if (!execution) return;
+      openModal("Detalhes do preenchimento", `
+        <div class="side-box"><strong>${escapeHtml(execution.checklistName || "Checklist")}</strong><span>Equipamento: ${escapeHtml(machineName(execution.assetId))}</span><span>Data/hora: ${checklistExecutionDateLabel(execution.executedAt)}</span><span>Resultado: ${escapeHtml(execution.result || "-")}</span><span>Observação: ${escapeHtml(execution.note || "-")}</span></div>
+        <div class="table-wrap"><table><thead><tr><th>Ordem</th><th>Item</th><th>Resposta</th></tr></thead><tbody>
+          ${(execution.responses || []).map(item => `<tr><td>${Number(item.order || 0)}</td><td>${escapeHtml(item.description || "-")}</td><td>${tag(item.answer)}</td></tr>`).join("") || `<tr><td colspan="3" class="empty">Sem respostas registradas.</td></tr>`}
+        </tbody></table></div>
+      `, true);
+    }
+
+    function deleteChecklistExecution(id, checklistId = "") {
+      const execution = byId(state.checklistExecutions, id);
+      if (!execution) return;
+      if (!confirm("Excluir esta execução de checklist?")) return;
+      const targetChecklistId = checklistId || execution.checklistId;
+      state.checklistExecutions = state.checklistExecutions.filter(item => item.id !== id);
+      refreshChecklistLastFill(targetChecklistId);
+      saveState();
+      render();
+      renderChecklistHistoryRows(targetChecklistId);
+      showToast("Execução de checklist excluída.");
     }
 
     function renderLocationChecklists(locationId) {
@@ -13664,7 +13963,9 @@
       if (!await confirmRemoteDelete("equipamentos", id, "equipamento")) return;
       state.assets = state.assets.filter(item => item.id !== id);
       state.orders = state.orders.filter(item => item.assetId !== id);
+      const removedChecklistIds = new Set(state.checklists.filter(item => item.assetId === id).map(item => item.id));
       state.checklists = state.checklists.filter(item => item.assetId !== id);
+      state.checklistExecutions = state.checklistExecutions.filter(item => item.assetId !== id && !removedChecklistIds.has(item.checklistId));
       saveState(); render(); showToast("Equipamento excluído.");
     }
 
@@ -13933,11 +14234,12 @@
       if (ask && !confirm("Excluir este checklist?")) return;
       if (!await confirmRemoteDelete("checklists", id, "checklist")) return;
       state.checklists = state.checklists.filter(item => item.id !== id);
+      state.checklistExecutions = state.checklistExecutions.filter(item => item.checklistId !== id);
       saveState(); render();
       if (ask) showToast("Checklist excluído.");
     }
 
-    window.editAsset = editAsset; window.deleteAsset = deleteAsset; window.duplicateAsset = duplicateAsset; window.editRegion = editRegion; window.deleteRegion = deleteRegion; window.editLocation = editLocation; window.deleteLocation = deleteLocation; window.editTag = editTag; window.deleteTag = deleteTag; window.editSubtag = editSubtag; window.deleteSubtag = deleteSubtag; window.editSupplier = editSupplier; window.deleteSupplier = deleteSupplier; window.editStock = editStock; window.deleteStock = deleteStock; window.editSpare = editSpare; window.deleteSpare = deleteSpare; window.editStockMove = editStockMove; window.deleteStockMove = deleteStockMove; window.editMaterialRequest = editMaterialRequest; window.deleteMaterialRequest = deleteMaterialRequest; window.editStockTransfer = editStockTransfer; window.deleteStockTransfer = deleteStockTransfer; window.editOrder = editOrder; window.deleteOrder = deleteOrder; window.startOrder = startOrder; window.confirmStartOrder = confirmStartOrder; window.finishOrder = finishOrder; window.showOrderDetails = showOrderDetails; window.simpleOrderAction = simpleOrderAction; window.editPreventivePlan = editPreventivePlan; window.deletePreventivePlan = deletePreventivePlan; window.generatePreventivePlanOrder = generatePreventivePlanOrder; window.editChecklist = editChecklist; window.deleteChecklist = deleteChecklist; window.openLocationChecklists = openLocationChecklists; window.openLocationMovements = openLocationMovements; window.moveDashboardWidget = moveDashboardWidget; window.resizeDashboardWidget = resizeDashboardWidget; window.hideDashboardWidget = hideDashboardWidget; window.openDashboardConfig = openDashboardConfig; window.saveDashboardVisibility = saveDashboardVisibility; window.resetDashboardLayout = resetDashboardLayout; window.toggleApiFolder = toggleApiFolder; window.openApiCommand = openApiCommand; window.copyPlainText = copyPlainText; window.copyTextFromElement = copyTextFromElement; window.editTenantUser = editTenantUser; window.deleteTenantUser = deleteTenantUser;
+    window.editAsset = editAsset; window.deleteAsset = deleteAsset; window.duplicateAsset = duplicateAsset; window.editRegion = editRegion; window.deleteRegion = deleteRegion; window.editLocation = editLocation; window.deleteLocation = deleteLocation; window.editTag = editTag; window.deleteTag = deleteTag; window.editSubtag = editSubtag; window.deleteSubtag = deleteSubtag; window.editSupplier = editSupplier; window.deleteSupplier = deleteSupplier; window.editStock = editStock; window.deleteStock = deleteStock; window.editSpare = editSpare; window.deleteSpare = deleteSpare; window.editStockMove = editStockMove; window.deleteStockMove = deleteStockMove; window.editMaterialRequest = editMaterialRequest; window.deleteMaterialRequest = deleteMaterialRequest; window.editStockTransfer = editStockTransfer; window.deleteStockTransfer = deleteStockTransfer; window.editOrder = editOrder; window.deleteOrder = deleteOrder; window.startOrder = startOrder; window.confirmStartOrder = confirmStartOrder; window.finishOrder = finishOrder; window.showOrderDetails = showOrderDetails; window.simpleOrderAction = simpleOrderAction; window.editPreventivePlan = editPreventivePlan; window.deletePreventivePlan = deletePreventivePlan; window.generatePreventivePlanOrder = generatePreventivePlanOrder; window.openChecklistExecution = openChecklistExecution; window.openChecklistHistory = openChecklistHistory; window.showChecklistExecutionDetails = showChecklistExecutionDetails; window.deleteChecklistExecution = deleteChecklistExecution; window.editChecklist = editChecklist; window.deleteChecklist = deleteChecklist; window.openLocationChecklists = openLocationChecklists; window.openLocationMovements = openLocationMovements; window.moveDashboardWidget = moveDashboardWidget; window.resizeDashboardWidget = resizeDashboardWidget; window.hideDashboardWidget = hideDashboardWidget; window.openDashboardConfig = openDashboardConfig; window.saveDashboardVisibility = saveDashboardVisibility; window.resetDashboardLayout = resetDashboardLayout; window.toggleApiFolder = toggleApiFolder; window.openApiCommand = openApiCommand; window.copyPlainText = copyPlainText; window.copyTextFromElement = copyTextFromElement; window.editTenantUser = editTenantUser; window.deleteTenantUser = deleteTenantUser;
 
     prepareCrudUi();
 
