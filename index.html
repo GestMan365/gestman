@@ -6928,38 +6928,38 @@
           <div class="table-wrap" id="teamsResourcesTableWrap"></div>
         </div>
       </div>
-      <div class="panel form-panel" id="resourceFormPanel" style="display:none">
-        <div class="panel-head"><div class="panel-title" id="resourceFormTitle">Novo Recurso</div></div>
+      <div class="panel form-panel" id="rtResourceFormPanel" style="display:none">
+        <div class="panel-head"><div class="panel-title" id="rtResourceFormTitle">Novo Recurso</div></div>
         <div class="form-panel-body">
-          <form class="form" id="resourceForm" novalidate style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px">
-            <input type="hidden" id="resourceId">
-            <label>Código * <input class="field" id="resourceCode" required></label>
-            <label>Nome * <input class="field" id="resourceName" required></label>
-            <label>Tipo * <select class="field" id="resourceType" required><option value="">Selecione...</option></select></label>
-            <label>Especialidade * <input class="field" id="resourceSpecialty" required></label>
-            <label>Telefone <input class="field" id="resourcePhone"></label>
-            <label>E-mail <input class="field" id="resourceEmail" type="email"></label>
-            <label>Turno * <select class="field" id="resourceShift" required><option value="">Selecione...</option></select></label>
-            <label>Status * <select class="field" id="resourceStatus" required></select></label>
-            <label class="full">Observação <textarea class="field" id="resourceNotes" rows="3"></textarea></label>
+          <form class="form" id="rtResourceForm" novalidate style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px">
+            <input type="hidden" id="rtResourceId">
+            <label>Código * <input class="field" id="rtResourceCode" required></label>
+            <label>Nome * <input class="field" id="rtResourceName" required></label>
+            <label>Tipo * <select class="field" id="rtResourceType" required><option value="">Selecione...</option></select></label>
+            <label>Especialidade * <input class="field" id="rtResourceSpecialty" required></label>
+            <label>Telefone <input class="field" id="rtResourcePhone"></label>
+            <label>E-mail <input class="field" id="rtResourceEmail" type="email"></label>
+            <label>Turno * <select class="field" id="rtResourceShift" required><option value="">Selecione...</option></select></label>
+            <label>Status * <select class="field" id="rtResourceStatus" required></select></label>
+            <label class="full">Observação <textarea class="field" id="rtResourceNotes" rows="3"></textarea></label>
             <div class="full toolbar"><button class="btn primary" type="submit">Salvar</button><button class="btn" type="button" onclick="hideResourceForm()">Cancelar</button></div>
           </form>
         </div>
       </div>
-      <div class="panel form-panel" id="teamFormPanel" style="display:none">
-        <div class="panel-head"><div class="panel-title" id="teamFormTitle">Nova Equipe</div></div>
+      <div class="panel form-panel" id="rtTeamFormPanel" style="display:none">
+        <div class="panel-head"><div class="panel-title" id="rtTeamFormTitle">Nova Equipe</div></div>
         <div class="form-panel-body">
-          <form class="form" id="teamForm" novalidate style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px">
-            <input type="hidden" id="teamId">
-            <label>Código * <input class="field" id="teamCode" required></label>
-            <label>Nome * <input class="field" id="teamName" required></label>
-            <label>Turno * <select class="field" id="teamShift" required><option value="">Selecione...</option></select></label>
-            <label>Status * <select class="field" id="teamStatus" required></select></label>
-            <label>Responsável * <select class="field" id="teamLeader" required><option value="">Selecione...</option></select></label>
-            <label class="full">Descrição <textarea class="field" id="teamDescription" rows="2"></textarea></label>
+          <form class="form" id="rtTeamForm" novalidate style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px">
+            <input type="hidden" id="rtTeamId">
+            <label>Código * <input class="field" id="rtTeamCode" required></label>
+            <label>Nome * <input class="field" id="rtTeamName" required></label>
+            <label>Turno * <select class="field" id="rtTeamShift" required><option value="">Selecione...</option></select></label>
+            <label>Status * <select class="field" id="rtTeamStatus" required></select></label>
+            <label>Responsável * <select class="field" id="rtTeamLeader" required><option value="">Selecione...</option></select></label>
+            <label class="full">Descrição <textarea class="field" id="rtTeamDescription" rows="2"></textarea></label>
             <fieldset class="full" style="border:1px solid var(--line);border-radius:5px;padding:12px">
               <legend style="font-weight:800;font-size:11px;color:var(--muted)">Integrantes *</legend>
-              <div id="teamMemberChips" style="display:grid;gap:6px;max-height:200px;overflow-y:auto;margin-top:6px"></div>
+              <div id="rtTeamMemberChips" style="display:grid;gap:6px;max-height:200px;overflow-y:auto;margin-top:6px"></div>
             </fieldset>
             <div class="full toolbar"><button class="btn primary" type="submit">Salvar</button><button class="btn" type="button" onclick="hideTeamForm()">Cancelar</button></div>
           </form>
@@ -12348,11 +12348,11 @@
       refreshMeasurementUnitOptions();
       refreshQuantityInputSteps();
       refreshSpareUnitSteps();
-      setSelectOptionsPreservingValue("resourceType", `<option value="">Selecione...</option>` + RESOURCE_TYPES.map(t => `<option value="${t}">${t}</option>`).join(""));
-      setSelectOptionsPreservingValue("resourceShift", `<option value="">Selecione...</option>` + SHIFTS.map(s => `<option value="${s}">${s}</option>`).join(""));
-      setSelectOptionsPreservingValue("resourceStatus", RESOURCE_STATUSES.map(s => `<option value="${s}">${s}</option>`).join(""));
-      setSelectOptionsPreservingValue("teamShift", `<option value="">Selecione...</option>` + SHIFTS.map(s => `<option value="${s}">${s}</option>`).join(""));
-      setSelectOptionsPreservingValue("teamStatus", TEAM_STATUSES.map(s => `<option value="${s}">${s}</option>`).join(""));
+      setSelectOptionsPreservingValue("rtResourceType", `<option value="">Selecione...</option>` + RESOURCE_TYPES.map(t => `<option value="${t}">${t}</option>`).join(""));
+      setSelectOptionsPreservingValue("rtResourceShift", `<option value="">Selecione...</option>` + SHIFTS.map(s => `<option value="${s}">${s}</option>`).join(""));
+      setSelectOptionsPreservingValue("rtResourceStatus", RESOURCE_STATUSES.map(s => `<option value="${s}">${s}</option>`).join(""));
+      setSelectOptionsPreservingValue("rtTeamShift", `<option value="">Selecione...</option>` + SHIFTS.map(s => `<option value="${s}">${s}</option>`).join(""));
+      setSelectOptionsPreservingValue("rtTeamStatus", TEAM_STATUSES.map(s => `<option value="${s}">${s}</option>`).join(""));
       const typeFilter = $("teamsResourceTypeFilter");
       if (typeFilter) typeFilter.innerHTML = `<option value="">Todos os tipos</option>` + RESOURCE_TYPES.map(t => `<option value="${t}">${t}</option>`).join("");
     }
@@ -13412,8 +13412,8 @@
       if (teamBtn) { teamBtn.classList.toggle("active", tab === "teams"); }
       if (newResBtn) newResBtn.style.display = tab === "resources" ? "" : "none";
       if (newTeamBtn) newTeamBtn.style.display = tab === "teams" ? "" : "none";
-      $("resourceFormPanel").style.display = "none";
-      $("teamFormPanel").style.display = "none";
+      $("rtResourceFormPanel").style.display = "none";
+      $("rtTeamFormPanel").style.display = "none";
       fillTeamsFilters();
       renderTeamsResources();
     }
@@ -13532,37 +13532,37 @@
 
     function openResourceFormForCreate() {
       resetResourceForm();
-      $("resourceFormPanel").style.display = "";
-      $("resourceCode").focus();
+      $("rtResourceFormPanel").style.display = "";
+      $("rtResourceCode").focus();
     }
 
     function editResource(id) {
       const r = byId(state.resources, id);
       if (!r) return;
-      $("resourceId").value = r.id;
-      $("resourceCode").value = r.code || "";
-      $("resourceName").value = r.name || "";
-      $("resourceType").value = r.type || "";
-      $("resourceSpecialty").value = r.specialty || "";
-      $("resourcePhone").value = r.phone || "";
-      $("resourceEmail").value = r.email || "";
-      $("resourceShift").value = r.shift || "";
-      $("resourceStatus").value = r.status || "Disponível";
-      $("resourceNotes").value = r.notes || "";
-      $("resourceFormTitle").textContent = "Editar Recurso";
-      $("resourceFormPanel").style.display = "";
-      $("resourceCode").focus();
+      $("rtResourceId").value = r.id;
+      $("rtResourceCode").value = r.code || "";
+      $("rtResourceName").value = r.name || "";
+      $("rtResourceType").value = r.type || "";
+      $("rtResourceSpecialty").value = r.specialty || "";
+      $("rtResourcePhone").value = r.phone || "";
+      $("rtResourceEmail").value = r.email || "";
+      $("rtResourceShift").value = r.shift || "";
+      $("rtResourceStatus").value = r.status || "Disponível";
+      $("rtResourceNotes").value = r.notes || "";
+      $("rtResourceFormTitle").textContent = "Editar Recurso";
+      $("rtResourceFormPanel").style.display = "";
+      $("rtResourceCode").focus();
     }
 
     function resetResourceForm() {
-      $("resourceForm").reset();
-      $("resourceId").value = "";
-      $("resourceStatus").value = "Disponível";
-      $("resourceFormTitle").textContent = "Novo Recurso";
+      $("rtResourceForm").reset();
+      $("rtResourceId").value = "";
+      $("rtResourceStatus").value = "Disponível";
+      $("rtResourceFormTitle").textContent = "Novo Recurso";
     }
 
     function hideResourceForm() {
-      $("resourceFormPanel").style.display = "none";
+      $("rtResourceFormPanel").style.display = "none";
       resetResourceForm();
     }
 
@@ -13595,15 +13595,15 @@
       const submitButton = event.submitter;
       if (submitButton) submitButton.disabled = true;
       try {
-        const id = $("resourceId").value || uid("resource");
+        const id = $("rtResourceId").value || uid("resource");
         const existing = byId(state.resources, id);
-        const code = value("resourceCode");
-        const name = value("resourceName");
-        const type = $("resourceType").value;
-        const specialty = value("resourceSpecialty");
-        const shift = $("resourceShift").value;
-        const status = $("resourceStatus").value;
-        const email = value("resourceEmail");
+        const code = value("rtResourceCode");
+        const name = value("rtResourceName");
+        const type = $("rtResourceType").value;
+        const specialty = value("rtResourceSpecialty");
+        const shift = $("rtResourceShift").value;
+        const status = $("rtResourceStatus").value;
+        const email = value("rtResourceEmail");
         if (!code) { showToast("Informe o código do recurso."); return; }
         if (!name) { showToast("Informe o nome do recurso."); return; }
         if (!RESOURCE_TYPES.includes(type)) { showToast("Selecione um tipo válido."); return; }
@@ -13617,11 +13617,11 @@
         const record = {
           ...(existing || {}),
           id, code, name, type, specialty,
-          phone: value("resourcePhone"),
+          phone: value("rtResourcePhone"),
           email,
           shift,
           status,
-          notes: value("resourceNotes"),
+          notes: value("rtResourceNotes"),
           createdAt: existing?.createdAt || now,
           updatedAt: now
         };
@@ -13637,43 +13637,43 @@
 
     function openTeamFormForCreate() {
       resetTeamForm();
-      $("teamFormPanel").style.display = "";
+      $("rtTeamFormPanel").style.display = "";
       fillTeamMemberChips();
-      $("teamCode").focus();
+      $("rtTeamCode").focus();
     }
 
     function editTeam(id) {
       const t = byId(state.teams, id);
       if (!t) return;
-      $("teamId").value = t.id;
-      $("teamCode").value = t.code || "";
-      $("teamName").value = t.name || "";
-      $("teamShift").value = t.shift || "";
-      $("teamStatus").value = t.status || "Ativa";
-      $("teamLeader").value = t.leaderId || "";
-      $("teamDescription").value = t.description || "";
+      $("rtTeamId").value = t.id;
+      $("rtTeamCode").value = t.code || "";
+      $("rtTeamName").value = t.name || "";
+      $("rtTeamShift").value = t.shift || "";
+      $("rtTeamStatus").value = t.status || "Ativa";
+      $("rtTeamLeader").value = t.leaderId || "";
+      $("rtTeamDescription").value = t.description || "";
       window._teamEditMemberIds = [...(t.memberIds || [])];
-      $("teamFormTitle").textContent = "Editar Equipe";
-      $("teamFormPanel").style.display = "";
+      $("rtTeamFormTitle").textContent = "Editar Equipe";
+      $("rtTeamFormPanel").style.display = "";
       fillTeamMemberChips();
-      $("teamCode").focus();
+      $("rtTeamCode").focus();
     }
 
     function resetTeamForm() {
-      $("teamForm").reset();
-      $("teamId").value = "";
-      $("teamStatus").value = "Ativa";
-      $("teamFormTitle").textContent = "Nova Equipe";
+      $("rtTeamForm").reset();
+      $("rtTeamId").value = "";
+      $("rtTeamStatus").value = "Ativa";
+      $("rtTeamFormTitle").textContent = "Nova Equipe";
       window._teamEditMemberIds = [];
     }
 
     function hideTeamForm() {
-      $("teamFormPanel").style.display = "none";
+      $("rtTeamFormPanel").style.display = "none";
       resetTeamForm();
     }
 
     function fillTeamMemberChips() {
-      const container = $("teamMemberChips");
+      const container = $("rtTeamMemberChips");
       if (!container) return;
       const selected = window._teamEditMemberIds || [];
       const eligible = state.resources.filter(r => r.status !== "Inativo");
@@ -13702,7 +13702,7 @@
     }
 
     function updateTeamLeaderOptions() {
-      const leaderSelect = $("teamLeader");
+      const leaderSelect = $("rtTeamLeader");
       if (!leaderSelect) return;
       const selected = window._teamEditMemberIds || [];
       const currentVal = leaderSelect.value;
@@ -13736,14 +13736,14 @@
       const submitButton = event.submitter;
       if (submitButton) submitButton.disabled = true;
       try {
-        const id = $("teamId").value || uid("team");
+        const id = $("rtTeamId").value || uid("team");
         const existing = byId(state.teams, id);
-        const code = value("teamCode");
-        const name = value("teamName");
-        const shift = $("teamShift").value;
-        const status = $("teamStatus").value;
-        const leaderId = $("teamLeader").value;
-        const description = value("teamDescription");
+        const code = value("rtTeamCode");
+        const name = value("rtTeamName");
+        const shift = $("rtTeamShift").value;
+        const status = $("rtTeamStatus").value;
+        const leaderId = $("rtTeamLeader").value;
+        const description = value("rtTeamDescription");
         const memberIds = window._teamEditMemberIds || [];
         if (!code) { showToast("Informe o código da equipe."); return; }
         if (!name) { showToast("Informe o nome da equipe."); return; }
@@ -16958,8 +16958,8 @@
     if ($("toolStatusFilter")) $("toolStatusFilter").addEventListener("change", render);
     if ($("createToolBtn")) $("createToolBtn").addEventListener("click", openToolFormForCreate);
     if ($("toolForm")) $("toolForm").addEventListener("submit", saveToolFromForm);
-    if ($("resourceForm")) $("resourceForm").addEventListener("submit", saveResourceFromForm);
-    if ($("teamForm")) $("teamForm").addEventListener("submit", saveTeamFromForm);
+    if ($("rtResourceForm")) $("rtResourceForm").addEventListener("submit", saveResourceFromForm);
+    if ($("rtTeamForm")) $("rtTeamForm").addEventListener("submit", saveTeamFromForm);
     if ($("resetToolForm")) $("resetToolForm").addEventListener("click", resetToolForm);
     if ($("measurementType")) $("measurementType").addEventListener("change", () => {
       $("measurementUnit").value = "";
