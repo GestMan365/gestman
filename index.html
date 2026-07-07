@@ -398,6 +398,7 @@
       border-color: var(--orange);
       font-weight: 800;
     }
+    .tab-resources.active, .tab-teams.active { background: var(--orange); color: #061536; border-color: var(--orange); }
 
     .searchbar {
       width: 100%;
@@ -6901,12 +6902,68 @@
       </div>
     </section>
 
-    <section class="view module-placeholder" id="teamsResources">
+    <section class="view" id="teamsResources">
       <div class="panel">
-        <div class="panel-head"><div class="panel-title">Equipes e Recursos</div></div>
-        <p class="module-placeholder-copy">Planejamento de equipes, recursos e capacidade de execução será organizado neste módulo.</p>
-        <div class="module-placeholder-status">Módulo em desenvolvimento</div>
-        <div class="toolbar"><button class="btn primary" type="button" data-view-button="dashboard">Voltar ao Dashboard</button></div>
+        <div class="panel-head"><div class="panel-title">Equipes e Recursos</div>
+          <div><button class="btn primary" onclick="openResourceFormForCreate()" id="btnNewResource">Novo Recurso</button>
+          <button class="btn primary" onclick="openTeamFormForCreate()" id="btnNewTeam" style="display:none">Nova Equipe</button></div>
+        </div>
+        <div class="panel-body">
+          <div class="tabs" style="display:flex;gap:4px;margin-bottom:14px">
+            <button class="btn tab-resources active" id="tabResourcesBtn" onclick="switchTeamsTab('resources')">Recursos</button>
+            <button class="btn tab-teams" id="tabTeamsBtn" onclick="switchTeamsTab('teams')">Equipes</button>
+          </div>
+          <div id="teamsSearchRow" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+            <input class="field" id="teamsSearch" placeholder="Pesquisar..." oninput="renderTeamsResources()" style="flex:1 1 220px;min-width:0">
+            <select class="field" id="teamsResourceTypeFilter" onchange="renderTeamsResources()" style="display:none;width:auto">
+              <option value="">Todos os tipos</option>
+            </select>
+            <select class="field" id="teamsShiftFilter" onchange="renderTeamsResources()" style="width:auto">
+              <option value="">Todos os turnos</option>
+            </select>
+            <select class="field" id="teamsStatusFilter" onchange="renderTeamsResources()" style="width:auto">
+              <option value="">Todos os status</option>
+            </select>
+          </div>
+          <div class="table-wrap" id="teamsResourcesTableWrap"></div>
+        </div>
+      </div>
+      <div class="panel form-panel" id="resourceFormPanel" style="display:none">
+        <div class="panel-head"><div class="panel-title" id="resourceFormTitle">Novo Recurso</div></div>
+        <div class="form-panel-body">
+          <form class="form" id="resourceForm" novalidate style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px">
+            <input type="hidden" id="resourceId">
+            <label>Código * <input class="field" id="resourceCode" required></label>
+            <label>Nome * <input class="field" id="resourceName" required></label>
+            <label>Tipo * <select class="field" id="resourceType" required><option value="">Selecione...</option></select></label>
+            <label>Especialidade * <input class="field" id="resourceSpecialty" required></label>
+            <label>Telefone <input class="field" id="resourcePhone"></label>
+            <label>E-mail <input class="field" id="resourceEmail" type="email"></label>
+            <label>Turno * <select class="field" id="resourceShift" required><option value="">Selecione...</option></select></label>
+            <label>Status * <select class="field" id="resourceStatus" required></select></label>
+            <label class="full">Observação <textarea class="field" id="resourceNotes" rows="3"></textarea></label>
+            <div class="full toolbar"><button class="btn primary" type="submit">Salvar</button><button class="btn" type="button" onclick="hideResourceForm()">Cancelar</button></div>
+          </form>
+        </div>
+      </div>
+      <div class="panel form-panel" id="teamFormPanel" style="display:none">
+        <div class="panel-head"><div class="panel-title" id="teamFormTitle">Nova Equipe</div></div>
+        <div class="form-panel-body">
+          <form class="form" id="teamForm" novalidate style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px">
+            <input type="hidden" id="teamId">
+            <label>Código * <input class="field" id="teamCode" required></label>
+            <label>Nome * <input class="field" id="teamName" required></label>
+            <label>Turno * <select class="field" id="teamShift" required><option value="">Selecione...</option></select></label>
+            <label>Status * <select class="field" id="teamStatus" required></select></label>
+            <label>Responsável * <select class="field" id="teamLeader" required><option value="">Selecione...</option></select></label>
+            <label class="full">Descrição <textarea class="field" id="teamDescription" rows="2"></textarea></label>
+            <fieldset class="full" style="border:1px solid var(--line);border-radius:5px;padding:12px">
+              <legend style="font-weight:800;font-size:11px;color:var(--muted)">Integrantes *</legend>
+              <div id="teamMemberChips" style="display:grid;gap:6px;max-height:200px;overflow-y:auto;margin-top:6px"></div>
+            </fieldset>
+            <div class="full toolbar"><button class="btn primary" type="submit">Salvar</button><button class="btn" type="button" onclick="hideTeamForm()">Cancelar</button></div>
+          </form>
+        </div>
       </div>
     </section>
 
@@ -7957,6 +8014,13 @@
     const TOOL_CATEGORIES = ["Ferramenta manual", "Ferramenta elétrica", "Instrumento de medição", "Equipamento de segurança", "Ferramenta especial", "Outro"];
     const TOOL_CONDITIONS = ["Boa", "Regular", "Necessita manutenção", "Danificada"];
     const TOOL_STATUSES = ["Disponível", "Emprestada", "Em manutenção", "Inativa"];
+    const RESOURCE_TYPES = ["Técnico", "Mecânico", "Eletricista", "Instrumentista", "Lubrificador", "Inspetor", "Supervisor", "Terceirizado", "Outro"];
+    const SHIFTS = ["Administrativo", "Turno A", "Turno B", "Turno C", "Flexível", "Não informado"];
+    const RESOURCE_STATUSES = ["Disponível", "Ocupado", "Ausente", "Inativo"];
+    const TEAM_STATUSES = ["Ativa", "Inativa"];
+    let resourceSaveLock = false;
+    let teamSaveLock = false;
+    let currentTeamsTab = "resources";
     const TOOL_LOAN_STATUSES = ["Ativo", "Devolvido", "Cancelado"];
     const DEMO_BATCH_ID = "gestman365-demo-v1";
     const DEMO_IDS = Object.freeze({
@@ -7980,7 +8044,11 @@
       toolMultimeter: "10000000-0000-4000-8000-000000001201",
       toolDrill: "10000000-0000-4000-8000-000000001202",
       toolLoanActive: "10000000-0000-4000-8000-000000001301",
-      toolLoanReturned: "10000000-0000-4000-8000-000000001302"
+      toolLoanReturned: "10000000-0000-4000-8000-000000001302",
+      resourceMechanic: "10000000-0000-4000-8000-000000001401",
+      resourceElectrician: "10000000-0000-4000-8000-000000001402",
+      resourceSupervisor: "10000000-0000-4000-8000-000000001403",
+      teamMaintenance: "10000000-0000-4000-8000-000000001501"
     });
     const DEMO_ID_SET = new Set(Object.values(DEMO_IDS));
     const DEMO_REMOVAL_ORDER = [
@@ -7997,6 +8065,8 @@
       "stockTransfers",
       "toolLoans",
       "tools",
+      "teams",
+      "resources",
       "spareParts",
       "stockLocations",
       "assets"
@@ -8025,6 +8095,8 @@
       downtimes: [],
       measurements: [],
       maintenanceJournal: [],
+      resources: [],
+      teams: [],
       profile: defaultProfileForAccount()
     });
 
@@ -8446,6 +8518,8 @@
       normalized.downtimes = Array.isArray(normalized.downtimes) ? normalized.downtimes : [];
       normalized.measurements = Array.isArray(normalized.measurements) ? normalized.measurements : [];
       normalized.maintenanceJournal = Array.isArray(normalized.maintenanceJournal) ? normalized.maintenanceJournal : [];
+      normalized.resources = Array.isArray(normalized.resources) ? normalized.resources.map(r => ({ ...r, status: r.status || "Disponível", shift: r.shift || "Não informado" })) : [];
+      normalized.teams = Array.isArray(normalized.teams) ? normalized.teams.map(t => ({ ...t, memberIds: Array.isArray(t.memberIds) ? t.memberIds : [], status: t.status || "Ativa" })) : [];
       normalized.locations = normalized.locations.map((location, index) => ({
         ...location,
         regionId: location.regionId || "",
@@ -8968,6 +9042,72 @@
           item => item?.toolId === tool2.id && normalizeTextKey(item?.borrowNote) === normalizeTextKey("TESTE CODEX empréstimo devolvido")
         ], stats);
       }
+      addDemoRecord("resources", {
+        id: DEMO_IDS.resourceMechanic,
+        code: "TESTE-CODEX-REC-BASE-001",
+        name: "Técnico Mecânico Codex",
+        type: "Mecânico",
+        specialty: "Manutenção mecânica industrial",
+        phone: "",
+        email: "mecanico.codex@example.com",
+        shift: "Turno A",
+        status: "Disponível",
+        notes: "",
+        createdAt: now,
+        updatedAt: now,
+        demoBatchId: DEMO_BATCH_ID
+      }, [
+        demoMatcherByText(["code"], ["TESTE-CODEX-REC-BASE-001"])
+      ], stats);
+      addDemoRecord("resources", {
+        id: DEMO_IDS.resourceElectrician,
+        code: "TESTE-CODEX-REC-BASE-002",
+        name: "Técnico Eletricista Codex",
+        type: "Eletricista",
+        specialty: "Manutenção elétrica industrial",
+        phone: "",
+        email: "eletricista.codex@example.com",
+        shift: "Turno A",
+        status: "Ocupado",
+        notes: "",
+        createdAt: now,
+        updatedAt: now,
+        demoBatchId: DEMO_BATCH_ID
+      }, [
+        demoMatcherByText(["code"], ["TESTE-CODEX-REC-BASE-002"])
+      ], stats);
+      addDemoRecord("resources", {
+        id: DEMO_IDS.resourceSupervisor,
+        code: "TESTE-CODEX-REC-BASE-003",
+        name: "Supervisor Codex",
+        type: "Supervisor",
+        specialty: "Planejamento e supervisão",
+        phone: "",
+        email: "supervisor.codex@example.com",
+        shift: "Administrativo",
+        status: "Disponível",
+        notes: "",
+        createdAt: now,
+        updatedAt: now,
+        demoBatchId: DEMO_BATCH_ID
+      }, [
+        demoMatcherByText(["code"], ["TESTE-CODEX-REC-BASE-003"])
+      ], stats);
+      addDemoRecord("teams", {
+        id: DEMO_IDS.teamMaintenance,
+        code: "TESTE-CODEX-EQP-MANUT-001",
+        name: "Equipe Demonstração de Manutenção",
+        leaderId: DEMO_IDS.resourceSupervisor,
+        shift: "Turno A",
+        status: "Ativa",
+        memberIds: [DEMO_IDS.resourceMechanic, DEMO_IDS.resourceElectrician, DEMO_IDS.resourceSupervisor],
+        description: "TESTE CODEX equipe para demonstração",
+        createdAt: now,
+        updatedAt: now,
+        demoBatchId: DEMO_BATCH_ID
+      }, [
+        demoMatcherByText(["code"], ["TESTE-CODEX-EQP-MANUT-001"])
+      ], stats);
       return stats;
     }
 
@@ -12208,6 +12348,13 @@
       refreshMeasurementUnitOptions();
       refreshQuantityInputSteps();
       refreshSpareUnitSteps();
+      setSelectOptionsPreservingValue("resourceType", `<option value="">Selecione...</option>` + RESOURCE_TYPES.map(t => `<option value="${t}">${t}</option>`).join(""));
+      setSelectOptionsPreservingValue("resourceShift", `<option value="">Selecione...</option>` + SHIFTS.map(s => `<option value="${s}">${s}</option>`).join(""));
+      setSelectOptionsPreservingValue("resourceStatus", RESOURCE_STATUSES.map(s => `<option value="${s}">${s}</option>`).join(""));
+      setSelectOptionsPreservingValue("teamShift", `<option value="">Selecione...</option>` + SHIFTS.map(s => `<option value="${s}">${s}</option>`).join(""));
+      setSelectOptionsPreservingValue("teamStatus", TEAM_STATUSES.map(s => `<option value="${s}">${s}</option>`).join(""));
+      const typeFilter = $("teamsResourceTypeFilter");
+      if (typeFilter) typeFilter.innerHTML = `<option value="">Todos os tipos</option>` + RESOURCE_TYPES.map(t => `<option value="${t}">${t}</option>`).join("");
     }
 
     function supplierName(id) {
@@ -13254,6 +13401,396 @@
       `).join("") || `<tr><td colspan="10" class="empty">${q ? "Nenhum empréstimo encontrado." : "Nenhum empréstimo registrado."}</td></tr>`;
     }
 
+    function resourceName(id) { const r = byId(state.resources, id); return r ? r.name : "Recurso não disponível"; }
+    function resourceById(id) { return byId(state.resources, id); }
+
+    function switchTeamsTab(tab) {
+      currentTeamsTab = tab;
+      const resBtn = $("tabResourcesBtn"); const teamBtn = $("tabTeamsBtn");
+      const newResBtn = $("btnNewResource"); const newTeamBtn = $("btnNewTeam");
+      if (resBtn) { resBtn.classList.toggle("active", tab === "resources"); }
+      if (teamBtn) { teamBtn.classList.toggle("active", tab === "teams"); }
+      if (newResBtn) newResBtn.style.display = tab === "resources" ? "" : "none";
+      if (newTeamBtn) newTeamBtn.style.display = tab === "teams" ? "" : "none";
+      $("resourceFormPanel").style.display = "none";
+      $("teamFormPanel").style.display = "none";
+      fillTeamsFilters();
+      renderTeamsResources();
+    }
+
+    function fillTeamsFilters() {
+      const typeFilter = $("teamsResourceTypeFilter");
+      const shiftFilter = $("teamsShiftFilter");
+      const statusFilter = $("teamsStatusFilter");
+      if (currentTeamsTab === "resources") {
+        if (typeFilter) typeFilter.style.display = "";
+        if (shiftFilter) { shiftFilter.innerHTML = '<option value="">Todos os turnos</option>' + SHIFTS.map(s => `<option value="${s}">${s}</option>`).join(""); }
+        if (statusFilter) { statusFilter.innerHTML = '<option value="">Todos os status</option>' + RESOURCE_STATUSES.map(s => `<option value="${s}">${s}</option>`).join(""); }
+      } else {
+        if (typeFilter) typeFilter.style.display = "none";
+        if (shiftFilter) { shiftFilter.innerHTML = '<option value="">Todos os turnos</option>' + SHIFTS.map(s => `<option value="${s}">${s}</option>`).join(""); }
+        if (statusFilter) { statusFilter.innerHTML = '<option value="">Todos os status</option>' + TEAM_STATUSES.map(s => `<option value="${s}">${s}</option>`).join(""); }
+      }
+    }
+
+    function teamNamesForResource(resourceId) {
+      return state.teams.filter(t => t.memberIds && t.memberIds.includes(resourceId)).map(t => t.name);
+    }
+
+    function countResourceLinks(resourceId) {
+      const memberOf = state.teams.filter(t => t.memberIds && t.memberIds.includes(resourceId)).length;
+      const leaderOf = state.teams.filter(t => t.leaderId === resourceId).length;
+      return { memberOf, leaderOf, total: memberOf + leaderOf };
+    }
+
+    function renderTeamsResources() {
+      const target = $("teamsResourcesTableWrap");
+      if (!target) return;
+      const q = ($("teamsSearch")?.value || "").toLowerCase();
+      const shiftFilter = $("teamsShiftFilter")?.value || "";
+      const statusFilter = $("teamsStatusFilter")?.value || "";
+      const typeFilter = $("teamsResourceTypeFilter")?.value || "";
+      let html = "";
+
+      if (currentTeamsTab === "resources") {
+        const rows = state.resources.filter(r => {
+          if (typeFilter && r.type !== typeFilter) return false;
+          if (shiftFilter && r.shift !== shiftFilter) return false;
+          if (statusFilter && r.status !== statusFilter) return false;
+          if (q) {
+            const teamNames = teamNamesForResource(r.id).join(" ");
+            const hay = `${r.id||""} ${r.code||""} ${r.name||""} ${r.type||""} ${r.specialty||""} ${r.phone||""} ${r.email||""} ${r.shift||""} ${r.status||""} ${teamNames}`.toLowerCase();
+            if (!hay.includes(q)) return false;
+          }
+          return true;
+        });
+        html = `<table>`;
+        html += `<thead><tr><th>Código</th><th>Nome</th><th>Tipo</th><th>Especialidade</th><th>Turno</th><th>Status</th><th>Equipes</th><th>Ações</th></tr></thead><tbody>`;
+        if (rows.length === 0) {
+          html += `<tr><td colspan="8" class="empty">Nenhum recurso encontrado.</td></tr>`;
+        } else {
+          rows.forEach(r => {
+            const teamNames = teamNamesForResource(r.id);
+            html += `<tr>
+              <td><strong>${escapeHtml(r.code||"-")}</strong></td>
+              <td>${escapeHtml(r.name||"-")}</td>
+              <td>${escapeHtml(r.type||"-")}</td>
+              <td>${escapeHtml(r.specialty||"-")}</td>
+              <td>${escapeHtml(r.shift||"-")}</td>
+              <td>${tag(r.status||"Disponível")}</td>
+              <td>${teamNames.length ? escapeHtml(teamNames.join(", ")) : "—"}</td>
+              <td class="actions"><div class="os-panel-actions">
+                <button class="btn" onclick="editResource('${r.id}')">Editar</button>
+                ${r.status !== "Disponível" ? `<button class="btn" onclick="changeResourceStatus('${r.id}','Disponível')">Disponível</button>` : ""}
+                ${r.status !== "Ocupado" ? `<button class="btn" onclick="changeResourceStatus('${r.id}','Ocupado')">Ocupado</button>` : ""}
+                ${r.status !== "Ausente" ? `<button class="btn" onclick="changeResourceStatus('${r.id}','Ausente')">Ausente</button>` : ""}
+                ${r.status !== "Inativo" ? `<button class="btn" onclick="changeResourceStatus('${r.id}','Inativo')">Inativar</button>` : `<button class="btn" onclick="changeResourceStatus('${r.id}','Disponível')">Reativar</button>`}
+                <button class="btn danger" onclick="tryDeleteResource('${r.id}')">Excluir</button>
+              </div></td>
+            </tr>`;
+          });
+        }
+        html += `</tbody></table>`;
+      } else {
+        const rows = state.teams.filter(t => {
+          if (shiftFilter && t.shift !== shiftFilter) return false;
+          if (statusFilter && t.status !== statusFilter) return false;
+          if (q) {
+            const leader = resourceById(t.leaderId);
+            const memberNames = (t.memberIds||[]).map(id => resourceName(id)).join(" ");
+            const hay = `${t.id||""} ${t.code||""} ${t.name||""} ${leader?.name||""} ${t.shift||""} ${t.status||""} ${memberNames}`.toLowerCase();
+            if (!hay.includes(q)) return false;
+          }
+          return true;
+        });
+        html = `<table>`;
+        html += `<thead><tr><th>Código</th><th>Nome</th><th>Responsável</th><th>Turno</th><th>Integrantes</th><th>Status</th><th>Ações</th></tr></thead><tbody>`;
+        if (rows.length === 0) {
+          html += `<tr><td colspan="7" class="empty">Nenhuma equipe encontrada.</td></tr>`;
+        } else {
+          rows.forEach(t => {
+            html += `<tr>
+              <td><strong>${escapeHtml(t.code||"-")}</strong></td>
+              <td>${escapeHtml(t.name||"-")}</td>
+              <td>${escapeHtml(resourceName(t.leaderId))}</td>
+              <td>${escapeHtml(t.shift||"-")}</td>
+              <td>${(t.memberIds||[]).length}</td>
+              <td>${tag(t.status||"Ativa")}</td>
+              <td class="actions"><div class="os-panel-actions">
+                <button class="btn" onclick="editTeam('${t.id}')">Editar</button>
+                <button class="btn" onclick="openTeamDetail('${t.id}')">Ver integrantes</button>
+                ${t.status !== "Inativa" ? `<button class="btn" onclick="changeTeamStatus('${t.id}','Inativa')">Inativar</button>` : `<button class="btn" onclick="changeTeamStatus('${t.id}','Ativa')">Reativar</button>`}
+                <button class="btn danger" onclick="deleteTeam('${t.id}')">Excluir</button>
+              </div></td>
+            </tr>`;
+          });
+        }
+        html += `</tbody></table>`;
+      }
+      target.innerHTML = html;
+    }
+
+    function openResourceFormForCreate() {
+      resetResourceForm();
+      $("resourceFormPanel").style.display = "";
+      $("resourceCode").focus();
+    }
+
+    function editResource(id) {
+      const r = byId(state.resources, id);
+      if (!r) return;
+      $("resourceId").value = r.id;
+      $("resourceCode").value = r.code || "";
+      $("resourceName").value = r.name || "";
+      $("resourceType").value = r.type || "";
+      $("resourceSpecialty").value = r.specialty || "";
+      $("resourcePhone").value = r.phone || "";
+      $("resourceEmail").value = r.email || "";
+      $("resourceShift").value = r.shift || "";
+      $("resourceStatus").value = r.status || "Disponível";
+      $("resourceNotes").value = r.notes || "";
+      $("resourceFormTitle").textContent = "Editar Recurso";
+      $("resourceFormPanel").style.display = "";
+      $("resourceCode").focus();
+    }
+
+    function resetResourceForm() {
+      $("resourceForm").reset();
+      $("resourceId").value = "";
+      $("resourceStatus").value = "Disponível";
+      $("resourceFormTitle").textContent = "Novo Recurso";
+    }
+
+    function hideResourceForm() {
+      $("resourceFormPanel").style.display = "none";
+      resetResourceForm();
+    }
+
+    function changeResourceStatus(id, newStatus) {
+      state.resources = state.resources.map(r => r.id === id ? { ...r, status: newStatus, updatedAt: Date.now() } : r);
+      persistLocalStateOnly();
+      renderTeamsResources();
+      showToast("Status atualizado.");
+    }
+
+    function tryDeleteResource(id) {
+      const r = byId(state.resources, id);
+      if (!r) return;
+      const links = countResourceLinks(id);
+      if (links.total > 0) {
+        alert(`Este recurso não pode ser excluído porque está vinculado a:\n- ${links.memberOf} equipe(s) como integrante\n- ${links.leaderOf} equipe(s) como responsável\n\nRemova os vínculos ou marque o recurso como Inativo.`);
+        return;
+      }
+      if (!confirm(`Excluir o recurso ${r.code} - ${r.name}?`)) return;
+      state.resources = state.resources.filter(item => item.id !== id);
+      persistLocalStateOnly();
+      renderTeamsResources();
+      showToast("Recurso excluído.");
+    }
+
+    function saveResourceFromForm(event) {
+      event.preventDefault();
+      if (resourceSaveLock) return;
+      resourceSaveLock = true;
+      const submitButton = event.submitter;
+      if (submitButton) submitButton.disabled = true;
+      try {
+        const id = $("resourceId").value || uid("resource");
+        const existing = byId(state.resources, id);
+        const code = value("resourceCode");
+        const name = value("resourceName");
+        const type = $("resourceType").value;
+        const specialty = value("resourceSpecialty");
+        const shift = $("resourceShift").value;
+        const status = $("resourceStatus").value;
+        const email = value("resourceEmail");
+        if (!code) { showToast("Informe o código do recurso."); return; }
+        if (!name) { showToast("Informe o nome do recurso."); return; }
+        if (!RESOURCE_TYPES.includes(type)) { showToast("Selecione um tipo válido."); return; }
+        if (!specialty) { showToast("Informe a especialidade."); return; }
+        if (!SHIFTS.includes(shift)) { showToast("Selecione um turno válido."); return; }
+        if (!RESOURCE_STATUSES.includes(status)) { showToast("Selecione um status válido."); return; }
+        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast("E-mail inválido."); return; }
+        const dup = state.resources.find(r => r.id !== id && normalizeTextKey(r.code) === normalizeTextKey(code));
+        if (dup) { showToast("Já existe recurso com este código."); return; }
+        const now = Date.now();
+        const record = {
+          ...(existing || {}),
+          id, code, name, type, specialty,
+          phone: value("resourcePhone"),
+          email,
+          shift,
+          status,
+          notes: value("resourceNotes"),
+          createdAt: existing?.createdAt || now,
+          updatedAt: now
+        };
+        state.resources = state.resources.filter(r => r.id !== id).concat(record);
+        persistLocalStateOnly();
+        hideResourceForm();
+        renderTeamsResources();
+        showToast(existing ? "Recurso atualizado." : "Recurso cadastrado.");
+      } finally {
+        setTimeout(() => { resourceSaveLock = false; if (submitButton) submitButton.disabled = false; }, 300);
+      }
+    }
+
+    function openTeamFormForCreate() {
+      resetTeamForm();
+      $("teamFormPanel").style.display = "";
+      fillTeamMemberChips();
+      $("teamCode").focus();
+    }
+
+    function editTeam(id) {
+      const t = byId(state.teams, id);
+      if (!t) return;
+      $("teamId").value = t.id;
+      $("teamCode").value = t.code || "";
+      $("teamName").value = t.name || "";
+      $("teamShift").value = t.shift || "";
+      $("teamStatus").value = t.status || "Ativa";
+      $("teamLeader").value = t.leaderId || "";
+      $("teamDescription").value = t.description || "";
+      window._teamEditMemberIds = [...(t.memberIds || [])];
+      $("teamFormTitle").textContent = "Editar Equipe";
+      $("teamFormPanel").style.display = "";
+      fillTeamMemberChips();
+      $("teamCode").focus();
+    }
+
+    function resetTeamForm() {
+      $("teamForm").reset();
+      $("teamId").value = "";
+      $("teamStatus").value = "Ativa";
+      $("teamFormTitle").textContent = "Nova Equipe";
+      window._teamEditMemberIds = [];
+    }
+
+    function hideTeamForm() {
+      $("teamFormPanel").style.display = "none";
+      resetTeamForm();
+    }
+
+    function fillTeamMemberChips() {
+      const container = $("teamMemberChips");
+      if (!container) return;
+      const selected = window._teamEditMemberIds || [];
+      const eligible = state.resources.filter(r => r.status !== "Inativo");
+      container.innerHTML = eligible.length === 0
+        ? '<p class="empty">Nenhum recurso disponível.</p>'
+        : eligible.map(r => {
+            const checked = selected.includes(r.id);
+            return `<label class="permission-item" style="cursor:pointer;padding:6px 8px;border:1px solid var(--line);border-radius:5px;${checked ? "border-color:var(--orange);background:rgba(255,138,76,.12)" : ""}">
+              <input type="checkbox" ${checked ? "checked" : ""} onchange="toggleTeamMember('${r.id}', this.checked)">
+              <span><strong>${escapeHtml(r.name)}</strong> — ${escapeHtml(r.specialty)} (${escapeHtml(r.type)})</span>
+            </label>`;
+          }).join("");
+      updateTeamLeaderOptions();
+    }
+
+    function toggleTeamMember(id, checked) {
+      const selected = window._teamEditMemberIds || [];
+      if (checked) {
+        if (!selected.includes(id)) selected.push(id);
+      } else {
+        const idx = selected.indexOf(id);
+        if (idx >= 0) selected.splice(idx, 1);
+      }
+      window._teamEditMemberIds = selected;
+      updateTeamLeaderOptions();
+    }
+
+    function updateTeamLeaderOptions() {
+      const leaderSelect = $("teamLeader");
+      if (!leaderSelect) return;
+      const selected = window._teamEditMemberIds || [];
+      const currentVal = leaderSelect.value;
+      leaderSelect.innerHTML = '<option value="">Selecione...</option>' + selected.map(id => {
+        const r = resourceById(id);
+        return `<option value="${id}" ${id === currentVal ? "selected" : ""}>${escapeHtml(r?.name||id)} (${escapeHtml(r?.specialty||"-")})</option>`;
+      }).join("");
+    }
+
+    function changeTeamStatus(id, newStatus) {
+      state.teams = state.teams.map(t => t.id === id ? { ...t, status: newStatus, updatedAt: Date.now() } : t);
+      persistLocalStateOnly();
+      renderTeamsResources();
+      showToast("Status atualizado.");
+    }
+
+    function deleteTeam(id) {
+      const t = byId(state.teams, id);
+      if (!t) return;
+      if (!confirm(`Excluir a equipe ${t.code} - ${t.name}?`)) return;
+      state.teams = state.teams.filter(item => item.id !== id);
+      persistLocalStateOnly();
+      renderTeamsResources();
+      showToast("Equipe excluída.");
+    }
+
+    function saveTeamFromForm(event) {
+      event.preventDefault();
+      if (teamSaveLock) return;
+      teamSaveLock = true;
+      const submitButton = event.submitter;
+      if (submitButton) submitButton.disabled = true;
+      try {
+        const id = $("teamId").value || uid("team");
+        const existing = byId(state.teams, id);
+        const code = value("teamCode");
+        const name = value("teamName");
+        const shift = $("teamShift").value;
+        const status = $("teamStatus").value;
+        const leaderId = $("teamLeader").value;
+        const description = value("teamDescription");
+        const memberIds = window._teamEditMemberIds || [];
+        if (!code) { showToast("Informe o código da equipe."); return; }
+        if (!name) { showToast("Informe o nome da equipe."); return; }
+        if (!SHIFTS.includes(shift)) { showToast("Selecione um turno válido."); return; }
+        if (!TEAM_STATUSES.includes(status)) { showToast("Selecione um status válido."); return; }
+        if (!leaderId) { showToast("Selecione o responsável."); return; }
+        if (memberIds.length === 0) { showToast("Selecione pelo menos um integrante."); return; }
+        if (!memberIds.includes(leaderId)) { showToast("O responsável deve ser um integrante da equipe."); return; }
+        const dup = state.teams.find(t => t.id !== id && normalizeTextKey(t.code) === normalizeTextKey(code));
+        if (dup) { showToast("Já existe equipe com este código."); return; }
+        const now = Date.now();
+        const record = {
+          ...(existing || {}),
+          id, code, name, leaderId, shift, status,
+          memberIds, description,
+          createdAt: existing?.createdAt || now,
+          updatedAt: now
+        };
+        state.teams = state.teams.filter(t => t.id !== id).concat(record);
+        persistLocalStateOnly();
+        hideTeamForm();
+        renderTeamsResources();
+        showToast(existing ? "Equipe atualizada." : "Equipe cadastrada.");
+      } finally {
+        setTimeout(() => { teamSaveLock = false; if (submitButton) submitButton.disabled = false; }, 300);
+      }
+    }
+
+    function openTeamDetail(id) {
+      const t = byId(state.teams, id);
+      if (!t) return;
+      const leader = resourceById(t.leaderId);
+      let membersHtml = (t.memberIds||[]).map(mid => {
+        const r = resourceById(mid);
+        return `<li><strong>${escapeHtml(r?.name||"Recurso não disponível")}</strong> — ${escapeHtml(r?.specialty||"-")} (${escapeHtml(r?.type||"-")})</li>`;
+      }).join("");
+      openModal(t.name, `
+        <div class="side-box full"><strong>${escapeHtml(t.code||"-")}</strong><span>${escapeHtml(t.description||"Sem descrição.")}</span></div>
+        <p><strong>Responsável:</strong> ${escapeHtml(leader?.name||"Recurso não disponível")}</p>
+        <p><strong>Turno:</strong> ${escapeHtml(t.shift||"-")} &middot; <strong>Status:</strong> ${tag(t.status||"Ativa")}</p>
+        <hr style="border-color:var(--line);margin:10px 0">
+        <p><strong>Integrantes (${(t.memberIds||[]).length}):</strong></p>
+        <ul class="clean-list">${membersHtml || "<li class='empty'>Nenhum integrante.</li>"}</ul>
+        <div class="toolbar"><button class="btn primary" onclick="closeModal()">Fechar</button></div>
+      `);
+    }
+
     function resetToolForm() {
       if (!$("toolForm")) return;
       $("toolForm").reset();
@@ -13568,6 +14105,7 @@
       renderMeasurements();
       renderOperationalDiary();
       renderToolsControl();
+      renderTeamsResources();
 
       $("regionRows").innerHTML = state.regions.map(item => {
         const localCount = state.locations.filter(location => location.regionId === item.id).length;
@@ -16420,6 +16958,8 @@
     if ($("toolStatusFilter")) $("toolStatusFilter").addEventListener("change", render);
     if ($("createToolBtn")) $("createToolBtn").addEventListener("click", openToolFormForCreate);
     if ($("toolForm")) $("toolForm").addEventListener("submit", saveToolFromForm);
+    if ($("resourceForm")) $("resourceForm").addEventListener("submit", saveResourceFromForm);
+    if ($("teamForm")) $("teamForm").addEventListener("submit", saveTeamFromForm);
     if ($("resetToolForm")) $("resetToolForm").addEventListener("click", resetToolForm);
     if ($("measurementType")) $("measurementType").addEventListener("change", () => {
       $("measurementUnit").value = "";
