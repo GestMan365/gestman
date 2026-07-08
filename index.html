@@ -7225,6 +7225,34 @@
           <div class="panel-head"><div class="panel-title">Setores e Locais</div></div>
           <div class="table-wrap no-scroll"><table class="location-table"><thead><tr><th>Região</th><th>Local de instalação</th><th>Tipo</th><th>Equipamentos</th><th>Ações</th></tr></thead><tbody id="locationRows"></tbody></table></div>
         </div>
+        <div class="panel" style="margin-top:18px">
+          <div class="panel-head"><div class="panel-title">Setores e Locais (por Área Operacional)</div><div><button class="btn primary" onclick="openSLLocationFormForCreate()">Novo setor/local</button></div></div>
+          <div class="panel-body">
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+              <input class="field" id="slLocationSearch" placeholder="Pesquisar..." oninput="renderSectorsLocations()" style="flex:1 1 220px;min-width:0">
+              <select class="field" id="slAreaFilter" onchange="renderSectorsLocations()" style="width:auto"><option value="">Todas as áreas</option></select>
+              <select class="field" id="slTypeFilter" onchange="renderSectorsLocations()" style="width:auto"><option value="">Todos os tipos</option></select>
+              <select class="field" id="slStatusFilter" onchange="renderSectorsLocations()" style="width:auto"><option value="">Todos os status</option></select>
+            </div>
+            <div class="table-wrap" id="slLocationTableWrap"></div>
+          </div>
+        </div>
+        <div class="panel form-panel" id="slLocationFormPanel" style="display:none">
+          <div class="panel-head"><div class="panel-title" id="slLocationFormTitle">Novo Setor/Local</div></div>
+          <div class="form-panel-body">
+            <form class="form" id="slLocationForm" novalidate style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px">
+              <input type="hidden" id="slLocationId">
+              <label>Código * <input class="field" id="slLocationCode" required></label>
+              <label>Nome * <input class="field" id="slLocationName" required></label>
+              <label>Área Operacional * <select class="field" id="slOperationalAreaId" required><option value="">Selecione...</option></select></label>
+              <label>Tipo * <select class="field" id="slLocationType" required><option value="">Selecione...</option></select></label>
+              <label>Status * <select class="field" id="slLocationStatus" required></select></label>
+              <label>Responsável * <input class="field" id="slLocationResponsible" required></label>
+              <label class="full">Descrição * <textarea class="field" id="slLocationDescription" rows="3" required></textarea></label>
+              <div class="full toolbar"><button class="btn primary" type="submit">Salvar</button><button class="btn" type="button" onclick="hideSLLocationForm()">Cancelar</button></div>
+            </form>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -8069,7 +8097,10 @@
       resourceSupervisor: "10000000-0000-4000-8000-000000001403",
       teamMaintenance: "10000000-0000-4000-8000-000000001501",
       operationalAreaProduction: "10000000-0000-4000-8000-000000001601",
-      operationalAreaUtilities: "10000000-0000-4000-8000-000000001602"
+      operationalAreaUtilities: "10000000-0000-4000-8000-000000001602",
+      sectorsLocationLine: "10000000-0000-4000-8000-000000001701",
+      sectorsLocationBombas: "10000000-0000-4000-8000-000000001702",
+      sectorsLocationPaineis: "10000000-0000-4000-8000-000000001703"
     });
     const DEMO_ID_SET = new Set(Object.values(DEMO_IDS));
     const DEMO_REMOVAL_ORDER = [
@@ -8088,6 +8119,7 @@
       "tools",
       "teams",
       "operationalAreas",
+      "sectorsLocations",
       "resources",
       "spareParts",
       "stockLocations",
@@ -8120,6 +8152,7 @@
       resources: [],
       teams: [],
       operationalAreas: [],
+      sectorsLocations: [],
       profile: defaultProfileForAccount()
     });
 
@@ -8544,6 +8577,7 @@
       normalized.resources = Array.isArray(normalized.resources) ? normalized.resources.map(r => ({ ...r, status: r.status || "Disponível", shift: r.shift || "Não informado" })) : [];
       normalized.teams = Array.isArray(normalized.teams) ? normalized.teams.map(t => ({ ...t, memberIds: Array.isArray(t.memberIds) ? t.memberIds : [], status: t.status || "Ativa" })) : [];
       normalized.operationalAreas = Array.isArray(normalized.operationalAreas) ? normalized.operationalAreas.map(a => ({ ...a, status: a.status || "Ativa" })) : [];
+      normalized.sectorsLocations = Array.isArray(normalized.sectorsLocations) ? normalized.sectorsLocations.map(sl => ({ ...sl, status: sl.status || "Ativo", type: sl.type || "Local" })) : [];
       normalized.locations = normalized.locations.map((location, index) => ({
         ...location,
         regionId: location.regionId || "",
@@ -8767,6 +8801,9 @@
     }
 
     const AREA_STATUSES = ["Ativa", "Inativa"];
+    const SECTOR_LOCATION_TYPES = ["Setor", "Local"];
+    const SECTOR_LOCATION_STATUSES = ["Ativo", "Inativo"];
+    let slLocationSaveLock = false;
     function createDemoDataSet() {
       const stats = { created: 0, completed: 0, existing: 0 };
       const now = Date.now();
@@ -9159,6 +9196,45 @@
       }, [
         demoMatcherByText(["code"], ["TESTE-CODEX-AREA-BASE-002"])
       ], stats);
+      addDemoRecord("sectorsLocations", {
+        id: DEMO_IDS.sectorsLocationLine,
+        code: "TESTE-CODEX-SETOR-BASE-001",
+        name: "Setor Linha de Produção Demonstração",
+        type: "Setor",
+        operationalAreaId: DEMO_IDS.operationalAreaProduction,
+        description: "TESTE CODEX setor vinculado à área de produção",
+        responsible: "Supervisor Codex",
+        status: "Ativo",
+        createdAt: now,
+        updatedAt: now,
+        demoBatchId: DEMO_BATCH_ID
+      }, [demoMatcherByText(["code"], ["TESTE-CODEX-SETOR-BASE-001"])], stats);
+      addDemoRecord("sectorsLocations", {
+        id: DEMO_IDS.sectorsLocationBombas,
+        code: "TESTE-CODEX-LOCAL-BASE-001",
+        name: "Local Casa de Bombas Demonstração",
+        type: "Local",
+        operationalAreaId: DEMO_IDS.operationalAreaUtilities,
+        description: "TESTE CODEX local técnico da área de utilidades",
+        responsible: "Técnico Mecânico Codex",
+        status: "Ativo",
+        createdAt: now,
+        updatedAt: now,
+        demoBatchId: DEMO_BATCH_ID
+      }, [demoMatcherByText(["code"], ["TESTE-CODEX-LOCAL-BASE-001"])], stats);
+      addDemoRecord("sectorsLocations", {
+        id: DEMO_IDS.sectorsLocationPaineis,
+        code: "TESTE-CODEX-LOCAL-BASE-002",
+        name: "Local Painéis Elétricos Demonstração",
+        type: "Local",
+        operationalAreaId: DEMO_IDS.operationalAreaUtilities,
+        description: "TESTE CODEX local elétrico da área de utilidades",
+        responsible: "Técnico Eletricista Codex",
+        status: "Ativo",
+        createdAt: now,
+        updatedAt: now,
+        demoBatchId: DEMO_BATCH_ID
+      }, [demoMatcherByText(["code"], ["TESTE-CODEX-LOCAL-BASE-002"])], stats);
       return stats;
     }
 
@@ -12409,6 +12485,16 @@
       const oaStatusFilter = $("oaAreaStatusFilter");
       if (oaStatusFilter) oaStatusFilter.innerHTML = `<option value="">Todos os status</option>` + AREA_STATUSES.map(s => `<option value="${s}">${s}</option>`).join("");
       setSelectOptionsPreservingValue("oaAreaStatus", AREA_STATUSES.map(s => `<option value="${s}">${s}</option>`).join(""));
+      const slAreaFilter = $("slAreaFilter");
+      if (slAreaFilter) slAreaFilter.innerHTML = `<option value="">Todas as áreas</option>` + state.operationalAreas.map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join("");
+      const slTypeFilter = $("slTypeFilter");
+      if (slTypeFilter) slTypeFilter.innerHTML = `<option value="">Todos os tipos</option>` + SECTOR_LOCATION_TYPES.map(t => `<option value="${t}">${t}</option>`).join("");
+      const slStatusFilter = $("slStatusFilter");
+      if (slStatusFilter) slStatusFilter.innerHTML = `<option value="">Todos os status</option>` + SECTOR_LOCATION_STATUSES.map(s => `<option value="${s}">${s}</option>`).join("");
+      const slAreaSelect = $("slOperationalAreaId");
+      if (slAreaSelect) slAreaSelect.innerHTML = `<option value="">Selecione...</option>` + state.operationalAreas.map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join("");
+      setSelectOptionsPreservingValue("slLocationType", `<option value="">Selecione...</option>` + SECTOR_LOCATION_TYPES.map(t => `<option value="${t}">${t}</option>`).join(""));
+      setSelectOptionsPreservingValue("slLocationStatus", SECTOR_LOCATION_STATUSES.map(s => `<option value="${s}">${s}</option>`).join(""));
     }
 
     function supplierName(id) {
@@ -13923,9 +14009,11 @@
       const a = byId(state.operationalAreas, id);
       if (!a) return;
       // Check for potential links in locations (future-proof)
-      if (state.locations && state.locations.some(l => l.operationalAreaId === id || l.areaId === id)) {
-        const linkCount = state.locations.filter(l => l.operationalAreaId === id || l.areaId === id).length;
-        alert(`Esta área não pode ser excluída porque está vinculada a ${linkCount} local(is)/setor(es). Remova os vínculos ou marque a área como Inativa.`);
+      if ((state.locations && state.locations.some(l => l.operationalAreaId === id || l.areaId === id)) || (state.sectorsLocations && state.sectorsLocations.some(sl => sl.operationalAreaId === id))) {
+        const locLinks = (state.locations || []).filter(l => l.operationalAreaId === id || l.areaId === id).length;
+        const slLinks = (state.sectorsLocations || []).filter(sl => sl.operationalAreaId === id).length;
+        const total = locLinks + slLinks;
+        alert(`Esta área não pode ser excluída porque está vinculada a ${total} local(is)/setor(es). Remova os vínculos ou marque a área como Inativa.`);
         return;
       }
       if (!confirm(`Excluir a área ${a.code} - ${a.name}?`)) return;
@@ -13979,6 +14067,154 @@
         <p><strong>Responsável:</strong> ${escapeHtml(a.responsible||"-")}</p>
         <p><strong>Status:</strong> ${tag(a.status||"Ativa")}</p>
         <p><strong>Criação:</strong> ${formatDate(a.createdAt)} &middot; <strong>Última atualização:</strong> ${formatDate(a.updatedAt)}</p>
+        <div class="toolbar"><button class="btn primary" onclick="closeModal()">Fechar</button></div>
+      `);
+    }
+
+    function areaNameForSL(id) { const a = byId(state.operationalAreas, id); return a ? a.name : "Área não informada"; }
+    function renderSectorsLocations() {
+      const target = $("slLocationTableWrap");
+      if (!target) return;
+      const q = ($("slLocationSearch")?.value || "").toLowerCase();
+      const areaFilter = $("slAreaFilter")?.value || "";
+      const typeFilter = $("slTypeFilter")?.value || "";
+      const statusFilter = $("slStatusFilter")?.value || "";
+      const rows = state.sectorsLocations.filter(sl => {
+        if (areaFilter && sl.operationalAreaId !== areaFilter) return false;
+        if (typeFilter && sl.type !== typeFilter) return false;
+        if (statusFilter && sl.status !== statusFilter) return false;
+        if (q) {
+          const areaName = areaNameForSL(sl.operationalAreaId);
+          const hay = `${sl.id||""} ${sl.code||""} ${sl.name||""} ${sl.type||""} ${areaName} ${sl.description||""} ${sl.responsible||""} ${sl.status||""}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+      const formatDate = ts => ts ? new Date(Number(ts)).toISOString().slice(0, 10).split("-").reverse().join("/") : "-";
+      const html = `<table>
+        <thead><tr><th>Código</th><th>Nome</th><th>Tipo</th><th>Área Operacional</th><th>Responsável</th><th>Status</th><th>Atualização</th><th>Ações</th></tr></thead>
+        <tbody>${rows.length === 0
+          ? `<tr><td colspan="8" class="empty">Nenhum setor/local encontrado.</td></tr>`
+          : rows.map(sl => `<tr>
+            <td><strong>${escapeHtml(sl.code||"-")}</strong></td>
+            <td>${escapeHtml(sl.name||"-")}</td>
+            <td>${escapeHtml(sl.type||"-")}</td>
+            <td>${escapeHtml(areaNameForSL(sl.operationalAreaId))}</td>
+            <td>${escapeHtml(sl.responsible||"-")}</td>
+            <td>${tag(sl.status||"Ativo")}</td>
+            <td>${formatDate(sl.updatedAt)}</td>
+            <td class="actions"><div class="os-panel-actions">
+              <button class="btn" onclick="editSLLocation('${sl.id}')">Editar</button>
+              <button class="btn" onclick="openSLLocationDetail('${sl.id}')">Ver detalhes</button>
+              ${sl.status !== "Inativo" ? `<button class="btn" onclick="changeSLLocationStatus('${sl.id}','Inativo')">Inativar</button>` : `<button class="btn" onclick="changeSLLocationStatus('${sl.id}','Ativo')">Reativar</button>`}
+              <button class="btn danger" onclick="deleteSLLocation('${sl.id}')">Excluir</button>
+            </div></td>
+          </tr>`).join("")
+        }</tbody></table>`;
+      target.innerHTML = html;
+    }
+
+    function openSLLocationFormForCreate() {
+      resetSLLocationForm();
+      $("slLocationFormPanel").style.display = "";
+      $("slLocationCode").focus();
+    }
+
+    function editSLLocation(id) {
+      const sl = byId(state.sectorsLocations, id);
+      if (!sl) return;
+      $("slLocationId").value = sl.id;
+      $("slLocationCode").value = sl.code || "";
+      $("slLocationName").value = sl.name || "";
+      $("slOperationalAreaId").value = sl.operationalAreaId || "";
+      $("slLocationType").value = sl.type || "";
+      $("slLocationStatus").value = sl.status || "Ativo";
+      $("slLocationResponsible").value = sl.responsible || "";
+      $("slLocationDescription").value = sl.description || "";
+      $("slLocationFormTitle").textContent = "Editar Setor/Local";
+      $("slLocationFormPanel").style.display = "";
+      $("slLocationCode").focus();
+    }
+
+    function resetSLLocationForm() {
+      $("slLocationForm").reset();
+      $("slLocationId").value = "";
+      $("slLocationStatus").value = "Ativo";
+      $("slLocationFormTitle").textContent = "Novo Setor/Local";
+    }
+
+    function hideSLLocationForm() {
+      $("slLocationFormPanel").style.display = "none";
+      resetSLLocationForm();
+    }
+
+    function changeSLLocationStatus(id, newStatus) {
+      state.sectorsLocations = state.sectorsLocations.map(sl => sl.id === id ? { ...sl, status: newStatus, updatedAt: Date.now() } : sl);
+      persistLocalStateOnly();
+      renderSectorsLocations();
+      showToast("Status atualizado.");
+    }
+
+    function deleteSLLocation(id) {
+      const sl = byId(state.sectorsLocations, id);
+      if (!sl) return;
+      if (!confirm(`Excluir ${sl.code} - ${sl.name}?`)) return;
+      state.sectorsLocations = state.sectorsLocations.filter(item => item.id !== id);
+      persistLocalStateOnly();
+      renderSectorsLocations();
+      showToast("Setor/Local excluído.");
+    }
+
+    function saveSLLocationFromForm(event) {
+      event.preventDefault();
+      if (slLocationSaveLock) return;
+      slLocationSaveLock = true;
+      const submitButton = event.submitter;
+      if (submitButton) submitButton.disabled = true;
+      try {
+        const id = $("slLocationId").value || uid("sl");
+        const existing = byId(state.sectorsLocations, id);
+        const code = value("slLocationCode");
+        const name = value("slLocationName");
+        const operationalAreaId = $("slOperationalAreaId").value;
+        const type = $("slLocationType").value;
+        const status = $("slLocationStatus").value;
+        const responsible = value("slLocationResponsible");
+        const description = value("slLocationDescription");
+        if (!operationalAreaId) { showToast("Selecione a Área Operacional."); return; }
+        if (!SECTOR_LOCATION_TYPES.includes(type)) { showToast("Selecione um tipo válido."); return; }
+        if (!code) { showToast("Informe o código."); return; }
+        if (!name) { showToast("Informe o nome."); return; }
+        if (!description) { showToast("Informe a descrição."); return; }
+        if (!responsible) { showToast("Informe o responsável."); return; }
+        if (!SECTOR_LOCATION_STATUSES.includes(status)) { showToast("Selecione um status válido."); return; }
+        const dupCode = state.sectorsLocations.find(sl => sl.id !== id && normalizeTextKey(sl.code) === normalizeTextKey(code));
+        if (dupCode) { showToast("Já existe setor/local com este código."); return; }
+        const dupName = state.sectorsLocations.find(sl => sl.id !== id && sl.operationalAreaId === operationalAreaId && normalizeTextKey(sl.name) === normalizeTextKey(name));
+        if (dupName) { showToast("Já existe setor/local com este nome nesta Área Operacional."); return; }
+        const now = Date.now();
+        const record = { ...(existing || {}), id, code, name, type, operationalAreaId, description, responsible, status, createdAt: existing?.createdAt || now, updatedAt: now };
+        state.sectorsLocations = state.sectorsLocations.filter(sl => sl.id !== id).concat(record);
+        persistLocalStateOnly();
+        hideSLLocationForm();
+        renderSectorsLocations();
+        showToast(existing ? "Setor/Local atualizado." : "Setor/Local cadastrado.");
+      } finally {
+        setTimeout(() => { slLocationSaveLock = false; if (submitButton) submitButton.disabled = false; }, 300);
+      }
+    }
+
+    function openSLLocationDetail(id) {
+      const sl = byId(state.sectorsLocations, id);
+      if (!sl) return;
+      const formatDate = ts => ts ? new Date(Number(ts)).toISOString().slice(0, 10).split("-").reverse().join("/") : "-";
+      openModal(sl.name, `
+        <div class="side-box full"><strong>${escapeHtml(sl.code||"-")}</strong><span>${escapeHtml(sl.description||"Sem descrição.")}</span></div>
+        <p><strong>Tipo:</strong> ${escapeHtml(sl.type||"-")}</p>
+        <p><strong>Área Operacional:</strong> ${escapeHtml(areaNameForSL(sl.operationalAreaId))}</p>
+        <p><strong>Responsável:</strong> ${escapeHtml(sl.responsible||"-")}</p>
+        <p><strong>Status:</strong> ${tag(sl.status||"Ativo")}</p>
+        <p><strong>Criação:</strong> ${formatDate(sl.createdAt)} &middot; <strong>Última atualização:</strong> ${formatDate(sl.updatedAt)}</p>
         <div class="toolbar"><button class="btn primary" onclick="closeModal()">Fechar</button></div>
       `);
     }
@@ -14299,6 +14535,7 @@
       renderToolsControl();
       renderTeamsResources();
       renderOperationalAreas();
+      renderSectorsLocations();
 
       $("regionRows").innerHTML = state.regions.map(item => {
         const localCount = state.locations.filter(location => location.regionId === item.id).length;
@@ -17154,6 +17391,7 @@
     if ($("rtResourceForm")) $("rtResourceForm").addEventListener("submit", saveResourceFromForm);
     if ($("rtTeamForm")) $("rtTeamForm").addEventListener("submit", saveTeamFromForm);
     if ($("oaAreaForm")) $("oaAreaForm").addEventListener("submit", saveOAAreaFromForm);
+    if ($("slLocationForm")) $("slLocationForm").addEventListener("submit", saveSLLocationFromForm);
     if ($("resetToolForm")) $("resetToolForm").addEventListener("click", resetToolForm);
     if ($("measurementType")) $("measurementType").addEventListener("change", () => {
       $("measurementUnit").value = "";
