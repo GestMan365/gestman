@@ -6689,12 +6689,30 @@
       </div>
     </section>
 
-    <section class="view module-placeholder" id="operationalAreas">
+    <section class="view" id="operationalAreas">
       <div class="panel">
-        <div class="panel-head"><div class="panel-title">Áreas Operacionais</div></div>
-        <p class="module-placeholder-copy">Cadastro e organização de áreas operacionais serão tratados neste módulo.</p>
-        <div class="module-placeholder-status">Módulo em desenvolvimento</div>
-        <div class="toolbar"><button class="btn primary" type="button" data-view-button="dashboard">Voltar ao Dashboard</button></div>
+        <div class="panel-head"><div class="panel-title">Áreas Operacionais</div><div><button class="btn primary" onclick="openOAAreaFormForCreate()">Nova área</button></div></div>
+        <div class="panel-body">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+            <input class="field" id="oaAreaSearch" placeholder="Pesquisar..." oninput="renderOperationalAreas()" style="flex:1 1 220px;min-width:0">
+            <select class="field" id="oaAreaStatusFilter" onchange="renderOperationalAreas()" style="width:auto"><option value="">Todos os status</option></select>
+          </div>
+          <div class="table-wrap" id="oaAreaTableWrap"></div>
+        </div>
+      </div>
+      <div class="panel form-panel" id="oaAreaFormPanel" style="display:none">
+        <div class="panel-head"><div class="panel-title" id="oaAreaFormTitle">Nova Área Operacional</div></div>
+        <div class="form-panel-body">
+          <form class="form" id="oaAreaForm" novalidate style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px">
+            <input type="hidden" id="oaAreaId">
+            <label>Código * <input class="field" id="oaAreaCode" required></label>
+            <label>Nome * <input class="field" id="oaAreaName" required></label>
+            <label>Status * <select class="field" id="oaAreaStatus" required></select></label>
+            <label>Responsável * <input class="field" id="oaAreaResponsible" required></label>
+            <label class="full">Descrição * <textarea class="field" id="oaAreaDescription" rows="3" required></textarea></label>
+            <div class="full toolbar"><button class="btn primary" type="submit">Salvar</button><button class="btn" type="button" onclick="hideOAAreaForm()">Cancelar</button></div>
+          </form>
+        </div>
       </div>
     </section>
 
@@ -8021,6 +8039,7 @@
     let resourceSaveLock = false;
     let teamSaveLock = false;
     let currentTeamsTab = "resources";
+    let oAAreaSaveLock = false;
     const TOOL_LOAN_STATUSES = ["Ativo", "Devolvido", "Cancelado"];
     const DEMO_BATCH_ID = "gestman365-demo-v1";
     const DEMO_IDS = Object.freeze({
@@ -8048,7 +8067,9 @@
       resourceMechanic: "10000000-0000-4000-8000-000000001401",
       resourceElectrician: "10000000-0000-4000-8000-000000001402",
       resourceSupervisor: "10000000-0000-4000-8000-000000001403",
-      teamMaintenance: "10000000-0000-4000-8000-000000001501"
+      teamMaintenance: "10000000-0000-4000-8000-000000001501",
+      operationalAreaProduction: "10000000-0000-4000-8000-000000001601",
+      operationalAreaUtilities: "10000000-0000-4000-8000-000000001602"
     });
     const DEMO_ID_SET = new Set(Object.values(DEMO_IDS));
     const DEMO_REMOVAL_ORDER = [
@@ -8066,6 +8087,7 @@
       "toolLoans",
       "tools",
       "teams",
+      "operationalAreas",
       "resources",
       "spareParts",
       "stockLocations",
@@ -8097,6 +8119,7 @@
       maintenanceJournal: [],
       resources: [],
       teams: [],
+      operationalAreas: [],
       profile: defaultProfileForAccount()
     });
 
@@ -8520,6 +8543,7 @@
       normalized.maintenanceJournal = Array.isArray(normalized.maintenanceJournal) ? normalized.maintenanceJournal : [];
       normalized.resources = Array.isArray(normalized.resources) ? normalized.resources.map(r => ({ ...r, status: r.status || "Disponível", shift: r.shift || "Não informado" })) : [];
       normalized.teams = Array.isArray(normalized.teams) ? normalized.teams.map(t => ({ ...t, memberIds: Array.isArray(t.memberIds) ? t.memberIds : [], status: t.status || "Ativa" })) : [];
+      normalized.operationalAreas = Array.isArray(normalized.operationalAreas) ? normalized.operationalAreas.map(a => ({ ...a, status: a.status || "Ativa" })) : [];
       normalized.locations = normalized.locations.map((location, index) => ({
         ...location,
         regionId: location.regionId || "",
@@ -8742,6 +8766,7 @@
       return payload;
     }
 
+    const AREA_STATUSES = ["Ativa", "Inativa"];
     function createDemoDataSet() {
       const stats = { created: 0, completed: 0, existing: 0 };
       const now = Date.now();
@@ -9107,6 +9132,32 @@
         demoBatchId: DEMO_BATCH_ID
       }, [
         demoMatcherByText(["code"], ["TESTE-CODEX-EQP-MANUT-001"])
+      ], stats);
+      addDemoRecord("operationalAreas", {
+        id: DEMO_IDS.operationalAreaProduction,
+        code: "TESTE-CODEX-AREA-BASE-001",
+        name: "Área de Produção Demonstração",
+        description: "TESTE CODEX área principal do setor produtivo",
+        responsible: "Supervisor Codex",
+        status: "Ativa",
+        createdAt: now,
+        updatedAt: now,
+        demoBatchId: DEMO_BATCH_ID
+      }, [
+        demoMatcherByText(["code"], ["TESTE-CODEX-AREA-BASE-001"])
+      ], stats);
+      addDemoRecord("operationalAreas", {
+        id: DEMO_IDS.operationalAreaUtilities,
+        code: "TESTE-CODEX-AREA-BASE-002",
+        name: "Área de Utilidades Demonstração",
+        description: "TESTE CODEX área de utilidades e infraestrutura",
+        responsible: "Técnico Mecânico Codex",
+        status: "Ativa",
+        createdAt: now,
+        updatedAt: now,
+        demoBatchId: DEMO_BATCH_ID
+      }, [
+        demoMatcherByText(["code"], ["TESTE-CODEX-AREA-BASE-002"])
       ], stats);
       return stats;
     }
@@ -12355,6 +12406,9 @@
       setSelectOptionsPreservingValue("rtTeamStatus", TEAM_STATUSES.map(s => `<option value="${s}">${s}</option>`).join(""));
       const typeFilter = $("teamsResourceTypeFilter");
       if (typeFilter) typeFilter.innerHTML = `<option value="">Todos os tipos</option>` + RESOURCE_TYPES.map(t => `<option value="${t}">${t}</option>`).join("");
+      const oaStatusFilter = $("oaAreaStatusFilter");
+      if (oaStatusFilter) oaStatusFilter.innerHTML = `<option value="">Todos os status</option>` + AREA_STATUSES.map(s => `<option value="${s}">${s}</option>`).join("");
+      setSelectOptionsPreservingValue("oaAreaStatus", AREA_STATUSES.map(s => `<option value="${s}">${s}</option>`).join(""));
     }
 
     function supplierName(id) {
@@ -13791,6 +13845,144 @@
       `);
     }
 
+    function renderOperationalAreas() {
+      const target = $("oaAreaTableWrap");
+      if (!target) return;
+      const q = ($("oaAreaSearch")?.value || "").toLowerCase();
+      const statusFilter = $("oaAreaStatusFilter")?.value || "";
+      const rows = state.operationalAreas.filter(a => {
+        if (statusFilter && a.status !== statusFilter) return false;
+        if (q) {
+          const hay = `${a.id||""} ${a.code||""} ${a.name||""} ${a.description||""} ${a.responsible||""} ${a.status||""}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+      const formatDate = ts => ts ? new Date(Number(ts)).toISOString().slice(0, 10).split("-").reverse().join("/") : "-";
+      const html = `<table>
+        <thead><tr><th>Código</th><th>Nome</th><th>Responsável</th><th>Status</th><th>Atualização</th><th>Ações</th></tr></thead>
+        <tbody>${rows.length === 0
+          ? `<tr><td colspan="6" class="empty">Nenhuma área encontrada.</td></tr>`
+          : rows.map(a => `<tr>
+            <td><strong>${escapeHtml(a.code||"-")}</strong></td>
+            <td>${escapeHtml(a.name||"-")}</td>
+            <td>${escapeHtml(a.responsible||"-")}</td>
+            <td>${tag(a.status||"Ativa")}</td>
+            <td>${formatDate(a.updatedAt)}</td>
+            <td class="actions"><div class="os-panel-actions">
+              <button class="btn" onclick="editOAArea('${a.id}')">Editar</button>
+              <button class="btn" onclick="openOAAreaDetail('${a.id}')">Ver detalhes</button>
+              ${a.status !== "Inativa" ? `<button class="btn" onclick="changeOAAreaStatus('${a.id}','Inativa')">Inativar</button>` : `<button class="btn" onclick="changeOAAreaStatus('${a.id}','Ativa')">Reativar</button>`}
+              <button class="btn danger" onclick="deleteOAArea('${a.id}')">Excluir</button>
+            </div></td>
+          </tr>`).join("")
+        }</tbody></table>`;
+      target.innerHTML = html;
+    }
+
+    function openOAAreaFormForCreate() {
+      resetOAAreaForm();
+      $("oaAreaFormPanel").style.display = "";
+      $("oaAreaCode").focus();
+    }
+
+    function editOAArea(id) {
+      const a = byId(state.operationalAreas, id);
+      if (!a) return;
+      $("oaAreaId").value = a.id;
+      $("oaAreaCode").value = a.code || "";
+      $("oaAreaName").value = a.name || "";
+      $("oaAreaDescription").value = a.description || "";
+      $("oaAreaResponsible").value = a.responsible || "";
+      $("oaAreaStatus").value = a.status || "Ativa";
+      $("oaAreaFormTitle").textContent = "Editar Área Operacional";
+      $("oaAreaFormPanel").style.display = "";
+      $("oaAreaCode").focus();
+    }
+
+    function resetOAAreaForm() {
+      $("oaAreaForm").reset();
+      $("oaAreaId").value = "";
+      $("oaAreaStatus").value = "Ativa";
+      $("oaAreaFormTitle").textContent = "Nova Área Operacional";
+    }
+
+    function hideOAAreaForm() {
+      $("oaAreaFormPanel").style.display = "none";
+      resetOAAreaForm();
+    }
+
+    function changeOAAreaStatus(id, newStatus) {
+      state.operationalAreas = state.operationalAreas.map(a => a.id === id ? { ...a, status: newStatus, updatedAt: Date.now() } : a);
+      persistLocalStateOnly();
+      renderOperationalAreas();
+      showToast("Status atualizado.");
+    }
+
+    function deleteOAArea(id) {
+      const a = byId(state.operationalAreas, id);
+      if (!a) return;
+      // Check for potential links in locations (future-proof)
+      if (state.locations && state.locations.some(l => l.operationalAreaId === id || l.areaId === id)) {
+        const linkCount = state.locations.filter(l => l.operationalAreaId === id || l.areaId === id).length;
+        alert(`Esta área não pode ser excluída porque está vinculada a ${linkCount} local(is)/setor(es). Remova os vínculos ou marque a área como Inativa.`);
+        return;
+      }
+      if (!confirm(`Excluir a área ${a.code} - ${a.name}?`)) return;
+      state.operationalAreas = state.operationalAreas.filter(item => item.id !== id);
+      persistLocalStateOnly();
+      renderOperationalAreas();
+      showToast("Área excluída.");
+    }
+
+    function saveOAAreaFromForm(event) {
+      event.preventDefault();
+      if (oAAreaSaveLock) return;
+      oAAreaSaveLock = true;
+      const submitButton = event.submitter;
+      if (submitButton) submitButton.disabled = true;
+      try {
+        const id = $("oaAreaId").value || uid("oa");
+        const existing = byId(state.operationalAreas, id);
+        const code = value("oaAreaCode");
+        const name = value("oaAreaName");
+        const description = value("oaAreaDescription");
+        const responsible = value("oaAreaResponsible");
+        const status = $("oaAreaStatus").value;
+        if (!code) { showToast("Informe o código da área."); return; }
+        if (!name) { showToast("Informe o nome da área."); return; }
+        if (!description) { showToast("Informe a descrição da área."); return; }
+        if (!responsible) { showToast("Informe o responsável da área."); return; }
+        if (!AREA_STATUSES.includes(status)) { showToast("Selecione um status válido."); return; }
+        const dupCode = state.operationalAreas.find(a => a.id !== id && normalizeTextKey(a.code) === normalizeTextKey(code));
+        if (dupCode) { showToast("Já existe área com este código."); return; }
+        const dupName = state.operationalAreas.find(a => a.id !== id && normalizeTextKey(a.name) === normalizeTextKey(name));
+        if (dupName) { showToast("Já existe área com este nome."); return; }
+        const now = Date.now();
+        const record = { ...(existing || {}), id, code, name, description, responsible, status, createdAt: existing?.createdAt || now, updatedAt: now };
+        state.operationalAreas = state.operationalAreas.filter(a => a.id !== id).concat(record);
+        persistLocalStateOnly();
+        hideOAAreaForm();
+        renderOperationalAreas();
+        showToast(existing ? "Área atualizada." : "Área cadastrada.");
+      } finally {
+        setTimeout(() => { oAAreaSaveLock = false; if (submitButton) submitButton.disabled = false; }, 300);
+      }
+    }
+
+    function openOAAreaDetail(id) {
+      const a = byId(state.operationalAreas, id);
+      if (!a) return;
+      const formatDate = ts => ts ? new Date(Number(ts)).toISOString().slice(0, 10).split("-").reverse().join("/") : "-";
+      openModal(a.name, `
+        <div class="side-box full"><strong>${escapeHtml(a.code||"-")}</strong><span>${escapeHtml(a.description||"Sem descrição.")}</span></div>
+        <p><strong>Responsável:</strong> ${escapeHtml(a.responsible||"-")}</p>
+        <p><strong>Status:</strong> ${tag(a.status||"Ativa")}</p>
+        <p><strong>Criação:</strong> ${formatDate(a.createdAt)} &middot; <strong>Última atualização:</strong> ${formatDate(a.updatedAt)}</p>
+        <div class="toolbar"><button class="btn primary" onclick="closeModal()">Fechar</button></div>
+      `);
+    }
+
     function resetToolForm() {
       if (!$("toolForm")) return;
       $("toolForm").reset();
@@ -14106,6 +14298,7 @@
       renderOperationalDiary();
       renderToolsControl();
       renderTeamsResources();
+      renderOperationalAreas();
 
       $("regionRows").innerHTML = state.regions.map(item => {
         const localCount = state.locations.filter(location => location.regionId === item.id).length;
@@ -16960,6 +17153,7 @@
     if ($("toolForm")) $("toolForm").addEventListener("submit", saveToolFromForm);
     if ($("rtResourceForm")) $("rtResourceForm").addEventListener("submit", saveResourceFromForm);
     if ($("rtTeamForm")) $("rtTeamForm").addEventListener("submit", saveTeamFromForm);
+    if ($("oaAreaForm")) $("oaAreaForm").addEventListener("submit", saveOAAreaFromForm);
     if ($("resetToolForm")) $("resetToolForm").addEventListener("click", resetToolForm);
     if ($("measurementType")) $("measurementType").addEventListener("change", () => {
       $("measurementUnit").value = "";
