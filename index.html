@@ -3555,7 +3555,7 @@
         overflow-x: auto;
       }
     }
-  
+
 
     /* Ajustes finais de legibilidade, tema claro e celular */
     .panel-title, .metric span, .metric small, .bar-row strong, .tab span:last-child, .btn, label, th, td, .calendar-title {
@@ -6998,26 +6998,31 @@
       <div class="panel">
         <div class="panel-head">
           <div class="panel-title">Estrutura de Instalação</div>
-          <div class="toolbar">
-            <button class="btn primary" data-view-button="locations">Criar região/local</button>
-            <button class="btn primary" data-view-button="assets">Criar equipamento</button>
-          </div>
+          <div class="toolbar"><button class="btn primary" type="button" onclick="openISStructureFormForCreate()">Nova estrutura</button></div>
         </div>
-        <div class="map-shell">
-          <div class="industrial-map" id="industrialMap"></div>
-          <div class="map-side">
-            <div class="side-box" id="mapDetails">
-              <strong>Nenhum equipamento selecionado</strong>
-              <span class="muted">Clique em um equipamento no mapa para ver ações.</span>
-            </div>
-            <div class="side-box">
-              <strong>Legenda</strong>
-              <span><span class="tag danger">Alta criticidade</span></span>
-              <span><span class="tag warn">Média criticidade</span></span>
-              <span><span class="tag ok">Baixa criticidade</span></span>
-            </div>
-          </div>
+        <div class="toolbar" style="padding:12px">
+          <input class="field" id="isStructureSearch" placeholder="Pesquisar estrutura..." oninput="renderInstallationStructures()" style="flex:1 1 220px;min-width:0">
+          <select class="field" id="isAreaFilter" onchange="refreshISFilters(); renderInstallationStructures()" style="flex:1 1 180px;min-width:0"><option value="">Todas as Áreas</option></select>
+          <select class="field" id="isSectorLocationFilter" onchange="renderInstallationStructures()" style="flex:1 1 180px;min-width:0"><option value="">Todos os setores/locais</option></select>
+          <select class="field" id="isTypeFilter" onchange="renderInstallationStructures()" style="flex:1 1 160px;min-width:0"><option value="">Todos os tipos</option><option>Sistema</option><option>Sub-sistema</option><option>Linha</option><option>Conjunto</option><option>Ponto de Instalação</option></select>
+          <select class="field" id="isStatusFilter" onchange="renderInstallationStructures()" style="flex:1 1 130px;min-width:0"><option value="">Todos os status</option><option>Ativa</option><option>Inativa</option></select>
         </div>
+        <div class="panel form-panel" id="isStructureFormPanel" style="display:none">
+          <div class="panel-head"><div class="panel-title" id="isStructureFormTitle">Nova estrutura</div></div>
+          <form class="form" id="isStructureForm" novalidate style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px">
+            <input type="hidden" id="isStructureId">
+            <label>Código * <input class="field" id="isStructureCode" required placeholder="EI-001"></label>
+            <label>Nome * <input class="field" id="isStructureName" required placeholder="Nome da estrutura"></label>
+            <label>Tipo * <select class="field" id="isStructureType" required><option>Sistema</option><option>Sub-sistema</option><option>Linha</option><option>Conjunto</option><option>Ponto de Instalação</option></select></label>
+            <label>Setor/Local * <select class="field" id="isSectorLocationId" required></select></label>
+            <label>Estrutura pai <select class="field" id="isParentId"></select></label>
+            <label>Responsável * <input class="field" id="isStructureResponsible" required placeholder="Responsável"></label>
+            <label>Status * <select class="field" id="isStructureStatus" required><option>Ativa</option><option>Inativa</option></select></label>
+            <label class="full">Descrição * <textarea class="field" id="isStructureDescription" rows="3" required placeholder="Descreva a estrutura de instalação"></textarea></label>
+            <div class="full toolbar"><button class="btn primary" type="submit">Salvar estrutura</button><button class="btn" type="button" onclick="hideISStructureForm()">Cancelar</button></div>
+          </form>
+        </div>
+        <div class="table-wrap" id="isStructureTableWrap"></div>
       </div>
     </section>
 
@@ -8100,7 +8105,11 @@
       operationalAreaUtilities: "10000000-0000-4000-8000-000000001602",
       sectorsLocationLine: "10000000-0000-4000-8000-000000001701",
       sectorsLocationBombas: "10000000-0000-4000-8000-000000001702",
-      sectorsLocationPaineis: "10000000-0000-4000-8000-000000001703"
+      sectorsLocationPaineis: "10000000-0000-4000-8000-000000001703",
+      installationStructureLineSystem: "10000000-0000-4000-8000-000000001801",
+      installationStructureFeedingSubsystem: "10000000-0000-4000-8000-000000001802",
+      installationStructurePumpHouse: "10000000-0000-4000-8000-000000001803",
+      installationStructureElectricalPanels: "10000000-0000-4000-8000-000000001804"
     });
     const DEMO_ID_SET = new Set(Object.values(DEMO_IDS));
     const DEMO_REMOVAL_ORDER = [
@@ -8118,6 +8127,7 @@
       "toolLoans",
       "tools",
       "teams",
+      "installationStructures",
       "operationalAreas",
       "sectorsLocations",
       "resources",
@@ -8153,6 +8163,7 @@
       teams: [],
       operationalAreas: [],
       sectorsLocations: [],
+      installationStructures: [],
       profile: defaultProfileForAccount()
     });
 
@@ -8578,6 +8589,7 @@
       normalized.teams = Array.isArray(normalized.teams) ? normalized.teams.map(t => ({ ...t, memberIds: Array.isArray(t.memberIds) ? t.memberIds : [], status: t.status || "Ativa" })) : [];
       normalized.operationalAreas = Array.isArray(normalized.operationalAreas) ? normalized.operationalAreas.map(a => ({ ...a, status: a.status || "Ativa" })) : [];
       normalized.sectorsLocations = Array.isArray(normalized.sectorsLocations) ? normalized.sectorsLocations.map(sl => ({ ...sl, status: sl.status || "Ativo", type: sl.type || "Local" })) : [];
+      normalized.installationStructures = Array.isArray(normalized.installationStructures) ? normalized.installationStructures.map(item => ({ ...item, status: item.status || "Ativa", type: item.type || "Sistema", sectorLocationId: item.sectorLocationId || "", parentId: item.parentId || "" })) : [];
       normalized.locations = normalized.locations.map((location, index) => ({
         ...location,
         regionId: location.regionId || "",
@@ -8803,7 +8815,10 @@
     const AREA_STATUSES = ["Ativa", "Inativa"];
     const SECTOR_LOCATION_TYPES = ["Setor", "Local"];
     const SECTOR_LOCATION_STATUSES = ["Ativo", "Inativo"];
+    const INSTALLATION_STRUCTURE_TYPES = ["Sistema", "Sub-sistema", "Linha", "Conjunto", "Ponto de Instalação"];
+    const INSTALLATION_STRUCTURE_STATUSES = ["Ativa", "Inativa"];
     let slLocationSaveLock = false;
+    let isStructureSaveLock = false;
     function createDemoDataSet() {
       const stats = { created: 0, completed: 0, existing: 0 };
       const now = Date.now();
@@ -9235,6 +9250,62 @@
         updatedAt: now,
         demoBatchId: DEMO_BATCH_ID
       }, [demoMatcherByText(["code"], ["TESTE-CODEX-LOCAL-BASE-002"])], stats);
+      addDemoRecord("installationStructures", {
+        id: DEMO_IDS.installationStructureLineSystem,
+        code: "TESTE-CODEX-EI-BASE-001",
+        name: "Sistema Linha de Produção Demonstração",
+        type: "Sistema",
+        sectorLocationId: DEMO_IDS.sectorsLocationLine,
+        parentId: "",
+        description: "TESTE CODEX estrutura principal da linha de produção",
+        responsible: "Supervisor Codex",
+        status: "Ativa",
+        createdAt: now,
+        updatedAt: now,
+        demoBatchId: DEMO_BATCH_ID
+      }, [demoMatcherByText(["code"], ["TESTE-CODEX-EI-BASE-001"])], stats);
+      addDemoRecord("installationStructures", {
+        id: DEMO_IDS.installationStructureFeedingSubsystem,
+        code: "TESTE-CODEX-EI-BASE-002",
+        name: "Sub-sistema Alimentação Demonstração",
+        type: "Sub-sistema",
+        sectorLocationId: DEMO_IDS.sectorsLocationLine,
+        parentId: DEMO_IDS.installationStructureLineSystem,
+        description: "TESTE CODEX estrutura filha de alimentação da linha",
+        responsible: "Técnico Mecânico Codex",
+        status: "Ativa",
+        createdAt: now,
+        updatedAt: now,
+        demoBatchId: DEMO_BATCH_ID
+      }, [demoMatcherByText(["code"], ["TESTE-CODEX-EI-BASE-002"])], stats);
+      addDemoRecord("installationStructures", {
+        id: DEMO_IDS.installationStructurePumpHouse,
+        code: "TESTE-CODEX-EI-BASE-003",
+        name: "Sistema Casa de Bombas Demonstração",
+        type: "Sistema",
+        sectorLocationId: DEMO_IDS.sectorsLocationBombas,
+        parentId: "",
+        description: "TESTE CODEX estrutura do local casa de bombas",
+        responsible: "Técnico Mecânico Codex",
+        status: "Ativa",
+        createdAt: now,
+        updatedAt: now,
+        demoBatchId: DEMO_BATCH_ID
+      }, [demoMatcherByText(["code"], ["TESTE-CODEX-EI-BASE-003"])], stats);
+      addDemoRecord("installationStructures", {
+        id: DEMO_IDS.installationStructureElectricalPanels,
+        code: "TESTE-CODEX-EI-BASE-004",
+        name: "Sistema Painéis Elétricos Demonstração",
+        type: "Sistema",
+        sectorLocationId: DEMO_IDS.sectorsLocationPaineis,
+        parentId: "",
+        description: "TESTE CODEX estrutura do local de painéis elétricos",
+        responsible: "Técnico Eletricista Codex",
+        status: "Ativa",
+        createdAt: now,
+        updatedAt: now,
+        demoBatchId: DEMO_BATCH_ID
+      }, [demoMatcherByText(["code"], ["TESTE-CODEX-EI-BASE-004"])], stats);
       return stats;
     }
 
@@ -10213,6 +10284,7 @@
         data.stockTransfers?.length ||
         data.tools?.length ||
         data.toolLoans?.length ||
+        data.installationStructures?.length ||
         data.pendingActions?.length ||
         data.downtimes?.length ||
         data.measurements?.length ||
@@ -10283,7 +10355,7 @@
     function mergeRemoteWithLocal(remoteState, localState, preferLocal = false) {
       const local = normalizeState(localState || emptyState());
       const remote = normalizeState(remoteState || emptyState());
-      if (!preferLocal) return normalizeState({ ...remote, pendingActions: local.pendingActions, downtimes: local.downtimes, measurements: local.measurements, maintenanceJournal: local.maintenanceJournal, tools: local.tools, toolLoans: local.toolLoans });
+      if (!preferLocal) return normalizeState({ ...remote, pendingActions: local.pendingActions, downtimes: local.downtimes, measurements: local.measurements, maintenanceJournal: local.maintenanceJournal, tools: local.tools, toolLoans: local.toolLoans, installationStructures: local.installationStructures });
       return normalizeState({
         ...remote,
         profile: local.profile?.name ? { ...remote.profile, ...local.profile } : remote.profile,
@@ -10303,6 +10375,7 @@
         stockTransfers: mergeById(remote.stockTransfers, local.stockTransfers, true),
         tools: mergeById(remote.tools, local.tools, true),
         toolLoans: mergeById(remote.toolLoans, local.toolLoans, true),
+        installationStructures: mergeById(remote.installationStructures, local.installationStructures, true),
         pendingActions: mergeById(remote.pendingActions, local.pendingActions, true),
         downtimes: mergeById(remote.downtimes, local.downtimes, true),
         measurements: mergeById(remote.measurements, local.measurements, true),
@@ -14158,6 +14231,11 @@
     function deleteSLLocation(id) {
       const sl = byId(state.sectorsLocations, id);
       if (!sl) return;
+      const structureLinks = (state.installationStructures || []).filter(item => item.sectorLocationId === id).length;
+      if (structureLinks) {
+        alert(`Este Setor/Local não pode ser excluído porque possui ${structureLinks} estrutura(s) de instalação vinculada(s). Remova os vínculos ou marque como Inativo.`);
+        return;
+      }
       if (!confirm(`Excluir ${sl.code} - ${sl.name}?`)) return;
       state.sectorsLocations = state.sectorsLocations.filter(item => item.id !== id);
       persistLocalStateOnly();
@@ -14215,6 +14293,219 @@
         <p><strong>Responsável:</strong> ${escapeHtml(sl.responsible||"-")}</p>
         <p><strong>Status:</strong> ${tag(sl.status||"Ativo")}</p>
         <p><strong>Criação:</strong> ${formatDate(sl.createdAt)} &middot; <strong>Última atualização:</strong> ${formatDate(sl.updatedAt)}</p>
+        <div class="toolbar"><button class="btn primary" onclick="closeModal()">Fechar</button></div>
+      `);
+    }
+
+    function sectorLocationNameForIS(id) {
+      const sl = byId(state.sectorsLocations, id);
+      return sl ? sl.name : "Setor/Local não informado";
+    }
+
+    function sectorLocationAreaIdForIS(id) {
+      return byId(state.sectorsLocations, id)?.operationalAreaId || "";
+    }
+
+    function installationStructureName(id) {
+      const item = byId(state.installationStructures, id);
+      return item ? `${item.code} - ${item.name}` : "Sem estrutura pai";
+    }
+
+    function installationStructureSearchText(item = {}) {
+      const sector = byId(state.sectorsLocations, item.sectorLocationId) || {};
+      const areaName = areaNameForSL(sector.operationalAreaId);
+      const parentName = item.parentId ? installationStructureName(item.parentId) : "Sem pai";
+      return [item.id, item.code, item.name, item.type, item.description, item.responsible, item.status, sector.code, sector.name, sector.type, areaName, parentName].filter(Boolean).join(" ");
+    }
+
+    function refreshISFilters() {
+      const areaFilter = $("isAreaFilter");
+      const sectorFilter = $("isSectorLocationFilter");
+      const sectorSelect = $("isSectorLocationId");
+      const parentSelect = $("isParentId");
+      const selectedArea = areaFilter?.value || "";
+      if (areaFilter) {
+        const current = areaFilter.value;
+        areaFilter.innerHTML = `<option value="">Todas as Áreas</option>` + state.operationalAreas.map(area => `<option value="${area.id}">${escapeHtml(area.name)}</option>`).join("");
+        areaFilter.value = current;
+      }
+      const sectorOptions = state.sectorsLocations.filter(sl => !selectedArea || sl.operationalAreaId === selectedArea);
+      if (sectorFilter) {
+        const current = sectorFilter.value;
+        sectorFilter.innerHTML = `<option value="">Todos os setores/locais</option>` + sectorOptions.map(sl => `<option value="${sl.id}">${escapeHtml(sl.name)}</option>`).join("");
+        sectorFilter.value = sectorOptions.some(sl => sl.id === current) ? current : "";
+      }
+      if (sectorSelect) {
+        const current = sectorSelect.value;
+        sectorSelect.innerHTML = `<option value="">Selecione...</option>` + state.sectorsLocations.map(sl => `<option value="${sl.id}">${escapeHtml(areaNameForSL(sl.operationalAreaId))} / ${escapeHtml(sl.name)}</option>`).join("");
+        sectorSelect.value = current;
+      }
+      if (parentSelect) {
+        const current = parentSelect.value;
+        const editingId = $("isStructureId")?.value || "";
+        parentSelect.innerHTML = `<option value="">Sem pai</option>` + state.installationStructures.filter(item => item.id !== editingId).map(item => `<option value="${item.id}">${escapeHtml(item.code)} - ${escapeHtml(item.name)}</option>`).join("");
+        parentSelect.value = current && current !== editingId ? current : "";
+      }
+    }
+
+    function renderInstallationStructures() {
+      const target = $("isStructureTableWrap");
+      if (!target) return;
+      refreshISFilters();
+      const q = ($("isStructureSearch")?.value || "").toLowerCase();
+      const areaFilter = $("isAreaFilter")?.value || "";
+      const sectorFilter = $("isSectorLocationFilter")?.value || "";
+      const typeFilter = $("isTypeFilter")?.value || "";
+      const statusFilter = $("isStatusFilter")?.value || "";
+      const rows = state.installationStructures.filter(item => {
+        if (sectorFilter && item.sectorLocationId !== sectorFilter) return false;
+        if (areaFilter && sectorLocationAreaIdForIS(item.sectorLocationId) !== areaFilter) return false;
+        if (typeFilter && item.type !== typeFilter) return false;
+        if (statusFilter && item.status !== statusFilter) return false;
+        if (q && !installationStructureSearchText(item).toLowerCase().includes(q)) return false;
+        return true;
+      }).sort((a, b) => String(a.code || "").localeCompare(String(b.code || ""), "pt-BR"));
+      const html = `<table><thead><tr><th>Código</th><th>Nome</th><th>Tipo</th><th>Área</th><th>Setor/Local</th><th>Estrutura pai</th><th>Responsável</th><th>Status</th><th>Ações</th></tr></thead><tbody>${rows.length === 0 ? `<tr><td colspan="9" class="empty">Nenhuma estrutura encontrada.</td></tr>` : rows.map(item => {
+        const sector = byId(state.sectorsLocations, item.sectorLocationId) || {};
+        return `<tr><td><strong>${escapeHtml(item.code || "-")}</strong></td><td>${escapeHtml(item.name || "-")}</td><td>${escapeHtml(item.type || "-")}</td><td>${escapeHtml(areaNameForSL(sector.operationalAreaId))}</td><td>${escapeHtml(sector.name || "-")}</td><td>${escapeHtml(item.parentId ? installationStructureName(item.parentId) : "Sem pai")}</td><td>${escapeHtml(item.responsible || "-")}</td><td>${tag(item.status || "Ativa")}</td><td class="actions"><div class="os-panel-actions"><button class="btn" onclick="editISStructure('${item.id}')">Editar</button><button class="btn" onclick="openISStructureDetail('${item.id}')">Ver detalhes</button>${item.status !== "Inativa" ? `<button class="btn" onclick="changeISStructureStatus('${item.id}','Inativa')">Inativar</button>` : `<button class="btn" onclick="changeISStructureStatus('${item.id}','Ativa')">Reativar</button>`}<button class="btn danger" onclick="deleteISStructure('${item.id}')">Excluir</button></div></td></tr>`;
+      }).join("")}</tbody></table>`;
+      target.innerHTML = html;
+    }
+
+    function resetISStructureForm() {
+      $("isStructureForm").reset();
+      $("isStructureId").value = "";
+      $("isStructureType").value = "Sistema";
+      $("isStructureStatus").value = "Ativa";
+      $("isStructureFormTitle").textContent = "Nova estrutura";
+      refreshISFilters();
+    }
+
+    function openISStructureFormForCreate() {
+      resetISStructureForm();
+      $("isStructureFormPanel").style.display = "";
+      $("isStructureCode").focus();
+    }
+
+    function hideISStructureForm() {
+      $("isStructureFormPanel").style.display = "none";
+      resetISStructureForm();
+    }
+
+    function editISStructure(id) {
+      const item = byId(state.installationStructures, id);
+      if (!item) return;
+      $("isStructureId").value = item.id;
+      $("isStructureCode").value = item.code || "";
+      $("isStructureName").value = item.name || "";
+      $("isStructureType").value = item.type || "Sistema";
+      $("isSectorLocationId").value = item.sectorLocationId || "";
+      $("isParentId").value = item.parentId || "";
+      $("isStructureResponsible").value = item.responsible || "";
+      $("isStructureStatus").value = item.status || "Ativa";
+      $("isStructureDescription").value = item.description || "";
+      $("isStructureFormTitle").textContent = "Editar estrutura";
+      refreshISFilters();
+      $("isStructureFormPanel").style.display = "";
+      $("isStructureCode").focus();
+    }
+
+    function isStructureCycle(id, parentId) {
+      let current = parentId;
+      let guard = 0;
+      while (current && guard < 100) {
+        if (current === id) return true;
+        const parent = byId(state.installationStructures, current);
+        current = parent?.parentId || "";
+        guard += 1;
+      }
+      return false;
+    }
+
+    function saveISStructureFromForm(event) {
+      event.preventDefault();
+      if (isStructureSaveLock) return;
+      isStructureSaveLock = true;
+      const submitButton = event.submitter;
+      if (submitButton) submitButton.disabled = true;
+      try {
+        const id = $("isStructureId").value || uid("is");
+        const existing = byId(state.installationStructures, id);
+        const code = value("isStructureCode");
+        const name = value("isStructureName");
+        const type = $("isStructureType").value;
+        const sectorLocationId = $("isSectorLocationId").value;
+        const parentId = $("isParentId").value;
+        const responsible = value("isStructureResponsible");
+        const status = $("isStructureStatus").value;
+        const description = value("isStructureDescription");
+        if (!sectorLocationId) { showToast("Selecione o Setor/Local."); return; }
+        if (!code) { showToast("Informe o código da estrutura."); return; }
+        if (!name) { showToast("Informe o nome da estrutura."); return; }
+        if (!INSTALLATION_STRUCTURE_TYPES.includes(type)) { showToast("Selecione um tipo válido."); return; }
+        if (!description) { showToast("Informe a descrição da estrutura."); return; }
+        if (!responsible) { showToast("Informe o responsável da estrutura."); return; }
+        if (!INSTALLATION_STRUCTURE_STATUSES.includes(status)) { showToast("Selecione um status válido."); return; }
+        if (parentId === id) { showToast("A estrutura pai não pode ser o próprio registro."); return; }
+        if (parentId && isStructureCycle(id, parentId)) { showToast("A estrutura pai criaria ciclo na hierarquia."); return; }
+        const dupCode = state.installationStructures.find(item => item.id !== id && normalizeTextKey(item.code) === normalizeTextKey(code));
+        if (dupCode) { showToast("Já existe estrutura com este código."); return; }
+        const dupName = state.installationStructures.find(item => item.id !== id && item.sectorLocationId === sectorLocationId && normalizeTextKey(item.name) === normalizeTextKey(name));
+        if (dupName) { showToast("Já existe estrutura com este nome neste Setor/Local."); return; }
+        const now = Date.now();
+        const record = { ...(existing || {}), id, code, name, type, sectorLocationId, parentId, description, responsible, status, createdAt: existing?.createdAt || now, updatedAt: now };
+        state.installationStructures = state.installationStructures.filter(item => item.id !== id).concat(record);
+        persistLocalStateOnly();
+        hideISStructureForm();
+        renderInstallationStructures();
+        showToast(existing ? "Estrutura atualizada." : "Estrutura cadastrada.");
+      } finally {
+        setTimeout(() => { isStructureSaveLock = false; if (submitButton) submitButton.disabled = false; }, 300);
+      }
+    }
+
+    function changeISStructureStatus(id, newStatus) {
+      if (!INSTALLATION_STRUCTURE_STATUSES.includes(newStatus)) return;
+      state.installationStructures = state.installationStructures.map(item => item.id === id ? { ...item, status: newStatus, updatedAt: Date.now() } : item);
+      persistLocalStateOnly();
+      renderInstallationStructures();
+      showToast("Status da estrutura atualizado.");
+    }
+
+    function deleteISStructure(id) {
+      const item = byId(state.installationStructures, id);
+      if (!item) return;
+      const childCount = state.installationStructures.filter(child => child.parentId === id).length;
+      if (childCount) {
+        alert(`Esta estrutura não pode ser excluída porque possui ${childCount} estrutura(s) filha(s). Remova o vínculo antes de excluir.`);
+        return;
+      }
+      const assetLinks = (state.assets || []).filter(asset => asset.installationStructureId === id || asset.structureId === id || asset.installationId === id).length;
+      if (assetLinks) {
+        alert(`Esta estrutura não pode ser excluída porque possui ${assetLinks} ativo(s)/equipamento(s) vinculado(s).`);
+        return;
+      }
+      if (!confirm(`Excluir ${item.code} - ${item.name}?`)) return;
+      state.installationStructures = state.installationStructures.filter(candidate => candidate.id !== id);
+      persistLocalStateOnly();
+      renderInstallationStructures();
+      showToast("Estrutura excluída.");
+    }
+
+    function openISStructureDetail(id) {
+      const item = byId(state.installationStructures, id);
+      if (!item) return;
+      const sector = byId(state.sectorsLocations, item.sectorLocationId) || {};
+      const formatDate = ts => ts ? new Date(Number(ts)).toISOString().slice(0, 10).split("-").reverse().join("/") : "-";
+      openModal(item.name, `
+        <div class="side-box full"><strong>${escapeHtml(item.code || "-")}</strong><span>${escapeHtml(item.description || "Sem descrição.")}</span></div>
+        <p><strong>Tipo:</strong> ${escapeHtml(item.type || "-")}</p>
+        <p><strong>Área Operacional:</strong> ${escapeHtml(areaNameForSL(sector.operationalAreaId))}</p>
+        <p><strong>Setor/Local:</strong> ${escapeHtml(sector.name || "-")}</p>
+        <p><strong>Estrutura pai:</strong> ${escapeHtml(item.parentId ? installationStructureName(item.parentId) : "Sem pai")}</p>
+        <p><strong>Responsável:</strong> ${escapeHtml(item.responsible || "-")}</p>
+        <p><strong>Status:</strong> ${tag(item.status || "Ativa")}</p>
+        <p><strong>Criação:</strong> ${formatDate(item.createdAt)} &middot; <strong>Última atualização:</strong> ${formatDate(item.updatedAt)}</p>
         <div class="toolbar"><button class="btn primary" onclick="closeModal()">Fechar</button></div>
       `);
     }
@@ -14536,6 +14827,7 @@
       renderTeamsResources();
       renderOperationalAreas();
       renderSectorsLocations();
+      renderInstallationStructures();
 
       $("regionRows").innerHTML = state.regions.map(item => {
         const localCount = state.locations.filter(location => location.regionId === item.id).length;
@@ -17306,7 +17598,7 @@
       if (ask) showToast("Checklist excluído.");
     }
 
-    window.editAsset = editAsset; window.deleteAsset = deleteAsset; window.duplicateAsset = duplicateAsset; window.editRegion = editRegion; window.deleteRegion = deleteRegion; window.editLocation = editLocation; window.deleteLocation = deleteLocation; window.editTag = editTag; window.deleteTag = deleteTag; window.editSubtag = editSubtag; window.deleteSubtag = deleteSubtag; window.editSupplier = editSupplier; window.deleteSupplier = deleteSupplier; window.editStock = editStock; window.deleteStock = deleteStock; window.editSpare = editSpare; window.deleteSpare = deleteSpare; window.editStockMove = editStockMove; window.deleteStockMove = deleteStockMove; window.editMaterialRequest = editMaterialRequest; window.deleteMaterialRequest = deleteMaterialRequest; window.editStockTransfer = editStockTransfer; window.deleteStockTransfer = deleteStockTransfer; window.editDowntime = editDowntime; window.closeDowntime = closeDowntime; window.cancelDowntime = cancelDowntime; window.deleteDowntime = deleteDowntime; window.editMeasurement = editMeasurement; window.showMeasurementDetails = showMeasurementDetails; window.deleteMeasurement = deleteMeasurement; window.editOperationalDiary = editOperationalDiary; window.showOperationalDiaryDetails = showOperationalDiaryDetails; window.deleteOperationalDiary = deleteOperationalDiary; window.editTool = editTool; window.deleteTool = deleteTool; window.toggleToolActive = toggleToolActive; window.openToolLoanModal = openToolLoanModal; window.openToolReturnModal = openToolReturnModal; window.cancelToolLoan = cancelToolLoan; window.openToolHistory = openToolHistory; window.showToolLoanDetails = showToolLoanDetails; window.editOrder = editOrder; window.deleteOrder = deleteOrder; window.startOrder = startOrder; window.confirmStartOrder = confirmStartOrder; window.finishOrder = finishOrder; window.showOrderDetails = showOrderDetails; window.simpleOrderAction = simpleOrderAction; window.editPreventivePlan = editPreventivePlan; window.deletePreventivePlan = deletePreventivePlan; window.generatePreventivePlanOrder = generatePreventivePlanOrder; window.openChecklistExecution = openChecklistExecution; window.openChecklistHistory = openChecklistHistory; window.showChecklistExecutionDetails = showChecklistExecutionDetails; window.deleteChecklistExecution = deleteChecklistExecution; window.editChecklist = editChecklist; window.deleteChecklist = deleteChecklist; window.openLocationChecklists = openLocationChecklists; window.openLocationMovements = openLocationMovements; window.moveDashboardWidget = moveDashboardWidget; window.resizeDashboardWidget = resizeDashboardWidget; window.hideDashboardWidget = hideDashboardWidget; window.openDashboardConfig = openDashboardConfig; window.saveDashboardVisibility = saveDashboardVisibility; window.resetDashboardLayout = resetDashboardLayout; window.toggleApiFolder = toggleApiFolder; window.openApiCommand = openApiCommand; window.copyPlainText = copyPlainText; window.copyTextFromElement = copyTextFromElement; window.editTenantUser = editTenantUser; window.deleteTenantUser = deleteTenantUser;
+    window.editAsset = editAsset; window.deleteAsset = deleteAsset; window.duplicateAsset = duplicateAsset; window.editRegion = editRegion; window.deleteRegion = deleteRegion; window.editLocation = editLocation; window.deleteLocation = deleteLocation; window.editTag = editTag; window.deleteTag = deleteTag; window.editSubtag = editSubtag; window.deleteSubtag = deleteSubtag; window.editSupplier = editSupplier; window.deleteSupplier = deleteSupplier; window.editStock = editStock; window.deleteStock = deleteStock; window.editSpare = editSpare; window.deleteSpare = deleteSpare; window.editStockMove = editStockMove; window.deleteStockMove = deleteStockMove; window.editMaterialRequest = editMaterialRequest; window.deleteMaterialRequest = deleteMaterialRequest; window.editStockTransfer = editStockTransfer; window.deleteStockTransfer = deleteStockTransfer; window.editDowntime = editDowntime; window.closeDowntime = closeDowntime; window.cancelDowntime = cancelDowntime; window.deleteDowntime = deleteDowntime; window.editMeasurement = editMeasurement; window.showMeasurementDetails = showMeasurementDetails; window.deleteMeasurement = deleteMeasurement; window.editOperationalDiary = editOperationalDiary; window.showOperationalDiaryDetails = showOperationalDiaryDetails; window.deleteOperationalDiary = deleteOperationalDiary; window.editTool = editTool; window.deleteTool = deleteTool; window.toggleToolActive = toggleToolActive; window.openToolLoanModal = openToolLoanModal; window.openToolReturnModal = openToolReturnModal; window.cancelToolLoan = cancelToolLoan; window.openToolHistory = openToolHistory; window.showToolLoanDetails = showToolLoanDetails; window.editISStructure = editISStructure; window.deleteISStructure = deleteISStructure; window.changeISStructureStatus = changeISStructureStatus; window.openISStructureDetail = openISStructureDetail; window.openISStructureFormForCreate = openISStructureFormForCreate; window.hideISStructureForm = hideISStructureForm; window.renderInstallationStructures = renderInstallationStructures; window.refreshISFilters = refreshISFilters; window.editOrder = editOrder; window.deleteOrder = deleteOrder; window.startOrder = startOrder; window.confirmStartOrder = confirmStartOrder; window.finishOrder = finishOrder; window.showOrderDetails = showOrderDetails; window.simpleOrderAction = simpleOrderAction; window.editPreventivePlan = editPreventivePlan; window.deletePreventivePlan = deletePreventivePlan; window.generatePreventivePlanOrder = generatePreventivePlanOrder; window.openChecklistExecution = openChecklistExecution; window.openChecklistHistory = openChecklistHistory; window.showChecklistExecutionDetails = showChecklistExecutionDetails; window.deleteChecklistExecution = deleteChecklistExecution; window.editChecklist = editChecklist; window.deleteChecklist = deleteChecklist; window.openLocationChecklists = openLocationChecklists; window.openLocationMovements = openLocationMovements; window.moveDashboardWidget = moveDashboardWidget; window.resizeDashboardWidget = resizeDashboardWidget; window.hideDashboardWidget = hideDashboardWidget; window.openDashboardConfig = openDashboardConfig; window.saveDashboardVisibility = saveDashboardVisibility; window.resetDashboardLayout = resetDashboardLayout; window.toggleApiFolder = toggleApiFolder; window.openApiCommand = openApiCommand; window.copyPlainText = copyPlainText; window.copyTextFromElement = copyTextFromElement; window.editTenantUser = editTenantUser; window.deleteTenantUser = deleteTenantUser;
 
     prepareCrudUi();
 
@@ -17392,6 +17684,7 @@
     if ($("rtTeamForm")) $("rtTeamForm").addEventListener("submit", saveTeamFromForm);
     if ($("oaAreaForm")) $("oaAreaForm").addEventListener("submit", saveOAAreaFromForm);
     if ($("slLocationForm")) $("slLocationForm").addEventListener("submit", saveSLLocationFromForm);
+    if ($("isStructureForm")) $("isStructureForm").addEventListener("submit", saveISStructureFromForm);
     if ($("resetToolForm")) $("resetToolForm").addEventListener("click", resetToolForm);
     if ($("measurementType")) $("measurementType").addEventListener("change", () => {
       $("measurementUnit").value = "";
@@ -17693,9 +17986,9 @@
         if (!OPERATIONAL_DIARY_CATEGORIES.includes(category)) { showToast("Selecione uma categoria válida."); return; }
         if (!title) { showToast("Informe o título do registro."); return; }
         if (!description) { showToast("Informe a descrição do registro."); return; }
-        if (assetId && !byId(state.assets, assetId)) { showToast("O equipamento vinculado n?o está dispon?vel."); return; }
-        if (orderId && !byId(state.orders, orderId)) { showToast("A O.S vinculada n?o está dispon?vel."); return; }
-        if (!owner) { showToast("Informe o respons?vel pelo registro."); return; }
+        if (assetId && !byId(state.assets, assetId)) { showToast("O equipamento vinculado não está disponível."); return; }
+        if (orderId && !byId(state.orders, orderId)) { showToast("A O.S vinculada não está disponível."); return; }
+        if (!owner) { showToast("Informe o responsável pelo registro."); return; }
         if (!OPERATIONAL_DIARY_ATTENTION_LEVELS.includes(attentionLevel)) { showToast("Selecione um nível de atenção válido."); return; }
         const now = Date.now();
         const payload = { id, occurredAt, shift, category, title, description, assetId, orderId, owner, attentionLevel, createdAt: existing?.createdAt || now, updatedAt: now };
