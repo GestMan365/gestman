@@ -8514,6 +8514,270 @@
       .industrial-card-head h2 { font-size: 13px !important; }
       .industrial-legend-row { font-size: 9px !important; }
     }
+
+    /* Cabeçalho Visão Geral — reprodução da referência */
+    .reference-topbar {
+      top: 0 !important;
+      left: 240px !important;
+      right: 0 !important;
+      width: auto !important;
+      height: 60px !important;
+      min-height: 60px !important;
+      padding: 0 26px !important;
+      display: grid !important;
+      grid-template-columns: minmax(220px,1fr) minmax(260px,360px) minmax(330px,1fr) !important;
+      align-items: center !important;
+      gap: 18px !important;
+      overflow: hidden !important;
+      color: #f8fafc !important;
+      background: #06111f !important;
+      border: 0 !important;
+      border-bottom: 1px solid #14263a !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+    }
+
+    body.sidebar-collapsed .reference-topbar { left: 0 !important; }
+
+    .reference-topbar-left {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      white-space: nowrap;
+    }
+
+    .reference-topbar .topbar-menu-btn { display: none !important; }
+
+    .reference-topbar-heading {
+      min-width: 0;
+      display: grid;
+      align-content: center;
+      gap: 3px;
+      line-height: 1.1;
+    }
+
+    .reference-topbar-heading strong {
+      overflow: hidden;
+      color: #f8fafc !important;
+      font-size: 15px !important;
+      font-weight: 700 !important;
+      line-height: 1.15 !important;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .reference-topbar-heading span {
+      overflow: hidden;
+      color: #8293aa !important;
+      font-size: 10px !important;
+      font-weight: 500 !important;
+      line-height: 1.2 !important;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .reference-topbar-search {
+      justify-self: center;
+      width: 100% !important;
+      max-width: 360px !important;
+      min-width: 0 !important;
+      height: 34px !important;
+      min-height: 34px !important;
+      padding: 0 7px 0 10px !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      color: #7f91a8 !important;
+      background: #0b1929 !important;
+      border: 1px solid #1b3046 !important;
+      border-radius: 7px !important;
+      box-shadow: inset 0 1px 1px rgba(255,255,255,.015) !important;
+    }
+
+    .reference-topbar-search > .ui-icon {
+      width: 15px !important;
+      height: 15px !important;
+      flex: 0 0 15px;
+      color: #71849c !important;
+      stroke-width: 1.8 !important;
+    }
+
+    .reference-topbar-search .searchbar {
+      width: 100% !important;
+      min-width: 0 !important;
+      height: 30px !important;
+      min-height: 30px !important;
+      padding: 0 !important;
+      color: #d9e2ec !important;
+      background: transparent !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      font-size: 10px !important;
+      font-weight: 500 !important;
+      line-height: 30px !important;
+    }
+
+    .reference-topbar-search .searchbar::placeholder { color: #77899f !important; opacity: 1; }
+    .reference-topbar-search:focus-within { border-color: #28547c !important; box-shadow: 0 0 0 2px rgba(29,140,255,.09) !important; }
+
+    .reference-search-shortcut {
+      width: 20px;
+      min-width: 20px !important;
+      height: 22px;
+      min-height: 22px !important;
+      flex: 0 0 20px;
+      padding: 0 !important;
+      display: grid !important;
+      place-items: center !important;
+      color: #8293aa !important;
+      background: #101f31 !important;
+      border: 1px solid #1c3148 !important;
+      border-radius: 4px !important;
+      box-shadow: none !important;
+      font-family: inherit !important;
+      font-size: 10px !important;
+      font-weight: 700 !important;
+      line-height: 1 !important;
+    }
+
+    .reference-search-shortcut:hover { color: #fff !important; border-color: #28547c !important; background: #14263a !important; transform: none !important; }
+
+    .reference-topbar-actions {
+      min-width: 0;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 9px;
+      white-space: nowrap;
+    }
+
+    .reference-header-separator {
+      width: 1px;
+      height: 32px;
+      flex: 0 0 1px;
+      background: #172a3d;
+    }
+
+    .reference-icon-button {
+      position: relative !important;
+      width: 30px !important;
+      min-width: 30px !important;
+      height: 30px !important;
+      min-height: 30px !important;
+      padding: 0 !important;
+      display: grid !important;
+      place-items: center !important;
+      color: #b8c5d4 !important;
+      background: transparent !important;
+      border: 0 !important;
+      border-radius: 50% !important;
+      box-shadow: none !important;
+      font-size: 13px !important;
+      font-weight: 800 !important;
+      line-height: 1 !important;
+    }
+
+    .reference-icon-button .ui-icon { width: 18px !important; height: 18px !important; stroke-width: 1.8 !important; }
+    .reference-icon-button:hover { color: #fff !important; background: #102238 !important; transform: none !important; }
+    .reference-notification b {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      min-width: 15px;
+      height: 15px;
+      padding: 0 4px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: #1d8cff;
+      border: 2px solid #06111f;
+      border-radius: 999px;
+      font-size: 7px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .reference-help { border: 1px solid #8190a3 !important; font-size: 11px !important; }
+
+    .reference-header-user {
+      min-width: 0 !important;
+      min-height: 40px !important;
+      height: 40px !important;
+      padding: 2px 0 2px 6px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: flex-end !important;
+      gap: 11px !important;
+      color: #f8fafc !important;
+      background: transparent !important;
+      border: 0 !important;
+      border-radius: 7px !important;
+      box-shadow: none !important;
+    }
+
+    .reference-header-user:hover { background: #0b1929 !important; transform: none !important; }
+    .reference-user-copy { min-width: 0; display: grid; gap: 2px; text-align: left; }
+    .reference-user-copy strong { overflow: hidden; color: #f8fafc !important; font-size: 10px !important; font-weight: 700 !important; line-height: 1.15 !important; text-overflow: ellipsis; }
+    .reference-user-copy small { overflow: hidden; color: #1d8cff !important; font-size: 9px !important; font-weight: 600 !important; line-height: 1.15 !important; text-overflow: ellipsis; }
+
+    .reference-user-avatar {
+      position: relative;
+      width: 34px;
+      height: 34px;
+      flex: 0 0 34px;
+      display: grid;
+      place-items: center;
+      color: #dbeafe;
+      background: #15263a;
+      border: 1px solid #20374f;
+      border-radius: 50%;
+      font-size: 10px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .reference-user-avatar i {
+      position: absolute;
+      right: -1px;
+      bottom: -1px;
+      width: 9px;
+      height: 9px;
+      background: #22c55e;
+      border: 2px solid #06111f;
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(34,197,94,.45);
+    }
+
+    @media (max-width: 1220px) {
+      .reference-topbar { grid-template-columns: minmax(190px,1fr) minmax(220px,300px) auto !important; padding: 0 18px !important; gap: 12px !important; }
+      .reference-user-copy { display: none !important; }
+      .reference-topbar-actions { gap: 7px; }
+    }
+
+    @media (max-width: 900px) {
+      .reference-topbar { left: 0 !important; grid-template-columns: minmax(190px,1fr) minmax(180px,260px) auto !important; padding: 0 12px !important; }
+      .reference-topbar .topbar-menu-btn { width: 34px !important; min-width: 34px !important; height: 34px !important; min-height: 34px !important; padding: 0 !important; display: grid !important; place-items: center !important; color: #b8c5d4 !important; background: #0b1929 !important; border: 1px solid #1b3046 !important; border-radius: 6px !important; box-shadow: none !important; font-size: 17px !important; }
+      .reference-header-separator:first-child { display: none; }
+    }
+
+    @media (max-width: 700px) {
+      .reference-topbar { grid-template-columns: minmax(155px,1fr) minmax(130px,210px) auto !important; gap: 8px !important; }
+      .reference-topbar-heading span { display: none; }
+      .reference-topbar-search { max-width: 210px !important; }
+      .reference-help,
+      .reference-topbar-actions .reference-header-separator { display: none !important; }
+    }
+
+    @media (max-width: 500px) {
+      .reference-topbar { grid-template-columns: minmax(150px,1fr) auto !important; }
+      .reference-topbar-search { display: none !important; }
+      .reference-topbar-actions { grid-column: 2; }
+      .reference-topbar-heading strong { font-size: 14px !important; }
+      .reference-user-avatar { width: 32px; height: 32px; flex-basis: 32px; }
+    }
 </style>
 </head>
 <body class="auth-loading">
@@ -8588,22 +8852,29 @@
     </div>
   </div>
 
-  <header class="topbar">
-    <div class="topbar-main">
+  <header class="topbar reference-topbar">
+    <div class="reference-topbar-left">
       <button class="topbar-menu-btn" id="topbarMenuBtn" type="button" title="Alternar menu" aria-label="Alternar menu">☰</button>
-      <div class="topbar-view-heading"><strong id="topbarViewTitle">Dashboard</strong><span>Visão geral da manutenção industrial</span></div>
-      <label class="topbar-search">
-        <span aria-hidden="true">⌕</span>
-        <input class="searchbar" id="globalSearch" placeholder="Buscar no GestMan365">
-        <kbd>Ctrl + K</kbd>
-      </label>
+      <div class="reference-topbar-heading"><strong>Visão Geral</strong><span>Panorama operacional em tempo real</span></div>
     </div>
-    <div class="top-actions">
-      <label class="industrial-unit-select"><span>Unidade</span><select aria-label="Unidade industrial"><option>Unidade Industrial 01</option><option>Unidade Industrial 02</option></select></label>
-      <div class="industrial-clock"><strong id="topbarTime">00:00</strong><span id="topbarDate">--/--/----</span></div>
-      <button class="top-action-btn" type="button" onclick="openModal('Alertas', '<div class=&quot;side-box&quot;><strong>Alertas operacionais</strong><span>Consulte O.S atrasadas, estoque mínimo e paradas ativas no dashboard.</span></div>')"><span>●</span><small>Alertas</small></button>
-      <button class="top-action-btn" type="button" onclick="openModal('Mensagens', '<div class=&quot;side-box&quot;><strong>Mensagens</strong><span>Central de comunicação preparada para integrações futuras.</span></div>')"><span>✉</span><small>Mensagens</small></button>
-      <button class="top-action-btn" type="button" onclick="openModal('Ajuda', '<div class=&quot;side-box&quot;><strong>Ajuda GestMan365</strong><span>Use o menu lateral para acessar cada módulo da manutenção.</span></div>')"><span>?</span><small>Ajuda</small></button>
+    <label class="topbar-search reference-topbar-search">
+      <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
+      <input class="searchbar" id="globalSearch" placeholder="Buscar ativos, ordens, locais...">
+      <button class="reference-search-shortcut" type="button" aria-label="Focar busca" onclick="document.getElementById('globalSearch').focus()">/</button>
+    </label>
+    <div class="reference-topbar-actions">
+      <span class="reference-header-separator" aria-hidden="true"></span>
+      <button class="reference-icon-button reference-notification" type="button" aria-label="Notificações" onclick="openModal('Notificações', '<div class=&quot;side-box&quot;><strong>Notificações operacionais</strong><span>Consulte O.S atrasadas, estoque mínimo e paradas ativas no dashboard.</span></div>')">
+        <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M10 21h4"></path></svg>
+        <b>8</b>
+      </button>
+      <span class="reference-header-separator" aria-hidden="true"></span>
+      <button class="reference-icon-button reference-help" type="button" aria-label="Ajuda" onclick="openModal('Ajuda GestMan365', '<div class=&quot;side-box&quot;><strong>Central de ajuda</strong><span>Use o menu lateral para acessar cada módulo da manutenção.</span></div>')">?</button>
+      <span class="reference-header-separator" aria-hidden="true"></span>
+      <button class="reference-header-user" type="button" onclick="openProfileModal()" aria-label="Abrir perfil de Eng. Carlos Silva">
+        <span class="reference-user-copy"><strong>Eng. Carlos Silva</strong><small>Administrador</small></span>
+        <span class="reference-user-avatar">CS<i aria-label="Online"></i></span>
+      </button>
     </div>
   </header>
 
@@ -20161,7 +20432,9 @@
     $("globalSearch").addEventListener("input", render);
     $("topbarMenuBtn").addEventListener("click", () => setNavCollapsed(!document.body.classList.contains("sidebar-collapsed")));
     window.addEventListener("keydown", event => {
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+      const target = event.target;
+      const typing = target && ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName);
+      if (((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") || (event.key === "/" && !typing)) {
         event.preventDefault();
         $("globalSearch").focus();
         $("globalSearch").select();
