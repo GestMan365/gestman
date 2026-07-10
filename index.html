@@ -8682,10 +8682,11 @@
 
     .reference-icon-button .ui-icon { width: 18px !important; height: 18px !important; stroke-width: 1.8 !important; }
     .reference-icon-button:hover { color: #fff !important; background: #102238 !important; transform: none !important; }
+    .reference-notification { overflow: visible !important; }
     .reference-notification b {
       position: absolute;
-      top: -2px;
-      right: -2px;
+      top: -4px;
+      right: -4px;
       min-width: 15px;
       height: 15px;
       padding: 0 4px;
@@ -8703,14 +8704,15 @@
     .reference-help { border: 1px solid #8190a3 !important; font-size: 11px !important; }
 
     .reference-header-user {
-      min-width: 0 !important;
+      width: 38px !important;
+      min-width: 38px !important;
       min-height: 40px !important;
       height: 40px !important;
-      padding: 2px 0 2px 6px !important;
+      padding: 2px !important;
       display: flex !important;
       align-items: center !important;
       justify-content: flex-end !important;
-      gap: 11px !important;
+      gap: 0 !important;
       color: #f8fafc !important;
       background: transparent !important;
       border: 0 !important;
@@ -8871,8 +8873,7 @@
       <span class="reference-header-separator" aria-hidden="true"></span>
       <button class="reference-icon-button reference-help" type="button" aria-label="Ajuda" onclick="openModal('Ajuda GestMan365', '<div class=&quot;side-box&quot;><strong>Central de ajuda</strong><span>Use o menu lateral para acessar cada módulo da manutenção.</span></div>')">?</button>
       <span class="reference-header-separator" aria-hidden="true"></span>
-      <button class="reference-header-user" type="button" onclick="openProfileModal()" aria-label="Abrir perfil de Eng. Carlos Silva">
-        <span class="reference-user-copy"><strong>Eng. Carlos Silva</strong><small>Administrador</small></span>
+      <button class="reference-header-user" type="button" onclick="openProfileModal()" aria-label="Abrir perfil do usuário">
         <span class="reference-user-avatar">CS<i aria-label="Online"></i></span>
       </button>
     </div>
