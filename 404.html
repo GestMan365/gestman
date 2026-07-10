@@ -6478,6 +6478,324 @@
       animation: none !important;
       scroll-behavior: auto !important;
     }
+
+    /* Template dos botoes: modelo empresarial CMMS */
+    :root {
+      --gm-primary: #2563eb;
+      --gm-primary-dark: #1d4ed8;
+      --gm-primary-light: #2f7df4;
+      --gm-success: #16a34a;
+      --gm-success-dark: #15803d;
+      --gm-warning: #f59e0b;
+      --gm-warning-dark: #d97706;
+      --gm-danger: #dc2626;
+      --gm-danger-dark: #b91c1c;
+      --gm-plan: #7c3aed;
+      --gm-plan-dark: #6d28d9;
+      --gm-neutral: #6b7280;
+      --gm-neutral-dark: #4b5563;
+      --gm-ghost-bg: #ffffff;
+      --gm-ghost-bg2: #f8fafc;
+      --gm-ghost-text: #334155;
+      --gm-border: #cbd5e1;
+      --gm-disabled-bg: #e5e7eb;
+      --gm-disabled-text: #9ca3af;
+      --gm-shadow: 0 4px 10px rgba(15, 23, 42, .18);
+      --gm-shadow-hover: 0 8px 18px rgba(15, 23, 42, .22);
+      --gm-ghost-shadow: 0 3px 8px rgba(15, 23, 42, .14);
+    }
+
+    button,
+    .btn,
+    .tab,
+    .menu-item,
+    .icon-btn,
+    .tree-mini-btn,
+    .tenant-user-tab,
+    .api-folder-head,
+    .calendar-mode,
+    .calendar-top-btn,
+    .calendar-arrow,
+    .calendar-unscheduled-item,
+    .calendar-list-row,
+    .widget-btn,
+    .nav-toggle-btn,
+    .nav-rail-toggle,
+    .admin-pill,
+    .topbar .btn,
+    .os-actions button,
+    [data-view-button],
+    [data-module-action],
+    [data-detail-tab],
+    [data-checklist-item-action],
+    [data-link-checklist],
+    [data-remove-list] {
+      position: relative !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 10px !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+      min-height: 40px !important;
+      height: auto !important;
+      padding: 10px 18px !important;
+      border: 1px solid transparent !important;
+      border-radius: 8px !important;
+      background: linear-gradient(180deg, var(--gm-primary-light) 0%, var(--gm-primary) 100%) !important;
+      color: #fff !important;
+      box-shadow: var(--gm-shadow) !important;
+      font-family: Inter, "Segoe UI", Arial, sans-serif !important;
+      font-size: clamp(11px, .78vw, 13px) !important;
+      font-weight: 800 !important;
+      line-height: 1.15 !important;
+      letter-spacing: 0 !important;
+      text-align: center !important;
+      text-transform: none !important;
+      white-space: normal !important;
+      overflow-wrap: anywhere !important;
+      word-break: normal !important;
+      overflow: hidden !important;
+      text-overflow: clip !important;
+      cursor: pointer !important;
+      transition: transform .16s ease, box-shadow .16s ease, background .16s ease, border-color .16s ease !important;
+    }
+
+    button::before, button::after,
+    .btn::before, .btn::after,
+    .tab::before, .tab::after,
+    .menu-item::before, .menu-item::after,
+    .auth-submit::after,
+    .tenant-user-editor-foot .btn::after,
+    .calendar-top-btn::after,
+    .calendar-arrow::after,
+    .calendar-mode::after,
+    .widget-btn::after,
+    .os-actions button::after,
+    .btn.danger::after {
+      display: none !important;
+      content: none !important;
+    }
+
+    button:hover,
+    .btn:hover,
+    .tab:hover,
+    .menu-item:hover,
+    .icon-btn:hover,
+    .tree-mini-btn:hover,
+    .tenant-user-tab:hover,
+    .api-folder-head:hover,
+    .calendar-mode:hover,
+    .calendar-top-btn:hover,
+    .calendar-arrow:hover,
+    .calendar-unscheduled-item:hover,
+    .calendar-list-row:hover,
+    .widget-btn:hover,
+    .nav-toggle-btn:hover,
+    .nav-rail-toggle:hover,
+    .admin-pill:hover,
+    .topbar .btn:hover,
+    .os-actions button:hover,
+    [data-view-button]:hover,
+    [data-module-action]:hover,
+    [data-detail-tab]:hover,
+    [data-checklist-item-action]:hover,
+    [data-link-checklist]:hover,
+    [data-remove-list]:hover {
+      transform: translateY(-1px) !important;
+      background: linear-gradient(180deg, #3b82f6 0%, var(--gm-primary-dark) 100%) !important;
+      box-shadow: var(--gm-shadow-hover) !important;
+    }
+
+    .btn.primary,
+    .auth-card .btn.primary,
+    .auth-submit,
+    .tenant-user-editor-foot .btn.primary,
+    .tab.active,
+    .calendar-mode.active,
+    .tab-resources.active,
+    .tab-teams.active,
+    .tenant-user-tab.active {
+      background: linear-gradient(180deg, var(--gm-primary-light) 0%, var(--gm-primary) 100%) !important;
+      border-color: var(--gm-primary-dark) !important;
+      color: #fff !important;
+    }
+
+    .btn.ghost,
+    .topbar .btn,
+    .admin-pill,
+    .calendar-top-btn,
+    .calendar-arrow,
+    .calendar-mode,
+    .widget-btn,
+    .tree-mini-btn,
+    .api-folder-head,
+    [data-view-button]:not(.primary),
+    [data-detail-tab]:not(.active),
+    [data-link-checklist] {
+      background: linear-gradient(180deg, var(--gm-ghost-bg) 0%, var(--gm-ghost-bg2) 100%) !important;
+      border-color: var(--gm-border) !important;
+      color: var(--gm-ghost-text) !important;
+      box-shadow: var(--gm-ghost-shadow) !important;
+    }
+
+    .btn.danger,
+    [data-remove-list] {
+      background: linear-gradient(180deg, #ef4444 0%, var(--gm-danger) 100%) !important;
+      border-color: var(--gm-danger-dark) !important;
+      color: #fff !important;
+    }
+
+    .btn.success,
+    .btn.confirm,
+    [data-module-action="stockBalance"],
+    #aiRefreshBtn,
+    #calendarRefreshBtn {
+      background: linear-gradient(180deg, #22c55e 0%, var(--gm-success) 100%) !important;
+      border-color: var(--gm-success-dark) !important;
+      color: #fff !important;
+    }
+
+    .btn.warning,
+    .btn.attention {
+      background: linear-gradient(180deg, #fbbf24 0%, var(--gm-warning) 100%) !important;
+      border-color: var(--gm-warning-dark) !important;
+      color: #fff !important;
+    }
+
+    .btn.plan,
+    #createPreventivePlanBtn,
+    .tab-resources.active,
+    .tab-teams.active {
+      background: linear-gradient(180deg, #8b5cf6 0%, var(--gm-plan) 100%) !important;
+      border-color: var(--gm-plan-dark) !important;
+      color: #fff !important;
+    }
+
+    .btn.secondary,
+    .btn.archive {
+      background: linear-gradient(180deg, #7b8491 0%, var(--gm-neutral) 100%) !important;
+      border-color: var(--gm-neutral-dark) !important;
+      color: #fff !important;
+    }
+
+    button:disabled,
+    .btn:disabled,
+    .tab:disabled,
+    .menu-item:disabled,
+    .is-disabled,
+    [disabled] {
+      background: linear-gradient(180deg, #f1f5f9 0%, var(--gm-disabled-bg) 100%) !important;
+      border-color: #d1d5db !important;
+      color: var(--gm-disabled-text) !important;
+      box-shadow: none !important;
+      cursor: not-allowed !important;
+      transform: none !important;
+    }
+
+    .tab span,
+    .btn span,
+    .menu-item span,
+    .admin-pill span,
+    .tenant-user-tab span,
+    .calendar-top-btn span,
+    .calendar-mode span,
+    .os-actions button span {
+      min-width: 0 !important;
+      max-width: 100% !important;
+      white-space: normal !important;
+      overflow-wrap: anywhere !important;
+      text-overflow: clip !important;
+    }
+
+    .tab-icon,
+    .menu-item span:first-child {
+      flex: 0 0 22px !important;
+      width: 22px !important;
+      height: 22px !important;
+      display: inline-grid !important;
+      place-items: center !important;
+      border: 0 !important;
+      border-radius: 6px !important;
+      background: transparent !important;
+      color: currentColor !important;
+      box-shadow: none !important;
+    }
+
+    .tab-icon svg,
+    .menu-item svg,
+    .btn svg,
+    button svg {
+      width: 20px !important;
+      height: 20px !important;
+      flex: 0 0 auto !important;
+      stroke-width: 2.4 !important;
+    }
+
+    .nav .tabs,
+    .toolbar,
+    .actions,
+    .os-actions,
+    .dashboard-controls,
+    .panel-head,
+    .page-actions {
+      min-width: 0 !important;
+    }
+
+    .nav .tab {
+      width: 100% !important;
+      justify-content: flex-start !important;
+      min-height: 42px !important;
+      padding: 9px 14px !important;
+      text-align: left !important;
+    }
+
+    .nav .tab span:last-child {
+      flex: 1 1 auto !important;
+      text-align: left !important;
+      min-width: 0 !important;
+    }
+
+    .toolbar,
+    .actions,
+    .os-actions {
+      flex-wrap: wrap !important;
+      align-items: center !important;
+    }
+
+    .actions .btn,
+    td.actions .btn,
+    .table-wrap .btn,
+    .os-actions .btn,
+    .menu-item {
+      max-width: 100% !important;
+      min-height: 34px !important;
+      padding: 8px 12px !important;
+      font-size: 12px !important;
+    }
+
+    .btn.full,
+    .full .btn:only-child,
+    .auth-submit {
+      width: 100% !important;
+    }
+
+    @media (max-width: 900px) {
+      button,
+      .btn,
+      .tab,
+      .menu-item,
+      .calendar-mode,
+      .calendar-top-btn,
+      .tenant-user-tab {
+        font-size: clamp(11px, 2.8vw, 13px) !important;
+        padding: 9px 12px !important;
+      }
+
+      .nav .tab {
+        min-height: 46px !important;
+      }
+    }
 </style>
 </head>
 <body class="auth-loading">

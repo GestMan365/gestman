@@ -276,3 +276,160 @@ select {
     justify-content: space-between;
   }
 }
+
+/* Template dos botoes: modelo empresarial CMMS (consistente com index.html/404.html) */
+:root {
+  --gm-primary: #2563eb;
+  --gm-primary-dark: #1d4ed8;
+  --gm-primary-light: #2f7df4;
+  --gm-success: #16a34a;
+  --gm-success-dark: #15803d;
+  --gm-warning: #f59e0b;
+  --gm-warning-dark: #d97706;
+  --gm-danger: #dc2626;
+  --gm-danger-dark: #b91c1c;
+  --gm-plan: #7c3aed;
+  --gm-plan-dark: #6d28d9;
+  --gm-neutral: #6b7280;
+  --gm-neutral-dark: #4b5563;
+  --gm-ghost-bg: #ffffff;
+  --gm-ghost-bg2: #f8fafc;
+  --gm-ghost-text: #334155;
+  --gm-border: #cbd5e1;
+  --gm-disabled-bg: #e5e7eb;
+  --gm-disabled-text: #9ca3af;
+  --gm-shadow: 0 4px 10px rgba(15, 23, 42, .18);
+  --gm-shadow-hover: 0 8px 18px rgba(15, 23, 42, .22);
+  --gm-ghost-shadow: 0 3px 8px rgba(15, 23, 42, .14);
+}
+
+button,
+.btn,
+.module-card a,
+.tab,
+.menu-item,
+.icon-btn,
+a.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 40px;
+  height: auto;
+  padding: 10px 18px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: linear-gradient(180deg, var(--gm-primary-light) 0%, var(--gm-primary) 100%);
+  color: #fff;
+  box-shadow: var(--gm-shadow);
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.15;
+  text-align: center;
+  text-transform: none;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  overflow: hidden;
+  text-overflow: clip;
+  cursor: pointer;
+  transition: transform .16s ease, box-shadow .16s ease, background .16s ease, border-color .16s ease;
+}
+
+button:hover,
+.btn:hover,
+.module-card a:hover,
+.tab:hover,
+.menu-item:hover,
+.icon-btn:hover,
+a.btn:hover {
+  transform: translateY(-1px);
+  background: linear-gradient(180deg, #3b82f6 0%, var(--gm-primary-dark) 100%);
+  box-shadow: var(--gm-shadow-hover);
+}
+
+.btn::after,
+.tab::after,
+.menu-item::after {
+  display: none;
+  content: none;
+}
+
+.btn.primary,
+.tab.active,
+.module-card a {
+  background: linear-gradient(180deg, var(--gm-primary-light) 0%, var(--gm-primary) 100%);
+  border-color: var(--gm-primary-dark);
+  color: #fff;
+}
+
+.btn.ghost,
+.btn:not(.primary) {
+  background: linear-gradient(180deg, var(--gm-ghost-bg) 0%, var(--gm-ghost-bg2) 100%);
+  border-color: var(--gm-border);
+  color: var(--gm-ghost-text);
+  box-shadow: var(--gm-ghost-shadow);
+}
+
+.btn.danger {
+  background: linear-gradient(180deg, #ef4444 0%, var(--gm-danger) 100%);
+  border-color: var(--gm-danger-dark);
+  color: #fff;
+}
+
+.btn.success,
+.btn.confirm {
+  background: linear-gradient(180deg, #22c55e 0%, var(--gm-success) 100%);
+  border-color: var(--gm-success-dark);
+  color: #fff;
+}
+
+.btn.warning,
+.btn.attention {
+  background: linear-gradient(180deg, #fbbf24 0%, var(--gm-warning) 100%);
+  border-color: var(--gm-warning-dark);
+  color: #fff;
+}
+
+.btn.plan {
+  background: linear-gradient(180deg, #8b5cf6 0%, var(--gm-plan) 100%);
+  border-color: var(--gm-plan-dark);
+  color: #fff;
+}
+
+button:disabled,
+.btn:disabled,
+.is-disabled,
+[disabled] {
+  background: linear-gradient(180deg, #f1f5f9 0%, var(--gm-disabled-bg) 100%);
+  border-color: #d1d5db;
+  color: var(--gm-disabled-text);
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.tab span,
+.btn span,
+.menu-item span,
+.module-card a span {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+}
+
+@media (max-width: 900px) {
+  button,
+  .btn,
+  .module-card a,
+  .tab,
+  .menu-item {
+    font-size: 12px;
+    padding: 9px 12px;
+  }
+}
