@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
@@ -7504,6 +7504,410 @@
       .industrial-dashboard-live { width:max-content; }
       .industrial-stacked-chart { gap:3px; }
       .asset-status-content, .parts-consumption-content { justify-content:flex-start; }
+    }
+
+    /* Design system interno GestMan365 — todos os módulos e diálogos */
+    :root {
+      --gm-shell: #07111f;
+      --gm-sidebar: #06101d;
+      --gm-surface: #0f1b2b;
+      --gm-surface-raised: #14243a;
+      --gm-surface-deep: #0b1726;
+      --gm-line: #1f334a;
+      --gm-line-strong: #294765;
+      --gm-accent: #1d8cff;
+      --gm-text: #f8fafc;
+      --gm-muted: #94a3b8;
+    }
+
+    body:not(.theme-light) .view {
+      color: var(--gm-text) !important;
+    }
+
+    body:not(.theme-light) .view > .view-head,
+    body:not(.theme-light) .view > .page-head,
+    body:not(.theme-light) .view > .module-head,
+    body:not(.theme-light) .view .section-head {
+      margin-bottom: 12px !important;
+      padding: 14px 16px !important;
+      border: 1px solid var(--gm-line) !important;
+      border-radius: 12px !important;
+      background: rgba(15,27,43,.88) !important;
+      box-shadow: 0 14px 34px rgba(0,0,0,.16) !important;
+    }
+
+    body:not(.theme-light) .panel,
+    body:not(.theme-light) .form-panel,
+    body:not(.theme-light) .side-box,
+    body:not(.theme-light) .dashboard-widget,
+    body:not(.theme-light) .order-detail,
+    body:not(.theme-light) .map-shell,
+    body:not(.theme-light) .calendar-app,
+    body:not(.theme-light) .api-folder,
+    body:not(.theme-light) .tenant-user-editor {
+      color: var(--gm-text) !important;
+      background: linear-gradient(145deg, rgba(20,36,58,.92), rgba(15,27,43,.97)) !important;
+      border: 1px solid var(--gm-line) !important;
+      border-radius: 12px !important;
+      box-shadow: 0 14px 34px rgba(0,0,0,.18), inset 0 1px rgba(255,255,255,.025) !important;
+    }
+
+    body:not(.theme-light) .panel:hover,
+    body:not(.theme-light) .form-panel:hover,
+    body:not(.theme-light) .side-box:hover {
+      border-color: var(--gm-line-strong) !important;
+    }
+
+    body:not(.theme-light) .panel-head,
+    body:not(.theme-light) .tenant-user-editor-head,
+    body:not(.theme-light) .os-action-head,
+    body:not(.theme-light) .api-folder-head {
+      min-height: 52px !important;
+      padding: 10px 14px !important;
+      color: var(--gm-text) !important;
+      background: rgba(7,17,31,.54) !important;
+      border-bottom: 1px solid var(--gm-line) !important;
+      box-shadow: none !important;
+    }
+
+    body:not(.theme-light) .panel-title,
+    body:not(.theme-light) .tenant-user-editor-head > span,
+    body:not(.theme-light) h1,
+    body:not(.theme-light) h2,
+    body:not(.theme-light) h3,
+    body:not(.theme-light) h4,
+    body:not(.theme-light) strong {
+      color: var(--gm-text);
+    }
+
+    body:not(.theme-light) .muted,
+    body:not(.theme-light) small,
+    body:not(.theme-light) .helper,
+    body:not(.theme-light) .subtitle {
+      color: var(--gm-muted) !important;
+    }
+
+    body:not(.theme-light) .modal-backdrop {
+      padding: 24px !important;
+      background: rgba(2,8,19,.82) !important;
+      backdrop-filter: blur(9px) saturate(.82) !important;
+    }
+
+    body:not(.theme-light) .modal {
+      width: min(780px,100%) !important;
+      max-height: calc(100dvh - 48px) !important;
+      overflow: hidden !important;
+      display: flex !important;
+      flex-direction: column !important;
+      color: var(--gm-text) !important;
+      background: var(--gm-surface) !important;
+      border: 1px solid var(--gm-line-strong) !important;
+      border-radius: 12px !important;
+      box-shadow: 0 30px 90px rgba(0,0,0,.58), 0 0 0 1px rgba(29,140,255,.04) !important;
+    }
+
+    body:not(.theme-light) .modal.large {
+      width: min(1180px,calc(100vw - 48px)) !important;
+    }
+
+    body:not(.theme-light) .modal-head {
+      min-height: 58px !important;
+      flex: 0 0 auto !important;
+      padding: 0 18px !important;
+      color: var(--gm-text) !important;
+      background: #0b1726 !important;
+      border: 0 !important;
+      border-bottom: 1px solid var(--gm-line) !important;
+      box-shadow: none !important;
+      font-size: 14px !important;
+      font-weight: 800 !important;
+    }
+
+    body:not(.theme-light) .modal-head::before {
+      content: "";
+      width: 3px;
+      height: 18px;
+      margin-right: 9px;
+      border-radius: 3px;
+      background: var(--gm-accent);
+      box-shadow: 0 0 14px rgba(29,140,255,.55);
+    }
+
+    body:not(.theme-light) .modal-head > span { margin-right: auto; }
+
+    body:not(.theme-light) .modal-body {
+      min-height: 0 !important;
+      overflow: auto !important;
+      padding: 18px !important;
+      scrollbar-color: #294765 #0b1726;
+    }
+
+    body:not(.theme-light) .close {
+      width: 34px !important;
+      min-width: 34px !important;
+      height: 34px !important;
+      min-height: 34px !important;
+      padding: 0 !important;
+      border: 1px solid var(--gm-line) !important;
+      border-radius: 8px !important;
+      color: var(--gm-muted) !important;
+      background: var(--gm-surface) !important;
+      box-shadow: none !important;
+    }
+
+    body:not(.theme-light) .close:hover {
+      color: #fff !important;
+      background: var(--gm-surface-raised) !important;
+      border-color: var(--gm-accent) !important;
+      transform: none !important;
+    }
+
+    body:not(.theme-light) .form,
+    body:not(.theme-light) .form-grid,
+    body:not(.theme-light) .tenant-user-grid {
+      gap: 14px !important;
+    }
+
+    body:not(.theme-light) label {
+      color: #cbd5e1 !important;
+      font-size: 11px !important;
+      font-weight: 700 !important;
+    }
+
+    body:not(.theme-light) input,
+    body:not(.theme-light) select,
+    body:not(.theme-light) textarea,
+    body:not(.theme-light) .field,
+    body:not(.theme-light) .searchbar {
+      min-height: 40px !important;
+      padding: 9px 11px !important;
+      color: var(--gm-text) !important;
+      background: #0b1726 !important;
+      border: 1px solid var(--gm-line-strong) !important;
+      border-radius: 8px !important;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,.22) !important;
+      font-size: 12px !important;
+      font-weight: 600 !important;
+    }
+
+    body:not(.theme-light) textarea { min-height: 104px !important; resize: vertical; }
+    body:not(.theme-light) input:disabled,
+    body:not(.theme-light) select:disabled,
+    body:not(.theme-light) textarea:disabled {
+      color: #718096 !important;
+      background: #0a1422 !important;
+      border-color: #182b40 !important;
+      opacity: 1 !important;
+    }
+
+    body:not(.theme-light) input:focus,
+    body:not(.theme-light) select:focus,
+    body:not(.theme-light) textarea:focus,
+    body:not(.theme-light) .field:focus,
+    body:not(.theme-light) .searchbar:focus {
+      outline: 0 !important;
+      border-color: var(--gm-accent) !important;
+      box-shadow: 0 0 0 3px rgba(29,140,255,.13), inset 0 1px 2px rgba(0,0,0,.22) !important;
+    }
+
+    body:not(.theme-light) input::file-selector-button {
+      margin: -7px 10px -7px -9px;
+      padding: 8px 11px;
+      border: 0;
+      border-right: 1px solid var(--gm-line);
+      color: #dbeafe;
+      background: #14243a;
+      font: inherit;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    body:not(.theme-light) .toolbar,
+    body:not(.theme-light) .actions,
+    body:not(.theme-light) .form-actions {
+      gap: 8px !important;
+    }
+
+    body:not(.theme-light) button,
+    body:not(.theme-light) .btn,
+    body:not(.theme-light) .widget-btn,
+    body:not(.theme-light) [data-view-button],
+    body:not(.theme-light) [data-module-action] {
+      border-color: var(--gm-line-strong) !important;
+      color: #dbeafe !important;
+      background: #14243a !important;
+      box-shadow: none !important;
+    }
+
+    body:not(.theme-light) button:hover,
+    body:not(.theme-light) .btn:hover,
+    body:not(.theme-light) .widget-btn:hover,
+    body:not(.theme-light) [data-view-button]:hover,
+    body:not(.theme-light) [data-module-action]:hover {
+      color: #fff !important;
+      border-color: var(--gm-accent) !important;
+      background: #18304d !important;
+      box-shadow: 0 10px 24px rgba(0,0,0,.2) !important;
+    }
+
+    body:not(.theme-light) .btn.primary,
+    body:not(.theme-light) button.primary,
+    body:not(.theme-light) .tab.active,
+    body:not(.theme-light) .tenant-user-tab.active,
+    body:not(.theme-light) .calendar-mode.active {
+      color: #fff !important;
+      background: linear-gradient(180deg,#2397ff,#1675df) !important;
+      border-color: #319dff !important;
+      box-shadow: 0 8px 22px rgba(29,140,255,.22) !important;
+    }
+
+    body:not(.theme-light) .btn.ghost,
+    body:not(.theme-light) .btn.cancel,
+    body:not(.theme-light) [data-detail-tab]:not(.active),
+    body:not(.theme-light) [data-link-checklist] {
+      color: #cbd5e1 !important;
+      background: #0b1726 !important;
+      border-color: var(--gm-line) !important;
+      box-shadow: none !important;
+    }
+
+    body:not(.theme-light) .btn.danger,
+    body:not(.theme-light) [data-remove-list] {
+      color: #fecaca !important;
+      background: rgba(239,68,68,.12) !important;
+      border-color: rgba(239,68,68,.42) !important;
+      box-shadow: none !important;
+    }
+
+    body:not(.theme-light) .tabs,
+    body:not(.theme-light) .tenant-user-tabs,
+    body:not(.theme-light) .detail-tabs {
+      padding: 6px !important;
+      gap: 5px !important;
+      overflow-x: auto !important;
+      background: #0b1726 !important;
+      border: 1px solid var(--gm-line) !important;
+      border-radius: 9px !important;
+    }
+
+    body:not(.theme-light) .tab,
+    body:not(.theme-light) .tenant-user-tab,
+    body:not(.theme-light) [data-detail-tab] {
+      min-height: 34px !important;
+      padding: 7px 11px !important;
+      border: 1px solid transparent !important;
+      border-radius: 7px !important;
+      color: var(--gm-muted) !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      white-space: nowrap !important;
+    }
+
+    body:not(.theme-light) .table-wrap {
+      overflow: auto !important;
+      border: 1px solid var(--gm-line) !important;
+      border-radius: 10px !important;
+      background: #0b1726 !important;
+    }
+
+    body:not(.theme-light) table { color: #dbe4ef !important; background: transparent !important; }
+    body:not(.theme-light) th {
+      padding: 11px 12px !important;
+      color: var(--gm-muted) !important;
+      background: #101f31 !important;
+      border-bottom: 1px solid var(--gm-line-strong) !important;
+      font-size: 9px !important;
+      font-weight: 800 !important;
+      letter-spacing: .04em !important;
+      text-transform: uppercase !important;
+    }
+
+    body:not(.theme-light) td {
+      padding: 11px 12px !important;
+      color: #d5deea !important;
+      background: transparent !important;
+      border-bottom: 1px solid rgba(31,51,74,.72) !important;
+      font-size: 10px !important;
+    }
+
+    body:not(.theme-light) tbody tr:last-child td { border-bottom: 0 !important; }
+    body:not(.theme-light) tbody tr:hover td,
+    body:not(.theme-light) .click-row:hover { background: rgba(29,140,255,.07) !important; }
+
+    body:not(.theme-light) .tenant-user-admin {
+      margin-top: 16px !important;
+      border-radius: 12px !important;
+    }
+
+    body:not(.theme-light) .tenant-user-list { margin: 0 !important; border-width: 0 0 1px !important; border-radius: 0 !important; }
+    body:not(.theme-light) .tenant-user-editor { margin: 14px !important; overflow: hidden !important; }
+    body:not(.theme-light) .tenant-user-body { background: rgba(7,17,31,.26) !important; }
+    body:not(.theme-light) .tenant-user-photo-card,
+    body:not(.theme-light) .tenant-user-switch-line,
+    body:not(.theme-light) .permission-grid > * {
+      color: #cbd5e1 !important;
+      background: #0b1726 !important;
+      border: 1px solid var(--gm-line) !important;
+      border-radius: 9px !important;
+    }
+
+    body:not(.theme-light) .tenant-user-photo-preview {
+      color: var(--gm-muted) !important;
+      background: #07111f !important;
+      border: 1px dashed var(--gm-line-strong) !important;
+    }
+
+    body:not(.theme-light) .tenant-user-editor-foot {
+      padding: 12px 14px !important;
+      background: #0b1726 !important;
+      border-top: 1px solid var(--gm-line) !important;
+    }
+
+    body:not(.theme-light) #profileForm .side-box {
+      min-height: 112px !important;
+      padding: 14px !important;
+      display: grid !important;
+      grid-template-columns: 1fr auto !important;
+      align-items: center !important;
+      gap: 12px !important;
+    }
+
+    body:not(.theme-light) #profilePreview {
+      min-width: 76px;
+      min-height: 76px;
+      display: grid;
+      place-items: center;
+      color: var(--gm-muted);
+    }
+
+    body:not(.theme-light) #profilePreview img {
+      width: 76px !important;
+      height: 76px !important;
+      border: 2px solid var(--gm-line-strong);
+      box-shadow: 0 8px 22px rgba(0,0,0,.28);
+    }
+
+    body:not(.theme-light) .toast {
+      color: #e2e8f0 !important;
+      background: #0f1b2b !important;
+      border: 1px solid var(--gm-line-strong) !important;
+      border-left: 3px solid var(--gm-accent) !important;
+      border-radius: 9px !important;
+      box-shadow: 0 18px 42px rgba(0,0,0,.42) !important;
+    }
+
+    @media (max-width: 760px) {
+      body:not(.theme-light) .modal-backdrop { padding: 8px !important; align-items: flex-end !important; }
+      body:not(.theme-light) .modal,
+      body:not(.theme-light) .modal.large { width: 100% !important; max-height: calc(100dvh - 16px) !important; border-radius: 12px 12px 8px 8px !important; }
+      body:not(.theme-light) .modal-body { padding: 12px !important; }
+      body:not(.theme-light) .form,
+      body:not(.theme-light) .form-grid,
+      body:not(.theme-light) .tenant-user-grid { grid-template-columns: 1fr !important; }
+      body:not(.theme-light) .tenant-user-editor { margin: 8px !important; }
+      body:not(.theme-light) .tenant-user-body { grid-template-columns: 1fr !important; }
+      body:not(.theme-light) #profileForm .side-box { grid-template-columns: 1fr !important; }
     }
 </style>
 </head>
