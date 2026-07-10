@@ -8265,6 +8265,181 @@
       #calendar .calendar-top-btn,
       #calendar .calendar-arrow { width: 100% !important; padding: 6px !important; }
     }
+
+    /* Agenda de manutenção do Dashboard — linha do tempo semanal */
+    .maintenance-agenda-card {
+      min-height: 390px !important;
+      overflow: hidden !important;
+      background: linear-gradient(150deg,#0f1b2b,#091624) !important;
+    }
+
+    .maintenance-agenda-head {
+      min-height: 58px;
+      padding: 11px 14px;
+      display: grid;
+      grid-template-columns: minmax(150px,1fr) auto minmax(150px,1fr);
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid #1f334a;
+      background: rgba(7,17,31,.36);
+    }
+
+    .maintenance-agenda-head h2 { margin: 0; color: #f8fafc; font-size: 12px; font-weight: 800; }
+    .maintenance-agenda-navigation { display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .maintenance-agenda-navigation span { min-width: 118px; color: #94a3b8; font-size: 8px; font-weight: 700; text-align: center; white-space: nowrap; }
+    .maintenance-agenda-navigation button,
+    .maintenance-agenda-mode {
+      min-width: 28px !important;
+      min-height: 28px !important;
+      height: 28px !important;
+      padding: 5px 8px !important;
+      color: #cbd5e1 !important;
+      background: #0b1726 !important;
+      border: 1px solid #1f334a !important;
+      border-radius: 6px !important;
+      box-shadow: none !important;
+      font-size: 8px !important;
+      font-weight: 800 !important;
+      line-height: 1 !important;
+      white-space: nowrap !important;
+    }
+
+    .maintenance-agenda-navigation button { width: 28px !important; padding: 0 !important; font-size: 15px !important; }
+    .maintenance-agenda-navigation button:hover,
+    .maintenance-agenda-mode:hover { color: #fff !important; border-color: #1d8cff !important; background: #14243a !important; transform: none !important; }
+    .maintenance-agenda-mode { justify-self: end; gap: 6px !important; }
+    .maintenance-agenda-mode i { color: #63b3ff; font-style: normal; font-size: 10px; }
+
+    .maintenance-agenda-scroll { min-width: 0; overflow-x: auto; scrollbar-color: #294765 #07111f; }
+    .maintenance-agenda-inner { min-width: 720px; }
+    .maintenance-agenda-days {
+      display: grid;
+      grid-template-columns: 48px repeat(7,minmax(86px,1fr));
+      min-height: 52px;
+      padding-right: 5px;
+      color: #94a3b8;
+      background: #0b1726;
+      border-bottom: 1px solid #1f334a;
+    }
+
+    .maintenance-agenda-day {
+      min-width: 0;
+      padding: 7px 3px 6px;
+      display: grid;
+      place-content: center;
+      gap: 3px;
+      border-left: 1px solid rgba(31,51,74,.54);
+      color: #94a3b8;
+      text-align: center;
+    }
+
+    .maintenance-agenda-day span { font-size: 7px; font-weight: 800; text-transform: uppercase; }
+    .maintenance-agenda-day strong { color: #cbd5e1; font-size: 13px; line-height: 1; }
+    .maintenance-agenda-day.today { margin: 5px 8px; padding: 4px 3px; border: 1px solid rgba(29,140,255,.56); border-radius: 7px; color: #bfdbfe; background: linear-gradient(180deg,rgba(29,140,255,.30),rgba(29,140,255,.13)); box-shadow: 0 6px 18px rgba(29,140,255,.13); }
+    .maintenance-agenda-day.today strong { color: #fff; }
+
+    .maintenance-agenda-grid {
+      position: relative;
+      display: grid;
+      grid-template-columns: 48px repeat(7,minmax(86px,1fr));
+      grid-template-rows: repeat(20,16px);
+      min-height: 320px;
+      padding-right: 5px;
+      overflow: hidden;
+      background: #07111f;
+    }
+
+    .maintenance-agenda-slot {
+      min-width: 0;
+      border-left: 1px solid rgba(31,51,74,.52);
+      border-bottom: 1px solid rgba(31,51,74,.34);
+      background: linear-gradient(90deg,rgba(29,140,255,.012),transparent 70%);
+    }
+
+    .maintenance-agenda-slot.major { border-bottom-color: rgba(41,71,101,.72); }
+    .maintenance-agenda-time {
+      z-index: 2;
+      align-self: start;
+      padding: 3px 7px 0 0;
+      color: #94a3b8;
+      background: #07111f;
+      font-size: 7px;
+      font-weight: 700;
+      line-height: 1;
+      text-align: right;
+      transform: translateY(-1px);
+    }
+
+    .maintenance-agenda-event {
+      z-index: 4;
+      min-width: 0 !important;
+      min-height: 0 !important;
+      height: auto !important;
+      margin: 2px 4px !important;
+      padding: 5px 7px !important;
+      display: block !important;
+      align-self: stretch !important;
+      overflow: hidden !important;
+      color: var(--agenda-text,#bfdbfe) !important;
+      background: linear-gradient(90deg,color-mix(in srgb,var(--agenda-color,#1d8cff) 24%,#0b1726),color-mix(in srgb,var(--agenda-color,#1d8cff) 11%,#0b1726)) !important;
+      border: 1px solid color-mix(in srgb,var(--agenda-color,#1d8cff) 48%,transparent) !important;
+      border-left: 3px solid var(--agenda-color,#1d8cff) !important;
+      border-radius: 5px !important;
+      box-shadow: 0 6px 16px rgba(0,0,0,.18) !important;
+      font-size: 7px !important;
+      line-height: 1.25 !important;
+      text-align: left !important;
+      transform: none !important;
+    }
+
+    .maintenance-agenda-event strong,
+    .maintenance-agenda-event span { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .maintenance-agenda-event strong { margin-bottom: 2px; color: var(--agenda-color,#63b3ff) !important; font-size: 8px; }
+    .maintenance-agenda-event span { color: var(--agenda-text,#bfdbfe); opacity: .84; }
+    .maintenance-agenda-event:hover { filter: brightness(1.15); border-color: var(--agenda-color,#1d8cff) !important; box-shadow: 0 8px 20px rgba(0,0,0,.26) !important; }
+
+    .maintenance-agenda-empty {
+      grid-column: 2/-1;
+      grid-row: 7/14;
+      z-index: 3;
+      align-self: center;
+      justify-self: center;
+      padding: 12px 18px;
+      color: #64748b;
+      border: 1px dashed #1f334a;
+      border-radius: 8px;
+      background: rgba(15,27,43,.55);
+      font-size: 8px;
+    }
+
+    .maintenance-agenda-footer {
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-top: 1px solid #1f334a;
+      background: #0b1726;
+    }
+
+    .maintenance-agenda-footer button {
+      min-height: 28px !important;
+      padding: 5px 10px !important;
+      color: #1d8cff !important;
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+      font-size: 8px !important;
+      font-weight: 800 !important;
+    }
+
+    .maintenance-agenda-footer button:hover { color: #63b3ff !important; transform: none !important; }
+
+    @media (max-width: 760px) {
+      .maintenance-agenda-head { grid-template-columns: 1fr auto; }
+      .maintenance-agenda-head h2 { grid-column: 1; }
+      .maintenance-agenda-mode { grid-column: 2; }
+      .maintenance-agenda-navigation { grid-column: 1/-1; grid-row: 2; padding-top: 3px; }
+    }
 </style>
 </head>
 <body class="auth-loading">
@@ -8445,9 +8620,18 @@
               <div class="industrial-stacked-chart" id="industrialOrdersChart"></div>
             </article>
 
-            <article class="industrial-card industrial-calendar-card">
-              <div class="industrial-card-head"><div><span>PROGRAMAÇÃO SEMANAL</span><h2>Calendário de Manutenção</h2></div><button type="button" onclick="setView('calendar')">Abrir cronograma ↗</button></div>
-              <div class="industrial-week-calendar" id="industrialMaintenanceCalendar"></div>
+            <article class="industrial-card industrial-calendar-card maintenance-agenda-card">
+              <div class="maintenance-agenda-head">
+                <h2>Agenda de Manutenção</h2>
+                <div class="maintenance-agenda-navigation">
+                  <button type="button" onclick="shiftIndustrialAgendaWeek(-1)" aria-label="Semana anterior">‹</button>
+                  <span id="industrialAgendaRange">Semana atual</span>
+                  <button type="button" onclick="shiftIndustrialAgendaWeek(1)" aria-label="Próxima semana">›</button>
+                </div>
+                <button class="maintenance-agenda-mode" type="button" onclick="resetIndustrialAgendaWeek()">Semana <i>▣</i></button>
+              </div>
+              <div class="maintenance-agenda-scroll"><div class="maintenance-agenda-inner" id="industrialMaintenanceCalendar"></div></div>
+              <div class="maintenance-agenda-footer"><button type="button" onclick="setView('calendar')">Ver calendário completo&nbsp; ›</button></div>
             </article>
           </div>
 
@@ -10025,6 +10209,7 @@
     localStorage.setItem(THEME_KEY, "dark");
     let currentTheme = "dark";
     let calendarMode = "month";
+    let industrialAgendaStart = null;
     let calendarViewDate = new Date();
     let panelScrollFrame = null;
     let panelScrollTimer = null;
@@ -13208,23 +13393,96 @@
       $("industrialPartsLegend").innerHTML = industrialLegendHtml(items);
     }
 
+    function industrialAgendaMonday(value = new Date()) {
+      const date = new Date(value);
+      date.setHours(0, 0, 0, 0);
+      const weekday = date.getDay();
+      date.setDate(date.getDate() + (weekday === 0 ? -6 : 1 - weekday));
+      return date;
+    }
+
+    function shiftIndustrialAgendaWeek(offset) {
+      industrialAgendaStart = industrialAgendaMonday(industrialAgendaStart || new Date());
+      industrialAgendaStart.setDate(industrialAgendaStart.getDate() + Number(offset || 0) * 7);
+      renderIndustrialCalendar();
+    }
+
+    function resetIndustrialAgendaWeek() {
+      industrialAgendaStart = industrialAgendaMonday(new Date());
+      renderIndustrialCalendar();
+    }
+
+    function industrialAgendaRangeLabel(start, end) {
+      const month = date => date.toLocaleDateString("pt-BR", { month: "short" }).replace(".", "").toUpperCase();
+      if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
+        return `${String(start.getDate()).padStart(2, "0")} – ${String(end.getDate()).padStart(2, "0")} ${month(end)} ${end.getFullYear()}`;
+      }
+      return `${String(start.getDate()).padStart(2, "0")} ${month(start)} – ${String(end.getDate()).padStart(2, "0")} ${month(end)} ${end.getFullYear()}`;
+    }
+
     function renderIndustrialCalendar() {
-      const target = $("industrialMaintenanceCalendar"); if (!target) return;
-      const today = new Date(); today.setHours(0, 0, 0, 0);
-      const days = Array.from({ length: 7 }, (_, index) => { const date = new Date(today); date.setDate(today.getDate() + index); return date; });
-      const events = [];
-      state.orders.forEach(order => {
-        const date = parseCalendarDate(order.scheduledAt);
-        if (date) events.push({ date, title: order.number || "O.S", subtitle: machineName(order.assetId), color: orderIsLate(order) ? "#ef4444" : "#1d8cff" });
+      const target = $("industrialMaintenanceCalendar");
+      if (!target) return;
+      const start = industrialAgendaMonday(industrialAgendaStart || new Date());
+      industrialAgendaStart = new Date(start);
+      const end = new Date(start); end.setDate(start.getDate() + 6); end.setHours(23, 59, 59, 999);
+      const todayKey = calendarDateKey(new Date());
+      const days = Array.from({ length: 7 }, (_, index) => { const date = new Date(start); date.setDate(start.getDate() + index); return date; });
+      if ($("industrialAgendaRange")) $("industrialAgendaRange").textContent = industrialAgendaRangeLabel(start, end);
+
+      let events = [];
+      (state.orders || []).forEach((order, index) => {
+        const date = parseCalendarDate(order.scheduledAt || order.programmedAt || order.plannedAt || order.startAt);
+        if (!date || date < start || date > end) return;
+        const priority = statusKey(order.priority);
+        const color = orderIsLate(order) ? "#ef4444" : priority.includes("alta") ? "#f97316" : isClosedOrder(order.status) ? "#22c55e" : "#1d8cff";
+        events.push({
+          date,
+          title: order.title || order.description || machineName(order.assetId) || "Ordem de Serviço",
+          subtitle: `${order.number || "O.S"} · ${date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`,
+          color,
+          duration: Math.max(.5, Math.min(2.5, Number(order.mttr || order.estimatedHours || 1.5))),
+          action: `showOrderDetails('${order.id}')`
+        });
       });
-      state.preventivePlans.forEach(plan => {
-        const date = parseCalendarDate(plan.nextExecution);
-        if (date) events.push({ date, title: plan.name || "Preventiva", subtitle: machineName(plan.assetId), color: "#22c55e" });
+
+      (state.preventivePlans || []).forEach(plan => {
+        const date = parseCalendarDate(plan.nextExecution || plan.scheduledAt);
+        if (!date || date < start || date > end) return;
+        events.push({
+          date,
+          title: plan.name || "Manutenção preventiva",
+          subtitle: `${machineName(plan.assetId) || "Plano preventivo"} · ${date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`,
+          color: "#22c55e",
+          duration: 1.5,
+          action: "setView('preventivePlans')"
+        });
       });
-      target.innerHTML = days.map((date, index) => {
-        const dayEvents = events.filter(event => event.date.toDateString() === date.toDateString()).slice(0, 4);
-        return `<div class="industrial-calendar-day ${index === 0 ? "today" : ""}"><div class="industrial-calendar-day-head"><span>${escapeHtml(date.toLocaleDateString("pt-BR", { weekday: "short" }).replace(".", ""))}</span><strong>${date.getDate()}</strong></div><div class="industrial-calendar-events">${dayEvents.map(event => `<div class="industrial-calendar-event" style="--event-color:${event.color}"><strong>${escapeHtml(event.title)}</strong>${escapeHtml(event.subtitle)}</div>`).join("") || `<div class="industrial-calendar-event" style="--event-color:#334155"><strong>Sem programação</strong>Janela disponível</div>`}</div></div>`;
+
+      const currentStart = industrialAgendaMonday(new Date());
+      if (!events.length && calendarDateKey(start) === calendarDateKey(currentStart)) {
+        const demo = [
+          { day:0, hour:8, minute:0, duration:1, title:"Lubrificação Redutor", subtitle:"M-102 · 08:00–09:00", color:"#22c55e" },
+          { day:0, hour:10, minute:0, duration:1.5, title:"Inspeção Elétrica", subtitle:"PA-03 · 10:00–11:30", color:"#1d8cff" },
+          { day:2, hour:12, minute:30, duration:1.5, title:"Análise Vibracional", subtitle:"CB-01 · 12:30–14:00", color:"#f97316" },
+          { day:0, hour:14, minute:30, duration:2, title:"Troca de Rolamento", subtitle:"TR-05 · 14:30–16:30", color:"#1d8cff" },
+          { day:4, hour:15, minute:0, duration:1, title:"Calibração Instrumentos", subtitle:"IN-07 · 15:00–16:00", color:"#1d8cff" }
+        ];
+        events = demo.map(item => { const date = new Date(start); date.setDate(start.getDate() + item.day); date.setHours(item.hour, item.minute, 0, 0); return { ...item, date, action: "setView('calendar')" }; });
+      }
+
+      const dayHeaders = days.map(date => `<div class="maintenance-agenda-day ${calendarDateKey(date) === todayKey ? "today" : ""}"><span>${escapeHtml(date.toLocaleDateString("pt-BR", { weekday: "short" }).replace(".", ""))}</span><strong>${date.getDate()}</strong></div>`).join("");
+      const slots = Array.from({ length: 20 }, (_, row) => Array.from({ length: 7 }, (_, day) => `<div class="maintenance-agenda-slot ${row % 4 === 3 ? "major" : ""}" style="grid-column:${day + 2};grid-row:${row + 1}"></div>`).join("")).join("");
+      const timeLabels = [8,10,12,14,16].map(hour => `<div class="maintenance-agenda-time" style="grid-column:1;grid-row:${(hour - 8) * 2 + 1}">${String(hour).padStart(2, "0")}:00</div>`).join("");
+      const eventBlocks = events.slice(0, 16).map(event => {
+        const day = Math.max(0, Math.min(6, Math.floor((event.date.getTime() - start.getTime()) / 86400000)));
+        const decimalHour = event.date.getHours() + event.date.getMinutes() / 60;
+        const startSlot = Math.max(0, Math.min(19, Math.round((decimalHour - 8) * 2)));
+        const span = Math.max(2, Math.min(20 - startSlot, Math.round(Number(event.duration || 1) * 2)));
+        return `<button class="maintenance-agenda-event" type="button" onclick="${event.action}" style="--agenda-color:${event.color};grid-column:${day + 2};grid-row:${startSlot + 1}/span ${span}" title="${escapeHtml(event.title)}"><strong>${escapeHtml(event.title)}</strong><span>${escapeHtml(event.subtitle)}</span></button>`;
       }).join("");
+
+      target.innerHTML = `<div class="maintenance-agenda-days"><div></div>${dayHeaders}</div><div class="maintenance-agenda-grid">${slots}${timeLabels}${eventBlocks || `<div class="maintenance-agenda-empty">Nenhuma manutenção programada nesta semana.</div>`}</div>`;
     }
 
     function renderIndustrialLatestOrders() {
