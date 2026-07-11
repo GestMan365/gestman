@@ -8935,6 +8935,65 @@
     .sidebar-favorites-home .tab-icon { color:#facc15 !important; text-shadow:0 0 10px rgba(250,204,21,.35); }
     .industrial-sidebar-scroll > .tab:not(.sidebar-favorites-home) { flex:0 0 auto; }
     .industrial-sidebar-scroll > .tab > span:last-child { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+    /* Etapa 1 — cabeçalho compacto e seis indicadores operacionais */
+    .reference-topbar {
+      grid-template-columns:minmax(190px,1fr) minmax(250px,360px) minmax(570px,auto) !important;
+      gap:14px !important;
+    }
+    .header-dashboard-filters { min-width:0; display:flex; align-items:center; gap:6px; }
+    .header-dashboard-filters label {
+      height:38px; min-width:0; padding:3px 7px 4px; display:grid; align-content:center; gap:1px;
+      color:#71849c; background:#0b1929; border:1px solid #1b3046; border-radius:7px;
+    }
+    .header-dashboard-filters label:first-child { width:154px; }
+    .header-dashboard-filters label:last-child { width:122px; }
+    .header-dashboard-filters label > span { font-size:7px; font-weight:800; line-height:1; letter-spacing:.06em; text-transform:uppercase; }
+    .header-dashboard-filters select {
+      width:100%; min-width:0 !important; height:22px !important; min-height:22px !important; padding:0 18px 0 0 !important;
+      color:#dbeafe !important; background:transparent !important; border:0 !important; border-radius:0 !important;
+      box-shadow:none !important; font-size:8px !important; font-weight:700 !important;
+    }
+    .reference-header-user { width:auto !important; min-width:154px !important; padding:2px 3px 2px 7px !important; justify-content:space-between !important; gap:9px !important; }
+    .reference-user-copy { max-width:108px; }
+    .reference-user-copy strong,.reference-user-copy small { white-space:nowrap; }
+    .reference-user-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+    .reference-notification { margin:4px !important; }
+
+    .professional-kpi-strip { grid-template-columns:repeat(6,minmax(145px,1fr)); }
+    .stops-kpi-card .professional-kpi-copy > small { color:#fb923c !important; }
+
+    @media (min-width:1181px) and (max-width:1400px) {
+      .professional-kpi-strip { grid-template-columns:repeat(6,minmax(145px,1fr)); }
+    }
+    @media (max-width:1450px) {
+      .reference-topbar { grid-template-columns:minmax(180px,1fr) minmax(210px,300px) minmax(430px,auto) !important; padding:0 16px !important; gap:10px !important; }
+      .header-dashboard-filters label:first-child { width:132px; }
+      .header-dashboard-filters label:last-child { width:105px; }
+      .reference-header-user { min-width:38px !important; width:38px !important; padding:2px !important; }
+      .reference-user-copy { display:none !important; }
+    }
+    @media (max-width:1180px) {
+      .professional-kpi-strip { grid-template-columns:repeat(3,minmax(160px,1fr)); }
+      .reference-topbar { grid-template-columns:minmax(170px,1fr) minmax(180px,260px) minmax(300px,auto) !important; }
+      .header-dashboard-filters label:first-child { width:118px; }
+      .header-dashboard-filters label:last-child { width:94px; }
+      .header-dashboard-filters label > span { display:none; }
+      .header-dashboard-filters label { height:32px; padding:4px 6px; }
+    }
+    @media (max-width:900px) {
+      .reference-topbar { grid-template-columns:minmax(155px,1fr) minmax(150px,230px) auto !important; }
+      .header-dashboard-filters { display:none; }
+      .reference-header-user { display:flex !important; }
+    }
+    @media (max-width:800px) {
+      .professional-kpi-strip { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    }
+    @media (max-width:520px) {
+      .professional-kpi-strip { grid-template-columns:1fr; }
+      .reference-help,.reference-header-user { display:none !important; }
+      .reference-notification { margin:0 !important; }
+    }
 </style>
 </head>
 <body class="auth-loading">
@@ -9020,13 +9079,22 @@
       <button class="reference-search-shortcut" type="button" aria-label="Focar busca" onclick="document.getElementById('globalSearch').focus()">/</button>
     </label>
     <div class="reference-topbar-actions">
+      <div class="header-dashboard-filters">
+        <label><span>Planta</span><select id="dashboardPlantFilter" aria-label="Selecionar planta" onchange="changeDashboardFilters()"><option value="Unidade Industrial 01">Unidade Industrial 01</option><option value="Unidade Industrial 02">Unidade Industrial 02</option><option value="Todas">Todas as plantas</option></select></label>
+        <label><span>Período</span><select id="dashboardPeriodFilter" aria-label="Selecionar período" onchange="changeDashboardFilters()"><option value="1">Último mês</option><option value="3">Últimos 3 meses</option><option value="6" selected>Últimos 6 meses</option><option value="12">Últimos 12 meses</option></select></label>
+      </div>
       <span class="reference-header-separator" aria-hidden="true"></span>
       <button class="reference-icon-button reference-notification" type="button" aria-label="Notificações" onclick="openModal('Notificações', '<div class=&quot;side-box&quot;><strong>Notificações operacionais</strong><span>Consulte O.S atrasadas, estoque mínimo e paradas ativas no dashboard.</span></div>')">
         <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M10 21h4"></path></svg>
-        <b>8</b>
+        <b id="headerNotificationCount">0</b>
       </button>
       <span class="reference-header-separator" aria-hidden="true"></span>
       <button class="reference-icon-button reference-help" type="button" aria-label="Ajuda" onclick="openModal('Ajuda GestMan365', '<div class=&quot;side-box&quot;><strong>Central de ajuda</strong><span>Use o menu lateral para acessar cada módulo da manutenção.</span></div>')">?</button>
+      <span class="reference-header-separator" aria-hidden="true"></span>
+      <button class="reference-header-user" type="button" onclick="openProfileModal()" aria-label="Abrir perfil do usuário">
+        <span class="reference-user-copy"><strong id="headerUserName">Usuário</strong><small id="headerUserRole">Perfil</small></span>
+        <span class="reference-user-avatar" id="headerUserAvatar">US<i aria-label="Online"></i></span>
+      </button>
     </div>
   </header>
 
@@ -9091,11 +9159,7 @@
               <article class="professional-kpi-card" style="--kpi:#2387ff"><i class="professional-kpi-icon">◔</i><div class="professional-kpi-copy"><span>DISPONIBILIDADE</span><strong id="professionalAvailability">0,0%</strong><small id="professionalAvailabilityDelta">Sem histórico anterior</small></div><canvas id="professionalAvailabilitySpark" width="76" height="34" aria-label="Histórico de disponibilidade"></canvas></article>
               <article class="professional-kpi-card" style="--kpi:#2387ff"><i class="professional-kpi-icon">▦</i><div class="professional-kpi-copy"><span>EQUIPAMENTOS</span><strong id="professionalEquipment">0</strong><small id="professionalEquipmentComplement">0 operando</small></div><canvas id="professionalEquipmentSpark" width="76" height="34" aria-label="Histórico de equipamentos"></canvas></article>
               <article class="professional-kpi-card" style="--kpi:#2387ff"><i class="professional-kpi-icon">⚒</i><div class="professional-kpi-copy"><span>O.S EM EXECUÇÃO</span><strong id="professionalRunningOrders">0</strong><small id="professionalCriticalOrders">0 críticas</small></div><canvas id="professionalOrdersSpark" width="76" height="34" aria-label="Histórico de ordens em execução"></canvas></article>
-              <aside class="professional-kpi-filters">
-                <label><span>▣</span><select id="dashboardPlantFilter" aria-label="Selecionar planta" onchange="changeDashboardFilters()"><option value="Unidade Industrial 01">Planta: Unidade Industrial 01</option><option value="Unidade Industrial 02">Planta: Unidade Industrial 02</option><option value="Todas">Todas as plantas</option></select></label>
-                <label><span>◷</span><select id="dashboardPeriodFilter" aria-label="Selecionar período" onchange="changeDashboardFilters()"><option value="1">Último mês</option><option value="3">Últimos 3 meses</option><option value="6" selected>Últimos 6 meses</option><option value="12">Últimos 12 meses</option></select></label>
-                <div class="professional-kpi-alerts"><button type="button" onclick="setView('downtime')"><b>♜</b><span>PARADAS ATIVAS</span><strong id="professionalActiveStops">0</strong></button><button type="button" class="impact"><b>⚠</b><span id="professionalImpact">Impacto: Baixo</span></button></div>
-              </aside>
+              <article class="professional-kpi-card stops-kpi-card" style="--kpi:#ef4444"><i class="professional-kpi-icon">✋</i><div class="professional-kpi-copy"><span>PARADAS ATIVAS</span><strong id="professionalActiveStops">0</strong><small id="professionalStopsImpact">Impacto: Baixo</small></div><canvas id="professionalStopsSpark" width="76" height="34" aria-label="Histórico de paradas ativas"></canvas></article>
             </div>
           </section>
 
@@ -13918,21 +13982,26 @@
       $("professionalCriticalOrders").textContent = `${critical.length} críticas`;
       $("professionalActiveStops").textContent = activeStops.length;
       const impact = activeStops.length >= 3 || critical.length >= 5 ? "Alto" : activeStops.length || critical.length ? "Médio" : "Baixo";
-      $("professionalImpact").textContent = `Impacto: ${impact}`;
+      $("professionalStopsImpact").textContent = `Impacto: ${impact}`;
+      if ($("headerNotificationCount")) {
+        $("headerNotificationCount").textContent = (critical.length + activeStops.length + lowStockItems().length).toLocaleString("pt-BR");
+      }
 
       const buckets = Array.from({ length: Math.min(12, filtered.months) }, (_, index) => {
         const start = new Date(); start.setMonth(start.getMonth() - (Math.min(12, filtered.months) - 1 - index), 1); start.setHours(0,0,0,0);
         const end = new Date(start); end.setMonth(end.getMonth() + 1, 0); end.setHours(23,59,59,999);
         const orders = filtered.orders.filter(order => { const date = new Date(order.finishedAt || order.createdAt || 0); return date >= start && date <= end; });
         const assets = filtered.assets.filter(asset => { const date = new Date(asset.createdAt || 0); return !asset.createdAt || date <= end; });
+        const stops = filtered.downtimes.filter(stop => { const date = new Date(stop.startAt || stop.createdAt || 0); return date >= start && date <= end; });
         const monthMetrics = dashboardMetricsFor(assets, orders, 1);
-        return { mttr: monthMetrics.mttr, mtbf: monthMetrics.mtbf, availability: monthMetrics.availability, equipment: assets.length, running: orders.filter(order => isRunningOrder(order.status)).length };
+        return { mttr: monthMetrics.mttr, mtbf: monthMetrics.mtbf, availability: monthMetrics.availability, equipment: assets.length, running: orders.filter(order => isRunningOrder(order.status)).length, stops: stops.length };
       });
       drawDashboardSparkline("professionalMttrSpark", buckets.map(item => item.mttr));
       drawDashboardSparkline("professionalMtbfSpark", buckets.map(item => item.mtbf));
       drawDashboardSparkline("professionalAvailabilitySpark", buckets.map(item => item.availability));
       drawDashboardSparkline("professionalEquipmentSpark", buckets.map(item => item.equipment));
       drawDashboardSparkline("professionalOrdersSpark", buckets.map(item => item.running));
+      drawDashboardSparkline("professionalStopsSpark", buckets.map(item => item.stops), "#ef4444");
     }
 
     function changeDashboardFilters() {
@@ -18784,6 +18853,15 @@
       if ($("companyName")) $("companyName").textContent = company.name || "Empresa";
       $("profileName").textContent = name;
       $("profileAvatar").innerHTML = (user.photo || profile.photo) ? `<img src="${user.photo || profile.photo}" alt="${name}">` : name.slice(0, 2).toUpperCase();
+      if ($("headerUserName")) $("headerUserName").textContent = name;
+      if ($("headerUserRole")) $("headerUserRole").textContent = isAdminUser() ? "Administrador" : (user.jobTitle || profile.role || "Usuário");
+      if ($("headerUserAvatar")) {
+        const photo = user.photo || profile.photo;
+        const initials = name.split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]).join("").toUpperCase() || "US";
+        $("headerUserAvatar").innerHTML = photo
+          ? `<img src="${photo}" alt="${escapeHtml(name)}"><i aria-label="Online"></i>`
+          : `${initials}<i aria-label="Online"></i>`;
+      }
     }
 
     function openProfileModal() {
