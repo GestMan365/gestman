@@ -8897,6 +8897,19 @@
       .dashboard-edit-banner { align-items:flex-start; flex-direction:column; }
       .dashboard-config-trigger { font-size:9px !important; }
     }
+
+    /* Sensor permanente para recuperar a sidebar recolhida */
+    .sidebar-edge-sensor {
+      position:fixed; top:0; left:0; bottom:0; width:18px; z-index:74;
+      display:none; cursor:e-resize; background:transparent;
+    }
+    body.sidebar-collapsed:not(.auth-required):not(.auth-loading) .sidebar-edge-sensor { display:block; }
+    body.sidebar-collapsed:not(.auth-required):not(.auth-loading) .sidebar-edge-sensor::after {
+      content:""; position:absolute; left:0; top:50%; width:3px; height:58px; transform:translateY(-50%);
+      border-radius:0 4px 4px 0; background:rgba(35,135,255,.46); box-shadow:0 0 12px rgba(35,135,255,.28);
+    }
+    body.sidebar-hover-open .nav { transform:translateX(0) !important; }
+    @media (max-width:900px) { .sidebar-edge-sensor { width:24px; } }
 </style>
 </head>
 <body class="auth-loading">
@@ -12371,9 +12384,32 @@
       }
     }
 
+    const NAV_AUTO_COLLAPSE_DELAY = 30000;
+    let navAutoCollapseTimer = null;
+
+    function clearNavAutoCollapse() {
+      if (navAutoCollapseTimer) clearTimeout(navAutoCollapseTimer);
+      navAutoCollapseTimer = null;
+    }
+
+    function scheduleNavAutoCollapse(delay = NAV_AUTO_COLLAPSE_DELAY) {
+      clearNavAutoCollapse();
+      if (document.body.classList.contains("sidebar-collapsed") || document.body.classList.contains("auth-required")) return;
+      navAutoCollapseTimer = setTimeout(() => {
+        const nav = document.querySelector(".nav");
+        if (nav?.matches(":hover")) {
+          scheduleNavAutoCollapse();
+          return;
+        }
+        setNavCollapsed(true);
+      }, delay);
+    }
+
     function setNavCollapsed(collapsed) {
       const isCollapsed = Boolean(collapsed);
+      clearNavAutoCollapse();
       document.body.classList.toggle("sidebar-collapsed", isCollapsed);
+      document.body.classList.remove("sidebar-hover-open");
       localStorage.setItem(NAV_COLLAPSED_KEY, isCollapsed ? "1" : "0");
       const hideButton = $("navToggleBtn");
       const showButton = $("navRailToggle");
@@ -12386,6 +12422,7 @@
         showButton.title = isCollapsed ? "Mostrar módulos" : "Ocultar módulos";
         showButton.setAttribute("aria-label", showButton.title);
       }
+      if (!isCollapsed) scheduleNavAutoCollapse();
     }
 
     function initNavCollapse() {
@@ -12393,6 +12430,28 @@
       [$("navToggleBtn"), $("navRailToggle")].filter(Boolean).forEach(button => {
         button.addEventListener("click", () => setNavCollapsed(!document.body.classList.contains("sidebar-collapsed")));
       });
+      let sensor = $("sidebarEdgeSensor");
+      if (!sensor) {
+        sensor = document.createElement("div");
+        sensor.id = "sidebarEdgeSensor";
+        sensor.className = "sidebar-edge-sensor";
+        sensor.setAttribute("aria-hidden", "true");
+        document.body.appendChild(sensor);
+      }
+      sensor.addEventListener("mouseenter", () => {
+        if (document.body.classList.contains("sidebar-collapsed")) setNavCollapsed(false);
+      });
+      sensor.addEventListener("touchstart", () => {
+        if (document.body.classList.contains("sidebar-collapsed")) setNavCollapsed(false);
+      }, { passive: true });
+      const nav = document.querySelector(".nav");
+      nav?.addEventListener("mouseenter", clearNavAutoCollapse);
+      nav?.addEventListener("mouseleave", () => scheduleNavAutoCollapse());
+      nav?.addEventListener("click", () => scheduleNavAutoCollapse());
+      nav?.addEventListener("keydown", () => scheduleNavAutoCollapse());
+      window.addEventListener("mousemove", event => {
+        if (event.clientX <= 18 && document.body.classList.contains("sidebar-collapsed")) setNavCollapsed(false);
+      }, { passive: true });
     }
 
     function navGroupState() {
