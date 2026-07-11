@@ -8780,6 +8780,123 @@
       .reference-topbar-heading strong { font-size: 14px !important; }
       .reference-user-avatar { width: 32px; height: 32px; flex-basis: 32px; }
     }
+
+    /* Faixa profissional de KPIs e dashboard personalizável v2 */
+    .industrial-heading-actions { display:flex; align-items:center; gap:10px; }
+    .dashboard-config-trigger {
+      min-height:34px !important; padding:7px 11px !important; color:#bfdbfe !important;
+      background:#0b1a2d !important; border:1px solid #173452 !important; border-radius:7px !important;
+      box-shadow:none !important; font-size:10px !important; font-weight:800 !important; white-space:nowrap !important;
+    }
+    .dashboard-config-trigger:hover { color:#fff !important; border-color:#2387ff !important; background:#10243d !important; transform:none !important; }
+
+    .industrial-dashboard-widget-grid {
+      display:grid !important; grid-template-columns:repeat(12,minmax(0,1fr)) !important;
+      grid-auto-flow:dense; gap:12px !important; align-items:stretch !important;
+    }
+    .industrial-dashboard-widget-grid > .dashboard-widget { position:relative; min-width:0; grid-column:span 4; overflow:hidden; }
+    .industrial-dashboard-widget-grid > .dashboard-widget.size-wide { grid-column:span 8; }
+    .industrial-dashboard-widget-grid > .dashboard-widget.size-full { grid-column:1/-1; }
+    .industrial-dashboard-widget-grid > .dashboard-widget.size-large { grid-column:span 8; min-height:420px; }
+    .professional-kpi-widget { background:transparent !important; border:0 !important; box-shadow:none !important; overflow:visible !important; }
+
+    .professional-kpi-strip {
+      display:grid; grid-template-columns:repeat(5,minmax(160px,1fr)) 220px; gap:9px;
+      width:100%; min-width:0; margin-bottom:2px;
+    }
+    .professional-kpi-card {
+      position:relative; min-width:0; height:94px; padding:12px 9px 10px 54px; display:grid;
+      grid-template-columns:minmax(0,1fr) 58px; align-items:center; gap:5px; overflow:hidden;
+      color:#f8fafc; background:linear-gradient(145deg,#0b1a2d,#081522); border:1px solid #173452;
+      border-radius:9px; box-shadow:inset 0 1px rgba(255,255,255,.025),0 10px 28px rgba(0,0,0,.17);
+      transition:border-color .18s ease,background .18s ease,transform .18s ease;
+    }
+    .professional-kpi-card::before { content:""; position:absolute; inset:0 auto 0 0; width:2px; background:var(--kpi); box-shadow:0 0 14px var(--kpi); opacity:.8; }
+    .professional-kpi-card:hover { background:#10243d; border-color:#26547d; transform:translateY(-1px); }
+    .professional-kpi-icon {
+      position:absolute; left:12px; top:15px; width:32px; height:32px; display:grid; place-items:center;
+      color:var(--kpi); background:color-mix(in srgb,var(--kpi) 13%,#07111f); border:1px solid color-mix(in srgb,var(--kpi) 34%,transparent);
+      border-radius:8px; box-shadow:0 0 16px color-mix(in srgb,var(--kpi) 20%,transparent); font-style:normal; font-size:18px;
+    }
+    .professional-kpi-copy { min-width:0; display:grid; gap:4px; align-content:center; }
+    .professional-kpi-copy > span { color:#a9b7c9; font-size:9px; font-weight:800; letter-spacing:.025em; white-space:nowrap; }
+    .professional-kpi-copy > strong { color:#f8fafc; font-size:22px; line-height:1; font-weight:800; white-space:nowrap; }
+    .professional-kpi-copy > small { overflow:hidden; color:#22c55e !important; font-size:8px !important; font-weight:700; line-height:1.2; text-overflow:ellipsis; white-space:nowrap; }
+    .professional-kpi-card:nth-child(5) small { color:#f59e0b !important; }
+    .professional-kpi-card canvas { width:58px; height:34px; align-self:end; justify-self:end; }
+
+    .professional-kpi-filters { height:94px; display:grid; grid-template-rows:28px 28px 1fr; gap:5px; }
+    .professional-kpi-filters label {
+      min-width:0; height:28px; padding:0 7px; display:flex; align-items:center; gap:6px;
+      color:#94a3b8 !important; background:#0b1a2d; border:1px solid #173452; border-radius:6px;
+    }
+    .professional-kpi-filters label > span { color:#94a3b8; font-size:10px; }
+    .professional-kpi-filters select {
+      flex:1 1 auto; min-width:0 !important; min-height:24px !important; height:24px !important; padding:0 3px !important;
+      color:#dbeafe !important; background:transparent !important; border:0 !important; box-shadow:none !important;
+      font-size:8px !important; font-weight:700 !important;
+    }
+    .professional-kpi-alerts { display:grid; grid-template-columns:1.05fr .95fr; gap:5px; }
+    .professional-kpi-alerts button {
+      min-width:0 !important; min-height:28px !important; padding:4px 6px !important; display:flex !important;
+      align-items:center !important; justify-content:center !important; gap:5px !important; overflow:hidden !important;
+      color:#fca5a5 !important; background:rgba(239,68,68,.09) !important; border:1px solid rgba(239,68,68,.24) !important;
+      border-radius:6px !important; box-shadow:none !important; font-size:7px !important; white-space:nowrap !important;
+    }
+    .professional-kpi-alerts button b { color:#ef4444; font-size:11px; }
+    .professional-kpi-alerts button strong { color:#fff; font-size:9px; }
+    .professional-kpi-alerts button.impact { color:#fb923c !important; background:rgba(245,158,11,.08) !important; border-color:rgba(245,158,11,.22) !important; }
+
+    .dashboard-visible-body { padding:8px 14px 16px; min-height:150px; }
+    .industrial-dashboard-widget-grid .table-wrap { margin:0 12px 12px; max-height:250px; }
+    .dashboard-controls {
+      position:absolute !important; top:7px; right:7px; z-index:25; display:none !important; align-items:center;
+      gap:4px !important; padding:4px !important; background:#07111f !important; border:1px solid #2387ff !important;
+      border-radius:8px !important; box-shadow:0 10px 26px rgba(0,0,0,.35) !important;
+    }
+    body.dashboard-editing .dashboard-controls { display:flex !important; }
+    body.dashboard-editing .dashboard-widget { outline:1px dashed rgba(35,135,255,.45); outline-offset:2px; }
+    body.dashboard-editing .dashboard-widget.drag-over { outline:2px solid #2387ff !important; background:#10243d !important; box-shadow:0 0 0 5px rgba(35,135,255,.10) !important; }
+    body.dashboard-editing .dashboard-widget.is-dragging { opacity:.48; transform:scale(.985); }
+    .dashboard-controls .widget-btn {
+      width:27px !important; min-width:27px !important; height:26px !important; min-height:26px !important; padding:0 !important;
+      color:#94a3b8 !important; background:#0b1a2d !important; border:1px solid #173452 !important; border-radius:5px !important;
+      box-shadow:none !important; font-size:11px !important;
+    }
+    .dashboard-controls .widget-btn:hover { color:#fff !important; border-color:#2387ff !important; background:#10243d !important; transform:none !important; }
+    .dashboard-controls .widget-drag { cursor:grab !important; }
+
+    .dashboard-edit-banner {
+      display:none; min-height:42px; margin-bottom:10px; padding:7px 10px 7px 13px; align-items:center; justify-content:space-between; gap:12px;
+      color:#bfdbfe; background:rgba(35,135,255,.09); border:1px solid rgba(35,135,255,.34); border-radius:9px; font-size:10px;
+    }
+    body.dashboard-editing .dashboard-edit-banner { display:flex; }
+    .dashboard-edit-banner > div { display:flex; gap:5px; }
+    .dashboard-edit-banner button { min-height:28px !important; padding:5px 8px !important; color:#dbeafe !important; background:#0b1a2d !important; border:1px solid #173452 !important; border-radius:5px !important; box-shadow:none !important; font-size:8px !important; }
+
+    @media (max-width:1400px) {
+      .professional-kpi-strip { grid-template-columns:repeat(3,minmax(170px,1fr)); }
+      .professional-kpi-filters { grid-column:span 1; }
+    }
+    @media (max-width:1000px) {
+      .professional-kpi-strip { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .industrial-dashboard-widget-grid > .dashboard-widget,
+      .industrial-dashboard-widget-grid > .dashboard-widget.size-wide,
+      .industrial-dashboard-widget-grid > .dashboard-widget.size-large { grid-column:span 6; }
+      .industrial-dashboard-widget-grid > .dashboard-widget.size-full { grid-column:1/-1; }
+      .industrial-heading-actions { align-items:flex-end; flex-direction:column-reverse; }
+    }
+    @media (max-width:680px) {
+      .professional-kpi-strip { grid-template-columns:1fr; }
+      .professional-kpi-filters { grid-column:auto; }
+      .industrial-dashboard-widget-grid > .dashboard-widget,
+      .industrial-dashboard-widget-grid > .dashboard-widget.size-wide,
+      .industrial-dashboard-widget-grid > .dashboard-widget.size-large,
+      .industrial-dashboard-widget-grid > .dashboard-widget.size-full { grid-column:1/-1; }
+      .professional-kpi-card { height:100px; }
+      .dashboard-edit-banner { align-items:flex-start; flex-direction:column; }
+      .dashboard-config-trigger { font-size:9px !important; }
+    }
 </style>
 </head>
 <body class="auth-loading">
@@ -8927,83 +9044,43 @@
       <div class="industrial-dashboard-shell">
         <div class="industrial-dashboard-heading">
           <div><span>GESTÃO DE MANUTENÇÃO INDUSTRIAL</span><h1>Dashboard Operacional</h1><p>Monitoramento em tempo real de ativos, manutenção, paradas e materiais.</p></div>
-          <div class="industrial-dashboard-live"><i></i><span>Sistema operacional</span><strong id="dashboardRefreshTime">Atualizado agora</strong></div>
+          <div class="industrial-heading-actions"><button class="dashboard-config-trigger" type="button" onclick="openDashboardConfig()">⚙ Configurar dashboard</button><div class="industrial-dashboard-live"><i></i><span>Sistema operacional</span><strong id="dashboardRefreshTime">Atualizado agora</strong></div></div>
         </div>
 
-        <div class="industrial-summary-grid">
-          <article class="industrial-card asset-status-card">
-            <div class="industrial-card-head"><div><span>VISÃO DO PARQUE</span><h2>Status de Ativos</h2></div><button type="button" onclick="setView('assets')">Ver ativos ↗</button></div>
-            <div class="asset-status-content"><div class="industrial-donut asset-donut" id="industrialAssetDonut"><div><strong id="industrialAssetTotal">0</strong><span>ativos</span></div></div><div class="industrial-legend" id="industrialAssetLegend"></div></div>
-          </article>
+        <div class="dashboard-edit-banner" id="dashboardEditBanner"><span>Modo de edição ativo — arraste os widgets pela alça.</span><div><button type="button" onclick="openDashboardConfig()">Widgets</button><button type="button" onclick="finishDashboardEditing()">Concluir</button><button type="button" onclick="cancelDashboardConfig()">Cancelar</button></div></div>
 
-          <article class="industrial-card industrial-kpi-card danger-card">
-            <div class="industrial-card-head"><div><span>DISPONIBILIDADE</span><h2>Paradas Ativas</h2></div><i class="kpi-icon">◷</i></div>
-            <div class="industrial-kpi-value"><strong id="industrialActiveStops">0</strong><span>equipamentos indisponíveis</span></div>
-            <div class="industrial-kpi-foot"><span><b id="industrialStopHours">0h</b> tempo acumulado</span><button type="button" onclick="setView('downtime')">Detalhes →</button></div>
-          </article>
+        <div class="dashboard-layout industrial-dashboard-widget-grid" id="dashboardWidgetGrid">
+          <section class="professional-kpi-widget dashboard-widget size-full" data-dashboard-widget="metrics">
+            <div class="dashboard-controls" data-dashboard-controls="metrics"></div>
+            <div class="professional-kpi-strip">
+              <article class="professional-kpi-card" style="--kpi:#2387ff"><i class="professional-kpi-icon">◴</i><div class="professional-kpi-copy"><span>MTTR MÉDIO</span><strong id="professionalMttr">0,0h</strong><small id="professionalMttrDelta">Sem histórico anterior</small></div><canvas id="professionalMttrSpark" width="76" height="34" aria-label="Histórico MTTR"></canvas></article>
+              <article class="professional-kpi-card" style="--kpi:#2387ff"><i class="professional-kpi-icon">⌘</i><div class="professional-kpi-copy"><span>MTBF MÉDIO</span><strong id="professionalMtbf">0h</strong><small id="professionalMtbfDelta">Sem histórico anterior</small></div><canvas id="professionalMtbfSpark" width="76" height="34" aria-label="Histórico MTBF"></canvas></article>
+              <article class="professional-kpi-card" style="--kpi:#2387ff"><i class="professional-kpi-icon">◔</i><div class="professional-kpi-copy"><span>DISPONIBILIDADE</span><strong id="professionalAvailability">0,0%</strong><small id="professionalAvailabilityDelta">Sem histórico anterior</small></div><canvas id="professionalAvailabilitySpark" width="76" height="34" aria-label="Histórico de disponibilidade"></canvas></article>
+              <article class="professional-kpi-card" style="--kpi:#2387ff"><i class="professional-kpi-icon">▦</i><div class="professional-kpi-copy"><span>EQUIPAMENTOS</span><strong id="professionalEquipment">0</strong><small id="professionalEquipmentComplement">0 operando</small></div><canvas id="professionalEquipmentSpark" width="76" height="34" aria-label="Histórico de equipamentos"></canvas></article>
+              <article class="professional-kpi-card" style="--kpi:#2387ff"><i class="professional-kpi-icon">⚒</i><div class="professional-kpi-copy"><span>O.S EM EXECUÇÃO</span><strong id="professionalRunningOrders">0</strong><small id="professionalCriticalOrders">0 críticas</small></div><canvas id="professionalOrdersSpark" width="76" height="34" aria-label="Histórico de ordens em execução"></canvas></article>
+              <aside class="professional-kpi-filters">
+                <label><span>▣</span><select id="dashboardPlantFilter" aria-label="Selecionar planta" onchange="changeDashboardFilters()"><option value="Unidade Industrial 01">Planta: Unidade Industrial 01</option><option value="Unidade Industrial 02">Planta: Unidade Industrial 02</option><option value="Todas">Todas as plantas</option></select></label>
+                <label><span>◷</span><select id="dashboardPeriodFilter" aria-label="Selecionar período" onchange="changeDashboardFilters()"><option value="1">Último mês</option><option value="3">Últimos 3 meses</option><option value="6" selected>Últimos 6 meses</option><option value="12">Últimos 12 meses</option></select></label>
+                <div class="professional-kpi-alerts"><button type="button" onclick="setView('downtime')"><b>♜</b><span>PARADAS ATIVAS</span><strong id="professionalActiveStops">0</strong></button><button type="button" class="impact"><b>⚠</b><span id="professionalImpact">Impacto: Baixo</span></button></div>
+              </aside>
+            </div>
+          </section>
 
-          <article class="industrial-card industrial-kpi-card blue-card">
-            <div class="industrial-card-head"><div><span>MANUTENÇÃO</span><h2>Ordens de Serviço</h2></div><i class="kpi-icon">▤</i></div>
-            <div class="industrial-kpi-value"><strong id="industrialOpenOrders">0</strong><span>ordens abertas</span></div>
-            <div class="industrial-mini-stats"><span><i class="dot blue"></i><b id="industrialRunningOrders">0</b> em execução</span><span><i class="dot red"></i><b id="industrialLateOrders">0</b> atrasadas</span></div>
-          </article>
-
-          <article class="industrial-card industrial-kpi-card warning-card">
-            <div class="industrial-card-head"><div><span>CARTEIRA</span><h2>Backlog</h2></div><i class="kpi-icon">◫</i></div>
-            <div class="industrial-kpi-value"><strong id="industrialBacklog">0</strong><span>atividades pendentes</span></div>
-            <div class="industrial-kpi-foot"><span><b id="industrialBacklogHours">0h</b> estimadas</span><button type="button" onclick="setView('pendingActions')">Planejar →</button></div>
-          </article>
-        </div>
-
-        <div class="industrial-dashboard-main">
-          <div class="industrial-dashboard-primary">
-            <article class="industrial-card industrial-chart-card">
-              <div class="industrial-card-head"><div><span>ÚLTIMOS 7 DIAS</span><h2>Ordens de Serviço</h2></div><div class="chart-legend"><span><i class="dot blue"></i>Abertas</span><span><i class="dot green"></i>Concluídas</span><span><i class="dot red"></i>Atrasadas</span></div></div>
-              <div class="industrial-stacked-chart" id="industrialOrdersChart"></div>
-            </article>
-
-            <article class="industrial-card industrial-calendar-card maintenance-agenda-card">
-              <div class="maintenance-agenda-head">
-                <h2>Agenda de Manutenção</h2>
-                <div class="maintenance-agenda-navigation">
-                  <button type="button" onclick="shiftIndustrialAgendaWeek(-1)" aria-label="Semana anterior">‹</button>
-                  <span id="industrialAgendaRange">Semana atual</span>
-                  <button type="button" onclick="shiftIndustrialAgendaWeek(1)" aria-label="Próxima semana">›</button>
-                </div>
-                <button class="maintenance-agenda-mode" type="button" onclick="resetIndustrialAgendaWeek()">Semana <i>▣</i></button>
-              </div>
-              <div class="maintenance-agenda-scroll"><div class="maintenance-agenda-inner" id="industrialMaintenanceCalendar"></div></div>
-              <div class="maintenance-agenda-footer"><button type="button" onclick="setView('calendar')">Ver calendário completo&nbsp; ›</button></div>
-            </article>
-          </div>
-
-          <aside class="industrial-dashboard-secondary">
-            <article class="industrial-card parts-consumption-card">
-              <div class="industrial-card-head"><div><span>MATERIAIS</span><h2>Consumo de Peças</h2></div><button type="button" onclick="setView('stockMoves')">↗</button></div>
-              <div class="parts-consumption-content"><div class="industrial-donut parts-donut" id="industrialPartsDonut"><div><strong id="industrialPartsTotal">0</strong><span>movimentos</span></div></div><div class="industrial-legend" id="industrialPartsLegend"></div></div>
-            </article>
-
-            <article class="industrial-card quick-actions-card">
-              <div class="industrial-card-head"><div><span>ATALHOS</span><h2>Ações Rápidas</h2></div></div>
-              <div class="industrial-quick-actions">
-                <button type="button" onclick="openOrderModal()"><i>＋</i><span>Nova OS</span></button>
-                <button type="button" onclick="setView('pendingActions')"><i>◇</i><span>Nova Solicitação</span></button>
-                <button type="button" onclick="setView('assets')"><i>⚙</i><span>Novo Ativo</span></button>
-                <button type="button" onclick="setView('downtime')"><i>◷</i><span>Registrar Parada</span></button>
-                <button type="button" onclick="setView('stockMoves')"><i>⇩</i><span>Baixa de Estoque</span></button>
-                <button type="button" onclick="setView('reports')"><i>▥</i><span>Relatórios</span></button>
-              </div>
-            </article>
-
-            <article class="industrial-card latest-orders-card">
-              <div class="industrial-card-head"><div><span>ATUALIZAÇÕES</span><h2>Últimas Ordens de Serviço</h2></div><button type="button" onclick="setView('orders')">Ver todas ↗</button></div>
-              <div class="industrial-latest-orders" id="industrialLatestOrders"></div>
-            </article>
-          </aside>
+          <article class="industrial-card dashboard-widget" data-dashboard-widget="trend"><div class="dashboard-controls" data-dashboard-controls="trend"></div><div class="industrial-card-head"><div><span>HISTÓRICO</span><h2>Tendência MTTR x MTBF</h2></div></div><div id="trendChart"></div></article>
+          <article class="industrial-card dashboard-widget" data-dashboard-widget="status"><div class="dashboard-controls" data-dashboard-controls="status"></div><div class="industrial-card-head"><div><span>CARTEIRA</span><h2>Backlog por Status</h2></div></div><div class="dashboard-visible-body" id="statusBars"></div></article>
+          <article class="industrial-card dashboard-widget" data-dashboard-widget="criticality"><div class="dashboard-controls" data-dashboard-controls="criticality"></div><div class="industrial-card-head"><div><span>ATIVOS</span><h2>Criticidade do Parque</h2></div></div><div class="dashboard-visible-body" id="criticalityBars"></div></article>
+          <article class="industrial-card industrial-chart-card dashboard-widget" data-dashboard-widget="ordersChart"><div class="dashboard-controls" data-dashboard-controls="ordersChart"></div><div class="industrial-card-head"><div><span>ÚLTIMOS 7 DIAS</span><h2>Ordens de Serviço</h2></div><div class="chart-legend"><span><i class="dot blue"></i>Abertas</span><span><i class="dot green"></i>Concluídas</span><span><i class="dot red"></i>Atrasadas</span></div></div><div class="industrial-stacked-chart" id="industrialOrdersChart"></div></article>
+          <article class="industrial-card dashboard-widget" data-dashboard-widget="activeOrders"><div class="dashboard-controls" data-dashboard-controls="activeOrders"></div><div class="industrial-card-head"><div><span>OPERAÇÃO</span><h2>O.S Abertas e em Execução</h2></div></div><div class="dashboard-visible-body" id="dashboardActiveOrders"></div></article>
+          <article class="industrial-card dashboard-widget" data-dashboard-widget="stops"><div class="dashboard-controls" data-dashboard-controls="stops"></div><div class="industrial-card-head"><div><span>INDISPONIBILIDADE</span><h2>Top 10 Paradas</h2></div></div><div class="table-wrap"><table><tbody id="dashboardStopsRows"></tbody></table></div></article>
+          <article class="industrial-card dashboard-widget" data-dashboard-widget="stockAlerts"><div class="dashboard-controls" data-dashboard-controls="stockAlerts"></div><div class="industrial-card-head"><div><span>ESTOQUE</span><h2>Peças para Reposição</h2></div></div><div class="table-wrap"><table><tbody id="dashboardLowStockRows"></tbody></table></div></article>
+          <article class="industrial-card industrial-calendar-card maintenance-agenda-card dashboard-widget" data-dashboard-widget="agenda"><div class="dashboard-controls" data-dashboard-controls="agenda"></div><div class="maintenance-agenda-head"><h2>Agenda de Manutenção</h2><div class="maintenance-agenda-navigation"><button type="button" onclick="shiftIndustrialAgendaWeek(-1)" aria-label="Semana anterior">‹</button><span id="industrialAgendaRange">Semana atual</span><button type="button" onclick="shiftIndustrialAgendaWeek(1)" aria-label="Próxima semana">›</button></div><button class="maintenance-agenda-mode" type="button" onclick="resetIndustrialAgendaWeek()">Semana <i>▣</i></button></div><div class="maintenance-agenda-scroll"><div class="maintenance-agenda-inner" id="industrialMaintenanceCalendar"></div></div><div class="maintenance-agenda-footer"><button type="button" onclick="setView('calendar')">Ver calendário completo&nbsp; ›</button></div></article>
+          <article class="industrial-card parts-consumption-card dashboard-widget" data-dashboard-widget="parts"><div class="dashboard-controls" data-dashboard-controls="parts"></div><div class="industrial-card-head"><div><span>MATERIAIS</span><h2>Consumo de Peças</h2></div><button type="button" onclick="setView('stockMoves')">↗</button></div><div class="parts-consumption-content"><div class="industrial-donut parts-donut" id="industrialPartsDonut"><div><strong id="industrialPartsTotal">0</strong><span>movimentos</span></div></div><div class="industrial-legend" id="industrialPartsLegend"></div></div></article>
+          <article class="industrial-card quick-actions-card dashboard-widget" data-dashboard-widget="quickActions"><div class="dashboard-controls" data-dashboard-controls="quickActions"></div><div class="industrial-card-head"><div><span>ATALHOS</span><h2>Ações Rápidas</h2></div></div><div class="industrial-quick-actions"><button type="button" onclick="openOrderModal()"><i>＋</i><span>Nova OS</span></button><button type="button" onclick="setView('pendingActions')"><i>◇</i><span>Nova Solicitação</span></button><button type="button" onclick="setView('assets')"><i>⚙</i><span>Novo Ativo</span></button><button type="button" onclick="setView('downtime')"><i>◷</i><span>Registrar Parada</span></button><button type="button" onclick="setView('stockMoves')"><i>⇩</i><span>Baixa de Estoque</span></button><button type="button" onclick="setView('reports')"><i>▥</i><span>Relatórios</span></button></div></article>
+          <article class="industrial-card latest-orders-card dashboard-widget" data-dashboard-widget="latestOrders"><div class="dashboard-controls" data-dashboard-controls="latestOrders"></div><div class="industrial-card-head"><div><span>ATUALIZAÇÕES</span><h2>Últimas Ordens de Serviço</h2></div><button type="button" onclick="setView('orders')">Ver todas ↗</button></div><div class="industrial-latest-orders" id="industrialLatestOrders"></div></article>
         </div>
 
         <div class="dashboard-compat" aria-hidden="true">
-          <div id="dashboardLayout"></div><span id="mttrMetric"></span><span id="mtbfMetric"></span><span id="availabilityMetric"></span><span id="assetMetric"></span><span id="locationMetric"></span><span id="openOsMetric"></span><span id="runningOsMetric"></span><span id="stoppedMetric"></span><span id="lowStockMetric"></span><div id="trendChart"></div><div id="statusBars"></div><div id="criticalityBars"></div><div id="dashboardActiveOrders"></div><table><tbody id="dashboardStopsRows"></tbody></table><table><tbody id="dashboardExecutorRows"></tbody></table><table><tbody id="dashboardLowStockRows"></tbody></table><button id="dashboardConfigBtn" type="button"></button><button id="purchaseListBtn" type="button"></button><button id="openTvPanelBtn" type="button"></button>
+          <div id="dashboardLayout"></div><span id="mttrMetric"></span><span id="mtbfMetric"></span><span id="availabilityMetric"></span><span id="assetMetric"></span><span id="locationMetric"></span><span id="openOsMetric"></span><span id="runningOsMetric"></span><span id="stoppedMetric"></span><span id="lowStockMetric"></span><table><tbody id="dashboardExecutorRows"></tbody></table><button id="dashboardConfigBtn" type="button"></button><button id="purchaseListBtn" type="button"></button><button id="openTvPanelBtn" type="button"></button>
         </div>
       </div>
     </section>
@@ -9806,7 +9883,7 @@
     const PENDING_UPSERTS_KEY = "gestman365-pending-upserts-v2";
     const DELETED_RECORDS_KEY = "gestman365-deleted-records-v1";
     const THEME_KEY = "gestman365-theme";
-    const DASHBOARD_LAYOUT_KEY = "gestman365-dashboard-layout-v1";
+    const DASHBOARD_LAYOUT_KEY = "gestman365.dashboard.layout.v2";
     const ACTIVE_VIEW_KEY = "gestman365-active-view-v1";
     const NAV_COLLAPSED_KEY = "gestman365-nav-collapsed-v1";
     const NAV_GROUPS_KEY = "gestman365-nav-groups-v1";
@@ -13653,6 +13730,121 @@
       return { mttr, mtbf, availability };
     }
 
+    function dashboardItemPlant(item = {}) {
+      const asset = item.assetId ? byId(state.assets, item.assetId) : item;
+      return item.plant || item.unit || item.factory || asset?.plant || asset?.unit || asset?.factory || "Unidade Industrial 01";
+    }
+
+    function dashboardFilteredData() {
+      const layout = loadDashboardLayout();
+      const plant = layout.filters?.plant || "Unidade Industrial 01";
+      const months = Math.max(1, Math.min(12, Number(layout.filters?.period || 6)));
+      const cutoff = new Date(); cutoff.setMonth(cutoff.getMonth() - months); cutoff.setHours(0, 0, 0, 0);
+      const inPlant = item => plant === "Todas" || dashboardItemPlant(item) === plant;
+      const inPeriod = item => {
+        const value = item.finishedAt || item.startedAt || item.scheduledAt || item.createdAt || item.startAt;
+        if (!value) return true;
+        const date = new Date(value);
+        return Number.isNaN(date.getTime()) || date >= cutoff;
+      };
+      return {
+        plant, months, cutoff,
+        assets: (state.assets || []).filter(inPlant),
+        orders: (state.orders || []).filter(item => inPlant(item) && inPeriod(item)),
+        downtimes: (state.downtimes || []).filter(item => inPlant(item) && inPeriod(item))
+      };
+    }
+
+    function dashboardMetricsFor(assets, orders, months = 6) {
+      const completed = orders.filter(order => isClosedOrder(order.status));
+      const totalRepair = completed.reduce((sum, order) => sum + Number(order.mttr || 0), 0);
+      const mttr = completed.length ? totalRepair / completed.length : 0;
+      const failures = orders.filter(order => statusKey(order.status) !== "cancelada").length;
+      const mtbf = failures && assets.length ? (assets.length * months * 720) / failures : (assets.length ? months * 720 : 0);
+      const activeAssetIds = new Set(orders.filter(order => !isClosedOrder(order.status)).map(order => order.assetId));
+      const operating = assets.filter(asset => statusKey(asset.status).includes("oper") || statusKey(asset.status).includes("ativ"));
+      const available = operating.filter(asset => !activeAssetIds.has(asset.id)).length;
+      const availability = assets.length ? available / assets.length * 100 : 0;
+      return { mttr, mtbf, availability, operating: operating.length };
+    }
+
+    function drawDashboardSparkline(id, values, color = "#2387ff") {
+      const canvas = $(id); if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      const width = canvas.width; const height = canvas.height;
+      ctx.clearRect(0, 0, width, height);
+      const safe = (values || []).map(Number).filter(Number.isFinite);
+      const points = safe.length > 1 ? safe : [0, 0, 0, 0, 0, 0];
+      const min = Math.min(...points); const max = Math.max(...points); const range = max - min || 1;
+      ctx.beginPath();
+      points.forEach((value, index) => {
+        const x = 2 + index * (width - 4) / Math.max(1, points.length - 1);
+        const y = max === min ? height / 2 : height - 3 - (value - min) / range * (height - 8);
+        if (index === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.strokeStyle = max === min ? "#334155" : color;
+      ctx.lineWidth = 1.6; ctx.lineJoin = "round"; ctx.lineCap = "round"; ctx.stroke();
+    }
+
+    function professionalDelta(current, previous, suffix = "%") {
+      if (!previous || !Number.isFinite(previous)) return "Sem histórico anterior";
+      const value = (current - previous) / Math.abs(previous) * 100;
+      const sign = value >= 0 ? "+" : "";
+      return `${sign}${value.toFixed(0)}${suffix} vs período anterior`;
+    }
+
+    function renderProfessionalKpis() {
+      if (!$("professionalMttr")) return;
+      const filtered = dashboardFilteredData();
+      const metrics = dashboardMetricsFor(filtered.assets, filtered.orders, filtered.months);
+      const running = filtered.orders.filter(order => isRunningOrder(order.status));
+      const critical = running.filter(order => statusKey(order.priority).includes("alta") || orderIsLate(order));
+      const activeStops = filtered.downtimes.filter(item => item?.status === "Ativa");
+      const previousCutoff = new Date(filtered.cutoff); previousCutoff.setMonth(previousCutoff.getMonth() - filtered.months);
+      const previousOrders = (state.orders || []).filter(item => dashboardItemPlant(item) === filtered.plant || filtered.plant === "Todas").filter(item => {
+        const date = new Date(item.finishedAt || item.createdAt || 0); return date >= previousCutoff && date < filtered.cutoff;
+      });
+      const previous = dashboardMetricsFor(filtered.assets, previousOrders, filtered.months);
+
+      $("professionalMttr").textContent = `${metrics.mttr.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}h`;
+      $("professionalMtbf").textContent = `${Math.round(metrics.mtbf).toLocaleString("pt-BR")}h`;
+      $("professionalAvailability").textContent = `${metrics.availability.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`;
+      $("professionalEquipment").textContent = filtered.assets.length.toLocaleString("pt-BR");
+      $("professionalRunningOrders").textContent = running.length.toLocaleString("pt-BR");
+      $("professionalMttrDelta").textContent = professionalDelta(metrics.mttr, previous.mttr);
+      $("professionalMtbfDelta").textContent = professionalDelta(metrics.mtbf, previous.mtbf);
+      $("professionalAvailabilityDelta").textContent = previous.availability ? `${(metrics.availability - previous.availability >= 0 ? "+" : "")}${(metrics.availability - previous.availability).toFixed(1)} p.p. vs período anterior` : "Sem histórico anterior";
+      $("professionalEquipmentComplement").textContent = `${metrics.operating} operando`;
+      $("professionalCriticalOrders").textContent = `${critical.length} críticas`;
+      $("professionalActiveStops").textContent = activeStops.length;
+      const impact = activeStops.length >= 3 || critical.length >= 5 ? "Alto" : activeStops.length || critical.length ? "Médio" : "Baixo";
+      $("professionalImpact").textContent = `Impacto: ${impact}`;
+
+      const buckets = Array.from({ length: Math.min(12, filtered.months) }, (_, index) => {
+        const start = new Date(); start.setMonth(start.getMonth() - (Math.min(12, filtered.months) - 1 - index), 1); start.setHours(0,0,0,0);
+        const end = new Date(start); end.setMonth(end.getMonth() + 1, 0); end.setHours(23,59,59,999);
+        const orders = filtered.orders.filter(order => { const date = new Date(order.finishedAt || order.createdAt || 0); return date >= start && date <= end; });
+        const assets = filtered.assets.filter(asset => { const date = new Date(asset.createdAt || 0); return !asset.createdAt || date <= end; });
+        const monthMetrics = dashboardMetricsFor(assets, orders, 1);
+        return { mttr: monthMetrics.mttr, mtbf: monthMetrics.mtbf, availability: monthMetrics.availability, equipment: assets.length, running: orders.filter(order => isRunningOrder(order.status)).length };
+      });
+      drawDashboardSparkline("professionalMttrSpark", buckets.map(item => item.mttr));
+      drawDashboardSparkline("professionalMtbfSpark", buckets.map(item => item.mtbf));
+      drawDashboardSparkline("professionalAvailabilitySpark", buckets.map(item => item.availability));
+      drawDashboardSparkline("professionalEquipmentSpark", buckets.map(item => item.equipment));
+      drawDashboardSparkline("professionalOrdersSpark", buckets.map(item => item.running));
+    }
+
+    function changeDashboardFilters() {
+      const layout = loadDashboardLayout();
+      layout.filters = {
+        plant: $("dashboardPlantFilter")?.value || "Unidade Industrial 01",
+        period: $("dashboardPeriodFilter")?.value || "6"
+      };
+      saveDashboardLayout(layout);
+      renderDashboard();
+    }
+
     function industrialAssetStatusData() {
       const activeDowntimeIds = new Set(state.downtimes.filter(item => item?.status === "Ativa").map(item => item.assetId));
       const buckets = { operating: 0, maintenance: 0, stopped: 0, inactive: 0 };
@@ -13690,6 +13882,7 @@
 
     function renderIndustrialOrdersChart() {
       const target = $("industrialOrdersChart"); if (!target) return;
+      const dashboardOrders = dashboardFilteredData().orders;
       const today = new Date(); today.setHours(0, 0, 0, 0);
       const days = Array.from({ length: 7 }, (_, index) => { const date = new Date(today); date.setDate(today.getDate() - (6 - index)); return date; });
       const rows = days.map(date => {
@@ -13697,9 +13890,9 @@
         const onDay = value => { const parsed = value ? new Date(value) : null; return parsed && !Number.isNaN(parsed.getTime()) && parsed.toLocaleDateString("pt-BR") === key; };
         return {
           label: date.toLocaleDateString("pt-BR", { weekday: "short" }).replace(".", ""),
-          opened: state.orders.filter(order => onDay(order.createdAt)).length,
-          closed: state.orders.filter(order => onDay(order.finishedAt)).length,
-          late: state.orders.filter(order => orderIsLate(order) && onDay(order.scheduledAt || order.createdAt)).length
+          opened: dashboardOrders.filter(order => onDay(order.createdAt)).length,
+          closed: dashboardOrders.filter(order => onDay(order.finishedAt)).length,
+          late: dashboardOrders.filter(order => orderIsLate(order) && onDay(order.scheduledAt || order.createdAt)).length
         };
       });
       const max = Math.max(1, ...rows.flatMap(row => [row.opened, row.closed, row.late]));
@@ -13881,6 +14074,7 @@
       renderIndustrialPartsDonut();
       renderIndustrialCalendar();
       renderIndustrialLatestOrders();
+      renderProfessionalKpis();
       updateIndustrialClock();
     }
 
@@ -13912,17 +14106,25 @@
       { id: "trend", label: "Tendência MTTR x MTBF" },
       { id: "status", label: "Backlog por status" },
       { id: "criticality", label: "Criticidade do parque" },
+      { id: "ordersChart", label: "Ordens de Serviço — últimos 7 dias" },
       { id: "activeOrders", label: "O.S abertas e em execução" },
       { id: "stops", label: "TOP 10 paradas de equipamento" },
-      { id: "executors", label: "Executantes por ordens atendidas" },
-      { id: "stockAlerts", label: "Peças para reposição" }
+      { id: "stockAlerts", label: "Peças para reposição" },
+      { id: "agenda", label: "Agenda de manutenção" },
+      { id: "parts", label: "Consumo de peças" },
+      { id: "quickActions", label: "Ações rápidas" },
+      { id: "latestOrders", label: "Últimas ordens de serviço" }
     ];
 
     let draggedDashboardWidgetId = "";
+    let dashboardEditMode = false;
+    let dashboardEditSnapshot = "";
     const dashboardWidgetSizeCycle = ["normal", "wide", "full", "large"];
 
     function dashboardWidgetDefaultSize(id) {
-      return id === "metrics" ? "full" : "normal";
+      if (["metrics", "agenda"].includes(id)) return "full";
+      if (["trend", "ordersChart", "activeOrders"].includes(id)) return "wide";
+      return "normal";
     }
 
     function loadDashboardLayout() {
@@ -13939,10 +14141,15 @@
           const size = parsedSizes[id] || dashboardWidgetDefaultSize(id);
           sizes[id] = dashboardWidgetSizeCycle.includes(size) ? size : dashboardWidgetDefaultSize(id);
         });
-        return { order, hidden, sizes };
+        const rawFilters = parsed.filters && typeof parsed.filters === "object" ? parsed.filters : {};
+        const filters = {
+          plant: ["Unidade Industrial 01", "Unidade Industrial 02", "Todas"].includes(rawFilters.plant) ? rawFilters.plant : "Unidade Industrial 01",
+          period: ["1", "3", "6", "12"].includes(String(rawFilters.period || "")) ? String(rawFilters.period) : "6"
+        };
+        return { order, hidden, sizes, filters };
       } catch {
         const order = dashboardWidgetDefaults.map(item => item.id);
-        return { order, hidden: [], sizes: Object.fromEntries(order.map(id => [id, dashboardWidgetDefaultSize(id)])) };
+        return { order, hidden: [], sizes: Object.fromEntries(order.map(id => [id, dashboardWidgetDefaultSize(id)])), filters: { plant: "Unidade Industrial 01", period: "6" } };
       }
     }
 
@@ -13952,7 +14159,7 @@
 
     function dashboardControlsHtml(id) {
       return `
-        <button class="widget-btn widget-drag" type="button" title="Arrastar e encaixar bloco">↕</button>
+        <button class="widget-btn widget-drag" type="button" title="Arrastar e encaixar bloco" aria-label="Arrastar widget">⠿</button>
         <button class="widget-btn" type="button" title="Mover para cima" onclick="moveDashboardWidget('${id}', -1)">↑</button>
         <button class="widget-btn" type="button" title="Mover para baixo" onclick="moveDashboardWidget('${id}', 1)">↓</button>
         <button class="widget-btn" type="button" title="Aumentar ou reduzir bloco" onclick="resizeDashboardWidget('${id}')">⤢</button>
@@ -13969,12 +14176,15 @@
         widget.style.order = index >= 0 ? index : 999;
         widget.classList.remove("full", "size-normal", "size-wide", "size-full", "size-large", "is-dragging", "drag-over");
         widget.classList.add(`size-${size}`);
-        widget.draggable = !layout.hidden.includes(id);
+        widget.draggable = dashboardEditMode && !layout.hidden.includes(id);
         widget.classList.toggle("is-hidden", layout.hidden.includes(id));
       });
       document.querySelectorAll("[data-dashboard-controls]").forEach(target => {
-        target.innerHTML = dashboardControlsHtml(target.dataset.dashboardControls);
+        target.innerHTML = dashboardEditMode ? dashboardControlsHtml(target.dataset.dashboardControls) : "";
       });
+      document.body.classList.toggle("dashboard-editing", dashboardEditMode);
+      if ($("dashboardPlantFilter")) $("dashboardPlantFilter").value = layout.filters?.plant || "Unidade Industrial 01";
+      if ($("dashboardPeriodFilter")) $("dashboardPeriodFilter").value = String(layout.filters?.period || "6");
       setupDashboardDragAndDrop();
     }
 
@@ -14026,7 +14236,7 @@
     function setupDashboardDragAndDrop() {
       document.querySelectorAll("[data-dashboard-widget]").forEach(widget => {
         widget.ondragstart = event => {
-          if (!event.target.closest(".widget-drag")) {
+          if (!dashboardEditMode || !event.target.closest(".widget-drag")) {
             event.preventDefault();
             return;
           }
@@ -14056,6 +14266,7 @@
     }
 
     function hideDashboardWidget(id) {
+      if (!dashboardEditMode) return;
       const layout = loadDashboardLayout();
       if (!layout.hidden.includes(id)) layout.hidden.push(id);
       saveDashboardLayout(layout);
@@ -14064,11 +14275,16 @@
     }
 
     function openDashboardConfig() {
+      if (!dashboardEditMode) {
+        dashboardEditSnapshot = JSON.stringify(loadDashboardLayout());
+        dashboardEditMode = true;
+        applyDashboardLayout();
+      }
       const layout = loadDashboardLayout();
       openModal("Configurar dashboard", `
         <div class="side-box">
-          <strong>Escolha os blocos visíveis no dashboard</strong>
-          <span>Arraste os blocos pelo botão ↕ para mover. Use ⤢ para aumentar ou reduzir o tamanho.</span>
+          <strong>Widgets do Dashboard</strong>
+          <span>Defina o que será exibido. Para reorganizar, feche este painel e use a alça ⠿ sobre cada widget.</span>
           ${dashboardWidgetDefaults.map(item => `
             <label class="switch-line">
               <input type="checkbox" data-dashboard-visible="${item.id}" ${layout.hidden.includes(item.id) ? "" : "checked"}>
@@ -14078,6 +14294,8 @@
         </div>
         <div class="toolbar">
           <button class="btn" type="button" onclick="resetDashboardLayout()">Restaurar padrão</button>
+          <button class="btn" type="button" onclick="closeModal();applyDashboardLayout()">Reorganizar na tela</button>
+          <button class="btn" type="button" onclick="cancelDashboardConfig()">Cancelar</button>
           <button class="btn primary" type="button" onclick="saveDashboardVisibility()">Salvar configuração</button>
         </div>
       `);
@@ -14090,20 +14308,49 @@
         .map(input => input.dataset.dashboardVisible);
       saveDashboardLayout(layout);
       closeModal();
+      dashboardEditMode = false;
+      dashboardEditSnapshot = "";
       applyDashboardLayout();
       showToast("Dashboard atualizado.");
+    }
+
+    function finishDashboardEditing() {
+      dashboardEditMode = false;
+      dashboardEditSnapshot = "";
+      closeModal();
+      applyDashboardLayout();
+      showToast("Organização do dashboard salva.");
+    }
+
+    function cancelDashboardConfig() {
+      if (dashboardEditSnapshot) {
+        try { saveDashboardLayout(JSON.parse(dashboardEditSnapshot)); } catch {}
+      }
+      dashboardEditMode = false;
+      dashboardEditSnapshot = "";
+      closeModal();
+      applyDashboardLayout();
+      renderDashboard();
+      showToast("Alterações canceladas.");
     }
 
     function resetDashboardLayout() {
       scopedRemoveItem(DASHBOARD_LAYOUT_KEY, "user");
       closeModal();
+      dashboardEditMode = false;
+      dashboardEditSnapshot = "";
       applyDashboardLayout();
+      renderDashboard();
       showToast("Dashboard restaurado.");
     }
 
     function renderTrendChart() {
       const target = $("trendChart");
       if (!target) return;
+      const dashboardData = dashboardFilteredData();
+      const trendOrders = dashboardData.orders;
+      const trendAssets = dashboardData.assets;
+      const trendMonths = Math.max(1, Math.min(12, dashboardData.months));
       const now = Date.now();
       const monthLabel = date => date.toLocaleDateString("pt-BR", { month: "short" }).replace(".", "").toUpperCase();
       const repairHours = order => {
@@ -14113,27 +14360,27 @@
         const end = Number(order.finishedAt || 0);
         return start && end && end > start ? (end - start) / 3600000 : 0;
       };
-      const buckets = Array.from({ length: 6 }, (_, index) => {
+      const buckets = Array.from({ length: trendMonths }, (_, index) => {
         const cursor = new Date();
-        cursor.setMonth(cursor.getMonth() - (5 - index), 1);
+        cursor.setMonth(cursor.getMonth() - (trendMonths - 1 - index), 1);
         cursor.setHours(0, 0, 0, 0);
         const start = cursor.getTime();
         const endDate = new Date(cursor);
         endDate.setMonth(endDate.getMonth() + 1, 0);
         endDate.setHours(23, 59, 59, 999);
         const end = Math.min(endDate.getTime(), now);
-        const opened = state.orders.filter(order => {
+        const opened = trendOrders.filter(order => {
           const date = Number(order.createdAt || 0);
           return date >= start && date <= end && statusKey(order.status) !== "cancelada";
         });
-        const completed = state.orders.filter(order => {
+        const completed = trendOrders.filter(order => {
           const date = Number(order.finishedAt || 0);
           return date >= start && date <= end && isClosedOrder(order.status);
         });
         const repairs = completed.map(repairHours).filter(value => value > 0);
         const mttr = repairs.length ? repairs.reduce((sum, value) => sum + value, 0) / repairs.length : 0;
-        const periodHours = Math.max(0, (end - start) / 3600000) * Math.max(1, state.assets.length);
-        const mtbf = opened.length ? periodHours / opened.length : (state.assets.length ? periodHours : 0);
+        const periodHours = Math.max(0, (end - start) / 3600000) * Math.max(1, trendAssets.length);
+        const mtbf = opened.length ? periodHours / opened.length : (trendAssets.length ? periodHours : 0);
         return { label: monthLabel(cursor), mttr, mtbf, opened: opened.length, completed: completed.length };
       });
       const hasData = buckets.some(item => item.opened || item.completed || item.mttr || item.mtbf);
@@ -14145,7 +14392,7 @@
       const mtbfPoints = buckets.map(item => item.mtbf);
       const maxMttr = Math.max(1, ...mttrPoints);
       const maxMtbf = Math.max(1, ...mtbfPoints);
-      const x = index => 58 + index * 112;
+      const x = index => 58 + index * (584 / Math.max(1, buckets.length - 1));
       const yMttr = value => 176 - (value / maxMttr) * 118;
       const yMtbf = value => 176 - (value / maxMtbf) * 118;
       const poly = (arr, yFn) => arr.map((value, index) => `${x(index)},${yFn(value)}`).join(" ");
@@ -14166,13 +14413,14 @@
           `).join("")}
           <text x="475" y="30" fill="#123f8d" font-size="12" font-weight="900">MTBF</text>
           <text x="548" y="30" fill="#ff7a1a" font-size="12" font-weight="900">MTTR</text>
-          <text x="46" y="220" fill="#53627a" font-size="10">Últimos 6 meses | valores em horas</text>
+          <text x="46" y="220" fill="#53627a" font-size="10">Últimos ${trendMonths} ${trendMonths === 1 ? "mês" : "meses"} | valores em horas</text>
         </svg>`;
     }
 
     function renderStatusBars() {
+      const dashboardOrders = dashboardFilteredData().orders;
       const statuses = [{ label: "Aberta", match: "aberta" }, { label: "Em execução", match: "em exec" }, { label: "Planejada", match: "planejada" }, { label: "Concluída", match: "conclu" }];
-      const countFor = status => state.orders.filter(order => statusKey(order.status).startsWith(status.match)).length;
+      const countFor = status => dashboardOrders.filter(order => statusKey(order.status).startsWith(status.match)).length;
       const max = Math.max(1, ...statuses.map(countFor));
       $("statusBars").innerHTML = statuses.map(status => {
         const count = countFor(status);
@@ -14181,10 +14429,11 @@
     }
 
     function renderCriticalityBars() {
+      const dashboardAssets = dashboardFilteredData().assets;
       const items = ["Alta", "Média", "Baixa"];
-      const max = Math.max(1, ...items.map(item => state.assets.filter(asset => asset.criticality === item).length));
+      const max = Math.max(1, ...items.map(item => dashboardAssets.filter(asset => asset.criticality === item).length));
       $("criticalityBars").innerHTML = items.map(item => {
-        const count = state.assets.filter(asset => asset.criticality === item).length;
+        const count = dashboardAssets.filter(asset => asset.criticality === item).length;
         return `<div class="bar-row"><strong>${item}</strong><div class="bar-track"><div class="bar" style="width:${(count / max) * 100}%"></div></div><span>${count}</span></div>`;
       }).join("");
     }
@@ -20362,6 +20611,10 @@
     }
 
     window.editAsset = editAsset; window.deleteAsset = deleteAsset; window.duplicateAsset = duplicateAsset; window.editRegion = editRegion; window.deleteRegion = deleteRegion; window.editLocation = editLocation; window.deleteLocation = deleteLocation; window.editTag = editTag; window.deleteTag = deleteTag; window.editSubtag = editSubtag; window.deleteSubtag = deleteSubtag; window.editSupplier = editSupplier; window.deleteSupplier = deleteSupplier; window.editStock = editStock; window.deleteStock = deleteStock; window.editSpare = editSpare; window.deleteSpare = deleteSpare; window.editStockMove = editStockMove; window.deleteStockMove = deleteStockMove; window.editMaterialRequest = editMaterialRequest; window.deleteMaterialRequest = deleteMaterialRequest; window.editStockTransfer = editStockTransfer; window.deleteStockTransfer = deleteStockTransfer; window.editDowntime = editDowntime; window.closeDowntime = closeDowntime; window.cancelDowntime = cancelDowntime; window.deleteDowntime = deleteDowntime; window.editMeasurement = editMeasurement; window.showMeasurementDetails = showMeasurementDetails; window.deleteMeasurement = deleteMeasurement; window.editOperationalDiary = editOperationalDiary; window.showOperationalDiaryDetails = showOperationalDiaryDetails; window.deleteOperationalDiary = deleteOperationalDiary; window.editTool = editTool; window.deleteTool = deleteTool; window.toggleToolActive = toggleToolActive; window.openToolLoanModal = openToolLoanModal; window.openToolReturnModal = openToolReturnModal; window.cancelToolLoan = cancelToolLoan; window.openToolHistory = openToolHistory; window.showToolLoanDetails = showToolLoanDetails; window.editISStructure = editISStructure; window.deleteISStructure = deleteISStructure; window.changeISStructureStatus = changeISStructureStatus; window.openISStructureDetail = openISStructureDetail; window.openISStructureFormForCreate = openISStructureFormForCreate; window.hideISStructureForm = hideISStructureForm; window.renderInstallationStructures = renderInstallationStructures; window.refreshISFilters = refreshISFilters; window.editOrder = editOrder; window.deleteOrder = deleteOrder; window.startOrder = startOrder; window.confirmStartOrder = confirmStartOrder; window.finishOrder = finishOrder; window.showOrderDetails = showOrderDetails; window.simpleOrderAction = simpleOrderAction; window.editPreventivePlan = editPreventivePlan; window.deletePreventivePlan = deletePreventivePlan; window.generatePreventivePlanOrder = generatePreventivePlanOrder; window.openChecklistExecution = openChecklistExecution; window.openChecklistHistory = openChecklistHistory; window.showChecklistExecutionDetails = showChecklistExecutionDetails; window.deleteChecklistExecution = deleteChecklistExecution; window.editChecklist = editChecklist; window.deleteChecklist = deleteChecklist; window.openLocationChecklists = openLocationChecklists; window.openLocationMovements = openLocationMovements; window.moveDashboardWidget = moveDashboardWidget; window.resizeDashboardWidget = resizeDashboardWidget; window.hideDashboardWidget = hideDashboardWidget; window.openDashboardConfig = openDashboardConfig; window.saveDashboardVisibility = saveDashboardVisibility; window.resetDashboardLayout = resetDashboardLayout; window.toggleApiFolder = toggleApiFolder; window.openApiCommand = openApiCommand; window.copyPlainText = copyPlainText; window.copyTextFromElement = copyTextFromElement; window.editTenantUser = editTenantUser; window.deleteTenantUser = deleteTenantUser;
+
+    window.finishDashboardEditing = finishDashboardEditing;
+    window.cancelDashboardConfig = cancelDashboardConfig;
+    window.changeDashboardFilters = changeDashboardFilters;
 
     prepareCrudUi();
 
