@@ -9208,6 +9208,41 @@
       .mobile-check-options { display:grid; grid-template-columns:repeat(2,1fr); gap:7px; }
       .mobile-check-options label { min-height:46px; padding:8px; display:flex; align-items:center; justify-content:center; gap:5px; background:#101f31; border:1px solid #1f334a; border-radius:7px; font-size:10px; }
     }
+
+    /* Etapa 6 — personalização simples e segura do Dashboard */
+    .dashboard-kpi-controls {
+      position:absolute; top:5px; right:5px; z-index:28; display:flex; gap:3px; padding:3px;
+      background:#07111f; border:1px solid #2387ff; border-radius:7px; box-shadow:0 8px 20px rgba(0,0,0,.38);
+    }
+    .dashboard-kpi-controls .widget-btn {
+      width:26px !important; min-width:26px !important; height:26px !important; min-height:26px !important; padding:0 !important;
+      color:#94a3b8 !important; background:#0b1a2d !important; border:1px solid #173452 !important; border-radius:5px !important;
+      box-shadow:none !important; font-size:11px !important;
+    }
+    .dashboard-kpi-controls .kpi-drag { cursor:grab !important; }
+    body.dashboard-editing [data-dashboard-kpi] { position:relative; outline:1px dashed rgba(35,135,255,.45); outline-offset:2px; }
+    body.dashboard-editing [data-dashboard-kpi].drag-over { outline:2px solid #2387ff; background:#10243d; }
+    body.dashboard-editing [data-dashboard-kpi].is-dragging { opacity:.5; }
+    .professional-kpi-filters { order:999; }
+    body.dashboard-editing .dashboard-config-trigger { display:none !important; }
+    .dashboard-edit-banner button { font-size:10px !important; }
+    .widget-btn:focus-visible,.dashboard-edit-banner button:focus-visible,.switch-line input:focus-visible {
+      outline:2px solid #60a5fa !important; outline-offset:2px;
+    }
+    .side-box .switch-line { min-height:54px; padding:8px 4px; justify-content:space-between; gap:14px; border-bottom:1px solid rgba(31,51,74,.72); }
+    .side-box .switch-line > span { display:grid; gap:2px; }
+    .side-box .switch-line strong { color:#e5eefc; font-size:11px; }
+    .side-box .switch-line small { color:#94a3b8; font-size:9px; font-weight:400; }
+    .side-box .switch-line input { flex:0 0 auto; width:36px; height:20px; accent-color:#1d8cff; }
+    @media (max-width:600px) {
+      body.dashboard-editing #dashboard .industrial-dashboard-shell { display:block !important; }
+      body.dashboard-editing #dashboard .mobile-technician-home { display:none !important; }
+      body.dashboard-editing .dashboard-edit-banner > div { width:100%; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+      body.dashboard-editing .dashboard-edit-banner button { min-height:40px !important; font-size:10px !important; }
+      body.dashboard-editing .dashboard-controls .widget-btn,
+      body.dashboard-editing .dashboard-kpi-controls .widget-btn { width:38px !important; min-width:38px !important; height:38px !important; min-height:38px !important; font-size:14px !important; }
+      body.dashboard-editing .professional-kpi-card { min-height:112px; }
+    }
 </style>
 </head>
 <body class="auth-loading">
@@ -9365,21 +9400,22 @@
       <div class="industrial-dashboard-shell">
         <div class="industrial-dashboard-heading">
           <div><span>GESTÃO DE MANUTENÇÃO INDUSTRIAL</span><h1>Dashboard Operacional</h1><p>Monitoramento em tempo real de ativos, manutenção, paradas e materiais.</p></div>
-          <div class="industrial-heading-actions"><button class="dashboard-config-trigger" type="button" onclick="openDashboardConfig()">⚙ Configurar dashboard</button><div class="industrial-dashboard-live"><i></i><span>Sistema operacional</span><strong id="dashboardRefreshTime">Atualizado agora</strong></div></div>
+          <div class="industrial-heading-actions"><button class="dashboard-config-trigger" type="button" onclick="openDashboardConfig()">⚙ Configurar Dashboard</button><div class="industrial-dashboard-live"><i></i><span>Sistema operacional</span><strong id="dashboardRefreshTime">Atualizado agora</strong></div></div>
         </div>
 
-        <div class="dashboard-edit-banner" id="dashboardEditBanner"><span>Modo de edição ativo — arraste os widgets pela alça.</span><div><button type="button" onclick="openDashboardConfig()">Widgets</button><button type="button" onclick="finishDashboardEditing()">Concluir</button><button type="button" onclick="cancelDashboardConfig()">Cancelar</button></div></div>
+        <div class="dashboard-edit-banner" id="dashboardEditBanner"><span><strong>Personalizando Dashboard</strong><small> Arraste pela alça ou use os botões de movimento.</small></span><div><button type="button" onclick="saveDashboardCustomization()">Salvar</button><button type="button" onclick="cancelDashboardConfig()">Cancelar</button><button type="button" onclick="confirmResetDashboardLayout()">Restaurar padrão</button><button type="button" onclick="openDashboardConfig()">Widgets</button></div></div>
+        <div class="sr-only" id="dashboardA11yStatus" aria-live="polite"></div>
 
         <div class="dashboard-layout industrial-dashboard-widget-grid" id="dashboardWidgetGrid">
           <section class="professional-kpi-widget dashboard-widget size-full" data-dashboard-widget="metrics">
             <div class="dashboard-controls" data-dashboard-controls="metrics"></div>
             <div class="professional-kpi-strip">
-              <article class="professional-kpi-card" style="--kpi:#2387ff"><i class="professional-kpi-icon">◴</i><div class="professional-kpi-copy"><span>MTTR MÉDIO</span><strong id="professionalMttr">0,0h</strong><small id="professionalMttrDelta">Sem histórico anterior</small></div><canvas id="professionalMttrSpark" width="76" height="34" aria-label="Histórico MTTR"></canvas></article>
-              <article class="professional-kpi-card" style="--kpi:#2387ff"><i class="professional-kpi-icon">⌘</i><div class="professional-kpi-copy"><span>MTBF MÉDIO</span><strong id="professionalMtbf">0h</strong><small id="professionalMtbfDelta">Sem histórico anterior</small></div><canvas id="professionalMtbfSpark" width="76" height="34" aria-label="Histórico MTBF"></canvas></article>
-              <article class="professional-kpi-card" style="--kpi:#2387ff"><i class="professional-kpi-icon">◔</i><div class="professional-kpi-copy"><span>DISPONIBILIDADE</span><strong id="professionalAvailability">0,0%</strong><small id="professionalAvailabilityDelta">Sem histórico anterior</small></div><canvas id="professionalAvailabilitySpark" width="76" height="34" aria-label="Histórico de disponibilidade"></canvas></article>
-              <article class="professional-kpi-card" style="--kpi:#2387ff"><i class="professional-kpi-icon">▦</i><div class="professional-kpi-copy"><span>EQUIPAMENTOS</span><strong id="professionalEquipment">0</strong><small id="professionalEquipmentComplement">0 operando</small></div><canvas id="professionalEquipmentSpark" width="76" height="34" aria-label="Histórico de equipamentos"></canvas></article>
-              <article class="professional-kpi-card" style="--kpi:#2387ff"><i class="professional-kpi-icon">⚒</i><div class="professional-kpi-copy"><span>O.S EM EXECUÇÃO</span><strong id="professionalRunningOrders">0</strong><small id="professionalCriticalOrders">0 críticas</small></div><canvas id="professionalOrdersSpark" width="76" height="34" aria-label="Histórico de ordens em execução"></canvas></article>
-              <article class="professional-kpi-card stops-kpi-card" style="--kpi:#ef4444"><i class="professional-kpi-icon">✋</i><div class="professional-kpi-copy"><span>PARADAS ATIVAS</span><strong id="professionalActiveStops">0</strong><small id="professionalStopsImpact">Impacto: Baixo</small></div><canvas id="professionalStopsSpark" width="76" height="34" aria-label="Histórico de paradas ativas"></canvas></article>
+              <article class="professional-kpi-card" data-dashboard-kpi="mttr" style="--kpi:#2387ff"><i class="professional-kpi-icon">◴</i><div class="professional-kpi-copy"><span>MTTR MÉDIO</span><strong id="professionalMttr">0,0h</strong><small id="professionalMttrDelta">Sem histórico anterior</small></div><canvas id="professionalMttrSpark" width="76" height="34" aria-label="Histórico MTTR"></canvas></article>
+              <article class="professional-kpi-card" data-dashboard-kpi="mtbf" style="--kpi:#2387ff"><i class="professional-kpi-icon">⌘</i><div class="professional-kpi-copy"><span>MTBF MÉDIO</span><strong id="professionalMtbf">0h</strong><small id="professionalMtbfDelta">Sem histórico anterior</small></div><canvas id="professionalMtbfSpark" width="76" height="34" aria-label="Histórico MTBF"></canvas></article>
+              <article class="professional-kpi-card" data-dashboard-kpi="availability" style="--kpi:#2387ff"><i class="professional-kpi-icon">◔</i><div class="professional-kpi-copy"><span>DISPONIBILIDADE</span><strong id="professionalAvailability">0,0%</strong><small id="professionalAvailabilityDelta">Sem histórico anterior</small></div><canvas id="professionalAvailabilitySpark" width="76" height="34" aria-label="Histórico de disponibilidade"></canvas></article>
+              <article class="professional-kpi-card" data-dashboard-kpi="equipment" style="--kpi:#2387ff"><i class="professional-kpi-icon">▦</i><div class="professional-kpi-copy"><span>EQUIPAMENTOS</span><strong id="professionalEquipment">0</strong><small id="professionalEquipmentComplement">0 operando</small></div><canvas id="professionalEquipmentSpark" width="76" height="34" aria-label="Histórico de equipamentos"></canvas></article>
+              <article class="professional-kpi-card" data-dashboard-kpi="runningOrders" style="--kpi:#2387ff"><i class="professional-kpi-icon">⚒</i><div class="professional-kpi-copy"><span>O.S EM EXECUÇÃO</span><strong id="professionalRunningOrders">0</strong><small id="professionalCriticalOrders">0 críticas</small></div><canvas id="professionalOrdersSpark" width="76" height="34" aria-label="Histórico de ordens em execução"></canvas></article>
+              <article class="professional-kpi-card stops-kpi-card" data-dashboard-kpi="activeStops" style="--kpi:#ef4444"><i class="professional-kpi-icon">✋</i><div class="professional-kpi-copy"><span>PARADAS ATIVAS</span><strong id="professionalActiveStops">0</strong><small id="professionalStopsImpact">Impacto: Baixo</small></div><canvas id="professionalStopsSpark" width="76" height="34" aria-label="Histórico de paradas ativas"></canvas></article>
             </div>
           </section>
 
@@ -10225,7 +10261,7 @@
     const PENDING_UPSERTS_KEY = "gestman365-pending-upserts-v2";
     const DELETED_RECORDS_KEY = "gestman365-deleted-records-v1";
     const THEME_KEY = "gestman365-theme";
-    const DASHBOARD_LAYOUT_KEY = "gestman365.dashboard.layout.v2";
+    const DASHBOARD_LAYOUT_KEY = "gestman365.dashboard.layout.v3";
     const ACTIVE_VIEW_KEY = "gestman365-active-view-v1";
     const NAV_COLLAPSED_KEY = "gestman365-nav-collapsed-v1";
     const NAV_GROUPS_KEY = "gestman365-nav-groups-v1";
@@ -14135,7 +14171,7 @@
     }
 
     function dashboardFilteredData() {
-      const layout = loadDashboardLayout();
+      const layout = activeDashboardLayout();
       const plant = layout.filters?.plant || "Unidade Industrial 01";
       const months = Math.max(1, Math.min(12, Number(layout.filters?.period || 6)));
       const cutoff = new Date(); cutoff.setMonth(cutoff.getMonth() - months); cutoff.setHours(0, 0, 0, 0);
@@ -14240,12 +14276,12 @@
     }
 
     function changeDashboardFilters() {
-      const layout = loadDashboardLayout();
+      const layout = activeDashboardLayout();
       layout.filters = {
         plant: $("dashboardPlantFilter")?.value || "Unidade Industrial 01",
         period: $("dashboardPeriodFilter")?.value || "6"
       };
-      saveDashboardLayout(layout);
+      if (!dashboardEditMode) saveDashboardLayout(layout);
       renderDashboard();
     }
 
@@ -14645,21 +14681,23 @@
       { id: "trend", label: "Tendência MTTR x MTBF" },
       { id: "status", label: "Backlog de manutenção" },
       { id: "criticality", label: "Saúde dos ativos" },
-      { id: "ordersChart", label: "Ordens de Serviço — últimos 7 dias" },
-      { id: "activeOrders", label: "O.S abertas e em execução" },
-      { id: "stops", label: "TOP 10 paradas de equipamento" },
-      { id: "stockAlerts", label: "Peças para reposição" },
-      { id: "agenda", label: "Agenda de manutenção" },
-      { id: "parts", label: "Consumo de peças" },
       { id: "quickActions", label: "Ações rápidas" },
       { id: "alerts", label: "Alertas e notificações" },
-      { id: "latestOrders", label: "Últimas ordens de serviço" }
+      { id: "latestOrders", label: "Ordens de serviço recentes" },
+      { id: "stops", label: "Paradas e ocorrências" },
+      { id: "stockAlerts", label: "Peças abaixo do estoque mínimo" },
+      { id: "ordersChart", label: "Ordens de Serviço — últimos 7 dias" },
+      { id: "activeOrders", label: "O.S abertas e em execução" },
+      { id: "agenda", label: "Agenda de manutenção" },
+      { id: "parts", label: "Consumo de peças" }
     ];
+    const dashboardKpiDefaults = ["mttr","mtbf","availability","equipment","runningOrders","activeStops"];
 
     let draggedDashboardWidgetId = "";
     let dashboardEditMode = false;
     let dashboardEditSnapshot = "";
-    const dashboardWidgetSizeCycle = ["normal", "wide", "full", "large"];
+    let dashboardDraftLayout = null;
+    let draggedDashboardKpiId = "";
 
     function dashboardWidgetDefaultSize(id) {
       if (["metrics", "agenda"].includes(id)) return "full";
@@ -14668,86 +14706,83 @@
     }
 
     function loadDashboardLayout() {
+      const defaults = { version:3, kpiOrder:[...dashboardKpiDefaults], order:dashboardWidgetDefaults.map(item=>item.id), hidden:[], filters:{ plant:"Unidade Industrial 01", period:"6" } };
       try {
         const parsed = JSON.parse(scopedGetItem(DASHBOARD_LAYOUT_KEY, "user") || "{}");
+        if (parsed.version !== 3) return defaults;
         const defaultOrder = dashboardWidgetDefaults.map(item => item.id);
-        const order = Array.isArray(parsed.order)
-          ? parsed.order.filter(id => defaultOrder.includes(id)).concat(defaultOrder.filter(id => !parsed.order.includes(id)))
+        const parsedOrder = Array.isArray(parsed.order) ? [...new Set(parsed.order)] : null;
+        const order = parsedOrder
+          ? parsedOrder.filter(id => defaultOrder.includes(id)).concat(defaultOrder.filter(id => !parsedOrder.includes(id)))
           : defaultOrder;
-        const hidden = Array.isArray(parsed.hidden) ? parsed.hidden.filter(id => defaultOrder.includes(id)) : [];
-        const parsedSizes = parsed.sizes && typeof parsed.sizes === "object" ? parsed.sizes : {};
-        const sizes = {};
-        defaultOrder.forEach(id => {
-          const size = parsedSizes[id] || dashboardWidgetDefaultSize(id);
-          sizes[id] = dashboardWidgetSizeCycle.includes(size) ? size : dashboardWidgetDefaultSize(id);
-        });
+        const hidden = Array.isArray(parsed.hidden) ? [...new Set(parsed.hidden.filter(id => id !== "metrics" && defaultOrder.includes(id)))] : [];
+        const parsedKpiOrder = Array.isArray(parsed.kpiOrder) ? [...new Set(parsed.kpiOrder)] : null;
+        const kpiOrder = parsedKpiOrder
+          ? parsedKpiOrder.filter(id=>dashboardKpiDefaults.includes(id)).concat(dashboardKpiDefaults.filter(id=>!parsedKpiOrder.includes(id)))
+          : [...dashboardKpiDefaults];
         const rawFilters = parsed.filters && typeof parsed.filters === "object" ? parsed.filters : {};
         const filters = {
           plant: ["Unidade Industrial 01", "Unidade Industrial 02", "Todas"].includes(rawFilters.plant) ? rawFilters.plant : "Unidade Industrial 01",
           period: ["1", "3", "6", "12"].includes(String(rawFilters.period || "")) ? String(rawFilters.period) : "6"
         };
-        return { order, hidden, sizes, filters };
+        return { version:3, order, kpiOrder, hidden, filters };
       } catch {
-        const order = dashboardWidgetDefaults.map(item => item.id);
-        return { order, hidden: [], sizes: Object.fromEntries(order.map(id => [id, dashboardWidgetDefaultSize(id)])), filters: { plant: "Unidade Industrial 01", period: "6" } };
+        return defaults;
       }
     }
 
     function saveDashboardLayout(layout) {
-      scopedSetItem(DASHBOARD_LAYOUT_KEY, JSON.stringify(layout), "user");
+      const safe={ version:3, kpiOrder:layout.kpiOrder, order:layout.order, hidden:layout.hidden, filters:layout.filters };
+      scopedSetItem(DASHBOARD_LAYOUT_KEY, JSON.stringify(safe), "user");
     }
+
+    function activeDashboardLayout() { return dashboardEditMode && dashboardDraftLayout ? dashboardDraftLayout : loadDashboardLayout(); }
+    function announceDashboard(message) { if($("dashboardA11yStatus"))$("dashboardA11yStatus").textContent=message; }
 
     function dashboardControlsHtml(id) {
+      if(id === "metrics") return "";
       return `
-        <button class="widget-btn widget-drag" type="button" title="Arrastar e encaixar bloco" aria-label="Arrastar widget">⠿</button>
+        <button class="widget-btn widget-drag" type="button" title="Arrastar e encaixar bloco" aria-label="Arrastar widget" onpointerdown="event.stopPropagation();this.closest('[data-dashboard-widget]').dataset.dragReady='1'">⠿</button>
         <button class="widget-btn" type="button" title="Mover para cima" onclick="moveDashboardWidget('${id}', -1)">↑</button>
         <button class="widget-btn" type="button" title="Mover para baixo" onclick="moveDashboardWidget('${id}', 1)">↓</button>
-        <button class="widget-btn" type="button" title="Aumentar ou reduzir bloco" onclick="resizeDashboardWidget('${id}')">⤢</button>
-        <button class="widget-btn widget-hide" type="button" title="Ocultar bloco" onclick="hideDashboardWidget('${id}')">×</button>
       `;
     }
+    function dashboardKpiControlsHtml(id){return `<div class="dashboard-kpi-controls"><button class="widget-btn kpi-drag" type="button" aria-label="Arrastar indicador" onpointerdown="event.stopPropagation();this.closest('[data-dashboard-kpi]').dataset.dragReady='1'">⠿</button><button class="widget-btn" type="button" aria-label="Mover indicador para a esquerda" onclick="moveDashboardKpi('${id}',-1)">←</button><button class="widget-btn" type="button" aria-label="Mover indicador para a direita" onclick="moveDashboardKpi('${id}',1)">→</button></div>`;}
 
     function applyDashboardLayout() {
-      const layout = loadDashboardLayout();
+      const layout = activeDashboardLayout();
       document.querySelectorAll("[data-dashboard-widget]").forEach(widget => {
         const id = widget.dataset.dashboardWidget;
         const index = layout.order.indexOf(id);
-        const size = layout.sizes?.[id] || dashboardWidgetDefaultSize(id);
+        const size = dashboardWidgetDefaultSize(id);
         widget.style.order = index >= 0 ? index : 999;
         widget.classList.remove("full", "size-normal", "size-wide", "size-full", "size-large", "is-dragging", "drag-over");
         widget.classList.add(`size-${size}`);
-        widget.draggable = dashboardEditMode && !layout.hidden.includes(id);
+        widget.draggable = dashboardEditMode && id !== "metrics" && !layout.hidden.includes(id);
         widget.classList.toggle("is-hidden", layout.hidden.includes(id));
       });
       document.querySelectorAll("[data-dashboard-controls]").forEach(target => {
         target.innerHTML = dashboardEditMode ? dashboardControlsHtml(target.dataset.dashboardControls) : "";
       });
+      document.querySelectorAll("[data-dashboard-kpi]").forEach(card=>{const id=card.dataset.dashboardKpi;card.style.order=layout.kpiOrder.indexOf(id);card.draggable=dashboardEditMode;card.querySelector(".dashboard-kpi-controls")?.remove();if(dashboardEditMode)card.insertAdjacentHTML("afterbegin",dashboardKpiControlsHtml(id));});
       document.body.classList.toggle("dashboard-editing", dashboardEditMode);
       if ($("dashboardPlantFilter")) $("dashboardPlantFilter").value = layout.filters?.plant || "Unidade Industrial 01";
       if ($("dashboardPeriodFilter")) $("dashboardPeriodFilter").value = String(layout.filters?.period || "6");
       setupDashboardDragAndDrop();
+      setupDashboardKpiDragAndDrop();
     }
 
     function moveDashboardWidget(id, direction) {
-      const layout = loadDashboardLayout();
+      const layout = activeDashboardLayout();
       const index = layout.order.indexOf(id);
       const nextIndex = index + direction;
       if (index < 0 || nextIndex < 0 || nextIndex >= layout.order.length) return;
       [layout.order[index], layout.order[nextIndex]] = [layout.order[nextIndex], layout.order[index]];
-      saveDashboardLayout(layout);
       applyDashboardLayout();
+      announceDashboard(`Widget ${dashboardWidgetDefaults.find(item=>item.id===id)?.label||id} movido.`);
     }
 
-    function resizeDashboardWidget(id) {
-      const layout = loadDashboardLayout();
-      const current = layout.sizes?.[id] || dashboardWidgetDefaultSize(id);
-      const index = dashboardWidgetSizeCycle.indexOf(current);
-      const next = dashboardWidgetSizeCycle[(index + 1) % dashboardWidgetSizeCycle.length];
-      layout.sizes = { ...(layout.sizes || {}), [id]: next };
-      saveDashboardLayout(layout);
-      applyDashboardLayout();
-      const labels = { normal: "normal", wide: "mais largo", full: "largura total", large: "grande" };
-      showToast(`Bloco ajustado para tamanho ${labels[next] || next}.`);
+    function moveDashboardKpi(id,direction){const layout=activeDashboardLayout();const index=layout.kpiOrder.indexOf(id),next=index+direction;if(index<0||next<0||next>=layout.kpiOrder.length)return;[layout.kpiOrder[index],layout.kpiOrder[next]]=[layout.kpiOrder[next],layout.kpiOrder[index]];applyDashboardLayout();announceDashboard("Indicador movido.");
     }
 
     function clearDashboardDragState() {
@@ -14759,7 +14794,7 @@
 
     function dropDashboardWidget(draggedId, targetId, event) {
       if (!draggedId || !targetId || draggedId === targetId) return;
-      const layout = loadDashboardLayout();
+      const layout = activeDashboardLayout();
       const order = layout.order.filter(id => id !== draggedId);
       const targetIndex = order.indexOf(targetId);
       if (targetIndex < 0) return;
@@ -14768,15 +14803,14 @@
       const after = rect ? (event.clientY > rect.top + rect.height / 2 || event.clientX > rect.left + rect.width / 2) : false;
       order.splice(targetIndex + (after ? 1 : 0), 0, draggedId);
       layout.order = order;
-      saveDashboardLayout(layout);
       applyDashboardLayout();
-      showToast("Bloco movido e encaixado automaticamente.");
+      announceDashboard("Widget movido e encaixado automaticamente.");
     }
 
     function setupDashboardDragAndDrop() {
       document.querySelectorAll("[data-dashboard-widget]").forEach(widget => {
         widget.ondragstart = event => {
-          if (!dashboardEditMode || !event.target.closest(".widget-drag")) {
+          if (!dashboardEditMode || widget.dataset.dragReady !== "1") {
             event.preventDefault();
             return;
           }
@@ -14801,87 +14835,144 @@
           dropDashboardWidget(draggedId, targetId, event);
           clearDashboardDragState();
         };
-        widget.ondragend = clearDashboardDragState;
+        widget.ondragend = () => { delete widget.dataset.dragReady; clearDashboardDragState(); };
+      });
+    }
+
+    function setupDashboardKpiDragAndDrop() {
+      document.querySelectorAll("[data-dashboard-kpi]").forEach(card => {
+        card.ondragstart = event => {
+          if (!dashboardEditMode || card.dataset.dragReady !== "1") { event.preventDefault(); return; }
+          draggedDashboardKpiId = card.dataset.dashboardKpi;
+          card.classList.add("is-dragging");
+          event.dataTransfer.effectAllowed = "move";
+          event.dataTransfer.setData("text/plain", draggedDashboardKpiId);
+        };
+        card.ondragover = event => {
+          if (!draggedDashboardKpiId || draggedDashboardKpiId === card.dataset.dashboardKpi) return;
+          event.preventDefault(); card.classList.add("drag-over");
+        };
+        card.ondragleave = event => { if (!card.contains(event.relatedTarget)) card.classList.remove("drag-over"); };
+        card.ondrop = event => {
+          event.preventDefault();
+          const draggedId = event.dataTransfer.getData("text/plain") || draggedDashboardKpiId;
+          const targetId = card.dataset.dashboardKpi;
+          const layout = activeDashboardLayout();
+          const order = layout.kpiOrder.filter(id => id !== draggedId);
+          const targetIndex = order.indexOf(targetId);
+          if (targetIndex >= 0) {
+            const rect = card.getBoundingClientRect();
+            const after = event.clientX > rect.left + rect.width / 2;
+            order.splice(targetIndex + (after ? 1 : 0), 0, draggedId);
+            layout.kpiOrder = order;
+            applyDashboardLayout();
+            announceDashboard("Indicador movido.");
+          }
+          document.querySelectorAll("[data-dashboard-kpi]").forEach(item => { item.classList.remove("is-dragging", "drag-over"); delete item.dataset.dragReady; });
+          draggedDashboardKpiId = "";
+        };
+        card.ondragend = () => {
+          document.querySelectorAll("[data-dashboard-kpi]").forEach(item => { item.classList.remove("is-dragging", "drag-over"); delete item.dataset.dragReady; });
+          draggedDashboardKpiId = "";
+        };
       });
     }
 
     function hideDashboardWidget(id) {
       if (!dashboardEditMode) return;
-      const layout = loadDashboardLayout();
+      const layout = activeDashboardLayout();
       if (!layout.hidden.includes(id)) layout.hidden.push(id);
-      saveDashboardLayout(layout);
       applyDashboardLayout();
-      showToast("Bloco ocultado. Use Configurar dashboard para mostrar novamente.");
+      announceDashboard("Widget ocultado na prévia.");
     }
+
+    const dashboardWidgetDescriptions = {
+      trend:"Evolução das ordens de serviço no período.", status:"Distribuição operacional das ordens.", criticality:"Condição e criticidade dos ativos.",
+      quickActions:"Atalhos para as tarefas mais usadas.", alerts:"Ocorrências importantes da operação.", latestOrders:"Ordens de serviço atualizadas recentemente.",
+      stops:"Paradas e indisponibilidades registradas.", stockAlerts:"Itens abaixo do estoque mínimo.", ordersChart:"Visão consolidada das ordens.",
+      activeOrders:"Ordens atualmente em execução.", agenda:"Programação de manutenção.", parts:"Consumo e movimentação de peças."
+    };
 
     function openDashboardConfig() {
       if (!dashboardEditMode) {
         dashboardEditSnapshot = JSON.stringify(loadDashboardLayout());
+        dashboardDraftLayout = JSON.parse(dashboardEditSnapshot);
         dashboardEditMode = true;
         applyDashboardLayout();
       }
-      const layout = loadDashboardLayout();
-      openModal("Configurar dashboard", `
+      const layout = activeDashboardLayout();
+      openModal("Widgets do Dashboard", `
         <div class="side-box">
           <strong>Widgets do Dashboard</strong>
-          <span>Defina o que será exibido. Para reorganizar, feche este painel e use a alça ⠿ sobre cada widget.</span>
-          ${dashboardWidgetDefaults.map(item => `
+          <span>Escolha o que será exibido. A prévia é atualizada antes de salvar.</span>
+          ${dashboardWidgetDefaults.filter(item => item.id !== "metrics").map(item => `
             <label class="switch-line">
-              <input type="checkbox" data-dashboard-visible="${item.id}" ${layout.hidden.includes(item.id) ? "" : "checked"}>
-              ${item.label}
+              <span><strong>${item.label}</strong><small>${dashboardWidgetDescriptions[item.id] || "Mostrar este bloco no Dashboard."}</small></span>
+              <input type="checkbox" data-dashboard-visible="${item.id}" ${layout.hidden.includes(item.id) ? "" : "checked"} onchange="previewDashboardVisibility()">
             </label>
           `).join("")}
         </div>
         <div class="toolbar">
-          <button class="btn" type="button" onclick="resetDashboardLayout()">Restaurar padrão</button>
-          <button class="btn" type="button" onclick="closeModal();applyDashboardLayout()">Reorganizar na tela</button>
+          <button class="btn" type="button" onclick="confirmResetDashboardLayout()">Restaurar padrão</button>
+          <button class="btn" type="button" onclick="closeModal();applyDashboardLayout()">Fechar e organizar</button>
           <button class="btn" type="button" onclick="cancelDashboardConfig()">Cancelar</button>
-          <button class="btn primary" type="button" onclick="saveDashboardVisibility()">Salvar configuração</button>
+          <button class="btn primary" type="button" onclick="saveDashboardVisibility()">Salvar</button>
         </div>
       `);
     }
 
-    function saveDashboardVisibility() {
-      const layout = loadDashboardLayout();
+    function previewDashboardVisibility() {
+      const layout = activeDashboardLayout();
       layout.hidden = Array.from(document.querySelectorAll("[data-dashboard-visible]"))
-        .filter(input => !input.checked)
-        .map(input => input.dataset.dashboardVisible);
-      saveDashboardLayout(layout);
-      closeModal();
-      dashboardEditMode = false;
-      dashboardEditSnapshot = "";
+        .filter(input => !input.checked).map(input => input.dataset.dashboardVisible);
       applyDashboardLayout();
-      showToast("Dashboard atualizado.");
+      announceDashboard("Prévia de widgets atualizada.");
     }
 
-    function finishDashboardEditing() {
+    function saveDashboardVisibility() {
+      previewDashboardVisibility();
+      saveDashboardCustomization();
+    }
+
+    function saveDashboardCustomization() {
+      if (!dashboardEditMode || !dashboardDraftLayout) return;
+      saveDashboardLayout(dashboardDraftLayout);
       dashboardEditMode = false;
+      dashboardDraftLayout = null;
       dashboardEditSnapshot = "";
       closeModal();
       applyDashboardLayout();
-      showToast("Organização do dashboard salva.");
+      announceDashboard("Dashboard atualizado com sucesso.");
+      showToast("Dashboard atualizado com sucesso.");
     }
+
+    function finishDashboardEditing() { saveDashboardCustomization(); }
 
     function cancelDashboardConfig() {
-      if (dashboardEditSnapshot) {
-        try { saveDashboardLayout(JSON.parse(dashboardEditSnapshot)); } catch {}
-      }
       dashboardEditMode = false;
+      dashboardDraftLayout = null;
       dashboardEditSnapshot = "";
       closeModal();
       applyDashboardLayout();
       renderDashboard();
+      announceDashboard("Alterações canceladas.");
       showToast("Alterações canceladas.");
+    }
+
+    function confirmResetDashboardLayout() {
+      openModal("Restaurar Dashboard", `<p>Restaurar a organização padrão do Dashboard? Os dados operacionais não serão alterados.</p><div class="toolbar"><button class="btn" type="button" onclick="openDashboardConfig()">Cancelar</button><button class="btn danger" type="button" onclick="resetDashboardLayout()">Restaurar</button></div>`);
     }
 
     function resetDashboardLayout() {
       scopedRemoveItem(DASHBOARD_LAYOUT_KEY, "user");
       closeModal();
       dashboardEditMode = false;
+      dashboardDraftLayout = null;
       dashboardEditSnapshot = "";
       applyDashboardLayout();
       renderDashboard();
-      showToast("Dashboard restaurado.");
+      announceDashboard("Dashboard restaurado ao padrão.");
+      showToast("Dashboard restaurado ao padrão.");
     }
 
     let dashboardBacklogView = false;
@@ -14894,7 +14985,7 @@
     }
 
     function trendMonthlyData(months) {
-      const layout = loadDashboardLayout();
+      const layout = activeDashboardLayout();
       const plant = layout.filters?.plant || "Unidade Industrial 01";
       const inPlant = item => plant === "Todas" || dashboardItemPlant(item) === plant;
       const trendAssets = state.assets.filter(inPlant);
@@ -21392,7 +21483,7 @@
       if (ask) showToast("Checklist excluído.");
     }
 
-    window.editAsset = editAsset; window.deleteAsset = deleteAsset; window.duplicateAsset = duplicateAsset; window.editRegion = editRegion; window.deleteRegion = deleteRegion; window.editLocation = editLocation; window.deleteLocation = deleteLocation; window.editTag = editTag; window.deleteTag = deleteTag; window.editSubtag = editSubtag; window.deleteSubtag = deleteSubtag; window.editSupplier = editSupplier; window.deleteSupplier = deleteSupplier; window.editStock = editStock; window.deleteStock = deleteStock; window.editSpare = editSpare; window.deleteSpare = deleteSpare; window.editStockMove = editStockMove; window.deleteStockMove = deleteStockMove; window.editMaterialRequest = editMaterialRequest; window.deleteMaterialRequest = deleteMaterialRequest; window.editStockTransfer = editStockTransfer; window.deleteStockTransfer = deleteStockTransfer; window.editDowntime = editDowntime; window.closeDowntime = closeDowntime; window.cancelDowntime = cancelDowntime; window.deleteDowntime = deleteDowntime; window.editMeasurement = editMeasurement; window.showMeasurementDetails = showMeasurementDetails; window.deleteMeasurement = deleteMeasurement; window.editOperationalDiary = editOperationalDiary; window.showOperationalDiaryDetails = showOperationalDiaryDetails; window.deleteOperationalDiary = deleteOperationalDiary; window.editTool = editTool; window.deleteTool = deleteTool; window.toggleToolActive = toggleToolActive; window.openToolLoanModal = openToolLoanModal; window.openToolReturnModal = openToolReturnModal; window.cancelToolLoan = cancelToolLoan; window.openToolHistory = openToolHistory; window.showToolLoanDetails = showToolLoanDetails; window.editISStructure = editISStructure; window.deleteISStructure = deleteISStructure; window.changeISStructureStatus = changeISStructureStatus; window.openISStructureDetail = openISStructureDetail; window.openISStructureFormForCreate = openISStructureFormForCreate; window.hideISStructureForm = hideISStructureForm; window.renderInstallationStructures = renderInstallationStructures; window.refreshISFilters = refreshISFilters; window.editOrder = editOrder; window.deleteOrder = deleteOrder; window.startOrder = startOrder; window.confirmStartOrder = confirmStartOrder; window.finishOrder = finishOrder; window.showOrderDetails = showOrderDetails; window.simpleOrderAction = simpleOrderAction; window.editPreventivePlan = editPreventivePlan; window.deletePreventivePlan = deletePreventivePlan; window.generatePreventivePlanOrder = generatePreventivePlanOrder; window.openChecklistExecution = openChecklistExecution; window.openChecklistHistory = openChecklistHistory; window.showChecklistExecutionDetails = showChecklistExecutionDetails; window.deleteChecklistExecution = deleteChecklistExecution; window.editChecklist = editChecklist; window.deleteChecklist = deleteChecklist; window.openLocationChecklists = openLocationChecklists; window.openLocationMovements = openLocationMovements; window.moveDashboardWidget = moveDashboardWidget; window.resizeDashboardWidget = resizeDashboardWidget; window.hideDashboardWidget = hideDashboardWidget; window.openDashboardConfig = openDashboardConfig; window.saveDashboardVisibility = saveDashboardVisibility; window.resetDashboardLayout = resetDashboardLayout; window.toggleApiFolder = toggleApiFolder; window.openApiCommand = openApiCommand; window.copyPlainText = copyPlainText; window.copyTextFromElement = copyTextFromElement; window.editTenantUser = editTenantUser; window.deleteTenantUser = deleteTenantUser;
+    window.editAsset = editAsset; window.deleteAsset = deleteAsset; window.duplicateAsset = duplicateAsset; window.editRegion = editRegion; window.deleteRegion = deleteRegion; window.editLocation = editLocation; window.deleteLocation = deleteLocation; window.editTag = editTag; window.deleteTag = deleteTag; window.editSubtag = editSubtag; window.deleteSubtag = deleteSubtag; window.editSupplier = editSupplier; window.deleteSupplier = deleteSupplier; window.editStock = editStock; window.deleteStock = deleteStock; window.editSpare = editSpare; window.deleteSpare = deleteSpare; window.editStockMove = editStockMove; window.deleteStockMove = deleteStockMove; window.editMaterialRequest = editMaterialRequest; window.deleteMaterialRequest = deleteMaterialRequest; window.editStockTransfer = editStockTransfer; window.deleteStockTransfer = deleteStockTransfer; window.editDowntime = editDowntime; window.closeDowntime = closeDowntime; window.cancelDowntime = cancelDowntime; window.deleteDowntime = deleteDowntime; window.editMeasurement = editMeasurement; window.showMeasurementDetails = showMeasurementDetails; window.deleteMeasurement = deleteMeasurement; window.editOperationalDiary = editOperationalDiary; window.showOperationalDiaryDetails = showOperationalDiaryDetails; window.deleteOperationalDiary = deleteOperationalDiary; window.editTool = editTool; window.deleteTool = deleteTool; window.toggleToolActive = toggleToolActive; window.openToolLoanModal = openToolLoanModal; window.openToolReturnModal = openToolReturnModal; window.cancelToolLoan = cancelToolLoan; window.openToolHistory = openToolHistory; window.showToolLoanDetails = showToolLoanDetails; window.editISStructure = editISStructure; window.deleteISStructure = deleteISStructure; window.changeISStructureStatus = changeISStructureStatus; window.openISStructureDetail = openISStructureDetail; window.openISStructureFormForCreate = openISStructureFormForCreate; window.hideISStructureForm = hideISStructureForm; window.renderInstallationStructures = renderInstallationStructures; window.refreshISFilters = refreshISFilters; window.editOrder = editOrder; window.deleteOrder = deleteOrder; window.startOrder = startOrder; window.confirmStartOrder = confirmStartOrder; window.finishOrder = finishOrder; window.showOrderDetails = showOrderDetails; window.simpleOrderAction = simpleOrderAction; window.editPreventivePlan = editPreventivePlan; window.deletePreventivePlan = deletePreventivePlan; window.generatePreventivePlanOrder = generatePreventivePlanOrder; window.openChecklistExecution = openChecklistExecution; window.openChecklistHistory = openChecklistHistory; window.showChecklistExecutionDetails = showChecklistExecutionDetails; window.deleteChecklistExecution = deleteChecklistExecution; window.editChecklist = editChecklist; window.deleteChecklist = deleteChecklist; window.openLocationChecklists = openLocationChecklists; window.openLocationMovements = openLocationMovements; window.moveDashboardWidget = moveDashboardWidget; window.moveDashboardKpi = moveDashboardKpi; window.hideDashboardWidget = hideDashboardWidget; window.openDashboardConfig = openDashboardConfig; window.previewDashboardVisibility = previewDashboardVisibility; window.saveDashboardVisibility = saveDashboardVisibility; window.saveDashboardCustomization = saveDashboardCustomization; window.confirmResetDashboardLayout = confirmResetDashboardLayout; window.resetDashboardLayout = resetDashboardLayout; window.toggleApiFolder = toggleApiFolder; window.openApiCommand = openApiCommand; window.copyPlainText = copyPlainText; window.copyTextFromElement = copyTextFromElement; window.editTenantUser = editTenantUser; window.deleteTenantUser = deleteTenantUser;
 
     window.finishDashboardEditing = finishDashboardEditing;
     window.cancelDashboardConfig = cancelDashboardConfig;
