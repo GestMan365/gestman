@@ -8910,6 +8910,28 @@
     }
     body.sidebar-hover-open .nav { transform:translateX(0) !important; }
     @media (max-width:900px) { .sidebar-edge-sensor { width:24px; } }
+
+    /* Navegação lateral organizada por áreas funcionais */
+    .industrial-sidebar-scroll > .tab[data-view="dashboard"] {
+      position:sticky !important; top:0; z-index:4; margin:0 0 8px !important;
+      background:#0b1a2d !important; border:1px solid #173452 !important;
+      box-shadow:0 8px 18px rgba(0,0,0,.16) !important;
+    }
+    .industrial-sidebar-scroll > .tab[data-view="dashboard"].active { background:linear-gradient(135deg,#1d8cff,#1267c7) !important; }
+    .industrial-nav-section {
+      margin:0 0 5px !important; padding:0 0 5px !important;
+      border-bottom:1px solid rgba(31,51,74,.72) !important;
+    }
+    .industrial-nav-section .nav-group-title {
+      min-height:34px !important; padding:8px 10px !important; border-radius:6px;
+      color:#8193aa !important; background:transparent; font-size:9px !important;
+      font-weight:800 !important; letter-spacing:.075em !important;
+    }
+    .industrial-nav-section .nav-group-title:hover { color:#dbeafe !important; background:#0b1a2d; }
+    .industrial-nav-section[open] > .nav-group-title { color:#9fcaff !important; background:rgba(29,140,255,.07); }
+    .industrial-nav-section:has(.tab.active) > .nav-group-title { color:#63b3ff !important; }
+    .industrial-nav-section .tab { min-height:35px !important; margin-top:3px !important; padding:7px 9px 7px 13px !important; font-size:11px !important; }
+    .industrial-nav-section .tab .tab-icon { width:20px !important; height:20px !important; font-size:13px !important; }
 </style>
 </head>
 <body class="auth-loading">
@@ -9012,33 +9034,48 @@
     </div>
     <div class="industrial-sidebar-scroll tabs">
       <button class="tab active" data-view="dashboard"><span class="tab-icon">▦</span><span>Dashboard</span></button>
-      <button class="tab" data-view="orders"><span class="tab-icon">▤</span><span>Ordens de Serviço</span></button>
-      <button class="tab" data-view="assets"><span class="tab-icon">⚙</span><span>Ativos</span></button>
-      <button class="tab" data-view="pendingActions"><span class="tab-icon">◇</span><span>Solicitações</span></button>
-      <button class="tab" data-view="preventivePlans"><span class="tab-icon">◫</span><span>Planejamento</span></button>
-      <button class="tab" data-view="calendar"><span class="tab-icon">▣</span><span>Cronograma</span></button>
-      <button class="tab" data-view="downtime"><span class="tab-icon">◷</span><span>Paradas</span></button>
-      <button class="tab" data-view="stock"><span class="tab-icon">▧</span><span>Estoque</span></button>
-      <button class="tab" data-view="materialRequests"><span class="tab-icon">◈</span><span>Compras</span></button>
-      <button class="tab" data-view="maintenanceIndicators"><span class="tab-icon">▥</span><span>Indicadores</span></button>
-      <button class="tab" data-view="reports"><span class="tab-icon">⌁</span><span>Análises</span></button>
-      <button class="tab" data-view="documentsCenter"><span class="tab-icon">▱</span><span>Documentos</span></button>
-      <button class="tab" data-view="quickAccess"><span class="tab-icon">⚙</span><span>Configurações</span></button>
-      <details class="nav-group industrial-more-modules" data-nav-group="outros">
-        <summary class="nav-group-title">Mais módulos</summary>
-        <button class="tab" data-view="tags"><span class="tab-icon">#</span><span>Identificadores</span></button>
+      <details class="nav-group industrial-nav-section" data-nav-group="manutencao" open>
+        <summary class="nav-group-title">Manutenção</summary>
+        <button class="tab" data-view="orders"><span class="tab-icon">▤</span><span>Ordens de Serviço</span></button>
+        <button class="tab" data-view="pendingActions"><span class="tab-icon">◇</span><span>Solicitações e Pendências</span></button>
+        <button class="tab" data-view="preventivePlans"><span class="tab-icon">◫</span><span>Planos Preventivos</span></button>
+        <button class="tab" data-view="calendar"><span class="tab-icon">▣</span><span>Cronograma</span></button>
+        <button class="tab" data-view="downtime"><span class="tab-icon">◷</span><span>Paradas</span></button>
+        <button class="tab" data-view="checklists"><span class="tab-icon">✓</span><span>Checklists</span></button>
+      </details>
+      <details class="nav-group industrial-nav-section" data-nav-group="ativos">
+        <summary class="nav-group-title">Ativos e Operação</summary>
+        <button class="tab" data-view="assets"><span class="tab-icon">⚙</span><span>Equipamentos e Ativos</span></button>
+        <button class="tab" data-view="measurements"><span class="tab-icon">⌁</span><span>Leituras e Medições</span></button>
+        <button class="tab" data-view="operationalDiary"><span class="tab-icon">▤</span><span>Diário Operacional</span></button>
+        <button class="tab" data-view="toolsControl"><span class="tab-icon">⌕</span><span>Ferramentas</span></button>
+      </details>
+      <details class="nav-group industrial-nav-section" data-nav-group="estrutura">
+        <summary class="nav-group-title">Estrutura Industrial</summary>
         <button class="tab" data-view="operationalAreas"><span class="tab-icon">▩</span><span>Áreas Operacionais</span></button>
         <button class="tab" data-view="locations"><span class="tab-icon">⌖</span><span>Setores e Locais</span></button>
         <button class="tab" data-view="map"><span class="tab-icon">⌘</span><span>Estrutura de Instalação</span></button>
-        <button class="tab" data-view="checklists"><span class="tab-icon">✓</span><span>Checklists</span></button>
-        <button class="tab" data-view="measurements"><span class="tab-icon">⌁</span><span>Leituras e Medições</span></button>
-        <button class="tab" data-view="operationalDiary"><span class="tab-icon">▤</span><span>Diário Operacional</span></button>
+        <button class="tab" data-view="tags"><span class="tab-icon">#</span><span>Tags e Identificadores</span></button>
+      </details>
+      <details class="nav-group industrial-nav-section" data-nav-group="materiais">
+        <summary class="nav-group-title">Materiais e Compras</summary>
+        <button class="tab" data-view="stock"><span class="tab-icon">▧</span><span>Estoques</span></button>
         <button class="tab" data-view="spares"><span class="tab-icon">⌑</span><span>Catálogo de Peças</span></button>
         <button class="tab" data-view="stockMoves"><span class="tab-icon">⇄</span><span>Movimentações</span></button>
+        <button class="tab" data-view="materialRequests"><span class="tab-icon">◈</span><span>Requisições de Materiais</span></button>
         <button class="tab" data-view="suppliers"><span class="tab-icon">▰</span><span>Fornecedores</span></button>
-        <button class="tab" data-view="toolsControl"><span class="tab-icon">⌕</span><span>Ferramentas</span></button>
+      </details>
+      <details class="nav-group industrial-nav-section" data-nav-group="gestao">
+        <summary class="nav-group-title">Gestão e Inteligência</summary>
+        <button class="tab" data-view="maintenanceIndicators"><span class="tab-icon">▥</span><span>Indicadores de Manutenção</span></button>
+        <button class="tab" data-view="reports"><span class="tab-icon">⌁</span><span>Relatórios e Análises</span></button>
         <button class="tab" data-view="teamsResources"><span class="tab-icon">♙</span><span>Equipes e Recursos</span></button>
+        <button class="tab" data-view="documentsCenter"><span class="tab-icon">▱</span><span>Documentos Técnicos</span></button>
         <button class="tab" data-view="assistant"><span class="tab-icon">✦</span><span>IA GestMan365</span></button>
+      </details>
+      <details class="nav-group industrial-nav-section" data-nav-group="administracao">
+        <summary class="nav-group-title">Administração</summary>
+        <button class="tab" data-view="quickAccess"><span class="tab-icon">⚙</span><span>Ambiente de Teste</span></button>
       </details>
     </div>
     <div class="industrial-critical-alerts">
@@ -12483,7 +12520,14 @@
       document.querySelectorAll("[data-nav-group]").forEach(group => {
         const key = group.dataset.navGroup;
         if (Object.prototype.hasOwnProperty.call(saved, key)) group.open = saved[key] !== false;
-        group.addEventListener("toggle", saveNavGroupState);
+        group.addEventListener("toggle", () => {
+          if (group.open) {
+            document.querySelectorAll("[data-nav-group]").forEach(other => {
+              if (other !== group) other.open = false;
+            });
+          }
+          saveNavGroupState();
+        });
       });
     }
 
