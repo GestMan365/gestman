@@ -9102,6 +9102,56 @@
       .asset-health-legend { width:100%; }
       .maintenance-backlog-row { grid-template-columns:minmax(82px,1fr) 30px 34px; }
     }
+
+    /* Etapa 4 — Ordens de Serviço simples e profissionais */
+    #orders .os-page { min-width:0; max-width:100%; }
+    #orders .os-page-head { position:sticky; top:-18px; z-index:12; padding:10px 0; background:#07111f; }
+    .os-search-row { margin-bottom:10px; }
+    .os-search-row label { height:40px; padding:0 11px; display:flex; align-items:center; gap:8px; color:#71849c; background:#0b1929; border:1px solid #1f334a; border-radius:8px; }
+    .os-search-row .field { height:36px !important; flex:1; padding:0 !important; color:#dbeafe !important; background:transparent !important; border:0 !important; box-shadow:none !important; }
+    #orders .os-filter-panel { grid-template-columns:.8fr .8fr 1.1fr 1.4fr auto; padding:11px; gap:9px; background:#0f1b2b; border-color:#1f334a; }
+    .os-advanced-filters { min-width:0; }
+    .os-advanced-filters summary { min-height:36px; padding:9px; color:#9fcaff; background:#0b1929; border:1px solid #1f334a; border-radius:6px; cursor:pointer; font-size:9px; font-weight:800; list-style:none; }
+    .os-advanced-filters[open] { grid-column:1/-2; }
+    .os-advanced-filters[open] > div { margin-top:8px; display:grid; grid-template-columns:1.3fr 1fr; gap:9px; }
+    #orders .os-metric-grid { grid-template-columns:repeat(5,minmax(110px,1fr)); gap:8px; }
+    #orders .os-metric-card { min-height:76px; padding:10px; grid-template-columns:30px 1fr; }
+    #orders .os-metric-icon { width:28px; height:28px; font-size:13px; }
+    #orders .os-metric-value { font-size:17px; }
+    #orders .os-metric-percent { display:none; }
+    #orders .os-table-panel .table-wrap { max-height:calc(100vh - 390px); min-height:350px; }
+    #orders .os-table { min-width:900px; }
+    #orders .os-table thead button { padding:0 !important; min-height:0 !important; color:#94a3b8 !important; background:transparent !important; border:0 !important; box-shadow:none !important; font:inherit !important; }
+    #orders .os-table th { top:0; background:#101f31 !important; }
+    #orders .os-detail-tabs { grid-template-columns:repeat(3,1fr); }
+    #orders .os-chip.purple { color:#c4b5fd; background:rgba(139,92,246,.16); }
+    .os-detail-actions { padding:10px 12px; display:flex; flex-wrap:wrap; gap:6px; border-top:1px solid #1f334a; }
+    .os-detail-actions .btn { flex:1 1 auto; min-height:34px !important; }
+    .os-mobile-cards { display:none; }
+    .os-quick-details { grid-column:1/-1; border:1px solid #1f334a; border-radius:8px; background:#0b1929; }
+    .os-quick-details summary { padding:11px; color:#9fcaff; cursor:pointer; font-size:10px; font-weight:800; }
+    .os-quick-details > div { padding:0 11px 11px; display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .os-create-actions { grid-column:1/-1; display:flex; justify-content:flex-end; gap:8px; }
+    @media (max-width:760px) {
+      #orders .os-page-head { top:-10px; align-items:flex-start; flex-direction:column; }
+      #orders .os-page-actions { width:100%; display:grid; grid-template-columns:1fr 1fr 1.15fr; }
+      #orders .os-page-actions .btn { padding:8px !important; }
+      #orders .os-filter-panel { grid-template-columns:1fr 1fr; }
+      .os-advanced-filters,.os-advanced-filters[open] { grid-column:1/-1; }
+      .os-advanced-filters[open] > div { grid-template-columns:1fr; }
+      #orders .os-metric-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      #orders .os-content-grid { grid-template-columns:1fr; }
+      #orders .os-table-panel .table-wrap { display:none; }
+      .os-mobile-cards { padding:8px; display:grid; gap:8px; }
+      .os-mobile-card { padding:11px; display:grid; grid-template-columns:1fr auto; gap:7px; color:#dbeafe; background:#0b1929; border:1px solid #1f334a; border-radius:8px; text-align:left; }
+      .os-mobile-card strong { color:#63b3ff; font-size:11px; }
+      .os-mobile-card span,.os-mobile-card small { color:#94a3b8; font-size:9px; }
+      #orders .os-detail-panel { position:fixed; inset:60px 0 0; z-index:90; display:none; border-radius:0; overflow:auto; }
+      #orders .os-detail-panel.has-order { display:flex; }
+      .os-quick-details > div { grid-template-columns:1fr; }
+      .os-create-actions { position:sticky; bottom:0; padding:9px 0; background:#0f1b2b; }
+      .os-create-actions .btn { flex:1; min-height:44px !important; }
+    }
 </style>
 </head>
 <body class="auth-loading">
@@ -9933,22 +9983,22 @@
         <div class="os-page-head">
           <div class="os-title-wrap">
             <span class="os-title-icon" aria-hidden="true">▣</span>
-            <div><h1>Ordem de Serviço</h1><p>Planeje, acompanhe e controle as ordens de manutenção.</p></div>
+            <div><h1>Ordens de Serviço</h1><p>Crie, acompanhe e execute serviços de manutenção com rapidez.</p></div>
           </div>
           <div class="os-page-actions">
             <button class="btn" id="osExportBtn" type="button" onclick="exportOrdersCsv()">⇩ Exportar</button>
-            <button class="btn" id="osMoreActionsBtn" type="button" onclick="openOrderMoreActions()">Mais ações⌄</button>
-            <button class="btn primary" id="createOrderBtn">＋ Nova O.S</button>
+            <button class="btn" id="osFilterToggle" type="button" onclick="toggleOrderFilters()">▽ Filtros</button>
+            <button class="btn primary" id="createOrderBtn">＋ Nova O.S.</button>
           </div>
         </div>
 
-        <div class="os-filter-panel">
-          <label>Período <span class="os-period-fields"><input class="field" id="osPeriodStart" type="date" onchange="render()"><b>—</b><input class="field" id="osPeriodEnd" type="date" onchange="render()"></span></label>
+        <div class="os-search-row"><label><span>⌕</span><input class="field" id="osSearch" placeholder="Buscar por número, descrição, equipamento ou responsável" oninput="resetOrderPage();render()"></label></div>
+        <div class="os-filter-panel" id="osFilterPanel">
           <label>Status <select class="field" id="osStatusFilter" onchange="render()"><option value="">Todos</option></select></label>
           <label>Prioridade <select class="field" id="osPriorityFilter" onchange="render()"><option value="">Todas</option></select></label>
           <label>Equipamento <select class="field" id="osAssetFilter" onchange="render()"><option value="">Todos</option></select></label>
-          <label>Responsável <select class="field" id="osExecutorFilter" onchange="render()"><option value="">Todos</option></select></label>
-          <button class="btn os-filter-btn" type="button" onclick="resetOrderFilters()">▽ Limpar filtros</button>
+          <details class="os-advanced-filters"><summary>Mais filtros</summary><div><label>Período <span class="os-period-fields"><input class="field" id="osPeriodStart" type="date" onchange="render()"><b>—</b><input class="field" id="osPeriodEnd" type="date" onchange="render()"></span></label><label>Responsável <select class="field" id="osExecutorFilter" onchange="render()"><option value="">Todos</option></select></label></div></details>
+          <button class="btn os-filter-btn" type="button" onclick="resetOrderFilters()">Limpar filtros</button>
         </div>
 
         <div class="os-metric-grid" id="osMetricGrid"></div>
@@ -9957,11 +10007,12 @@
           <div class="panel os-table-panel">
             <div class="table-wrap">
               <table class="os-table">
-                <thead><tr><th><input type="checkbox" aria-label="Selecionar todas"></th><th>Nº O.S</th><th>Título</th><th>Prioridade</th><th>Status</th><th>Equipamento</th><th>Responsável</th><th>Data de abertura</th><th>Prazo</th><th></th></tr></thead>
+                <thead><tr><th><button type="button" onclick="sortOrdersBy('number')">Nº O.S.</button></th><th><button type="button" onclick="sortOrdersBy('description')">Descrição</button></th><th><button type="button" onclick="sortOrdersBy('asset')">Equipamento</button></th><th><button type="button" onclick="sortOrdersBy('priority')">Prioridade</button></th><th><button type="button" onclick="sortOrdersBy('status')">Status</button></th><th><button type="button" onclick="sortOrdersBy('executor')">Responsável</button></th><th><button type="button" onclick="sortOrdersBy('due')">Prazo</button></th><th>Ações</th></tr></thead>
                 <tbody id="orderRows"></tbody>
               </table>
             </div>
-            <div class="os-pagination"><span>Itens por página: <b>10</b></span><span id="osPaginationText">0 itens</span><div><button disabled>‹</button><button class="active">1</button><button>2</button><button>3</button><button>›</button></div></div>
+            <div class="os-mobile-cards" id="osMobileCards"></div>
+            <div class="os-pagination"><span>Itens por página: <b>10</b></span><span id="osPaginationText">0 itens</span><div id="osPaginationButtons"></div></div>
           </div>
           <aside class="os-detail-panel" id="osDetailPanel"></aside>
         </div>
@@ -10833,7 +10884,7 @@
     let selectedMachineId = null;
     let selectedLocationId = null;
     let selectedOrderId = null;
-    let selectedOrderDetailTab = "checklist";
+    let selectedOrderDetailTab = "general";
     let dragState = null;
     let pendingMove = null;
     let isLoadingRemote = false;
@@ -18169,7 +18220,7 @@
     function orderStatusChip(order) {
       const label = ptBrText(order.status || "Aberta");
       const key = normalizeTextKey(label);
-      const color = orderIsLate(order) ? "red" : isClosedOrder(order.status) ? "green" : isRunningOrder(order.status) ? "blue" : key.includes("paus") ? "gray" : key.includes("abert") ? "green" : "yellow";
+      const color = orderIsLate(order) ? "red" : isClosedOrder(order.status) ? "green" : key.includes("aguard") && key.includes("material") ? "purple" : isRunningOrder(order.status) ? "blue" : key.includes("paus") ? "gray" : key.includes("abert") ? "green" : "yellow";
       return `<span class="os-chip ${color}">${escapeHtml(orderIsLate(order) && !key.includes("atras") ? "Atrasada" : label)}</span>`;
     }
 
@@ -18187,6 +18238,16 @@
       return String(name || "SE").trim().split(/\s+/).slice(0, 2).map(part => part[0] || "").join("").toUpperCase();
     }
 
+    let osCurrentPage = 1;
+    let osSortKey = "created";
+    let osSortDirection = -1;
+    const OS_PAGE_SIZE = 10;
+
+    function resetOrderPage() { osCurrentPage = 1; }
+    function toggleOrderFilters() { $("osFilterPanel")?.classList.toggle("is-hidden"); }
+    function sortOrdersBy(key) { osSortDirection = osSortKey === key ? osSortDirection * -1 : 1; osSortKey = key; osCurrentPage = 1; render(); }
+    function changeOrderPage(page) { osCurrentPage = Math.max(1, Number(page || 1)); render(); }
+
     function filteredOrdersForWorkspace(filter = () => true) {
       setOrderSelectOptions("osStatusFilter", state.orders.map(order => ({ value: order.status || "Aberta", label: ptBrText(order.status || "Aberta") })), "Todos");
       setOrderSelectOptions("osPriorityFilter", state.orders.map(order => ({ value: order.priority || "Baixa", label: ptBrText(order.priority || "Baixa") })), "Todas");
@@ -18197,13 +18258,16 @@
       const priority = $("osPriorityFilter")?.value || "";
       const assetId = $("osAssetFilter")?.value || "";
       const executor = $("osExecutorFilter")?.value || "";
+      const localSearch = normalizeTextKey($("osSearch")?.value || "");
       const start = $("osPeriodStart")?.value ? new Date(`${$("osPeriodStart").value}T00:00:00`).getTime() : 0;
       const end = $("osPeriodEnd")?.value ? new Date(`${$("osPeriodEnd").value}T23:59:59`).getTime() : 0;
 
       return state.orders.filter(order => {
         const created = Number(order.createdAt || 0);
         const matchesGlobal = filter(`${order.number || ""} ${machineName(order.assetId)} ${ptBrText(order.type)} ${ptBrText(order.priority)} ${ptBrText(order.status)} ${order.executor || ""} ${order.requester || ""} ${order.description || ""}`);
+        const localText = normalizeTextKey(`${order.number || ""} ${order.description || ""} ${machineName(order.assetId)} ${order.executor || ""}`);
         return matchesGlobal
+          && (!localSearch || localText.includes(localSearch))
           && (!dashboardBacklogView || !isClosedOrder(order.status))
           && (!status || order.status === status)
           && (!priority || order.priority === priority)
@@ -18211,16 +18275,24 @@
           && (!executor || order.executor === executor)
           && (!start || created >= start)
           && (!end || created <= end);
-      }).sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+      }).sort((a, b) => {
+        const values = {
+          number:item => orderNumberValue(item.number), description:item => orderTitle(item), asset:item => machineName(item.assetId),
+          priority:item => normalizeTextKey(item.priority), status:item => normalizeTextKey(item.status), executor:item => item.executor || "",
+          due:item => validOperationalDate(item.scheduledAt)?.getTime() || 0, created:item => Number(item.createdAt || 0)
+        };
+        const getter = values[osSortKey] || values.created;
+        const av=getter(a), bv=getter(b);
+        return (typeof av === "number" && typeof bv === "number" ? av-bv : String(av).localeCompare(String(bv),"pt-BR")) * osSortDirection;
+      });
     }
 
     function renderOrderMetrics(orders) {
       const total = orders.length;
       const metrics = [
-        { label: "Total", value: total, color: "#1769d2", icon: "▣", test: () => true },
-        { label: "Aberta", value: orders.filter(order => normalizeTextKey(order.status).includes("abert")).length, color: "#35a869", icon: "▶" },
-        { label: "Em andamento", value: orders.filter(order => isRunningOrder(order.status)).length, color: "#f4a000", icon: "◆" },
-        { label: "Pausada", value: orders.filter(order => normalizeTextKey(order.status).includes("paus")).length, color: "#1769d2", icon: "Ⅱ" },
+        { label: "Abertas", value: orders.filter(order => normalizeTextKey(order.status).includes("abert")).length, color: "#1d8cff", icon: "▶" },
+        { label: "Em execução", value: orders.filter(order => isRunningOrder(order.status)).length, color: "#f97316", icon: "◆" },
+        { label: "Aguardando material", value: orders.filter(order => normalizeTextKey(order.status).includes("aguard") && normalizeTextKey(order.status).includes("material")).length, color: "#a78bfa", icon: "◈" },
         { label: "Atrasada", value: orders.filter(orderIsLate).length, color: "#dc3d3d", icon: "◷" },
         { label: "Concluída", value: orders.filter(order => isClosedOrder(order.status)).length, color: "#35a869", icon: "✓" }
       ];
@@ -18231,18 +18303,26 @@
     }
 
     function orderDetailTabContent(order) {
+      if (selectedOrderDetailTab === "general") return `<div class="os-detail-list"><div class="os-detail-list-item"><span><strong>Descrição do problema</strong><br><small>${escapeHtml(order.description || "Sem descrição")}</small></span></div><div class="os-detail-list-item"><span><strong>Serviço realizado / observações</strong><br><small>${escapeHtml(order.comment || "Nenhum apontamento registrado")}</small></span></div></div>`;
       if (selectedOrderDetailTab === "parts") {
         const rows = state.materialRequests.filter(item => item.orderId === order.id);
-        return rows.length ? `<div class="os-detail-list">${rows.slice(0, 8).map(item => { const unit = byId(state.spareParts, item.spareId)?.unit || "UN"; return `<div class="os-detail-list-item"><span><strong>${escapeHtml(spareName(item.spareId))}</strong><br><small>${formatQuantityForUnit(item.quantity, unit)} ${escapeHtml(unit)}</small></span>${orderStatusChip({ status: item.status || "Solicitada" })}</div>`; }).join("")}</div>` : `<div class="os-detail-empty">Nenhuma peça vinculada a esta O.S.</div>`;
+        const planned = byId(state.spareParts, order.plannedSpareId);
+        return rows.length || planned ? `<div class="os-detail-list">${planned ? `<div class="os-detail-list-item"><span><strong>${escapeHtml(planned.code)} - ${escapeHtml(planned.name)}</strong><br><small>Peça prevista</small></span></div>` : ""}${rows.slice(0, 8).map(item => { const unit = byId(state.spareParts, item.spareId)?.unit || "UN"; return `<div class="os-detail-list-item"><span><strong>${escapeHtml(spareName(item.spareId))}</strong><br><small>${formatQuantityForUnit(item.quantity, unit)} ${escapeHtml(unit)}</small></span>${orderStatusChip({ status: item.status || "Solicitada" })}</div>`; }).join("")}</div>` : `<div class="os-detail-empty">Nenhuma peça vinculada a esta O.S.</div>`;
       }
       if (selectedOrderDetailTab === "history") {
         const rows = state.maintenanceJournal.filter(item => item.orderId === order.id);
         return rows.length ? `<div class="os-detail-list">${rows.slice(0, 8).map(item => `<div class="os-detail-list-item"><span><strong>${escapeHtml(item.title || item.description || "Registro de manutenção")}</strong><br><small>${formatDateTime(item.createdAt || item.date)}</small></span></div>`).join("")}</div>` : `<div class="os-detail-list"><div class="os-detail-list-item"><span><strong>O.S criada</strong><br><small>${formatDateTime(order.createdAt)}</small></span></div>${order.startedAt ? `<div class="os-detail-list-item"><span><strong>Execução iniciada</strong><br><small>${formatDateTime(order.startedAt)}</small></span></div>` : ""}${order.finishedAt ? `<div class="os-detail-list-item"><span><strong>O.S concluída</strong><br><small>${formatDateTime(order.finishedAt)}</small></span></div>` : ""}</div>`;
       }
       if (selectedOrderDetailTab === "attachments") {
-        return `<div class="os-detail-empty">Anexos e documentos podem ser gerenciados ao editar a O.S.</div>`;
+        const files=Array.isArray(order.attachments)?order.attachments:[];
+        return files.length?`<div class="os-detail-list">${files.map(file=>`<div class="os-detail-list-item"><span><strong>${escapeHtml(file.name||"Anexo")}</strong><br><small>${file.size?`${Math.ceil(file.size/1024)} KB`:"Arquivo vinculado"}</small></span></div>`).join("")}</div>`:`<div class="os-detail-empty">Nenhum anexo vinculado a esta O.S.</div>`;
       }
-      const checklists = state.checklists.filter(item => item.assetId === order.assetId);
+      if (selectedOrderDetailTab === "notes") {
+        const rows = state.maintenanceJournal.filter(item => item.orderId === order.id);
+        return `<div class="os-detail-list"><button class="os-detail-list-item" type="button" onclick="addOrderObservation('${order.id}')"><strong>＋ Adicionar apontamento</strong><span>›</span></button>${rows.map(item => `<div class="os-detail-list-item"><span><strong>${escapeHtml(item.title || "Apontamento")}</strong><br><small>${escapeHtml(item.description || "")} · ${formatDateTime(item.createdAt)}</small></span></div>`).join("")}</div>`;
+      }
+      const linked = Array.isArray(order.linkedChecklists) ? order.linkedChecklists.map(id=>byId(state.checklists,id)).filter(Boolean) : [];
+      const checklists = linked.length ? linked : state.checklists.filter(item => item.assetId === order.assetId);
       return checklists.length ? `<div class="os-detail-list">${checklists.slice(0, 6).map(checklist => `<button class="os-detail-list-item" type="button" onclick="openChecklistExecution('${checklist.id}')"><span><strong>${escapeHtml(checklist.name || checklist.code || "Checklist")}</strong><br><small>${escapeHtml(checklistItemsLabel(checklist))}</small></span><span>›</span></button>`).join("")}</div>` : `<div class="os-detail-empty">Nenhum checklist cadastrado para este equipamento.</div>`;
     }
 
@@ -18250,9 +18330,11 @@
       const panel = $("osDetailPanel");
       if (!panel) return;
       if (!order) {
+        panel.classList.remove("has-order");
         panel.innerHTML = `<div class="os-detail-empty"><div><strong>Selecione uma ordem de serviço</strong><br><span>Os detalhes operacionais aparecerão aqui.</span></div></div>`;
         return;
       }
+      panel.classList.add("has-order");
       const asset = byId(state.assets, order.assetId) || {};
       const location = locationName(asset.locationId);
       panel.innerHTML = `
@@ -18265,41 +18347,45 @@
             <div><span>Prioridade</span><strong>${orderPriorityChip(order.priority)}</strong></div>
             <div><span>Responsável</span><strong>${escapeHtml(order.executor || "Sem responsável")}</strong></div>
             <div><span>Abertura</span><strong>${formatDateTime(order.createdAt)}</strong></div>
-            <div><span>Prazo</span><strong>${order.scheduledAt ? formatDateTime(order.scheduledAt) : "Não definido"}</strong></div>
+            <div><span>Prazo</span><strong>${order.scheduledAt ? (validOperationalDate(order.scheduledAt)?.toLocaleDateString("pt-BR") || "Não definido") : "Não definido"}</strong></div>
             <div><span>Tipo</span><strong>${escapeHtml(ptBrText(order.type || "Manutenção"))}</strong></div>
             <div><span>Solicitante</span><strong>${escapeHtml(order.requester || "-")}</strong></div>
             <div class="wide"><span>Descrição</span><strong>${escapeHtml(order.description || "Sem descrição")}</strong></div>
           </div>
         </div>
         <div class="os-detail-tabs">
-          ${[["checklist","Checklist"],["parts","Peças"],["history","Histórico"],["attachments","Anexos"]].map(([key,label]) => `<button class="${selectedOrderDetailTab === key ? "active" : ""}" type="button" onclick="setOrderDetailTab('${key}')">${label}</button>`).join("")}
+          ${[["general","Geral"],["checklist","Checklist"],["parts","Peças"],["notes","Apontamentos"],["history","Histórico"],["attachments","Anexos"]].map(([key,label]) => `<button class="${selectedOrderDetailTab === key ? "active" : ""}" type="button" onclick="setOrderDetailTab('${key}')">${label}</button>`).join("")}
         </div>
         <div class="os-detail-body">${orderDetailTabContent(order)}</div>
-        <div class="os-detail-footer"><button class="btn primary" type="button" onclick="editOrder('${order.id}')">Editar O.S</button></div>`;
+        <div class="os-detail-actions">${orderActionButtons(order)}</div>`;
     }
 
     function renderOrderWorkspace(filter = () => true) {
       const orders = filteredOrdersForWorkspace(filter);
       renderOrderMetrics(orders);
+      const pages = Math.max(1, Math.ceil(orders.length / OS_PAGE_SIZE));
+      osCurrentPage = Math.min(osCurrentPage, pages);
+      const startIndex = (osCurrentPage - 1) * OS_PAGE_SIZE;
+      const visibleOrders = orders.slice(startIndex, startIndex + OS_PAGE_SIZE);
       if (!orders.some(order => order.id === selectedOrderId)) selectedOrderId = orders[0]?.id || null;
-      $("orderRows").innerHTML = orders.slice(0, 50).map(order => {
+      $("orderRows").innerHTML = visibleOrders.map(order => {
         const asset = byId(state.assets, order.assetId) || {};
-        const created = formatDateTime(order.createdAt).split(" ");
-        const due = order.scheduledAt ? formatDateTime(order.scheduledAt).split(" ") : ["-", ""];
+        const dueDate = validOperationalDate(order.scheduledAt);
+        const due = dueDate ? formatDateTime(dueDate.getTime()).split(" ") : ["-", ""];
         return `<tr class="${order.id === selectedOrderId ? "selected" : ""}" onclick="selectOrder('${order.id}')">
-          <td><input type="checkbox" aria-label="Selecionar ${escapeHtml(order.number || "O.S")}" onclick="event.stopPropagation()"></td>
           <td><span class="os-number">${escapeHtml(order.number || "-")}</span></td>
           <td class="os-title-cell">${escapeHtml(orderTitle(order))}</td>
+          <td class="os-equipment-cell"><strong>${escapeHtml(asset.code || "-")}</strong><span>${escapeHtml(asset.name || "Equipamento")}</span></td>
           <td>${orderPriorityChip(order.priority)}</td>
           <td>${orderStatusChip(order)}</td>
-          <td class="os-equipment-cell"><strong>${escapeHtml(asset.code || "-")}</strong><span>${escapeHtml(asset.name || "Equipamento")}</span></td>
           <td class="os-person-cell"><span class="os-person-avatar">${escapeHtml(orderInitials(order.executor))}</span><strong>${escapeHtml(order.executor || "Sem responsável")}</strong></td>
-          <td class="os-date-cell">${escapeHtml(created[0] || "-")}<br><span>${escapeHtml(created.slice(1).join(" "))}</span></td>
           <td class="os-date-cell">${escapeHtml(due[0] || "-")}<br><span>${escapeHtml(due.slice(1).join(" "))}</span></td>
           <td><button class="os-row-menu" type="button" onclick="event.stopPropagation();showOrderActions('${order.id}')" aria-label="Ações da O.S">⋮</button></td>
         </tr>`;
-      }).join("") || `<tr><td colspan="10" class="empty">Nenhuma O.S encontrada com os filtros selecionados.</td></tr>`;
-      if ($("osPaginationText")) $("osPaginationText").textContent = `${orders.length ? `1 - ${Math.min(50, orders.length)} de ` : ""}${orders.length} itens`;
+      }).join("") || `<tr><td colspan="8" class="empty">Nenhuma O.S encontrada com os filtros selecionados.</td></tr>`;
+      if ($("osMobileCards")) $("osMobileCards").innerHTML = visibleOrders.map(order => `<button class="os-mobile-card" type="button" onclick="selectOrder('${order.id}')"><strong>${escapeHtml(order.number || "O.S")}</strong>${orderStatusChip(order)}<span>${escapeHtml(machineName(order.assetId))}</span>${orderPriorityChip(order.priority)}<small>Prazo: ${escapeHtml(order.scheduledAt ? formatPlanDate(String(order.scheduledAt).slice(0,10)) : "Não definido")}</small><span>›</span></button>`).join("") || `<div class="empty">Nenhuma O.S encontrada.</div>`;
+      if ($("osPaginationText")) $("osPaginationText").textContent = `${orders.length ? `${startIndex+1} - ${Math.min(startIndex+OS_PAGE_SIZE,orders.length)} de ` : ""}${orders.length} itens`;
+      if ($("osPaginationButtons")) $("osPaginationButtons").innerHTML = `<button type="button" onclick="changeOrderPage(${osCurrentPage-1})" ${osCurrentPage===1?"disabled":""}>‹</button>${Array.from({length:pages},(_,i)=>i+1).slice(Math.max(0,osCurrentPage-3),Math.max(5,osCurrentPage+2)).map(page=>`<button type="button" class="${page===osCurrentPage?"active":""}" onclick="changeOrderPage(${page})">${page}</button>`).join("")}<button type="button" onclick="changeOrderPage(${osCurrentPage+1})" ${osCurrentPage===pages?"disabled":""}>›</button>`;
       renderOrderDetail(byId(state.orders, selectedOrderId));
     }
 
@@ -18308,6 +18394,8 @@
 
     function resetOrderFilters() {
       ["osPeriodStart", "osPeriodEnd", "osStatusFilter", "osPriorityFilter", "osAssetFilter", "osExecutorFilter"].forEach(id => { if ($(id)) $(id).value = ""; });
+      if ($("osSearch")) $("osSearch").value = "";
+      osCurrentPage = 1;
       render();
     }
 
@@ -18323,9 +18411,35 @@
       openModal("Mais ações de O.S", `<div class="os-detail-list"><button class="os-detail-list-item" type="button" onclick="closeModal();setView('calendar')"><strong>Calendário operacional</strong><span>›</span></button><button class="os-detail-list-item" type="button" onclick="closeModal();setView('preventivePlans')"><strong>Programação preventiva</strong><span>›</span></button><button class="os-detail-list-item" type="button" onclick="closeModal();setView('reports')"><strong>Relatórios de manutenção</strong><span>›</span></button></div>`);
     }
 
+    function orderActionButtons(order) {
+      const key = normalizeTextKey(order.status);
+      const closed = isClosedOrder(order.status) || key.includes("cancel");
+      const paused = key.includes("paus");
+      const running = isRunningOrder(order.status);
+      return `${!closed && !running && !paused ? `<button class="btn primary" type="button" onclick="confirmStartOrder('${order.id}')">Iniciar</button>` : ""}${running ? `<button class="btn" type="button" onclick="changeOrderOperationalStatus('${order.id}','Pausada')">Pausar</button><button class="btn primary" type="button" onclick="finishOrder('${order.id}')">Concluir</button>` : ""}${paused ? `<button class="btn primary" type="button" onclick="changeOrderOperationalStatus('${order.id}','Em execucao')">Retomar</button>` : ""}${!closed ? `<button class="btn" type="button" onclick="editOrder('${order.id}')">Editar</button><button class="btn danger" type="button" onclick="cancelOrder('${order.id}')">Cancelar</button>` : `<span class="muted">O.S encerrada — disponível somente para consulta.</span>`}<button class="btn" type="button" onclick="selectedOrderId=null;render()">Fechar</button>`;
+    }
+
+    async function changeOrderOperationalStatus(id, status) {
+      const order = byId(state.orders,id); if(!order || isClosedOrder(order.status)) return;
+      const updated={...order,status,startedAt:status==="Em execucao"?(order.startedAt||Date.now()):order.startedAt};
+      state.orders=state.orders.map(item=>item.id===id?updated:item); saveState(); await saveOrderSupabaseNow(updated); render(); showToast(`O.S ${ptBrText(status).toLowerCase()}.`);
+    }
+
+    async function cancelOrder(id) {
+      if(!confirm("Cancelar esta O.S.?")) return;
+      const order=byId(state.orders,id); if(!order || isClosedOrder(order.status)) return;
+      const updated={...order,status:"Cancelada",finishedAt:Date.now()}; state.orders=state.orders.map(item=>item.id===id?updated:item); saveState(); await saveOrderSupabaseNow(updated); render(); showToast("O.S cancelada.");
+    }
+
+    function addOrderObservation(id) {
+      const order=byId(state.orders,id); if(!order) return;
+      openModal("Adicionar apontamento",`<form class="form" id="orderObservationForm"><label class="full">Observação <textarea class="field" id="orderObservationText" required placeholder="Informe o serviço, ocorrência ou orientação"></textarea></label><label>Tempo trabalhado (h) <input class="field" id="orderObservationHours" type="number" min="0" step="0.1"></label><div class="full toolbar"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Salvar apontamento</button></div></form>`);
+      $("orderObservationForm").addEventListener("submit",event=>{event.preventDefault();const description=value("orderObservationText");if(!description)return;state.maintenanceJournal.unshift({id:uid("journal"),orderId:id,assetId:order.assetId,title:"Apontamento da O.S.",description,hours:Number($("orderObservationHours").value||0),createdAt:Date.now()});saveState();closeModal();render();showToast("Apontamento salvo.");});
+    }
+
     function showOrderActions(id) {
       const order = byId(state.orders, id); if (!order) return;
-      openModal(`Ações · ${escapeHtml(order.number || "O.S")}`, `<div class="os-detail-list"><button class="os-detail-list-item" type="button" onclick="closeModal();editOrder('${id}')"><strong>Editar / preencher O.S</strong><span>›</span></button>${!isRunningOrder(order.status) && !isClosedOrder(order.status) ? `<button class="os-detail-list-item" type="button" onclick="closeModal();confirmStartOrder('${id}')"><strong>Iniciar execução</strong><span>▶</span></button>` : ""}${isRunningOrder(order.status) ? `<button class="os-detail-list-item" type="button" onclick="closeModal();finishOrder('${id}')"><strong>Finalizar O.S</strong><span>✓</span></button>` : ""}<button class="os-detail-list-item" type="button" onclick="closeModal();deleteOrder('${id}')"><strong>Excluir O.S</strong><span>×</span></button></div>`);
+      openModal(`Ações · ${escapeHtml(order.number || "O.S")}`, `<div class="os-detail-actions">${orderActionButtons(order)}</div>`);
     }
 
     function renderTables() {
@@ -20274,69 +20388,29 @@
       showToast("Deslocamento cancelado.");
     }
 
+    let orderQuickSaveLock = false;
     function openOrderModal(assetId = "", editId = "") {
       const editing = byId(state.orders, editId);
       const selectedAssetId = editing?.assetId || assetId;
-      const machines = state.assets.map(asset => `<option value="${asset.id}" ${asset.id === selectedAssetId ? "selected" : ""}>${asset.code} - ${asset.name}</option>`).join("");
-      openModal(editing ? "Preencher O.S" : "Criar O.S", `
-        <form class="form" id="orderForm">
-          <label>Equipamento <select class="field" id="orderAsset" required>${machines || `<option value="">Cadastre um equipamento</option>`}</select></label>
-          <label>Solicitante <input class="field" id="orderRequester" required placeholder="Quem abriu a ordem"></label>
-          <label>Executante <input class="field" id="orderExecutor" required placeholder="Quem vai atender a ordem"></label>
-          <label>Tipo <select class="field" id="orderType"><option>Corretiva</option><option>Preventiva</option><option value="Inspecao">Inspeção</option></select></label>
-          <label>Prioridade <select class="field" id="orderPriority"><option>Baixa</option><option value="Media">Média</option><option>Alta</option></select></label>
-          <label>Data programada <input class="field" id="orderScheduled" type="date"></label>
-          <label class="full">Descrição do defeito <textarea class="field" id="orderDescription" required ${editing ? "readonly" : ""} placeholder="Descreva o defeito informado na abertura da O.S"></textarea></label>
-          ${editing ? `<div class="full side-box"><strong>Registro automático</strong><span>Abertura: ${formatDateTime(editing.createdAt)}</span><span>Início: ${formatDateTime(editing.startedAt)}</span><span>Finalização: ${formatDateTime(editing.finishedAt)}</span><span>Status atual: ${ptBrText(editing.status || "Aberta")}</span></div>` : `<div class="full side-box"><strong>Registro automático</strong><span>Status inicial: Aberta</span><span>Data e hora de abertura serão gravadas ao salvar.</span></div>`}
-          <div class="full toolbar"><button class="btn primary" type="submit">Salvar O.S</button></div>
-        </form>
-      `);
-      $("genericModalBox").classList.remove("large");
-      $("genericModalBox").style.width = "760px";
-      if (editing) {
-        $("orderRequester").value = editing.requester || "";
-        $("orderExecutor").value = editing.executor || "";
-        $("orderType").value = editing.type || "Corretiva";
-        $("orderPriority").value = editing.priority || "Baixa";
-        $("orderScheduled").value = parseCalendarDate(editing.scheduledAt) ? calendarDateKey(parseCalendarDate(editing.scheduledAt)) : "";
-        $("orderDescription").value = editing.description || "";
-      }
-      $("orderForm").addEventListener("submit", async event => {
-        event.preventDefault();
-        if (!$("orderAsset").value || !value("orderRequester") || !value("orderExecutor") || !value("orderDescription")) {
-          showToast("Preencha equipamento, solicitante, executante e descrição da O.S.");
-          return;
-        }
-        const submitButton = event.submitter;
-        if (submitButton) submitButton.disabled = true;
-        const now = Date.now();
-        const base = editing || { id: uid("os"), number: await nextOrderNumberSafe(), createdAt: now, status: "Aberta", startedAt: null, finishedAt: null };
-        const payload = {
-          ...base,
-          assetId: $("orderAsset").value,
-          requester: $("orderRequester").value,
-          executor: $("orderExecutor").value,
-          type: $("orderType").value,
-          maintenance: base.maintenance || "",
-          priority: $("orderPriority").value,
-          status: base.status || "Aberta",
-          mttr: Number(base.mttr || 0),
-          scheduledAt: $("orderScheduled").value,
-          description: editing ? (base.description || "") : $("orderDescription").value
-        };
-        state.orders = state.orders.filter(order => order.id !== payload.id).concat(payload);
-        saveState();
-        const remoteSaved = await saveOrderSupabaseNow(payload);
-        if (remoteSaved && !editing) {
-          await saveOrderEventSupabase(payload, "CRIADA", { data_abertura: new Date(payload.createdAt).toISOString() });
-        }
-        closeModal();
-        render();
-        showToast(editing
-          ? (remoteSaved ? "O.S atualizada no Supabase." : "O.S atualizada localmente. Sincronização pendente.")
-          : (remoteSaved ? "O.S criada e salva no Supabase." : "O.S criada localmente. Sincronização pendente.")
-        );
-      });
+      const machines = state.assets.map(asset => `<option value="${asset.id}" ${asset.id === selectedAssetId ? "selected" : ""}>${escapeHtml(asset.code)} - ${escapeHtml(asset.name)}</option>`).join("");
+      const checklists = state.checklists.map(item => `<option value="${item.id}">${escapeHtml(item.name || item.code)}</option>`).join("");
+      const spares = state.spareParts.map(item => `<option value="${item.id}">${escapeHtml(item.code)} - ${escapeHtml(item.name)}</option>`).join("");
+      openModal(editing ? "Editar O.S." : "Nova O.S.", `<form class="form os-quick-form" id="orderForm">
+        <label class="full">Equipamento * <select class="field" id="orderAsset" required><option value="">Selecione um equipamento</option>${machines}</select></label>
+        <label>Tipo de manutenção * <select class="field" id="orderType" required><option>Corretiva</option><option>Preventiva</option><option>Preditiva</option><option value="Inspecao">Inspeção</option></select></label>
+        <label>Prioridade * <select class="field" id="orderPriority" required><option>Baixa</option><option value="Media">Média</option><option>Alta</option></select></label>
+        <label class="full">Descrição do problema * <textarea class="field" id="orderDescription" required placeholder="Descreva de forma objetiva o problema encontrado"></textarea></label>
+        <details class="os-quick-details"><summary>Adicionar mais informações</summary><div>
+          <label>Solicitante <input class="field" id="orderRequester" placeholder="Quem abriu a ordem"></label><label>Responsável <input class="field" id="orderExecutor" placeholder="Quem executará o serviço"></label>
+          <label>Prazo <input class="field" id="orderScheduled" type="date"></label><label>Local <input class="field" id="orderLocation" value="${escapeHtml(editing ? locationName(byId(state.assets,editing.assetId)?.locationId) : "")}" readonly></label>
+          <label>Checklist <select class="field" id="orderChecklist"><option value="">Nenhum</option>${checklists}</select></label><label>Peça prevista <select class="field" id="orderPlannedSpare"><option value="">Nenhuma</option>${spares}</select></label>
+          <label class="full">Anexos <input class="field" id="orderAttachments" type="file" multiple></label><label class="full">Observações <textarea class="field" id="orderNotes"></textarea></label>
+        </div></details>
+        <div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button>${editing ? `<button class="btn primary" type="submit" value="save">Salvar alterações</button>` : `<button class="btn" type="submit" value="save">Salvar O.S.</button><button class="btn primary" type="submit" value="start">Salvar e Iniciar</button>`}</div>
+      </form>`, true);
+      if(editing){$("orderRequester").value=editing.requester||"";$("orderExecutor").value=editing.executor||"";$("orderType").value=editing.type||"Corretiva";$("orderPriority").value=editing.priority||"Baixa";$("orderScheduled").value=String(editing.scheduledAt||"").slice(0,10);$("orderDescription").value=editing.description||"";$("orderNotes").value=editing.comment||"";$("orderChecklist").value=editing.linkedChecklists?.[0]||"";$("orderPlannedSpare").value=editing.plannedSpareId||"";}
+      $("orderAsset").addEventListener("change",()=>{$("orderLocation").value=locationName(byId(state.assets,$("orderAsset").value)?.locationId)||"";});
+      $("orderForm").addEventListener("submit",async event=>{event.preventDefault();if(orderQuickSaveLock)return;if(!$("orderAsset").value||!value("orderDescription")){showToast("Selecione o equipamento e descreva o problema.");return;}orderQuickSaveLock=true;const button=event.submitter;if(button)button.disabled=true;try{const now=Date.now();const base=editing||{id:uid("os"),number:await nextOrderNumberSafe(),createdAt:now,status:"Aberta",startedAt:null,finishedAt:null};const files=Array.from($("orderAttachments").files||[]).map(file=>({id:uid("file"),name:file.name,type:file.type,size:file.size,createdAt:now}));const checklistId=$("orderChecklist").value;const payload={...base,assetId:$("orderAsset").value,requester:value("orderRequester"),executor:value("orderExecutor"),type:$("orderType").value,priority:$("orderPriority").value,scheduledAt:$("orderScheduled").value,description:value("orderDescription"),comment:value("orderNotes"),linkedChecklists:checklistId?[checklistId]:base.linkedChecklists||[],plannedSpareId:$("orderPlannedSpare").value,attachments:(base.attachments||[]).concat(files),mttr:Number(base.mttr||0)};state.orders=state.orders.filter(item=>item.id!==payload.id).concat(payload);saveState();const remoteSaved=await saveOrderSupabaseNow(payload);if(remoteSaved&&!editing)await saveOrderEventSupabase(payload,"CRIADA",{data_abertura:new Date(payload.createdAt).toISOString()});selectedOrderId=payload.id;closeModal();setView("orders");if(button?.value==="start")await startOrder(payload.id,payload.executor);else render();showToast(editing?"O.S. atualizada.":"O.S. criada com sucesso.");}catch(error){showToast("Não foi possível salvar. Revise os dados e tente novamente.");if(button)button.disabled=false;}finally{setTimeout(()=>orderQuickSaveLock=false,1200);}});
     }
 
     function openPreventivePlanModal(planId = "") {
@@ -20985,7 +21059,7 @@
 
     function editOrder(id) {
       const item = byId(state.orders, id); if (!item) return;
-      showOrderDetails(item.id, "edit");
+      openOrderModal(item.assetId, item.id);
     }
 
     async function deleteOrder(id, ask = true) {
@@ -21031,7 +21105,14 @@
         showToast("O.S já está concluída.");
         return;
       }
-      openFinishOrderModal(id);
+      openSimpleFinishOrderModal(id);
+    }
+
+    function localDateTimeValue(value=Date.now()) { const date=new Date(value); const pad=n=>String(n).padStart(2,"0"); return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`; }
+    function openSimpleFinishOrderModal(id) {
+      const order=byId(state.orders,id); if(!order||isClosedOrder(order.status))return;
+      openModal("Concluir O.S.",`<form class="form" id="simpleFinishForm"><div class="full side-box"><strong>${escapeHtml(order.number||"O.S.")}</strong><span>${escapeHtml(machineName(order.assetId))}</span></div><label class="full">Solução ou serviço realizado * <textarea class="field" id="simpleFinishSolution" required placeholder="Descreva objetivamente o serviço executado">${escapeHtml(order.comment||"")}</textarea></label><label>Data e hora da conclusão * <input class="field" id="simpleFinishAt" type="datetime-local" required value="${localDateTimeValue()}"></label><label>Responsável pela execução * <input class="field" id="simpleFinishExecutor" required value="${escapeHtml(order.executor||"")}"></label><details class="os-quick-details"><summary>Adicionar mais informações</summary><div><label>Tempo trabalhado (h) <input class="field" id="simpleFinishHours" type="number" min="0" step="0.1"></label><label>Anexos <input class="field" id="simpleFinishFiles" type="file" multiple></label><label class="full"><input type="checkbox" id="simpleFinishPending" ${order.pendingExecution?"checked":""}> Manter pendência de execução</label></div></details><div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Concluir serviço</button></div></form>`,true);
+      $("simpleFinishForm").addEventListener("submit",async event=>{event.preventDefault();const solution=value("simpleFinishSolution"),executor=value("simpleFinishExecutor"),finishedAt=new Date($("simpleFinishAt").value).getTime();if(!solution||!executor||!Number.isFinite(finishedAt)){showToast("Informe o serviço realizado, a conclusão e o responsável.");return;}const button=event.submitter;if(button)button.disabled=true;const files=Array.from($("simpleFinishFiles").files||[]).map(file=>({id:uid("file"),name:file.name,type:file.type,size:file.size,createdAt:Date.now()}));const started=Number(order.startedAt||order.createdAt||finishedAt);const updated={...order,comment:solution,executor,finishedAt,status:"Concluida",mttr:Number(Math.max(0,(finishedAt-started)/36e5).toFixed(1)),workedHours:Number($("simpleFinishHours").value||0),pendingExecution:$("simpleFinishPending").checked,attachments:(order.attachments||[]).concat(files)};state.orders=state.orders.map(item=>item.id===id?updated:item);saveState();const remoteSaved=await saveOrderSupabaseNow(updated);if(remoteSaved)await saveOrderEventSupabase(updated,"FINALIZADA",{data_finalizacao:new Date(finishedAt).toISOString()});closeModal();render();showToast("O.S. concluída com sucesso.");});
     }
 
     function openFinishOrderModal(id) {
