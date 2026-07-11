@@ -8936,6 +8936,55 @@
     .industrial-sidebar-scroll > .tab:not(.sidebar-favorites-home) { flex:0 0 auto; }
     .industrial-sidebar-scroll > .tab > span:last-child { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
+    /* Etapa 2 — ações rápidas e alertas operacionais */
+    .quick-actions-card,.dashboard-alerts-card { min-height:286px; }
+    .industrial-quick-actions { padding:7px 12px 14px; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+    .industrial-quick-actions button {
+      min-height:76px !important; padding:10px !important; grid-template-columns:34px minmax(0,1fr) !important;
+      place-items:center stretch !important; align-items:center !important; gap:10px !important; text-align:left !important;
+      border-color:#1f334a !important; border-radius:9px !important; background:linear-gradient(145deg,#0b1929,#091522) !important;
+      transition:transform .15s ease,border-color .15s ease,background .15s ease,box-shadow .15s ease !important;
+    }
+    .industrial-quick-actions button:hover { border-color:#1d8cff !important; background:#14243a !important; box-shadow:0 8px 22px rgba(0,0,0,.22) !important; }
+    .industrial-quick-actions button:active { transform:translateY(1px) scale(.985) !important; box-shadow:none !important; }
+    .industrial-quick-actions button:focus-visible { outline:2px solid #1d8cff !important; outline-offset:2px; }
+    .industrial-quick-actions i { width:34px; height:34px; border-radius:8px; font-size:17px; }
+    .industrial-quick-actions button > span { min-width:0; display:grid; gap:3px; }
+    .industrial-quick-actions strong { overflow:hidden; color:#f8fafc; font-size:10px; line-height:1.2; text-overflow:ellipsis; white-space:nowrap; }
+    .industrial-quick-actions small { overflow:hidden; color:#8293aa; font-size:8px; line-height:1.25; text-overflow:ellipsis; white-space:nowrap; }
+
+    .dashboard-alert-list { max-height:244px; padding:4px 12px 12px; display:grid; gap:6px; overflow:auto; }
+    .dashboard-alert-item {
+      --alert-color:#1d8cff; width:100%; min-height:56px; padding:8px 9px; display:grid;
+      grid-template-columns:30px minmax(0,1fr) auto; align-items:center; gap:9px; color:#dbeafe;
+      background:#0a1726; border:1px solid #1b3046; border-left:3px solid var(--alert-color); border-radius:8px;
+      text-align:left; cursor:pointer; transition:background .15s ease,border-color .15s ease,transform .15s ease;
+    }
+    .dashboard-alert-item:hover { background:#11243a; border-color:#28547c; transform:translateY(-1px); }
+    .dashboard-alert-item:active { transform:translateY(1px); }
+    .dashboard-alert-item.critical { --alert-color:#ef4444; }
+    .dashboard-alert-item.attention { --alert-color:#f97316; }
+    .dashboard-alert-item.info { --alert-color:#1d8cff; }
+    .dashboard-alert-item.resolved { --alert-color:#22c55e; }
+    .dashboard-alert-icon { width:28px; height:28px; display:grid; place-items:center; color:var(--alert-color); background:color-mix(in srgb,var(--alert-color) 13%,#07111f); border-radius:7px; font-size:14px; }
+    .dashboard-alert-copy { min-width:0; display:grid; gap:2px; }
+    .dashboard-alert-copy strong { overflow:hidden; color:#f8fafc; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }
+    .dashboard-alert-copy span { overflow:hidden; color:#94a3b8; font-size:8px; line-height:1.3; text-overflow:ellipsis; white-space:nowrap; }
+    .dashboard-alert-meta { display:grid; justify-items:end; gap:4px; }
+    .dashboard-alert-meta time { color:#71849c; font-size:7px; white-space:nowrap; }
+    .dashboard-alert-priority { padding:3px 5px; color:var(--alert-color); background:color-mix(in srgb,var(--alert-color) 10%,#07111f); border:1px solid color-mix(in srgb,var(--alert-color) 28%,transparent); border-radius:999px; font-size:7px; font-weight:800; text-transform:uppercase; }
+    .dashboard-alert-empty { min-height:180px; display:grid; place-items:center; align-content:center; gap:8px; color:#8293aa; font-size:10px; text-align:center; }
+    .dashboard-alert-empty i { width:38px; height:38px; display:grid; place-items:center; color:#22c55e; background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.25); border-radius:50%; font-size:18px; font-style:normal; }
+    .dashboard-alert-modal-list { display:grid; gap:7px; max-height:62vh; overflow:auto; }
+
+    @media (max-width:680px) {
+      .industrial-quick-actions { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .industrial-quick-actions button { min-height:82px !important; grid-template-columns:1fr !important; place-items:center !important; text-align:center !important; gap:6px !important; }
+      .industrial-quick-actions small { display:none; }
+      .dashboard-alert-item { grid-template-columns:30px minmax(0,1fr); }
+      .dashboard-alert-meta { grid-column:2; grid-row:2; display:flex; justify-content:space-between; justify-items:start; }
+    }
+
     /* Etapa 1 — cabeçalho compacto e seis indicadores operacionais */
     .reference-topbar {
       grid-template-columns:minmax(190px,1fr) minmax(250px,360px) minmax(570px,auto) !important;
@@ -8993,6 +9042,65 @@
       .professional-kpi-strip { grid-template-columns:1fr; }
       .reference-help,.reference-header-user { display:none !important; }
       .reference-notification { margin:0 !important; }
+    }
+
+    /* Etapa 3 — gráficos principais */
+    .maintenance-trend-card { min-height:390px; }
+    .maintenance-backlog-card,.asset-health-card { min-height:390px; }
+    .trend-period-control { width:104px; display:grid; gap:2px; color:#71849c; font-size:7px; font-weight:800; text-transform:uppercase; }
+    .trend-period-control select { width:100%; min-height:29px !important; height:29px !important; padding:0 22px 0 8px !important; color:#dbeafe !important; background:#0b1929 !important; border:1px solid #1f334a !important; border-radius:6px !important; box-shadow:none !important; font-size:9px !important; font-weight:700 !important; }
+    .maintenance-trend-content { padding:4px 12px 12px; }
+    .trend-chart-shell { position:relative; height:232px; min-width:0; border:1px solid rgba(31,51,74,.7); border-radius:8px; background:linear-gradient(180deg,rgba(11,25,41,.72),rgba(7,17,31,.2)); overflow:hidden; touch-action:pan-y; }
+    .trend-chart-shell canvas { width:100%; height:100%; display:block; }
+    .trend-chart-legend { position:absolute; top:9px; right:10px; z-index:2; display:flex; gap:12px; color:#94a3b8; font-size:8px; pointer-events:none; }
+    .trend-chart-legend span { display:flex; align-items:center; gap:5px; }
+    .trend-chart-legend i { width:15px; height:2px; display:inline-block; border-radius:99px; }
+    .trend-chart-tooltip { position:absolute; z-index:3; min-width:112px; padding:7px 8px; display:none; color:#dbeafe; background:#06111f; border:1px solid #28547c; border-radius:7px; box-shadow:0 10px 28px rgba(0,0,0,.38); font-size:8px; line-height:1.45; pointer-events:none; transform:translate(-50%,-105%); }
+    .trend-chart-tooltip.visible { display:block; }
+    .trend-chart-tooltip strong { display:block; color:#fff; font-size:9px; }
+    .trend-summary { margin-top:8px; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; }
+    .trend-summary div { min-width:0; padding:8px 9px; display:grid; gap:3px; background:#0a1726; border:1px solid #1b3046; border-radius:7px; }
+    .trend-summary span { color:#71849c; font-size:7px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; }
+    .trend-summary strong { overflow:hidden; color:#f8fafc; font-size:12px; text-overflow:ellipsis; white-space:nowrap; }
+    .trend-empty { min-height:300px; display:grid; place-items:center; padding:24px; color:#8293aa; font-size:10px; text-align:center; }
+
+    .maintenance-backlog-content { padding:6px 12px 12px; display:grid; gap:8px; }
+    .maintenance-backlog-row { display:grid; grid-template-columns:minmax(92px,1fr) 34px 38px; align-items:center; gap:7px; }
+    .maintenance-backlog-row > span { overflow:hidden; color:#a9b7c9; font-size:8px; text-overflow:ellipsis; white-space:nowrap; }
+    .maintenance-backlog-row > strong { color:#f8fafc; font-size:10px; text-align:right; }
+    .maintenance-backlog-row > small { color:#71849c; font-size:8px; text-align:right; }
+    .maintenance-backlog-track { grid-column:1/-1; height:6px; overflow:hidden; background:#101f31; border-radius:99px; }
+    .maintenance-backlog-track i { height:100%; display:block; width:var(--backlog-width); background:var(--backlog-color); border-radius:inherit; transition:width .35s ease; }
+    .maintenance-backlog-footer,.asset-health-footer { margin-top:3px; padding-top:9px; display:flex; align-items:center; justify-content:space-between; gap:8px; border-top:1px solid #1b3046; }
+    .maintenance-backlog-footer span { color:#94a3b8; font-size:8px; }
+    .maintenance-backlog-footer strong { color:#f8fafc; font-size:13px; }
+    .chart-link-button { min-height:29px !important; padding:6px 8px !important; color:#9fcaff !important; background:#0b1a2d !important; border:1px solid #1f4163 !important; border-radius:6px !important; box-shadow:none !important; font-size:8px !important; font-weight:800 !important; }
+    .chart-link-button:hover { color:#fff !important; border-color:#1d8cff !important; background:#10243d !important; transform:none !important; }
+
+    .asset-health-content { padding:8px 12px 12px; }
+    .asset-health-main { min-height:245px; display:grid; grid-template-columns:132px minmax(0,1fr); align-items:center; gap:12px; }
+    .asset-health-donut { --health-donut:conic-gradient(#334155 0 100%); position:relative; width:126px; height:126px; display:grid; place-items:center; background:var(--health-donut); border-radius:50%; box-shadow:0 0 24px rgba(0,0,0,.2); }
+    .asset-health-donut::after { content:""; position:absolute; inset:20px; background:#0b1929; border:1px solid #1f334a; border-radius:50%; }
+    .asset-health-donut > div { position:relative; z-index:1; display:grid; justify-items:center; gap:2px; }
+    .asset-health-donut strong { color:#f8fafc; font-size:24px; line-height:1; }
+    .asset-health-donut span { color:#8293aa; font-size:7px; text-transform:uppercase; }
+    .asset-health-legend { min-width:0; display:grid; gap:7px; }
+    .asset-health-legend-row { display:grid; grid-template-columns:8px minmax(0,1fr) 26px 34px; align-items:center; gap:6px; color:#94a3b8; font-size:8px; }
+    .asset-health-legend-row i { width:7px; height:7px; border-radius:50%; background:var(--health-color); box-shadow:0 0 8px color-mix(in srgb,var(--health-color) 45%,transparent); }
+    .asset-health-legend-row strong { color:#f8fafc; font-size:10px; text-align:right; }
+    .asset-health-legend-row small { color:#71849c; font-size:8px; text-align:right; }
+    .asset-health-footer { justify-content:flex-end; }
+
+    @media (max-width:1000px) {
+      .maintenance-trend-card,.maintenance-backlog-card,.asset-health-card { grid-column:1/-1 !important; }
+      .maintenance-trend-card { min-height:370px; }
+    }
+    @media (max-width:620px) {
+      .trend-summary { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .trend-chart-shell { height:218px; }
+      .asset-health-main { grid-template-columns:1fr; justify-items:center; }
+      .asset-health-legend { width:100%; }
+      .maintenance-backlog-row { grid-template-columns:minmax(82px,1fr) 30px 34px; }
     }
 </style>
 </head>
@@ -9163,16 +9271,17 @@
             </div>
           </section>
 
-          <article class="industrial-card dashboard-widget" data-dashboard-widget="trend"><div class="dashboard-controls" data-dashboard-controls="trend"></div><div class="industrial-card-head"><div><span>HISTÓRICO</span><h2>Tendência MTTR x MTBF</h2></div></div><div id="trendChart"></div></article>
-          <article class="industrial-card dashboard-widget" data-dashboard-widget="status"><div class="dashboard-controls" data-dashboard-controls="status"></div><div class="industrial-card-head"><div><span>CARTEIRA</span><h2>Backlog por Status</h2></div></div><div class="dashboard-visible-body" id="statusBars"></div></article>
-          <article class="industrial-card dashboard-widget" data-dashboard-widget="criticality"><div class="dashboard-controls" data-dashboard-controls="criticality"></div><div class="industrial-card-head"><div><span>ATIVOS</span><h2>Criticidade do Parque</h2></div></div><div class="dashboard-visible-body" id="criticalityBars"></div></article>
+          <article class="industrial-card maintenance-trend-card dashboard-widget" data-dashboard-widget="trend"><div class="dashboard-controls" data-dashboard-controls="trend"></div><div class="industrial-card-head"><div><span>CONFIABILIDADE</span><h2>Tendência MTTR x MTBF</h2></div><label class="trend-period-control"><span>Período</span><select id="trendPeriodFilter" aria-label="Período do gráfico MTTR e MTBF" onchange="renderTrendChart()"><option value="6">6 meses</option><option value="12">12 meses</option><option value="24">24 meses</option></select></label></div><div id="trendChart" class="maintenance-trend-content"></div></article>
+          <article class="industrial-card maintenance-backlog-card dashboard-widget" data-dashboard-widget="status"><div class="dashboard-controls" data-dashboard-controls="status"></div><div class="industrial-card-head"><div><span>CARTEIRA</span><h2>Backlog de Manutenção</h2></div></div><div class="maintenance-backlog-content" id="statusBars"></div></article>
+          <article class="industrial-card asset-health-card dashboard-widget" data-dashboard-widget="criticality"><div class="dashboard-controls" data-dashboard-controls="criticality"></div><div class="industrial-card-head"><div><span>CONDIÇÃO OPERACIONAL</span><h2>Saúde dos Ativos</h2></div></div><div class="asset-health-content" id="criticalityBars"></div></article>
           <article class="industrial-card industrial-chart-card dashboard-widget" data-dashboard-widget="ordersChart"><div class="dashboard-controls" data-dashboard-controls="ordersChart"></div><div class="industrial-card-head"><div><span>ÚLTIMOS 7 DIAS</span><h2>Ordens de Serviço</h2></div><div class="chart-legend"><span><i class="dot blue"></i>Abertas</span><span><i class="dot green"></i>Concluídas</span><span><i class="dot red"></i>Atrasadas</span></div></div><div class="industrial-stacked-chart" id="industrialOrdersChart"></div></article>
           <article class="industrial-card dashboard-widget" data-dashboard-widget="activeOrders"><div class="dashboard-controls" data-dashboard-controls="activeOrders"></div><div class="industrial-card-head"><div><span>OPERAÇÃO</span><h2>O.S Abertas e em Execução</h2></div></div><div class="dashboard-visible-body" id="dashboardActiveOrders"></div></article>
           <article class="industrial-card dashboard-widget" data-dashboard-widget="stops"><div class="dashboard-controls" data-dashboard-controls="stops"></div><div class="industrial-card-head"><div><span>INDISPONIBILIDADE</span><h2>Top 10 Paradas</h2></div></div><div class="table-wrap"><table><tbody id="dashboardStopsRows"></tbody></table></div></article>
           <article class="industrial-card dashboard-widget" data-dashboard-widget="stockAlerts"><div class="dashboard-controls" data-dashboard-controls="stockAlerts"></div><div class="industrial-card-head"><div><span>ESTOQUE</span><h2>Peças para Reposição</h2></div></div><div class="table-wrap"><table><tbody id="dashboardLowStockRows"></tbody></table></div></article>
           <article class="industrial-card industrial-calendar-card maintenance-agenda-card dashboard-widget" data-dashboard-widget="agenda"><div class="dashboard-controls" data-dashboard-controls="agenda"></div><div class="maintenance-agenda-head"><h2>Agenda de Manutenção</h2><div class="maintenance-agenda-navigation"><button type="button" onclick="shiftIndustrialAgendaWeek(-1)" aria-label="Semana anterior">‹</button><span id="industrialAgendaRange">Semana atual</span><button type="button" onclick="shiftIndustrialAgendaWeek(1)" aria-label="Próxima semana">›</button></div><button class="maintenance-agenda-mode" type="button" onclick="resetIndustrialAgendaWeek()">Semana <i>▣</i></button></div><div class="maintenance-agenda-scroll"><div class="maintenance-agenda-inner" id="industrialMaintenanceCalendar"></div></div><div class="maintenance-agenda-footer"><button type="button" onclick="setView('calendar')">Ver calendário completo&nbsp; ›</button></div></article>
           <article class="industrial-card parts-consumption-card dashboard-widget" data-dashboard-widget="parts"><div class="dashboard-controls" data-dashboard-controls="parts"></div><div class="industrial-card-head"><div><span>MATERIAIS</span><h2>Consumo de Peças</h2></div><button type="button" onclick="setView('stockMoves')">↗</button></div><div class="parts-consumption-content"><div class="industrial-donut parts-donut" id="industrialPartsDonut"><div><strong id="industrialPartsTotal">0</strong><span>movimentos</span></div></div><div class="industrial-legend" id="industrialPartsLegend"></div></div></article>
-          <article class="industrial-card quick-actions-card dashboard-widget" data-dashboard-widget="quickActions"><div class="dashboard-controls" data-dashboard-controls="quickActions"></div><div class="industrial-card-head"><div><span>ATALHOS</span><h2>Ações Rápidas</h2></div></div><div class="industrial-quick-actions"><button type="button" onclick="openOrderModal()"><i>＋</i><span>Nova OS</span></button><button type="button" onclick="setView('pendingActions')"><i>◇</i><span>Nova Solicitação</span></button><button type="button" onclick="setView('assets')"><i>⚙</i><span>Novo Ativo</span></button><button type="button" onclick="setView('downtime')"><i>◷</i><span>Registrar Parada</span></button><button type="button" onclick="setView('stockMoves')"><i>⇩</i><span>Baixa de Estoque</span></button><button type="button" onclick="setView('reports')"><i>▥</i><span>Relatórios</span></button></div></article>
+          <article class="industrial-card quick-actions-card dashboard-widget" data-dashboard-widget="quickActions"><div class="dashboard-controls" data-dashboard-controls="quickActions"></div><div class="industrial-card-head"><div><span>ATALHOS OPERACIONAIS</span><h2>Ações Rápidas</h2></div></div><div class="industrial-quick-actions"><button type="button" onclick="openOrderModal()" aria-label="Criar nova ordem de serviço"><i>＋</i><span><strong>Nova O.S.</strong><small>Criar ordem de serviço</small></span></button><button type="button" onclick="openQuickChecklist()" aria-label="Executar checklist"><i>✓</i><span><strong>Executar Checklist</strong><small>Abrir rotina pendente</small></span></button><button type="button" onclick="setView('downtime')" aria-label="Registrar parada"><i>◷</i><span><strong>Registrar Parada</strong><small>Informar indisponibilidade</small></span></button><button type="button" onclick="setView('materialRequests')" aria-label="Solicitar material"><i>◈</i><span><strong>Solicitar Material</strong><small>Abrir requisição</small></span></button><button type="button" onclick="setView('assets')" aria-label="Consultar ativos"><i>⚙</i><span><strong>Consultar Ativos</strong><small>Localizar equipamento</small></span></button><button type="button" onclick="setView('reports')" aria-label="Ver relatórios"><i>▥</i><span><strong>Ver Relatórios</strong><small>Abrir análises operacionais</small></span></button></div></article>
+          <article class="industrial-card dashboard-alerts-card dashboard-widget" data-dashboard-widget="alerts"><div class="dashboard-controls" data-dashboard-controls="alerts"></div><div class="industrial-card-head"><div><span>OPERAÇÃO</span><h2>Alertas e Notificações</h2></div><button type="button" onclick="openDashboardAlertsModal()">Ver todos ↗</button></div><div class="dashboard-alert-list" id="dashboardAlertList"></div></article>
           <article class="industrial-card latest-orders-card dashboard-widget" data-dashboard-widget="latestOrders"><div class="dashboard-controls" data-dashboard-controls="latestOrders"></div><div class="industrial-card-head"><div><span>ATUALIZAÇÕES</span><h2>Últimas Ordens de Serviço</h2></div><button type="button" onclick="setView('orders')">Ver todas ↗</button></div><div class="industrial-latest-orders" id="industrialLatestOrders"></div></article>
         </div>
 
@@ -13455,6 +13564,8 @@
         nextView = firstAllowedView();
         if (options.silent !== true) showToast("Seu usuário não tem permissão para acessar este módulo.");
       }
+      if (nextView !== "orders" || options.dashboardFilter !== "backlog") dashboardBacklogView = false;
+      if (nextView !== "assets" || options.dashboardFilter !== "critical") dashboardCriticalAssetIds = null;
       if (options.persist !== false) scopedSetItem(ACTIVE_VIEW_KEY, nextView, "user");
       if (nextView !== "activeOrders" && document.body.classList.contains("panel-mode")) {
         document.body.classList.remove("panel-mode");
@@ -14199,6 +14310,140 @@
       }).join("") || `<div class="industrial-order-row"><strong>Nenhuma O.S cadastrada</strong><small>Use “Nova OS” para iniciar.</small></div>`;
     }
 
+    function openQuickChecklist() {
+      const latestExecution = new Map();
+      state.checklistExecutions.forEach(item => {
+        const time = Number(item.executedAt || 0);
+        if (time > Number(latestExecution.get(item.checklistId) || 0)) latestExecution.set(item.checklistId, time);
+      });
+      const available = state.checklists
+        .filter(item => item.status !== "Inativo" && checklistItems(item).some(entry => entry.description))
+        .sort((a, b) => Number(latestExecution.get(a.id) || 0) - Number(latestExecution.get(b.id) || 0));
+      if (!available.length) {
+        setView("checklists");
+        showToast("Nenhum checklist ativo disponível para execução.");
+        return;
+      }
+      openChecklistExecution(available[0].id);
+    }
+
+    function dashboardAlertTimestamp(value) {
+      if (typeof value === "number" || /^\d+$/.test(String(value || ""))) {
+        const numericDate = new Date(Number(value));
+        return Number.isNaN(numericDate.getTime()) ? null : numericDate;
+      }
+      return parseCalendarDate(value) || planDateFromInput(value) || null;
+    }
+
+    function dashboardAlertDateLabel(value) {
+      const date = dashboardAlertTimestamp(value);
+      if (!date) return "Data não informada";
+      const hasTime = date.getHours() || date.getMinutes();
+      return hasTime
+        ? date.toLocaleString("pt-BR", { day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" })
+        : date.toLocaleDateString("pt-BR");
+    }
+
+    function collectDashboardAlerts() {
+      const alerts = [];
+      const add = alert => alerts.push({ ...alert, timestamp: dashboardAlertTimestamp(alert.date)?.getTime() || 0 });
+
+      state.downtimes.filter(item => item?.status === "Ativa").forEach(item => add({
+        key:`downtime:${item.id}`, type:"downtime", id:item.id, icon:"■", level:"critical", priority:"Crítico",
+        title:"Equipamento parado", description:`${machineName(item.assetId)}${item.cause || item.reason ? ` · ${item.cause || item.reason}` : ""}`,
+        date:item.startAt || item.createdAt
+      }));
+
+      state.orders.filter(orderIsLate).forEach(order => add({
+        key:`order:${order.id}`, type:"order", id:order.id, icon:"!", level:"critical", priority:"Crítico",
+        title:"O.S. atrasada", description:`${order.number || "O.S."} · ${machineName(order.assetId)}`,
+        date:order.scheduledAt || order.updatedAt || order.createdAt
+      }));
+
+      const today = planDateFromInput(todayPlanDate());
+      const soon = new Date(today); soon.setDate(soon.getDate() + 7);
+      state.preventivePlans.filter(plan => plan.status !== "Pausado").forEach(plan => {
+        const next = planDateFromInput(plan.nextExecution);
+        if (!next || next > soon) return;
+        const overdue = next < today;
+        add({
+          key:`preventive:${plan.id}`, type:"preventive", id:plan.id, icon:"◷", level:overdue ? "critical" : "attention", priority:overdue ? "Crítico" : "Atenção",
+          title:overdue ? "Preventiva vencida" : "Preventiva próxima", description:`${plan.name || "Plano preventivo"} · ${machineName(plan.assetId)}`,
+          date:plan.nextExecution
+        });
+      });
+
+      lowStockItems().forEach(item => add({
+        key:`stock:${item.id}`, type:"stock", id:item.id, icon:"▦", level:item.balance <= 0 ? "critical" : "attention", priority:item.balance <= 0 ? "Crítico" : "Atenção",
+        title:"Peça abaixo do mínimo", description:`${item.code || "Peça"} · saldo ${formatQuantityForUnit(item.balance, item.unit)} ${item.unit || "UN"}`,
+        date:item.updatedAt || item.createdAt
+      }));
+
+      state.checklists.filter(item => item.status !== "Inativo").forEach(checklist => {
+        const executions = state.checklistExecutions.filter(entry => entry.checklistId === checklist.id);
+        if (executions.length) return;
+        add({
+          key:`checklist:${checklist.id}`, type:"checklist", id:checklist.id, icon:"✓", level:"info", priority:"Informação",
+          title:"Checklist pendente", description:`${checklist.name || "Checklist"} · ${machineName(checklist.assetId)}`,
+          date:checklist.updatedAt || checklist.createdAt
+        });
+      });
+
+      const failedByChecklist = new Map();
+      state.checklistExecutions.filter(item => item.result === "Não conforme" || Number(item.nonConformCount || 0) > 0).forEach(item => {
+        const current = failedByChecklist.get(item.checklistId);
+        if (!current || Number(item.executedAt || 0) > Number(current.executedAt || 0)) failedByChecklist.set(item.checklistId, item);
+      });
+      failedByChecklist.forEach(item => add({
+        key:`checklistFailure:${item.checklistId}`, type:"checklistFailure", id:item.checklistId, icon:"⚠", level:"attention", priority:"Atenção",
+        title:"Falha em checklist", description:`${item.checklistName || "Checklist"} · ${Number(item.nonConformCount || 0)} não conforme(s)`,
+        date:item.executedAt
+      }));
+
+      state.measurements.filter(item => {
+        const signal = normalizeTextKey([item.status, item.severity, item.type, item.note].filter(Boolean).join(" "));
+        return ["critica", "falha", "alarme", "perigo"].some(term => signal.includes(term));
+      }).forEach(item => add({
+        key:`measurement:${item.id}`, type:"measurement", id:item.id, icon:"⌁", level:"critical", priority:"Crítico",
+        title:"Medição crítica", description:`${measurementAssetLabel(item)} · ${formatMeasurementValue(item.value)} ${item.unit || ""}`.trim(),
+        date:item.readAt || item.createdAt
+      }));
+
+      const rank = { critical:0, attention:1, info:2, resolved:3 };
+      return [...new Map(alerts.map(item => [item.key, item])).values()]
+        .sort((a, b) => rank[a.level] - rank[b.level] || b.timestamp - a.timestamp);
+    }
+
+    function dashboardAlertHtml(alert) {
+      return `<button class="dashboard-alert-item ${alert.level}" type="button" onclick="openDashboardAlertRecord('${escapeHtml(alert.type)}','${escapeHtml(alert.id)}')"><i class="dashboard-alert-icon">${escapeHtml(alert.icon)}</i><span class="dashboard-alert-copy"><strong>${escapeHtml(alert.title)}</strong><span>${escapeHtml(alert.description)}</span></span><span class="dashboard-alert-meta"><time>${escapeHtml(dashboardAlertDateLabel(alert.date))}</time><b class="dashboard-alert-priority">${escapeHtml(alert.priority)}</b></span></button>`;
+    }
+
+    function renderDashboardAlerts() {
+      const target = $("dashboardAlertList");
+      if (!target) return;
+      const alerts = collectDashboardAlerts();
+      target.innerHTML = alerts.slice(0, 5).map(dashboardAlertHtml).join("") || `<div class="dashboard-alert-empty"><i>✓</i><span>Nenhum alerta importante no momento.</span></div>`;
+      if ($("headerNotificationCount")) $("headerNotificationCount").textContent = alerts.length.toLocaleString("pt-BR");
+    }
+
+    function openDashboardAlertsModal() {
+      const alerts = collectDashboardAlerts();
+      openModal("Alertas e Notificações", alerts.length
+        ? `<div class="dashboard-alert-modal-list">${alerts.map(dashboardAlertHtml).join("")}</div>`
+        : `<div class="dashboard-alert-empty"><i>✓</i><span>Nenhum alerta importante no momento.</span></div>`, true);
+    }
+
+    function openDashboardAlertRecord(type, id) {
+      if ($("genericModal")?.classList.contains("open")) closeModal();
+      if (type === "order") { selectedOrderId = id; setView("orders"); return; }
+      if (type === "downtime") { setView("downtime"); return; }
+      if (type === "preventive") { setView("preventivePlans"); return; }
+      if (type === "stock") { setView("spares"); setTimeout(() => openSpareLedger(id), 0); return; }
+      if (type === "checklist") { openChecklistExecution(id); return; }
+      if (type === "checklistFailure") { openChecklistHistory(id); return; }
+      if (type === "measurement") { setView("measurements"); setTimeout(() => showMeasurementDetails(id), 0); }
+    }
+
     function updateIndustrialClock() {
       const now = new Date();
       if ($("topbarTime")) $("topbarTime").textContent = now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
@@ -14244,6 +14489,7 @@
       renderIndustrialCalendar();
       renderIndustrialLatestOrders();
       renderProfessionalKpis();
+      renderDashboardAlerts();
       updateIndustrialClock();
     }
 
@@ -14273,8 +14519,8 @@
     const dashboardWidgetDefaults = [
       { id: "metrics", label: "Indicadores principais" },
       { id: "trend", label: "Tendência MTTR x MTBF" },
-      { id: "status", label: "Backlog por status" },
-      { id: "criticality", label: "Criticidade do parque" },
+      { id: "status", label: "Backlog de manutenção" },
+      { id: "criticality", label: "Saúde dos ativos" },
       { id: "ordersChart", label: "Ordens de Serviço — últimos 7 dias" },
       { id: "activeOrders", label: "O.S abertas e em execução" },
       { id: "stops", label: "TOP 10 paradas de equipamento" },
@@ -14282,6 +14528,7 @@
       { id: "agenda", label: "Agenda de manutenção" },
       { id: "parts", label: "Consumo de peças" },
       { id: "quickActions", label: "Ações rápidas" },
+      { id: "alerts", label: "Alertas e notificações" },
       { id: "latestOrders", label: "Últimas ordens de serviço" }
     ];
 
@@ -14513,98 +14760,194 @@
       showToast("Dashboard restaurado.");
     }
 
+    let dashboardBacklogView = false;
+    let dashboardCriticalAssetIds = null;
+
+    function validOperationalDate(value) {
+      if (value === null || value === undefined || value === "") return null;
+      const numeric = typeof value === "number" || /^\d+$/.test(String(value)) ? new Date(Number(value)) : new Date(value);
+      return Number.isNaN(numeric.getTime()) ? null : numeric;
+    }
+
+    function trendMonthlyData(months) {
+      const layout = loadDashboardLayout();
+      const plant = layout.filters?.plant || "Unidade Industrial 01";
+      const inPlant = item => plant === "Todas" || dashboardItemPlant(item) === plant;
+      const trendAssets = state.assets.filter(inPlant);
+      const now = new Date();
+      const completed = state.orders.filter(order => inPlant(order) && isClosedOrder(order.status)).map(order => {
+        const finished = validOperationalDate(order.finishedAt);
+        const started = validOperationalDate(order.startedAt || order.createdAt);
+        if (!finished || !started || finished < started) return null;
+        return { order, finished, duration:Math.max(0, (finished - started) / 3600000) };
+      }).filter(Boolean);
+      return Array.from({ length:months }, (_, index) => {
+        const startDate = new Date(now.getFullYear(), now.getMonth() - (months - 1 - index), 1);
+        const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 1);
+        const effectiveEnd = endDate > now ? now : endDate;
+        const rows = completed.filter(item => item.finished >= startDate && item.finished < endDate);
+        const mttr = rows.length ? rows.reduce((sum, item) => sum + item.duration, 0) / rows.length : null;
+        const periodHours = Math.max(0, (effectiveEnd - startDate) / 3600000) * trendAssets.length;
+        const mtbf = rows.length && trendAssets.length ? periodHours / rows.length : null;
+        return {
+          label:startDate.toLocaleDateString("pt-BR", { month:"short", year:"2-digit" }).replace(".", "").toUpperCase(),
+          mttr, mtbf, completed:rows.length
+        };
+      });
+    }
+
     function renderTrendChart() {
       const target = $("trendChart");
       if (!target) return;
-      const dashboardData = dashboardFilteredData();
-      const trendOrders = dashboardData.orders;
-      const trendAssets = dashboardData.assets;
-      const trendMonths = Math.max(1, Math.min(12, dashboardData.months));
-      const now = Date.now();
-      const monthLabel = date => date.toLocaleDateString("pt-BR", { month: "short" }).replace(".", "").toUpperCase();
-      const repairHours = order => {
-        const saved = Number(order.mttr || 0);
-        if (saved > 0) return saved;
-        const start = Number(order.startedAt || order.createdAt || 0);
-        const end = Number(order.finishedAt || 0);
-        return start && end && end > start ? (end - start) / 3600000 : 0;
-      };
-      const buckets = Array.from({ length: trendMonths }, (_, index) => {
-        const cursor = new Date();
-        cursor.setMonth(cursor.getMonth() - (trendMonths - 1 - index), 1);
-        cursor.setHours(0, 0, 0, 0);
-        const start = cursor.getTime();
-        const endDate = new Date(cursor);
-        endDate.setMonth(endDate.getMonth() + 1, 0);
-        endDate.setHours(23, 59, 59, 999);
-        const end = Math.min(endDate.getTime(), now);
-        const opened = trendOrders.filter(order => {
-          const date = Number(order.createdAt || 0);
-          return date >= start && date <= end && statusKey(order.status) !== "cancelada";
-        });
-        const completed = trendOrders.filter(order => {
-          const date = Number(order.finishedAt || 0);
-          return date >= start && date <= end && isClosedOrder(order.status);
-        });
-        const repairs = completed.map(repairHours).filter(value => value > 0);
-        const mttr = repairs.length ? repairs.reduce((sum, value) => sum + value, 0) / repairs.length : 0;
-        const periodHours = Math.max(0, (end - start) / 3600000) * Math.max(1, trendAssets.length);
-        const mtbf = opened.length ? periodHours / opened.length : (trendAssets.length ? periodHours : 0);
-        return { label: monthLabel(cursor), mttr, mtbf, opened: opened.length, completed: completed.length };
-      });
-      const hasData = buckets.some(item => item.opened || item.completed || item.mttr || item.mtbf);
-      if (!hasData) {
-        target.innerHTML = `<div class="empty">Sem O.S registradas para calcular MTTR e MTBF.</div>`;
+      const months = [6,12,24].includes(Number($("trendPeriodFilter")?.value)) ? Number($("trendPeriodFilter").value) : 6;
+      const buckets = trendMonthlyData(months);
+      const valid = buckets.filter(item => item.mttr !== null && item.mtbf !== null);
+      if (valid.length < 2) {
+        target.innerHTML = `<div class="trend-empty">Sem histórico suficiente para calcular MTTR e MTBF.</div>`;
         return;
       }
-      const mttrPoints = buckets.map(item => item.mttr);
-      const mtbfPoints = buckets.map(item => item.mtbf);
-      const maxMttr = Math.max(1, ...mttrPoints);
-      const maxMtbf = Math.max(1, ...mtbfPoints);
-      const x = index => 58 + index * (584 / Math.max(1, buckets.length - 1));
-      const yMttr = value => 176 - (value / maxMttr) * 118;
-      const yMtbf = value => 176 - (value / maxMtbf) * 118;
-      const poly = (arr, yFn) => arr.map((value, index) => `${x(index)},${yFn(value)}`).join(" ");
-      target.innerHTML = `
-        <svg viewBox="0 0 690 230" aria-label="Gráfico real de MTTR e MTBF">
-          <rect x="0" y="0" width="690" height="230" rx="8" fill="transparent"/>
-          <line x1="46" y1="176" x2="642" y2="176" stroke="rgba(13,47,115,.24)"/>
-          <line x1="46" y1="58" x2="46" y2="176" stroke="rgba(13,47,115,.24)"/>
-          <line x1="46" y1="117" x2="642" y2="117" stroke="rgba(13,47,115,.10)"/>
-          <polyline points="${poly(mtbfPoints, yMtbf)}" fill="none" stroke="#123f8d" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-          <polyline points="${poly(mttrPoints, yMttr)}" fill="none" stroke="#ff7a1a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-          ${buckets.map((item, index) => `
-            <circle cx="${x(index)}" cy="${yMtbf(item.mtbf)}" r="5" fill="#123f8d"/>
-            <circle cx="${x(index)}" cy="${yMttr(item.mttr)}" r="5" fill="#ff7a1a"/>
-            <text x="${x(index)}" y="${Math.max(18, yMtbf(item.mtbf) - 10)}" text-anchor="middle" fill="#123f8d" font-size="11" font-weight="900">${item.mtbf.toFixed(0)}H</text>
-            <text x="${x(index)}" y="${Math.min(207, yMttr(item.mttr) + 19)}" text-anchor="middle" fill="#ff7a1a" font-size="11" font-weight="900">${item.mttr.toFixed(1)}H</text>
-            <text x="${x(index)}" y="202" text-anchor="middle" fill="#53627a" font-size="11" font-weight="800">${item.label}</text>
-          `).join("")}
-          <text x="475" y="30" fill="#123f8d" font-size="12" font-weight="900">MTBF</text>
-          <text x="548" y="30" fill="#ff7a1a" font-size="12" font-weight="900">MTTR</text>
-          <text x="46" y="220" fill="#53627a" font-size="10">Últimos ${trendMonths} ${trendMonths === 1 ? "mês" : "meses"} | valores em horas</text>
-        </svg>`;
+      const current = valid[valid.length - 1];
+      const ranked = valid.slice().sort((a, b) => (b.mtbf / Math.max(.01, b.mttr)) - (a.mtbf / Math.max(.01, a.mttr)));
+      const best = ranked[0];
+      const worst = ranked[ranked.length - 1];
+      target.innerHTML = `<div class="trend-chart-shell"><div class="trend-chart-legend"><span><i style="background:#1d8cff"></i>MTBF</span><span><i style="background:#f97316"></i>MTTR</span></div><canvas id="maintenanceTrendCanvas" role="img" aria-label="Tendência mensal de MTBF e MTTR"></canvas><div class="trend-chart-tooltip" id="maintenanceTrendTooltip"></div></div><div class="trend-summary"><div><span>MTBF atual</span><strong>${current.mtbf.toLocaleString("pt-BR", { maximumFractionDigits:1 })}h</strong></div><div><span>MTTR atual</span><strong>${current.mttr.toLocaleString("pt-BR", { maximumFractionDigits:1 })}h</strong></div><div><span>Melhor resultado</span><strong title="${best.label}">${best.label} · ${best.mtbf.toLocaleString("pt-BR", { maximumFractionDigits:1 })}h</strong></div><div><span>Pior resultado</span><strong title="${worst.label}">${worst.label} · ${worst.mtbf.toLocaleString("pt-BR", { maximumFractionDigits:1 })}h</strong></div></div>`;
+      drawMaintenanceTrendCanvas(buckets);
+    }
+
+    function drawMaintenanceTrendCanvas(buckets) {
+      const canvas = $("maintenanceTrendCanvas");
+      const tooltip = $("maintenanceTrendTooltip");
+      if (!canvas || !tooltip) return;
+      const rect = canvas.getBoundingClientRect();
+      const width = Math.max(320, Math.round(rect.width || 680));
+      const height = Math.max(190, Math.round(rect.height || 232));
+      const ratio = Math.min(2, window.devicePixelRatio || 1);
+      canvas.width = width * ratio; canvas.height = height * ratio;
+      const ctx = canvas.getContext("2d"); ctx.scale(ratio, ratio);
+      const pad = { left:42, right:42, top:34, bottom:28 };
+      const plotWidth = width - pad.left - pad.right;
+      const plotHeight = height - pad.top - pad.bottom;
+      const mtbfValues = buckets.map(item => item.mtbf).filter(value => value !== null);
+      const mttrValues = buckets.map(item => item.mttr).filter(value => value !== null);
+      const mtbfMax = Math.max(1, ...mtbfValues);
+      const mttrMax = Math.max(1, ...mttrValues);
+      const x = index => pad.left + index * plotWidth / Math.max(1, buckets.length - 1);
+      const y = (value, max) => pad.top + plotHeight - (value / max) * plotHeight;
+      ctx.clearRect(0,0,width,height);
+      ctx.font = "8px Arial"; ctx.textBaseline = "middle";
+      for (let line = 0; line <= 4; line += 1) {
+        const lineY = pad.top + plotHeight * line / 4;
+        ctx.beginPath(); ctx.moveTo(pad.left,lineY); ctx.lineTo(width-pad.right,lineY);
+        ctx.strokeStyle = "rgba(51,65,85,.35)"; ctx.lineWidth = 1; ctx.stroke();
+        ctx.fillStyle = "#64748b"; ctx.textAlign = "right"; ctx.fillText(`${(mtbfMax * (4-line) / 4).toFixed(0)}h`, pad.left-6, lineY);
+        ctx.fillStyle = "#9a684c"; ctx.textAlign = "left"; ctx.fillText(`${(mttrMax * (4-line) / 4).toFixed(1)}h`, width-pad.right+6, lineY);
+      }
+      const labelStep = Math.max(1, Math.ceil(buckets.length / 6));
+      buckets.forEach((item,index) => {
+        if (index % labelStep !== 0 && index !== buckets.length - 1) return;
+        ctx.fillStyle="#71849c"; ctx.textAlign="center"; ctx.fillText(item.label,x(index),height-12);
+      });
+      const drawSeries = (key,max,color) => {
+        let drawing = false;
+        ctx.beginPath();
+        buckets.forEach((item,index) => {
+          const value = item[key];
+          if (value === null) { drawing=false; return; }
+          const pointX=x(index), pointY=y(value,max);
+          if (!drawing) { ctx.moveTo(pointX,pointY); drawing=true; } else ctx.lineTo(pointX,pointY);
+        });
+        ctx.strokeStyle=color; ctx.lineWidth=2; ctx.lineJoin="round"; ctx.lineCap="round"; ctx.stroke();
+        buckets.forEach((item,index) => {
+          const value=item[key]; if (value===null) return;
+          ctx.beginPath(); ctx.arc(x(index),y(value,max),2.7,0,Math.PI*2); ctx.fillStyle="#0b1929"; ctx.fill(); ctx.lineWidth=1.5; ctx.strokeStyle=color; ctx.stroke();
+        });
+      };
+      drawSeries("mtbf",mtbfMax,"#1d8cff");
+      drawSeries("mttr",mttrMax,"#f97316");
+      const showTooltip = event => {
+        const bounds=canvas.getBoundingClientRect();
+        const localX=Math.max(0,Math.min(bounds.width,event.clientX-bounds.left));
+        const index=Math.max(0,Math.min(buckets.length-1,Math.round((localX/bounds.width)*(buckets.length-1))));
+        const item=buckets[index];
+        tooltip.innerHTML=`<strong>${item.label}</strong><span style="color:#63b3ff">MTBF: ${item.mtbf === null ? "Sem dados" : `${item.mtbf.toLocaleString("pt-BR", { maximumFractionDigits:1 })}h`}</span><br><span style="color:#fb923c">MTTR: ${item.mttr === null ? "Sem dados" : `${item.mttr.toLocaleString("pt-BR", { maximumFractionDigits:1 })}h`}</span><br>${item.completed} O.S. concluída(s)`;
+        tooltip.style.left=`${x(index)/width*100}%`; tooltip.style.top=`${Math.min(y(item.mtbf ?? 0,mtbfMax),y(item.mttr ?? 0,mttrMax))}px`; tooltip.classList.add("visible");
+      };
+      canvas.addEventListener("pointermove",showTooltip);
+      canvas.addEventListener("pointerdown",showTooltip);
+      canvas.addEventListener("pointerleave",()=>tooltip.classList.remove("visible"));
+    }
+
+    function backlogStatusKey(order) {
+      const key = normalizeTextKey(order.status);
+      if (isClosedOrder(order.status)) return "completed";
+      if (key.includes("aguard") && key.includes("material")) return "material";
+      if (key.includes("aguard") && (key.includes("aprov") || key.includes("autor"))) return "approval";
+      if (isRunningOrder(order.status) || key.includes("andamento")) return "running";
+      if (key.includes("planej") || key.includes("program")) return "planned";
+      return "open";
     }
 
     function renderStatusBars() {
-      const dashboardOrders = dashboardFilteredData().orders;
-      const statuses = [{ label: "Aberta", match: "aberta" }, { label: "Em execução", match: "em exec" }, { label: "Planejada", match: "planejada" }, { label: "Concluída", match: "conclu" }];
-      const countFor = status => dashboardOrders.filter(order => statusKey(order.status).startsWith(status.match)).length;
-      const max = Math.max(1, ...statuses.map(countFor));
-      $("statusBars").innerHTML = statuses.map(status => {
-        const count = countFor(status);
-        return `<div class="bar-row"><strong>${status.label}</strong><div class="bar-track"><div class="bar" style="width:${(count / max) * 100}%"></div></div><span>${count}</span></div>`;
-      }).join("");
+      const target = $("statusBars"); if (!target) return;
+      const orders = dashboardFilteredData().orders;
+      const definitions = [
+        { key:"open", label:"Aberta", color:"#1d8cff" }, { key:"running", label:"Em execução", color:"#f97316" },
+        { key:"planned", label:"Planejada", color:"#38bdf8" }, { key:"material", label:"Aguardando material", color:"#facc15" },
+        { key:"approval", label:"Aguardando aprovação", color:"#a78bfa" }, { key:"completed", label:"Concluída no período", color:"#22c55e" }
+      ];
+      const total = orders.length;
+      const counts = Object.fromEntries(definitions.map(item => [item.key, orders.filter(order => backlogStatusKey(order) === item.key).length]));
+      const backlog = definitions.filter(item => item.key !== "completed").reduce((sum,item) => sum + counts[item.key],0);
+      target.innerHTML = definitions.map(item => {
+        const count=counts[item.key]; const percent=total ? count/total*100 : 0;
+        return `<div class="maintenance-backlog-row"><span>${item.label}</span><strong>${count.toLocaleString("pt-BR")}</strong><small>${percent.toLocaleString("pt-BR", { maximumFractionDigits:0 })}%</small><div class="maintenance-backlog-track"><i style="--backlog-width:${percent}%;--backlog-color:${item.color}"></i></div></div>`;
+      }).join("") + `<div class="maintenance-backlog-footer"><span>Total no backlog <strong>${backlog.toLocaleString("pt-BR")}</strong></span><button class="chart-link-button" type="button" onclick="openMaintenanceBacklog()">Ver backlog completo</button></div>`;
+    }
+
+    function assetHealthCategory(asset) {
+      const status = normalizeTextKey(asset.status);
+      const activeStop = state.downtimes.some(item => item.assetId === asset.id && item.status === "Ativa");
+      const openOrders = state.orders.filter(order => order.assetId === asset.id && !isClosedOrder(order.status)).length;
+      const overduePlans = state.preventivePlans.filter(plan => plan.assetId === asset.id && preventivePlanSituation(plan) === "Vencido").length;
+      const criticalMeasurement = state.measurements.some(item => item.assetId === asset.id && ["critica","falha","alarme","perigo"].some(term => normalizeTextKey([item.status,item.severity,item.type,item.note].filter(Boolean).join(" ")).includes(term)));
+      let score = 100;
+      if (status.includes("parad")) score -= 45; else if (status.includes("manuten")) score -= 22; else if (status.includes("inativ")) score -= 30;
+      if (normalizeTextKey(asset.criticality).includes("alta")) score -= 15; else if (normalizeTextKey(asset.criticality).includes("media")) score -= 7;
+      score -= Math.min(20, openOrders * 5);
+      if (activeStop) score -= 35;
+      score -= Math.min(20, overduePlans * 10);
+      if (criticalMeasurement) score -= 20;
+      if (score >= 85) return { key:"excellent", label:"Excelente", color:"#22c55e" };
+      if (score >= 65) return { key:"good", label:"Bom", color:"#1d8cff" };
+      if (score >= 40) return { key:"regular", label:"Regular", color:"#facc15" };
+      return { key:"critical", label:"Crítico", color:"#ef4444" };
     }
 
     function renderCriticalityBars() {
-      const dashboardAssets = dashboardFilteredData().assets;
-      const items = ["Alta", "Média", "Baixa"];
-      const max = Math.max(1, ...items.map(item => dashboardAssets.filter(asset => asset.criticality === item).length));
-      $("criticalityBars").innerHTML = items.map(item => {
-        const count = dashboardAssets.filter(asset => asset.criticality === item).length;
-        return `<div class="bar-row"><strong>${item}</strong><div class="bar-track"><div class="bar" style="width:${(count / max) * 100}%"></div></div><span>${count}</span></div>`;
-      }).join("");
+      const target = $("criticalityBars"); if (!target) return;
+      const assets = dashboardFilteredData().assets;
+      const definitions = [
+        { key:"excellent", label:"Excelente", color:"#22c55e" }, { key:"good", label:"Bom", color:"#1d8cff" },
+        { key:"regular", label:"Regular", color:"#facc15" }, { key:"critical", label:"Crítico", color:"#ef4444" }
+      ];
+      const classified = assets.map(asset => ({ asset, health:assetHealthCategory(asset) }));
+      const counts = Object.fromEntries(definitions.map(item => [item.key, classified.filter(entry => entry.health.key === item.key).length]));
+      const total = assets.length;
+      const gradient = total ? industrialDonutGradient(definitions.map(item => counts[item.key]), definitions.map(item => item.color)) : "conic-gradient(#334155 0 100%)";
+      target.innerHTML = `<div class="asset-health-main"><div class="asset-health-donut" style="--health-donut:${gradient}"><div><strong>${total.toLocaleString("pt-BR")}</strong><span>equipamentos</span></div></div><div class="asset-health-legend">${definitions.map(item => { const count=counts[item.key]; const percent=total ? count/total*100 : 0; return `<div class="asset-health-legend-row" style="--health-color:${item.color}"><i></i><span>${item.label}</span><strong>${count}</strong><small>${percent.toLocaleString("pt-BR", { maximumFractionDigits:0 })}%</small></div>`; }).join("")}</div></div><div class="asset-health-footer"><button class="chart-link-button" type="button" onclick="openCriticalAssets()">Ver ativos críticos</button></div>`;
+    }
+
+    function openMaintenanceBacklog() {
+      dashboardBacklogView = true;
+      ["osPeriodStart","osPeriodEnd","osStatusFilter","osPriorityFilter","osAssetFilter","osExecutorFilter"].forEach(id => { if ($(id)) $(id).value=""; });
+      if ($("globalSearch")) $("globalSearch").value="";
+      setView("orders", { dashboardFilter:"backlog" });
+    }
+
+    function openCriticalAssets() {
+      dashboardCriticalAssetIds = new Set(state.assets.filter(asset => assetHealthCategory(asset).key === "critical").map(asset => asset.id));
+      if ($("globalSearch")) $("globalSearch").value="";
+      setView("assets", { dashboardFilter:"critical" });
     }
 
     function orderStatusCounts() {
@@ -17861,6 +18204,7 @@
         const created = Number(order.createdAt || 0);
         const matchesGlobal = filter(`${order.number || ""} ${machineName(order.assetId)} ${ptBrText(order.type)} ${ptBrText(order.priority)} ${ptBrText(order.status)} ${order.executor || ""} ${order.requester || ""} ${order.description || ""}`);
         return matchesGlobal
+          && (!dashboardBacklogView || !isClosedOrder(order.status))
           && (!status || order.status === status)
           && (!priority || order.priority === priority)
           && (!assetId || order.assetId === assetId)
@@ -17988,7 +18332,7 @@
       const q = $("globalSearch").value.toLowerCase();
       const filter = text => !q || text.toLowerCase().includes(q);
 
-      $("assetRows").innerHTML = state.assets.filter(asset => filter(`${asset.code} ${asset.name} ${locationName(asset.locationId)}`)).map(asset => `
+      $("assetRows").innerHTML = state.assets.filter(asset => (!dashboardCriticalAssetIds || dashboardCriticalAssetIds.has(asset.id)) && filter(`${asset.code} ${asset.name} ${locationName(asset.locationId)} ${asset.criticality || ""} ${asset.status || ""}`)).map(asset => `
         <tr><td>${asset.code}</td><td>${asset.name}</td><td>${locationName(asset.locationId)}</td><td>${tag(asset.criticality)}</td><td>${tag(asset.status)}</td><td class="actions"><button class="btn" onclick="duplicateAsset('${asset.id}')">Copiar</button><button class="btn" onclick="editAsset('${asset.id}')">Editar</button><button class="btn danger" onclick="deleteAsset('${asset.id}')">Excluir</button></td></tr>
       `).join("") || `<tr><td colspan="6" class="empty">Nenhum equipamento criado.</td></tr>`;
 
@@ -20885,7 +21229,7 @@
     }));
     if ($("loadDemoDataBtn")) $("loadDemoDataBtn").addEventListener("click", loadDemoData);
     if ($("removeDemoDataBtn")) $("removeDemoDataBtn").addEventListener("click", removeDemoData);
-    $("globalSearch").addEventListener("input", render);
+    $("globalSearch").addEventListener("input", () => { dashboardCriticalAssetIds = null; render(); });
     $("topbarMenuBtn").addEventListener("click", () => setNavCollapsed(!document.body.classList.contains("sidebar-collapsed")));
     window.addEventListener("keydown", event => {
       const target = event.target;
