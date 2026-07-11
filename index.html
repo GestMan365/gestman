@@ -9152,6 +9152,62 @@
       .os-create-actions { position:sticky; bottom:0; padding:9px 0; background:#0f1b2b; }
       .os-create-actions .btn { flex:1; min-height:44px !important; }
     }
+
+    /* Etapa 5 — experiência operacional mobile */
+    .mobile-bottom-nav,.mobile-technician-home,.mobile-os-filters,.mobile-execution-shortcuts { display:none; }
+    @media (max-width:600px) {
+      html,body { max-width:100%; overflow-x:hidden !important; }
+      body:not(.panel-mode) .workspace { padding:8px 8px calc(82px + env(safe-area-inset-bottom)) !important; }
+      .mobile-bottom-nav { position:fixed; left:0; right:0; bottom:0; z-index:120; min-height:66px; padding:5px 4px calc(5px + env(safe-area-inset-bottom)); display:grid; grid-template-columns:repeat(5,1fr); background:rgba(6,16,29,.97); border-top:1px solid #1f334a; backdrop-filter:blur(14px); }
+      .mobile-bottom-nav button { min-width:0 !important; min-height:54px !important; padding:5px 2px !important; display:grid !important; place-items:center !important; gap:2px !important; color:#8293aa !important; background:transparent !important; border:0 !important; border-radius:8px !important; box-shadow:none !important; font-size:10px !important; }
+      .mobile-bottom-nav button i { font-size:18px; font-style:normal; line-height:1; }
+      .mobile-bottom-nav button span { font-size:9px; white-space:nowrap; }
+      .mobile-bottom-nav button.active { color:#63b3ff !important; background:rgba(29,140,255,.12) !important; }
+      #dashboard .industrial-dashboard-shell { display:none !important; }
+      .mobile-technician-home { display:grid; gap:12px; }
+      .mobile-tech-greeting { padding:14px; display:grid; gap:4px; background:linear-gradient(145deg,#0f1b2b,#0a1726); border:1px solid #1f334a; border-radius:12px; }
+      .mobile-tech-greeting span { color:#f8fafc; font-size:18px; }
+      .mobile-tech-greeting small { color:#94a3b8; font-size:11px; }
+      .mobile-tech-summary { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+      .mobile-tech-summary article { min-height:78px; padding:11px; display:grid; gap:4px; background:#0f1b2b; border:1px solid #1f334a; border-radius:10px; }
+      .mobile-tech-summary strong { color:#f8fafc; font-size:22px; }
+      .mobile-tech-summary span { color:#94a3b8; font-size:10px; }
+      .mobile-tech-section { padding:12px; background:#0f1b2b; border:1px solid #1f334a; border-radius:11px; }
+      .mobile-tech-section h2 { margin:0 0 10px; color:#f8fafc; font-size:13px; }
+      .mobile-tech-section-head { display:flex; align-items:center; justify-content:space-between; }
+      .mobile-tech-section-head button { min-height:32px !important; padding:5px 8px !important; color:#63b3ff !important; background:transparent !important; border:0 !important; box-shadow:none !important; font-size:9px !important; }
+      .mobile-tech-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+      .mobile-tech-actions button { min-height:76px !important; padding:10px !important; display:grid !important; grid-template-columns:30px 1fr !important; align-items:center !important; gap:8px !important; color:#dbeafe !important; background:#0b1929 !important; border:1px solid #1f334a !important; border-radius:9px !important; box-shadow:none !important; text-align:left !important; font-size:10px !important; }
+      .mobile-tech-actions i { color:#1d8cff; font-size:18px; font-style:normal; }
+      .mobile-tech-priorities { display:grid; gap:7px; }
+      .mobile-tech-priority { padding:10px; display:grid; grid-template-columns:1fr auto; gap:4px; color:#dbeafe; background:#0b1929; border:1px solid #1f334a; border-left:3px solid var(--priority-color,#1d8cff); border-radius:8px; text-align:left; }
+      .mobile-tech-priority strong { font-size:10px; }
+      .mobile-tech-priority small { color:#94a3b8; font-size:9px; }
+      .mobile-os-filters { margin:0 -2px 9px; padding:2px; gap:6px; overflow-x:auto; scrollbar-width:none; }
+      .mobile-os-filters button { min-height:36px !important; padding:7px 10px !important; flex:0 0 auto; color:#94a3b8 !important; background:#0b1929 !important; border:1px solid #1f334a !important; border-radius:999px !important; box-shadow:none !important; font-size:9px !important; white-space:nowrap; }
+      .mobile-os-filters button.active { color:#fff !important; background:#1769d2 !important; border-color:#1d8cff !important; }
+      #orders .os-filter-panel,#orders .os-metric-grid,#orders #osFilterToggle,#orders #osExportBtn { display:none !important; }
+      .os-mobile-card { min-height:132px; padding:12px !important; grid-template-columns:minmax(0,1fr) auto !important; align-items:start; }
+      .os-mobile-card .mobile-order-description { grid-column:1/-1; color:#dbeafe; font-size:10px; line-height:1.35; }
+      .os-mobile-card .mobile-order-action { grid-column:1/-1; min-height:42px !important; margin-top:4px; color:#fff !important; background:#1769d2 !important; border:0 !important; border-radius:7px !important; font-size:10px !important; font-weight:800 !important; }
+      #orders .os-detail-panel { inset:0 0 calc(66px + env(safe-area-inset-bottom)); z-index:115; padding-bottom:0; background:#07111f; }
+      #orders .os-detail-head { padding-top:18px; }
+      #orders .os-detail-tabs { position:sticky; top:0; z-index:3; background:#0f1b2b; }
+      #orders .os-detail-actions { position:sticky; bottom:0; z-index:4; padding:10px; background:#07111f; }
+      #orders .os-detail-actions .btn { display:none !important; }
+      #orders .os-detail-actions .mobile-primary,#orders .os-detail-actions .mobile-close { display:block !important; min-height:48px !important; }
+      #orders .os-detail-actions .mobile-primary { flex:1 1 100%; }
+      .mobile-execution-shortcuts { padding:9px 12px; grid-template-columns:repeat(3,1fr); gap:6px; border-bottom:1px solid #1f334a; }
+      .mobile-execution-shortcuts button { min-height:54px !important; padding:6px 3px !important; color:#9fcaff !important; background:#0b1929 !important; border:1px solid #1f334a !important; border-radius:7px !important; box-shadow:none !important; font-size:8px !important; }
+      .modal-backdrop.open .modal { width:100% !important; max-width:none !important; max-height:92vh !important; margin-top:auto; border-radius:14px 14px 0 0 !important; }
+      .modal .field,input,select,textarea { font-size:16px !important; }
+      .mobile-check-progress { height:7px; overflow:hidden; background:#1f334a; border-radius:99px; }
+      .mobile-check-progress i { height:100%; display:block; width:var(--check-progress); background:#22c55e; transition:width .2s ease; }
+      .mobile-check-item { padding:12px; display:grid; gap:10px; background:#0b1929; border:1px solid #1f334a; border-radius:9px; }
+      .mobile-check-item.nonconform { border-color:#ef4444; background:rgba(239,68,68,.08); }
+      .mobile-check-options { display:grid; grid-template-columns:repeat(2,1fr); gap:7px; }
+      .mobile-check-options label { min-height:46px; padding:8px; display:flex; align-items:center; justify-content:center; gap:5px; background:#101f31; border:1px solid #1f334a; border-radius:7px; font-size:10px; }
+    }
 </style>
 </head>
 <body class="auth-loading">
@@ -9300,6 +9356,12 @@
   </nav>
   <main class="workspace">
     <section class="view active" id="dashboard">
+      <div class="mobile-technician-home" id="mobileTechnicianHome">
+        <div class="mobile-tech-greeting"><span>Olá, <strong id="mobileTechName">Técnico</strong></span><small>Estas são suas prioridades de hoje.</small></div>
+        <div class="mobile-tech-summary" id="mobileTechSummary"></div>
+        <div class="mobile-tech-section"><h2>Ações rápidas</h2><div class="mobile-tech-actions"><button type="button" onclick="openOrderModal()"><i>＋</i><span>Nova O.S.</span></button><button type="button" onclick="openQuickChecklist()"><i>✓</i><span>Checklist</span></button><button type="button" onclick="openMobileDowntimeModal()"><i>◷</i><span>Registrar parada</span></button><button type="button" onclick="setView('assets')"><i>⚙</i><span>Consultar ativo</span></button></div></div>
+        <div class="mobile-tech-section"><div class="mobile-tech-section-head"><h2>Precisa de atenção</h2><button type="button" onclick="openMobileMyOrders()">Ver minhas O.S.</button></div><div class="mobile-tech-priorities" id="mobileTechPriorities"></div></div>
+      </div>
       <div class="industrial-dashboard-shell">
         <div class="industrial-dashboard-heading">
           <div><span>GESTÃO DE MANUTENÇÃO INDUSTRIAL</span><h1>Dashboard Operacional</h1><p>Monitoramento em tempo real de ativos, manutenção, paradas e materiais.</p></div>
@@ -9992,7 +10054,8 @@
           </div>
         </div>
 
-        <div class="os-search-row"><label><span>⌕</span><input class="field" id="osSearch" placeholder="Buscar por número, descrição, equipamento ou responsável" oninput="resetOrderPage();render()"></label></div>
+        <div class="os-search-row"><label><span>⌕</span><input class="field" id="osSearch" placeholder="Buscar por número, equipamento ou descrição" oninput="resetOrderPage();render()"></label></div>
+        <div class="mobile-os-filters" id="mobileOsFilters"><button class="active" type="button" onclick="setMobileOrderFilter('all',this)">Todas</button><button type="button" onclick="setMobileOrderFilter('open',this)">Abertas</button><button type="button" onclick="setMobileOrderFilter('running',this)">Em execução</button><button type="button" onclick="setMobileOrderFilter('paused',this)">Pausadas</button><button type="button" onclick="setMobileOrderFilter('late',this)">Atrasadas</button><button type="button" onclick="setMobileOrderFilter('closed',this)">Concluídas</button></div>
         <div class="os-filter-panel" id="osFilterPanel">
           <label>Status <select class="field" id="osStatusFilter" onchange="render()"><option value="">Todos</option></select></label>
           <label>Prioridade <select class="field" id="osPriorityFilter" onchange="render()"><option value="">Todas</option></select></label>
@@ -10122,6 +10185,14 @@
       </div>
     </section>
 </main>
+
+  <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Navegação do técnico">
+    <button class="active" type="button" data-mobile-view="dashboard" onclick="setView('dashboard')"><i>⌂</i><span>Início</span></button>
+    <button type="button" data-mobile-view="orders" onclick="openMobileMyOrders()"><i>▣</i><span>Minhas O.S.</span></button>
+    <button type="button" data-mobile-view="checklists" onclick="setView('checklists')"><i>✓</i><span>Checklist</span></button>
+    <button type="button" data-mobile-view="assets" onclick="setView('assets')"><i>⚙</i><span>Ativos</span></button>
+    <button type="button" onclick="openMobileMoreMenu()"><i>•••</i><span>Mais</span></button>
+  </nav>
 
   <div class="context-menu" id="machineMenu">
     <button class="menu-item" data-machine-action="checklists"><span><svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M7 12l3 3 7-7"/></svg></span><span>CHECKLISTS</span></button>
@@ -13617,6 +13688,7 @@
       }
       if (nextView !== "orders" || options.dashboardFilter !== "backlog") dashboardBacklogView = false;
       if (nextView !== "assets" || options.dashboardFilter !== "critical") dashboardCriticalAssetIds = null;
+      if (nextView !== "orders" || options.mobileOrders !== true) mobileMyOrdersOnly = false;
       if (options.persist !== false) scopedSetItem(ACTIVE_VIEW_KEY, nextView, "user");
       if (nextView !== "activeOrders" && document.body.classList.contains("panel-mode")) {
         document.body.classList.remove("panel-mode");
@@ -13637,6 +13709,7 @@
       applyPermissionVisibility();
       if (nextView === "calendar") renderCalendar();
       render();
+      updateMobileBottomNav(nextView);
     }
 
     function isPanelMode() {
@@ -18268,6 +18341,8 @@
         const localText = normalizeTextKey(`${order.number || ""} ${order.description || ""} ${machineName(order.assetId)} ${order.executor || ""}`);
         return matchesGlobal
           && (!localSearch || localText.includes(localSearch))
+          && (!isMobileOperational() || !mobileMyOrdersOnly || normalizeTextKey(order.executor).includes(normalizeTextKey(currentTechnicianName())))
+          && (!isMobileOperational() || mobileOrderFilter === "all" || (mobileOrderFilter === "open" && normalizeTextKey(order.status).includes("abert")) || (mobileOrderFilter === "running" && isRunningOrder(order.status)) || (mobileOrderFilter === "paused" && normalizeTextKey(order.status).includes("paus")) || (mobileOrderFilter === "late" && orderIsLate(order)) || (mobileOrderFilter === "closed" && isClosedOrder(order.status)))
           && (!dashboardBacklogView || !isClosedOrder(order.status))
           && (!status || order.status === status)
           && (!priority || order.priority === priority)
@@ -18353,6 +18428,7 @@
             <div class="wide"><span>Descrição</span><strong>${escapeHtml(order.description || "Sem descrição")}</strong></div>
           </div>
         </div>
+        <div class="mobile-execution-shortcuts"><button type="button" onclick="addOrderObservation('${order.id}')">Observação</button><button type="button" onclick="openMobileOrderAttachment('${order.id}',true)">Foto</button><button type="button" onclick="openMobileOrderAttachment('${order.id}',false)">Documento</button><button type="button" onclick="setView('measurements');openCrudFormForCreate('measurementForm')">Medição</button><button type="button" onclick="openMobilePartUsed('${order.id}')">Peça utilizada</button><button type="button" onclick="setOrderDetailTab('checklist')">Checklist</button></div>
         <div class="os-detail-tabs">
           ${[["general","Geral"],["checklist","Checklist"],["parts","Peças"],["notes","Apontamentos"],["history","Histórico"],["attachments","Anexos"]].map(([key,label]) => `<button class="${selectedOrderDetailTab === key ? "active" : ""}" type="button" onclick="setOrderDetailTab('${key}')">${label}</button>`).join("")}
         </div>
@@ -18383,7 +18459,7 @@
           <td><button class="os-row-menu" type="button" onclick="event.stopPropagation();showOrderActions('${order.id}')" aria-label="Ações da O.S">⋮</button></td>
         </tr>`;
       }).join("") || `<tr><td colspan="8" class="empty">Nenhuma O.S encontrada com os filtros selecionados.</td></tr>`;
-      if ($("osMobileCards")) $("osMobileCards").innerHTML = visibleOrders.map(order => `<button class="os-mobile-card" type="button" onclick="selectOrder('${order.id}')"><strong>${escapeHtml(order.number || "O.S")}</strong>${orderStatusChip(order)}<span>${escapeHtml(machineName(order.assetId))}</span>${orderPriorityChip(order.priority)}<small>Prazo: ${escapeHtml(order.scheduledAt ? formatPlanDate(String(order.scheduledAt).slice(0,10)) : "Não definido")}</small><span>›</span></button>`).join("") || `<div class="empty">Nenhuma O.S encontrada.</div>`;
+      if ($("osMobileCards")) $("osMobileCards").innerHTML = visibleOrders.map(order => { const main=mobileOrderMainAction(order); return `<article class="os-mobile-card" onclick="selectOrder('${order.id}')"><strong>${escapeHtml(order.number || "O.S")}</strong>${orderStatusChip(order)}<span class="mobile-order-description">${escapeHtml(orderTitle(order))}</span><span>${escapeHtml(machineName(order.assetId))}</span>${orderPriorityChip(order.priority)}<small>Prazo: ${escapeHtml(order.scheduledAt ? formatPlanDate(String(order.scheduledAt).slice(0,10)) : "Não definido")} · ${escapeHtml(order.executor||"Sem responsável")}</small><span>›</span><button class="mobile-order-action" type="button" onclick="event.stopPropagation();${main.action}">${main.label}</button></article>`; }).join("") || `<div class="empty">Nenhuma O.S encontrada.</div>`;
       if ($("osPaginationText")) $("osPaginationText").textContent = `${orders.length ? `${startIndex+1} - ${Math.min(startIndex+OS_PAGE_SIZE,orders.length)} de ` : ""}${orders.length} itens`;
       if ($("osPaginationButtons")) $("osPaginationButtons").innerHTML = `<button type="button" onclick="changeOrderPage(${osCurrentPage-1})" ${osCurrentPage===1?"disabled":""}>‹</button>${Array.from({length:pages},(_,i)=>i+1).slice(Math.max(0,osCurrentPage-3),Math.max(5,osCurrentPage+2)).map(page=>`<button type="button" class="${page===osCurrentPage?"active":""}" onclick="changeOrderPage(${page})">${page}</button>`).join("")}<button type="button" onclick="changeOrderPage(${osCurrentPage+1})" ${osCurrentPage===pages?"disabled":""}>›</button>`;
       renderOrderDetail(byId(state.orders, selectedOrderId));
@@ -18416,13 +18492,15 @@
       const closed = isClosedOrder(order.status) || key.includes("cancel");
       const paused = key.includes("paus");
       const running = isRunningOrder(order.status);
-      return `${!closed && !running && !paused ? `<button class="btn primary" type="button" onclick="confirmStartOrder('${order.id}')">Iniciar</button>` : ""}${running ? `<button class="btn" type="button" onclick="changeOrderOperationalStatus('${order.id}','Pausada')">Pausar</button><button class="btn primary" type="button" onclick="finishOrder('${order.id}')">Concluir</button>` : ""}${paused ? `<button class="btn primary" type="button" onclick="changeOrderOperationalStatus('${order.id}','Em execucao')">Retomar</button>` : ""}${!closed ? `<button class="btn" type="button" onclick="editOrder('${order.id}')">Editar</button><button class="btn danger" type="button" onclick="cancelOrder('${order.id}')">Cancelar</button>` : `<span class="muted">O.S encerrada — disponível somente para consulta.</span>`}<button class="btn" type="button" onclick="selectedOrderId=null;render()">Fechar</button>`;
+      return `${!closed && !running && !paused ? `<button class="btn primary mobile-primary" type="button" onclick="confirmStartOrder('${order.id}')">Iniciar serviço</button>` : ""}${running ? `<button class="btn mobile-primary" type="button" onclick="changeOrderOperationalStatus('${order.id}','Pausada')">Pausar</button><button class="btn primary mobile-primary" type="button" onclick="finishOrder('${order.id}')">Concluir</button>` : ""}${paused ? `<button class="btn primary mobile-primary" type="button" onclick="changeOrderOperationalStatus('${order.id}','Em execucao')">Retomar</button>` : ""}${!closed ? `<button class="btn" type="button" onclick="editOrder('${order.id}')">Editar</button><button class="btn danger" type="button" onclick="cancelOrder('${order.id}')">Cancelar</button>` : `<span class="muted">O.S encerrada — disponível somente para consulta.</span>`}<button class="btn mobile-close" type="button" onclick="selectedOrderId=null;render()">Fechar</button>`;
     }
 
+    const mobileOrderActionLocks = new Set();
     async function changeOrderOperationalStatus(id, status) {
-      const order = byId(state.orders,id); if(!order || isClosedOrder(order.status)) return;
+      if(mobileOrderActionLocks.has(id))return;
+      const order = byId(state.orders,id); if(!order || isClosedOrder(order.status)) return;mobileOrderActionLocks.add(id);
       const updated={...order,status,startedAt:status==="Em execucao"?(order.startedAt||Date.now()):order.startedAt};
-      state.orders=state.orders.map(item=>item.id===id?updated:item); saveState(); await saveOrderSupabaseNow(updated); render(); showToast(`O.S ${ptBrText(status).toLowerCase()}.`);
+      state.orders=state.orders.map(item=>item.id===id?updated:item); saveState(); await saveOrderSupabaseNow(updated); render(); showToast(`O.S ${ptBrText(status).toLowerCase()}.`);setTimeout(()=>mobileOrderActionLocks.delete(id),800);
     }
 
     async function cancelOrder(id) {
@@ -18624,6 +18702,55 @@
       target.innerHTML = Array.from(calendars.entries()).map(([name, count]) => `<tr><td><strong>${escapeHtml(name)}</strong></td><td>${count}</td><td>Planejamento de equipes e O.S.</td><td>${tag("Ativo")}</td></tr>`).join("");
     }
 
+    function isMobileOperational() { return window.matchMedia("(max-width: 600px)").matches; }
+    let mobileMyOrdersOnly = false;
+    let mobileOrderFilter = "all";
+
+    function currentTechnicianName() { return currentAccount?.user?.name || state.profile?.name || "Técnico"; }
+    function updateMobileBottomNav(view) { document.querySelectorAll("[data-mobile-view]").forEach(button=>button.classList.toggle("active",button.dataset.mobileView===view)); }
+    function openMobileMyOrders() { mobileMyOrdersOnly=true; mobileOrderFilter="all"; if($("osSearch"))$("osSearch").value=""; setView("orders",{mobileOrders:true}); }
+    function openMobileMoreMenu() { setNavCollapsed(false); document.body.classList.remove("sidebar-collapsed"); }
+    function setMobileOrderFilter(filter,button) { mobileOrderFilter=filter; osCurrentPage=1; document.querySelectorAll("#mobileOsFilters button").forEach(item=>item.classList.toggle("active",item===button)); render(); }
+
+    function renderMobileTechnicianHome() {
+      if(!$("mobileTechSummary"))return;
+      const name=currentTechnicianName(); if($("mobileTechName"))$("mobileTechName").textContent=name.split(" ")[0];
+      const mine=state.orders.filter(order=>normalizeTextKey(order.executor).includes(normalizeTextKey(name))&&!isClosedOrder(order.status));
+      const running=mine.filter(order=>isRunningOrder(order.status));
+      const pendingChecks=state.checklists.filter(check=>check.status!=="Inativo"&&!state.checklistExecutions.some(ex=>ex.checklistId===check.id)).length;
+      const lateTasks=state.pendingActions.filter(item=>pendingActionDeadlineStatus(item)==="Atrasada").length;
+      $("mobileTechSummary").innerHTML=[[mine.length,"O.S. atribuídas","#1d8cff"],[running.length,"Em execução","#f97316"],[pendingChecks,"Checklists pendentes","#facc15"],[lateTasks,"Tarefas atrasadas","#ef4444"]].map(item=>`<article style="border-left:3px solid ${item[2]}"><strong>${item[0]}</strong><span>${item[1]}</span></article>`).join("");
+      const priorities=mine.slice().sort((a,b)=>Number(orderIsLate(b))-Number(orderIsLate(a))||Number(b.createdAt||0)-Number(a.createdAt||0)).slice(0,4);
+      $("mobileTechPriorities").innerHTML=priorities.map(order=>`<button class="mobile-tech-priority" type="button" style="--priority-color:${orderIsLate(order)?"#ef4444":isRunningOrder(order.status)?"#f97316":"#1d8cff"}" onclick="mobileMyOrdersOnly=true;selectedOrderId='${order.id}';setView('orders',{mobileOrders:true})"><strong>${escapeHtml(order.number||"O.S.")} · ${escapeHtml(orderTitle(order))}</strong>${orderStatusChip(order)}<small>${escapeHtml(machineName(order.assetId))}</small><span>›</span></button>`).join("")||`<div class="empty">Nenhuma atividade urgente para você.</div>`;
+    }
+
+    function mobileOrderMainAction(order) {
+      const key=normalizeTextKey(order.status);
+      if(isClosedOrder(order.status)||key.includes("cancel"))return {label:"Visualizar",action:`selectOrder('${order.id}')`};
+      if(key.includes("paus"))return {label:"Retomar",action:`changeOrderOperationalStatus('${order.id}','Em execucao')`};
+      if(isRunningOrder(order.status))return {label:"Continuar",action:`selectOrder('${order.id}')`};
+      return {label:"Iniciar",action:`confirmStartOrder('${order.id}')`};
+    }
+
+    function openMobileOrderAttachment(orderId,photo=false) {
+      const order=byId(state.orders,orderId);if(!order)return;
+      openModal(photo?"Adicionar foto":"Adicionar documento",`<form class="form" id="mobileAttachmentForm"><label class="full">Arquivo <input class="field" id="mobileAttachmentFile" type="file" ${photo?'accept="image/*" capture="environment"':''} required></label><div class="full" id="mobileAttachmentPreview"></div><label class="full">Descrição <input class="field" id="mobileAttachmentNote"></label><div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Salvar</button></div></form>`);
+      $("mobileAttachmentFile").addEventListener("change",()=>{const file=$("mobileAttachmentFile").files[0];$("mobileAttachmentPreview").innerHTML=file&&file.type.startsWith("image/")?`<img src="${URL.createObjectURL(file)}" alt="Prévia" style="max-width:100%;max-height:220px;border-radius:8px">`:file?`<div class="side-box">${escapeHtml(file.name)}</div>`:"";});
+      $("mobileAttachmentForm").addEventListener("submit",event=>{event.preventDefault();const file=$("mobileAttachmentFile").files[0];if(!file)return;const attachment={id:uid("file"),name:file.name,type:file.type,size:file.size,note:value("mobileAttachmentNote"),createdAt:Date.now()};state.orders=state.orders.map(item=>item.id===orderId?{...item,attachments:(item.attachments||[]).concat(attachment)}:item);saveState();closeModal();render();showToast("Anexo salvo na O.S.");});
+    }
+
+    function openMobilePartUsed(orderId) {
+      const options=state.spareParts.map(item=>`<option value="${item.id}">${escapeHtml(item.code)} - ${escapeHtml(item.name)}</option>`).join("");
+      openModal("Registrar peça utilizada",`<form class="form" id="mobilePartForm"><label class="full">Peça <select class="field" id="mobilePartSpare" required><option value="">Selecione</option>${options}</select></label><label>Quantidade <input class="field" id="mobilePartQty" type="number" min="0.01" step="0.01" value="1" required></label><div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Registrar</button></div></form>`);
+      $("mobilePartForm").addEventListener("submit",event=>{event.preventDefault();const spareId=$("mobilePartSpare").value,quantity=Number($("mobilePartQty").value);if(!spareId||!quantity)return;state.materialRequests.unshift({id:uid("material"),number:nextCode(state.materialRequests,"RM"),orderId,spareId,quantity,requester:currentTechnicianName(),status:"Atendida",createdAt:Date.now()});saveState();closeModal();render();showToast("Peça registrada na O.S.");});
+    }
+
+    function openMobileDowntimeModal() {
+      const assets=state.assets.map(item=>`<option value="${item.id}">${escapeHtml(item.code)} - ${escapeHtml(item.name)}</option>`).join("");const orders=state.orders.filter(item=>!isClosedOrder(item.status)).map(item=>`<option value="${item.id}">${escapeHtml(item.number)}</option>`).join("");
+      openModal("Registrar parada",`<form class="form" id="mobileDowntimeForm"><label class="full">Equipamento * <select class="field" id="mobileDowntimeAsset" required><option value="">Selecione</option>${assets}</select></label><label>Início * <input class="field" id="mobileDowntimeStart" type="datetime-local" required value="${localDateTimeValue()}"></label><label class="full">Motivo resumido * <input class="field" id="mobileDowntimeReason" required></label><details class="os-quick-details"><summary>Mais detalhes</summary><div><label>Área afetada <input class="field" id="mobileDowntimeArea"></label><label>Impacto <select class="field" id="mobileDowntimeImpact"><option>Baixo</option><option>Médio</option><option>Alto</option></select></label><label>O.S. vinculada <select class="field" id="mobileDowntimeOrder"><option value="">Nenhuma</option>${orders}</select></label><label class="full">Observação <textarea class="field" id="mobileDowntimeNote"></textarea></label><label class="full">Foto <input class="field" type="file" accept="image/*" capture="environment"></label></div></details><div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Registrar parada</button></div></form>`,true);
+      $("mobileDowntimeForm").addEventListener("submit",event=>{event.preventDefault();if(downtimeSaveLock)return;const assetId=$("mobileDowntimeAsset").value,reason=value("mobileDowntimeReason"),startAt=$("mobileDowntimeStart").value;if(!assetId||!reason||!startAt){showToast("Informe equipamento, início e motivo.");return;}downtimeSaveLock=true;state.downtimes.unshift({id:uid("downtime"),assetId,orderId:$("mobileDowntimeOrder").value,reason,description:value("mobileDowntimeNote")||reason,type:DOWNTIME_TYPES[0],startAt,endAt:"",status:"Ativa",owner:currentTechnicianName(),area:value("mobileDowntimeArea"),impact:$("mobileDowntimeImpact").value,createdAt:Date.now(),updatedAt:Date.now()});saveState();closeModal();render();showToast("Parada registrada.");setTimeout(()=>downtimeSaveLock=false,800);});
+    }
+
     function render() {
       if (!currentAccount) {
         renderAuthScreen();
@@ -18644,6 +18771,7 @@
       renderProfile();
       renderApiTree();
       renderUsers();
+      renderMobileTechnicianHome();
     }
 
     const CRUD_FORM_CONFIG = {
@@ -18988,6 +19116,7 @@
     }
 
     function closeDowntime(id) {
+      if(isMobileOperational()) return openMobileCloseDowntime(id);
       const lockKey = `${id}:Encerrada`;
       if (downtimeMutationLocks.has(lockKey)) return;
       downtimeMutationLocks.add(lockKey);
@@ -20413,6 +20542,12 @@
       $("orderForm").addEventListener("submit",async event=>{event.preventDefault();if(orderQuickSaveLock)return;if(!$("orderAsset").value||!value("orderDescription")){showToast("Selecione o equipamento e descreva o problema.");return;}orderQuickSaveLock=true;const button=event.submitter;if(button)button.disabled=true;try{const now=Date.now();const base=editing||{id:uid("os"),number:await nextOrderNumberSafe(),createdAt:now,status:"Aberta",startedAt:null,finishedAt:null};const files=Array.from($("orderAttachments").files||[]).map(file=>({id:uid("file"),name:file.name,type:file.type,size:file.size,createdAt:now}));const checklistId=$("orderChecklist").value;const payload={...base,assetId:$("orderAsset").value,requester:value("orderRequester"),executor:value("orderExecutor"),type:$("orderType").value,priority:$("orderPriority").value,scheduledAt:$("orderScheduled").value,description:value("orderDescription"),comment:value("orderNotes"),linkedChecklists:checklistId?[checklistId]:base.linkedChecklists||[],plannedSpareId:$("orderPlannedSpare").value,attachments:(base.attachments||[]).concat(files),mttr:Number(base.mttr||0)};state.orders=state.orders.filter(item=>item.id!==payload.id).concat(payload);saveState();const remoteSaved=await saveOrderSupabaseNow(payload);if(remoteSaved&&!editing)await saveOrderEventSupabase(payload,"CRIADA",{data_abertura:new Date(payload.createdAt).toISOString()});selectedOrderId=payload.id;closeModal();setView("orders");if(button?.value==="start")await startOrder(payload.id,payload.executor);else render();showToast(editing?"O.S. atualizada.":"O.S. criada com sucesso.");}catch(error){showToast("Não foi possível salvar. Revise os dados e tente novamente.");if(button)button.disabled=false;}finally{setTimeout(()=>orderQuickSaveLock=false,1200);}});
     }
 
+    function openMobileCloseDowntime(id) {
+      const item=byId(state.downtimes,id);if(!item||item.status!=="Ativa")return;
+      openModal("Encerrar parada",`<form class="form" id="mobileCloseDowntimeForm"><label>Data e hora de término * <input class="field" id="mobileDowntimeEnd" type="datetime-local" required value="${localDateTimeValue()}"></label><label class="full">Observação final <textarea class="field" id="mobileDowntimeFinalNote"></textarea></label><div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Encerrar parada</button></div></form>`);
+      $("mobileCloseDowntimeForm").addEventListener("submit",event=>{event.preventDefault();const endAt=$("mobileDowntimeEnd").value,start=downtimeDateFromInput(item.startAt),end=downtimeDateFromInput(endAt);if(!end||!start||end<start){showToast("Informe um término válido.");return;}state.downtimes=state.downtimes.map(entry=>entry.id===id?{...entry,endAt,status:"Encerrada",finalNote:value("mobileDowntimeFinalNote"),updatedAt:Date.now()}:entry);saveState();closeModal();render();showToast("Parada encerrada.");});
+    }
+
     function openPreventivePlanModal(planId = "") {
       const editing = byId(state.preventivePlans, planId);
       const selectedAssetId = editing?.assetId || "";
@@ -20654,7 +20789,23 @@
       });
     }
 
+    function mobileChecklistDraftKey(id) { return `gestman365.mobile.checklist.${id}`; }
+    function openMobileChecklistExecution(id) {
+      const checklist=byId(state.checklists,id);if(!checklist||checklist.status==="Inativo")return;
+      const items=checklistItems(checklist).filter(item=>item.description);if(!items.length){showToast("Checklist sem itens cadastrados.");return;}
+      let draft={};try{draft=JSON.parse(scopedGetItem(mobileChecklistDraftKey(id),"user")||"{}");}catch{}
+      openModal("Executar checklist",`<form class="form" id="mobileChecklistForm"><div class="full side-box"><strong>${escapeHtml(checklist.name||"Checklist")}</strong><span>${escapeHtml(machineName(checklist.assetId))}</span><div class="mobile-check-progress"><i id="mobileCheckProgressBar" style="--check-progress:0%"></i></div><span id="mobileCheckProgressText">0% concluído</span></div>${items.map((item,index)=>{const answer=draft[item.id]?.answer||"";const options=Array.isArray(item.options)&&item.options.length?item.options:["Conforme","Não conforme","Não aplicável"];return `<div class="full mobile-check-item ${answer==="Não conforme"?"nonconform":""}" data-mobile-check-item="${item.id}"><strong>${index+1}. ${escapeHtml(item.description)}${item.required===false?"":" *"}</strong><div class="mobile-check-options">${options.map(option=>`<label><input type="radio" name="mobileCheck_${item.id}" value="${escapeHtml(option)}" ${answer===option?"checked":""}> ${escapeHtml(option)}</label>`).join("")}</div><label>Observação <textarea class="field" data-mobile-check-note="${item.id}">${escapeHtml(draft[item.id]?.note||"")}</textarea></label><label>Evidência <input class="field" type="file" accept="image/*" capture="environment" data-mobile-check-photo="${item.id}"></label><button class="btn" type="button" data-create-check-pending="${item.id}">Criar pendência</button></div>`}).join("")}<div class="os-create-actions"><button class="btn" type="button" id="saveMobileChecklistDraft">Salvar rascunho</button><button class="btn primary" type="submit">Finalizar checklist</button></div></form>`,true);
+      const collect=()=>Object.fromEntries(items.map(item=>{const selected=document.querySelector(`input[name="mobileCheck_${item.id}"]:checked`);return [item.id,{answer:selected?.value||"",note:document.querySelector(`[data-mobile-check-note="${item.id}"]`)?.value||""}]}));
+      const refresh=()=>{const data=collect();const done=Object.values(data).filter(item=>item.answer).length;const percent=Math.round(done/items.length*100);$("mobileCheckProgressBar").style.setProperty("--check-progress",`${percent}%`);$("mobileCheckProgressText").textContent=`${percent}% concluído`;items.forEach(item=>document.querySelector(`[data-mobile-check-item="${item.id}"]`)?.classList.toggle("nonconform",data[item.id].answer==="Não conforme"));scopedSetItem(mobileChecklistDraftKey(id),JSON.stringify(data),"user");};
+      document.querySelectorAll("#mobileChecklistForm input[type=radio]").forEach(input=>input.addEventListener("change",refresh));
+      $("saveMobileChecklistDraft").addEventListener("click",()=>{refresh();showToast("Rascunho do checklist salvo.");});
+      document.querySelectorAll("[data-create-check-pending]").forEach(button=>button.addEventListener("click",()=>{const item=items.find(entry=>entry.id===button.dataset.createCheckPending);state.pendingActions.unshift({id:uid("pending"),title:`Checklist: ${item?.description||"Não conformidade"}`,description:"Pendência criada durante checklist mobile.",assetId:checklist.assetId,owner:currentTechnicianName(),priority:"Alta",dueDate:addDaysToPlanDate(todayPlanDate(),7),status:"Aberta",createdAt:Date.now(),updatedAt:Date.now()});saveState();showToast("Pendência criada.");}));
+      refresh();
+      $("mobileChecklistForm").addEventListener("submit",event=>{event.preventDefault();const data=collect();const missing=items.filter(item=>item.required!==false&&!data[item.id].answer);if(missing.length){showToast(`Faltam ${missing.length} item(ns) obrigatório(s).`);return;}if(checklistExecutionLocks.has(id))return;checklistExecutionLocks.add(id);const now=Date.now();const responses=items.map(item=>({itemId:item.id,description:item.description,order:item.order,answer:data[item.id].answer||"Não aplicável",note:data[item.id].note}));const nonConformCount=responses.filter(item=>item.answer==="Não conforme").length;state.checklistExecutions.unshift({id:uid("chkexec"),checklistId:id,assetId:checklist.assetId,checklistName:checklist.name,executedAt:now,responses,note:"Preenchimento mobile",conformCount:responses.length-nonConformCount,nonConformCount,result:nonConformCount?"Não conforme":"Conforme"});state.checklists=state.checklists.map(item=>item.id===id?{...item,lastFill:formatDateTime(now),updatedAt:now}:item);scopedRemoveItem(mobileChecklistDraftKey(id),"user");saveState();closeModal();render();showToast("Checklist finalizado.");setTimeout(()=>checklistExecutionLocks.delete(id),1200);});
+    }
+
     function openChecklistExecution(id) {
+      if(isMobileOperational()) return openMobileChecklistExecution(id);
       const checklist = byId(state.checklists, id);
       if (!checklist) return;
       if (checklist.status === "Inativo") {
