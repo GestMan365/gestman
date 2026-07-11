@@ -8932,6 +8932,9 @@
     .industrial-nav-section:has(.tab.active) > .nav-group-title { color:#63b3ff !important; }
     .industrial-nav-section .tab { min-height:35px !important; margin-top:3px !important; padding:7px 9px 7px 13px !important; font-size:11px !important; }
     .industrial-nav-section .tab .tab-icon { width:20px !important; height:20px !important; font-size:13px !important; }
+    .sidebar-favorites-home .tab-icon { color:#facc15 !important; text-shadow:0 0 10px rgba(250,204,21,.35); }
+    .industrial-sidebar-scroll > .tab:not(.sidebar-favorites-home) { flex:0 0 auto; }
+    .industrial-sidebar-scroll > .tab > span:last-child { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 </style>
 </head>
 <body class="auth-loading">
@@ -9033,50 +9036,30 @@
       <button class="nav-toggle-btn" id="navToggleBtn" type="button" title="Ocultar módulos" aria-label="Ocultar módulos">‹</button>
     </div>
     <div class="industrial-sidebar-scroll tabs">
-      <button class="tab active" data-view="dashboard"><span class="tab-icon">▦</span><span>Dashboard</span></button>
-      <details class="nav-group industrial-nav-section" data-nav-group="manutencao" open>
-        <summary class="nav-group-title">Manutenção</summary>
-        <button class="tab" data-view="orders"><span class="tab-icon">▤</span><span>Ordens de Serviço</span></button>
-        <button class="tab" data-view="pendingActions"><span class="tab-icon">◇</span><span>Solicitações e Pendências</span></button>
-        <button class="tab" data-view="preventivePlans"><span class="tab-icon">◫</span><span>Planos Preventivos</span></button>
-        <button class="tab" data-view="calendar"><span class="tab-icon">▣</span><span>Cronograma</span></button>
-        <button class="tab" data-view="downtime"><span class="tab-icon">◷</span><span>Paradas</span></button>
-        <button class="tab" data-view="checklists"><span class="tab-icon">✓</span><span>Checklists</span></button>
-      </details>
-      <details class="nav-group industrial-nav-section" data-nav-group="ativos">
-        <summary class="nav-group-title">Ativos e Operação</summary>
-        <button class="tab" data-view="assets"><span class="tab-icon">⚙</span><span>Equipamentos e Ativos</span></button>
-        <button class="tab" data-view="measurements"><span class="tab-icon">⌁</span><span>Leituras e Medições</span></button>
-        <button class="tab" data-view="operationalDiary"><span class="tab-icon">▤</span><span>Diário Operacional</span></button>
-        <button class="tab" data-view="toolsControl"><span class="tab-icon">⌕</span><span>Ferramentas</span></button>
-      </details>
-      <details class="nav-group industrial-nav-section" data-nav-group="estrutura">
-        <summary class="nav-group-title">Estrutura Industrial</summary>
-        <button class="tab" data-view="operationalAreas"><span class="tab-icon">▩</span><span>Áreas Operacionais</span></button>
-        <button class="tab" data-view="locations"><span class="tab-icon">⌖</span><span>Setores e Locais</span></button>
-        <button class="tab" data-view="map"><span class="tab-icon">⌘</span><span>Estrutura de Instalação</span></button>
-        <button class="tab" data-view="tags"><span class="tab-icon">#</span><span>Tags e Identificadores</span></button>
-      </details>
-      <details class="nav-group industrial-nav-section" data-nav-group="materiais">
-        <summary class="nav-group-title">Materiais e Compras</summary>
-        <button class="tab" data-view="stock"><span class="tab-icon">▧</span><span>Estoques</span></button>
-        <button class="tab" data-view="spares"><span class="tab-icon">⌑</span><span>Catálogo de Peças</span></button>
-        <button class="tab" data-view="stockMoves"><span class="tab-icon">⇄</span><span>Movimentações</span></button>
-        <button class="tab" data-view="materialRequests"><span class="tab-icon">◈</span><span>Requisições de Materiais</span></button>
-        <button class="tab" data-view="suppliers"><span class="tab-icon">▰</span><span>Fornecedores</span></button>
-      </details>
-      <details class="nav-group industrial-nav-section" data-nav-group="gestao">
-        <summary class="nav-group-title">Gestão e Inteligência</summary>
-        <button class="tab" data-view="maintenanceIndicators"><span class="tab-icon">▥</span><span>Indicadores de Manutenção</span></button>
-        <button class="tab" data-view="reports"><span class="tab-icon">⌁</span><span>Relatórios e Análises</span></button>
-        <button class="tab" data-view="teamsResources"><span class="tab-icon">♙</span><span>Equipes e Recursos</span></button>
-        <button class="tab" data-view="documentsCenter"><span class="tab-icon">▱</span><span>Documentos Técnicos</span></button>
-        <button class="tab" data-view="assistant"><span class="tab-icon">✦</span><span>IA GestMan365</span></button>
-      </details>
-      <details class="nav-group industrial-nav-section" data-nav-group="administracao">
-        <summary class="nav-group-title">Administração</summary>
-        <button class="tab" data-view="quickAccess"><span class="tab-icon">⚙</span><span>Ambiente de Teste</span></button>
-      </details>
+      <button class="tab sidebar-favorites-home active" data-view="dashboard"><span class="tab-icon">★</span><span>Favoritos</span></button>
+      <button class="tab" data-view="assets"><span class="tab-icon">⚙</span><span>Equipamentos</span></button>
+      <button class="tab" data-view="spares"><span class="tab-icon">◔</span><span>Peças Sobressalentes</span></button>
+      <button class="tab" data-view="stock"><span class="tab-icon">▧</span><span>Estoque de Peças</span></button>
+      <button class="tab" data-view="stockTransfers"><span class="tab-icon">⇄</span><span>Transferência de Estoque</span></button>
+      <button class="tab" data-view="suppliers"><span class="tab-icon">▰</span><span>Fornecedores</span></button>
+      <button class="tab" data-view="materialRequests"><span class="tab-icon">◈</span><span>Requisições de Materiais</span></button>
+      <button class="tab" data-view="tags"><span class="tab-icon">◇</span><span>TAGs</span></button>
+      <button class="tab" data-view="regions"><span class="tab-icon">◉</span><span>Regiões</span></button>
+      <button class="tab" data-view="locations"><span class="tab-icon">⌖</span><span>Locais</span></button>
+      <button class="tab" data-view="productiveCalendars"><span class="tab-icon">▣</span><span>Calendários Produtivos</span></button>
+      <button class="tab" data-view="documentsCenter"><span class="tab-icon">▱</span><span>Documentos</span></button>
+      <button class="tab" data-view="toolsControl"><span class="tab-icon">⚒</span><span>Ferramentas</span></button>
+      <button class="tab" data-view="map"><span class="tab-icon">⌂</span><span>Locais de instalação (LIs)</span></button>
+      <button class="tab" data-view="orders"><span class="tab-icon">▤</span><span>Ordem de Serviço</span></button>
+      <button class="tab" data-view="teamsResources"><span class="tab-icon">♙</span><span>Recursos</span></button>
+      <button class="tab" data-view="checklists"><span class="tab-icon">✓</span><span>CheckList</span></button>
+      <button class="tab" data-view="measurements"><span class="tab-icon">⌁</span><span>Medições</span></button>
+      <button class="tab" data-view="pendingActions"><span class="tab-icon">!</span><span>Pendências</span></button>
+      <button class="tab" data-view="downtime"><span class="tab-icon">✋</span><span>Paradas</span></button>
+      <button class="tab" data-view="operationalDiary"><span class="tab-icon">◫</span><span>Diário de Manutenção</span></button>
+      <button class="tab" data-view="preventivePlans"><span class="tab-icon">▦</span><span>Planos de Manutenção</span></button>
+      <button class="tab" data-view="maintenanceIndicators"><span class="tab-icon">◔</span><span>Análises</span></button>
+      <button class="tab" data-view="reports"><span class="tab-icon">▥</span><span>Relatórios</span></button>
     </div>
     <div class="industrial-critical-alerts">
       <div><strong>Alertas Críticos</strong><span id="sidebarCriticalCount">0</span></div>
@@ -9132,6 +9115,20 @@
         <div class="dashboard-compat" aria-hidden="true">
           <div id="dashboardLayout"></div><span id="mttrMetric"></span><span id="mtbfMetric"></span><span id="availabilityMetric"></span><span id="assetMetric"></span><span id="locationMetric"></span><span id="openOsMetric"></span><span id="runningOsMetric"></span><span id="stoppedMetric"></span><span id="lowStockMetric"></span><table><tbody id="dashboardExecutorRows"></tbody></table><button id="dashboardConfigBtn" type="button"></button><button id="purchaseListBtn" type="button"></button><button id="openTvPanelBtn" type="button"></button>
         </div>
+      </div>
+    </section>
+
+    <section class="view" id="regions">
+      <div class="panel">
+        <div class="panel-head"><div><div class="panel-title">Regiões</div><small class="muted">Organização geográfica e operacional dos locais de instalação.</small></div><button class="btn primary" type="button" onclick="setView('locations');openCrudFormForCreate('regionForm')">Nova região</button></div>
+        <div class="table-wrap"><table><thead><tr><th>Região</th><th>Locais vinculados</th><th>Equipamentos</th><th>Ações</th></tr></thead><tbody id="regionsModuleRows"></tbody></table></div>
+      </div>
+    </section>
+
+    <section class="view" id="productiveCalendars">
+      <div class="panel">
+        <div class="panel-head"><div><div class="panel-title">Calendários Produtivos</div><small class="muted">Jornadas e turnos utilizados no planejamento da manutenção.</small></div><button class="btn primary" type="button" onclick="openProfileModal()">Gerenciar usuários</button></div>
+        <div class="table-wrap"><table><thead><tr><th>Calendário</th><th>Usuários vinculados</th><th>Aplicação</th><th>Status</th></tr></thead><tbody id="productiveCalendarRows"></tbody></table></div>
       </div>
     </section>
 
@@ -9962,14 +9959,14 @@
       { key: "map", label: "Estrutura de instalação", views: ["map"] },
       { key: "assets", label: "Ativos e equipamentos", views: ["assets"] },
       { key: "tags", label: "Identificadores de ativos", views: ["tags"] },
-      { key: "locations", label: "Áreas, setores e locais", views: ["operationalAreas", "locations"] },
+      { key: "locations", label: "Regiões, setores e locais", views: ["operationalAreas", "regions", "locations"] },
       { key: "documents", label: "Central de documentos", views: ["documentsCenter"] },
       { key: "orders", label: "Ordens e rotina operacional", views: ["orders", "calendar", "activeOrders", "pendingActions", "measurements", "downtime", "operationalDiary"] },
       { key: "preventivePlans", label: "Programação preventiva", views: ["preventivePlans"] },
       { key: "checklists", label: "Rotinas e checklists", views: ["checklists"] },
       { key: "stock", label: "Materiais e estoque", views: ["stock", "spares", "stockMoves", "materialRequests", "stockTransfers", "toolsControl"], actions: ["purchaseList", "stockTurnover", "stockValuation", "stockBalance", "bulkInventory"] },
       { key: "suppliers", label: "Fornecedores e parceiros", views: ["suppliers"] },
-      { key: "resources", label: "Equipes e recursos", views: ["teamsResources"] },
+      { key: "resources", label: "Equipes, recursos e calendários", views: ["teamsResources", "productiveCalendars"] },
       { key: "reports", label: "Indicadores e relatórios", views: ["maintenanceIndicators", "reports"] },
       { key: "assistant", label: "IA GestMan365", views: ["assistant"] },
     ];
@@ -18074,6 +18071,32 @@
       }
     }
 
+    function renderRegionsModule() {
+      const target = $("regionsModuleRows");
+      if (!target) return;
+      target.innerHTML = (state.regions || []).map(region => {
+        const locations = (state.locations || []).filter(location => location.regionId === region.id);
+        const locationIds = new Set(locations.map(location => location.id));
+        const assets = (state.assets || []).filter(asset => locationIds.has(asset.locationId));
+        return `<tr><td><strong>${escapeHtml(region.name || "Região")}</strong></td><td>${locations.length}</td><td>${assets.length}</td><td class="actions"><button class="btn" type="button" onclick="editRegion('${region.id}')">Editar</button><button class="btn danger" type="button" onclick="deleteRegion('${region.id}')">Excluir</button></td></tr>`;
+      }).join("") || `<tr><td colspan="4" class="empty">Nenhuma região cadastrada.</td></tr>`;
+    }
+
+    function renderProductiveCalendars() {
+      const target = $("productiveCalendarRows");
+      if (!target) return;
+      const companyId = currentAccount?.company?.id;
+      const users = (authStore.users || []).filter(user => !companyId || user.companyId === companyId);
+      const calendars = new Map();
+      users.forEach(user => {
+        const details = tenantUserProfileDetails(user);
+        const name = user.productiveCalendar || details.productiveCalendar || "07:00-17:00";
+        calendars.set(name, (calendars.get(name) || 0) + 1);
+      });
+      if (!calendars.size) calendars.set("07:00-17:00", 0);
+      target.innerHTML = Array.from(calendars.entries()).map(([name, count]) => `<tr><td><strong>${escapeHtml(name)}</strong></td><td>${count}</td><td>Planejamento de equipes e O.S.</td><td>${tag("Ativo")}</td></tr>`).join("");
+    }
+
     function render() {
       if (!currentAccount) {
         renderAuthScreen();
@@ -18084,6 +18107,8 @@
       renderDashboard();
       renderMap();
       renderTables();
+      renderRegionsModule();
+      renderProductiveCalendars();
       renderActiveOrdersPanel("activeOrdersPanel");
       renderCalendar();
       renderReports();
