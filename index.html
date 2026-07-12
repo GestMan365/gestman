@@ -9543,6 +9543,15 @@
       body.mobile-nav-open .nav-drawer-backdrop { display:block; }
       body.mobile-nav-open { overflow:hidden !important; }
     }
+    /* Etapa 9 — perfis e permissões simples */
+    .is-action-permission-hidden,.is-profile-hidden,.is-permission-hidden,button.is-permission-hidden,.nav .tab.is-permission-hidden,body.sidebar-collapsed .nav .tab.is-permission-hidden,.nav-quick-list button.is-permission-hidden,.industrial-quick-actions button.is-action-permission-hidden,.dashboard-widget.is-profile-hidden{display:none!important}
+    .tenant-test-hint{display:block;margin-top:5px;color:#7dd3fc;font-size:11px}
+    .access-profile-chip{display:inline-flex;align-items:center;min-height:24px;padding:3px 9px;border:1px solid currentColor;border-radius:999px;font-size:11px;font-weight:750;white-space:nowrap}
+    .access-profile-chip.profile-blue{color:#60a5fa;background:#172f52}.access-profile-chip.profile-purple{color:#c4b5fd;background:#2b2147}.access-profile-chip.profile-green{color:#4ade80;background:#123d2b}.access-profile-chip.profile-orange{color:#fb923c;background:#442714}.access-profile-chip.profile-sky{color:#7dd3fc;background:#12344a}.access-profile-chip.profile-gray{color:#cbd5e1;background:#243044}
+    .tenant-row-actions{position:relative;display:inline-block}.tenant-row-actions>summary{display:grid;place-items:center;width:32px;height:32px;border:1px solid #29415d;border-radius:8px;background:#101f31;color:#dbeafe;cursor:pointer;font-size:20px;list-style:none}.tenant-row-actions>summary::-webkit-details-marker{display:none}.tenant-row-actions[open]>summary{border-color:#1d8cff;background:#15365c}.tenant-row-actions>div{position:absolute;z-index:30;right:0;top:38px;display:grid;min-width:176px;padding:6px;border:1px solid #29415d;border-radius:10px;background:#0b1727;box-shadow:0 14px 30px #0009}.tenant-row-actions button{border:0;border-radius:7px;background:transparent;color:#dbeafe;text-align:left;padding:9px 10px;cursor:pointer}.tenant-row-actions button:hover{background:#142b46;color:#fff}
+    .tenant-user-admin{overflow:visible}.tenant-user-editor{max-width:780px;margin:16px 0 0 auto;border:1px solid #27415f;border-radius:12px;background:#0b1727;box-shadow:-18px 0 48px #02081780;overflow:visible}.tenant-user-stage9-intro{display:flex;flex-direction:column;gap:3px;padding:11px 16px;border-bottom:1px solid #203750;color:#f8fafc}.tenant-user-stage9-intro small{color:#94a3b8}.tenant-user-body{display:block;padding:16px}.tenant-user-main-grid,.tenant-user-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.tenant-user-main-grid label,.tenant-user-grid label{display:flex;flex-direction:column;gap:6px;color:#cbd5e1;font-size:12px;font-weight:650}.tenant-user-main-grid .full,.tenant-user-grid .full{grid-column:1/-1}.tenant-profile-description{display:block;min-height:30px;color:#7f9bb8;font-weight:500;line-height:1.35}
+    .tenant-access-details,.tenant-more-details{margin-top:13px;border:1px solid #223a56;border-radius:10px;background:#0e1c2d;overflow:hidden}.tenant-access-details>summary,.tenant-more-details>summary{display:flex;flex-direction:column;gap:2px;padding:13px 15px;cursor:pointer;color:#e5edf7;font-weight:750}.tenant-access-details>summary small,.tenant-more-details>summary small{color:#8198b0;font-size:11px;font-weight:500}.tenant-access-details[open]>summary,.tenant-more-details[open]>summary{border-bottom:1px solid #223a56;background:#10233a}.permission-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:14px}.permission-item{display:grid;grid-template-columns:minmax(0,1fr) 132px;align-items:center;gap:9px;padding:9px 10px;border:1px solid #203750;border-radius:8px;background:#0a1726;color:#cbd5e1;font-size:11px}.permission-item .field{min-height:34px;padding:6px 8px}.tenant-user-more-grid{display:grid;grid-template-columns:150px minmax(0,1fr);gap:16px;padding:14px}.tenant-user-photo-card{padding:12px;border:1px solid #223a56;border-radius:10px;background:#091522}.tenant-user-photo-preview{display:grid;place-items:center;width:88px;height:88px;margin:0 auto 12px;border:1px dashed #365574;border-radius:50%;overflow:hidden;color:#7890a9;text-align:center}.tenant-user-photo-preview img{width:100%;height:100%;object-fit:cover}.tenant-inactive-confirm{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:14px;padding:14px;border:1px solid #7f1d1d;border-radius:10px;background:#3f151b;color:#fecaca}.tenant-inactive-confirm p{margin:4px 0 0;color:#fca5a5}.tenant-inactive-confirm .toolbar{margin:0;flex-wrap:nowrap}.tenant-inactive-confirm.is-hidden{display:none}.tenant-user-editor-foot{display:flex;justify-content:flex-end;gap:9px;padding:13px 16px;border-top:1px solid #203750}.tenant-user-editor-foot .btn.primary{min-width:140px}
+    @media(max-width:760px){.tenant-user-editor{max-width:none;margin:12px 0 0}.tenant-user-main-grid,.tenant-user-grid,.permission-grid{grid-template-columns:1fr}.tenant-user-more-grid{grid-template-columns:1fr}.permission-item{grid-template-columns:minmax(0,1fr) 120px}.tenant-inactive-confirm{align-items:flex-start;flex-direction:column}.tenant-user-list table td:last-child{overflow:visible}.tenant-row-actions>div{position:fixed;right:16px;left:16px;top:auto;bottom:72px}.tenant-user-editor-foot{position:sticky;bottom:0;background:#0b1727}}
 </style>
 </head>
 <body class="auth-loading">
@@ -9783,7 +9792,7 @@
           <article class="industrial-card dashboard-widget" data-dashboard-widget="stockAlerts"><div class="dashboard-controls" data-dashboard-controls="stockAlerts"></div><div class="industrial-card-head"><div><span>ESTOQUE</span><h2>Peças para Reposição</h2></div></div><div class="table-wrap"><table><tbody id="dashboardLowStockRows"></tbody></table></div></article>
           <article class="industrial-card industrial-calendar-card maintenance-agenda-card dashboard-widget" data-dashboard-widget="agenda"><div class="dashboard-controls" data-dashboard-controls="agenda"></div><div class="maintenance-agenda-head"><h2>Agenda de Manutenção</h2><div class="maintenance-agenda-navigation"><button type="button" onclick="shiftIndustrialAgendaWeek(-1)" aria-label="Semana anterior">‹</button><span id="industrialAgendaRange">Semana atual</span><button type="button" onclick="shiftIndustrialAgendaWeek(1)" aria-label="Próxima semana">›</button></div><button class="maintenance-agenda-mode" type="button" onclick="resetIndustrialAgendaWeek()">Semana <i>▣</i></button></div><div class="maintenance-agenda-scroll"><div class="maintenance-agenda-inner" id="industrialMaintenanceCalendar"></div></div><div class="maintenance-agenda-footer"><button type="button" onclick="setView('calendar')">Ver calendário completo&nbsp; ›</button></div></article>
           <article class="industrial-card parts-consumption-card dashboard-widget" data-dashboard-widget="parts"><div class="dashboard-controls" data-dashboard-controls="parts"></div><div class="industrial-card-head"><div><span>MATERIAIS</span><h2>Consumo de Peças</h2></div><button type="button" onclick="setView('stockMoves')">↗</button></div><div class="parts-consumption-content"><div class="industrial-donut parts-donut" id="industrialPartsDonut"><div><strong id="industrialPartsTotal">0</strong><span>movimentos</span></div></div><div class="industrial-legend" id="industrialPartsLegend"></div></div></article>
-          <article class="industrial-card quick-actions-card dashboard-widget" data-dashboard-widget="quickActions"><div class="dashboard-controls" data-dashboard-controls="quickActions"></div><div class="industrial-card-head"><div><span>ATALHOS OPERACIONAIS</span><h2>Ações Rápidas</h2></div></div><div class="industrial-quick-actions"><button type="button" onclick="openOrderModal()" aria-label="Criar nova ordem de serviço"><i>＋</i><span><strong>Nova O.S.</strong><small>Criar ordem de serviço</small></span></button><button type="button" onclick="openQuickChecklist()" aria-label="Executar checklist"><i>✓</i><span><strong>Executar Checklist</strong><small>Abrir rotina pendente</small></span></button><button type="button" onclick="setView('downtime')" aria-label="Registrar parada"><i>◷</i><span><strong>Registrar Parada</strong><small>Informar indisponibilidade</small></span></button><button type="button" onclick="setView('materialRequests')" aria-label="Solicitar material"><i>◈</i><span><strong>Solicitar Material</strong><small>Abrir requisição</small></span></button><button type="button" onclick="setView('assets')" aria-label="Consultar ativos"><i>⚙</i><span><strong>Consultar Ativos</strong><small>Localizar equipamento</small></span></button><button type="button" onclick="setView('reports')" aria-label="Ver relatórios"><i>▥</i><span><strong>Ver Relatórios</strong><small>Abrir análises operacionais</small></span></button></div></article>
+          <article class="industrial-card quick-actions-card dashboard-widget" data-dashboard-widget="quickActions"><div class="dashboard-controls" data-dashboard-controls="quickActions"></div><div class="industrial-card-head"><div><span>ATALHOS OPERACIONAIS</span><h2>Ações Rápidas</h2></div></div><div class="industrial-quick-actions"><button type="button" onclick="openOrderModal()" aria-label="Criar nova ordem de serviço" data-permission-module="orders" data-required-level="operate" data-permission-action="Criar O.S."><i>＋</i><span><strong>Nova O.S.</strong><small>Criar ordem de serviço</small></span></button><button type="button" onclick="openQuickChecklist()" aria-label="Executar checklist" data-permission-module="checklists" data-required-level="operate" data-permission-action="Executar checklist"><i>✓</i><span><strong>Executar Checklist</strong><small>Abrir rotina pendente</small></span></button><button type="button" onclick="setView('downtime')" aria-label="Registrar parada" data-permission-module="orders" data-required-level="operate" data-permission-action="Registrar parada"><i>◷</i><span><strong>Registrar Parada</strong><small>Informar indisponibilidade</small></span></button><button type="button" onclick="setView('materialRequests')" aria-label="Solicitar material" data-permission-module="stock" data-required-level="operate" data-permission-action="Solicitar material"><i>◈</i><span><strong>Solicitar Material</strong><small>Abrir requisição</small></span></button><button type="button" onclick="setView('assets')" aria-label="Consultar ativos" data-permission-module="assets" data-required-level="view" data-permission-action="Consultar ativos"><i>⚙</i><span><strong>Consultar Ativos</strong><small>Localizar equipamento</small></span></button><button type="button" onclick="setView('reports')" aria-label="Ver relatórios" data-permission-module="reports" data-required-level="view" data-permission-action="Ver relatórios"><i>▥</i><span><strong>Ver Relatórios</strong><small>Abrir análises operacionais</small></span></button></div></article>
           <article class="industrial-card dashboard-alerts-card dashboard-widget" data-dashboard-widget="alerts"><div class="dashboard-controls" data-dashboard-controls="alerts"></div><div class="industrial-card-head"><div><span>OPERAÇÃO</span><h2>Alertas e Notificações</h2></div><button type="button" onclick="openDashboardAlertsModal()">Ver todos ↗</button></div><div class="dashboard-alert-list" id="dashboardAlertList"></div></article>
           <article class="industrial-card latest-orders-card dashboard-widget" data-dashboard-widget="latestOrders"><div class="dashboard-controls" data-dashboard-controls="latestOrders"></div><div class="industrial-card-head"><div><span>ATUALIZAÇÕES</span><h2>Últimas Ordens de Serviço</h2></div><button type="button" onclick="setView('orders')">Ver todas ↗</button></div><div class="industrial-latest-orders" id="industrialLatestOrders"></div></article>
         </div>
@@ -10656,6 +10665,24 @@
       { key: "reports", label: "Indicadores e relatórios", views: ["maintenanceIndicators", "reports"] },
       { key: "assistant", label: "IA GestMan365", views: ["assistant"] },
     ];
+    const ACCESS_LEVELS = ["none", "view", "operate", "manage"];
+    const ACCESS_LEVEL_LABELS = { none:"Sem acesso", view:"Visualizar", operate:"Operar", manage:"Gerenciar" };
+    const ACCESS_PROFILES = {
+      admin:{ label:"ADM / Gestor de Manutenção", description:"Acesso total ao GestMan365.", color:"blue" },
+      supervisor:{ label:"Supervisor", description:"Coordena manutenção, equipes, planos e execução das O.S.", color:"purple" },
+      technician:{ label:"Técnico", description:"Executa O.S., checklists, medições e apontamentos operacionais.", color:"green" },
+      warehouse:{ label:"Almoxarifado", description:"Controla peças, estoque, transferências e solicitações.", color:"orange" },
+      requester:{ label:"Solicitante", description:"Abre e acompanha solicitações próprias de serviço.", color:"sky" },
+      viewer:{ label:"Visualizador", description:"Consulta somente os módulos liberados.", color:"gray" }
+    };
+    const PROFILE_PERMISSION_TEMPLATES = {
+      admin:{ dashboard:"manage",map:"manage",assets:"manage",tags:"manage",locations:"manage",documents:"manage",orders:"manage",preventivePlans:"manage",checklists:"manage",stock:"manage",suppliers:"manage",resources:"manage",reports:"manage",assistant:"manage" },
+      supervisor:{ dashboard:"view",map:"view",assets:"view",tags:"view",locations:"view",documents:"view",orders:"manage",preventivePlans:"manage",checklists:"manage",stock:"operate",suppliers:"view",resources:"manage",reports:"view",assistant:"view" },
+      technician:{ dashboard:"view",map:"view",assets:"view",tags:"none",locations:"none",documents:"view",orders:"operate",preventivePlans:"none",checklists:"operate",stock:"none",suppliers:"none",resources:"none",reports:"none",assistant:"view" },
+      warehouse:{ dashboard:"view",map:"none",assets:"view",tags:"none",locations:"none",documents:"none",orders:"view",preventivePlans:"none",checklists:"none",stock:"manage",suppliers:"manage",resources:"none",reports:"none",assistant:"none" },
+      requester:{ dashboard:"view",map:"none",assets:"none",tags:"none",locations:"none",documents:"none",orders:"operate",preventivePlans:"none",checklists:"none",stock:"none",suppliers:"none",resources:"none",reports:"none",assistant:"none" },
+      viewer:{ dashboard:"view",map:"view",assets:"view",tags:"none",locations:"none",documents:"view",orders:"view",preventivePlans:"view",checklists:"none",stock:"none",suppliers:"none",resources:"none",reports:"view",assistant:"none" }
+    };
     const MODULE_ACTION_PERMISSION = Object.fromEntries(PERMISSION_MODULES.flatMap(module => (module.actions || []).map(action => [action, module.key])));
     const VIEW_PERMISSION = Object.fromEntries(PERMISSION_MODULES.flatMap(module => module.views.map(view => [view, module.key])));
     const SGMAN_API_TREE = [
@@ -10861,6 +10888,10 @@
           contractNote: user.contractNote || details.contractNote || "",
           password: String(user.password || ""),
           role: user.role === "admin" ? "admin" : "user",
+          accessProfile: normalizeAccessProfile(user.accessProfile || details.accessProfile, user),
+          permissionLevels: user.permissionLevels && typeof user.permissionLevels === "object" ? { ...user.permissionLevels } : (details.permissionLevels || {}),
+          unit: user.unit || details.unit || "Unidade Industrial 01",
+          lastAccessAt: Number(user.lastAccessAt || details.lastAccessAt || 0),
           active: user.active !== false,
           permissions: stripTenantPermissionProfile(rawPermissions),
           photo: user.photo || "",
@@ -10923,6 +10954,74 @@
       return Object.fromEntries(PERMISSION_MODULES.map(module => [module.key, Boolean(enabled)]));
     }
 
+    function normalizeAccessProfile(value, user = {}) {
+      if (user?.role === "admin" || value === "admin") return "admin";
+      if (ACCESS_PROFILES[value]) return value;
+      const hint = statusKey(`${user?.jobTitle || ""} ${user?.name || ""}`);
+      if (hint.includes("supervisor")) return "supervisor";
+      if (hint.includes("tecnic")) return "technician";
+      if (hint.includes("almox")) return "warehouse";
+      if (hint.includes("solicit")) return "requester";
+      return "viewer";
+    }
+
+    function profilePermissionTemplate(profile) {
+      const normalized = ACCESS_PROFILES[profile] ? profile : "viewer";
+      return { ...PROFILE_PERMISSION_TEMPLATES[normalized] };
+    }
+
+    function userPermissionLevels(user = currentAccount?.user) {
+      if (!user) return profilePermissionTemplate("viewer");
+      if (user.role === "admin") return profilePermissionTemplate("admin");
+      const profile = normalizeAccessProfile(user.accessProfile, user);
+      const levels = profilePermissionTemplate(profile);
+      const custom = user.permissionLevels && typeof user.permissionLevels === "object" ? user.permissionLevels : {};
+      PERMISSION_MODULES.forEach(module => {
+        const customLevel = custom[module.key];
+        if (ACCESS_LEVELS.includes(customLevel)) levels[module.key] = customLevel;
+        else if (Object.prototype.hasOwnProperty.call(user.permissions || {}, module.key)) levels[module.key] = user.permissions[module.key] ? "manage" : "none";
+      });
+      return levels;
+    }
+
+    function permissionLevel(permissionKey, user = currentAccount?.user) {
+      return userPermissionLevels(user)[permissionKey] || "none";
+    }
+
+    function permissionAtLeast(permissionKey, requiredLevel = "view", user = currentAccount?.user) {
+      if (isAdminUser(user)) return true;
+      return ACCESS_LEVELS.indexOf(permissionLevel(permissionKey, user)) >= ACCESS_LEVELS.indexOf(requiredLevel);
+    }
+
+    function actionPermissionKeyFromText(text = "") {
+      const key = statusKey(text);
+      if (/excluir|remover|cancelar|aprovar|desativar/.test(key)) return "manage";
+      if (/editar|alterar|configurar|gerenciar/.test(key)) return "manage";
+      if (/novo|nova|criar|cadastrar|salvar|registrar|iniciar|pausar|retomar|concluir|finalizar|movimentar|transferir|atender/.test(key)) return "operate";
+      return "view";
+    }
+
+    function canPerformModuleAction(permissionKey, requiredLevel = "view", user = currentAccount?.user) {
+      return permissionAtLeast(permissionKey, requiredLevel, user);
+    }
+
+    function profileAllowsAction(permissionKey, requiredLevel = "view", actionText = "", user = currentAccount?.user) {
+      if (!permissionAtLeast(permissionKey, requiredLevel, user)) return false;
+      if (isAdminUser(user) || requiredLevel === "view") return true;
+      const profile = normalizeAccessProfile(user?.accessProfile, user);
+      const action = statusKey(actionText);
+      if (profile === "viewer") return false;
+      if (profile === "supervisor" && /excluir|remover/.test(action)) return false;
+      if (permissionKey === "orders" && profile === "technician" && /novo|nova|criar|editar|excluir|remover|cancelar|aprovar|reabrir/.test(action)) return false;
+      if (permissionKey === "orders" && profile === "requester" && !/novo|nova|criar|abrir|solicitar|adicionar|anexar/.test(action)) return false;
+      return true;
+    }
+
+    function denyProfileAccess() {
+      showToast("Acesso não permitido para o seu perfil.", "warning");
+      return false;
+    }
+
     function resolveCurrentAccount(store = authStore) {
       const session = store?.session;
       if (!session?.companyId || !session?.userId) return null;
@@ -10963,8 +11062,7 @@
 
     function hasPermission(permissionKey, user = currentAccount?.user) {
       if (!user) return false;
-      if (isAdminUser(user)) return true;
-      return user.permissions?.[permissionKey] === true;
+      return permissionAtLeast(permissionKey, "view", user);
     }
 
     function canAccessView(view) {
@@ -10973,12 +11071,14 @@
       if (!permissionKey) return true;
       const module = PERMISSION_MODULES.find(item => item.key === permissionKey);
       if (module?.adminOnly) return isAdminUser();
+      const profile = accessProfileForUser(currentAccount.user);
+      if (["warehouse", "requester"].includes(profile) && permissionKey === "orders" && view !== "orders") return false;
       return hasPermission(permissionKey);
     }
 
     function canRunModuleAction(action) {
       const permissionKey = MODULE_ACTION_PERMISSION[action];
-      return permissionKey ? hasPermission(permissionKey) : true;
+      return permissionKey ? permissionAtLeast(permissionKey, "operate") : true;
     }
 
     function firstAllowedView() {
@@ -11026,7 +11126,11 @@
         tools: user.tools || "",
         vacations: user.vacations || "",
         contractType: user.contractType || "CLT",
-        contractNote: user.contractNote || ""
+        contractNote: user.contractNote || "",
+        accessProfile: normalizeAccessProfile(user.accessProfile, user),
+        permissionLevels: user.permissionLevels && typeof user.permissionLevels === "object" ? { ...user.permissionLevels } : {},
+        unit: user.unit || "Unidade Industrial 01",
+        lastAccessAt: Number(user.lastAccessAt || 0)
       };
     }
 
@@ -12817,7 +12921,9 @@
         showToast("Empresa, email ou senha inválidos.");
         return false;
       }
-      authStore.session = { companyId: company.id, userId: user.id, at: Date.now() };
+      const loginAt = Date.now();
+      authStore.users = authStore.users.map(item => item.id === user.id ? { ...item, lastAccessAt: loginAt } : item);
+      authStore.session = { companyId: company.id, userId: user.id, at: loginAt };
       saveAuthStore(authStore);
       saveRememberedLogin(login, normalizedEmail);
       currentAccount = resolveCurrentAccount(authStore);
@@ -12918,24 +13024,89 @@
         const visibleItems = Array.from(group.querySelectorAll(".tab")).filter(item => !item.classList.contains("is-permission-hidden"));
         group.classList.toggle("is-empty", visibleItems.length === 0);
       });
+      applyActionPermissionVisibility();
     }
 
-    function renderPermissionGrid(selected = {}, role = "user") {
+    function actionModuleForElement(element) {
+      const view = element.closest?.(".view")?.id || document.querySelector(".view.active")?.id || "dashboard";
+      return element.dataset?.permissionModule || VIEW_PERMISSION[view] || "dashboard";
+    }
+
+    function applyActionPermissionVisibility(root = document) {
+      if (!currentAccount) return;
+      root.querySelectorAll(".view button, .view [role='button'], #genericModal button").forEach(element => {
+        if (element.matches(".close,[data-close-modal],[data-view],[data-mobile-view],[data-view-button]") || element.closest(".tenant-user-admin")) return;
+        const actionText = element.dataset.permissionAction || element.textContent || element.title || element.getAttribute("aria-label") || "";
+        const requiredLevel = element.dataset.requiredLevel || actionPermissionKeyFromText(actionText);
+        const allowed = profileAllowsAction(actionModuleForElement(element), requiredLevel, actionText);
+        element.classList.toggle("is-action-permission-hidden", !allowed);
+      });
+    }
+
+    function renderPermissionGrid(selected = {}, role = "technician") {
       if (!$("tenantPermissionGrid")) return;
-      const disabled = role === "admin";
-      const permissions = disabled ? allPermissions(true) : selected;
+      const profile = ACCESS_PROFILES[role] ? role : normalizeAccessProfile(role, { role });
+      const disabled = profile === "admin";
+      const permissions = profilePermissionTemplate(profile);
+      PERMISSION_MODULES.forEach(module => {
+        if (ACCESS_LEVELS.includes(selected?.[module.key])) permissions[module.key] = selected[module.key];
+        else if (typeof selected?.[module.key] === "boolean") permissions[module.key] = selected[module.key] ? "manage" : "none";
+      });
+      if ($("tenantProfileDescription")) $("tenantProfileDescription").textContent = ACCESS_PROFILES[profile]?.description || "";
       $("tenantPermissionGrid").innerHTML = PERMISSION_MODULES
         .filter(module => !module.adminOnly)
         .map(module => `
           <label class="permission-item">
-            <input type="checkbox" data-permission-key="${module.key}" ${permissions[module.key] ? "checked" : ""} ${disabled ? "disabled" : ""}>
             <span>${escapeHtml(module.label)}</span>
+            <select class="field" data-permission-key="${module.key}" ${disabled ? "disabled" : ""}>${ACCESS_LEVELS.map(level => `<option value="${level}" ${permissions[module.key] === level ? "selected" : ""}>${ACCESS_LEVEL_LABELS[level]}</option>`).join("")}</select>
           </label>
         `).join("");
     }
 
     function tenantUserDisplayName(user = {}) {
       return [user.firstName, user.lastName].filter(Boolean).join(" ") || user.name || user.username || user.email || "Usuário";
+    }
+
+    function primaryAdminUser() {
+      return authStore.users.filter(user => user.companyId === currentAccount?.company?.id && user.role === "admin").sort((a,b) => Number(a.createdAt||0)-Number(b.createdAt||0))[0] || null;
+    }
+
+    function isPrimaryAdmin(user = {}) { return user.id && user.id === primaryAdminUser()?.id; }
+    function accessProfileForUser(user = {}) { return normalizeAccessProfile(user.accessProfile, user); }
+    function accessProfileChip(user = {}) {
+      const profile = accessProfileForUser(user); const meta = ACCESS_PROFILES[profile] || ACCESS_PROFILES.viewer;
+      return `<span class="access-profile-chip profile-${meta.color}">${escapeHtml(meta.label)}</span>`;
+    }
+
+    function ensurePermissionTestUsers() {
+      if (!isAdminUser() || !currentAccount?.company?.id) return;
+      const companyId = currentAccount.company.id;
+      const definitions = [
+        ["teste.adm", "TESTE ADM", "admin"],
+        ["teste.supervisor", "TESTE Supervisor", "supervisor"],
+        ["teste.tecnico", "TESTE Técnico", "technician"],
+        ["teste.almoxarifado", "TESTE Almoxarifado", "warehouse"],
+        ["teste.solicitante", "TESTE Solicitante", "requester"],
+        ["teste.visualizador", "TESTE Visualizador", "viewer"]
+      ];
+      let changed = false;
+      definitions.forEach(([login, name, accessProfile], index) => {
+        const exists = authStore.users.some(user => user.companyId === companyId && normalizeEmail(user.email) === login);
+        if (exists) return;
+        const [firstName, ...lastParts] = name.split(" ");
+        const levels = profilePermissionTemplate(accessProfile);
+        authStore.users.push({
+          id:uid(`teste-${accessProfile}`), companyId, name, firstName, lastName:lastParts.join(" "),
+          email:login, username:login, contactEmail:`${login}@gestman365.teste`, password:normalizeAuthPassword("Teste@123"),
+          role:accessProfile === "admin" ? "admin" : "user", accessProfile, active:false,
+          permissions:Object.fromEntries(Object.entries(levels).map(([key, level]) => [key, level !== "none"])),
+          permissionLevels:levels, unit:index % 2 ? "Unidade Industrial 02" : "Unidade Industrial 01",
+          jobTitle:ACCESS_PROFILES[accessProfile].label, executor:accessProfile === "technician",
+          createdAt:Date.now() + index + 1000, lastAccessAt:0, photo:""
+        });
+        changed = true;
+      });
+      if (changed) saveAuthStore(authStore);
     }
 
     function renderTenantUserPhotoPreview(photo = "") {
@@ -12973,8 +13144,11 @@
       $("tenantUserEmail").value = "";
       $("tenantUserContactEmail").value = "";
       $("tenantUserPassword").value = "";
-      $("tenantUserRole").value = "user";
+      $("tenantUserRole").value = "technician";
+      $("tenantUserRole").disabled = false;
       $("tenantUserActive").value = "true";
+      $("tenantUserActive").disabled = false;
+      if ($("tenantUserUnit")) $("tenantUserUnit").value = "Unidade Industrial 01";
       $("tenantUserJobTitle").value = "";
       $("tenantUserFirstName").value = "";
       $("tenantUserLastName").value = "";
@@ -12988,43 +13162,78 @@
       $("tenantUserContractType").value = "CLT";
       $("tenantUserContractNote").value = "";
       if ($("tenantUserEditorTitle")) $("tenantUserEditorTitle").textContent = "Criar Usuário";
+      if ($("tenantInactiveConfirm")) $("tenantInactiveConfirm").classList.add("is-hidden");
       renderTenantUserPhotoPreview("");
-      renderPermissionGrid({}, "user");
+      renderPermissionGrid({}, "technician");
       selectTenantUserTab("general");
     }
 
     function selectedPermissionPayload() {
-      const role = $("tenantUserRole")?.value || "user";
+      const role = $("tenantUserRole")?.value || "technician";
       if (role === "admin") return allPermissions(true);
       const payload = {};
       document.querySelectorAll("[data-permission-key]").forEach(input => {
-        payload[input.dataset.permissionKey] = Boolean(input.checked);
+        payload[input.dataset.permissionKey] = input.value !== "none";
       });
+      return payload;
+    }
+
+    function selectedPermissionLevels() {
+      const role = $("tenantUserRole")?.value || "technician";
+      if (role === "admin") return profilePermissionTemplate("admin");
+      const payload = {};
+      document.querySelectorAll("[data-permission-key]").forEach(input => { payload[input.dataset.permissionKey] = ACCESS_LEVELS.includes(input.value) ? input.value : "none"; });
       return payload;
     }
 
     function renderUsers() {
       if (!$("tenantUserRows")) return;
       if (!currentAccount) return;
-      if ($("tenantPermissionGrid") && !$("tenantUserId")?.value) renderPermissionGrid({}, $("tenantUserRole")?.value || "user");
+      if ($("tenantPermissionGrid") && !$("tenantUserId")?.value) renderPermissionGrid({}, $("tenantUserRole")?.value || "technician");
       const users = authStore.users.filter(user => user.companyId === currentAccount.company.id);
       $("tenantUserRows").innerHTML = users.map(user => {
         const isCurrent = user.id === currentAccount.user.id;
-        const statusClass = user.active !== false ? "ok" : "danger";
+        const protectedAdmin = isPrimaryAdmin(user);
         return `
           <tr>
-            <td>${escapeHtml(user.username || user.email)}</td>
             <td>${escapeHtml(tenantUserDisplayName(user))}</td>
-            <td>${escapeHtml(user.jobTitle || (user.role === "admin" ? "Administrador" : "Usuário"))}</td>
-            <td>${user.executor ? "Sim" : "Não"}</td>
-            <td><span class="tag ${statusClass}">${user.active !== false ? "Ativo" : "Bloqueado"}</span></td>
+            <td>${escapeHtml(user.contactEmail || user.email || "-")}</td>
+            <td>${accessProfileChip(user)}</td>
+            <td><span class="tag ${user.active !== false ? "status-success" : "status-inactive"}">${user.active !== false ? "Ativo" : "Inativo"}</span></td>
+            <td>${escapeHtml(user.unit || "Unidade Industrial 01")}</td>
+            <td>${user.lastAccessAt ? formatDateTime(user.lastAccessAt) : "Nunca acessou"}</td>
             <td class="actions">
-              <button class="btn" onclick="editTenantUser('${user.id}')">Editar</button>
-              <button class="btn danger" onclick="deleteTenantUser('${user.id}')" ${isCurrent ? "disabled" : ""}>Excluir</button>
+              <details class="tenant-row-actions"><summary aria-label="Ações de ${escapeHtml(tenantUserDisplayName(user))}">⋮</summary><div>
+                <button type="button" onclick="editTenantUser('${user.id}')">Editar</button>
+                <button type="button" onclick="editTenantUserProfile('${user.id}')">Redefinir perfil</button>
+                ${protectedAdmin || isCurrent ? "" : `<button type="button" onclick="toggleTenantUserActive('${user.id}')">${user.active !== false ? "Desativar" : "Ativar"}</button>`}
+              </div></details>
             </td>
           </tr>
         `;
-      }).join("") || `<tr><td colspan="6">Nenhum usuário cadastrado.</td></tr>`;
+      }).join("") || `<tr><td colspan="7" class="empty">Nenhum usuário cadastrado.</td></tr>`;
+    }
+
+    function editTenantUserProfile(id) {
+      editTenantUser(id);
+      $("tenantUserRole")?.focus({ preventScroll:true });
+    }
+
+    function performTenantUserActiveToggle(id) {
+      const user = authStore.users.find(item => item.id === id && item.companyId === currentAccount?.company?.id);
+      if (!user || isPrimaryAdmin(user) || user.id === currentAccount?.user?.id) return;
+      authStore.users = authStore.users.map(item => item.id === id ? { ...item, active:item.active === false } : item);
+      saveAuthStore(authStore);
+      openProfileModal();
+      showToast(user.active === false ? "Usuário ativado com sucesso." : "Usuário desativado. O histórico foi preservado.");
+    }
+
+    function toggleTenantUserActive(id) {
+      if (!isAdminUser()) { showToast("Acesso não permitido para o seu perfil."); return; }
+      const user = authStore.users.find(item => item.id === id && item.companyId === currentAccount?.company?.id);
+      if (!user || isPrimaryAdmin(user) || user.id === currentAccount?.user?.id) return;
+      if (user.active === false) { performTenantUserActiveToggle(id); return; }
+      requestDestructiveConfirmation("Desativar este usuário?", "O acesso será bloqueado, mas o histórico será preservado.", "Desativar usuário", () => performTenantUserActiveToggle(id));
     }
 
     function editTenantUser(id) {
@@ -13035,8 +13244,9 @@
       $("tenantUserEmail").value = user.username || user.email || "";
       $("tenantUserContactEmail").value = user.contactEmail || "";
       $("tenantUserPassword").value = "";
-      $("tenantUserRole").value = user.role || "user";
+      $("tenantUserRole").value = accessProfileForUser(user);
       $("tenantUserActive").value = String(user.active !== false);
+      if ($("tenantUserUnit")) $("tenantUserUnit").value = user.unit || "Unidade Industrial 01";
       $("tenantUserJobTitle").value = user.jobTitle || "";
       $("tenantUserFirstName").value = user.firstName || (user.name || "").split(" ")[0] || "";
       $("tenantUserLastName").value = user.lastName || (user.name || "").split(" ").slice(1).join(" ");
@@ -13049,7 +13259,10 @@
       $("tenantUserContractType").value = user.contractType || "CLT";
       $("tenantUserContractNote").value = user.contractNote || "";
       renderTenantUserPhotoPreview(user.photo || "");
-      renderPermissionGrid(user.permissions || {}, user.role || "user");
+      renderPermissionGrid(user.permissionLevels || user.permissions || {}, accessProfileForUser(user));
+      const protectedAdmin = isPrimaryAdmin(user);
+      $("tenantUserRole").disabled = protectedAdmin;
+      $("tenantUserActive").disabled = protectedAdmin;
       openTenantUserEditor("edit");
     }
 
@@ -13065,12 +13278,24 @@
       showToast("Usuário excluído.");
     }
 
+    let tenantUserDeactivationConfirmed = false;
+    function confirmTenantUserDeactivation() {
+      tenantUserDeactivationConfirmed = true;
+      $("tenantInactiveConfirm")?.classList.add("is-hidden");
+      $("tenantUserForm")?.requestSubmit();
+    }
+
     async function saveTenantUserFromForm(event) {
       event.preventDefault();
       if (!isAdminUser()) { showToast("Somente administrador pode criar usuários."); return; }
       const id = $("tenantUserId").value || uid("user");
       const companyId = currentAccount?.company?.id;
       const existing = authStore.users.find(item => item.id === id && item.companyId === companyId);
+      if (existing?.active !== false && $("tenantUserActive").value === "false" && !tenantUserDeactivationConfirmed) {
+        $("tenantInactiveConfirm")?.classList.remove("is-hidden");
+        showToast("Confirme a desativação para continuar.", "warning");
+        return;
+      }
       const loginUser = normalizeEmail($("tenantUserEmail").value);
       if (!loginUser) { showToast("Informe o usuário de acesso."); return; }
       const duplicate = authStore.users.find(item => item.companyId === companyId && item.id !== id && normalizeEmail(item.email) === loginUser);
@@ -13080,6 +13305,7 @@
       const firstName = $("tenantUserFirstName").value.trim();
       const lastName = $("tenantUserLastName").value.trim();
       const fullName = [firstName, lastName].filter(Boolean).join(" ") || loginUser;
+      const accessProfile = ACCESS_PROFILES[$("tenantUserRole").value] ? $("tenantUserRole").value : "technician";
       const payload = {
         id,
         companyId,
@@ -13091,6 +13317,7 @@
         firstName,
         lastName,
         productiveCalendar: $("tenantUserCalendar").value || "07:00-17:00",
+        unit: $("tenantUserUnit")?.value || "Unidade Industrial 01",
         executor: $("tenantUserExecutor").checked,
         specialties: $("tenantUserSpecialties").value.trim(),
         tools: $("tenantUserTools").value.trim(),
@@ -13098,17 +13325,27 @@
         contractType: $("tenantUserContractType").value || "CLT",
         contractNote: $("tenantUserContractNote").value.trim(),
         password: password || existing?.password || "",
-        role: $("tenantUserRole").value === "admin" ? "admin" : "user",
+        role: accessProfile === "admin" ? "admin" : "user",
+        accessProfile,
         active: $("tenantUserActive").value === "true",
         permissions: selectedPermissionPayload(),
+        permissionLevels: selectedPermissionLevels(),
         photo: $("tenantUserPhoto").value || existing?.photo || "",
-        createdAt: existing?.createdAt || Date.now()
+        createdAt: existing?.createdAt || Date.now(),
+        lastAccessAt: existing?.lastAccessAt || 0
       };
-      if (id === currentAccount.user.id) payload.active = true;
+      if (id === currentAccount.user.id || isPrimaryAdmin(existing || payload)) payload.active = true;
+      if (isPrimaryAdmin(existing || payload)) {
+        payload.role = "admin";
+        payload.accessProfile = "admin";
+        payload.permissions = allPermissions(true);
+        payload.permissionLevels = profilePermissionTemplate("admin");
+      }
       authStore.users = authStore.users.filter(item => item.id !== id).concat(payload);
       if (id === currentAccount.user.id) authStore.session = { companyId, userId: id, at: Date.now() };
       saveAuthStore(authStore);
       currentAccount = resolveCurrentAccount(authStore);
+      tenantUserDeactivationConfirmed = false;
       resetTenantUserForm();
       closeTenantUserEditor();
       applyAuthState();
@@ -14144,7 +14381,7 @@
       let nextView = document.getElementById(view) ? view : firstAllowedView();
       if (!canAccessView(nextView)) {
         nextView = firstAllowedView();
-        if (options.silent !== true) showToast("Seu usuário não tem permissão para acessar este módulo.");
+        if (options.silent !== true) denyProfileAccess();
       }
       if (nextView !== "orders" || options.dashboardFilter !== "backlog") dashboardBacklogView = false;
       if (nextView !== "assets" || options.dashboardFilter !== "critical") dashboardCriticalAssetIds = null;
@@ -15182,6 +15419,7 @@
 
     function applyDashboardLayout() {
       const layout = activeDashboardLayout();
+      const widgetPermissions = { metrics:"dashboard", trend:"reports", status:"orders", criticality:"assets", quickActions:"dashboard", alerts:"dashboard", latestOrders:"orders", stops:"orders", stockAlerts:"stock", ordersChart:"orders", activeOrders:"orders", agenda:"orders", parts:"stock" };
       document.querySelectorAll("[data-dashboard-widget]").forEach(widget => {
         const id = widget.dataset.dashboardWidget;
         const index = layout.order.indexOf(id);
@@ -15191,6 +15429,7 @@
         widget.classList.add(`size-${size}`);
         widget.draggable = dashboardEditMode && id !== "metrics" && !layout.hidden.includes(id);
         widget.classList.toggle("is-hidden", layout.hidden.includes(id));
+        widget.classList.toggle("is-profile-hidden", !hasPermission(widgetPermissions[id] || "dashboard"));
       });
       document.querySelectorAll("[data-dashboard-controls]").forEach(target => {
         target.innerHTML = dashboardEditMode ? dashboardControlsHtml(target.dataset.dashboardControls) : "";
@@ -16301,9 +16540,10 @@
     }
 
     function renderMap() {
-      autoResizeLocations();
-      const q = $("globalSearch").value.trim().toLowerCase();
       const map = $("industrialMap");
+      if (!map) return;
+      autoResizeLocations();
+      const q = $("globalSearch")?.value.trim().toLowerCase() || "";
       const extentY = industrialMapExtentY();
       applyIndustrialMapHeight(map, extentY);
       if (!state.regions.length && !state.locations.length && !state.assets.length) {
@@ -18856,12 +19096,22 @@
       const localSearch = normalizeTextKey($("osSearch")?.value || "");
       const start = $("osPeriodStart")?.value ? new Date(`${$("osPeriodStart").value}T00:00:00`).getTime() : 0;
       const end = $("osPeriodEnd")?.value ? new Date(`${$("osPeriodEnd").value}T23:59:59`).getTime() : 0;
+      const accessProfile = accessProfileForUser(currentAccount?.user || {});
+      const userIdentity = [tenantUserDisplayName(currentAccount?.user || {}), currentAccount?.user?.username, currentAccount?.user?.email, currentAccount?.user?.contactEmail].map(normalizeTextKey).filter(Boolean);
 
       return state.orders.filter(order => {
         const created = Number(order.createdAt || 0);
         const matchesGlobal = filter(`${order.number || ""} ${machineName(order.assetId)} ${ptBrText(order.type)} ${ptBrText(order.priority)} ${ptBrText(order.status)} ${order.executor || ""} ${order.requester || ""} ${order.description || ""}`);
         const localText = normalizeTextKey(`${order.number || ""} ${order.description || ""} ${machineName(order.assetId)} ${order.executor || ""}`);
+        const executorIdentity = normalizeTextKey(order.executor || "");
+        const requesterIdentity = normalizeTextKey(order.requester || "");
+        const profileMatches = accessProfile === "technician"
+          ? Boolean(executorIdentity) && userIdentity.some(identity => executorIdentity.includes(identity) || identity.includes(executorIdentity))
+          : accessProfile === "requester"
+            ? Boolean(requesterIdentity) && userIdentity.some(identity => requesterIdentity.includes(identity) || identity.includes(requesterIdentity))
+            : true;
         return matchesGlobal
+          && profileMatches
           && (!localSearch || localText.includes(localSearch))
           && (!isMobileOperational() || !mobileMyOrdersOnly || normalizeTextKey(order.executor).includes(normalizeTextKey(currentTechnicianName())))
           && (!isMobileOperational() || mobileOrderFilter === "all" || (mobileOrderFilter === "open" && normalizeTextKey(order.status).includes("abert")) || (mobileOrderFilter === "running" && isRunningOrder(order.status)) || (mobileOrderFilter === "paused" && normalizeTextKey(order.status).includes("paus")) || (mobileOrderFilter === "late" && orderIsLate(order)) || (mobileOrderFilter === "closed" && isClosedOrder(order.status)))
@@ -19026,6 +19276,7 @@
     }
 
     async function cancelOrder(id, confirmed = false) {
+      if (!namedOperationAllowed("cancelOrder", "orders", "manage", [id, confirmed])) return denyProfileAccess();
       if(!confirmed){
         requestDestructiveConfirmation("Cancelar esta Ordem de Serviço?", "A O.S. será marcada como cancelada, mas continuará disponível no histórico.", "Cancelar O.S.", () => cancelOrder(id, true));
         return;
@@ -19530,6 +19781,7 @@
     }
 
     function editSupplier(id) {
+      if (!namedOperationAllowed("editSupplier", "suppliers", "manage", [id])) return denyProfileAccess();
       const item = byId(state.suppliers, id); if (!item) return;
       $("supplierId").value = item.id;
       $("supplierLegalName").value = item.legalName || "";
@@ -19545,6 +19797,7 @@
     }
 
     async function deleteSupplier(id, confirmed = false) {
+      if (!namedOperationAllowed("deleteSupplier", "suppliers", "manage", [id, confirmed])) return denyProfileAccess();
       if (!confirmed) { requestDestructiveConfirmation("Excluir este fornecedor?", "O fornecedor será removido e as peças vinculadas ficarão sem fornecedor selecionado.", "Excluir fornecedor", () => deleteSupplier(id, true)); return; }
       if (!await confirmRemoteDelete("fornecedores", id, "fornecedor")) return;
       state.suppliers = state.suppliers.filter(item => item.id !== id);
@@ -19553,6 +19806,7 @@
     }
 
     function editStock(id) {
+      if (!namedOperationAllowed("editStock", "stock", "manage", [id])) return denyProfileAccess();
       const item = byId(state.stockLocations, id); if (!item) return;
       $("stockId").value = item.id;
       $("stockName").value = item.name || "";
@@ -19565,6 +19819,7 @@
     }
 
     async function deleteStock(id, confirmed = false) {
+      if (!namedOperationAllowed("deleteStock", "stock", "manage", [id, confirmed])) return denyProfileAccess();
       if (!confirmed) {
         requestDestructiveConfirmation("Excluir este estoque?", "O estoque será removido. Os registros relacionados continuarão disponíveis quando aplicável.", "Excluir estoque", () => deleteStock(id, true));
         return;
@@ -19575,6 +19830,7 @@
     }
 
     function editSpare(id) {
+      if (!namedOperationAllowed("editSpare", "stock", "manage", [id])) return denyProfileAccess();
       const item = byId(state.spareParts, id); if (!item) return;
       spareSupplierDraftId = item.supplierId || "";
       $("spareId").value = item.id;
@@ -19595,6 +19851,7 @@
     }
 
     async function deleteSpare(id, confirmed = false) {
+      if (!namedOperationAllowed("deleteSpare", "stock", "manage", [id, confirmed])) return denyProfileAccess();
       if (!confirmed) {
         requestDestructiveConfirmation("Excluir esta peça?", "A peça será removida do catálogo e os vínculos de estoque relacionados serão atualizados.", "Excluir peça", () => deleteSpare(id, true));
         return;
@@ -19641,6 +19898,7 @@
     }
 
     function editDowntime(id) {
+      if (!namedOperationAllowed("editDowntime", "orders", "operate", [id])) return denyProfileAccess();
       const item = byId(state.downtimes, id);
       if (!item) return;
       $("downtimeId").value = item.id;
@@ -19659,6 +19917,7 @@
     }
 
     function closeDowntime(id) {
+      if (!namedOperationAllowed("closeDowntime", "orders", "operate", [id])) return denyProfileAccess();
       if(isMobileOperational()) return openMobileCloseDowntime(id);
       const lockKey = `${id}:Encerrada`;
       if (downtimeMutationLocks.has(lockKey)) return;
@@ -19685,6 +19944,7 @@
     }
 
     function cancelDowntime(id) {
+      if (!namedOperationAllowed("cancelDowntime", "orders", "manage", [id])) return denyProfileAccess();
       const lockKey = `${id}:Cancelada`;
       if (downtimeMutationLocks.has(lockKey)) return;
       downtimeMutationLocks.add(lockKey);
@@ -19701,6 +19961,7 @@
     }
 
     function deleteDowntime(id, confirmed = false) {
+      if (!namedOperationAllowed("deleteDowntime", "orders", "manage", [id, confirmed])) return denyProfileAccess();
       const item = byId(state.downtimes, id);
       if (!item) return;
       if (!confirmed) { requestDestructiveConfirmation("Excluir esta parada?", `${item.reason || downtimeShortId(item)} será removida do histórico de indisponibilidade.`, "Excluir parada", () => deleteDowntime(id, true)); return; }
@@ -19721,6 +19982,7 @@
     }
 
     function editMeasurement(id) {
+      if (!namedOperationAllowed("editMeasurement", "orders", "operate", [id])) return denyProfileAccess();
       const item = byId(state.measurements, id);
       if (!item) return;
       $("measurementId").value = item.id;
@@ -19759,6 +20021,7 @@
     }
 
     function deleteMeasurement(id, confirmed = false) {
+      if (!namedOperationAllowed("deleteMeasurement", "orders", "manage", [id, confirmed])) return denyProfileAccess();
       const item = byId(state.measurements, id);
       if (!item) return;
       if (!confirmed) { requestDestructiveConfirmation("Excluir esta medição?", `${measurementShortId(item)} será removida do histórico do equipamento.`, "Excluir medição", () => deleteMeasurement(id, true)); return; }
@@ -19887,6 +20150,7 @@
     }
 
     function editStockMove(id) {
+      if (!namedOperationAllowed("editStockMove", "stock", "operate", [id])) return denyProfileAccess();
       const item = byId(state.inventoryMovements, id); if (!item) return;
       $("stockMoveId").value = item.id; $("stockMoveItemId").value = item.itemId || ""; $("stockMoveType").value = item.type || "Entrada"; $("stockMoveStock").value = item.stockId || ""; $("stockMoveSpare").value = item.spareId || ""; $("stockMoveSupplier").value = item.supplierId || ""; $("stockMoveQty").value = item.quantity || 1; $("stockMoveValue").value = item.unitValue || 0; $("stockMoveOwner").value = item.owner || ""; $("stockMoveStatus").value = item.status || "Aberta"; $("stockMoveNote").value = item.note || "";
       setQuantityInputStep("stockMoveQty", item.spareId);
@@ -19894,6 +20158,7 @@
       showCrudForm("stockMoveForm");
     }
     async function deleteStockMove(id, confirmed = false) {
+      if (!namedOperationAllowed("deleteStockMove", "stock", "manage", [id, confirmed])) return denyProfileAccess();
       if (!confirmed) {
         requestDestructiveConfirmation("Excluir esta movimentação?", "A movimentação será removida e o saldo do estoque será recalculado.", "Excluir movimentação", () => deleteStockMove(id, true));
         return;
@@ -19910,6 +20175,7 @@
     }
 
     function editMaterialRequest(id) {
+      if (!namedOperationAllowed("editMaterialRequest", "stock", "operate", [id])) return denyProfileAccess();
       const item = byId(state.materialRequests, id); if (!item) return;
       $("materialRequestId").value = item.id; $("materialRequestItemId").value = item.itemId || ""; $("materialRequestStock").value = item.stockId || ""; $("materialRequestOrder").value = item.orderId || ""; $("materialRequestSpare").value = item.spareId || ""; $("materialRequestQty").value = item.quantity || 1; $("materialRequestRequester").value = item.requester || ""; $("materialRequestStatus").value = item.status || "Aberta"; $("materialRequestNote").value = item.note || "";
       setQuantityInputStep("materialRequestQty", item.spareId);
@@ -19917,6 +20183,7 @@
       showCrudForm("materialRequestForm");
     }
     async function deleteMaterialRequest(id, confirmed = false) {
+      if (!namedOperationAllowed("deleteMaterialRequest", "stock", "manage", [id, confirmed])) return denyProfileAccess();
       if (!confirmed) { requestDestructiveConfirmation("Excluir esta requisição?", "A requisição será removida e o saldo de estoque relacionado será recalculado.", "Excluir requisição", () => deleteMaterialRequest(id, true)); return; }
       const existing = byId(state.materialRequests, id);
       if (!existing || !applyStockBalanceChange(existing, null, materialRequestBalanceEffect)) return;
@@ -19930,6 +20197,7 @@
     }
 
     function editStockTransfer(id) {
+      if (!namedOperationAllowed("editStockTransfer", "stock", "operate", [id])) return denyProfileAccess();
       const item = byId(state.stockTransfers, id); if (!item) return;
       $("stockTransferId").value = item.id; $("stockTransferItemId").value = item.itemId || ""; $("stockTransferOrigin").value = item.originId || ""; $("stockTransferDestiny").value = item.destinyId || ""; $("stockTransferSpare").value = item.spareId || ""; $("stockTransferQty").value = item.quantity || 1; $("stockTransferOwner").value = item.owner || ""; $("stockTransferStatus").value = item.status || "Aberta"; $("stockTransferNote").value = item.note || "";
       setQuantityInputStep("stockTransferQty", item.spareId);
@@ -19937,6 +20205,7 @@
       showCrudForm("stockTransferForm");
     }
     async function deleteStockTransfer(id, confirmed = false) {
+      if (!namedOperationAllowed("deleteStockTransfer", "stock", "manage", [id, confirmed])) return denyProfileAccess();
       if (!confirmed) { requestDestructiveConfirmation("Excluir esta transferência?", "A transferência será removida do histórico de movimentações entre estoques.", "Excluir transferência", () => deleteStockTransfer(id, true)); return; }
       await deleteSupabaseWhere("transferencias_estoque_itens", `transferencia_id=eq.${encodeURIComponent(id)}`);
       if (!await confirmRemoteDelete("transferencias_estoque", id, "transferência")) return;
@@ -20065,6 +20334,7 @@
       $("genericModalBox").querySelector(".close")?.setAttribute("aria-label", "Fechar janela");
       $("genericModal").classList.add("open");
       standardizeUiComponents($("genericModalBox"));
+      applyPermissionVisibility();
       requestAnimationFrame(() => {
         const focusTarget = $("genericModalBox").querySelector("input:not([type='hidden']),select,textarea,button,[tabindex]:not([tabindex='-1'])");
         focusTarget?.focus({ preventScroll:true });
@@ -20107,6 +20377,7 @@
     }
 
     function openProfileModal() {
+      ensurePermissionTestUsers();
       const profile = state.profile || {};
       const user = currentAccount?.user || {};
       const userPhoto = user.photo || profile.photo || "";
@@ -20124,15 +20395,16 @@
         ${isAdminUser() ? `
           <div class="panel profile-admin-users tenant-user-admin">
             <div class="panel-head">
-              <div>
-                <div class="panel-title">Usuários da empresa</div>
-                <small class="muted">Somente o administrador cria contas e define permissões.</small>
-              </div>
+                <div>
+                  <div class="panel-title">Usuários da empresa</div>
+                  <small class="muted">Somente o administrador cria contas e define permissões.</small>
+                  <small class="tenant-test-hint">Contas TESTE mantidas para validação manual · senha: <strong>Teste@123</strong></small>
+                </div>
               <button class="btn primary" type="button" id="startTenantUserCreate">Criar usuário</button>
             </div>
             <div class="table-wrap tenant-user-list" id="tenantUserListPanel">
               <table>
-                <thead><tr><th>Usuário</th><th>Nome</th><th>Cargo</th><th>Executante</th><th>Status</th><th>Ações</th></tr></thead>
+                <thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Status</th><th>Unidade</th><th>Último acesso</th><th>Ações</th></tr></thead>
                 <tbody id="tenantUserRows"></tbody>
               </table>
             </div>
@@ -20143,58 +20415,46 @@
                 <span id="tenantUserEditorTitle">Criar Usuário</span>
                 <small class="muted">Cadastro no modelo GestMan</small>
               </div>
-              <div class="tenant-user-tabs" role="tablist">
-                <button type="button" class="tenant-user-tab active" data-tenant-user-tab="general">Geral</button>
-                <button type="button" class="tenant-user-tab" data-tenant-user-tab="specialties">Especialidades</button>
-                <button type="button" class="tenant-user-tab" data-tenant-user-tab="tools">Ferramentas</button>
-                <button type="button" class="tenant-user-tab" data-tenant-user-tab="vacations">Férias</button>
-                <button type="button" class="tenant-user-tab" data-tenant-user-tab="contract">Contrato</button>
-                <button type="button" class="tenant-user-tab" data-tenant-user-tab="permissions">Permissões</button>
-              </div>
+              <div class="tenant-user-stage9-intro"><strong>Acesso simples e seguro</strong><small>Escolha um perfil pronto e personalize apenas quando necessário.</small></div>
               <div class="tenant-user-body">
-                <div class="tenant-user-photo-card">
-                  <div class="tenant-user-photo-preview" id="tenantUserPhotoPreview"><span>Sem<br>foto</span></div>
-                  <label class="full">Foto <input class="field" id="tenantUserPhotoFile" type="file" accept="image/*"></label>
+                <div class="tenant-user-main-grid">
+                  <label>Nome <input class="field" id="tenantUserFirstName" required placeholder="Nome"></label>
+                  <label>Sobrenome <input class="field" id="tenantUserLastName" placeholder="Sobrenome"></label>
+                  <label class="full">E-mail <input class="field" id="tenantUserContactEmail" type="email" required placeholder="email@empresa.com" autocapitalize="none" spellcheck="false"></label>
+                  <label>Usuário de acesso <input class="field" id="tenantUserEmail" required placeholder="nome.sobrenome" autocapitalize="none" spellcheck="false"></label>
+                  <label>Senha <input class="field" id="tenantUserPassword" type="password" placeholder="Senha inicial ou nova senha"></label>
+                  <label>Perfil
+                    <select class="field" id="tenantUserRole"><option value="admin">Administrador / Gestor</option><option value="supervisor">Supervisor</option><option value="technician">Técnico de manutenção</option><option value="warehouse">Almoxarifado / Estoque</option><option value="requester">Solicitante</option><option value="viewer">Consulta / Visualizador</option></select>
+                    <small class="tenant-profile-description" id="tenantProfileDescription"></small>
+                  </label>
+                  <label>Unidade <select class="field" id="tenantUserUnit"><option>Unidade Industrial 01</option><option>Unidade Industrial 02</option><option>Todas as unidades</option></select></label>
+                  <label>Status <select class="field" id="tenantUserActive"><option value="true">Ativo</option><option value="false">Inativo</option></select></label>
                 </div>
-                <div class="tenant-user-panels">
-                  <section class="tenant-user-panel active" data-tenant-user-panel="general">
+                <details class="tenant-access-details" id="tenantCustomAccess">
+                  <summary><span>Personalizar acessos</span><small>Ajuste somente quando o perfil padrão não for suficiente.</small></summary>
+                  <div class="permission-grid" id="tenantPermissionGrid"></div>
+                </details>
+                <details class="tenant-more-details">
+                  <summary><span>Informações complementares</span><small>Dados opcionais preservados do cadastro atual.</small></summary>
+                  <div class="tenant-user-more-grid">
+                    <div class="tenant-user-photo-card"><div class="tenant-user-photo-preview" id="tenantUserPhotoPreview"><span>Sem<br>foto</span></div><label>Foto <input class="field" id="tenantUserPhotoFile" type="file" accept="image/*"></label></div>
                     <div class="tenant-user-grid">
-                      <label>Usuário <input class="field" id="tenantUserEmail" required placeholder="teste.nadir" autocapitalize="none" spellcheck="false"></label>
                       <label>Cargo <input class="field" id="tenantUserJobTitle" placeholder="Mecânico, eletricista, gestor..."></label>
-                      <label>E-mail <input class="field" id="tenantUserContactEmail" type="email" placeholder="email@empresa.com" autocapitalize="none" spellcheck="false"></label>
-                      <label>Senha <input class="field" id="tenantUserPassword" type="password" placeholder="Senha inicial ou nova senha"></label>
-                      <label>Nome <input class="field" id="tenantUserFirstName" placeholder="Nome"></label>
-                      <label>Sobrenome <input class="field" id="tenantUserLastName" placeholder="Sobrenome"></label>
                       <label>Calendário produtivo <select class="field" id="tenantUserCalendar"><option>07:00-17:00</option><option>06:00-14:00</option><option>14:00-22:00</option><option>22:00-06:00</option><option>Administrativo</option></select></label>
-                      <label>Perfil <select class="field" id="tenantUserRole"><option value="user">Usuário</option><option value="admin">Administrador</option></select></label>
-                      <label>Status <select class="field" id="tenantUserActive"><option value="true">Ativo</option><option value="false">Bloqueado</option></select></label>
-                      <label class="tenant-user-switch-line full"><input type="checkbox" id="tenantUserExecutor"><span>Usuário Executante</span></label>
-                    </div>
-                  </section>
-                  <section class="tenant-user-panel" data-tenant-user-panel="specialties">
-                    <label>Especialidades <textarea class="field" id="tenantUserSpecialties" placeholder="Ex: mecânica, elétrica, pneumática, solda..."></textarea></label>
-                  </section>
-                  <section class="tenant-user-panel" data-tenant-user-panel="tools">
-                    <label>Ferramentas <textarea class="field" id="tenantUserTools" placeholder="Ferramentas liberadas ou observações..."></textarea></label>
-                  </section>
-                  <section class="tenant-user-panel" data-tenant-user-panel="vacations">
-                    <label>Férias <textarea class="field" id="tenantUserVacations" placeholder="Períodos de férias, folgas ou afastamentos..."></textarea></label>
-                  </section>
-                  <section class="tenant-user-panel" data-tenant-user-panel="contract">
-                    <div class="tenant-user-grid">
+                      <label class="tenant-user-switch-line full"><input type="checkbox" id="tenantUserExecutor"><span>Usuário executante</span></label>
+                      <label class="full">Especialidades <textarea class="field" id="tenantUserSpecialties" placeholder="Ex: mecânica, elétrica, pneumática, solda..."></textarea></label>
+                      <label class="full">Ferramentas <textarea class="field" id="tenantUserTools" placeholder="Ferramentas liberadas ou observações..."></textarea></label>
+                      <label class="full">Férias e afastamentos <textarea class="field" id="tenantUserVacations" placeholder="Períodos de férias, folgas ou afastamentos..."></textarea></label>
                       <label>Tipo de contrato <select class="field" id="tenantUserContractType"><option>CLT</option><option>PJ</option><option>Temporário</option><option>Terceiro</option><option>Estágio</option></select></label>
                       <label class="full">Observação do contrato <textarea class="field" id="tenantUserContractNote" placeholder="Informações de contrato..."></textarea></label>
                     </div>
-                  </section>
-                  <section class="tenant-user-panel" data-tenant-user-panel="permissions">
-                    <label>Permissões de acesso</label>
-                    <div class="permission-grid" id="tenantPermissionGrid"></div>
-                  </section>
-                </div>
+                  </div>
+                </details>
+                <div class="tenant-inactive-confirm is-hidden" id="tenantInactiveConfirm" role="alert"><div><strong>Desativar este usuário?</strong><p>O acesso será bloqueado, mas o histórico será preservado.</p></div><div class="toolbar"><button class="btn" type="button" onclick="this.closest('#tenantInactiveConfirm').classList.add('is-hidden')">Voltar</button><button class="btn danger" type="button" onclick="confirmTenantUserDeactivation()">Desativar usuário</button></div></div>
               </div>
               <div class="tenant-user-editor-foot">
                 <button class="btn cancel" type="button" id="cancelTenantUserForm">Cancelar</button>
-                <button class="btn primary" type="submit">Continuar</button>
+                <button class="btn primary" type="submit">Salvar usuário</button>
               </div>
             </form>
           </div>
@@ -20238,7 +20498,7 @@
         document.querySelectorAll("[data-tenant-user-tab]").forEach(button => {
           button.addEventListener("click", () => selectTenantUserTab(button.dataset.tenantUserTab));
         });
-        $("tenantUserRole").addEventListener("change", () => renderPermissionGrid(selectedPermissionPayload(), $("tenantUserRole").value));
+        $("tenantUserRole").addEventListener("change", () => renderPermissionGrid({}, $("tenantUserRole").value));
         $("tenantUserPhotoFile").addEventListener("change", event => {
           const file = event.target.files?.[0];
           if (!file) return;
@@ -21174,12 +21434,13 @@
 
     let orderQuickSaveLock = false;
     function openOrderModal(assetId = "", editId = "") {
+      if (!namedOperationAllowed("openOrderModal", "orders", editId ? "manage" : "operate", [assetId, editId])) return denyProfileAccess();
       const editing = byId(state.orders, editId);
       const selectedAssetId = editing?.assetId || assetId;
       const machines = state.assets.map(asset => `<option value="${asset.id}" ${asset.id === selectedAssetId ? "selected" : ""}>${escapeHtml(asset.code)} - ${escapeHtml(asset.name)}</option>`).join("");
       const checklists = state.checklists.map(item => `<option value="${item.id}">${escapeHtml(item.name || item.code)}</option>`).join("");
       const spares = state.spareParts.map(item => `<option value="${item.id}">${escapeHtml(item.code)} - ${escapeHtml(item.name)}</option>`).join("");
-      openModal(editing ? "Editar O.S." : "Nova O.S.", `<form class="form os-quick-form" id="orderForm">
+      openModal(editing ? "Editar O.S." : "Nova O.S.", `<form class="form os-quick-form" id="orderForm" data-permission-module="orders" data-required-level="${editing ? "manage" : "operate"}" data-permission-action="${editing ? "Editar O.S." : "Criar O.S."}">
         <label class="full">Equipamento * <select class="field" id="orderAsset" required><option value="">Selecione um equipamento</option>${machines}</select></label>
         <label>Tipo de manutenção * <select class="field" id="orderType" required><option>Corretiva</option><option>Preventiva</option><option>Preditiva</option><option value="Inspecao">Inspeção</option></select></label>
         <label>Prioridade * <select class="field" id="orderPriority" required><option>Baixa</option><option value="Media">Média</option><option>Alta</option></select></label>
@@ -21193,6 +21454,10 @@
         <div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button>${editing ? `<button class="btn primary" type="submit" value="save">Salvar alterações</button>` : `<button class="btn" type="submit" value="save">Salvar O.S.</button><button class="btn primary" type="submit" value="start">Salvar e Iniciar</button>`}</div>
       </form>`, true);
       if(editing){$("orderRequester").value=editing.requester||"";$("orderExecutor").value=editing.executor||"";$("orderType").value=editing.type||"Corretiva";$("orderPriority").value=editing.priority||"Baixa";$("orderScheduled").value=String(editing.scheduledAt||"").slice(0,10);$("orderDescription").value=editing.description||"";$("orderNotes").value=editing.comment||"";$("orderChecklist").value=editing.linkedChecklists?.[0]||"";$("orderPlannedSpare").value=editing.plannedSpareId||"";}
+      if (accessProfileForUser(currentAccount?.user || {}) === "requester") {
+        $("orderRequester").value = tenantUserDisplayName(currentAccount.user);
+        $("orderRequester").readOnly = true;
+      }
       $("orderAsset").addEventListener("change",()=>{$("orderLocation").value=locationName(byId(state.assets,$("orderAsset").value)?.locationId)||"";});
       $("orderForm").addEventListener("submit",async event=>{event.preventDefault();if(orderQuickSaveLock)return;if(!$("orderAsset").value||!value("orderDescription")){showToast("Selecione o equipamento e descreva o problema.");return;}orderQuickSaveLock=true;const button=event.submitter;if(button)button.disabled=true;try{const now=Date.now();const base=editing||{id:uid("os"),number:await nextOrderNumberSafe(),createdAt:now,status:"Aberta",startedAt:null,finishedAt:null};const files=Array.from($("orderAttachments").files||[]).map(file=>({id:uid("file"),name:file.name,type:file.type,size:file.size,createdAt:now}));const checklistId=$("orderChecklist").value;const payload={...base,assetId:$("orderAsset").value,requester:value("orderRequester"),executor:value("orderExecutor"),type:$("orderType").value,priority:$("orderPriority").value,scheduledAt:$("orderScheduled").value,description:value("orderDescription"),comment:value("orderNotes"),linkedChecklists:checklistId?[checklistId]:base.linkedChecklists||[],plannedSpareId:$("orderPlannedSpare").value,attachments:(base.attachments||[]).concat(files),mttr:Number(base.mttr||0)};state.orders=state.orders.filter(item=>item.id!==payload.id).concat(payload);saveState();const remoteSaved=await saveOrderSupabaseNow(payload);if(remoteSaved&&!editing)await saveOrderEventSupabase(payload,"CRIADA",{data_abertura:new Date(payload.createdAt).toISOString()});selectedOrderId=payload.id;closeModal();setView("orders");if(button?.value==="start")await startOrder(payload.id,payload.executor);else render();showToast(editing?"O.S. atualizada.":"O.S. criada com sucesso.");}catch(error){showToast("Não foi possível salvar. Revise os dados e tente novamente.");if(button)button.disabled=false;}finally{setTimeout(()=>orderQuickSaveLock=false,1200);}});
     }
@@ -21204,6 +21469,7 @@
     }
 
     function openPreventivePlanModal(planId = "") {
+      if (!namedOperationAllowed("openPreventivePlanModal", "preventivePlans", "manage", [planId])) return denyProfileAccess();
       const editing = byId(state.preventivePlans, planId);
       const selectedAssetId = editing?.assetId || "";
       const machines = state.assets.map(asset => `<option value="${asset.id}" ${asset.id === selectedAssetId ? "selected" : ""}>${escapeHtml(asset.code)} - ${escapeHtml(asset.name)}</option>`).join("");
@@ -21277,6 +21543,7 @@
     }
 
     function deletePreventivePlan(id, confirmed = false) {
+      if (!namedOperationAllowed("deletePreventivePlan", "preventivePlans", "manage", [id, confirmed])) return denyProfileAccess();
       const plan = byId(state.preventivePlans, id);
       if (!plan) return;
       if (!confirmed) {
@@ -21386,6 +21653,7 @@
     }
 
     function openChecklistModal(assetId = "", checklistId = "") {
+      if (!namedOperationAllowed("openChecklistModal", "checklists", "manage", [assetId, checklistId])) return denyProfileAccess();
       const editing = byId(state.checklists, checklistId);
       const selectedAssetId = editing?.assetId || assetId;
       const nextCode = `CK-${String(state.checklists.length + 1).padStart(2, "0")}`;
@@ -21463,6 +21731,7 @@
     }
 
     function openChecklistExecution(id) {
+      if (!namedOperationAllowed("openChecklistExecution", "checklists", "operate", [id])) return denyProfileAccess();
       if(isMobileOperational()) return openMobileChecklistExecution(id);
       const checklist = byId(state.checklists, id);
       if (!checklist) return;
@@ -21584,6 +21853,7 @@
     }
 
     function deleteChecklistExecution(id, checklistId = "", confirmed = false) {
+      if (!namedOperationAllowed("deleteChecklistExecution", "checklists", "manage", [id, checklistId, confirmed])) return denyProfileAccess();
       const execution = byId(state.checklistExecutions, id);
       if (!execution) return;
       if (!confirmed) {
@@ -21700,6 +21970,7 @@
     }
 
     function editAsset(id) {
+      if (!namedOperationAllowed("editAsset", "assets", "manage", [id])) return denyProfileAccess();
       const item = byId(state.assets, id); if (!item) return;
       setView("assets");
       $("assetId").value = item.id; $("assetCode").value = item.code; $("assetName").value = item.name; $("assetLocation").value = item.locationId || ""; $("assetTag").value = item.tagId || ""; $("assetSubtag").value = item.subtagId || ""; $("assetCriticality").value = item.criticality; $("assetStatus").value = item.status; $("assetBrand").value = item.brand || ""; $("assetModel").value = item.model || ""; $("assetIcon").value = normalizeIconValue(item.icon); $("assetComponents").value = item.components || ""; $("assetDescription").value = item.description || "";
@@ -21708,6 +21979,7 @@
     }
 
     function duplicateAsset(id) {
+      if (!namedOperationAllowed("duplicateAsset", "assets", "manage", [id])) return denyProfileAccess();
       const item = byId(state.assets, id); if (!item) return;
       setView("assets");
       $("assetId").value = "";
@@ -21763,6 +22035,7 @@
     }
 
     async function deleteAsset(id, confirmed = false) {
+      if (!namedOperationAllowed("deleteAsset", "assets", "manage", [id, confirmed])) return denyProfileAccess();
       const links = assetDeletionLinks(id);
       if (links.length) {
         openModal("Exclusão bloqueada", assetDeletionBlockedHtml(links));
@@ -21873,11 +22146,13 @@
     }
 
     function editOrder(id) {
+      if (!namedOperationAllowed("editOrder", "orders", "manage", [id])) return denyProfileAccess();
       const item = byId(state.orders, id); if (!item) return;
       openOrderModal(item.assetId, item.id);
     }
 
     async function deleteOrder(id, ask = true) {
+      if (!namedOperationAllowed("deleteOrder", "orders", "manage", [id, ask])) return denyProfileAccess();
       if (ask) {
         requestDestructiveConfirmation("Excluir esta Ordem de Serviço?", "A O.S. será removida do cadastro e deixará de aparecer no histórico operacional.", "Excluir O.S.", () => deleteOrder(id, false));
         return;
@@ -21890,6 +22165,7 @@
     }
 
     async function startOrder(id, executorName = "") {
+      if (!namedOperationAllowed("startOrder", "orders", "operate", [id, executorName])) return denyProfileAccess();
       const now = Date.now();
       const current = byId(state.orders, id);
       if (!current || isClosedOrder(current.status)) {
@@ -21917,6 +22193,7 @@
     }
 
     function finishOrder(id) {
+      if (!namedOperationAllowed("finishOrder", "orders", "operate", [id])) return denyProfileAccess();
       const now = Date.now();
       const current = byId(state.orders, id);
       if (!current || isClosedOrder(current.status)) {
@@ -22005,6 +22282,7 @@
     }
 
     async function confirmFinishOrder(id) {
+      if (!namedOperationAllowed("confirmFinishOrder", "orders", "operate", [id])) return denyProfileAccess();
       const now = Date.now();
       let updatedOrder = null;
       state.orders = state.orders.map(order => {
@@ -22046,11 +22324,13 @@
     }
 
     function editChecklist(id) {
+      if (!namedOperationAllowed("editChecklist", "checklists", "manage", [id])) return denyProfileAccess();
       const item = byId(state.checklists, id); if (!item) return;
       openChecklistModal(item.assetId, item.id);
     }
 
     async function deleteChecklist(id, ask = true) {
+      if (!namedOperationAllowed("deleteChecklist", "checklists", "manage", [id, ask])) return denyProfileAccess();
       if (ask) {
         requestDestructiveConfirmation("Excluir este checklist?", "O modelo será removido, mas as execuções concluídas continuarão disponíveis no histórico.", "Excluir checklist", () => deleteChecklist(id, false));
         return;
@@ -22122,13 +22402,73 @@
     const uiStandardizationObserver = new MutationObserver(mutations => {
       if (!mutations.some(mutation => mutation.addedNodes.length)) return;
       cancelAnimationFrame(uiStandardizationFrame);
-      uiStandardizationFrame = requestAnimationFrame(() => standardizeUiComponents());
+      uiStandardizationFrame = requestAnimationFrame(() => { standardizeUiComponents(); applyPermissionVisibility(); });
     });
     uiStandardizationObserver.observe(document.body, { childList:true, subtree:true });
     window.addEventListener("resize", () => {
       cancelAnimationFrame(uiStandardizationFrame);
       uiStandardizationFrame = requestAnimationFrame(() => standardizeUiComponents());
     }, { passive:true });
+
+    const GUARDED_OPERATIONS = {
+      openOrderModal:["orders","operate"], editOrder:["orders","manage"], deleteOrder:["orders","manage"], cancelOrder:["orders","manage"], startOrder:["orders","operate"], finishOrder:["orders","operate"], openFinishOrderModal:["orders","operate"], confirmFinishOrder:["orders","operate"],
+      editDowntime:["orders","operate"], closeDowntime:["orders","operate"], cancelDowntime:["orders","manage"], deleteDowntime:["orders","manage"], editMeasurement:["orders","operate"], deleteMeasurement:["orders","manage"], editOperationalDiary:["orders","operate"], deleteOperationalDiary:["orders","manage"], editPendingAction:["orders","operate"], startPendingAction:["orders","operate"], finishPendingAction:["orders","operate"], cancelPendingAction:["orders","manage"], deletePendingAction:["orders","manage"],
+      editAsset:["assets","manage"], duplicateAsset:["assets","manage"], deleteAsset:["assets","manage"],
+      openPreventivePlanModal:["preventivePlans","manage"], editPreventivePlan:["preventivePlans","manage"], deletePreventivePlan:["preventivePlans","manage"],
+      openChecklistModal:["checklists","manage"], editChecklist:["checklists","manage"], deleteChecklist:["checklists","manage"], openChecklistExecution:["checklists","operate"], openMobileChecklistExecution:["checklists","operate"], deleteChecklistExecution:["checklists","manage"],
+      editSupplier:["suppliers","manage"], deleteSupplier:["suppliers","manage"], editStock:["stock","manage"], deleteStock:["stock","manage"], editSpare:["stock","manage"], deleteSpare:["stock","manage"], editStockMove:["stock","operate"], deleteStockMove:["stock","manage"], editMaterialRequest:["stock","operate"], deleteMaterialRequest:["stock","manage"], editStockTransfer:["stock","operate"], deleteStockTransfer:["stock","manage"],
+      openResourceFormForCreate:["resources","manage"], editResource:["resources","manage"], tryDeleteResource:["resources","manage"], openTeamFormForCreate:["resources","manage"], editTeam:["resources","manage"], deleteTeam:["resources","manage"],
+      editRegion:["locations","manage"], deleteRegion:["locations","manage"], editLocation:["locations","manage"], deleteLocation:["locations","manage"], editTag:["tags","manage"], deleteTag:["tags","manage"], editSubtag:["tags","manage"], deleteSubtag:["tags","manage"]
+    };
+
+    function namedOperationAllowed(name, permissionKey, requiredLevel, args = []) {
+      const user = currentAccount?.user;
+      if (!user) return false;
+      if (!permissionAtLeast(permissionKey, requiredLevel, user)) return false;
+      if (isAdminUser(user)) return true;
+      const profile = accessProfileForUser(user);
+      if (profile === "viewer") return false;
+      if (profile === "supervisor" && /^(delete|tryDelete|remove)/.test(name)) return false;
+      if (profile === "technician" && permissionKey === "orders" && ["openOrderModal","editOrder","deleteOrder","cancelOrder"].includes(name)) return false;
+      if (profile === "requester" && permissionKey === "orders") return name === "openOrderModal" && !args[1];
+      return true;
+    }
+
+    function installOperationGuards() {
+      Object.entries(GUARDED_OPERATIONS).forEach(([name, [permissionKey, requiredLevel]]) => {
+        const original = window[name];
+        if (typeof original !== "function" || original.__permissionGuarded) return;
+        const guarded = function(...args) {
+          if (!namedOperationAllowed(name, permissionKey, requiredLevel, args)) return denyProfileAccess();
+          return original.apply(this, args);
+        };
+        guarded.__permissionGuarded = true;
+        window[name] = guarded;
+      });
+    }
+
+    document.addEventListener("click", event => {
+      if (!currentAccount || isAdminUser()) return;
+      const element = event.target.closest?.("button,[role='button'],a");
+      if (!element || element.matches(".close,[data-close-modal],[data-view],[data-mobile-view],[data-view-button]") || element.closest(".tenant-user-admin")) return;
+      const actionText = element.dataset.permissionAction || element.textContent || element.title || element.getAttribute("aria-label") || "";
+      const requiredLevel = element.dataset.requiredLevel || actionPermissionKeyFromText(actionText);
+      if (requiredLevel === "view") return;
+      if (profileAllowsAction(actionModuleForElement(element), requiredLevel, actionText)) return;
+      event.preventDefault(); event.stopImmediatePropagation(); denyProfileAccess();
+    }, true);
+
+    document.addEventListener("submit", event => {
+      if (!currentAccount || isAdminUser()) return;
+      const form = event.target;
+      const permissionKey = form.dataset.permissionModule || actionModuleForElement(form);
+      const requiredLevel = form.dataset.requiredLevel || "operate";
+      const actionText = form.dataset.permissionAction || "Salvar";
+      if (profileAllowsAction(permissionKey, requiredLevel, actionText)) return;
+      event.preventDefault(); event.stopImmediatePropagation(); denyProfileAccess();
+    }, true);
+
+    installOperationGuards();
 
     prepareCrudUi();
 
@@ -22255,7 +22595,7 @@
     $("profileBtn").addEventListener("click", openProfileModal);
     $("logoutBtn").addEventListener("click", logoutTenantUser);
     if ($("tenantUserForm")) $("tenantUserForm").addEventListener("submit", saveTenantUserFromForm);
-    if ($("tenantUserRole")) $("tenantUserRole").addEventListener("change", () => renderPermissionGrid(selectedPermissionPayload(), $("tenantUserRole").value));
+    if ($("tenantUserRole")) $("tenantUserRole").addEventListener("change", () => renderPermissionGrid({}, $("tenantUserRole").value));
     $("dashboardConfigBtn").addEventListener("click", openDashboardConfig);
     $("purchaseListBtn").addEventListener("click", openPurchaseList);
     $("stockTurnoverBtn").addEventListener("click", openStockTurnoverModal);
