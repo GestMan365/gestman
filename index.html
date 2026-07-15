@@ -11188,7 +11188,7 @@
     .nav-favorite-toggle:hover,.nav-favorite-toggle:focus-visible{color:#facc15;background:rgba(250,204,21,.1);border-color:rgba(250,204,21,.3);outline:none}
     .nav-favorite-toggle:active{transform:scale(.9)}.nav-favorite-toggle.is-favorite{color:#facc15}.nav-favorite-toggle.is-favorite .gm-icon{fill:rgba(250,204,21,.3);filter:drop-shadow(0 0 4px rgba(250,204,21,.22))}
     .sidebar-favorite-star-icon{display:grid!important;place-items:center!important;width:18px!important;height:18px!important;line-height:0!important}.sidebar-favorite-star-icon .gm-icon{display:block!important;width:17px!important;height:17px!important;margin:0!important;transform:none!important}.nav-favorite-toggle>.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
-    .nav-favorite-remove,.nav-favorite-remove.is-favorite{color:#f87171!important;border-color:rgba(239,68,68,.2)!important;background:rgba(239,68,68,.06)!important}.nav-favorite-remove:hover,.nav-favorite-remove:focus-visible{color:#fff!important;border-color:rgba(239,68,68,.65)!important;background:rgba(239,68,68,.22)!important}.nav-favorite-remove .gm-icon{fill:none!important;filter:none!important}
+    .nav-favorite-copy-row>.tab,.nav-favorite-copy-row>.nav-favorite-remove{position:relative!important;z-index:2!important;pointer-events:auto!important}.nav-favorite-remove,.nav-favorite-remove.is-favorite{color:#f87171!important;border-color:rgba(239,68,68,.2)!important;background:rgba(239,68,68,.06)!important}.nav-favorite-remove:hover,.nav-favorite-remove:focus-visible{color:#fff!important;border-color:rgba(239,68,68,.65)!important;background:rgba(239,68,68,.22)!important}.nav-favorite-remove .gm-icon{fill:none!important;filter:none!important}
     .sidebar-favorites-empty{display:grid;grid-template-columns:24px minmax(0,1fr);align-items:center;gap:7px;padding:9px;color:#8295ad}.sidebar-favorites-empty small{font-size:10px;line-height:1.35}.sidebar-favorites-empty .gm-icon{color:#facc15}
     .nav .tab>.gm-button-icon{display:none!important}
     .sidebar-favorites-manage{margin-top:3px!important;border-top:1px solid #1f334a!important;border-radius:0 0 8px 8px!important}.sidebar-favorites-manage .tab-icon{color:#facc15!important}
@@ -22664,6 +22664,28 @@
       return next;
     }
 
+    function handleSidebarFavoritesClick(event) {
+      const list = event.currentTarget;
+      const removeButton = event.target.closest('[data-favorite-remove-view]');
+      if (removeButton && list.contains(removeButton)) {
+        removeSidebarFavorite(removeButton.dataset.favoriteRemoveView, event);
+        return;
+      }
+      const openButton = event.target.closest('[data-favorite-open-view]');
+      if (openButton && list.contains(openButton)) {
+        event.preventDefault();
+        event.stopPropagation();
+        setView(openButton.dataset.favoriteOpenView);
+        if (window.matchMedia("(max-width:600px)").matches) closeMobileNavigation();
+      }
+    }
+
+    function ensureSidebarFavoritesEvents(list) {
+      if (!list || list.dataset.favoriteEventsReady === "1") return;
+      list.dataset.favoriteEventsReady = "1";
+      list.addEventListener('click', handleSidebarFavoritesClick);
+    }
+
     function renderSidebarFavorites() {
       const quick = document.querySelector('[data-nav-quick]');
       const list = quick?.querySelector('.nav-quick-list');
@@ -22677,12 +22699,12 @@
       list.id = "sidebarFavoritesList";
       const catalog = sidebarModuleCatalog();
       const favorites = sidebarFavoriteViews().map(view => catalog.find(item => item.view === view)).filter(Boolean);
-      list.innerHTML = `${favorites.length ? favorites.map(item => `<div class="nav-favorite-copy-row"><button class="tab" type="button" data-view="${escapeHtml(item.view)}" data-favorite-copy="true" data-gm-skip-icon="true" onclick="setView('${escapeHtml(item.view)}')"><i class="favorite-module-icon">${gmIcon(item.icon,{size:18})}</i><span>${escapeHtml(item.name)}</span></button><button class="nav-favorite-toggle is-favorite" type="button" data-favorite-view="${escapeHtml(item.view)}" data-gm-skip-icon="true" aria-pressed="true" aria-label="Excluir ${escapeHtml(item.name)} dos favoritos" title="Excluir dos favoritos">${sidebarFavoriteIcon(item.view,true)}</button></div>`).join("") : `<div class="sidebar-favorites-empty"><span>${gmIcon("star",{size:18})}</span><small>Clique na estrela de um módulo para adicioná-lo aqui.</small></div>`}<button class="tab sidebar-favorites-manage" type="button" data-view="quickAccess" data-favorite-copy="true" onclick="setView('quickAccess')"><span class="favorite-module-icon">${gmIcon("star",{size:18})}</span><span>Gerenciar favoritos</span></button>`;
+      ensureSidebarFavoritesEvents(list);
+      list.innerHTML = `${favorites.length ? favorites.map(item => `<div class="nav-favorite-copy-row"><button class="tab" type="button" data-view="${escapeHtml(item.view)}" data-favorite-copy="true" data-favorite-open-view="${escapeHtml(item.view)}" data-gm-skip-icon="true"><i class="favorite-module-icon">${gmIcon(item.icon,{size:18})}</i><span>${escapeHtml(item.name)}</span></button><button class="nav-favorite-toggle is-favorite" type="button" data-favorite-view="${escapeHtml(item.view)}" data-favorite-remove-view="${escapeHtml(item.view)}" data-gm-skip-icon="true" aria-pressed="true" aria-label="Excluir ${escapeHtml(item.name)} dos favoritos" title="Excluir dos favoritos">${sidebarFavoriteIcon(item.view,true)}</button></div>`).join("") : `<div class="sidebar-favorites-empty"><span>${gmIcon("star",{size:18})}</span><small>Clique na estrela de um módulo para adicioná-lo aqui.</small></div>`}<button class="tab sidebar-favorites-manage" type="button" data-view="quickAccess" data-favorite-copy="true" onclick="setView('quickAccess')"><span class="favorite-module-icon">${gmIcon("star",{size:18})}</span><span>Gerenciar favoritos</span></button>`;
       list.querySelector('.sidebar-favorites-manage')?.remove();
       list.querySelectorAll('.nav-favorite-copy-row>.nav-favorite-toggle').forEach(button => {
         button.classList.add('nav-favorite-remove');
         button.removeAttribute('onclick');
-        button.addEventListener('click', event => removeSidebarFavorite(button.dataset.favoriteView, event));
         button.innerHTML = `<i class="sidebar-favorite-star-icon">${gmIcon("trash",{size:17})}</i><span class="sr-only">Excluir dos favoritos</span>`;
       });
       const active = document.querySelector('.view.active')?.id || "";
@@ -22800,23 +22822,36 @@
     const stage20NotificationUi={tab:"all",period:"all",category:"",level:"",status:"active"};
     function sidebarFavoritePageCard(item, selected) {
       const actionIcon = selected ? gmIcon("trash",{size:19}) : gmIcon("star",{size:20});
-      return `<article class="sidebar-favorite-page-card ${selected ? "is-favorite" : ""}"><button class="sidebar-favorite-page-open" type="button" data-favorite-action data-gm-skip-icon="true" onclick="setView('${escapeHtml(item.view)}')"><i>${gmIcon(item.icon,{size:22})}</i><span><strong>${escapeHtml(item.name)}</strong><small>Abrir módulo</small></span></button><button class="sidebar-favorite-page-toggle ${selected ? "is-remove" : ""}" type="button" data-favorite-toggle-view="${escapeHtml(item.view)}" data-favorite-remove="${selected}" data-gm-skip-icon="true" aria-pressed="${selected}" aria-label="${selected ? "Excluir" : "Adicionar"} ${escapeHtml(item.name)} ${selected ? "dos" : "aos"} favoritos" title="${selected ? "Excluir dos favoritos" : "Adicionar aos favoritos"}">${actionIcon}</button></article>`;
+      return `<article class="sidebar-favorite-page-card ${selected ? "is-favorite" : ""}"><button class="sidebar-favorite-page-open" type="button" data-favorite-action data-favorite-open-view="${escapeHtml(item.view)}" data-gm-skip-icon="true"><i>${gmIcon(item.icon,{size:22})}</i><span><strong>${escapeHtml(item.name)}</strong><small>Abrir módulo</small></span></button><button class="sidebar-favorite-page-toggle ${selected ? "is-remove" : ""}" type="button" data-favorite-toggle-view="${escapeHtml(item.view)}" data-favorite-remove="${selected}" data-gm-skip-icon="true" aria-pressed="${selected}" aria-label="${selected ? "Excluir" : "Adicionar"} ${escapeHtml(item.name)} ${selected ? "dos" : "aos"} favoritos" title="${selected ? "Excluir dos favoritos" : "Adicionar aos favoritos"}">${actionIcon}</button></article>`;
+    }
+
+    function ensureFavoritesPageEvents(root) {
+      if (!root || root.dataset.favoriteEventsReady === "1") return;
+      root.dataset.favoriteEventsReady = "1";
+      root.addEventListener('click', event => {
+        const toggleButton = event.target.closest('[data-favorite-toggle-view]');
+        if (toggleButton && root.contains(toggleButton)) {
+          const view = toggleButton.dataset.favoriteToggleView;
+          if (toggleButton.dataset.favoriteRemove === "true") removeSidebarFavorite(view, event);
+          else toggleSidebarFavorite(view, event);
+          return;
+        }
+        const openButton = event.target.closest('[data-favorite-open-view]');
+        if (openButton && root.contains(openButton)) {
+          event.preventDefault();
+          setView(openButton.dataset.favoriteOpenView);
+        }
+      });
     }
 
     function renderFavoritesPage() {
       const root = $("stage20QuickRoot");
       if (!root) return;
+      ensureFavoritesPageEvents(root);
       const catalog = sidebarModuleCatalog().filter(item => canAccessView(item.view));
       const favoriteViews = sidebarFavoriteViews();
       const favorites = favoriteViews.map(view => catalog.find(item => item.view === view)).filter(Boolean);
       root.innerHTML = `<header class="stage20-page-head sidebar-favorites-page-head"><div><span class="stage20-eyebrow">ATALHOS PESSOAIS</span><h1>Favoritos</h1><p>Clique na estrela ao lado de qualquer módulo para montar sua lista de acesso rápido.</p></div><div class="sidebar-favorites-total">${favorites.length} favorito${favorites.length === 1 ? "" : "s"}</div></header><section class="stage20-panel sidebar-favorites-page-section"><div class="sidebar-favorites-section-head"><div><h2>Meus favoritos</h2><p>Seus módulos preferidos, salvos somente para o seu usuário.</p></div></div>${favorites.length ? `<div class="sidebar-favorites-page-grid">${favorites.map(item => sidebarFavoritePageCard(item,true)).join("")}</div>` : `<div class="stage20-empty sidebar-favorites-page-empty">${gmIcon("star",{size:30})}<strong>Nenhum módulo favorito.</strong><span>Use as estrelas abaixo ou no menu lateral para adicionar.</span></div>`}</section><section class="stage20-panel sidebar-favorites-page-section"><div class="sidebar-favorites-section-head"><div><h2>Todos os módulos</h2><p>A lista respeita as permissões do seu perfil.</p></div></div><div class="sidebar-favorites-page-grid">${catalog.map(item => sidebarFavoritePageCard(item,favoriteViews.includes(item.view))).join("")}</div></section>`;
-      root.querySelectorAll('[data-favorite-toggle-view]').forEach(button => {
-        button.addEventListener('click', event => {
-          const view = button.dataset.favoriteToggleView;
-          if (button.dataset.favoriteRemove === "true") removeSidebarFavorite(view, event);
-          else toggleSidebarFavorite(view, event);
-        });
-      });
     }
     renderStage20Quick = renderFavoritesPage;
 
