@@ -10851,8 +10851,8 @@
       border-radius: 9px !important;
       color: #8fa5ba !important;
     }
-    .header-dashboard-filters > label:first-child { width: 164px !important; }
-    .header-dashboard-filters > label:last-child { width: 142px !important; }
+    .header-dashboard-filters > label:first-child { width: 205px !important; }
+    .header-dashboard-filters > label:last-child { width: 165px !important; }
     .header-dashboard-filters > label > span {
       position: absolute !important;
       width: 1px !important;
@@ -10981,13 +10981,14 @@
 
     @media (max-width: 1380px) {
       .reference-topbar {
-        grid-template-columns: minmax(210px, .8fr) minmax(220px, 340px) minmax(455px, 1fr) !important;
+        grid-template-columns: minmax(180px, .7fr) minmax(210px, 300px) minmax(520px, 1fr) !important;
         gap: 12px !important;
         padding-inline: 16px !important;
       }
-      .header-dashboard-filters > label:first-child { width: 146px !important; }
-      .header-dashboard-filters > label:last-child { width: 126px !important; }
-      .reference-header-user { min-width: 142px !important; }
+      .header-dashboard-filters > label:first-child { width: 185px !important; }
+      .header-dashboard-filters > label:last-child { width: 150px !important; }
+      .reference-user-copy { display: none !important; }
+      .reference-header-user { min-width: 58px !important; width: 58px !important; grid-template-columns: 34px 12px !important; padding-inline: 5px !important; }
     }
     @media (max-width: 1180px) {
       .reference-topbar {
@@ -11201,7 +11202,7 @@
     <label class="topbar-search reference-topbar-search">
       <span class="reference-search-icon" aria-hidden="true"></span>
       <input class="searchbar" id="globalSearch" type="search" autocomplete="off" aria-label="Buscar no GestMan365" placeholder="Buscar no GestMan365...">
-      <button class="reference-search-shortcut" type="button" aria-label="Focar busca" title="Atalho Ctrl + K" onclick="document.getElementById('globalSearch').focus()">Ctrl + K</button>
+      <kbd class="reference-search-shortcut" aria-label="Atalho de busca: Control mais K">Ctrl + K</kbd>
       <button class="header-search-close" id="headerSearchClose" type="button" aria-label="Fechar busca" title="Fechar busca" onclick="closeHeaderMobileSearch()"></button>
     </label>
     <div class="reference-topbar-actions">
@@ -11213,7 +11214,7 @@
       </div>
       <span class="reference-header-separator" aria-hidden="true"></span>
       <button class="reference-icon-button reference-notification" type="button" aria-label="Notificações" title="Notificações" aria-haspopup="dialog" onclick="stage20OpenNotificationPanel()">
-        <span class="reference-notification-icon" aria-hidden="true"></span>
+        <span class="reference-notification-icon gm-icon" aria-hidden="true"></span>
         <b id="headerNotificationCount" style="display:none"></b>
       </button>
       <span class="reference-header-separator" aria-hidden="true"></span>
