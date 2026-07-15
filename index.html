@@ -11189,6 +11189,7 @@
     .nav-favorite-toggle:active{transform:scale(.9)}.nav-favorite-toggle.is-favorite{color:#facc15}.nav-favorite-toggle.is-favorite .gm-icon{fill:rgba(250,204,21,.3);filter:drop-shadow(0 0 4px rgba(250,204,21,.22))}
     .sidebar-favorite-star-icon{display:grid!important;place-items:center!important;width:18px!important;height:18px!important;line-height:0!important}.sidebar-favorite-star-icon .gm-icon{display:block!important;width:17px!important;height:17px!important;margin:0!important;transform:none!important}.nav-favorite-toggle>.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
     .sidebar-favorites-empty{display:grid;grid-template-columns:24px minmax(0,1fr);align-items:center;gap:7px;padding:9px;color:#8295ad}.sidebar-favorites-empty small{font-size:10px;line-height:1.35}.sidebar-favorites-empty .gm-icon{color:#facc15}
+    .nav .tab>.gm-button-icon{display:none!important}
     .sidebar-favorites-manage{margin-top:3px!important;border-top:1px solid #1f334a!important;border-radius:0 0 8px 8px!important}.sidebar-favorites-manage .tab-icon{color:#facc15!important}
     .nav-module-favorite-row.is-permission-hidden,.nav-module-favorite-row:has(>.tab.is-permission-hidden){display:none!important}
     body.sidebar-collapsed .nav-module-favorite-row{display:block;height:40px!important;min-height:40px!important;max-height:40px!important}body.sidebar-collapsed .nav-module-favorite-row>.nav-favorite-toggle{display:none!important}
@@ -11365,7 +11366,6 @@
           <summary title="Favoritos"><span class="tab-icon"></span><span>Favoritos</span><i></i></summary>
           <div class="nav-quick-list">
             <div class="sidebar-favorites-empty"><span></span><small>Clique na estrela de um módulo para adicioná-lo aqui.</small></div>
-            <button class="tab sidebar-favorites-manage" type="button" data-view="quickAccess"><span class="tab-icon"></span><span>Gerenciar favoritos</span></button>
           </div>
         </details>
       </div>
@@ -22666,6 +22666,7 @@
       const catalog = sidebarModuleCatalog();
       const favorites = sidebarFavoriteViews().map(view => catalog.find(item => item.view === view)).filter(Boolean);
       list.innerHTML = `${favorites.length ? favorites.map(item => `<div class="nav-favorite-copy-row"><button class="tab" type="button" data-view="${escapeHtml(item.view)}" data-favorite-copy="true" onclick="setView('${escapeHtml(item.view)}')"><span class="favorite-module-icon">${gmIcon(item.icon,{size:18})}</span><span>${escapeHtml(item.name)}</span></button><button class="nav-favorite-toggle is-favorite" type="button" data-favorite-view="${escapeHtml(item.view)}" aria-pressed="true" aria-label="Remover ${escapeHtml(item.name)} dos favoritos" title="Remover dos favoritos" onclick="toggleSidebarFavorite('${escapeHtml(item.view)}',event)">${sidebarFavoriteIcon(item.view,true)}</button></div>`).join("") : `<div class="sidebar-favorites-empty"><span>${gmIcon("star",{size:18})}</span><small>Clique na estrela de um módulo para adicioná-lo aqui.</small></div>`}<button class="tab sidebar-favorites-manage" type="button" data-view="quickAccess" data-favorite-copy="true" onclick="setView('quickAccess')"><span class="favorite-module-icon">${gmIcon("star",{size:18})}</span><span>Gerenciar favoritos</span></button>`;
+      list.querySelector('.sidebar-favorites-manage')?.remove();
       const active = document.querySelector('.view.active')?.id || "";
       list.querySelectorAll('.tab[data-view]').forEach(button => button.classList.toggle('active', button.dataset.view === active));
       const chosen = new Set(favorites.map(item => item.view));
