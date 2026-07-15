@@ -11188,7 +11188,7 @@
     .nav-favorite-toggle:hover,.nav-favorite-toggle:focus-visible{color:#facc15;background:rgba(250,204,21,.1);border-color:rgba(250,204,21,.3);outline:none}
     .nav-favorite-toggle:active{transform:scale(.9)}.nav-favorite-toggle.is-favorite{color:#facc15}.nav-favorite-toggle.is-favorite .gm-icon{fill:rgba(250,204,21,.3);filter:drop-shadow(0 0 4px rgba(250,204,21,.22))}
     .sidebar-favorite-star-icon{display:grid!important;place-items:center!important;width:18px!important;height:18px!important;line-height:0!important}.sidebar-favorite-star-icon .gm-icon{display:block!important;width:17px!important;height:17px!important;margin:0!important;transform:none!important}.nav-favorite-toggle>.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
-    .nav-favorite-copy-row>.tab,.nav-favorite-copy-row>.nav-favorite-remove{position:relative!important;z-index:2!important;pointer-events:auto!important}.nav-favorite-remove,.nav-favorite-remove.is-favorite{color:#f87171!important;border-color:rgba(239,68,68,.2)!important;background:rgba(239,68,68,.06)!important}.nav-favorite-remove:hover,.nav-favorite-remove:focus-visible{color:#fff!important;border-color:rgba(239,68,68,.65)!important;background:rgba(239,68,68,.22)!important}.nav-favorite-remove .gm-icon{fill:none!important;filter:none!important}
+    .nav-favorite-copy-row>.tab,.nav-favorite-copy-row>.nav-favorite-remove{position:relative!important;z-index:2!important;pointer-events:auto!important;touch-action:manipulation!important}.nav-favorite-remove,.nav-favorite-remove.is-favorite{color:#f87171!important;border-color:rgba(239,68,68,.2)!important;background:rgba(239,68,68,.06)!important}.nav-favorite-remove:hover,.nav-favorite-remove:focus-visible{color:#fff!important;border-color:rgba(239,68,68,.65)!important;background:rgba(239,68,68,.22)!important}.nav-favorite-remove .gm-icon{fill:none!important;filter:none!important}
     .sidebar-favorites-empty{display:grid;grid-template-columns:24px minmax(0,1fr);align-items:center;gap:7px;padding:9px;color:#8295ad}.sidebar-favorites-empty small{font-size:10px;line-height:1.35}.sidebar-favorites-empty .gm-icon{color:#facc15}
     .nav .tab>.gm-button-icon{display:none!important}
     .sidebar-favorites-manage{margin-top:3px!important;border-top:1px solid #1f334a!important;border-radius:0 0 8px 8px!important}.sidebar-favorites-manage .tab-icon{color:#facc15!important}
@@ -22667,11 +22667,21 @@
     function handleSidebarFavoritesClick(event) {
       const list = event.currentTarget;
       const removeButton = event.target.closest('[data-favorite-remove-view]');
+      const openButton = event.target.closest('[data-favorite-open-view]');
+      const actionKey = removeButton ? `remove:${removeButton.dataset.favoriteRemoveView}` : openButton ? `open:${openButton.dataset.favoriteOpenView}` : "";
+      if (!actionKey || event.type === "pointerup" && event.button !== 0) return;
+      const now = Date.now();
+      if (list.dataset.favoriteLastAction === actionKey && now - Number(list.dataset.favoriteLastActionAt || 0) < 700) {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+      list.dataset.favoriteLastAction = actionKey;
+      list.dataset.favoriteLastActionAt = String(now);
       if (removeButton && list.contains(removeButton)) {
         removeSidebarFavorite(removeButton.dataset.favoriteRemoveView, event);
         return;
       }
-      const openButton = event.target.closest('[data-favorite-open-view]');
       if (openButton && list.contains(openButton)) {
         event.preventDefault();
         event.stopPropagation();
@@ -22683,6 +22693,7 @@
     function ensureSidebarFavoritesEvents(list) {
       if (!list || list.dataset.favoriteEventsReady === "1") return;
       list.dataset.favoriteEventsReady = "1";
+      list.addEventListener('pointerup', handleSidebarFavoritesClick, true);
       list.addEventListener('click', handleSidebarFavoritesClick);
     }
 
