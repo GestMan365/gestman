@@ -11188,6 +11188,7 @@
     .nav-favorite-toggle:hover,.nav-favorite-toggle:focus-visible{color:#facc15;background:rgba(250,204,21,.1);border-color:rgba(250,204,21,.3);outline:none}
     .nav-favorite-toggle:active{transform:scale(.9)}.nav-favorite-toggle.is-favorite{color:#facc15}.nav-favorite-toggle.is-favorite .gm-icon{fill:rgba(250,204,21,.3);filter:drop-shadow(0 0 4px rgba(250,204,21,.22))}
     .sidebar-favorite-star-icon{display:grid!important;place-items:center!important;width:18px!important;height:18px!important;line-height:0!important}.sidebar-favorite-star-icon .gm-icon{display:block!important;width:17px!important;height:17px!important;margin:0!important;transform:none!important}.nav-favorite-toggle>.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+    .nav-favorite-remove,.nav-favorite-remove.is-favorite{color:#f87171!important;border-color:rgba(239,68,68,.2)!important;background:rgba(239,68,68,.06)!important}.nav-favorite-remove:hover,.nav-favorite-remove:focus-visible{color:#fff!important;border-color:rgba(239,68,68,.65)!important;background:rgba(239,68,68,.22)!important}.nav-favorite-remove .gm-icon{fill:none!important;filter:none!important}
     .sidebar-favorites-empty{display:grid;grid-template-columns:24px minmax(0,1fr);align-items:center;gap:7px;padding:9px;color:#8295ad}.sidebar-favorites-empty small{font-size:10px;line-height:1.35}.sidebar-favorites-empty .gm-icon{color:#facc15}
     .nav .tab>.gm-button-icon{display:none!important}
     .sidebar-favorites-manage{margin-top:3px!important;border-top:1px solid #1f334a!important;border-radius:0 0 8px 8px!important}.sidebar-favorites-manage .tab-icon{color:#facc15!important}
@@ -11326,7 +11327,6 @@
     <label class="topbar-search reference-topbar-search">
       <span class="reference-search-icon" aria-hidden="true"></span>
       <input class="searchbar" id="globalSearch" type="search" autocomplete="off" aria-label="Buscar no GestMan365" placeholder="Buscar no GestMan365...">
-      <kbd class="reference-search-shortcut" aria-label="Atalho de busca: Control mais K">Ctrl + K</kbd>
       <button class="header-search-close" id="headerSearchClose" type="button" aria-label="Fechar busca" title="Fechar busca" onclick="closeHeaderMobileSearch()"></button>
     </label>
     <div class="reference-topbar-actions">
@@ -22667,6 +22667,10 @@
       const favorites = sidebarFavoriteViews().map(view => catalog.find(item => item.view === view)).filter(Boolean);
       list.innerHTML = `${favorites.length ? favorites.map(item => `<div class="nav-favorite-copy-row"><button class="tab" type="button" data-view="${escapeHtml(item.view)}" data-favorite-copy="true" onclick="setView('${escapeHtml(item.view)}')"><span class="favorite-module-icon">${gmIcon(item.icon,{size:18})}</span><span>${escapeHtml(item.name)}</span></button><button class="nav-favorite-toggle is-favorite" type="button" data-favorite-view="${escapeHtml(item.view)}" aria-pressed="true" aria-label="Remover ${escapeHtml(item.name)} dos favoritos" title="Remover dos favoritos" onclick="toggleSidebarFavorite('${escapeHtml(item.view)}',event)">${sidebarFavoriteIcon(item.view,true)}</button></div>`).join("") : `<div class="sidebar-favorites-empty"><span>${gmIcon("star",{size:18})}</span><small>Clique na estrela de um módulo para adicioná-lo aqui.</small></div>`}<button class="tab sidebar-favorites-manage" type="button" data-view="quickAccess" data-favorite-copy="true" onclick="setView('quickAccess')"><span class="favorite-module-icon">${gmIcon("star",{size:18})}</span><span>Gerenciar favoritos</span></button>`;
       list.querySelector('.sidebar-favorites-manage')?.remove();
+      list.querySelectorAll('.nav-favorite-copy-row>.nav-favorite-toggle').forEach(button => {
+        button.classList.add('nav-favorite-remove');
+        button.innerHTML = `<span class="sidebar-favorite-star-icon">${gmIcon("trash",{size:17})}</span><span class="sr-only">Excluir dos favoritos</span>`;
+      });
       const active = document.querySelector('.view.active')?.id || "";
       list.querySelectorAll('.tab[data-view]').forEach(button => button.classList.toggle('active', button.dataset.view === active));
       const chosen = new Set(favorites.map(item => item.view));
@@ -22674,8 +22678,9 @@
         const selected = chosen.has(button.dataset.favoriteView);
         button.classList.toggle('is-favorite', selected);
         button.setAttribute('aria-pressed', String(selected));
-        button.setAttribute('aria-label', `${selected ? "Remover" : "Adicionar"} ${sidebarModuleCatalog().find(item => item.view === button.dataset.favoriteView)?.name || "módulo"} ${selected ? "dos" : "aos"} favoritos`);
-        button.title = selected ? "Remover dos favoritos" : "Adicionar aos favoritos";
+        const removeAction = button.classList.contains('nav-favorite-remove');
+        button.setAttribute('aria-label', removeAction ? `Excluir ${sidebarModuleCatalog().find(item => item.view === button.dataset.favoriteView)?.name || "módulo"} dos favoritos` : `${selected ? "Remover" : "Adicionar"} ${sidebarModuleCatalog().find(item => item.view === button.dataset.favoriteView)?.name || "módulo"} ${selected ? "dos" : "aos"} favoritos`);
+        button.title = removeAction ? "Excluir dos favoritos" : (selected ? "Remover dos favoritos" : "Adicionar aos favoritos");
       });
       initSidebarTooltips();
     }
