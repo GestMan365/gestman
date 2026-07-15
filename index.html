@@ -11108,6 +11108,77 @@
     @media (prefers-reduced-motion: reduce) {
       .reference-topbar, .reference-topbar * { transition-duration: .01ms !important; animation-duration: .01ms !important; }
     }
+
+    /* Correções de navegação: módulos, marca e encerramento de sessão */
+    .nav-quick-list > button:not(.tab) {
+      grid-template-columns: 20px minmax(0, 1fr) !important;
+      align-items: center !important;
+      gap: 10px !important;
+      overflow: hidden !important;
+      white-space: nowrap !important;
+      text-overflow: ellipsis !important;
+    }
+    .nav-quick-list > button:not(.tab) > .gm-button-icon {
+      grid-column: 1 !important;
+      width: 20px !important;
+      height: 20px !important;
+      min-width: 20px !important;
+      padding: 0 !important;
+      display: grid !important;
+      place-items: center !important;
+      color: var(--gm-text-muted) !important;
+      background: transparent !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+    }
+    .nav-quick-list > button:not(.tab) > .gm-button-icon .gm-icon {
+      width: 20px !important;
+      height: 20px !important;
+    }
+    .profile-session-actions {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) auto !important;
+      gap: 8px !important;
+    }
+    .profile-session-actions .btn.danger {
+      min-width: 138px !important;
+      color: #fecaca !important;
+      background: rgba(239, 68, 68, .1) !important;
+      border-color: rgba(239, 68, 68, .34) !important;
+    }
+    .profile-session-actions .btn.danger:hover {
+      color: #fff !important;
+      background: rgba(239, 68, 68, .2) !important;
+      border-color: rgba(248, 113, 113, .58) !important;
+    }
+    @media (min-width: 601px) {
+      body.sidebar-collapsed .industrial-sidebar-brand {
+        padding: 10px 15px !important;
+        display: grid !important;
+        grid-template-columns: 42px !important;
+        place-items: center !important;
+      }
+      body.sidebar-collapsed .sidebar-logo-frame {
+        width: 42px !important;
+        height: 40px !important;
+        min-width: 42px !important;
+        flex: 0 0 42px !important;
+        overflow: hidden !important;
+      }
+      body.sidebar-collapsed .sidebar-logo-frame .brand-logo-img,
+      body.sidebar-collapsed .industrial-sidebar-brand .brand-logo-img {
+        width: 150px !important;
+        max-width: none !important;
+        height: 40px !important;
+        object-fit: contain !important;
+        object-position: left center !important;
+      }
+      body.sidebar-collapsed .nav-toggle-btn { display: none !important; }
+    }
+    @media (max-width: 600px) {
+      .profile-session-actions { grid-template-columns: 1fr !important; }
+      .profile-session-actions .btn { width: 100% !important; }
+    }
   </style>
 </head>
 <body class="auth-loading">
@@ -11242,11 +11313,11 @@
           <summary title="Acessos Rápidos"><span class="tab-icon"></span><span>Acessos Rápidos</span><i></i></summary>
           <div class="nav-quick-list">
             <button class="tab" data-view="quickAccess"><span class="tab-icon"></span><span>Central de Acessos</span></button>
-            <button type="button" data-nav-permission="orders" onclick="openOrderModal()"><span></span>Nova O.S.</button>
-            <button type="button" data-nav-permission="checklists" onclick="openQuickChecklist()"><span></span>Executar Checklist</button>
-            <button type="button" data-nav-permission="downtime" onclick="setView('downtime');openCrudFormForCreate('downtimeForm')"><span></span>Registrar Parada</button>
-            <button type="button" data-nav-permission="materialRequests" onclick="setView('materialRequests');openCrudFormForCreate('materialRequestForm')"><span></span>Solicitar Material</button>
-            <button type="button" data-nav-permission="assets" onclick="setView('assets')"><span></span>Consultar Ativo</button>
+            <button type="button" data-nav-permission="orders" onclick="openOrderModal()"><span class="gm-button-icon"></span>Nova O.S.</button>
+            <button type="button" data-nav-permission="checklists" onclick="openQuickChecklist()"><span class="gm-button-icon"></span>Executar Checklist</button>
+            <button type="button" data-nav-permission="downtime" onclick="setView('downtime');openCrudFormForCreate('downtimeForm')"><span class="gm-button-icon"></span>Registrar Parada</button>
+            <button type="button" data-nav-permission="materialRequests" onclick="setView('materialRequests');openCrudFormForCreate('materialRequestForm')"><span class="gm-button-icon"></span>Solicitar Material</button>
+            <button type="button" data-nav-permission="assets" onclick="setView('assets')"><span class="gm-button-icon"></span>Consultar Ativo</button>
           </div>
         </details>
       </div>
@@ -23534,7 +23605,7 @@
           <input type="hidden" id="profileEditPhoto" value="${escapeHtml(userPhoto)}">
           <label class="full">Enviar foto <input class="field" id="profilePhotoFile" type="file" accept="image/*"></label>
           <div class="full side-box"><strong>Prévia</strong><span id="profilePreview">${userPhoto ? `<img src="${userPhoto}" style="width:72px;height:72px;border-radius:999px;object-fit:cover">` : "Sem foto cadastrada"}</span></div>
-          <div class="full toolbar"><button class="btn primary" type="submit">Salvar perfil</button></div>
+          <div class="full toolbar profile-session-actions"><button class="btn primary" type="submit">Salvar perfil</button><button class="btn danger" type="button" onclick="logoutTenantUser()">Sair da conta</button></div>
         </form>
         ${isAdminUser() ? `
           <div class="panel profile-admin-users tenant-user-admin">
