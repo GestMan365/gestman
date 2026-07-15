@@ -9719,6 +9719,531 @@
     .stage21-center{display:grid;gap:12px;margin-top:14px;padding-top:14px;border-top:1px solid #1f334a}.stage21-center-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}.stage21-center-head h3{margin:0 0 3px;font-size:15px}.stage21-center-head p{margin:0;color:#8da1b8;font-size:10px}.stage21-badge{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(34,197,94,.34);background:rgba(34,197,94,.09);color:#70e49a;border-radius:999px;padding:5px 8px;font-size:9px;font-weight:800}.stage21-badge.warning{border-color:rgba(249,115,22,.38);background:rgba(249,115,22,.09);color:#ffc477}.stage21-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.stage21-card{border:1px solid #1f334a;background:#091827;border-radius:10px;padding:11px;min-width:0}.stage21-card span,.stage21-card small{display:block;color:#7f94aa;font-size:9px}.stage21-card strong{display:block;color:#e9f1f8;font-size:11px;margin:4px 0}.stage21-actions{display:flex;flex-wrap:wrap;gap:7px}.stage21-note{padding:9px 11px;border:1px solid rgba(29,140,255,.28);background:rgba(29,140,255,.07);border-radius:8px;color:#9ecbfa;font-size:9px;line-height:1.45}.stage21-note.warning{border-color:rgba(249,115,22,.32);background:rgba(249,115,22,.08);color:#ffd092}.stage21-section{border:1px solid #1f334a;border-radius:10px;overflow:hidden;background:#081725}.stage21-section>summary{cursor:pointer;padding:11px 12px;color:#dce8f4;font-size:11px;font-weight:850;list-style:none}.stage21-section>summary::-webkit-details-marker{display:none}.stage21-section-body{padding:0 12px 12px;display:grid;gap:9px}.stage21-filters{display:grid;grid-template-columns:repeat(4,minmax(115px,1fr));gap:7px}.stage21-table-wrap{overflow:auto;max-height:300px}.stage21-table{width:100%;min-width:760px;border-collapse:collapse}.stage21-table th,.stage21-table td{padding:8px 9px;border-bottom:1px solid #1f334a;text-align:left;font-size:9px;vertical-align:top}.stage21-table th{position:sticky;top:0;background:#0b1c2e;color:#8298af;text-transform:uppercase;letter-spacing:.04em}.stage21-table td{color:#cbd7e3}.stage21-empty{padding:20px;text-align:center;color:#8196ac;font-size:10px}.stage21-restore-list{display:grid;gap:7px}.stage21-restore-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 10px;border:1px solid #1f334a;background:#091827;border-radius:8px}.stage21-restore-item span{display:block;color:#7d92a8;font-size:9px;margin-top:2px}.stage21-error-boundary{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:rgba(3,10,18,.9);padding:18px}.stage21-error-card{width:min(460px,100%);border:1px solid #2b455f;background:#0a1929;border-radius:13px;padding:20px;box-shadow:0 24px 70px rgba(0,0,0,.5)}.stage21-error-card h2{margin:0 0 6px;font-size:18px}.stage21-error-card p{color:#93a6ba;font-size:11px}.stage21-error-card code{display:block;color:#6db7ff;font-size:9px;margin:10px 0}.stage21-error-card .stage21-actions .btn{min-height:40px}.stage21-file{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important;pointer-events:none!important}
     @media(max-width:780px){.stage21-grid{grid-template-columns:1fr}.stage21-filters{grid-template-columns:1fr 1fr}.stage21-center-head,.stage21-restore-item{align-items:stretch;flex-direction:column}.stage21-actions .btn{min-height:42px;flex:1}.stage21-filters .field{min-height:42px;font-size:16px}}
     @media(max-width:390px){.stage21-filters{grid-template-columns:1fr}}
+    /* Etapa 24 — sistema vetorial centralizado de ícones */
+    .gm-icon{display:block;width:1em;height:1em;flex:0 0 auto;overflow:visible;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;shape-rendering:geometricPrecision;pointer-events:none}
+    .tab-icon .gm-icon,.nav-group-icon .gm-icon{width:20px;height:20px}
+    body.sidebar-collapsed .tab-icon .gm-icon,body.sidebar-collapsed .nav-group-icon .gm-icon{width:23px;height:23px}
+    .nav-group summary>i .gm-icon,.nav-quick-access summary>i .gm-icon{width:15px;height:15px;transition:transform .16s ease}
+    .nav-group[open]>summary>i .gm-icon,.nav-quick-access[open]>summary>i .gm-icon{transform:rotate(180deg)}
+    .reference-icon-button .gm-icon,.topbar-menu-btn .gm-icon{width:20px;height:20px}
+    .topbar-search>.gm-icon{width:18px;height:18px;color:#7890aa}
+    .professional-kpi-icon .gm-icon{width:24px;height:24px}
+    .industrial-quick-actions i .gm-icon,.mobile-tech-actions i .gm-icon{width:20px;height:20px}
+    .mobile-bottom-nav i .gm-icon{width:23px;height:23px}
+    .stage20-shortcut-icon .gm-icon{width:22px;height:22px}
+    .stage20-notification-icon .gm-icon,.dashboard-alert-icon .gm-icon{width:19px;height:19px}
+    .os-metric-icon .gm-icon,.s16-kpi-icon .gm-icon{width:20px;height:20px}
+    .asset-list-icon .gm-icon,.machine-icon .gm-icon,.stage17-tree-icon .gm-icon,.subtag-tree-icon .gm-icon,.subtag-leaf-icon .gm-icon{width:19px;height:19px}
+    .action-icon .gm-icon,.ui-icon.gm-icon{width:18px;height:18px}
+    .gm-button-icon{display:inline-grid;place-items:center;flex:0 0 auto;color:currentColor}
+    .gm-button-icon .gm-icon{width:17px;height:17px}
+    .btn,.top-action-btn{align-items:center;justify-content:center;gap:7px}
+    .gm-status-icon{display:inline-grid;place-items:center;flex:0 0 auto;margin-right:4px;vertical-align:-2px}
+    .gm-status-icon .gm-icon{width:13px;height:13px}
+    .tag,.os-chip,.industrial-status,.stage15-status{align-items:center;gap:3px}
+    button:focus-visible,[role="button"]:focus-visible,summary:focus-visible{outline:2px solid #4aa3ff!important;outline-offset:2px}
+    button:disabled .gm-icon,[aria-disabled="true"] .gm-icon{opacity:.45}
+    .gm-icon-only{display:inline-grid!important;place-items:center!important;min-width:36px!important;min-height:36px!important;padding:7px!important}
+    .gm-icon-only .gm-icon{width:18px;height:18px}
+    @media(max-width:650px){.gm-icon-only{min-width:42px!important;min-height:42px!important}.gm-button-icon .gm-icon{width:18px;height:18px}.mobile-bottom-nav i .gm-icon{width:24px;height:24px}}
+
+    /* Melhoria visual — Passo 1: base central do Design System GestMan365 */
+    :root {
+      color-scheme: dark;
+      --gm-font-sans: Inter, "Segoe UI Variable", "Segoe UI", Arial, sans-serif;
+      --gm-bg-app: #06101d;
+      --gm-bg-sidebar: #071424;
+      --gm-bg-header: #081727;
+      --gm-surface-1: #0b1929;
+      --gm-surface-2: #0f2135;
+      --gm-surface-3: #142b44;
+      --gm-surface-hover: #17314d;
+      --gm-border-subtle: #17324a;
+      --gm-border-default: #1d3d59;
+      --gm-border-focus: #348cff;
+      --gm-primary: #2684ff;
+      --gm-primary-hover: #4b9cff;
+      --gm-primary-active: #1768cc;
+      --gm-success: #22c55e;
+      --gm-warning: #f59e0b;
+      --gm-danger: #ef4444;
+      --gm-info: #38bdf8;
+      --gm-purple: #8b5cf6;
+      --gm-text-primary: #f1f5f9;
+      --gm-text-secondary: #a3b1c2;
+      --gm-text-muted: #6f8095;
+      --gm-text-disabled: #4c5d70;
+      --gm-space-1: 4px;
+      --gm-space-2: 8px;
+      --gm-space-3: 12px;
+      --gm-space-4: 16px;
+      --gm-space-5: 20px;
+      --gm-space-6: 24px;
+      --gm-space-8: 32px;
+      --gm-radius-card: 12px;
+      --gm-radius-control: 8px;
+      --gm-radius-panel: 12px;
+      --gm-radius-pill: 999px;
+      --gm-control-height: 40px;
+      --gm-control-height-mobile: 44px;
+      --gm-shadow-card: 0 1px 2px rgba(0, 0, 0, .14);
+      --gm-shadow-float: 0 16px 40px rgba(0, 0, 0, .34);
+      --gm-shadow-modal: 0 24px 64px rgba(0, 0, 0, .48);
+      --gm-transition-fast: 160ms ease;
+
+      /* aliases para módulos legados consumirem a mesma fonte visual */
+      --ink: var(--gm-text-primary);
+      --muted: var(--gm-text-secondary);
+      --panel: var(--gm-surface-1);
+      --panel-2: var(--gm-surface-2);
+      --line: var(--gm-border-subtle);
+      --shadow: var(--gm-shadow-card);
+      --ok: var(--gm-success);
+      --warn: var(--gm-warning);
+      --danger: var(--gm-danger);
+      --gm-shell-bg: var(--gm-bg-app);
+      --gm-shell-surface: var(--gm-surface-1);
+      --gm-shell-surface-2: var(--gm-surface-2);
+      --gm-shell-line: var(--gm-border-subtle);
+      --gm-shell-text: var(--gm-text-primary);
+      --gm-shell-muted: var(--gm-text-secondary);
+      --gm-shell-blue: var(--gm-primary);
+      --gm-shell-blue-2: var(--gm-primary-active);
+      --gm-primary-dark: var(--gm-primary-active);
+      --gm-primary-light: var(--gm-primary-hover);
+      --gm-success-dark: #16a34a;
+      --gm-warning-dark: #d97706;
+      --gm-danger-dark: #dc2626;
+      --gm-plan: var(--gm-purple);
+      --gm-plan-dark: #7c3aed;
+      --gm-neutral: #64748b;
+      --gm-neutral-dark: #475569;
+      --gm-border: var(--gm-border-default);
+      --gm-disabled-bg: var(--gm-surface-2);
+      --gm-disabled-text: var(--gm-text-disabled);
+      --gm-shadow: var(--gm-shadow-card);
+      --gm-shadow-hover: var(--gm-shadow-card);
+      --gm-ghost-bg: var(--gm-surface-2);
+      --gm-ghost-bg2: var(--gm-surface-2);
+      --gm-ghost-text: var(--gm-text-primary);
+      --gm-ghost-shadow: none;
+    }
+
+    body.theme-light {
+      color-scheme: light;
+      --gm-bg-app: #f4f7fb;
+      --gm-bg-sidebar: #ffffff;
+      --gm-bg-header: #ffffff;
+      --gm-surface-1: #ffffff;
+      --gm-surface-2: #f8fafc;
+      --gm-surface-3: #eef3f8;
+      --gm-surface-hover: #e8f1fb;
+      --gm-border-subtle: #dce5ef;
+      --gm-border-default: #cbd8e6;
+      --gm-text-primary: #14233b;
+      --gm-text-secondary: #52657b;
+      --gm-text-muted: #718399;
+      --gm-text-disabled: #9aa8b7;
+      --gm-shadow-card: 0 1px 3px rgba(15, 23, 42, .08);
+      --gm-shadow-float: 0 16px 38px rgba(15, 23, 42, .16);
+      --gm-shadow-modal: 0 24px 60px rgba(15, 23, 42, .24);
+    }
+
+    html { background: var(--gm-bg-app); }
+    body {
+      background: var(--gm-bg-app) !important;
+      color: var(--gm-text-primary) !important;
+      font-family: var(--gm-font-sans) !important;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.5;
+      letter-spacing: 0;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+    body::before { display: none !important; content: none !important; }
+    button, input, select, textarea { font: inherit; }
+    button, [role="button"], summary, input, select, textarea {
+      transition: background-color var(--gm-transition-fast), border-color var(--gm-transition-fast), color var(--gm-transition-fast), opacity var(--gm-transition-fast), box-shadow var(--gm-transition-fast) !important;
+    }
+
+    body:not(.theme-light) .workspace,
+    body:not(.theme-light) .dashboard-canvas,
+    body:not(.theme-light) .dashboard-page,
+    body:not(.theme-light) main {
+      background-color: var(--gm-bg-app) !important;
+      background-image: none !important;
+    }
+    body:not(.theme-light) .topbar,
+    body:not(.theme-light) .reference-header {
+      background: var(--gm-bg-header) !important;
+      border-color: var(--gm-border-subtle) !important;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, .02) !important;
+    }
+    body:not(.theme-light) .topbar::before,
+    body:not(.theme-light) .topbar::after { display: none !important; content: none !important; }
+    body:not(.theme-light) .nav {
+      background: var(--gm-bg-sidebar) !important;
+      border-color: var(--gm-border-subtle) !important;
+      box-shadow: none !important;
+    }
+
+    h1, h2, h3, h4, h5, h6,
+    .panel-title, .modal-head, .calendar-title {
+      color: var(--gm-text-primary) !important;
+      font-family: var(--gm-font-sans) !important;
+      text-shadow: none !important;
+    }
+    main h1, .view h1, [class*="page-head"] h1 {
+      font-size: 26px !important;
+      font-weight: 700 !important;
+      line-height: 1.22 !important;
+      letter-spacing: -.025em !important;
+    }
+    main h2, .view h2 { font-size: 18px; font-weight: 600; line-height: 1.3; }
+    .panel-title, [class*="card"] h3, [class*="panel"] h3 { font-size: 15px; font-weight: 600 !important; }
+    p, small, .muted, [class*="subtitle"], [class*="description"] { color: var(--gm-text-secondary); }
+    .eyebrow, [class*="eyebrow"], .nav-section-label, .nav-group-title {
+      color: var(--gm-text-muted) !important;
+      font-size: 10px !important;
+      font-weight: 600 !important;
+      letter-spacing: .08em !important;
+      text-transform: uppercase !important;
+    }
+
+    body:not(.theme-light) :is(
+      .panel, .metric, .dashboard-widget, .form-panel, .side-box,
+      .industrial-card, .industrial-chart-card, .industrial-kpi-card, .professional-kpi-card,
+      .quick-actions-card, .dashboard-alerts-card, .maintenance-agenda-card,
+      .maintenance-trend-card, .latest-orders-card, .parts-consumption-card,
+      .map-shell, .map-region, .map-zone, .map-side,
+      .calendar-app, .calendar-main, .calendar-unscheduled,
+      .os-action-card, .os-live-card, .order-detail,
+      .tenant-user-editor, .api-folder, .api-command,
+      .assets-workspace .asset-metric, .asset-list-panel, .asset-detail-panel,
+      .asset-content-card, .asset-mobile-card, .checklist-mobile-card,
+      .materials-info-card, .materials-mobile-card, .os-metric-card, .os-mobile-card,
+      .preventive-list-panel, .checklist-list-panel,
+      .stage14-list, .stage14-mobile-card, .stage15-panel, .stage15-mobile-card,
+      .stage16-panel, .s16-mobile-card, .stage17-panel, .stage17-mobile-card,
+      .stage18-panel, .stage18-card, .stage19-panel, .stage19-card, .stage19-load-card,
+      .stage20-panel, .stage20-kpi, .stage20-mobile-card, .stage20-shortcut,
+      .stage20-notification, .stage21-card, .stage21-section, .report-card
+    ) {
+      background: var(--gm-surface-1) !important;
+      border: 1px solid var(--gm-border-subtle) !important;
+      border-radius: var(--gm-radius-card) !important;
+      box-shadow: var(--gm-shadow-card) !important;
+      color: var(--gm-text-primary) !important;
+    }
+    body:not(.theme-light) :is(.panel-head, .modal-head, .tenant-user-editor-head, .os-action-head, .api-folder-head) {
+      min-height: 48px;
+      background: var(--gm-surface-1) !important;
+      border-color: var(--gm-border-subtle) !important;
+    }
+    .panel-title { font-size: 15px !important; font-weight: 600 !important; }
+    .metric strong, [class*="kpi"] strong, [class*="metric-value"] {
+      color: var(--gm-text-primary) !important;
+      text-shadow: none !important;
+    }
+    .metric strong { font-size: clamp(28px, 2vw, 34px) !important; font-weight: 700 !important; }
+    .metric span, .metric small, [class*="kpi"] small { color: var(--gm-text-secondary) !important; }
+    .metric::after { box-shadow: none !important; }
+
+    .field,
+    input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+    select, textarea, .searchbar {
+      min-height: var(--gm-control-height) !important;
+      padding: 9px 12px !important;
+      color: var(--gm-text-primary) !important;
+      background: var(--gm-surface-2) !important;
+      border: 1px solid var(--gm-border-default) !important;
+      border-radius: var(--gm-radius-control) !important;
+      box-shadow: none !important;
+      font-size: 14px !important;
+      font-weight: 400 !important;
+      line-height: 1.35 !important;
+    }
+    textarea, textarea.field { min-height: 96px !important; resize: vertical; }
+    select { padding-right: 34px !important; }
+    .field::placeholder, input::placeholder, textarea::placeholder, .searchbar::placeholder {
+      color: var(--gm-text-muted) !important;
+      opacity: 1;
+    }
+    .field option, select option { color: var(--gm-text-primary) !important; background: var(--gm-surface-2) !important; }
+    label { color: var(--gm-text-secondary) !important; font-size: 13px; font-weight: 500; }
+    .form label, .form-grid label, [class*="-form"] label { gap: var(--gm-space-2); }
+    input[type="checkbox"], input[type="radio"] {
+      width: 18px !important;
+      height: 18px !important;
+      min-width: 18px !important;
+      min-height: 18px !important;
+      padding: 0 !important;
+      border-radius: 4px !important;
+      accent-color: var(--gm-primary);
+      cursor: pointer;
+    }
+    input[type="radio"] { border-radius: 50% !important; }
+    :is(.field, input, select, textarea, .searchbar):focus,
+    :is(.field, input, select, textarea, .searchbar):focus-visible {
+      outline: 2px solid transparent !important;
+      border-color: var(--gm-border-focus) !important;
+      box-shadow: 0 0 0 3px rgba(52, 140, 255, .18) !important;
+    }
+    [aria-invalid="true"], .field.error, .field.is-error {
+      border-color: var(--gm-danger) !important;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, .14) !important;
+    }
+
+    button, .btn, .widget-btn, .calendar-top-btn, .calendar-arrow, .calendar-mode,
+    .os-actions button, [data-view-button], [data-module-action], [data-detail-tab],
+    [data-checklist-item-action], [data-link-checklist], [data-remove-list] {
+      min-height: var(--gm-control-height) !important;
+      height: auto !important;
+      padding: 9px 14px !important;
+      gap: var(--gm-space-2) !important;
+      border: 1px solid var(--gm-border-default) !important;
+      border-radius: var(--gm-radius-control) !important;
+      background: var(--gm-surface-2) !important;
+      color: var(--gm-text-primary) !important;
+      box-shadow: none !important;
+      font-family: var(--gm-font-sans) !important;
+      font-size: 13px !important;
+      font-weight: 600 !important;
+      line-height: 1.2 !important;
+      text-transform: none !important;
+      transform: none !important;
+    }
+    button:hover, .btn:hover, .widget-btn:hover, .calendar-top-btn:hover, .calendar-arrow:hover,
+    .calendar-mode:hover, .os-actions button:hover, [data-view-button]:hover,
+    [data-module-action]:hover, [data-detail-tab]:hover, [data-checklist-item-action]:hover,
+    [data-link-checklist]:hover, [data-remove-list]:hover {
+      background: var(--gm-surface-hover) !important;
+      border-color: #315878 !important;
+      box-shadow: none !important;
+      transform: none !important;
+    }
+    button:active, .btn:active { background: var(--gm-surface-3) !important; transform: none !important; }
+    .btn.primary, .auth-card .btn.primary, .auth-submit, .tenant-user-editor-foot .btn.primary,
+    [data-primary="true"], #createOrderBtn {
+      background: var(--gm-primary) !important;
+      border-color: var(--gm-primary) !important;
+      color: #fff !important;
+      box-shadow: none !important;
+    }
+    .btn.primary:hover, .auth-card .btn.primary:hover, .auth-submit:hover,
+    .tenant-user-editor-foot .btn.primary:hover, [data-primary="true"]:hover, #createOrderBtn:hover {
+      background: var(--gm-primary-hover) !important;
+      border-color: var(--gm-primary-hover) !important;
+    }
+    .btn.primary:active, .auth-submit:active, #createOrderBtn:active { background: var(--gm-primary-active) !important; }
+    .btn.ghost { background: transparent !important; border-color: transparent !important; color: var(--gm-text-secondary) !important; }
+    .btn.success, .btn.confirm, #aiRefreshBtn, #calendarRefreshBtn {
+      background: var(--gm-success) !important; border-color: var(--gm-success) !important; color: #fff !important;
+    }
+    .btn.warning, .btn.attention { background: var(--gm-warning) !important; border-color: var(--gm-warning) !important; color: #fff !important; }
+    .btn.danger, [data-remove-list] { background: var(--gm-danger) !important; border-color: var(--gm-danger) !important; color: #fff !important; }
+    .btn.plan, #createPreventivePlanBtn { background: var(--gm-purple) !important; border-color: var(--gm-purple) !important; color: #fff !important; }
+    button:disabled, .btn:disabled, [aria-disabled="true"] {
+      color: var(--gm-text-disabled) !important;
+      background: var(--gm-surface-2) !important;
+      border-color: var(--gm-border-subtle) !important;
+      box-shadow: none !important;
+      opacity: .6 !important;
+      cursor: not-allowed !important;
+      pointer-events: none;
+    }
+    [aria-busy="true"] { cursor: progress !important; }
+    button:focus-visible, [role="button"]:focus-visible, summary:focus-visible,
+    a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+      outline: 2px solid var(--gm-border-focus) !important;
+      outline-offset: 2px !important;
+    }
+
+    .tag, .badge, .pill, .os-chip, .stage14-chip, .stage16-chip, .stage19-chip,
+    .stage20-chip, .industrial-status, .stage15-status, .access-profile-chip {
+      min-height: 24px;
+      padding: 3px 9px !important;
+      gap: var(--gm-space-1) !important;
+      border: 1px solid var(--gm-border-default) !important;
+      border-radius: var(--gm-radius-pill) !important;
+      background: rgba(148, 163, 184, .09) !important;
+      color: var(--gm-text-secondary) !important;
+      box-shadow: none !important;
+      font-size: 11px !important;
+      font-weight: 600 !important;
+      line-height: 1.2;
+    }
+    :is(.tag, .badge, .pill, .os-chip, .stage14-chip, .stage16-chip, .stage19-chip, .stage20-chip).ok,
+    :is(.tag, .badge, .pill, .os-chip, .stage14-chip, .stage16-chip, .stage19-chip, .stage20-chip).green {
+      color: #6ee7a0 !important; border-color: rgba(34,197,94,.34) !important; background: rgba(34,197,94,.10) !important;
+    }
+    :is(.tag, .badge, .pill, .os-chip, .stage14-chip, .stage16-chip, .stage19-chip, .stage20-chip).warn,
+    :is(.tag, .badge, .pill, .os-chip, .stage14-chip, .stage16-chip, .stage19-chip, .stage20-chip).orange,
+    :is(.tag, .badge, .pill, .os-chip, .stage14-chip, .stage16-chip, .stage19-chip, .stage20-chip).yellow {
+      color: #fbc35f !important; border-color: rgba(245,158,11,.34) !important; background: rgba(245,158,11,.10) !important;
+    }
+    :is(.tag, .badge, .pill, .os-chip, .stage14-chip, .stage16-chip, .stage19-chip, .stage20-chip).danger,
+    :is(.tag, .badge, .pill, .os-chip, .stage14-chip, .stage16-chip, .stage19-chip, .stage20-chip).red {
+      color: #f98b8b !important; border-color: rgba(239,68,68,.36) !important; background: rgba(239,68,68,.10) !important;
+    }
+    :is(.tag, .badge, .pill, .os-chip, .stage14-chip, .stage16-chip, .stage19-chip, .stage20-chip).blue {
+      color: #7db8ff !important; border-color: rgba(38,132,255,.34) !important; background: rgba(38,132,255,.10) !important;
+    }
+
+    body:not(.theme-light) table { color: var(--gm-text-primary) !important; background: transparent !important; }
+    body:not(.theme-light) th {
+      background: var(--gm-surface-2) !important;
+      color: var(--gm-text-secondary) !important;
+      font-size: 12px;
+      font-weight: 600 !important;
+      text-transform: none !important;
+    }
+    body:not(.theme-light) td { color: var(--gm-text-primary); }
+    body:not(.theme-light) th, body:not(.theme-light) td { border-color: var(--gm-border-subtle) !important; }
+    body:not(.theme-light) tr:hover td, body:not(.theme-light) .click-row:hover {
+      background: rgba(38, 132, 255, .055) !important;
+    }
+    .table-wrap { border-radius: var(--gm-radius-card) !important; }
+
+    .modal-backdrop {
+      background: rgba(2, 8, 16, .72) !important;
+      backdrop-filter: blur(3px);
+    }
+    .modal, .context-menu,
+    .asset-form-panel, .tenant-row-actions > div, .asset-row-actions > div {
+      border-color: var(--gm-border-default) !important;
+      border-radius: var(--gm-radius-panel) !important;
+      box-shadow: var(--gm-shadow-modal) !important;
+    }
+    body:not(.theme-light) .modal,
+    body:not(.theme-light) .context-menu,
+    body:not(.theme-light) .tenant-row-actions > div,
+    body:not(.theme-light) .asset-row-actions > div {
+      background: var(--gm-surface-1) !important;
+      color: var(--gm-text-primary) !important;
+    }
+    .modal-head { padding: 0 var(--gm-space-4); }
+    .modal-body { padding: var(--gm-space-4); }
+
+    .nav .tab, .nav-group > summary, .nav-quick-access > summary {
+      min-height: 40px !important;
+      padding: 8px 10px !important;
+      border: 1px solid transparent !important;
+      border-radius: var(--gm-radius-control) !important;
+      background: transparent !important;
+      color: var(--gm-text-secondary) !important;
+      box-shadow: none !important;
+      font-size: 13px !important;
+      font-weight: 500 !important;
+    }
+    .nav .tab:hover, .nav-group > summary:hover, .nav-quick-access > summary:hover {
+      background: var(--gm-surface-2) !important;
+      color: var(--gm-text-primary) !important;
+    }
+    .nav .tab.active {
+      background: rgba(38, 132, 255, .16) !important;
+      border-color: rgba(38, 132, 255, .32) !important;
+      color: #dcecff !important;
+      box-shadow: inset 3px 0 0 var(--gm-primary) !important;
+    }
+    .nav .tab.active::after { display: none !important; content: none !important; }
+    .nav .tab-icon { color: currentColor !important; background: transparent !important; box-shadow: none !important; }
+
+    .auth-switch {
+      width: 34px;
+      height: 20px;
+      flex-basis: 34px;
+      border: 1px solid var(--gm-border-default);
+      border-radius: var(--gm-radius-pill);
+      background: var(--gm-surface-3);
+      box-shadow: none;
+    }
+    .auth-switch::after {
+      width: 14px;
+      height: 14px;
+      top: 2px;
+      left: 2px;
+      background: var(--gm-text-secondary);
+      box-shadow: none;
+    }
+    .auth-remember input:checked + .auth-switch {
+      background: var(--gm-primary);
+      border-color: var(--gm-primary);
+      box-shadow: none;
+    }
+    .auth-remember input:checked + .auth-switch::after { transform: translateX(14px); background: #fff; }
+    .auth-remember input:focus-visible + .auth-switch {
+      outline: 2px solid var(--gm-border-focus);
+      outline-offset: 2px;
+    }
+    .side-box .switch-line input {
+      width: 36px !important;
+      height: 20px !important;
+      min-width: 36px !important;
+      min-height: 20px !important;
+      accent-color: var(--gm-primary);
+    }
+    .legacy-toggle {
+      width: 36px !important;
+      min-width: 36px !important;
+      height: 20px !important;
+      min-height: 20px !important;
+      padding: 0 !important;
+      border: 1px solid var(--gm-border-default) !important;
+      border-radius: var(--gm-radius-pill) !important;
+      background: var(--gm-surface-3) !important;
+    }
+    .legacy-toggle::before { width: 14px; height: 14px; top: 2px; left: 2px; background: var(--gm-text-secondary); }
+    .legacy-toggle.on { background: var(--gm-primary) !important; border-color: var(--gm-primary) !important; }
+    .legacy-toggle.on::before { left: 18px; background: #fff; }
+
+    .auth-card, .auth-login-shell, .auth-panel {
+      border-color: var(--gm-border-subtle) !important;
+      border-radius: var(--gm-radius-panel) !important;
+      box-shadow: var(--gm-shadow-float) !important;
+    }
+    body:not(.theme-light) .auth-card,
+    body:not(.theme-light) .auth-login-shell,
+    body:not(.theme-light) .auth-panel { background: var(--gm-surface-1) !important; }
+
+    @media (max-width: 768px) {
+      main h1, .view h1, [class*="page-head"] h1 { font-size: 22px !important; }
+      main h2, .view h2 { font-size: 17px; }
+      .workspace { padding: var(--gm-space-3) !important; }
+      .modal { width: min(100%, calc(100vw - 20px)) !important; max-height: calc(100dvh - 20px); }
+      .modal-body { padding: var(--gm-space-3); }
+    }
+    @media (max-width: 430px) {
+      .field,
+      input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+      select, textarea, .searchbar {
+        min-height: var(--gm-control-height-mobile) !important;
+        font-size: 16px !important;
+      }
+      button, .btn, .widget-btn, .calendar-top-btn, .calendar-arrow, .calendar-mode {
+        min-height: var(--gm-control-height-mobile) !important;
+      }
+      .workspace { padding: var(--gm-space-2) !important; }
+      .tag, .badge, .pill, .os-chip, .stage14-chip, .stage16-chip, .stage19-chip, .stage20-chip { font-size: 12px !important; }
+    }
+    @media (max-width: 390px) {
+      main h1, .view h1, [class*="page-head"] h1 { font-size: 21px !important; }
+      .modal { width: calc(100vw - 12px) !important; }
+    }
+    @media (max-width: 360px) {
+      body { font-size: 13px; }
+      .workspace { padding: var(--gm-space-1) !important; }
+      button, .btn { padding-inline: 10px !important; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
   </style>
 </head>
 <body class="auth-loading">
@@ -9779,7 +10304,7 @@
           <label>Senha <input class="field" id="authPassword" type="password" autocomplete="current-password" autocapitalize="none" spellcheck="false"></label>
           <label class="auth-remember"><input id="rememberLogin" type="checkbox"><span class="auth-switch"></span><span>Continuar conectado</span></label>
           <div class="auth-actions"><button class="btn primary auth-submit" type="submit"><span class="auth-submit-text">Continuar</span></button></div>
-          <a class="auth-forgot" id="forgotPasswordLink" href="#">esqueci minha senha 🔒</a>
+          <a class="auth-forgot" id="forgotPasswordLink" href="#">Esqueci minha senha</a>
           <div class="auth-help"><span class="auth-help-text">Dúvidas para acessar? nos chame no Zap!</span><span class="auth-whatsapp">☏</span></div>
         </form>
 
@@ -9839,81 +10364,81 @@
     <div class="industrial-sidebar-scroll tabs" aria-label="Módulos do GestMan365">
       <div class="nav-section-label">INÍCIO</div>
       <div class="nav-pinned">
-        <button class="tab active" data-view="dashboard" title="Visão Geral"><span class="tab-icon">⌂</span><span>Visão Geral</span></button>
+        <button class="tab active" data-view="dashboard" title="Visão Geral"><span class="tab-icon"></span><span>Visão Geral</span></button>
         <details class="nav-quick-access" data-nav-quick>
-          <summary title="Acessos Rápidos"><span class="tab-icon">★</span><span>Acessos Rápidos</span><i>›</i></summary>
+          <summary title="Acessos Rápidos"><span class="tab-icon"></span><span>Acessos Rápidos</span><i></i></summary>
           <div class="nav-quick-list">
-            <button class="tab" data-view="quickAccess"><span class="tab-icon">⌂</span><span>Central de Acessos</span></button>
-            <button type="button" data-nav-permission="orders" onclick="openOrderModal()"><span>＋</span>Nova O.S.</button>
-            <button type="button" data-nav-permission="checklists" onclick="openQuickChecklist()"><span>✓</span>Executar Checklist</button>
-            <button type="button" data-nav-permission="downtime" onclick="setView('downtime');openCrudFormForCreate('downtimeForm')"><span>✋</span>Registrar Parada</button>
-            <button type="button" data-nav-permission="materialRequests" onclick="setView('materialRequests');openCrudFormForCreate('materialRequestForm')"><span>◈</span>Solicitar Material</button>
-            <button type="button" data-nav-permission="assets" onclick="setView('assets')"><span>⚙</span>Consultar Ativo</button>
+            <button class="tab" data-view="quickAccess"><span class="tab-icon"></span><span>Central de Acessos</span></button>
+            <button type="button" data-nav-permission="orders" onclick="openOrderModal()"><span></span>Nova O.S.</button>
+            <button type="button" data-nav-permission="checklists" onclick="openQuickChecklist()"><span></span>Executar Checklist</button>
+            <button type="button" data-nav-permission="downtime" onclick="setView('downtime');openCrudFormForCreate('downtimeForm')"><span></span>Registrar Parada</button>
+            <button type="button" data-nav-permission="materialRequests" onclick="setView('materialRequests');openCrudFormForCreate('materialRequestForm')"><span></span>Solicitar Material</button>
+            <button type="button" data-nav-permission="assets" onclick="setView('assets')"><span></span>Consultar Ativo</button>
           </div>
         </details>
       </div>
 
       <details class="nav-group" data-nav-group="maintenance">
-        <summary title="Manutenção"><span class="nav-group-icon">▤</span><span>Manutenção</span><i>›</i></summary>
+        <summary title="Manutenção"><span class="nav-group-icon"></span><span>Manutenção</span><i></i></summary>
         <div class="nav-group-items">
-          <button class="tab" data-view="orders"><span class="tab-icon">▤</span><span>Ordens de Serviço</span></button>
-          <button class="tab" data-view="activeOrders"><span class="tab-icon">▶</span><span>O.S. em Execução</span></button>
-          <button class="tab" data-view="preventivePlans"><span class="tab-icon">▦</span><span>Planos de Manutenção</span></button>
-          <button class="tab" data-view="checklists"><span class="tab-icon">✓</span><span>Checklists</span></button>
-          <button class="tab" data-view="measurements"><span class="tab-icon">⌁</span><span>Medições</span></button>
-          <button class="tab" data-view="pendingActions"><span class="tab-icon">!</span><span>Ações Pendentes</span></button>
-          <button class="tab" data-view="downtime"><span class="tab-icon">✋</span><span>Paradas</span></button>
-          <button class="tab" data-view="operationalDiary"><span class="tab-icon">◫</span><span>Diário de Manutenção</span></button>
+          <button class="tab" data-view="orders"><span class="tab-icon"></span><span>Ordens de Serviço</span></button>
+          <button class="tab" data-view="activeOrders"><span class="tab-icon"></span><span>O.S. em Execução</span></button>
+          <button class="tab" data-view="preventivePlans"><span class="tab-icon"></span><span>Planos de Manutenção</span></button>
+          <button class="tab" data-view="checklists"><span class="tab-icon"></span><span>Checklists</span></button>
+          <button class="tab" data-view="measurements"><span class="tab-icon"></span><span>Medições</span></button>
+          <button class="tab" data-view="pendingActions"><span class="tab-icon"></span><span>Ações Pendentes</span></button>
+          <button class="tab" data-view="downtime"><span class="tab-icon"></span><span>Paradas</span></button>
+          <button class="tab" data-view="operationalDiary"><span class="tab-icon"></span><span>Diário de Manutenção</span></button>
         </div>
       </details>
 
       <details class="nav-group" data-nav-group="assets">
-        <summary title="Ativos e Instalações"><span class="nav-group-icon">⚙</span><span>Ativos e Instalações</span><i>›</i></summary>
+        <summary title="Ativos e Instalações"><span class="nav-group-icon"></span><span>Ativos e Instalações</span><i></i></summary>
         <div class="nav-group-items">
-          <button class="tab" data-view="assets"><span class="tab-icon">⚙</span><span>Ativos e Equipamentos</span></button>
-          <button class="tab" data-view="tags"><span class="tab-icon">◇</span><span>Identificadores de Ativos</span></button>
-          <button class="tab" data-view="operationalAreas"><span class="tab-icon">▦</span><span>Áreas Operacionais</span></button>
-          <button class="tab" data-view="regions"><span class="tab-icon">◉</span><span>Regiões</span></button>
-          <button class="tab" data-view="locations"><span class="tab-icon">⌖</span><span>Setores e Locais</span></button>
-          <button class="tab" data-view="map"><span class="tab-icon">⌂</span><span>Locais de Instalação</span></button>
-          <button class="tab" data-view="documentsCenter"><span class="tab-icon">▱</span><span>Documentos</span></button>
-          <button class="tab" data-view="toolsControl"><span class="tab-icon">⚒</span><span>Ferramentas</span></button>
+          <button class="tab" data-view="assets"><span class="tab-icon"></span><span>Ativos e Equipamentos</span></button>
+          <button class="tab" data-view="tags"><span class="tab-icon"></span><span>Identificadores de Ativos</span></button>
+          <button class="tab" data-view="operationalAreas"><span class="tab-icon"></span><span>Áreas Operacionais</span></button>
+          <button class="tab" data-view="regions"><span class="tab-icon"></span><span>Regiões</span></button>
+          <button class="tab" data-view="locations"><span class="tab-icon"></span><span>Setores e Locais</span></button>
+          <button class="tab" data-view="map"><span class="tab-icon"></span><span>Locais de Instalação</span></button>
+          <button class="tab" data-view="documentsCenter"><span class="tab-icon"></span><span>Documentos</span></button>
+          <button class="tab" data-view="toolsControl"><span class="tab-icon"></span><span>Ferramentas</span></button>
         </div>
       </details>
 
       <details class="nav-group" data-nav-group="materials">
-        <summary title="Materiais e Suprimentos"><span class="nav-group-icon">▧</span><span>Materiais e Suprimentos</span><i>›</i></summary>
+        <summary title="Materiais e Suprimentos"><span class="nav-group-icon"></span><span>Materiais e Suprimentos</span><i></i></summary>
         <div class="nav-group-items">
-          <button class="tab" data-view="spares"><span class="tab-icon">◔</span><span>Catálogo de Peças</span></button>
-          <button class="tab" data-view="stock"><span class="tab-icon">▧</span><span>Almoxarifado de Peças</span></button>
-          <button class="tab" data-view="stockMoves"><span class="tab-icon">⇅</span><span>Movimentações de Estoque</span></button>
-          <button class="tab" data-view="stockTransfers"><span class="tab-icon">⇄</span><span>Transferências de Estoque</span></button>
-          <button class="tab" data-view="materialRequests"><span class="tab-icon">◈</span><span>Solicitações de Materiais</span></button>
-          <button class="tab" data-view="suppliers"><span class="tab-icon">▰</span><span>Fornecedores e Parceiros</span></button>
+          <button class="tab" data-view="spares"><span class="tab-icon"></span><span>Catálogo de Peças</span></button>
+          <button class="tab" data-view="stock"><span class="tab-icon"></span><span>Almoxarifado de Peças</span></button>
+          <button class="tab" data-view="stockMoves"><span class="tab-icon"></span><span>Movimentações de Estoque</span></button>
+          <button class="tab" data-view="stockTransfers"><span class="tab-icon"></span><span>Transferências de Estoque</span></button>
+          <button class="tab" data-view="materialRequests"><span class="tab-icon"></span><span>Solicitações de Materiais</span></button>
+          <button class="tab" data-view="suppliers"><span class="tab-icon"></span><span>Fornecedores e Parceiros</span></button>
         </div>
       </details>
 
       <details class="nav-group" data-nav-group="planning">
-        <summary title="Planejamento"><span class="nav-group-icon">▣</span><span>Planejamento</span><i>›</i></summary>
+        <summary title="Planejamento"><span class="nav-group-icon"></span><span>Planejamento</span><i></i></summary>
         <div class="nav-group-items">
-          <button class="tab" data-view="calendar"><span class="tab-icon">▣</span><span>Calendário Operacional</span></button>
-          <button class="tab" data-view="productiveCalendars"><span class="tab-icon">◫</span><span>Calendários Produtivos</span></button>
-          <button class="tab" data-view="teamsResources"><span class="tab-icon">♙</span><span>Recursos e Equipes</span></button>
+          <button class="tab" data-view="calendar"><span class="tab-icon"></span><span>Calendário Operacional</span></button>
+          <button class="tab" data-view="productiveCalendars"><span class="tab-icon"></span><span>Calendários Produtivos</span></button>
+          <button class="tab" data-view="teamsResources"><span class="tab-icon"></span><span>Recursos e Equipes</span></button>
         </div>
       </details>
 
       <details class="nav-group" data-nav-group="analytics">
-        <summary title="Análises e Resultados"><span class="nav-group-icon">▥</span><span>Análises e Resultados</span><i>›</i></summary>
+        <summary title="Análises e Resultados"><span class="nav-group-icon"></span><span>Análises e Resultados</span><i></i></summary>
         <div class="nav-group-items">
-          <button class="tab" data-view="maintenanceIndicators"><span class="tab-icon">◔</span><span>Indicadores</span></button>
-          <button class="tab" data-view="reports"><span class="tab-icon">▥</span><span>Relatórios</span></button>
-          <button class="tab" data-view="assistant"><span class="tab-icon">✦</span><span>IA GestMan365</span></button>
+          <button class="tab" data-view="maintenanceIndicators"><span class="tab-icon"></span><span>Indicadores</span></button>
+          <button class="tab" data-view="reports"><span class="tab-icon"></span><span>Relatórios</span></button>
+          <button class="tab" data-view="assistant"><span class="tab-icon"></span><span>IA GestMan365</span></button>
         </div>
       </details>
 
       <details class="nav-group nav-admin-group" data-nav-group="admin" data-admin-only>
-        <summary title="Administração"><span class="nav-group-icon">⚙</span><span>Administração</span><i>›</i></summary>
-        <div class="nav-group-items"><button class="tab" type="button" data-nav-action="users"><span class="tab-icon">♙</span><span>Usuários e Permissões</span></button></div>
+        <summary title="Administração"><span class="nav-group-icon"></span><span>Administração</span><i></i></summary>
+        <div class="nav-group-items"><button class="tab" type="button" data-nav-action="users"><span class="tab-icon"></span><span>Usuários e Permissões</span></button></div>
       </details>
     </div>
     <div class="industrial-critical-alerts">
@@ -9928,13 +10453,13 @@
       <div class="mobile-technician-home" id="mobileTechnicianHome">
         <div class="mobile-tech-greeting"><span>Olá, <strong id="mobileTechName">Técnico</strong></span><small>Estas são suas prioridades de hoje.</small></div>
         <div class="mobile-tech-summary" id="mobileTechSummary"></div>
-        <div class="mobile-tech-section"><h2>Ações rápidas</h2><div class="mobile-tech-actions"><button type="button" onclick="openOrderModal()"><i>＋</i><span>Nova O.S.</span></button><button type="button" onclick="openQuickChecklist()"><i>✓</i><span>Checklist</span></button><button type="button" onclick="openMobileDowntimeModal()"><i>◷</i><span>Registrar parada</span></button><button type="button" onclick="setView('assets')"><i>⚙</i><span>Consultar ativo</span></button></div></div>
+        <div class="mobile-tech-section"><h2>Ações rápidas</h2><div class="mobile-tech-actions"><button type="button" onclick="openOrderModal()"><i></i><span>Nova O.S.</span></button><button type="button" onclick="openQuickChecklist()"><i></i><span>Checklist</span></button><button type="button" onclick="openMobileDowntimeModal()"><i></i><span>Registrar parada</span></button><button type="button" onclick="setView('assets')"><i></i><span>Consultar ativo</span></button></div></div>
         <div class="mobile-tech-section"><div class="mobile-tech-section-head"><h2>Precisa de atenção</h2><button type="button" onclick="openMobileMyOrders()">Ver minhas O.S.</button></div><div class="mobile-tech-priorities" id="mobileTechPriorities"></div></div>
       </div>
       <div class="industrial-dashboard-shell">
         <div class="industrial-dashboard-heading">
           <div><span>GESTÃO DE MANUTENÇÃO INDUSTRIAL</span><h1>Dashboard Operacional</h1><p>Monitoramento em tempo real de ativos, manutenção, paradas e materiais.</p></div>
-          <div class="industrial-heading-actions"><button class="dashboard-config-trigger" type="button" onclick="openDashboardConfig()">⚙ Configurar Dashboard</button><div class="industrial-dashboard-live"><i></i><span>Sistema operacional</span><strong id="dashboardRefreshTime">Atualizado agora</strong></div></div>
+          <div class="industrial-heading-actions"><button class="dashboard-config-trigger btn" type="button" onclick="openDashboardConfig()">Configurar Dashboard</button><div class="industrial-dashboard-live"><i></i><span>Sistema operacional</span><strong id="dashboardRefreshTime">Atualizado agora</strong></div></div>
         </div>
 
         <div class="dashboard-edit-banner" id="dashboardEditBanner"><span><strong>Personalizando Dashboard</strong><small> Arraste pela alça ou use os botões de movimento.</small></span><div><button type="button" onclick="saveDashboardCustomization()">Salvar</button><button type="button" onclick="cancelDashboardConfig()">Cancelar</button><button type="button" onclick="confirmResetDashboardLayout()">Restaurar padrão</button><button type="button" onclick="openDashboardConfig()">Widgets</button></div></div>
@@ -9944,12 +10469,12 @@
           <section class="professional-kpi-widget dashboard-widget size-full" data-dashboard-widget="metrics">
             <div class="dashboard-controls" data-dashboard-controls="metrics"></div>
             <div class="professional-kpi-strip">
-              <article class="professional-kpi-card" data-dashboard-kpi="mttr" style="--kpi:#2387ff"><i class="professional-kpi-icon">◴</i><div class="professional-kpi-copy"><span>MTTR MÉDIO</span><strong id="professionalMttr">0,0h</strong><small id="professionalMttrDelta">Sem histórico anterior</small></div><canvas id="professionalMttrSpark" width="76" height="34" aria-label="Histórico MTTR"></canvas></article>
-              <article class="professional-kpi-card" data-dashboard-kpi="mtbf" style="--kpi:#2387ff"><i class="professional-kpi-icon">⌘</i><div class="professional-kpi-copy"><span>MTBF MÉDIO</span><strong id="professionalMtbf">0h</strong><small id="professionalMtbfDelta">Sem histórico anterior</small></div><canvas id="professionalMtbfSpark" width="76" height="34" aria-label="Histórico MTBF"></canvas></article>
-              <article class="professional-kpi-card" data-dashboard-kpi="availability" style="--kpi:#2387ff"><i class="professional-kpi-icon">◔</i><div class="professional-kpi-copy"><span>DISPONIBILIDADE</span><strong id="professionalAvailability">0,0%</strong><small id="professionalAvailabilityDelta">Sem histórico anterior</small></div><canvas id="professionalAvailabilitySpark" width="76" height="34" aria-label="Histórico de disponibilidade"></canvas></article>
-              <article class="professional-kpi-card" data-dashboard-kpi="equipment" style="--kpi:#2387ff"><i class="professional-kpi-icon">▦</i><div class="professional-kpi-copy"><span>EQUIPAMENTOS</span><strong id="professionalEquipment">0</strong><small id="professionalEquipmentComplement">0 operando</small></div><canvas id="professionalEquipmentSpark" width="76" height="34" aria-label="Histórico de equipamentos"></canvas></article>
-              <article class="professional-kpi-card" data-dashboard-kpi="runningOrders" style="--kpi:#2387ff"><i class="professional-kpi-icon">⚒</i><div class="professional-kpi-copy"><span>O.S EM EXECUÇÃO</span><strong id="professionalRunningOrders">0</strong><small id="professionalCriticalOrders">0 críticas</small></div><canvas id="professionalOrdersSpark" width="76" height="34" aria-label="Histórico de ordens em execução"></canvas></article>
-              <article class="professional-kpi-card stops-kpi-card" data-dashboard-kpi="activeStops" style="--kpi:#ef4444"><i class="professional-kpi-icon">✋</i><div class="professional-kpi-copy"><span>PARADAS ATIVAS</span><strong id="professionalActiveStops">0</strong><small id="professionalStopsImpact">Impacto: Baixo</small></div><canvas id="professionalStopsSpark" width="76" height="34" aria-label="Histórico de paradas ativas"></canvas></article>
+              <article class="professional-kpi-card" data-dashboard-kpi="mttr" style="--kpi:#2387ff"><i class="professional-kpi-icon"></i><div class="professional-kpi-copy"><span>MTTR MÉDIO</span><strong id="professionalMttr">0,0h</strong><small id="professionalMttrDelta">Sem histórico anterior</small></div><canvas id="professionalMttrSpark" width="76" height="34" aria-label="Histórico MTTR"></canvas></article>
+              <article class="professional-kpi-card" data-dashboard-kpi="mtbf" style="--kpi:#2387ff"><i class="professional-kpi-icon"></i><div class="professional-kpi-copy"><span>MTBF MÉDIO</span><strong id="professionalMtbf">0h</strong><small id="professionalMtbfDelta">Sem histórico anterior</small></div><canvas id="professionalMtbfSpark" width="76" height="34" aria-label="Histórico MTBF"></canvas></article>
+              <article class="professional-kpi-card" data-dashboard-kpi="availability" style="--kpi:#2387ff"><i class="professional-kpi-icon"></i><div class="professional-kpi-copy"><span>DISPONIBILIDADE</span><strong id="professionalAvailability">0,0%</strong><small id="professionalAvailabilityDelta">Sem histórico anterior</small></div><canvas id="professionalAvailabilitySpark" width="76" height="34" aria-label="Histórico de disponibilidade"></canvas></article>
+              <article class="professional-kpi-card" data-dashboard-kpi="equipment" style="--kpi:#2387ff"><i class="professional-kpi-icon"></i><div class="professional-kpi-copy"><span>EQUIPAMENTOS</span><strong id="professionalEquipment">0</strong><small id="professionalEquipmentComplement">0 operando</small></div><canvas id="professionalEquipmentSpark" width="76" height="34" aria-label="Histórico de equipamentos"></canvas></article>
+              <article class="professional-kpi-card" data-dashboard-kpi="runningOrders" style="--kpi:#2387ff"><i class="professional-kpi-icon"></i><div class="professional-kpi-copy"><span>O.S EM EXECUÇÃO</span><strong id="professionalRunningOrders">0</strong><small id="professionalCriticalOrders">0 críticas</small></div><canvas id="professionalOrdersSpark" width="76" height="34" aria-label="Histórico de ordens em execução"></canvas></article>
+              <article class="professional-kpi-card stops-kpi-card" data-dashboard-kpi="activeStops" style="--kpi:#ef4444"><i class="professional-kpi-icon"></i><div class="professional-kpi-copy"><span>PARADAS ATIVAS</span><strong id="professionalActiveStops">0</strong><small id="professionalStopsImpact">Impacto: Baixo</small></div><canvas id="professionalStopsSpark" width="76" height="34" aria-label="Histórico de paradas ativas"></canvas></article>
             </div>
           </section>
 
@@ -9961,10 +10486,10 @@
           <article class="industrial-card dashboard-widget" data-dashboard-widget="stops"><div class="dashboard-controls" data-dashboard-controls="stops"></div><div class="industrial-card-head"><div><span>INDISPONIBILIDADE</span><h2>Top 10 Paradas</h2></div></div><div class="table-wrap"><table><tbody id="dashboardStopsRows"></tbody></table></div></article>
           <article class="industrial-card dashboard-widget" data-dashboard-widget="stockAlerts"><div class="dashboard-controls" data-dashboard-controls="stockAlerts"></div><div class="industrial-card-head"><div><span>ESTOQUE</span><h2>Peças para Reposição</h2></div></div><div class="table-wrap"><table><tbody id="dashboardLowStockRows"></tbody></table></div></article>
           <article class="industrial-card industrial-calendar-card maintenance-agenda-card dashboard-widget" data-dashboard-widget="agenda"><div class="dashboard-controls" data-dashboard-controls="agenda"></div><div class="maintenance-agenda-head"><h2>Agenda de Manutenção</h2><div class="maintenance-agenda-navigation"><button type="button" onclick="shiftIndustrialAgendaWeek(-1)" aria-label="Semana anterior">‹</button><span id="industrialAgendaRange">Semana atual</span><button type="button" onclick="shiftIndustrialAgendaWeek(1)" aria-label="Próxima semana">›</button></div><button class="maintenance-agenda-mode" type="button" onclick="resetIndustrialAgendaWeek()">Semana <i>▣</i></button></div><div class="maintenance-agenda-scroll"><div class="maintenance-agenda-inner" id="industrialMaintenanceCalendar"></div></div><div class="maintenance-agenda-footer"><button type="button" onclick="setView('calendar')">Ver calendário completo&nbsp; ›</button></div></article>
-          <article class="industrial-card parts-consumption-card dashboard-widget" data-dashboard-widget="parts"><div class="dashboard-controls" data-dashboard-controls="parts"></div><div class="industrial-card-head"><div><span>MATERIAIS</span><h2>Consumo de Peças</h2></div><button type="button" onclick="setView('stockMoves')">↗</button></div><div class="parts-consumption-content"><div class="industrial-donut parts-donut" id="industrialPartsDonut"><div><strong id="industrialPartsTotal">0</strong><span>movimentos</span></div></div><div class="industrial-legend" id="industrialPartsLegend"></div></div></article>
-          <article class="industrial-card quick-actions-card dashboard-widget" data-dashboard-widget="quickActions"><div class="dashboard-controls" data-dashboard-controls="quickActions"></div><div class="industrial-card-head"><div><span>ATALHOS OPERACIONAIS</span><h2>Ações Rápidas</h2></div></div><div class="industrial-quick-actions"><button type="button" onclick="openOrderModal()" aria-label="Criar nova ordem de serviço" data-permission-module="orders" data-required-level="operate" data-permission-action="Criar O.S."><i>＋</i><span><strong>Nova O.S.</strong><small>Criar ordem de serviço</small></span></button><button type="button" onclick="openQuickChecklist()" aria-label="Executar checklist" data-permission-module="checklists" data-required-level="operate" data-permission-action="Executar checklist"><i>✓</i><span><strong>Executar Checklist</strong><small>Abrir rotina pendente</small></span></button><button type="button" onclick="setView('downtime')" aria-label="Registrar parada" data-permission-module="orders" data-required-level="operate" data-permission-action="Registrar parada"><i>◷</i><span><strong>Registrar Parada</strong><small>Informar indisponibilidade</small></span></button><button type="button" onclick="setView('materialRequests')" aria-label="Solicitar material" data-permission-module="stock" data-required-level="operate" data-permission-action="Solicitar material"><i>◈</i><span><strong>Solicitar Material</strong><small>Abrir requisição</small></span></button><button type="button" onclick="setView('assets')" aria-label="Consultar ativos" data-permission-module="assets" data-required-level="view" data-permission-action="Consultar ativos"><i>⚙</i><span><strong>Consultar Ativos</strong><small>Localizar equipamento</small></span></button><button type="button" onclick="setView('reports')" aria-label="Ver relatórios" data-permission-module="reports" data-required-level="view" data-permission-action="Ver relatórios"><i>▥</i><span><strong>Ver Relatórios</strong><small>Abrir análises operacionais</small></span></button></div></article>
-          <article class="industrial-card dashboard-alerts-card dashboard-widget" data-dashboard-widget="alerts"><div class="dashboard-controls" data-dashboard-controls="alerts"></div><div class="industrial-card-head"><div><span>OPERAÇÃO</span><h2>Alertas e Notificações</h2></div><button type="button" onclick="openDashboardAlertsModal()">Ver todos ↗</button></div><div class="dashboard-alert-list" id="dashboardAlertList"></div></article>
-          <article class="industrial-card latest-orders-card dashboard-widget" data-dashboard-widget="latestOrders"><div class="dashboard-controls" data-dashboard-controls="latestOrders"></div><div class="industrial-card-head"><div><span>ATUALIZAÇÕES</span><h2>Últimas Ordens de Serviço</h2></div><button type="button" onclick="setView('orders')">Ver todas ↗</button></div><div class="industrial-latest-orders" id="industrialLatestOrders"></div></article>
+          <article class="industrial-card parts-consumption-card dashboard-widget" data-dashboard-widget="parts"><div class="dashboard-controls" data-dashboard-controls="parts"></div><div class="industrial-card-head"><div><span>MATERIAIS</span><h2>Consumo de Peças</h2></div><button class="btn" type="button" aria-label="Visualizar movimentações de estoque" onclick="setView('stockMoves')"></button></div><div class="parts-consumption-content"><div class="industrial-donut parts-donut" id="industrialPartsDonut"><div><strong id="industrialPartsTotal">0</strong><span>movimentos</span></div></div><div class="industrial-legend" id="industrialPartsLegend"></div></div></article>
+          <article class="industrial-card quick-actions-card dashboard-widget" data-dashboard-widget="quickActions"><div class="dashboard-controls" data-dashboard-controls="quickActions"></div><div class="industrial-card-head"><div><span>ATALHOS OPERACIONAIS</span><h2>Ações Rápidas</h2></div></div><div class="industrial-quick-actions"><button type="button" onclick="openOrderModal()" aria-label="Criar nova ordem de serviço" data-permission-module="orders" data-required-level="operate" data-permission-action="Criar O.S."><i></i><span><strong>Nova O.S.</strong><small>Criar ordem de serviço</small></span></button><button type="button" onclick="openQuickChecklist()" aria-label="Executar checklist" data-permission-module="checklists" data-required-level="operate" data-permission-action="Executar checklist"><i></i><span><strong>Executar Checklist</strong><small>Abrir rotina pendente</small></span></button><button type="button" onclick="setView('downtime')" aria-label="Registrar parada" data-permission-module="orders" data-required-level="operate" data-permission-action="Registrar parada"><i></i><span><strong>Registrar Parada</strong><small>Informar indisponibilidade</small></span></button><button type="button" onclick="setView('materialRequests')" aria-label="Solicitar material" data-permission-module="stock" data-required-level="operate" data-permission-action="Solicitar material"><i></i><span><strong>Solicitar Material</strong><small>Abrir requisição</small></span></button><button type="button" onclick="setView('assets')" aria-label="Consultar ativos" data-permission-module="assets" data-required-level="view" data-permission-action="Consultar ativos"><i></i><span><strong>Consultar Ativos</strong><small>Localizar equipamento</small></span></button><button type="button" onclick="setView('reports')" aria-label="Ver relatórios" data-permission-module="reports" data-required-level="view" data-permission-action="Ver relatórios"><i></i><span><strong>Ver Relatórios</strong><small>Abrir análises operacionais</small></span></button></div></article>
+          <article class="industrial-card dashboard-alerts-card dashboard-widget" data-dashboard-widget="alerts"><div class="dashboard-controls" data-dashboard-controls="alerts"></div><div class="industrial-card-head"><div><span>OPERAÇÃO</span><h2>Alertas e Notificações</h2></div><button class="btn" type="button" aria-label="Visualizar todos os alertas" onclick="openDashboardAlertsModal()">Ver todos</button></div><div class="dashboard-alert-list" id="dashboardAlertList"></div></article>
+          <article class="industrial-card latest-orders-card dashboard-widget" data-dashboard-widget="latestOrders"><div class="dashboard-controls" data-dashboard-controls="latestOrders"></div><div class="industrial-card-head"><div><span>ATUALIZAÇÕES</span><h2>Últimas Ordens de Serviço</h2></div><button class="btn" type="button" aria-label="Visualizar todas as ordens de serviço" onclick="setView('orders')">Ver todas</button></div><div class="industrial-latest-orders" id="industrialLatestOrders"></div></article>
         </div>
 
         <div class="dashboard-compat" aria-hidden="true">
@@ -10684,13 +11209,13 @@
       <div class="os-page">
         <div class="os-page-head">
           <div class="os-title-wrap">
-            <span class="os-title-icon" aria-hidden="true">▣</span>
+            <span class="os-title-icon" aria-hidden="true"></span>
             <div><h1>Ordens de Serviço</h1><p>Crie, acompanhe e execute serviços de manutenção com rapidez.</p></div>
           </div>
           <div class="os-page-actions">
-            <button class="btn" id="osExportBtn" type="button" onclick="exportOrdersCsv()">⇩ Exportar</button>
-            <button class="btn" id="osFilterToggle" type="button" onclick="toggleOrderFilters()">▽ Filtros</button>
-            <button class="btn primary" id="createOrderBtn">＋ Nova O.S.</button>
+            <button class="btn" id="osExportBtn" type="button" onclick="exportOrdersCsv()">Exportar</button>
+            <button class="btn" id="osFilterToggle" type="button" onclick="toggleOrderFilters()">Filtros</button>
+            <button class="btn primary" id="createOrderBtn">Nova O.S.</button>
           </div>
         </div>
 
@@ -10798,7 +11323,7 @@
           <div><span class="checklist-eyebrow">ROTINAS OPERACIONAIS</span><h1>Checklists</h1><p>Crie modelos, execute inspeções e acompanhe não conformidades.</p></div>
           <div class="checklist-head-actions">
             <button class="btn" id="checklistFilterBtn" type="button">☷ Filtros</button>
-            <button class="btn" id="executeChecklistBtn" type="button">▶ Executar Checklist</button>
+            <button class="btn" id="executeChecklistBtn" type="button">Executar Checklist</button>
             <button class="btn primary" id="createChecklistBtn" type="button">＋ Novo Checklist</button>
           </div>
         </header>
@@ -10827,11 +11352,11 @@
 </main>
 
   <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Navegação do técnico">
-    <button class="active" type="button" data-mobile-view="dashboard" onclick="setView('dashboard')"><i>⌂</i><span>Início</span></button>
-    <button type="button" data-mobile-view="orders" onclick="openMobileMyOrders()"><i>▣</i><span>Minhas O.S.</span></button>
-    <button type="button" data-mobile-view="checklists" onclick="setView('checklists')"><i>✓</i><span>Checklist</span></button>
-    <button type="button" data-mobile-view="assets" onclick="setView('assets')"><i>⚙</i><span>Ativos</span></button>
-    <button id="mobileMoreBtn" type="button" aria-controls="mainNavigation" aria-expanded="false" onclick="openMobileMoreMenu()"><i>•••</i><span>Mais</span></button>
+    <button class="active" type="button" data-mobile-view="dashboard" onclick="setView('dashboard')"><i></i><span>Início</span></button>
+    <button type="button" data-mobile-view="orders" onclick="openMobileMyOrders()"><i></i><span>Minhas O.S.</span></button>
+    <button type="button" data-mobile-view="checklists" onclick="setView('checklists')"><i></i><span>Checklist</span></button>
+    <button type="button" data-mobile-view="assets" onclick="setView('assets')"><i></i><span>Ativos</span></button>
+    <button id="mobileMoreBtn" type="button" aria-controls="mainNavigation" aria-expanded="false" onclick="openMobileMoreMenu()"><i></i><span>Mais</span></button>
   </nav>
 
   <div class="context-menu" id="machineMenu">
@@ -10857,6 +11382,133 @@
   </div>
 
   <div class="toast" id="toast"></div>
+
+  <script>
+    /* Etapa 24 — subconjunto SVG inline compatível com a linguagem visual Lucide/Tabler. */
+    (() => {
+      const paths = {
+        dashboard:`<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="4" rx="1"/><rect x="14" y="11" width="7" height="10" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>`,
+        quick:`<path d="m13 2-9 12h7l-1 8 9-12h-7z"/><path d="M4 5h4M16 19h4"/>`,
+        maintenance:`<path d="M14.7 6.3a4 4 0 0 0-5-5L7.6 3.4l3 3L8 9l-3-3-2.1 2.1a4 4 0 0 0 5 5L16.8 22l4.2-4.2-8.9-8.9"/>`,
+        workOrders:`<path d="M9 5h6M9 3h6v4H9z"/><rect x="5" y="5" width="14" height="16" rx="2"/><path d="m9 14 2 2 4-4M9 10h6"/>`,
+        activeOrders:`<path d="M5 3v18M19 3v18"/><path d="m9 7 7 5-7 5z"/>`,
+        plans:`<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/><circle cx="14.5" cy="15.5" r="3"/><path d="M14.5 14v1.8l1.2.7"/>`,
+        checklist:`<path d="M9 5h10M9 12h10M9 19h10"/><path d="m3 5 1.5 1.5L7 4M3 12l1.5 1.5L7 11M3 19l1.5 1.5L7 18"/>`,
+        measurements:`<path d="M4 15a8 8 0 1 1 16 0"/><path d="m12 15 4-4M7 18h10"/><circle cx="12" cy="15" r="1"/>`,
+        pending:`<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 3v4M21 12h-4M12 17v4M7 12H3"/>`,
+        downtime:`<path d="M8 2h8l6 6v8l-6 6H8l-6-6V8z"/><path d="M9 8v8M15 8v8"/>`,
+        diary:`<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5z"/><path d="M8 7h8M8 11h6"/>`,
+        assets:`<path d="M3 21V9l6 4V9l6 4V5h6v16z"/><path d="M7 17h2M12 17h2M17 17h2"/>`,
+        motor:`<rect x="4" y="8" width="12" height="9" rx="2"/><path d="M16 11h3v3h-3M7 8V5h6v3M6 17v2M14 17v2"/>`,
+        pump:`<circle cx="12" cy="13" r="5"/><path d="M12 3v5M17 13h4M3 13h4M12 18v3M10 13h4"/>`,
+        compressor:`<rect x="4" y="9" width="15" height="8" rx="2"/><path d="M8 9V6h7v3M7 17v2M17 17v2M19 12h2"/>`,
+        electricPanel:`<rect x="5" y="4" width="14" height="16" rx="2"/><path d="M8 8h8M8 12h3M14 12h2M8 16h8"/>`,
+        tank:`<path d="M7 7c0-2 10-2 10 0v10c0 2-10 2-10 0Z"/><path d="M7 7c0 2 10 2 10 0M7 17c0 2 10 2 10 0"/>`,
+        conveyor:`<rect x="4" y="12" width="16" height="5" rx="2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M6 9h12"/>`,
+        tags:`<path d="M20 12 12 20 3 11V4h7z"/><circle cx="7.5" cy="7.5" r="1.5"/>`,
+        areas:`<path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/>`,
+        regions:`<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>`,
+        locations:`<path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0z"/><path d="M9 12V8h6v4M11 12v-2h2v2"/>`,
+        installation:`<rect x="9" y="2" width="6" height="5" rx="1"/><rect x="2" y="17" width="6" height="5" rx="1"/><rect x="16" y="17" width="6" height="5" rx="1"/><path d="M12 7v5M5 17v-3h14v3"/>`,
+        documents:`<path d="M4 4h6l2 2h8v14H4z"/><path d="M8 11h8M8 15h6"/>`,
+        tools:`<path d="M9 6h6l1 3h4v11H4V9h4z"/><path d="M8 9V6a4 4 0 0 1 8 0v3M10 14h4"/>`,
+        materials:`<path d="m12 2 9 5-9 5-9-5z"/><path d="m3 7 9 5 9-5M3 12l9 5 9-5M3 17l9 5 9-5"/>`,
+        parts:`<path d="M8 3h8l5 5v8l-5 5H8l-5-5V8z"/><circle cx="12" cy="12" r="4"/><path d="M12 8v8M8 12h8"/>`,
+        stock:`<path d="M3 21V7l9-4 9 4v14z"/><path d="M7 10h10v11H7zM7 14h10"/>`,
+        stockMoves:`<path d="M3 7h12M11 3l4 4-4 4M21 17H9M13 13l-4 4 4 4"/><rect x="3" y="13" width="5" height="5" rx="1"/>`,
+        stockTransfers:`<path d="M7 7h13M16 3l4 4-4 4M17 17H4M8 13l-4 4 4 4"/><path d="M10 10h4v4h-4z"/>`,
+        materialRequests:`<path d="M9 5h6M9 3h6v4H9z"/><rect x="5" y="5" width="14" height="16" rx="2"/><path d="m8 14 4-2 4 2-4 2zM12 16v3"/>`,
+        suppliers:`<path d="M3 21V8h7v13M14 21V4h7v17"/><path d="M6 12h1M6 16h1M17 8h1M17 12h1M17 16h1M10 13h4"/>`,
+        planning:`<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M8 14h3M14 14h2M8 18h2"/>`,
+        calendar:`<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M7 14h3v3H7zM14 14h3"/>`,
+        productiveCalendar:`<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/><path d="m8 16 2 2 5-5"/>`,
+        teams:`<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/><path d="M5 3h8"/>`,
+        analytics:`<path d="M4 19V5M4 19h16"/><path d="m7 15 4-4 3 2 5-7"/><circle cx="19" cy="6" r="1"/>`,
+        indicators:`<path d="M4 19V9M10 19V5M16 19v-7M22 19V3"/><path d="M2 21h22"/>`,
+        reports:`<path d="M6 2h8l4 4v16H6z"/><path d="M14 2v5h5M9 17v-3M12 17v-6M15 17v-4"/>`,
+        assistant:`<path d="m12 3 1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/><path d="m19 15 .8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/>`,
+        admin:`<path d="M12 3l8 3v5c0 5-3.4 8.7-8 10-4.6-1.3-8-5-8-10V6z"/><path d="M8 12h8M12 8v8"/>`,
+        users:`<circle cx="9" cy="8" r="4"/><path d="M2 21v-2a6 6 0 0 1 6-6h2a6 6 0 0 1 6 6v2"/><path d="M18 8v6M15 11h6"/>`,
+        search:`<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>`,
+        bell:`<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>`,
+        help:`<circle cx="12" cy="12" r="9"/><path d="M9.5 9a3 3 0 1 1 4.7 2.5c-1.2.8-2.2 1.3-2.2 3M12 18h.01"/>`,
+        panelLeft:`<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 9l-3 3 3 3"/>`,
+        panelRight:`<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M15 3v18M9 9l3 3-3 3"/>`,
+        user:`<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>`,
+        logout:`<path d="M10 17l5-5-5-5M15 12H3"/><path d="M15 3h6v18h-6"/>`,
+        plus:`<path d="M12 5v14M5 12h14"/>`,
+        edit:`<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>`,
+        eye:`<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>`,
+        trash:`<path d="M4 7h16M10 11v6M14 11v6M6 7l1 14h10l1-14M9 7V4h6v3"/>`,
+        save:`<path d="M5 3h12l3 3v15H4V4z"/><path d="M8 3v6h8V3M8 21v-7h8v7"/>`,
+        x:`<path d="M6 6l12 12M18 6 6 18"/>`,
+        arrowLeft:`<path d="m15 18-6-6 6-6M9 12h12"/>`,
+        arrowRight:`<path d="m9 18 6-6-6-6M15 12H3"/>`,
+        chevronDown:`<path d="m6 9 6 6 6-6"/>`,
+        chevronUp:`<path d="m6 15 6-6 6 6"/>`,
+        filter:`<path d="M3 4h18l-7 8v6l-4 2v-8z"/>`,
+        filterX:`<path d="M3 4h14l-6 7v6l-3 2v-8zM16 15l5 5M21 15l-5 5"/>`,
+        sliders:`<path d="M4 6h10M18 6h2M4 12h3M11 12h9M4 18h7M15 18h5"/><circle cx="16" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="13" cy="18" r="2"/>`,
+        export:`<path d="M14 3h7v7M21 3l-9 9"/><path d="M11 5H5v16h16v-6"/>`,
+        import:`<path d="M10 21H3v-7M3 21l9-9"/><path d="M13 19h6V3H3v6"/>`,
+        printer:`<path d="M7 8V3h10v5M6 18H4v-7h16v7h-2M7 14h10v7H7z"/>`,
+        download:`<path d="M12 3v12M7 10l5 5 5-5M4 21h16"/>`,
+        upload:`<path d="M12 21V9M7 14l5-5 5 5M4 3h16"/>`,
+        send:`<path d="m22 2-7 20-4-9-9-4zM22 2 11 13"/>`,
+        paperclip:`<path d="m21.4 11.6-8.9 8.9a6 6 0 0 1-8.5-8.5l9.6-9.6a4 4 0 0 1 5.7 5.7l-9.6 9.6a2 2 0 0 1-2.8-2.8l8.9-8.9"/>`,
+        camera:`<path d="M14.5 4 16 7h4v13H4V7h4l1.5-3z"/><circle cx="12" cy="13" r="4"/>`,
+        history:`<path d="M3 12a9 9 0 1 0 3-6.7M3 4v6h6M12 7v6l4 2"/>`,
+        copy:`<rect x="8" y="8" width="12" height="12" rx="2"/><rect x="4" y="4" width="12" height="12" rx="2"/>`,
+        move:`<path d="M12 2v20M2 12h20M8 6l4-4 4 4M8 18l4 4 4-4M6 8l-4 4 4 4M18 8l4 4-4 4"/>`,
+        grip:`<circle cx="9" cy="5" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="19" r="1"/>`,
+        more:`<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>`,
+        play:`<circle cx="12" cy="12" r="9"/><path d="m10 8 6 4-6 4z"/>`,
+        pause:`<circle cx="12" cy="12" r="9"/><path d="M9 8v8M15 8v8"/>`,
+        refresh:`<path d="M20 7V3h-4M4 17v4h4"/><path d="M5.5 9a8 8 0 0 1 13-3L20 7M4 17l1.5 1a8 8 0 0 0 13-3"/>`,
+        timer:`<circle cx="12" cy="13" r="8"/><path d="M9 2h6M12 5v3M12 13l3-2"/>`,
+        activity:`<path d="M3 12h4l2-7 4 14 2-7h6"/>`,
+        availability:`<circle cx="12" cy="12" r="9"/><path d="M12 3v4M21 12h-4M12 17v4M7 12H3"/><path d="m9 12 2 2 4-5"/>`,
+        clock:`<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>`,
+        clockAlert:`<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2M18.5 5.5l2-2M12 17h.01"/>`,
+        packageClock:`<path d="m12 2 8 4-8 4-8-4zM4 6v10l8 4 4-2"/><circle cx="18" cy="17" r="4"/><path d="M18 15v2l1.5 1"/>`,
+        checkCircle:`<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>`,
+        xCircle:`<circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/>`,
+        openCircle:`<circle cx="12" cy="12" r="9"/><path d="M12 7v5h5"/>`,
+        alertTriangle:`<path d="M12 3 22 21H2z"/><path d="M12 9v5M12 18h.01"/>`,
+        alertCircle:`<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 17h.01"/>`,
+        info:`<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/>`,
+        power:`<path d="M12 2v10M6.3 5.3a8 8 0 1 0 11.4 0"/>`,
+        fileEdit:`<path d="M6 2h8l4 4v7M14 2v5h5"/><path d="M13 21H6V2M14 19l5-5 2 2-5 5-3 1z"/>`,
+        lowStock:`<path d="m4 7 8-4 8 4-8 4zM4 7v10l8 4 4-2M20 7v5"/><path d="M20 15v6M17 18h6"/>`,
+        criticalMachine:`<path d="M3 18V9l5 3V8l5 3V4h5v9"/><path d="M17 15l5 8H12zM17 18v2M17 22h.01"/>`,
+        databaseRestore:`<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3M20 5v6M4 11v6c0 1.7 3.6 3 8 3"/><path d="M20 15v6h-6M20 21l-5-5"/>`
+      };
+      const labels={dashboard:"Visão Geral",quick:"Acessos Rápidos",workOrders:"Ordens de Serviço",activeOrders:"O.S. em execução",plans:"Planos de Manutenção",checklist:"Checklists",measurements:"Medições",pending:"Ações Pendentes",downtime:"Paradas",diary:"Diário de Manutenção",assets:"Ativos e Equipamentos",tags:"Identificadores de Ativos",areas:"Áreas Operacionais",regions:"Regiões",locations:"Setores e Locais",installation:"Locais de Instalação",documents:"Documentos",tools:"Ferramentas",parts:"Catálogo de Peças",stock:"Almoxarifado",stockMoves:"Movimentações de Estoque",stockTransfers:"Transferências de Estoque",materialRequests:"Solicitações de Materiais",suppliers:"Fornecedores",calendar:"Calendário Operacional",productiveCalendar:"Calendários Produtivos",teams:"Recursos e Equipes",indicators:"Indicadores",reports:"Relatórios",assistant:"IA GestMan365",users:"Usuários e Permissões"};
+      const aliases={details:"eye",done:"checkCircle",check:"checkCircle",delete:"trash",print:"printer",share:"send",pdf:"reports",home:"dashboard",menu:"more",settings:"sliders",success:"checkCircle",error:"xCircle",warning:"alertTriangle"};
+      const clean=value=>String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/\s+/g," ").trim();
+      function markup(name,{size,label,decorative=true}={}){name=aliases[name]||name;if(!paths[name])name="info";const accessible=label&&!decorative?` role="img" aria-label="${String(label).replace(/"/g,"&quot;")}"`:` aria-hidden="true"`;return `<svg class="gm-icon" data-gm-icon-name="${name}" viewBox="0 0 24 24" width="${size||20}" height="${size||20}"${accessible}>${paths[name]}</svg>`}
+      function statusName(value){const key=clean(value);if(key.includes("aguardando material"))return"packageClock";if(key.includes("atras")||key.includes("vencid"))return"clockAlert";if(key.includes("execu")||key.includes("andamento"))return"play";if(key.includes("paus"))return"pause";if(key.includes("aguard"))return"clock";if(key.includes("conclu")||key.includes("finaliz")||key==="ativo"||key==="ativa"||key.includes("aprov"))return"checkCircle";if(key.includes("cancel"))return"xCircle";if(key.includes("planej")||key.includes("programad"))return"calendar";if(key.includes("critic")||key.includes("nao conforme"))return"alertTriangle";if(key.includes("inativ"))return"power";if(key.includes("rascunho"))return"fileEdit";if(key.includes("abert"))return"openCircle";if(key.includes("media")||key.includes("atenc"))return"alertCircle";return"info"}
+      const viewIcons={dashboard:"dashboard",quickAccess:"quick",orders:"workOrders",activeOrders:"activeOrders",preventivePlans:"plans",checklists:"checklist",measurements:"measurements",pendingActions:"pending",downtime:"downtime",operationalDiary:"diary",assets:"assets",tags:"tags",operationalAreas:"areas",regions:"regions",locations:"locations",map:"installation",documentsCenter:"documents",toolsControl:"tools",spares:"parts",stock:"stock",stockMoves:"stockMoves",stockTransfers:"stockTransfers",materialRequests:"materialRequests",suppliers:"suppliers",calendar:"calendar",productiveCalendars:"productiveCalendar",teamsResources:"teams",maintenanceIndicators:"indicators",reports:"reports",assistant:"assistant"};
+      const groupIcons={maintenance:"maintenance",assets:"assets",materials:"materials",planning:"planning",analytics:"analytics",admin:"admin"};
+      const kpiIcons={mttr:"timer",mtbf:"activity",availability:"availability",equipment:"assets",runningOrders:"maintenance",activeStops:"downtime"};
+      const metricIcons={mttr:"timer",mtbf:"activity",availability:"availability",openOrders:"workOrders",runningOrders:"activeOrders",lateOrders:"clockAlert",preventiveCompliance:"plans",stops:"downtime",stopHours:"timer",criticalAssets:"criticalMachine",overdueActions:"pending",lowStock:"lowStock"};
+      const quickIcons={dashboard:"dashboard",newOrder:"workOrders",myOrders:"activeOrders",myRequests:"materialRequests",unassigned:"pending",checklist:"checklist",downtime:"downtime",material:"materialRequests",assets:"assets",reports:"reports",suppliers:"suppliers",notifications:"bell"};
+      function actionName(value){const key=clean(value);if(/notifica/.test(key))return"bell";if(/ajuda/.test(key))return"help";if(/recolher menu|alternar menu|abrir menu/.test(key))return"panelLeft";if(/buscar|pesquisar/.test(key))return"search";if(/nova? o\.?s|ordem de servico/.test(key)&&/nova|criar|abrir/.test(key))return"workOrders";if(/adicionar|novo|nova|criar|vincular/.test(key))return"plus";if(/editar|alterar/.test(key))return"edit";if(/visualizar|ver detalhes|consultar|abrir registro|continuar/.test(key))return"eye";if(/excluir|remover/.test(key))return"trash";if(/inativar|desativar/.test(key))return"pause";if(/reativar|restaurar|atualizar|reabrir/.test(key))return"refresh";if(/salvar|aplicar|confirmar|aprovar|concluir/.test(key))return"checkCircle";if(/cancelar|fechar/.test(key))return"x";if(/voltar|anterior|mover para cima/.test(key))return key.includes("cima")?"chevronUp":"arrowLeft";if(/avancar|proximo|seguinte|mover para baixo/.test(key))return key.includes("baixo")?"chevronDown":"arrowRight";if(/limpar filtro/.test(key))return"filterX";if(/mais filtro|preferencia|configur/.test(key))return"sliders";if(/filtro|filtrar/.test(key))return"filter";if(/exportar/.test(key))return"export";if(/importar/.test(key))return"import";if(/imprimir/.test(key))return"printer";if(/baixar|download/.test(key))return"download";if(/enviar|compartilhar/.test(key))return"send";if(/anex/.test(key))return"paperclip";if(/foto|camera|evidencia/.test(key))return"camera";if(/historico|auditoria|log/.test(key))return"history";if(/duplicar|copiar/.test(key))return"copy";if(/mover|transferir|reordenar/.test(key))return"move";if(/iniciar|executar|retomar/.test(key))return"play";if(/pausar/.test(key))return"pause";if(/mais acoes|opcoes|menu/.test(key))return"more";if(/perfil|usuario/.test(key))return"user";if(/sair|logout/.test(key))return"logout";return""}
+      function quickName(text,onclick=""){const key=clean(`${text} ${onclick}`);if(key.includes("checklist"))return"checklist";if(key.includes("parada")||key.includes("downtime"))return"downtime";if(key.includes("material"))return"materialRequests";if(key.includes("ativo")||key.includes("asset"))return"assets";if(key.includes("relatorio"))return"reports";if(key.includes("fornecedor"))return"suppliers";if(key.includes("notifica"))return"bell";if(key.includes("ordem")||key.includes("o.s")||key.includes("order"))return"workOrders";return"quick"}
+      function apply(container,name){if(!container||!name)return;name=aliases[name]||name;if(container.dataset.gmRendered===name&&container.querySelector(".gm-icon"))return;container.innerHTML=markup(name);container.dataset.gmRendered=name;container.setAttribute("aria-hidden","true")}
+      function decorateMenu(root){root.querySelectorAll?.(".nav .tab").forEach(button=>{const icon=button.querySelector(".tab-icon");const view=button.dataset.view;const name=viewIcons[view]||(button.dataset.navAction==="users"?"users":"");if(icon&&name)apply(icon,name)});root.querySelectorAll?.(".nav-group").forEach(group=>apply(group.querySelector(":scope>summary .nav-group-icon"),groupIcons[group.dataset.navGroup]));root.querySelectorAll?.(".nav-quick-access>summary .tab-icon").forEach(icon=>apply(icon,"quick"));root.querySelectorAll?.(".nav-group>summary>i,.nav-quick-access>summary>i").forEach(icon=>apply(icon,"chevronDown"));root.querySelectorAll?.(".nav-quick-list button").forEach(button=>apply(button.querySelector(":scope>span:first-child"),quickName(button.textContent,button.getAttribute("onclick"))))}
+      function decorateDashboard(root){root.querySelectorAll?.(".professional-kpi-card").forEach(card=>apply(card.querySelector(".professional-kpi-icon"),kpiIcons[card.dataset.dashboardKpi]));root.querySelectorAll?.(".industrial-quick-actions button,.mobile-tech-actions button").forEach(button=>apply(button.querySelector("i"),quickName(button.textContent,button.getAttribute("onclick"))));root.querySelectorAll?.(".mobile-bottom-nav button").forEach(button=>{const map={dashboard:"dashboard",orders:"workOrders",checklists:"checklist",assets:"assets"};apply(button.querySelector("i"),map[button.dataset.mobileView]||(button.id==="mobileMoreBtn"?"more":"dashboard"))});root.querySelectorAll?.(".os-metric-card").forEach(card=>apply(card.querySelector(".os-metric-icon"),statusName(card.querySelector(".os-metric-label")?.textContent)));root.querySelectorAll?.(".dashboard-alert-item").forEach(card=>{const key=clean(card.textContent);const name=key.includes("estoque")||key.includes("peca")?"lowStock":key.includes("medicao")?"measurements":key.includes("checklist")?"checklist":key.includes("preventiva")?"plans":key.includes("parada")?"downtime":key.includes("atras")?"clockAlert":"alertTriangle";apply(card.querySelector(".dashboard-alert-icon"),name)});root.querySelectorAll?.(".dashboard-alert-empty i").forEach(icon=>apply(icon,"checkCircle"))}
+      function decorateDynamic(root){root.querySelectorAll?.(".stage20-shortcut").forEach(button=>{const match=(button.getAttribute("onclick")||"").match(/stage20RunQuick\('([^']+)'/);apply(button.querySelector(".stage20-shortcut-icon"),quickIcons[match?.[1]]||quickName(button.textContent,button.getAttribute("onclick")))});root.querySelectorAll?.(".stage20-notification").forEach(card=>{const key=clean(card.textContent);const name=key.includes("estoque")?"stock":key.includes("ferramenta")?"tools":key.includes("documento")?"documents":key.includes("fornecedor")?"suppliers":key.includes("equipe")||key.includes("agenda")?"teams":key.includes("medicao")?"measurements":key.includes("parada")?"downtime":key.includes("checklist")?"checklist":key.includes("preventivo")?"plans":"workOrders";apply(card.querySelector(".stage20-notification-icon"),name)});root.querySelectorAll?.(".s16-kpi").forEach(card=>{const match=(card.getAttribute("onclick")||"").match(/openStage16Metric\('([^']+)'/);apply(card.querySelector(".s16-kpi-icon"),metricIcons[match?.[1]]||"indicators")});root.querySelectorAll?.(".asset-list-icon,.machine-icon").forEach(icon=>apply(icon,"assets"));root.querySelectorAll?.(".stage17-tree-icon").forEach(icon=>apply(icon,"installation"));root.querySelectorAll?.(".subtag-tree-icon,.subtag-leaf-icon").forEach(icon=>apply(icon,"tags"));root.querySelectorAll?.(".os-title-icon").forEach(icon=>apply(icon,"workOrders"))}
+      function metricName(value){const key=clean(value);if(key.includes("mttr")||key.includes("tempo"))return"timer";if(key.includes("mtbf"))return"activity";if(key.includes("disponib"))return"availability";if(key.includes("parada"))return"downtime";if(key.includes("equipamento"))return"assets";if(key.includes("plano")||key.includes("preventiv"))return"plans";if(key.includes("checklist"))return"checklist";if(key.includes("medicao")||key.includes("leitura")||key.includes("ponto"))return"measurements";if(key.includes("estoque")||key.includes("material"))return"lowStock";if(key.includes("conclu")||key.includes("encerrad"))return"checkCircle";if(key.includes("execu")||key.includes("andamento"))return"play";if(key.includes("atras")||key.includes("vencimento"))return"clockAlert";if(key.includes("paus"))return"pause";if(key.includes("abert")||key.includes("ativo"))return"openCircle";if(key.includes("critic")||key.includes("nao conform"))return"alertTriangle";return"indicators"}
+      function decorateMetrics(root){root.querySelectorAll?.(".stage14-metric,.stage15-metric,.checklist-metric,.preventive-metric,.asset-metric").forEach(card=>apply(card.querySelector(":scope>i,.asset-metric-icon"),metricName(card.textContent)))}
+      function decorateStatuses(root){root.querySelectorAll?.(".tag,.os-chip,.industrial-status,.stage15-status").forEach(tag=>{if(tag.querySelector(":scope>.gm-status-icon"))return;const holder=document.createElement("span");holder.className="gm-status-icon";holder.innerHTML=markup(statusName(tag.textContent),{size:13});holder.setAttribute("aria-hidden","true");tag.prepend(holder)})}
+      function decorateButtons(root){root.querySelectorAll?.(".topbar-menu-btn,.nav-toggle-btn,.reference-icon-button,.close,.btn,.top-action-btn,.icon-btn,.os-row-menu,.stage20-custom-actions button,.stage19-menu summary,.asset-row-actions summary,.tenant-row-actions summary").forEach(button=>{if(button.matches(".reference-header-user"))return;const label=button.getAttribute("aria-label")||button.getAttribute("title")||button.textContent;const name=actionName(label);if(!name)return;if(!button.getAttribute("aria-label")&&!clean(button.textContent))button.setAttribute("aria-label",label||labels[name]||name);if(!button.getAttribute("title")&&button.getAttribute("aria-label"))button.setAttribute("title",button.getAttribute("aria-label"));const special=button.querySelector(":scope>i");if(special){apply(special,name);return}const existing=button.querySelector(":scope>.gm-button-icon");if(existing)return;if(!button.children.length){const visible=String(button.textContent||"").trim();const cleaned=visible.replace(/^[^\p{L}\p{N}]+/u,"").replace(/\s*[←→↑↓↗↻⋮›‹]+$/u,"").trim();if(cleaned)button.textContent=cleaned}const onlySymbol=clean(button.textContent).length<=3&&!button.querySelector("span,strong,small");if(onlySymbol){button.innerHTML=markup(name);button.classList.add("gm-icon-only");return}if(button.querySelector(":scope>.gm-icon"))return;const holder=document.createElement("span");holder.className="gm-button-icon";holder.innerHTML=markup(name,{size:17});holder.setAttribute("aria-hidden","true");const svg=button.querySelector(":scope>svg.ui-icon");if(svg)svg.replaceWith(holder);else button.prepend(holder)})}
+      function decorateHeader(root){root.querySelectorAll?.(".topbar-search>.ui-icon").forEach(icon=>{const replacement=document.createElement("span");replacement.innerHTML=markup("search",{size:18});icon.replaceWith(replacement.firstElementChild)});const notification=root.querySelector?.(".reference-notification");if(notification){const svg=notification.querySelector("svg");if(svg)svg.outerHTML=markup("bell",{size:20})}const help=root.querySelector?.(".reference-help");if(help&&!help.querySelector(".gm-icon")){help.textContent="";help.insertAdjacentHTML("afterbegin",markup("help",{size:20}))}}
+      function decorate(root=document){if(root.nodeType!==1&&root.nodeType!==9)return;decorateMenu(root);decorateHeader(root);decorateDashboard(root);decorateDynamic(root);decorateMetrics(root);decorateStatuses(root);decorateButtons(root)}
+      window.GMIcons={paths,labels,viewIcons,groupIcons,kpiIcons,metricIcons,markup,statusName,actionName,quickName,decorate};window.gmIcon=(name,options)=>markup(name,options);window.gmStatusIcon=value=>`<span class="gm-status-icon" aria-hidden="true">${markup(statusName(value),{size:13})}</span>`;
+      let queued=false;const pending=new Set();const flush=()=>{queued=false;pending.forEach(node=>decorate(node));pending.clear()};const observer=new MutationObserver(records=>{records.forEach(record=>{const target=record.target.nodeType===1?record.target:record.target.parentElement;if(target)pending.add(target)});if(!queued){queued=true;requestAnimationFrame(flush)}});observer.observe(document.documentElement,{subtree:true,childList:true});if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>decorate(document),{once:true});else decorate(document);
+    })();
+  </script>
 
   <script>
     const STORAGE_KEY = "gestman365-admin-v2";
@@ -15135,24 +15787,12 @@
 
     function tag(value) {
       const label = ptBrText(value || "-");
-      return `<span class="tag ${tagClass(label)}">${label}</span>`;
+      return `<span class="tag ${tagClass(label)}">${gmStatusIcon(label)}${label}</span>`;
     }
 
     function actionIcon(name, className = "edit") {
-      const icons = {
-        play: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7-11-7Z"/></svg>`,
-        done: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>`,
-        edit: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"/></svg>`,
-        delete: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"/><path d="M10 11v6M14 11v6"/><path d="M6 7l1 14h10l1-14"/><path d="M9 7V4h6v3"/></svg>`,
-        details: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg>`,
-        print: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8V4h10v4"/><path d="M6 18H4v-7h16v7h-2"/><path d="M7 14h10v6H7z"/></svg>`,
-        share: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.8 15.4 6.2M8.6 13.2l6.8 4.6"/></svg>`,
-        copy: `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><rect x="4" y="4" width="12" height="12" rx="2"/></svg>`,
-        pdf: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/><path d="M9 16h6"/></svg>`,
-        check: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="M7 12l3 3 7-7"/></svg>`,
-        move: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10M7 17h10"/><path d="M14 4l3 3-3 3M10 14l-3 3 3 3"/></svg>`
-      };
-      return `<span class="action-icon ${className}">${icons[name] || icons.details}</span>`;
+      const iconName = { done:"checkCircle", details:"eye", delete:"trash", print:"printer", share:"send", pdf:"reports", check:"checkCircle" }[name] || name;
+      return `<span class="action-icon ${className}">${gmIcon(iconName, { size:18 })}</span>`;
     }
 
     function regionName(id) { return byId(state.regions, id)?.name || "-"; }
@@ -15222,16 +15862,8 @@
 
     function visualIcon(value) {
       const key = normalizeIconValue(value);
-      const icons = {
-        motor: `<svg class="machine-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="8" width="12" height="9" rx="2"/><path d="M16 11h3v3h-3M7 8V5h6v3M6 17v2M14 17v2"/></svg>`,
-        bomba: `<svg class="machine-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 13a5 5 0 1 0 10 0 5 5 0 0 0-10 0Z"/><path d="M12 3v5M17 13h4M3 13h4M12 18v3"/><path d="M10 13h4"/></svg>`,
-        compressor: `<svg class="machine-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="9" width="15" height="8" rx="2"/><path d="M8 9V6h7v3M7 17v2M17 17v2M19 12h2"/></svg>`,
-        painel: `<svg class="machine-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="16" rx="2"/><path d="M8 8h8M8 12h3M14 12h2M8 16h8"/></svg>`,
-        tanque: `<svg class="machine-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7c0-2 10-2 10 0v10c0 2-10 2-10 0Z"/><path d="M7 7c0 2 10 2 10 0M7 17c0 2 10 2 10 0"/></svg>`,
-        esteira: `<svg class="machine-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="12" width="16" height="5" rx="2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M6 9h12"/></svg>`,
-        geral: `<svg class="machine-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4v10l-8 4-8-4V7l8-4Z"/><path d="M12 12l8-5M12 12 4 7M12 12v9"/></svg>`
-      };
-      return icons[key] || icons.geral;
+      const iconName = { motor:"motor", bomba:"pump", compressor:"compressor", painel:"electricPanel", tanque:"tank", esteira:"conveyor", geral:"assets" }[key] || "assets";
+      return gmIcon(iconName, { size:20 });
     }
 
     function tagName(id) { const item = byId(state.tags, id); return item ? `${item.code}` : "-"; }
@@ -15925,7 +16557,7 @@
         if (!current || Number(item.executedAt || 0) > Number(current.executedAt || 0)) failedByChecklist.set(item.checklistId, item);
       });
       failedByChecklist.forEach(item => add({
-        key:`checklistFailure:${item.checklistId}`, type:"checklistFailure", id:item.checklistId, icon:"⚠", level:"attention", priority:"Atenção",
+        key:`checklistFailure:${item.checklistId}`, type:"checklistFailure", id:item.checklistId, icon:"alertTriangle", level:"attention", priority:"Atenção",
         title:"Falha em checklist", description:`${item.checklistName || "Checklist"} · ${Number(item.nonConformCount || 0)} não conforme(s)`,
         date:item.executedAt
       }));
@@ -15945,14 +16577,15 @@
     }
 
     function dashboardAlertHtml(alert) {
-      return `<button class="dashboard-alert-item ${alert.level}" type="button" onclick="openDashboardAlertRecord('${escapeHtml(alert.type)}','${escapeHtml(alert.id)}')"><i class="dashboard-alert-icon">${escapeHtml(alert.icon)}</i><span class="dashboard-alert-copy"><strong>${escapeHtml(alert.title)}</strong><span>${escapeHtml(alert.description)}</span></span><span class="dashboard-alert-meta"><time>${escapeHtml(dashboardAlertDateLabel(alert.date))}</time><b class="dashboard-alert-priority">${escapeHtml(alert.priority)}</b></span></button>`;
+      const iconName = ({ downtime:"downtime", lateOrder:"clockAlert", preventive:"plans", stock:"lowStock", checklist:"checklist", checklistFailure:"alertTriangle", measurement:"measurements" })[alert.type] || "alertTriangle";
+      return `<button class="dashboard-alert-item ${alert.level}" type="button" onclick="openDashboardAlertRecord('${escapeHtml(alert.type)}','${escapeHtml(alert.id)}')"><i class="dashboard-alert-icon">${gmIcon(iconName, { size:19 })}</i><span class="dashboard-alert-copy"><strong>${escapeHtml(alert.title)}</strong><span>${escapeHtml(alert.description)}</span></span><span class="dashboard-alert-meta"><time>${escapeHtml(dashboardAlertDateLabel(alert.date))}</time><b class="dashboard-alert-priority">${escapeHtml(alert.priority)}</b></span></button>`;
     }
 
     function renderDashboardAlerts() {
       const target = $("dashboardAlertList");
       if (!target) return;
       const alerts = collectDashboardAlerts();
-      target.innerHTML = alerts.slice(0, 5).map(dashboardAlertHtml).join("") || `<div class="dashboard-alert-empty"><i>✓</i><span>Nenhum alerta importante no momento.</span></div>`;
+      target.innerHTML = alerts.slice(0, 5).map(dashboardAlertHtml).join("") || `<div class="dashboard-alert-empty"><i>${gmIcon("checkCircle", { size:20 })}</i><span>Nenhum alerta importante no momento.</span></div>`;
       if ($("headerNotificationCount")) $("headerNotificationCount").textContent = alerts.length.toLocaleString("pt-BR");
     }
 
@@ -15960,7 +16593,7 @@
       const alerts = collectDashboardAlerts();
       openModal("Alertas e Notificações", alerts.length
         ? `<div class="dashboard-alert-modal-list">${alerts.map(dashboardAlertHtml).join("")}</div>`
-        : `<div class="dashboard-alert-empty"><i>✓</i><span>Nenhum alerta importante no momento.</span></div>`, true);
+        : `<div class="dashboard-alert-empty"><i>${gmIcon("checkCircle", { size:20 })}</i><span>Nenhum alerta importante no momento.</span></div>`, true);
     }
 
     function openDashboardAlertRecord(type, id) {
@@ -16844,7 +17477,7 @@
 
     function apiTreeText() {
       return SGMAN_API_TREE.map(group => [
-        `📁 ${group.module}`,
+        `${group.module}`,
         ...group.commands.map(command => `  - ${command[0]} | ${command[1]} | ${command[2]}`)
       ].join("\n")).join("\n");
     }
@@ -16867,7 +17500,7 @@
         return `
           <div class="api-folder">
             <button class="api-folder-head" type="button" onclick="toggleApiFolder(${groupIndex})">
-              <span>▾ 📁 ${escapeHtml(group.module)}</span>
+              <span>${gmIcon("chevronDown",{size:15})}${gmIcon("documents",{size:17})}${escapeHtml(group.module)}</span>
               <small>${visibleCommands.length} comando(s)</small>
             </button>
             <div class="api-folder-body" id="apiFolder${groupIndex}">
@@ -19773,7 +20406,7 @@
       const label = ptBrText(order.status || "Aberta");
       const key = normalizeTextKey(label);
       const effectiveLabel = orderIsLate(order) && !key.includes("atras") ? "Atrasada" : label;
-      return `<span class="os-chip tag ${tagClass(effectiveLabel)}">${escapeHtml(effectiveLabel)}</span>`;
+      return `<span class="os-chip tag ${tagClass(effectiveLabel)}">${gmStatusIcon(effectiveLabel)}${escapeHtml(effectiveLabel)}</span>`;
     }
 
     function orderPriorityChip(priority) {
@@ -19855,15 +20488,15 @@
     function renderOrderMetrics(orders) {
       const total = orders.length;
       const metrics = [
-        { label: "Abertas", value: orders.filter(order => normalizeTextKey(order.status).includes("abert")).length, color: "#1d8cff", icon: "▶" },
-        { label: "Em execução", value: orders.filter(order => isRunningOrder(order.status)).length, color: "#f97316", icon: "◆" },
-        { label: "Aguardando material", value: orders.filter(order => normalizeTextKey(order.status).includes("aguard") && normalizeTextKey(order.status).includes("material")).length, color: "#a78bfa", icon: "◈" },
-        { label: "Atrasada", value: orders.filter(orderIsLate).length, color: "#dc3d3d", icon: "◷" },
-        { label: "Concluída", value: orders.filter(order => isClosedOrder(order.status)).length, color: "#35a869", icon: "✓" }
+        { label: "Abertas", value: orders.filter(order => normalizeTextKey(order.status).includes("abert")).length, color: "#1d8cff", icon: "openCircle" },
+        { label: "Em execução", value: orders.filter(order => isRunningOrder(order.status)).length, color: "#f97316", icon: "play" },
+        { label: "Aguardando material", value: orders.filter(order => normalizeTextKey(order.status).includes("aguard") && normalizeTextKey(order.status).includes("material")).length, color: "#a78bfa", icon: "packageClock" },
+        { label: "Atrasada", value: orders.filter(orderIsLate).length, color: "#dc3d3d", icon: "clockAlert" },
+        { label: "Concluída", value: orders.filter(order => isClosedOrder(order.status)).length, color: "#35a869", icon: "checkCircle" }
       ];
       $("osMetricGrid").innerHTML = metrics.map(metric => {
         const percent = total ? Math.round(metric.value / total * 100) : 0;
-        return `<article class="os-metric-card" style="--metric-color:${metric.color};--metric-percent:${percent}%"><span class="os-metric-icon">${metric.icon}</span><div><span class="os-metric-value">${metric.value}</span><span class="os-metric-label">${metric.label}</span></div><div class="os-metric-percent"><strong>${percent}%</strong><span>do total</span></div><div class="os-metric-bar"><i></i></div></article>`;
+        return `<article class="os-metric-card" style="--metric-color:${metric.color};--metric-percent:${percent}%"><span class="os-metric-icon">${gmIcon(metric.icon, { size:20 })}</span><div><span class="os-metric-value">${metric.value}</span><span class="os-metric-label">${metric.label}</span></div><div class="os-metric-percent"><strong>${percent}%</strong><span>do total</span></div><div class="os-metric-bar"><i></i></div></article>`;
       }).join("");
     }
 
@@ -20184,7 +20817,7 @@
     function populatePreventiveFilters(){const preserve=(id,rows,label)=>{const target=$(id);if(!target)return;const current=target.value;target.innerHTML=`<option value="">${label}</option>`+rows.map(([value,text])=>`<option value="${escapeHtml(value)}">${escapeHtml(text)}</option>`).join("");target.value=current;};preserve("preventiveAssetFilter",state.assets.map(item=>[item.id,`${item.code} - ${item.name}`]),"Todos os equipamentos");preserve("preventiveResponsibleFilter",Array.from(new Set(state.preventivePlans.map(planResponsible).filter(value=>value!=="Sem responsável"))).map(value=>[value,value]),"Todos os responsáveis");}
     function filteredPreventivePlans(){const q=normalizeTextKey($("preventiveSearch")?.value||""),status=$("preventiveStatusFilter")?.value||"",period=$("preventivePeriodFilter")?.value||"",responsible=$("preventiveResponsibleFilter")?.value||"",assetId=$("preventiveAssetFilter")?.value||"",today=new Date(new Date().setHours(0,0,0,0));const rows=state.preventivePlans.filter(plan=>{const asset=byId(state.assets,plan.assetId),next=planDateFromInput(plan.nextExecution),diff=next?Math.ceil((next-today)/86400000):null;return(!q||normalizeTextKey(`${plan.name} ${asset?.code} ${asset?.name}`).includes(q))&&(!status||plan.status===status)&&(!responsible||planResponsible(plan)===responsible)&&(!assetId||plan.assetId===assetId)&&(!period||(period==="late"?diff<0:diff>=0&&diff<=Number(period)));});const get={name:item=>item.name||"",asset:item=>machineName(item.assetId),next:item=>item.nextExecution||""}[preventiveWorkspaceSort]||((item)=>item.nextExecution||"");return rows.sort((a,b)=>String(get(a)).localeCompare(String(get(b)),"pt-BR",{numeric:true})*preventiveWorkspaceSortDirection);}
     function renderPreventiveAlerts(){if(!$("preventiveAlertList"))return;const alerts=[];state.preventivePlans.forEach(plan=>{const situation=planSituationInfo(plan),part=(plan.plannedParts||[]).map(row=>({...row,part:byId(state.spareParts,row.spareId)})).find(row=>row.part&&Number(row.part.balance||0)<Number(row.quantity||1));if(!byId(state.assets,plan.assetId))alerts.push({level:0,text:`${plan.name}: plano sem equipamento.`});else if(situation.label==="Atrasado")alerts.push({level:0,text:`${plan.name}: execução atrasada desde ${formatPlanDate(plan.nextExecution)}.`});else if(situation.label==="Próximo do vencimento")alerts.push({level:1,text:`${plan.name}: próxima execução em ${formatPlanDate(plan.nextExecution)}.`});if(part)alerts.push({level:1,text:`${plan.name}: estoque insuficiente para a próxima execução.`});if(!plan.checklistId)alerts.push({level:2,text:`${plan.name}: nenhum checklist vinculado (informativo).`});if(plan.status==="Pausado")alerts.push({level:2,text:`${plan.name}: plano pausado.`});});alerts.sort((a,b)=>a.level-b.level);$("preventiveAlertList").innerHTML=alerts.length?`<div class="preventive-alert"><strong>Atenções preventivas</strong>${alerts.slice(0,5).map(item=>`<div>• ${escapeHtml(item.text)}</div>`).join("")}</div>`:`<div class="preventive-alert" style="border-color:#22543d;background:#102c24;color:#86efac">Nenhuma manutenção preventiva requer atenção.</div>`;}
-    function renderPreventiveMetrics(){const today=new Date(new Date().setHours(0,0,0,0)),generated=state.orders.filter(item=>item.preventivePlanId&&orderSearchDate(item)?.getMonth()===today.getMonth()&&orderSearchDate(item)?.getFullYear()===today.getFullYear()).length;const metrics=[["Planos ativos",state.preventivePlans.filter(item=>item.status!=="Pausado").length,"#22c55e","▶"],["Próximos do vencimento",state.preventivePlans.filter(item=>planSituationInfo(item).label==="Próximo do vencimento").length,"#facc15","◷"],["Atrasados",state.preventivePlans.filter(item=>planSituationInfo(item).label==="Atrasado").length,"#ef4444","!"],["Pausados",state.preventivePlans.filter(item=>item.status==="Pausado").length,"#94a3b8","Ⅱ"],["O.S. geradas no período",generated,"#2387ff","▤"]];if($("preventiveMetricStrip"))$("preventiveMetricStrip").innerHTML=metrics.map(([label,value,color,icon])=>`<article class="preventive-metric" style="--pm-color:${color}"><i>${icon}</i><div><strong>${value}</strong><span>${label}</span></div></article>`).join("");renderPreventiveAlerts();}
+    function renderPreventiveMetrics(){const today=new Date(new Date().setHours(0,0,0,0)),generated=state.orders.filter(item=>item.preventivePlanId&&orderSearchDate(item)?.getMonth()===today.getMonth()&&orderSearchDate(item)?.getFullYear()===today.getFullYear()).length;const metrics=[["Planos ativos",state.preventivePlans.filter(item=>item.status!=="Pausado").length,"#22c55e","plans"],["Próximos do vencimento",state.preventivePlans.filter(item=>planSituationInfo(item).label==="Próximo do vencimento").length,"#facc15","clock"],["Atrasados",state.preventivePlans.filter(item=>planSituationInfo(item).label==="Atrasado").length,"#ef4444","clockAlert"],["Pausados",state.preventivePlans.filter(item=>item.status==="Pausado").length,"#94a3b8","pause"],["O.S. geradas no período",generated,"#2387ff","workOrders"]];if($("preventiveMetricStrip"))$("preventiveMetricStrip").innerHTML=metrics.map(([label,value,color,icon])=>`<article class="preventive-metric" style="--pm-color:${color}"><i>${gmIcon(icon,{size:20})}</i><div><strong>${value}</strong><span>${label}</span></div></article>`).join("");renderPreventiveAlerts();}
     function preventiveActionMenu(plan){return`<details class="preventive-row-menu" onclick="event.stopPropagation()"><summary aria-label="Ações de ${escapeHtml(plan.name)}">⋮</summary><div><button type="button" onclick="openPreventivePlanDetail('${plan.id}')">Ver detalhes</button>${preventiveCanManage()?`<button type="button" onclick="editPreventivePlan('${plan.id}')">Editar</button><button type="button" onclick="duplicatePreventivePlan('${plan.id}')">Duplicar</button>`:""}</div></details>`;}
     function renderPreventivePlansWorkspace(){if(!$("preventivePlanRows"))return;populatePreventiveFilters();renderPreventiveMetrics();const rows=filteredPreventivePlans(),pages=Math.max(1,Math.ceil(rows.length/PREVENTIVE_PAGE_SIZE));preventiveWorkspacePage=Math.min(preventiveWorkspacePage,pages);const visible=rows.slice((preventiveWorkspacePage-1)*PREVENTIVE_PAGE_SIZE,preventiveWorkspacePage*PREVENTIVE_PAGE_SIZE);$("preventiveResultCount").textContent=`${rows.length} plano${rows.length===1?"":"s"}`;$("preventivePlanRows").innerHTML=visible.map(plan=>{const situation=planSituationInfo(plan);return`<tr tabindex="0" onclick="openPreventivePlanDetail('${plan.id}')" onkeydown="if(event.key==='Enter')openPreventivePlanDetail('${plan.id}')"><td><strong>${escapeHtml(plan.name||"Plano preventivo")}</strong></td><td>${escapeHtml(machineName(plan.assetId))}</td><td>${escapeHtml(planFrequencyLabel(plan))}</td><td>${formatPlanDate(plan.nextExecution)}</td><td>${escapeHtml(planResponsible(plan))}</td><td>${tag(situation.label)}</td><td>${preventiveActionMenu(plan)}</td></tr>`;}).join("")||`<tr><td colspan="7" class="empty">Nenhum plano encontrado.</td></tr>`;$("preventiveMobileList").innerHTML=visible.map(plan=>{const situation=planSituationInfo(plan);return`<article class="preventive-mobile-card" onclick="openPreventivePlanDetail('${plan.id}')"><div><h3>${escapeHtml(plan.name||"Plano preventivo")}</h3>${tag(situation.label)}</div><p>${escapeHtml(machineName(plan.assetId))}</p><div><span>${escapeHtml(planFrequencyLabel(plan))}</span><strong>${formatPlanDate(plan.nextExecution)}</strong></div>${preventiveCanManage()?`<button class="btn primary" type="button" onclick="event.stopPropagation();generatePreventivePlanOrder('${plan.id}',this)">Gerar O.S.</button>`:""}</article>`;}).join("")||`<div class="empty">Nenhum plano encontrado.</div>`;$("preventivePagination").innerHTML=`<span>${rows.length?`${(preventiveWorkspacePage-1)*PREVENTIVE_PAGE_SIZE+1}–${Math.min(preventiveWorkspacePage*PREVENTIVE_PAGE_SIZE,rows.length)} de ${rows.length}`:"0 resultados"}</span><button ${preventiveWorkspacePage<=1?"disabled":""} onclick="changePreventivePage(${preventiveWorkspacePage-1})">‹</button>${Array.from({length:pages},(_,i)=>i+1).map(page=>`<button class="${page===preventiveWorkspacePage?"active":""}" onclick="changePreventivePage(${page})">${page}</button>`).join("")}<button ${preventiveWorkspacePage>=pages?"disabled":""} onclick="changePreventivePage(${preventiveWorkspacePage+1})">›</button>`;if(selectedPreventivePlanId)renderPreventivePlanDetail();}
     function closePreventivePlanDetail(){selectedPreventivePlanId=null;selectedPreventiveTab="overview";$("preventiveDetailPanel")?.classList.add("is-hidden");$("preventiveListPanel")?.classList.remove("is-hidden");}
@@ -20458,8 +21091,9 @@
 
     function stage17TreeNode(item,level=0){
       const children=stage17Children(item.id).sort((a,b)=>String(a.name).localeCompare(String(b.name),"pt-BR")),expanded=stage17Ui.expanded.has(item.id),selected=stage17Ui.selectedInstallation===item.id,assets=state.assets.filter(a=>stage17AssetInstallation(a)?.id===item.id).length;
-      const icons={Sistema:"▦","Sub-sistema":"◇",Linha:"═",Conjunto:"⌘","Ponto de Instalação":"⌖","Local de instalação":"⌂"};
-      return `<div class="stage17-tree-group"><div class="stage17-tree-row ${selected?"selected":""}"><button class="stage17-tree-toggle" onclick="stage17ToggleTree('${item.id}')" ${children.length?"":"disabled"}>${children.length?(expanded?"−":"+"):"·"}</button><span class="stage17-tree-icon">${icons[item.type]||"⌂"}</span><span class="stage17-tree-label" onclick="stage17SelectInstallation('${item.id}')"><strong>${escapeHtml(item.name||item.code)}</strong><small>${escapeHtml(item.code||"—")} · ${assets} ativo(s)</small></span>${stage17ActiveBadge(item.status)}</div>${children.length&&expanded?`<div class="stage17-tree-children">${children.map(child=>stage17TreeNode(child,level+1)).join("")}</div>`:""}</div>`;
+      const icons={Sistema:"installation","Sub-sistema":"areas",Linha:"activity",Conjunto:"parts","Ponto de Instalação":"locations","Local de instalação":"assets"};
+      const toggleIcon=children.length?(expanded?"chevronUp":"chevronDown"):"more";
+      return `<div class="stage17-tree-group"><div class="stage17-tree-row ${selected?"selected":""}"><button class="stage17-tree-toggle gm-icon-only" aria-label="${expanded?"Recolher":"Expandir"} ${escapeHtml(item.name||item.code)}" onclick="stage17ToggleTree('${item.id}')" ${children.length?"":"disabled"}>${gmIcon(toggleIcon,{size:16})}</button><span class="stage17-tree-icon">${gmIcon(icons[item.type]||"installation",{size:19})}</span><span class="stage17-tree-label" onclick="stage17SelectInstallation('${item.id}')"><strong>${escapeHtml(item.name||item.code)}</strong><small>${escapeHtml(item.code||"—")} · ${assets} ativo(s)</small></span>${stage17ActiveBadge(item.status)}</div>${children.length&&expanded?`<div class="stage17-tree-children">${children.map(child=>stage17TreeNode(child,level+1)).join("")}</div>`:""}</div>`;
     }
     function stage17InstallationTabContent(item,tab){
       const assets=state.assets.filter(a=>stage17AssetInstallation(a)?.id===item.id),assetIds=new Set(assets.map(a=>a.id)),orders=state.orders.filter(o=>assetIds.has(o.assetId)),plans=state.preventivePlans.filter(p=>assetIds.has(p.assetId)),stops=state.downtimes.filter(d=>assetIds.has(d.assetId)),documents=assets.flatMap(a=>(a.documents||[]).map(doc=>({...doc,assetName:a.name}))),history=Array.isArray(item.history)?[...item.history].reverse():[];
@@ -20810,7 +21444,7 @@
     /* Etapa 20 — Acessos Rápidos */
     const stage20QuickDescriptions={dashboard:"Panorama operacional",newOrder:"Criar Ordem de Serviço",myOrders:"Atividades atribuídas",unassignedOrders:"O.S. aguardando responsável",assets:"Consultar equipamentos",plans:"Planos preventivos",indicators:"Indicadores de manutenção",users:"Usuários e perfis",reports:"Relatórios autorizados",calendar:"Agenda de equipes",downtime:"Registrar indisponibilidade",pending:"Ações para acompanhamento",checklist:"Executar rotina",measurement:"Registrar leitura",myActivities:"Agenda e atividades",parts:"Consultar materiais",stockEntry:"Entrada de material",stockExit:"Saída de material",requests:"Solicitações de materiais",tools:"Controle de ferramentas",lowStock:"Itens abaixo do mínimo",newRequest:"Nova solicitação",myRequests:"Minhas solicitações",notifications:"Central interna"};
     function stage20QuickCatalog(){return[
-      {id:"dashboard",icon:"▦",name:"Dashboard",view:"dashboard"},{id:"newOrder",icon:"＋",name:"Nova O.S.",view:"orders",operate:"orders"},{id:"myOrders",icon:"✓",name:"Minhas O.S.",view:"orders",indicator:()=>state.orders.filter(o=>!isClosedOrder(o.status)&&normalizeTextKey(o.executor)===normalizeTextKey(state.profile?.name||currentAccount?.user?.name)).length},{id:"unassignedOrders",icon:"○",name:"O.S. sem responsável",view:"orders",indicator:()=>state.orders.filter(o=>!isClosedOrder(o.status)&&!o.executor).length},{id:"assets",icon:"⚙",name:"Ativos",view:"assets"},{id:"plans",icon:"▤",name:"Planos",view:"preventivePlans"},{id:"indicators",icon:"▥",name:"Indicadores",view:"maintenanceIndicators"},{id:"users",icon:"♟",name:"Usuários",admin:true},{id:"reports",icon:"↗",name:"Relatórios",view:"reports"},{id:"calendar",icon:"▣",name:"Calendário Operacional",view:"calendar"},{id:"downtime",icon:"◷",name:"Registrar Parada",view:"downtime",operate:"orders"},{id:"pending",icon:"!",name:"Ações Pendentes",view:"pendingActions"},{id:"checklist",icon:"☑",name:"Executar Checklist",view:"checklists",operate:"checklists"},{id:"measurement",icon:"⌁",name:"Registrar Medição",view:"measurements",operate:"orders"},{id:"myActivities",icon:"⌚",name:"Minhas Atividades",view:"calendar"},{id:"parts",icon:"▧",name:"Consultar Peça",view:"spares"},{id:"stockEntry",icon:"↓",name:"Registrar Entrada",view:"spares",operate:"stock"},{id:"stockExit",icon:"↑",name:"Registrar Saída",view:"spares",operate:"stock"},{id:"requests",icon:"◇",name:"Solicitações",view:"materialRequests"},{id:"tools",icon:"⌘",name:"Ferramentas",view:"toolsControl"},{id:"lowStock",icon:"!",name:"Itens abaixo do mínimo",view:"spares",indicator:()=>lowStockItems().length},{id:"newRequest",icon:"＋",name:"Nova Solicitação",view:"orders",operate:"orders"},{id:"myRequests",icon:"◇",name:"Minhas Solicitações",view:"orders"},{id:"notifications",icon:"♢",name:"Notificações",special:"notifications"}].map(x=>({...x,description:stage20QuickDescriptions[x.id]||"Acesso operacional"}))}
+      {id:"dashboard",icon:"dashboard",name:"Dashboard",view:"dashboard"},{id:"newOrder",icon:"workOrders",name:"Nova O.S.",view:"orders",operate:"orders"},{id:"myOrders",icon:"activeOrders",name:"Minhas O.S.",view:"orders",indicator:()=>state.orders.filter(o=>!isClosedOrder(o.status)&&normalizeTextKey(o.executor)===normalizeTextKey(state.profile?.name||currentAccount?.user?.name)).length},{id:"unassignedOrders",icon:"pending",name:"O.S. sem responsável",view:"orders",indicator:()=>state.orders.filter(o=>!isClosedOrder(o.status)&&!o.executor).length},{id:"assets",icon:"assets",name:"Ativos",view:"assets"},{id:"plans",icon:"plans",name:"Planos",view:"preventivePlans"},{id:"indicators",icon:"indicators",name:"Indicadores",view:"maintenanceIndicators"},{id:"users",icon:"users",name:"Usuários",admin:true},{id:"reports",icon:"reports",name:"Relatórios",view:"reports"},{id:"calendar",icon:"calendar",name:"Calendário Operacional",view:"calendar"},{id:"downtime",icon:"downtime",name:"Registrar Parada",view:"downtime",operate:"orders"},{id:"pending",icon:"pending",name:"Ações Pendentes",view:"pendingActions"},{id:"checklist",icon:"checklist",name:"Executar Checklist",view:"checklists",operate:"checklists"},{id:"measurement",icon:"measurements",name:"Registrar Medição",view:"measurements",operate:"orders"},{id:"myActivities",icon:"productiveCalendar",name:"Minhas Atividades",view:"calendar"},{id:"parts",icon:"parts",name:"Consultar Peça",view:"spares"},{id:"stockEntry",icon:"import",name:"Registrar Entrada",view:"spares",operate:"stock"},{id:"stockExit",icon:"export",name:"Registrar Saída",view:"spares",operate:"stock"},{id:"requests",icon:"materialRequests",name:"Solicitações",view:"materialRequests"},{id:"tools",icon:"tools",name:"Ferramentas",view:"toolsControl"},{id:"lowStock",icon:"lowStock",name:"Itens abaixo do mínimo",view:"spares",indicator:()=>lowStockItems().length},{id:"newRequest",icon:"materialRequests",name:"Nova Solicitação",view:"orders",operate:"orders"},{id:"myRequests",icon:"materialRequests",name:"Minhas Solicitações",view:"orders"},{id:"notifications",icon:"bell",name:"Notificações",special:"notifications"}].map(x=>({...x,description:stage20QuickDescriptions[x.id]||"Acesso operacional"}))}
     function stage20QuickAllowed(item){if(!item)return false;if(item.admin&&!isAdminUser())return false;if(item.view&&!document.getElementById(item.view))return false;if(item.view&&!canAccessView(item.view))return false;if(item.operate&&!permissionAtLeast(item.operate,"operate"))return false;return true}
     function stage20QuickDefaults(){const profile=accessProfileForUser(currentAccount?.user),sets={admin:["dashboard","newOrder","assets","plans","indicators","users","reports"],supervisor:["newOrder","unassignedOrders","calendar","plans","downtime","pending","reports"],technician:["myOrders","checklist","measurement","downtime","assets","myActivities"],warehouse:["parts","stockEntry","stockExit","requests","tools","lowStock"],requester:["newRequest","myRequests","notifications"],viewer:["dashboard","assets","reports"]};return(sets[profile]||sets.viewer).filter(id=>stage20QuickAllowed(stage20QuickCatalog().find(x=>x.id===id)))}
     function stage20QuickPrefs(){const saved=stage20Json(STAGE20_QUICK_KEY,null,"user"),catalog=stage20QuickCatalog();if(saved?.version===1&&Array.isArray(saved.ids)){const ids=[...new Set(saved.ids)].filter(id=>stage20QuickAllowed(catalog.find(x=>x.id===id)));return{version:1,ids}}return{version:1,ids:stage20QuickDefaults()}}
@@ -20818,12 +21452,12 @@
     function stage20QuickUsage(){const value=stage20Json(STAGE20_QUICK_USAGE_KEY,{version:1,items:{}},"user");return value?.version===1&&value.items?value:{version:1,items:{}}}
     function stage20TrackQuick(id){const data=stage20QuickUsage(),current=data.items[id]||{count:0};data.items[id]={count:Number(current.count||0)+1,lastAt:Date.now()};scopedSetItem(STAGE20_QUICK_USAGE_KEY,JSON.stringify(data),"user")}
     function stage20QuickIndicator(item){const value=typeof item.indicator==="function"?Number(item.indicator()||0):0;return value>0?`${value.toLocaleString("pt-BR")} registro${value===1?"":"s"}`:""}
-    function stage20QuickButton(item){return `<button class="stage20-shortcut" type="button" onclick="stage20RunQuick('${item.id}')"><i class="stage20-shortcut-icon">${escapeHtml(item.icon)}</i><span><strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(item.description)}</span>${stage20QuickIndicator(item)?`<small>${escapeHtml(stage20QuickIndicator(item))}</small>`:""}</span></button>`}
+    function stage20QuickButton(item){return `<button class="stage20-shortcut" type="button" onclick="stage20RunQuick('${item.id}')"><i class="stage20-shortcut-icon">${gmIcon(item.icon, { size:22 })}</i><span><strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(item.description)}</span>${stage20QuickIndicator(item)?`<small>${escapeHtml(stage20QuickIndicator(item))}</small>`:""}</span></button>`}
     function stage20RunQuick(id){const item=stage20QuickCatalog().find(x=>x.id===id);if(!stage20QuickAllowed(item))return denyProfileAccess();stage20TrackQuick(id);if(id==="newOrder"){setView("orders");setTimeout(()=>openOrderModal(),40)}else if(id==="myOrders"){window.stage20OrderScope="mine";mobileMyOrdersOnly=true;setView("orders",{mobileOrders:true,preserveStage20OrderScope:true})}else if(id==="unassignedOrders"){window.stage20OrderScope="unassigned";setView("orders",{preserveStage20OrderScope:true});showToast("Exibindo O.S. sem responsável.")}else if(id==="users")openProfileModal();else if(id==="downtime"){setView("downtime");setTimeout(()=>openStage14DowntimeForm(),40)}else if(id==="measurement"){setView("measurements");setTimeout(()=>openStage15Reading(),40)}else if(id==="stockEntry"){setView("spares");setTimeout(()=>openMaterialMovementForm("Entrada"),40)}else if(id==="stockExit"){setView("spares");setTimeout(()=>openMaterialMovementForm("Saída"),40)}else if(id==="newRequest"){setView("orders");setTimeout(()=>openOrderModal(),40)}else if(id==="myRequests"){window.stage20OrderScope="myRequests";setView("orders",{preserveStage20OrderScope:true})}else if(id==="notifications")stage20OpenNotificationCenter();else setView(item.view);renderStage20Quick()}
     function renderStage20Quick(){const root=$("stage20QuickRoot");if(!root)return;const catalog=stage20QuickCatalog(),prefs=stage20QuickPrefs(),items=prefs.ids.map(id=>catalog.find(x=>x.id===id)).filter(stage20QuickAllowed),usage=stage20QuickUsage().items,used=Object.entries(usage).filter(([,x])=>x.count>0).sort((a,b)=>b[1].count-a[1].count).map(([id])=>catalog.find(x=>x.id===id)).filter(stage20QuickAllowed).slice(0,4),recent=Object.entries(usage).filter(([,x])=>x.lastAt).sort((a,b)=>b[1].lastAt-a[1].lastAt).map(([id])=>catalog.find(x=>x.id===id)).filter(stage20QuickAllowed).slice(0,4);root.innerHTML=`<header class="stage20-page-head"><div><span class="stage20-eyebrow">ATALHOS PESSOAIS</span><h1>Acessos Rápidos</h1><p>Abra módulos e ações existentes sem alterar o menu principal.</p></div><div class="stage20-head-actions"><button class="btn primary" onclick="stage20OpenQuickCustomize()">Personalizar</button></div></header><section class="stage20-quick-section stage20-panel" style="padding:13px"><h2>Meus atalhos</h2>${items.length?`<div class="stage20-shortcut-grid">${items.map(stage20QuickButton).join("")}</div>`:`<div class="stage20-empty"><strong>Nenhum acesso rápido configurado.</strong><button class="btn primary" onclick="stage20OpenQuickCustomize()">Adicionar Atalhos</button></div>`}</section>${used.length?`<section class="stage20-quick-section stage20-panel" style="padding:13px"><h2>Mais utilizados</h2><div class="stage20-shortcut-grid">${used.map(stage20QuickButton).join("")}</div></section>`:""}${recent.length?`<section class="stage20-quick-section stage20-panel" style="padding:13px"><h2>Recentes</h2><div class="stage20-shortcut-grid">${recent.map(stage20QuickButton).join("")}</div></section>`:""}`}
     let stage20QuickDraft=[];
     function stage20OpenQuickCustomize(){stage20QuickDraft=[...stage20QuickPrefs().ids];openModal("Personalizar Acessos Rápidos",`<div id="stage20QuickCustomizer"></div>`,true);stage20RenderQuickCustomizer()}
-    function stage20RenderQuickCustomizer(){const target=$("stage20QuickCustomizer");if(!target)return;const allowed=stage20QuickCatalog().filter(stage20QuickAllowed),chosen=stage20QuickDraft.map(id=>allowed.find(x=>x.id===id)).filter(Boolean),available=allowed.filter(x=>!stage20QuickDraft.includes(x.id));target.innerHTML=`<div class="stage20-form"><div class="full"><strong>Atalhos selecionados</strong><span class="stage20-sub">Use os botões para reorganizar também no mobile.</span></div><div class="full stage20-list">${chosen.map((item,index)=>`<div class="stage20-custom-row"><i class="stage20-shortcut-icon">${escapeHtml(item.icon)}</i><span><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.description)}</small></span><div class="stage20-custom-actions"><button class="btn" aria-label="Mover para cima" ${index===0?"disabled":""} onclick="stage20MoveQuick('${item.id}',-1)">↑</button><button class="btn" aria-label="Mover para baixo" ${index===chosen.length-1?"disabled":""} onclick="stage20MoveQuick('${item.id}',1)">↓</button><button class="btn danger" aria-label="Remover" onclick="stage20ToggleQuick('${item.id}',false)">×</button></div></div>`).join("")||`<div class="stage20-empty">Nenhum atalho selecionado.</div>`}</div><div class="full"><strong>Adicionar atalhos autorizados</strong></div><div class="full stage20-shortcut-grid">${available.map(item=>`<button class="stage20-shortcut" onclick="stage20ToggleQuick('${item.id}',true)"><i class="stage20-shortcut-icon">${escapeHtml(item.icon)}</i><span><strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(item.description)}</span></span></button>`).join("")||`<div class="stage20-empty">Todos os atalhos autorizados já foram adicionados.</div>`}</div><div class="full toolbar"><button class="btn" onclick="stage20QuickDraft=stage20QuickDefaults();stage20RenderQuickCustomizer()">Restaurar padrão</button><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="stage20CommitQuick()">Salvar organização</button></div></div>`}
+    function stage20RenderQuickCustomizer(){const target=$("stage20QuickCustomizer");if(!target)return;const allowed=stage20QuickCatalog().filter(stage20QuickAllowed),chosen=stage20QuickDraft.map(id=>allowed.find(x=>x.id===id)).filter(Boolean),available=allowed.filter(x=>!stage20QuickDraft.includes(x.id));target.innerHTML=`<div class="stage20-form"><div class="full"><strong>Atalhos selecionados</strong><span class="stage20-sub">Use os botões para reorganizar também no mobile.</span></div><div class="full stage20-list">${chosen.map((item,index)=>`<div class="stage20-custom-row"><i class="stage20-shortcut-icon">${gmIcon(item.icon,{size:22})}</i><span><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.description)}</small></span><div class="stage20-custom-actions"><button class="btn" aria-label="Mover para cima" ${index===0?"disabled":""} onclick="stage20MoveQuick('${item.id}',-1)">${gmIcon("chevronUp",{size:17})}</button><button class="btn" aria-label="Mover para baixo" ${index===chosen.length-1?"disabled":""} onclick="stage20MoveQuick('${item.id}',1)">${gmIcon("chevronDown",{size:17})}</button><button class="btn danger" aria-label="Remover" onclick="stage20ToggleQuick('${item.id}',false)">${gmIcon("trash",{size:17})}</button></div></div>`).join("")||`<div class="stage20-empty">Nenhum atalho selecionado.</div>`}</div><div class="full"><strong>Adicionar atalhos autorizados</strong></div><div class="full stage20-shortcut-grid">${available.map(item=>`<button class="stage20-shortcut" onclick="stage20ToggleQuick('${item.id}',true)"><i class="stage20-shortcut-icon">${gmIcon(item.icon,{size:22})}</i><span><strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(item.description)}</span></span></button>`).join("")||`<div class="stage20-empty">Todos os atalhos autorizados já foram adicionados.</div>`}</div><div class="full toolbar"><button class="btn" onclick="stage20QuickDraft=stage20QuickDefaults();stage20RenderQuickCustomizer()">Restaurar padrão</button><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="stage20CommitQuick()">Salvar organização</button></div></div>`}
     function stage20ToggleQuick(id,add){stage20QuickDraft=add?[...stage20QuickDraft,id]:stage20QuickDraft.filter(x=>x!==id);stage20RenderQuickCustomizer()}
     function stage20MoveQuick(id,direction){const index=stage20QuickDraft.indexOf(id),next=index+direction;if(index<0||next<0||next>=stage20QuickDraft.length)return;[stage20QuickDraft[index],stage20QuickDraft[next]]=[stage20QuickDraft[next],stage20QuickDraft[index]];stage20RenderQuickCustomizer()}
     function stage20CommitQuick(){stage20SaveQuick(stage20QuickDraft);closeModal();renderStage20Quick();showToast("Acessos rápidos salvos para este usuário.")}
@@ -20837,7 +21471,7 @@
     function stage20StableId(value){let hash=2166136261;for(const char of String(value)){hash^=char.charCodeAt(0);hash=Math.imul(hash,16777619)}return`notification-${(hash>>>0).toString(16)}`}
     function stage20EmitNotification({stableKey,title,message,category="Sistema",level="Informação",related=null,action="Abrir",recipientId=currentAccount?.user?.id,createdAt=Date.now(),demo=false}){if(!recipientId||!stage20NotificationEnabled(category,level))return null;const id=stage20StableId(`${stableKey}:${recipientId}`),rows=stage20Notifications(),existing=rows.find(n=>n.id===id);const notification={...(existing||{}),id,stableKey,title,message,category,level,related,action,recipientId,createdAt:existing?.createdAt||createdAt,updatedAt:Date.now(),read:demo&&existing?Boolean(existing.read):false,archived:demo&&existing?Boolean(existing.archived):false,demo};const next=rows.filter(n=>n.id!==id).concat(notification);stage20SaveNotifications(next);stage20UpdateNotificationBadge();return notification}
     function stage20UpdateNotificationBadge(){const count=stage20Notifications().filter(n=>!n.read&&!n.archived).length,badge=$("headerNotificationCount");if(badge){badge.textContent=count>99?"99+":String(Math.max(0,count));badge.style.display=count?"grid":"none";badge.setAttribute("aria-label",`${count} notificação(ões) não lida(s)`)}}
-    function stage20NotificationIcon(category){return({"Ordem de Serviço":"▣","Plano Preventivo":"▤",Checklist:"☑",Medição:"⌁",Parada:"◷","Ação Pendente":"!",Estoque:"▧",Ferramenta:"⌘",Documento:"▥",Fornecedor:"▰","Equipe e Agenda":"♟",Sistema:"i"})[category]||"i"}
+    function stage20NotificationIcon(category){const name=({"Ordem de Serviço":"workOrders","Plano Preventivo":"plans",Checklist:"checklist",Medição:"measurements",Parada:"downtime","Ação Pendente":"pending",Estoque:"stock",Ferramenta:"tools",Documento:"documents",Fornecedor:"suppliers","Equipe e Agenda":"teams",Sistema:"info"})[category]||"info";return gmIcon(name,{size:19})}
     function stage20NotificationCard(n,compact=false){return `<article class="stage20-notification ${n.read?"is-read":""}" data-level="${escapeHtml(n.level)}"><i class="stage20-notification-icon">${stage20NotificationIcon(n.category)}</i><div class="stage20-notification-copy"><strong>${escapeHtml(n.title)}</strong><span>${escapeHtml(n.message)}</span><small>${escapeHtml(n.category)} · ${escapeHtml(n.level)} · ${stage20Date(n.createdAt,true)}${n.read?" · Lida":" · Não lida"}</small></div><div class="stage20-notification-actions">${n.related?`<button class="btn primary" onclick="stage20OpenNotificationRecord('${n.id}')">${escapeHtml(n.action||"Abrir")}</button>`:""}${compact?"":`<button class="btn" onclick="stage20ToggleNotificationRead('${n.id}')">${n.read?"Não lida":"Lida"}</button><button class="btn" onclick="stage20ArchiveNotification('${n.id}')">Arquivar</button>`}</div></article>`}
     function stage20OpenNotificationPanel(){const rows=stage20Notifications().filter(n=>!n.archived).slice(0,5);openModal("Notificações",`<div class="stage20-notification-panel"><div class="toolbar"><strong>${stage20Notifications().filter(n=>!n.read&&!n.archived).length} não lida(s)</strong><button class="btn" onclick="stage20MarkAllNotificationsRead()">Marcar todas como lidas</button><button class="btn" onclick="stage20OpenNotificationPreferences()">Preferências</button></div><div class="stage20-notification-list">${rows.map(n=>stage20NotificationCard(n,true)).join("")||`<div class="stage20-empty"><strong>Nenhuma notificação no momento.</strong></div>`}</div><button class="btn primary" onclick="stage20OpenNotificationCenter()">Ver todas</button></div>`,true)}
     function stage20FilteredNotifications(){const now=Date.now(),periodDays=Number(stage20NotificationUi.period||0);return stage20Notifications().filter(n=>{const age=now-Number(n.createdAt||0);return(stage20NotificationUi.status==="archived"?n.archived:!n.archived)&&(!periodDays||age<=periodDays*86400000)&&(!stage20NotificationUi.category||n.category===stage20NotificationUi.category)&&(!stage20NotificationUi.level||n.level===stage20NotificationUi.level)&&(stage20NotificationUi.tab==="all"||stage20NotificationUi.tab==="unread"&&!n.read||stage20NotificationUi.tab==="attention"&&n.level==="Atenção"||stage20NotificationUi.tab==="urgent"&&n.level==="Urgente")})}
@@ -23884,7 +24518,7 @@
     }
     function renderChecklistMetrics(){
       const active=state.checklists.filter(item=>item.status==="Ativo").length,pending=state.checklistExecutions.filter(item=>["Rascunho","Em andamento"].includes(item.status)).length,completed=state.checklistExecutions.filter(item=>item.status==="Concluído"||item.completedAt||item.result).length,nc=state.checklistExecutions.reduce((sum,item)=>sum+Number(item.nonConformCount||0),0),now=Date.now(),late=state.checklistExecutions.filter(item=>item.dueAt&&Number(item.dueAt)<now&&item.status!=="Concluído").length;
-      $("checklistMetrics").innerHTML=[["✓",active,"Modelos ativos",""],["◷",pending,"Execuções pendentes","warn"],["●",completed,"Execuções concluídas","success"],["!",nc,"Não conformidades","danger"],["⌛",late,"Checklists atrasados","warn"]].map(([icon,value,label,kind])=>`<article class="checklist-metric ${kind}"><i>${icon}</i><div><strong>${value}</strong><span>${label}</span></div></article>`).join("");
+      $("checklistMetrics").innerHTML=[["checklist",active,"Modelos ativos",""],["clock",pending,"Execuções pendentes","warn"],["checkCircle",completed,"Execuções concluídas","success"],["alertTriangle",nc,"Não conformidades","danger"],["clockAlert",late,"Checklists atrasados","warn"]].map(([icon,value,label,kind])=>`<article class="checklist-metric ${kind}"><i>${gmIcon(icon,{size:20})}</i><div><strong>${value}</strong><span>${label}</span></div></article>`).join("");
       $("checklistModelCount").textContent=state.checklists.length;$("checklistExecutionCount").textContent=state.checklistExecutions.length;
     }
     function checklistFilterValues(){return {q:($("checklistSearch")?.value||"").toLowerCase(),status:$("checklistStatusFilter")?.value||"",asset:$("checklistAssetFilter")?.value||"",category:$("checklistCategoryFilter")?.value||"",result:$("checklistResultFilter")?.value||"",period:$("checklistPeriodFilter")?.value||"",sort:$("checklistSort")?.value||"updated"}}
@@ -24360,16 +24994,16 @@
     let stage16ManagerialTab="indicators",stage16UpdatedAt=Date.now(),stage16ReportType="orders",stage16ReportPage=1;
     let stage16Filters={period:"30",start:"",end:"",plant:"",area:"",location:"",asset:"",maintenanceType:"",criticality:"",orderStatus:"",priority:"",responsible:"",team:"",assetCategory:"",downtimeType:"",plan:""};
     const STAGE16_METRICS={
-      mttr:{name:"MTTR",description:"Tempo médio de reparo das intervenções corretivas concluídas.",method:"Soma das durações válidas de reparo ÷ quantidade de O.S. corretivas concluídas. Usa duração real registrada; na ausência, início e término da execução.",source:"Ordens de Serviço",unit:"h",direction:"lower",icon:"◷"},
-      mtbf:{name:"MTBF",description:"Tempo médio de operação registrado entre falhas corretivas.",method:"Variação positiva de horímetros válidos ÷ falhas corretivas no período. Correções e reduções de contador não são estimadas.",source:"Medições e Ordens de Serviço",unit:"h",direction:"higher",icon:"⌘"},
-      availability:{name:"Disponibilidade",description:"Percentual do tempo calendário sem paradas válidas no período.",method:"(Horas calendário dos ativos − horas de parada válidas) ÷ horas calendário dos ativos × 100. Não substitui um calendário produtivo específico.",source:"Ativos e Paradas",unit:"%",direction:"higher",icon:"◔"},
-      openOrders:{name:"O.S. abertas",description:"Ordens ainda não encerradas no período.",method:"Contagem única de O.S. não concluídas e não canceladas que atendem aos filtros.",source:"Ordens de Serviço",unit:"",direction:"lower",icon:"▤"},
-      runningOrders:{name:"O.S. em execução",description:"Ordens atualmente em execução.",method:"Contagem única de O.S. com status Em execução no período aplicado.",source:"Ordens de Serviço",unit:"",direction:"neutral",icon:"▶"},
-      lateOrders:{name:"O.S. atrasadas",description:"Ordens abertas cujo prazo já venceu.",method:"O.S. não encerradas com prazo anterior à data atual ou status Atrasada.",source:"Ordens de Serviço",unit:"",direction:"lower",icon:"!"},
-      preventiveCompliance:{name:"Cumprimento preventivo",description:"Preventivas concluídas dentro do prazo.",method:"Preventivas concluídas no prazo ÷ execuções preventivas programadas não canceladas × 100.",source:"Planos e Ordens de Serviço",unit:"%",direction:"higher",icon:"✓"},
+      mttr:{name:"MTTR",description:"Tempo médio de reparo das intervenções corretivas concluídas.",method:"Soma das durações válidas de reparo ÷ quantidade de O.S. corretivas concluídas. Usa duração real registrada; na ausência, início e término da execução.",source:"Ordens de Serviço",unit:"h",direction:"lower",icon:"timer"},
+      mtbf:{name:"MTBF",description:"Tempo médio de operação registrado entre falhas corretivas.",method:"Variação positiva de horímetros válidos ÷ falhas corretivas no período. Correções e reduções de contador não são estimadas.",source:"Medições e Ordens de Serviço",unit:"h",direction:"higher",icon:"activity"},
+      availability:{name:"Disponibilidade",description:"Percentual do tempo calendário sem paradas válidas no período.",method:"(Horas calendário dos ativos − horas de parada válidas) ÷ horas calendário dos ativos × 100. Não substitui um calendário produtivo específico.",source:"Ativos e Paradas",unit:"%",direction:"higher",icon:"availability"},
+      openOrders:{name:"O.S. abertas",description:"Ordens ainda não encerradas no período.",method:"Contagem única de O.S. não concluídas e não canceladas que atendem aos filtros.",source:"Ordens de Serviço",unit:"",direction:"lower",icon:"workOrders"},
+      runningOrders:{name:"O.S. em execução",description:"Ordens atualmente em execução.",method:"Contagem única de O.S. com status Em execução no período aplicado.",source:"Ordens de Serviço",unit:"",direction:"neutral",icon:"activeOrders"},
+      lateOrders:{name:"O.S. atrasadas",description:"Ordens abertas cujo prazo já venceu.",method:"O.S. não encerradas com prazo anterior à data atual ou status Atrasada.",source:"Ordens de Serviço",unit:"",direction:"lower",icon:"clockAlert"},
+      preventiveCompliance:{name:"Cumprimento preventivo",description:"Preventivas concluídas dentro do prazo.",method:"Preventivas concluídas no prazo ÷ execuções preventivas programadas não canceladas × 100.",source:"Planos e Ordens de Serviço",unit:"%",direction:"higher",icon:"plans"},
       stops:{name:"Paradas no período",description:"Ocorrências de parada válidas registradas.",method:"Contagem única de paradas não canceladas iniciadas ou ativas no período.",source:"Paradas",unit:"",direction:"lower",icon:"■"},
       stopHours:{name:"Tempo total de parada",description:"Soma das durações válidas das paradas filtradas.",method:"Soma dos intervalos válidos entre início e fim, limitada ao período aplicado.",source:"Paradas",unit:"h",direction:"lower",icon:"◴"},
-      criticalAssets:{name:"Ativos críticos",description:"Ativos cuja saúde atual está classificada como crítica.",method:"Reutiliza exatamente a classificação de saúde do módulo Ativos e Equipamentos.",source:"Ativos",unit:"",direction:"lower",icon:"⚙"},
+      criticalAssets:{name:"Ativos críticos",description:"Ativos cuja saúde atual está classificada como crítica.",method:"Reutiliza exatamente a classificação de saúde do módulo Ativos e Equipamentos.",source:"Ativos",unit:"",direction:"lower",icon:"criticalMachine"},
       overdueActions:{name:"Ações pendentes atrasadas",description:"Ações não concluídas com prazo vencido.",method:"Contagem de ações abertas ou em andamento com prazo anterior à data atual ou status atrasado.",source:"Ações Pendentes",unit:"",direction:"lower",icon:"!"},
       lowStock:{name:"Peças abaixo do mínimo",description:"Itens cujo saldo oficial está abaixo do mínimo.",method:"Reutiliza a mesma regra de saldo e estoque mínimo do módulo de Materiais.",source:"Materiais e Estoque",unit:"",direction:"lower",icon:"▦"}
     };
@@ -24417,7 +25051,7 @@
     function stage16ClearFilters(){stage16Filters={period:"30",start:"",end:"",plant:"",area:"",location:"",asset:"",maintenanceType:"",criticality:"",orderStatus:"",priority:"",responsible:"",team:"",assetCategory:"",downtimeType:"",plan:""};stage16ReportPage=1;renderStage16Managerial();renderStage16Reports();showToast("Filtros gerenciais limpos.")}
     function stage16Refresh(){stage16UpdatedAt=Date.now();renderStage16Managerial();renderStage16Reports();showToast("Dados atualizados a partir dos registros atuais.")}
     function stage16Quality(){let ignored=0,missingAsset=0;const orderNumbers=new Set(),duplicates=new Set();(state.orders||[]).forEach(item=>{if(item.number&&orderNumbers.has(item.number))duplicates.add(item.number);orderNumbers.add(item.number);if(item.assetId&&!byId(state.assets,item.assetId))missingAsset++;const start=stage16Date(item.startedAt),end=stage16Date(item.finishedAt);if(start&&end&&end<start)ignored++});(state.downtimes||[]).forEach(item=>{const start=stage16Date(item.startAt),end=stage16Date(item.endAt);if(!start||(end&&end<start))ignored++;if(item.assetId&&!byId(state.assets,item.assetId))missingAsset++});return{ignored:ignored+duplicates.size+missingAsset,duplicates:duplicates.size,missingAsset}}
-    function stage16MetricCard(key){const meta=STAGE16_METRICS[key],data=stage16MetricData(key),previous=stage16MetricData(key,stage16PreviousFilters()),comparison=stage16Comparison(key,data.value,previous.value),available=data.value!=null;return`<article class="s16-kpi" onclick="openStage16Metric('${key}')"><div class="s16-kpi-top"><i class="s16-kpi-icon">${meta.icon}</i><span class="s16-kpi-status">${available?"Calculado com dados reais":"Indisponível"}</span></div><div class="s16-kpi-value"><strong>${stage16FormatMetric(data.value,meta.unit)}</strong>${available&&meta.unit?`<span>${meta.unit}</span>`:""}</div><small>${escapeHtml(data.complement)}</small><div class="s16-compare ${comparison.class}"><span>${comparison.icon}</span>${escapeHtml(comparison.text)}</div><button class="s16-link">Ver detalhes →</button></article>`}
+    function stage16MetricCard(key){const meta=STAGE16_METRICS[key],data=stage16MetricData(key),previous=stage16MetricData(key,stage16PreviousFilters()),comparison=stage16Comparison(key,data.value,previous.value),available=data.value!=null;return`<article class="s16-kpi" onclick="openStage16Metric('${key}')"><div class="s16-kpi-top"><i class="s16-kpi-icon">${gmIcon(GMIcons.metricIcons[key]||"indicators",{size:20})}</i><span class="s16-kpi-status">${available?"Calculado com dados reais":"Indisponível"}</span></div><div class="s16-kpi-value"><strong>${stage16FormatMetric(data.value,meta.unit)}</strong>${available&&meta.unit?`<span>${meta.unit}</span>`:""}</div><small>${escapeHtml(data.complement)}</small><div class="s16-compare ${comparison.class}"><span>${comparison.icon}</span>${escapeHtml(comparison.text)}</div><button class="s16-link">Ver detalhes</button></article>`}
     function stage16UpdateDashboardMetrics(){if(!$("professionalMttr"))return;const layout=activeDashboardLayout(),months=Math.max(1,Math.min(12,Number(layout.filters?.period||6))),end=new Date(),start=new Date();start.setMonth(start.getMonth()-months);const filters={...stage16Filters,period:"custom",start:stage16DateInput(start),end:stage16DateInput(end),plant:layout.filters?.plant==="Todas"?"":layout.filters?.plant||""},previousFilters=stage16PreviousFilters(filters);[["mttr","professionalMttr","professionalMttrDelta"],["mtbf","professionalMtbf","professionalMtbfDelta"],["availability","professionalAvailability","professionalAvailabilityDelta"]].forEach(([key,valueId,deltaId])=>{const meta=STAGE16_METRICS[key],current=stage16MetricData(key,filters),previous=stage16MetricData(key,previousFilters),comparison=stage16Comparison(key,current.value,previous.value);$(valueId).textContent=current.value==null?"Sem dados":`${stage16FormatMetric(current.value,meta.unit)}${meta.unit}`;if($(deltaId))$(deltaId).textContent=comparison.text})}
     function renderStage16Managerial(){const root=$("stage16ManagerialRoot");if(!root||!hasPermission("reports"))return;const quality=stage16Quality(),keys=Object.keys(STAGE16_METRICS).filter(stage16MetricAllowed);root.innerHTML=`<header class="s16-head"><div><span class="s16-eyebrow">GESTÃO DE MANUTENÇÃO</span><h1>${stage16ManagerialTab==="indicators"?"Indicadores":"Análises"}</h1><p>${stage16ManagerialTab==="indicators"?"Resultados rastreáveis, comparação com o período anterior e acesso aos registros de origem.":"Tendências e distribuições prontas, sem previsões ou diagnósticos artificiais."}</p><span class="s16-updated">Atualizado em: ${new Date(stage16UpdatedAt).toLocaleString("pt-BR")}</span></div><div class="s16-head-actions"><button class="btn" onclick="stage16Refresh()">↻ Atualizar dados</button><button class="btn" onclick="setView('reports')">Central de Relatórios</button></div></header><nav class="s16-tabs"><button class="${stage16ManagerialTab==="indicators"?"active":""}" onclick="stage16SetManagerialTab('indicators')">Indicadores</button><button class="${stage16ManagerialTab==="analytics"?"active":""}" onclick="stage16SetManagerialTab('analytics')">Análises</button></nav>${stage16FilterHtml("s16m")}${quality.ignored?`<div class="s16-quality"><span>Alguns registros não foram considerados devido a dados incompletos.</span><button class="btn" onclick="openStage16Quality()">Ver quantidade (${quality.ignored})</button></div>`:""}<div id="stage16ManagerialContent">${stage16ManagerialTab==="indicators"?`<section class="s16-kpis">${keys.map(stage16MetricCard).join("")}</section>`:stage16AnalyticsHtml()}</div>`;stage16SyncFilterInputs("s16m")}
     function stage16SetManagerialTab(tab){stage16ManagerialTab=tab;renderStage16Managerial()}
