@@ -11179,6 +11179,36 @@
       .profile-session-actions { grid-template-columns: 1fr !important; }
       .profile-session-actions .btn { width: 100% !important; }
     }
+    /* O.S. simplificada: seleção obrigatória e explícita de executantes */
+    .os-simple-form{display:grid;gap:12px;max-width:920px;margin:auto;color:var(--text,#f8fafc)}
+    .os-form-section,.os-quick-details{border:1px solid #263a52;border-radius:12px;background:#0b1726;overflow:hidden}
+    .os-form-section>header{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid #20344b;background:#0e1d2f}
+    .os-form-section>header>span{display:grid;place-items:center;flex:0 0 28px;height:28px;border-radius:8px;background:#1378df;color:#fff;font-weight:800}
+    .os-form-section>header div{display:grid;gap:2px}.os-form-section>header strong{font-size:14px}.os-form-section>header small{color:#91a5bd;font-size:11px}
+    .os-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:14px}
+    .os-form-grid .full{grid-column:1/-1}.os-simple-form label{display:grid;align-content:start;gap:6px;color:#d9e4f2;font-size:12px;font-weight:700}
+    .os-simple-form label.required{position:relative}.os-simple-form label.required::after{content:"*";position:absolute;right:0;top:0;color:#ff6875}
+    .os-simple-form .field{min-height:42px;border-color:#30465f;background:#0c1a2b;color:#f5f8fc}
+    .os-simple-form textarea.field{min-height:92px;resize:vertical}.os-simple-form small{color:#8fa3ba;font-weight:500}
+    .os-simple-form [aria-invalid="true"]{border-color:#ef4444!important;box-shadow:0 0 0 3px rgba(239,68,68,.12)!important}
+    .field-error{display:block;color:#ff818b!important;font-size:11px!important}.field-error[hidden]{display:none!important}
+    .order-asset-context{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:10px;border:1px dashed #2c4662;border-radius:9px;background:#091524;color:#9fb1c7}
+    .order-asset-context>span{display:grid;gap:3px;min-width:0;overflow:hidden;text-overflow:ellipsis}.order-asset-context b{color:#67809d;font-size:9px;text-transform:uppercase;letter-spacing:.08em}
+    .order-executor-field{display:grid;gap:9px;padding:12px;border:1px solid #30465f;border-radius:10px;background:#091625;transition:border-color .18s,box-shadow .18s}
+    .order-executor-field.is-invalid{border-color:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.12)}
+    .order-executor-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.order-executor-head label{display:block;font-size:12px}.order-executor-head b{color:#ff6875}.order-executor-head span{color:#8fa3ba;font-size:11px}
+    .order-executor-chips{display:flex;flex-wrap:wrap;gap:7px;min-height:28px;align-items:center}
+    .order-executor-placeholder{color:#71869f;font-size:11px}
+    .order-executor-chip{display:flex;align-items:center;gap:8px;max-width:100%;padding:6px 7px 6px 9px;border:1px solid #1a68b7;border-radius:9px;background:#102d4e}
+    .order-executor-chip>span{display:grid;min-width:0}.order-executor-chip strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}.order-executor-chip small{font-size:9px}.order-executor-chip.is-historical{border-color:#5c6674;background:#252d38}
+    .order-executor-chip button{position:relative;width:24px;height:24px;border:0;border-radius:7px;background:#163e68;cursor:pointer}.order-executor-chip button::before,.order-executor-chip button::after{content:"";position:absolute;left:7px;top:11px;width:10px;height:1.5px;background:#d9e9f9}.order-executor-chip button::before{transform:rotate(45deg)}.order-executor-chip button::after{transform:rotate(-45deg)}
+    .order-executor-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;max-height:190px;overflow:auto;padding:2px}
+    .order-executor-option{display:flex!important;grid-template-columns:none!important;align-items:flex-start!important;gap:9px!important;padding:9px!important;border:1px solid #243a52;border-radius:9px;background:#0d1c2d;cursor:pointer}
+    .order-executor-option:hover,.order-executor-option.is-selected{border-color:#1988f4;background:#102943}.order-executor-option input{flex:0 0 auto;margin-top:2px;accent-color:#1d8cff}.order-executor-option>span{display:grid;min-width:0;gap:2px}.order-executor-option strong{font-size:11px}.order-executor-option small{font-size:9px;line-height:1.35}
+    .order-executor-empty{grid-column:1/-1;display:grid;justify-items:start;gap:6px;padding:13px;border:1px dashed #30465f;border-radius:9px;color:#91a5bd}.order-executor-empty strong{color:#dce7f4}
+    .os-quick-details>summary{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;font-weight:800}.os-quick-details>summary b{display:grid;place-items:center;min-width:22px;height:22px;border-radius:11px;background:#167fe5;color:#fff;font-size:10px}.os-quick-details>div{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:0 14px 14px}.os-quick-details .full{grid-column:1/-1}
+    .os-create-actions{position:sticky;bottom:-1px;z-index:2;display:flex;justify-content:flex-end;gap:8px;padding:11px 0;background:linear-gradient(180deg,transparent,#07111f 24%)}
+    @media(max-width:700px){.os-simple-form{gap:9px}.os-form-grid,.os-quick-details>div{grid-template-columns:1fr;padding:11px}.os-form-grid .full,.os-quick-details .full{grid-column:auto}.order-asset-context{grid-template-columns:repeat(2,minmax(0,1fr))}.order-executor-options{grid-template-columns:1fr;max-height:240px}.os-simple-form .field{min-height:46px;font-size:16px}.order-executor-option{min-height:48px}.os-create-actions{display:grid;grid-template-columns:1fr 1fr;padding:10px 0}.os-create-actions .btn{min-height:46px}.os-create-actions .btn:last-child:nth-child(3){grid-column:1/-1}}
   </style>
 </head>
 <body class="auth-loading">
@@ -13983,6 +14013,9 @@
         teamId: order.teamId || "",
         resourceId: order.resourceId || "",
         participantIds: Array.isArray(order.participantIds) ? order.participantIds : [],
+        executorIds: [...new Set((Array.isArray(order.executorIds) ? order.executorIds : []).filter(Boolean))],
+        executorSnapshot: Array.isArray(order.executorSnapshot) ? order.executorSnapshot.filter(item => item && item.id) : [],
+        executorValidationVersion: Number(order.executorValidationVersion || 0),
         assignmentHistory: Array.isArray(order.assignmentHistory) ? order.assignmentHistory : [],
         plannedDurationHours: Number(order.plannedDurationHours || 0)
       }));
@@ -15969,12 +16002,23 @@
         epis: order.epis || {},
         anexos: order.attachments || [],
         detalhes: {
+          title: order.title || "",
           plan: order.plan || "",
           checklist: order.checklist || "",
           scheduledAt: order.scheduledAt || "",
           durationDays: order.durationDays || "",
           durationHours: order.durationHours || "",
-          executors: order.executors || 1,
+          executors: Number(order.executors || order.executorIds?.length || 0),
+          executorIds: order.executorIds || [],
+          executorSnapshot: order.executorSnapshot || [],
+          executorValidationVersion: Number(order.executorValidationVersion || 0),
+          teamId: order.teamId || "",
+          resourceId: order.resourceId || "",
+          participantIds: order.participantIds || [],
+          deadline: order.deadline || "",
+          plannedDurationHours: Number(order.plannedDurationHours || 0),
+          preventivePlanId: order.preventivePlanId || "",
+          plannedSpareId: order.plannedSpareId || "",
           generalNote: order.generalNote || "",
           linkedChecklists: order.linkedChecklists || [],
           costs: order.costs || [],
@@ -16305,6 +16349,12 @@
     }
 
     async function saveOrderSupabaseNow(order) {
+      const enforceExecutors = Number(order?.executorValidationVersion || 0) >= 1;
+      const validationIssue = orderPersistenceIssue(order || {}, enforceExecutors);
+      if (validationIssue) {
+        stage21TechnicalLog("warning", "orders.persistence-validation", new Error(validationIssue));
+        return false;
+      }
       if (!tenantRemoteSyncEnabled()) return false;
       if (!SUPABASE_READY || !order?.id) return true;
       try {
@@ -16506,12 +16556,23 @@
           signatureAt: item.detalhes?.signatureAt || null,
           epis: item.epis || {},
           attachments: item.anexos || [],
+          title: item.detalhes?.title || "",
           plan: item.detalhes?.plan || "",
           checklist: item.detalhes?.checklist || "",
           scheduledAt: item.detalhes?.scheduledAt || "",
           durationDays: item.detalhes?.durationDays || "",
           durationHours: item.detalhes?.durationHours || "",
-          executors: item.detalhes?.executors || 1,
+          executors: Number(item.detalhes?.executors || item.detalhes?.executorIds?.length || 0),
+          executorIds: item.detalhes?.executorIds || [],
+          executorSnapshot: item.detalhes?.executorSnapshot || [],
+          executorValidationVersion: Number(item.detalhes?.executorValidationVersion || 0),
+          teamId: item.detalhes?.teamId || "",
+          resourceId: item.detalhes?.resourceId || "",
+          participantIds: item.detalhes?.participantIds || [],
+          deadline: item.detalhes?.deadline || "",
+          plannedDurationHours: Number(item.detalhes?.plannedDurationHours || 0),
+          preventivePlanId: item.detalhes?.preventivePlanId || "",
+          plannedSpareId: item.detalhes?.plannedSpareId || "",
           generalNote: item.detalhes?.generalNote || "",
           linkedChecklists: item.detalhes?.linkedChecklists || [],
           costs: item.detalhes?.costs || [],
@@ -24576,9 +24637,14 @@
       const order = byId(state.orders, id);
       if (!order) return;
       if (action === "copy") {
-        const clone = { ...order, id: uid("os"), number: await nextOrderNumberSafe(), status: "Aberta", createdAt: Date.now(), startedAt: null, finishedAt: null };
-        state.orders.unshift(clone);
-        saveState();
+        const clone = { ...order, id: uid("os"), number: await nextOrderNumberSafe(), status: "Aberta", createdAt: Date.now(), startedAt: null, finishedAt: null, executorValidationVersion:1 };
+        const issue = orderPersistenceIssue(clone, true);
+        if (issue) {
+          showToast(issue, "warning");
+          openOrderModal(order.assetId || "");
+          return;
+        }
+        persistValidatedOrderRecord(clone);
         render();
         showToast("O.S copiada.");
         return;
@@ -24720,6 +24786,361 @@
         }finally{setTimeout(()=>orderQuickSaveLock=false,1200);}
       });
     }
+
+    const ORDER_EXECUTOR_REQUIRED_MESSAGE = "Selecione pelo menos um executante para atender esta Ordem de Serviço.";
+    let orderExecutorSelection = new Set();
+    let orderExecutorHistorical = new Map();
+
+    function orderRecordExecutorIds(order = {}) {
+      const explicit = Array.isArray(order.executorIds) ? order.executorIds : [];
+      const snapshot = Array.isArray(order.executorSnapshot) ? order.executorSnapshot.map(item => item.id) : [];
+      return [...new Set([...explicit, order.resourceId, ...(order.participantIds || []), ...snapshot].filter(Boolean))];
+    }
+
+    function orderPersistenceIssue(order = {}, enforceExecutors = true) {
+      if (!order.assetId || !byId(state.assets, order.assetId)) return "Selecione um equipamento.";
+      if (enforceExecutors && !orderRecordExecutorIds(order).length) return ORDER_EXECUTOR_REQUIRED_MESSAGE;
+      return "";
+    }
+
+    function persistValidatedOrderRecord(order) {
+      const issue = orderPersistenceIssue(order, true);
+      if (issue) throw new Error(`ORDER_VALIDATION: ${issue}`);
+      state.orders = state.orders.filter(item => item.id !== order.id).concat(order);
+      saveState();
+      return order;
+    }
+
+    function orderCandidateUnitMatches(candidate, assetId = "") {
+      const user = currentAccount?.user || {};
+      const asset = byId(state.assets, assetId);
+      const selectedPlant = $("dashboardPlantFilter")?.value || "";
+      const targetUnit = asset?.unit || asset?.plant || (selectedPlant !== "Todas" ? selectedPlant : "") || user.unit || "";
+      const userUnit = user.unit || "";
+      const unitAllowed = !userUnit || normalizeTextKey(userUnit).includes("todas") || !candidate.unit || normalizeTextKey(candidate.unit) === normalizeTextKey(userUnit);
+      const assetAllowed = !targetUnit || normalizeTextKey(targetUnit).includes("todas") || !candidate.unit || normalizeTextKey(candidate.unit) === normalizeTextKey(targetUnit);
+      return unitAllowed && assetAllowed;
+    }
+
+    function orderRawExecutorCandidates(includeInactive = false) {
+      const companyId = currentAccount?.company?.id || "";
+      const teams = (state.teams || []).filter(team => normalizeTextKey(team.status) !== "inativa");
+      const teamIdsFor = resourceId => teams.filter(team => stage19TeamResourceIds(team, true).includes(resourceId)).map(team => team.id);
+      const map = new Map();
+      (state.resources || []).forEach(resource => {
+        const inactive = normalizeTextKey(resource.status).includes("inativ");
+        if (inactive && !includeInactive) return;
+        const teamIds = teamIdsFor(resource.id);
+        map.set(resource.id, {
+          id: resource.id,
+          kind: "resource",
+          name: resource.name || resource.code || "Recurso operacional",
+          code: resource.code || "",
+          specialty: resource.specialty || resource.type || "Recurso operacional",
+          unit: resource.unit || "",
+          status: inactive ? "Inativo" : stage19ResourceStatus(resource),
+          teamIds,
+          teamNames: teamIds.map(id => byId(teams, id)?.name).filter(Boolean),
+          selectable: !inactive
+        });
+      });
+      (authStore.users || []).filter(user => (!companyId || user.companyId === companyId) && user.active !== false).forEach(user => {
+        const profile = accessProfileForUser(user);
+        const technicalText = normalizeTextKey(`${user.jobTitle || ""} ${user.specialties || ""}`);
+        const technical = profile === "technician" || user.executor === true || /(tecnic|mecanic|eletric|instrument|automac|manutenc|lubrific|inspec)/.test(technicalText);
+        if (!technical) return;
+        const linked = [...map.values()].find(candidate => {
+          const resource = byId(state.resources, candidate.id) || {};
+          return resource.userId === user.id || (resource.email && normalizeTextKey(resource.email) === normalizeTextKey(user.email)) || normalizeTextKey(candidate.name) === normalizeTextKey(tenantUserDisplayName(user));
+        });
+        if (linked) return;
+        const id = `user:${user.id}`;
+        const teamIds = Array.isArray(user.teamIds) ? user.teamIds.filter(teamId => byId(teams, teamId)) : [];
+        map.set(id, {
+          id,
+          kind: "user",
+          userId: user.id,
+          name: tenantUserDisplayName(user),
+          code: user.registration || user.employeeCode || user.username || "",
+          specialty: user.specialties || user.jobTitle || "Técnico de manutenção",
+          unit: user.unit || "",
+          status: "Disponível",
+          teamIds,
+          teamNames: teamIds.map(teamId => byId(teams, teamId)?.name).filter(Boolean),
+          selectable: true
+        });
+      });
+      return [...map.values()];
+    }
+
+    function orderEligibleExecutorCandidates(assetId = $("orderAsset")?.value || "", teamId = $("orderTeam")?.value || "") {
+      const profile = accessProfileForUser(currentAccount?.user || {});
+      const userTeamIds = Array.isArray(currentAccount?.user?.teamIds) ? currentAccount.user.teamIds : [];
+      const currentResource = stage19CurrentResource();
+      const currentTeamIds = currentResource ? stage19ResourceTeams(currentResource.id).map(team => team.id) : [];
+      const permittedTeamIds = userTeamIds.length ? userTeamIds : (profile === "technician" ? currentTeamIds : []);
+      return orderRawExecutorCandidates(false)
+        .filter(candidate => candidate.selectable && orderCandidateUnitMatches(candidate, assetId))
+        .filter(candidate => !permittedTeamIds.length || candidate.teamIds.some(id => permittedTeamIds.includes(id)) || candidate.id === currentResource?.id)
+        .sort((a, b) => Number(b.teamIds.includes(teamId)) - Number(a.teamIds.includes(teamId)) || a.name.localeCompare(b.name, "pt-BR"));
+    }
+
+    function orderExecutorRecord(id) {
+      return orderRawExecutorCandidates(true).find(candidate => candidate.id === id) || orderExecutorHistorical.get(id) || null;
+    }
+
+    function orderExistingExecutorSelection(order) {
+      if (!order) return [];
+      const snapshots = Array.isArray(order.executorSnapshot) ? order.executorSnapshot : [];
+      snapshots.forEach(item => orderExecutorHistorical.set(item.id, { ...item, selectable: false, historical: true }));
+      const ids = orderRecordExecutorIds(order);
+      if (!ids.length && String(order.executor || "").trim()) {
+        const resource = orderRawExecutorCandidates(true).find(candidate => normalizeTextKey(candidate.name) === normalizeTextKey(order.executor));
+        if (resource) ids.push(resource.id);
+        else {
+          const legacyId = `legacy:${normalizeTextKey(order.executor)}`;
+          orderExecutorHistorical.set(legacyId, { id:legacyId, kind:"legacy", name:order.executor, specialty:"Registro histórico", unit:"", status:"Histórico", teamIds:[], teamNames:[], selectable:false, historical:true });
+          ids.push(legacyId);
+        }
+      }
+      ids.forEach(id => {
+        const current = orderRawExecutorCandidates(true).find(candidate => candidate.id === id);
+        if (current && !current.selectable) orderExecutorHistorical.set(id, { ...current, historical:true });
+      });
+      return [...new Set(ids)];
+    }
+
+    function orderExecutorSnapshot() {
+      return [...orderExecutorSelection].map(id => orderExecutorRecord(id)).filter(Boolean).map(candidate => ({
+        id:candidate.id,
+        kind:candidate.kind || "resource",
+        name:candidate.name,
+        code:candidate.code || "",
+        specialty:candidate.specialty || "",
+        unit:candidate.unit || "",
+        status:candidate.status || "",
+        teamIds:[...(candidate.teamIds || [])],
+        teamNames:[...(candidate.teamNames || [])],
+        activeAtAssignment:Boolean(candidate.selectable)
+      }));
+    }
+
+    function clearOrderExecutorError() {
+      $("orderExecutorField")?.classList.remove("is-invalid");
+      if ($("orderExecutorError")) $("orderExecutorError").hidden = true;
+      $("orderExecutorSearch")?.removeAttribute("aria-invalid");
+    }
+
+    function showOrderExecutorError() {
+      $("orderExecutorField")?.classList.add("is-invalid");
+      if ($("orderExecutorError")) $("orderExecutorError").hidden = false;
+      $("orderExecutorSearch")?.setAttribute("aria-invalid", "true");
+      $("orderExecutorField")?.scrollIntoView({ behavior:"smooth", block:"center" });
+      $("orderExecutorSearch")?.focus({ preventScroll:true });
+      showToast(ORDER_EXECUTOR_REQUIRED_MESSAGE, "warning");
+    }
+
+    function renderOrderExecutorPicker() {
+      const optionsRoot = $("orderExecutorOptions");
+      const chipsRoot = $("orderExecutorChips");
+      if (!optionsRoot || !chipsRoot) return;
+      const query = normalizeTextKey($("orderExecutorSearch")?.value || "");
+      const candidates = orderEligibleExecutorCandidates().filter(candidate => !query || normalizeTextKey(`${candidate.name} ${candidate.code} ${candidate.specialty} ${candidate.teamNames.join(" ")} ${candidate.unit}`).includes(query));
+      const selected = [...orderExecutorSelection].map(id => orderExecutorRecord(id)).filter(Boolean);
+      if ($("orderExecutorCount")) $("orderExecutorCount").textContent = `${selected.length} selecionado${selected.length === 1 ? "" : "s"}`;
+      chipsRoot.innerHTML = selected.length ? selected.map(candidate => `<span class="order-executor-chip ${candidate.selectable ? "" : "is-historical"}"><span><strong>${escapeHtml(candidate.name)}</strong><small>${escapeHtml(candidate.selectable ? (candidate.specialty || "Executante") : "Histórico · não disponível para nova seleção")}</small></span><button type="button" aria-label="Remover ${escapeHtml(candidate.name)}" title="Remover executante" onclick="setOrderExecutorSelection('${escapeHtml(candidate.id)}',false)"></button></span>`).join("") : `<span class="order-executor-placeholder">Nenhum executante selecionado.</span>`;
+      optionsRoot.innerHTML = candidates.length ? candidates.map(candidate => {
+        const checked = orderExecutorSelection.has(candidate.id);
+        const context = [candidate.specialty, candidate.teamNames.join(" · "), candidate.unit, candidate.status].filter(Boolean).join(" · ");
+        return `<label class="order-executor-option ${checked ? "is-selected" : ""}"><input type="checkbox" value="${escapeHtml(candidate.id)}" ${checked ? "checked" : ""} onchange="setOrderExecutorSelection(this.value,this.checked)"><span><strong>${escapeHtml(candidate.name)}</strong><small>${escapeHtml(context || "Recurso operacional ativo")}</small></span></label>`;
+      }).join("") : `<div class="order-executor-empty"><strong>Nenhum técnico ativo encontrado.</strong><span>Cadastre um técnico ou vincule um usuário a uma equipe de manutenção.</span>${isAdminUser() ? `<button class="btn" type="button" onclick="closeModal();setView('teamsResources')">Gerenciar técnicos</button>` : ""}</div>`;
+      const responsible = $("orderResponsible");
+      if (responsible) {
+        const previous = responsible.value;
+        const all = orderEligibleExecutorCandidates();
+        responsible.innerHTML = `<option value="">Sem responsável principal</option>${all.map(candidate => `<option value="${escapeHtml(candidate.id)}">${escapeHtml(candidate.name)} · ${escapeHtml(candidate.specialty || "Técnico")}</option>`).join("")}`;
+        const historical = previous && !all.some(candidate => candidate.id === previous) ? orderExecutorRecord(previous) : null;
+        if (historical) responsible.insertAdjacentHTML("beforeend", `<option value="${escapeHtml(historical.id)}" disabled>${escapeHtml(historical.name)} · Histórico</option>`);
+        if ([...responsible.options].some(option => option.value === previous)) responsible.value = previous;
+      }
+      if (orderExecutorSelection.size) clearOrderExecutorError();
+    }
+
+    function setOrderExecutorSelection(id, selected) {
+      if (selected) {
+        const candidate = orderEligibleExecutorCandidates().find(item => item.id === id);
+        if (!candidate) return showToast("Este executante não está mais disponível no cadastro.", "warning");
+        orderExecutorSelection.add(id);
+      } else {
+        orderExecutorSelection.delete(id);
+        if ($("orderResponsible")?.value === id) $("orderResponsible").value = "";
+      }
+      renderOrderExecutorPicker();
+    }
+
+    function changeOrderResponsible() {
+      const id = $("orderResponsible")?.value || "";
+      if (!id || orderExecutorSelection.has(id)) return;
+      const candidate = orderEligibleExecutorCandidates().find(item => item.id === id);
+      if (!candidate) return;
+      orderExecutorSelection.add(id);
+      renderOrderExecutorPicker();
+      $("orderResponsible").value = id;
+      if ($("orderResponsibleHint")) $("orderResponsibleHint").textContent = "O responsável principal também foi adicionado como executante.";
+    }
+
+    function orderActiveAssets(selectedId = "", query = "") {
+      const normalized = normalizeTextKey(query);
+      return (state.assets || []).filter(asset => asset.id === selectedId || !normalizeTextKey(asset.status).includes("inativ")).filter(asset => {
+        const tag = byId(state.tags, asset.tagId);
+        const location = locationName(asset.locationId);
+        const haystack = `${asset.code || ""} ${asset.name || ""} ${tag?.code || tag?.name || ""} ${location} ${asset.sector || ""} ${asset.area || ""}`;
+        return !normalized || normalizeTextKey(haystack).includes(normalized);
+      }).sort((a,b) => String(a.code || a.name).localeCompare(String(b.code || b.name), "pt-BR"));
+    }
+
+    function renderOrderAssetOptions() {
+      const select = $("orderAsset");
+      if (!select) return;
+      const selected = select.value;
+      const assets = orderActiveAssets(selected, $("orderAssetSearch")?.value || "");
+      select.innerHTML = `<option value="">Selecione um equipamento</option>${assets.map(asset => `<option value="${asset.id}">${escapeHtml(asset.code || "SEM TAG")} · ${escapeHtml(asset.name)} · ${escapeHtml(locationName(asset.locationId) || "Sem local")}</option>`).join("")}`;
+      if (assets.some(asset => asset.id === selected)) select.value = selected;
+    }
+
+    function updateOrderAssetContext() {
+      const asset = byId(state.assets, $("orderAsset")?.value);
+      const root = $("orderAssetContext");
+      if (!root) return;
+      if (!asset) { root.innerHTML = "<span>Selecione um equipamento para preencher TAG, local, criticidade e unidade.</span>"; return; }
+      const tag = byId(state.tags, asset.tagId);
+      root.innerHTML = `<span><b>TAG</b>${escapeHtml(tag?.code || tag?.name || asset.code || "Não informada")}</span><span><b>Local</b>${escapeHtml(locationName(asset.locationId) || "Não informado")}</span><span><b>Criticidade</b>${escapeHtml(asset.criticality || "Não informada")}</span><span><b>Unidade</b>${escapeHtml(asset.unit || asset.plant || $("dashboardPlantFilter")?.value || "Não informada")}</span>`;
+      if ($("orderLocation")) $("orderLocation").value = locationName(asset.locationId) || "";
+      renderOrderExecutorPicker();
+    }
+
+    function updateOrderDetailsCount() {
+      const ids = ["orderChecklist","orderPlannedSpare","orderNotes","orderDeadline","orderDuration"];
+      const count = ids.filter(id => String($(id)?.value || "").trim()).length + Number($("orderAttachments")?.files?.length || 0);
+      if ($("orderDetailsCount")) { $("orderDetailsCount").textContent = count ? String(count) : ""; $("orderDetailsCount").hidden = !count; }
+    }
+
+    function openOrderModalV2(assetId = "", editId = "") {
+      if (!namedOperationAllowed("openOrderModal", "orders", editId ? "manage" : "operate", [assetId, editId])) return denyProfileAccess();
+      const editing = byId(state.orders, editId);
+      const selectedAssetId = editing?.assetId || assetId;
+      const activeAssets = orderActiveAssets(selectedAssetId);
+      const teams = (state.teams || []).filter(team => normalizeTextKey(team.status) !== "inativa").filter(team => {
+        const userUnit = currentAccount?.user?.unit || "";
+        return !userUnit || normalizeTextKey(userUnit).includes("todas") || !team.unit || normalizeTextKey(team.unit) === normalizeTextKey(userUnit);
+      });
+      const checklists = (state.checklists || []).filter(item => item.status !== "Inativo").map(item => `<option value="${item.id}">${escapeHtml(item.name || item.code)}</option>`).join("");
+      const spares = (state.spareParts || []).map(item => `<option value="${item.id}">${escapeHtml(item.code)} · ${escapeHtml(item.name)}</option>`).join("");
+      orderExecutorHistorical = new Map();
+      orderExecutorSelection = new Set(orderExistingExecutorSelection(editing));
+      openModal(editing ? "Editar Ordem de Serviço" : "Nova Ordem de Serviço", `<form class="os-simple-form" id="orderForm" novalidate data-permission-module="orders" data-required-level="${editing ? "manage" : "operate"}" data-permission-action="${editing ? "Editar O.S." : "Criar O.S."}">
+        <section class="os-form-section"><header><span>1</span><div><strong>Identificação</strong><small>Escolha o equipamento e classifique o atendimento.</small></div></header><div class="os-form-grid">
+          <label class="full required">Buscar equipamento<input class="field" id="orderAssetSearch" type="search" autocomplete="off" placeholder="Buscar por nome, código, TAG, local ou setor"></label>
+          <label class="full required">Equipamento<select class="field" id="orderAsset" required><option value="">Selecione um equipamento</option>${activeAssets.map(asset => `<option value="${asset.id}" ${asset.id === selectedAssetId ? "selected" : ""}>${escapeHtml(asset.code || "SEM TAG")} · ${escapeHtml(asset.name)} · ${escapeHtml(locationName(asset.locationId) || "Sem local")}</option>`).join("")}</select><small class="field-error" id="orderAssetError" hidden>Selecione um equipamento.</small></label>
+          <div class="full order-asset-context" id="orderAssetContext"></div>
+          <label class="required">Tipo de manutenção<select class="field" id="orderType" required><option>Corretiva</option><option>Preventiva</option><option>Preditiva</option><option value="Inspecao">Inspeção</option><option>Melhoria</option><option>Instalação</option><option>Outro</option></select></label>
+          <label class="required">Prioridade<select class="field" id="orderPriority" required><option>Baixa</option><option value="Media">Média</option><option>Alta</option><option>Crítica</option><option>Urgente</option></select></label>
+        </div></section>
+        <section class="os-form-section"><header><span>2</span><div><strong>Solicitação</strong><small>Descreva claramente o problema ou serviço.</small></div></header><div class="os-form-grid">
+          <label class="full">Título ou resumo<input class="field" id="orderTitle" maxlength="120" placeholder="Resumo curto, opcional"></label>
+          <label class="full required">Descrição do problema<textarea class="field" id="orderDescription" required placeholder="Descreva o problema, sintoma ou serviço solicitado."></textarea><small class="field-error" id="orderDescriptionError" hidden>Informe o problema ou serviço solicitado.</small></label>
+          <label>Solicitante<input class="field" id="orderRequester" placeholder="Quem abriu a ordem"></label>
+          <label>Data de abertura<input class="field" id="orderOpenedAt" value="${new Date(editing?.createdAt || Date.now()).toLocaleString("pt-BR")}" readonly></label>
+        </div></section>
+        <section class="os-form-section"><header><span>3</span><div><strong>Planejamento</strong><small>Selecione explicitamente quem atenderá a O.S.</small></div></header><div class="os-form-grid">
+          <label>Equipe responsável<select class="field" id="orderTeam"><option value="">Sem equipe definida</option>${teams.map(team => `<option value="${team.id}">${escapeHtml(team.name)} · ${escapeHtml(team.specialty || "Multidisciplinar")}</option>`).join("")}</select></label>
+          <label>Responsável principal<select class="field" id="orderResponsible" onchange="changeOrderResponsible()"><option value="">Sem responsável principal</option></select><small id="orderResponsibleHint">Ao escolher, ele também será incluído nos executantes.</small></label>
+          <div class="full order-executor-field" id="orderExecutorField"><div class="order-executor-head"><label for="orderExecutorSearch">Executantes <b>*</b></label><span id="orderExecutorCount"></span></div><input class="field" id="orderExecutorSearch" type="search" autocomplete="off" aria-describedby="orderExecutorError" placeholder="Buscar por nome, matrícula, especialidade ou equipe"><div class="order-executor-chips" id="orderExecutorChips"></div><div class="order-executor-options" id="orderExecutorOptions" role="group" aria-label="Técnicos ativos"></div><small class="field-error" id="orderExecutorError" role="alert" hidden>${ORDER_EXECUTOR_REQUIRED_MESSAGE}</small></div>
+          <label>Data programada<input class="field" id="orderScheduled" type="datetime-local"></label>
+          <label>Prazo<input class="field" id="orderDeadline" type="datetime-local"></label>
+          <label>Duração prevista (horas)<input class="field" id="orderDuration" type="number" min="0.25" step="0.25" inputmode="decimal"></label>
+          <label>Local<input class="field" id="orderLocation" readonly></label>
+        </div></section>
+        <details class="os-quick-details"><summary><span>Mais detalhes</span><b id="orderDetailsCount" hidden></b></summary><div>
+          <label>Checklist<select class="field" id="orderChecklist"><option value="">Nenhum</option>${checklists}</select></label><label>Peça prevista<select class="field" id="orderPlannedSpare"><option value="">Nenhuma</option>${spares}</select></label>
+          <label class="full">Anexos<input class="field" id="orderAttachments" type="file" multiple accept=".png,.jpg,.jpeg,.webp,.pdf,.txt,.csv,.doc,.docx,.xls,.xlsx"></label><label class="full">Observações<textarea class="field" id="orderNotes"></textarea></label>
+        </div></details>
+        <div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button>${editing ? `<button class="btn primary" type="submit" value="save">Salvar alterações</button>` : `<button class="btn" type="submit" value="save">Salvar O.S.</button><button class="btn primary" type="submit" value="start">Salvar e Iniciar</button>`}</div>
+      </form>`, true);
+      if (editing) {
+        $("orderRequester").value = editing.requester || "";
+        $("orderType").value = editing.type || "Corretiva";
+        $("orderPriority").value = editing.priority || "Baixa";
+        $("orderScheduled").value = String(editing.scheduledAt || "").slice(0,16);
+        $("orderDeadline").value = String(editing.deadline || "").slice(0,16);
+        $("orderDuration").value = editing.plannedDurationHours || "";
+        $("orderTitle").value = editing.title || "";
+        $("orderDescription").value = editing.description || "";
+        $("orderNotes").value = editing.comment || "";
+        $("orderChecklist").value = editing.linkedChecklists?.[0] || "";
+        $("orderPlannedSpare").value = editing.plannedSpareId || "";
+        $("orderTeam").value = editing.teamId || "";
+      }
+      if (accessProfileForUser(currentAccount?.user || {}) === "requester") { $("orderRequester").value = tenantUserDisplayName(currentAccount.user); $("orderRequester").readOnly = true; }
+      renderOrderExecutorPicker();
+      if (editing?.resourceId && [...$("orderResponsible").options].some(option => option.value === editing.resourceId)) $("orderResponsible").value = editing.resourceId;
+      updateOrderAssetContext();
+      updateOrderDetailsCount();
+      $("orderAssetSearch").addEventListener("input", renderOrderAssetOptions);
+      $("orderAsset").addEventListener("change", () => { updateOrderAssetContext(); if ($("orderAsset").value) { $("orderAssetError").hidden = true; $("orderAsset").removeAttribute("aria-invalid"); } });
+      $("orderDescription").addEventListener("input", () => { if (value("orderDescription")) { $("orderDescriptionError").hidden = true; $("orderDescription").removeAttribute("aria-invalid"); } });
+      $("orderTeam").addEventListener("change", renderOrderExecutorPicker);
+      $("orderExecutorSearch").addEventListener("input", renderOrderExecutorPicker);
+      ["orderChecklist","orderPlannedSpare","orderNotes","orderDeadline","orderDuration","orderAttachments"].forEach(id => $(id)?.addEventListener("change", updateOrderDetailsCount));
+      $("orderForm").addEventListener("submit", async event => {
+        event.preventDefault();
+        if (orderQuickSaveLock) return;
+        let invalid = false;
+        if (!$("orderAsset").value) { $("orderAsset").setAttribute("aria-invalid", "true"); $("orderAssetError").hidden = false; invalid = true; }
+        if (!value("orderDescription")) { $("orderDescription").setAttribute("aria-invalid", "true"); $("orderDescriptionError").hidden = false; invalid = true; }
+        if (!orderExecutorSelection.size) { showOrderExecutorError(); invalid = true; }
+        if (invalid) return;
+        orderQuickSaveLock = true;
+        const button = event.submitter;
+        const previousOrders = state.orders;
+        if (button) button.disabled = true;
+        try {
+          const now = Date.now();
+          const selectedFiles = Array.from($("orderAttachments").files || []);
+          const attachmentRules = { maxBytes:4*1024*1024, types:["image/png","image/jpeg","image/webp","application/pdf","text/plain","text/csv","application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/vnd.ms-excel","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"], extensions:["png","jpg","jpeg","webp","pdf","txt","csv","doc","docx","xls","xlsx"] };
+          const invalidFile = selectedFiles.map(file => ({ file, issue:stage21AllowedFile(file, attachmentRules) })).find(item => item.issue);
+          if (invalidFile) { showToast(`${invalidFile.file.name}: ${invalidFile.issue}`, "warning"); if (button) button.disabled = false; return; }
+          const files = await Promise.all(selectedFiles.map(async file => ({ id:uid("file"), name:file.name, type:file.type || "", size:file.size, createdAt:now, dataUrl:await readAssetFile(file) })));
+          const base = editing || { id:uid("os"), number:await nextOrderNumberSafe(), createdAt:now, status:"Aberta", startedAt:null, finishedAt:null };
+          const snapshot = orderExecutorSnapshot();
+          const selectedIds = snapshot.map(item => item.id);
+          const responsibleId = $("orderResponsible").value || "";
+          if (responsibleId && !selectedIds.includes(responsibleId)) throw new Error("ORDER_VALIDATION: responsável fora dos executantes");
+          const primary = snapshot.find(item => item.id === responsibleId) || snapshot[0];
+          const resourceIds = snapshot.filter(item => item.kind === "resource").map(item => item.id);
+          const resourceId = primary?.kind === "resource" ? primary.id : (resourceIds[0] || "");
+          const checklistId = $("orderChecklist").value;
+          const payload = { ...base, title:value("orderTitle"), assetId:$("orderAsset").value, requester:value("orderRequester"), executor:primary?.name || "", executorIds:selectedIds, executorSnapshot:snapshot, executorValidationVersion:1, executors:selectedIds.length, teamId:$("orderTeam").value, resourceId, participantIds:resourceIds.filter(id => id !== resourceId), type:$("orderType").value, priority:$("orderPriority").value, scheduledAt:$("orderScheduled").value, deadline:$("orderDeadline").value, plannedDurationHours:Number($("orderDuration").value || 0), description:value("orderDescription"), comment:value("orderNotes"), linkedChecklists:checklistId ? [checklistId] : (base.linkedChecklists || []), plannedSpareId:$("orderPlannedSpare").value, preventivePlanId:$("orderForm").dataset.preventivePlanId || base.preventivePlanId || "", attachments:(base.attachments || []).concat(files), mttr:Number(base.mttr || 0), updatedAt:now };
+          persistValidatedOrderRecord(payload);
+          if (payload.preventivePlanId && !editing) {
+            state.preventivePlans = state.preventivePlans.map(plan => plan.id === payload.preventivePlanId ? { ...plan, updatedAt:now, history:[...(plan.history || []), { date:now, label:`O.S. ${payload.number} gerada para ${formatPlanDate(payload.scheduledAt)}` }] } : plan);
+            saveState();
+          }
+          const remoteSaved = await saveOrderSupabaseNow(payload);
+          if (remoteSaved && !editing) await saveOrderEventSupabase(payload, "CRIADA", { data_abertura:new Date(payload.createdAt).toISOString(), executantes:selectedIds });
+          selectedOrderId = payload.id;
+          closeModal();
+          setView("orders");
+          if (button?.value === "start") await startOrder(payload.id, payload.executor); else render();
+          showToast(editing ? "O.S. atualizada com sucesso." : "Ordem de Serviço criada com sucesso.");
+        } catch (error) {
+          state.orders = previousOrders;
+          stage21HandleError(error, "orders.save", "Não foi possível salvar. Todos os dados preenchidos foram preservados.");
+          if (button) button.disabled = false;
+        } finally { setTimeout(() => orderQuickSaveLock = false, 1200); }
+      });
+    }
+    openOrderModal = openOrderModalV2;
 
     function openMobileCloseDowntime(id) {
       const item=byId(state.downtimes,id);if(!item||item.status!=="Ativa")return;
@@ -24878,6 +25299,32 @@
     function editPreventivePlan(id){if(!preventiveCanManage())return denyProfileAccess();if(byId(state.preventivePlans,id))openPreventivePlanModal(id);}
     function generatePreventivePlanOrder(id,button=null){if(!preventiveCanManage())return denyProfileAccess();const plan=byId(state.preventivePlans,id),asset=byId(state.assets,plan?.assetId);if(!plan||!asset)return showToast("Plano ou equipamento não encontrado.");if(plan.status==="Pausado")return showToast("Reative o plano antes de gerar uma O.S.");const execution=String(plan.nextExecution||todayPlanDate()).slice(0,10),existing=state.orders.find(item=>item.preventivePlanId===id&&String(item.scheduledAt||"").slice(0,10)===execution);if(existing){openModal("O.S. já existente",`<div class="side-box"><strong>Já existe uma Ordem de Serviço vinculada a esta execução.</strong><span>${escapeHtml(existing.number)} · ${formatPlanDate(execution)}</span><button class="btn primary" onclick="closeModal();showOrderDetails('${existing.id}')">Visualizar O.S.</button></div>`);return;}const part=byId(state.spareParts,plan.plannedParts?.[0]?.spareId),checklist=byId(state.checklists,plan.checklistId);openModal("Gerar Ordem de Serviço",`<div class="calendar-event-detail"><div class="side-box"><strong>${escapeHtml(plan.name)}</strong><span>Equipamento: ${escapeHtml(machineName(plan.assetId))}</span><span>Data programada: ${formatPlanDate(execution)}</span><span>Tipo: Preventiva · Prioridade: ${escapeHtml(plan.priority||"Baixa")}</span><span>Responsável: ${escapeHtml(planResponsible(plan))}</span><span>Checklist: ${escapeHtml(checklist?.name||"Nenhum")}</span><span>Peça prevista: ${escapeHtml(part?`${part.code} - ${part.name}`:"Nenhuma")}</span></div><div class="toolbar"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="confirmGeneratePreventivePlanOrder('${id}')">Gerar O.S.</button></div></div>`);}
     async function confirmGeneratePreventivePlanOrder(id){if(!preventiveCanManage())return denyProfileAccess();if(preventivePlanGenerationLocks.has(id))return;const plan=byId(state.preventivePlans,id),execution=String(plan?.nextExecution||todayPlanDate()).slice(0,10);if(!plan||plan.status==="Pausado")return;const duplicate=state.orders.find(item=>item.preventivePlanId===id&&String(item.scheduledAt||"").slice(0,10)===execution);if(duplicate){closeModal();showToast("Já existe uma Ordem de Serviço vinculada a esta execução.");return;}preventivePlanGenerationLocks.add(id);try{const now=Date.now(),part=plan.plannedParts?.[0],order={id:uid("os"),number:await nextOrderNumberSafe(),createdAt:now,status:"Aberta",startedAt:null,finishedAt:null,assetId:plan.assetId,requester:state.profile?.name||currentAccount?.user?.name||"Preventiva",executor:plan.responsible||"",type:"Preventiva",maintenance:"Preventiva",priority:plan.priority||"Baixa",mttr:0,scheduledAt:execution,description:[plan.name,plan.description].filter(Boolean).join(" - "),preventivePlanId:plan.id,linkedChecklists:plan.checklistId?[plan.checklistId]:[],plannedSpareId:part?.spareId||"",plannedSpareQuantity:Number(part?.quantity||0)};state.orders.push(order);state.preventivePlans=state.preventivePlans.map(item=>item.id===id?{...item,updatedAt:now,history:[...(item.history||[]),{date:now,label:`O.S. ${order.number} gerada para ${formatPlanDate(execution)}`}]}:item);saveState();await saveOrderSupabaseNow(order);closeModal();render();showToast(`O.S. ${order.number} gerada sem movimentar estoque.`);}finally{setTimeout(()=>preventivePlanGenerationLocks.delete(id),1000);}}
+
+    function confirmGeneratePreventivePlanOrderWithExecutor(id) {
+      if (!preventiveCanManage()) return denyProfileAccess();
+      const plan = byId(state.preventivePlans, id);
+      const execution = String(plan?.nextExecution || todayPlanDate()).slice(0, 10);
+      if (!plan || plan.status === "Pausado") return;
+      const duplicate = state.orders.find(item => item.preventivePlanId === id && String(item.scheduledAt || "").slice(0, 10) === execution);
+      if (duplicate) { closeModal(); showToast("Já existe uma Ordem de Serviço vinculada a esta execução."); return; }
+      closeModal();
+      openOrderModal(plan.assetId);
+      const form = $("orderForm");
+      if (!form) return;
+      form.dataset.preventivePlanId = plan.id;
+      $("orderType").value = "Preventiva";
+      const priority = normalizeTextKey(plan.priority || "baixa");
+      $("orderPriority").value = priority === "media" ? "Media" : (priority === "critica" ? "Crítica" : (plan.priority || "Baixa"));
+      if (![...$("orderPriority").options].some(option => option.value === $("orderPriority").value)) $("orderPriority").value = "Baixa";
+      $("orderTitle").value = plan.name || "";
+      $("orderDescription").value = [plan.name, plan.description].filter(Boolean).join(" - ");
+      $("orderScheduled").value = `${execution}T08:00`;
+      if (plan.checklistId) $("orderChecklist").value = plan.checklistId;
+      if (plan.plannedParts?.[0]?.spareId) $("orderPlannedSpare").value = plan.plannedParts[0].spareId;
+      updateOrderDetailsCount();
+      showToast("Selecione explicitamente ao menos um executante para gerar a O.S.", "info");
+    }
+    confirmGeneratePreventivePlanOrder = confirmGeneratePreventivePlanOrderWithExecutor;
 
     function renderChecklistItemRows(items = []) {
       return items.map((item, index) => `
