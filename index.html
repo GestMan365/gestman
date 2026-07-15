@@ -22652,6 +22652,18 @@
       return next;
     }
 
+    function removeSidebarFavorite(view, event) {
+      event?.preventDefault?.();
+      event?.stopPropagation?.();
+      const current = sidebarFavoriteViews();
+      const item = sidebarModuleCatalog().find(entry => entry.view === view);
+      const next = saveSidebarFavoriteViews(current.filter(entry => entry !== view));
+      renderSidebarFavorites();
+      if (document.querySelector('.view.active')?.id === "quickAccess") renderFavoritesPage();
+      showToast(`${item?.name || "Módulo"} removido dos favoritos.`);
+      return next;
+    }
+
     function renderSidebarFavorites() {
       const quick = document.querySelector('[data-nav-quick]');
       const list = quick?.querySelector('.nav-quick-list');
@@ -22669,7 +22681,9 @@
       list.querySelector('.sidebar-favorites-manage')?.remove();
       list.querySelectorAll('.nav-favorite-copy-row>.nav-favorite-toggle').forEach(button => {
         button.classList.add('nav-favorite-remove');
-        button.innerHTML = `<span class="sidebar-favorite-star-icon">${gmIcon("trash",{size:17})}</span><span class="sr-only">Excluir dos favoritos</span>`;
+        button.removeAttribute('onclick');
+        button.addEventListener('click', event => removeSidebarFavorite(button.dataset.favoriteView, event));
+        button.innerHTML = `<i class="sidebar-favorite-star-icon">${gmIcon("trash",{size:17})}</i><span class="sr-only">Excluir dos favoritos</span>`;
       });
       const active = document.querySelector('.view.active')?.id || "";
       list.querySelectorAll('.tab[data-view]').forEach(button => button.classList.toggle('active', button.dataset.view === active));
