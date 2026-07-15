@@ -10678,6 +10678,435 @@
       .nav, .nav *, .sidebar-tooltip { transition-duration: .01ms !important; animation-duration: .01ms !important; }
       .industrial-sidebar-scroll { scroll-behavior: auto; }
     }
+
+    /* Melhoria visual — Passo 4: cabeçalho global profissional */
+    .reference-topbar {
+      position: fixed !important;
+      inset: 0 0 auto 248px !important;
+      z-index: 120 !important;
+      height: 64px !important;
+      min-height: 64px !important;
+      padding: 0 20px !important;
+      display: grid !important;
+      grid-template-columns: minmax(230px, 1fr) minmax(260px, 400px) minmax(520px, 1fr) !important;
+      align-items: center !important;
+      gap: 18px !important;
+      overflow: visible !important;
+      background: #081727 !important;
+      border: 0 !important;
+      border-bottom: 1px solid rgba(74, 105, 138, .28) !important;
+      box-shadow: none !important;
+      color: var(--gm-text-primary, #f8fafc) !important;
+    }
+    body.sidebar-collapsed .reference-topbar { left: 72px !important; }
+    .reference-topbar-left {
+      min-width: 0 !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 12px !important;
+    }
+    .topbar-menu-btn,
+    .reference-icon-button,
+    .reference-header-user {
+      -webkit-tap-highlight-color: transparent;
+    }
+    .topbar-menu-btn {
+      flex: 0 0 40px !important;
+      width: 40px !important;
+      height: 40px !important;
+      min-width: 40px !important;
+      padding: 0 !important;
+      display: grid !important;
+      place-items: center !important;
+      color: #b7c7d8 !important;
+      background: rgba(18, 43, 68, .72) !important;
+      border: 1px solid #263f59 !important;
+      border-radius: 9px !important;
+      box-shadow: none !important;
+    }
+    .topbar-menu-btn:hover,
+    .topbar-menu-btn:focus-visible,
+    .reference-icon-button:hover,
+    .reference-icon-button:focus-visible,
+    .reference-header-user:hover,
+    .reference-header-user:focus-visible {
+      color: #eff8ff !important;
+      background: #122b44 !important;
+      border-color: #31577c !important;
+      outline: none !important;
+    }
+    .reference-topbar-heading {
+      min-width: 0 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      justify-content: center !important;
+      gap: 2px !important;
+      line-height: 1 !important;
+    }
+    .reference-topbar-heading > strong {
+      max-width: 100% !important;
+      color: #f8fafc !important;
+      font-size: 18px !important;
+      font-weight: 650 !important;
+      line-height: 22px !important;
+      letter-spacing: -.02em !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+    .header-breadcrumb {
+      max-width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: #7890a9;
+      font-size: 10px;
+      font-weight: 600;
+      line-height: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .header-breadcrumb span:last-child { color: #9eb1c4; overflow: hidden; text-overflow: ellipsis; }
+    .header-breadcrumb i { color: #4f6680; font-style: normal; }
+    .reference-topbar-search {
+      width: min(100%, 400px) !important;
+      height: 38px !important;
+      min-height: 38px !important;
+      margin: 0 auto !important;
+      padding: 0 7px 0 12px !important;
+      display: grid !important;
+      grid-template-columns: 18px minmax(0, 1fr) auto !important;
+      align-items: center !important;
+      gap: 8px !important;
+      background: #0c2034 !important;
+      border: 1px solid #203b55 !important;
+      border-radius: 9px !important;
+      box-shadow: none !important;
+    }
+    .reference-topbar-search:focus-within {
+      border-color: #2c76b9 !important;
+      box-shadow: 0 0 0 3px rgba(29, 140, 255, .12) !important;
+    }
+    .reference-search-icon,
+    .reference-search-icon .gm-icon { width: 17px !important; height: 17px !important; color: #7990a8 !important; }
+    .reference-topbar-search .searchbar {
+      width: 100% !important;
+      min-width: 0 !important;
+      height: 36px !important;
+      padding: 0 !important;
+      color: #e6eef7 !important;
+      background: transparent !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      outline: none !important;
+      font-size: 12px !important;
+      font-weight: 500 !important;
+    }
+    .reference-topbar-search .searchbar::placeholder { color: #71869b !important; opacity: 1; }
+    .reference-topbar-search .searchbar::-webkit-search-cancel-button { display: none; }
+    .reference-search-shortcut {
+      min-width: 54px !important;
+      height: 24px !important;
+      padding: 0 7px !important;
+      display: grid !important;
+      place-items: center !important;
+      color: #8399ae !important;
+      background: #10283f !important;
+      border: 1px solid #24415d !important;
+      border-radius: 6px !important;
+      font-size: 9px !important;
+      font-weight: 700 !important;
+      line-height: 1 !important;
+      white-space: nowrap !important;
+    }
+    .header-search-close { display: none !important; }
+    .reference-topbar-actions {
+      min-width: 0 !important;
+      height: 100% !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: flex-end !important;
+      gap: 8px !important;
+      overflow: visible !important;
+    }
+    .header-dashboard-filters {
+      min-width: 0;
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+    }
+    .header-dashboard-filters > label {
+      height: 38px !important;
+      min-width: 0 !important;
+      padding: 0 8px !important;
+      display: grid !important;
+      grid-template-columns: 17px minmax(0, 1fr) !important;
+      align-items: center !important;
+      gap: 6px !important;
+      background: #0c2034 !important;
+      border: 1px solid #203b55 !important;
+      border-radius: 9px !important;
+      color: #8fa5ba !important;
+    }
+    .header-dashboard-filters > label:first-child { width: 164px !important; }
+    .header-dashboard-filters > label:last-child { width: 142px !important; }
+    .header-dashboard-filters > label > span {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+    .header-dashboard-filters > label > i,
+    .header-dashboard-filters > label > i .gm-icon { width: 17px !important; height: 17px !important; color: #6094c5 !important; }
+    .header-dashboard-filters select {
+      width: 100% !important;
+      min-width: 0 !important;
+      height: 34px !important;
+      padding: 0 22px 0 0 !important;
+      color: #dce7f1 !important;
+      background-color: transparent !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      outline: none !important;
+      font-size: 10.5px !important;
+      font-weight: 600 !important;
+      text-overflow: ellipsis !important;
+      cursor: pointer !important;
+    }
+    .header-dashboard-filters select:focus-visible { color: #fff !important; }
+    .header-dashboard-filters select option { color: #e7eef7; background: #0c2034; }
+    .reference-header-separator {
+      flex: 0 0 1px !important;
+      width: 1px !important;
+      height: 28px !important;
+      margin: 0 1px !important;
+      display: block !important;
+      background: rgba(87, 115, 143, .26) !important;
+    }
+    .reference-icon-button {
+      position: relative !important;
+      flex: 0 0 40px !important;
+      width: 40px !important;
+      height: 40px !important;
+      min-width: 40px !important;
+      padding: 0 !important;
+      display: grid !important;
+      place-items: center !important;
+      color: #9fb2c5 !important;
+      background: transparent !important;
+      border: 1px solid transparent !important;
+      border-radius: 9px !important;
+      box-shadow: none !important;
+      font-size: 0 !important;
+    }
+    .reference-icon-button .gm-icon { width: 20px !important; height: 20px !important; }
+    .reference-notification b {
+      position: absolute !important;
+      top: 2px !important;
+      right: 1px !important;
+      min-width: 16px !important;
+      height: 16px !important;
+      padding: 0 4px !important;
+      place-items: center !important;
+      color: #fff !important;
+      background: #1d8cff !important;
+      border: 2px solid #081727 !important;
+      border-radius: 999px !important;
+      font-size: 8px !important;
+      font-weight: 800 !important;
+      line-height: 12px !important;
+      box-sizing: border-box !important;
+      transform: none !important;
+    }
+    .reference-header-user {
+      min-width: 168px !important;
+      max-width: 220px !important;
+      height: 44px !important;
+      padding: 4px 6px 4px 10px !important;
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) 34px 14px !important;
+      align-items: center !important;
+      gap: 8px !important;
+      color: #f8fafc !important;
+      background: transparent !important;
+      border: 1px solid transparent !important;
+      border-radius: 9px !important;
+      box-shadow: none !important;
+      text-align: right !important;
+    }
+    .reference-user-copy { min-width: 0 !important; display: flex !important; flex-direction: column !important; align-items: flex-end !important; gap: 1px !important; }
+    .reference-user-copy strong,
+    .reference-user-copy small { max-width: 100% !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+    .reference-user-copy strong { color: #edf4fb !important; font-size: 11px !important; font-weight: 650 !important; line-height: 14px !important; }
+    .reference-user-copy small { color: #4f9cff !important; font-size: 9px !important; font-weight: 600 !important; line-height: 12px !important; }
+    .reference-user-avatar {
+      position: relative !important;
+      width: 34px !important;
+      height: 34px !important;
+      display: grid !important;
+      place-items: center !important;
+      color: #dcecff !important;
+      background: #132c45 !important;
+      border: 1px solid #2a4661 !important;
+      border-radius: 50% !important;
+      box-shadow: none !important;
+      font-size: 10px !important;
+      font-weight: 750 !important;
+    }
+    .reference-user-avatar > i {
+      position: absolute !important;
+      right: -1px !important;
+      bottom: 0 !important;
+      width: 8px !important;
+      height: 8px !important;
+      display: block !important;
+      background: #22c55e !important;
+      border: 2px solid #081727 !important;
+      border-radius: 50% !important;
+      box-shadow: none !important;
+    }
+    .reference-user-chevron,
+    .reference-user-chevron .gm-icon { width: 14px !important; height: 14px !important; color: #718aa2 !important; }
+    .header-mobile-search,
+    .header-context-trigger { display: none !important; }
+
+    @media (max-width: 1380px) {
+      .reference-topbar {
+        grid-template-columns: minmax(210px, .8fr) minmax(220px, 340px) minmax(455px, 1fr) !important;
+        gap: 12px !important;
+        padding-inline: 16px !important;
+      }
+      .header-dashboard-filters > label:first-child { width: 146px !important; }
+      .header-dashboard-filters > label:last-child { width: 126px !important; }
+      .reference-header-user { min-width: 142px !important; }
+    }
+    @media (max-width: 1180px) {
+      .reference-topbar {
+        height: 60px !important;
+        min-height: 60px !important;
+        grid-template-columns: minmax(195px, .8fr) minmax(200px, 320px) auto !important;
+      }
+      .header-context-trigger { display: grid !important; }
+      .header-dashboard-filters {
+        position: fixed !important;
+        top: 68px !important;
+        right: 16px !important;
+        z-index: 190 !important;
+        width: min(360px, calc(100vw - 32px)) !important;
+        padding: 12px !important;
+        display: none !important;
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
+        background: #0a1b2d !important;
+        border: 1px solid #294761 !important;
+        border-radius: 12px !important;
+        box-shadow: 0 18px 50px rgba(0, 0, 0, .38) !important;
+      }
+      body.header-context-open .header-dashboard-filters { display: grid !important; }
+      .header-dashboard-filters > label,
+      .header-dashboard-filters > label:first-child,
+      .header-dashboard-filters > label:last-child { width: 100% !important; }
+      .reference-header-user { min-width: 126px !important; }
+      .reference-user-copy { display: none !important; }
+      .reference-header-user { min-width: 58px !important; width: 58px !important; grid-template-columns: 34px 12px !important; padding-inline: 5px !important; }
+    }
+    @media (max-width: 820px) {
+      .reference-topbar,
+      body.sidebar-collapsed .reference-topbar {
+        left: 0 !important;
+        grid-template-columns: minmax(150px, 1fr) minmax(190px, 300px) auto !important;
+        padding-inline: 12px !important;
+        gap: 10px !important;
+      }
+      .reference-help,
+      .reference-topbar-actions > .reference-header-separator { display: none !important; }
+    }
+    @media (max-width: 600px) {
+      .reference-topbar,
+      body.sidebar-collapsed .reference-topbar {
+        height: 56px !important;
+        min-height: 56px !important;
+        grid-template-columns: minmax(0, 1fr) auto !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        padding-left: max(10px, env(safe-area-inset-left)) !important;
+        padding-right: max(10px, env(safe-area-inset-right)) !important;
+        gap: 6px !important;
+      }
+      .reference-topbar-left { gap: 8px !important; }
+      .topbar-menu-btn,
+      .reference-icon-button { flex-basis: 40px !important; width: 40px !important; height: 40px !important; min-width: 40px !important; }
+      .reference-topbar-heading > strong { font-size: 15px !important; line-height: 19px !important; }
+      .header-breadcrumb { display: none !important; }
+      .reference-topbar-search {
+        position: fixed !important;
+        inset: 0 !important;
+        z-index: 250 !important;
+        width: 100% !important;
+        max-width: none !important;
+        height: 56px !important;
+        min-height: 56px !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        padding-left: max(10px, env(safe-area-inset-left)) !important;
+        padding-right: max(10px, env(safe-area-inset-right)) !important;
+        display: none !important;
+        grid-template-columns: 18px minmax(0, 1fr) 40px !important;
+        gap: 8px !important;
+        background: #081727 !important;
+        border: 0 !important;
+        border-bottom: 1px solid #29435d !important;
+        border-radius: 0 !important;
+      }
+      body.header-search-open .reference-topbar-search { display: grid !important; }
+      .reference-topbar-search .searchbar { height: 54px !important; font-size: 14px !important; }
+      .reference-search-shortcut { display: none !important; }
+      .header-search-close {
+        width: 40px !important;
+        height: 40px !important;
+        padding: 0 !important;
+        display: grid !important;
+        place-items: center !important;
+        color: #a9bbcc !important;
+        background: transparent !important;
+        border: 1px solid transparent !important;
+        border-radius: 8px !important;
+      }
+      .header-mobile-search { display: grid !important; }
+      .reference-topbar-actions { gap: 2px !important; }
+      .reference-header-user {
+        min-width: 40px !important;
+        width: 40px !important;
+        height: 40px !important;
+        padding: 3px !important;
+        display: grid !important;
+        grid-template-columns: 34px !important;
+        place-items: center !important;
+      }
+      .reference-user-chevron { display: none !important; }
+      .header-dashboard-filters { top: 62px !important; right: 10px !important; width: min(340px, calc(100vw - 20px)) !important; }
+      .reference-notification b { top: 1px !important; right: 0 !important; }
+    }
+    @media (max-width: 420px) {
+      .reference-topbar { padding-inline: 7px !important; }
+      .reference-topbar-heading > strong { font-size: 14px !important; }
+      .reference-topbar-actions { gap: 0 !important; }
+      .topbar-menu-btn,
+      .reference-icon-button,
+      .reference-header-user { flex-basis: 38px !important; width: 38px !important; min-width: 38px !important; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .reference-topbar, .reference-topbar * { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+    }
   </style>
 </head>
 <body class="auth-loading">
@@ -10761,30 +11190,39 @@
 
   <header class="topbar reference-topbar">
     <div class="reference-topbar-left">
-      <button class="topbar-menu-btn" id="topbarMenuBtn" type="button" title="Alternar menu" aria-label="Alternar menu" aria-controls="mainNavigation" aria-expanded="false"></button>
-      <div class="reference-topbar-heading"><strong>Visão Geral</strong><span>Panorama operacional em tempo real</span></div>
+      <button class="topbar-menu-btn" id="topbarMenuBtn" type="button" title="Recolher menu" aria-label="Recolher menu" aria-controls="mainNavigation" aria-expanded="true"></button>
+      <div class="reference-topbar-heading">
+        <nav class="header-breadcrumb" aria-label="Localização atual">
+          <span id="topbarBreadcrumbGroup">Início</span><i aria-hidden="true">/</i><span id="topbarBreadcrumbPage">Visão Geral</span>
+        </nav>
+        <strong id="topbarViewTitle">Visão Geral</strong>
+      </div>
     </div>
     <label class="topbar-search reference-topbar-search">
       <span class="reference-search-icon" aria-hidden="true"></span>
-      <input class="searchbar" id="globalSearch" placeholder="Buscar ativos, ordens, locais...">
-      <button class="reference-search-shortcut" type="button" aria-label="Focar busca" onclick="document.getElementById('globalSearch').focus()">/</button>
+      <input class="searchbar" id="globalSearch" type="search" autocomplete="off" aria-label="Buscar no GestMan365" placeholder="Buscar no GestMan365...">
+      <button class="reference-search-shortcut" type="button" aria-label="Focar busca" title="Atalho Ctrl + K" onclick="document.getElementById('globalSearch').focus()">Ctrl + K</button>
+      <button class="header-search-close" id="headerSearchClose" type="button" aria-label="Fechar busca" title="Fechar busca" onclick="closeHeaderMobileSearch()"></button>
     </label>
     <div class="reference-topbar-actions">
-      <div class="header-dashboard-filters">
-        <label><span>Planta</span><select id="dashboardPlantFilter" aria-label="Selecionar planta" onchange="changeDashboardFilters()"><option value="Unidade Industrial 01">Unidade Industrial 01</option><option value="Unidade Industrial 02">Unidade Industrial 02</option><option value="Todas">Todas as plantas</option></select></label>
-        <label><span>Período</span><select id="dashboardPeriodFilter" aria-label="Selecionar período" onchange="changeDashboardFilters()"><option value="1">Último mês</option><option value="3">Últimos 3 meses</option><option value="6" selected>Últimos 6 meses</option><option value="12">Últimos 12 meses</option></select></label>
+      <button class="reference-icon-button header-context-trigger" id="headerContextBtn" type="button" aria-label="Selecionar planta e período" title="Planta e período" aria-controls="headerDashboardFilters" aria-expanded="false" onclick="toggleHeaderContext(event)"><span data-header-icon="filter" aria-hidden="true"></span></button>
+      <button class="reference-icon-button header-mobile-search" id="headerMobileSearchBtn" type="button" aria-label="Abrir busca" title="Buscar" aria-expanded="false" onclick="openHeaderMobileSearch()"><span data-header-icon="search" aria-hidden="true"></span></button>
+      <div class="header-dashboard-filters" id="headerDashboardFilters">
+        <label title="Selecionar planta"><i data-header-icon="building" aria-hidden="true"></i><span>Planta</span><select id="dashboardPlantFilter" aria-label="Selecionar planta" onchange="changeDashboardFilters()"><option value="Unidade Industrial 01">Unidade Industrial 01</option><option value="Unidade Industrial 02">Unidade Industrial 02</option><option value="Todas">Todas as plantas</option></select></label>
+        <label title="Selecionar período"><i data-header-icon="calendarRange" aria-hidden="true"></i><span>Período</span><select id="dashboardPeriodFilter" aria-label="Selecionar período" onchange="changeDashboardFilters()"><option value="1">Último mês</option><option value="3">Últimos 3 meses</option><option value="6" selected>Últimos 6 meses</option><option value="12">Últimos 12 meses</option></select></label>
       </div>
       <span class="reference-header-separator" aria-hidden="true"></span>
-      <button class="reference-icon-button reference-notification" type="button" aria-label="Notificações" onclick="stage20OpenNotificationPanel()">
+      <button class="reference-icon-button reference-notification" type="button" aria-label="Notificações" title="Notificações" aria-haspopup="dialog" onclick="stage20OpenNotificationPanel()">
         <span class="reference-notification-icon" aria-hidden="true"></span>
-        <b id="headerNotificationCount">0</b>
+        <b id="headerNotificationCount" style="display:none"></b>
       </button>
       <span class="reference-header-separator" aria-hidden="true"></span>
-      <button class="reference-icon-button reference-help" type="button" aria-label="Ajuda" onclick="openModal('Ajuda GestMan365', '<div class=&quot;side-box&quot;><strong>Central de ajuda</strong><span>Use o menu lateral para acessar cada módulo da manutenção.</span></div>')">?</button>
+      <button class="reference-icon-button reference-help" type="button" aria-label="Ajuda" title="Ajuda" aria-haspopup="dialog" onclick="openModal('Ajuda GestMan365', '<div class=&quot;side-box&quot;><strong>Central de ajuda</strong><span>Use o menu lateral para acessar cada módulo da manutenção.</span></div>')"></button>
       <span class="reference-header-separator" aria-hidden="true"></span>
-      <button class="reference-header-user" type="button" onclick="openProfileModal()" aria-label="Abrir perfil do usuário">
+      <button class="reference-header-user" type="button" onclick="openProfileModal()" aria-label="Abrir perfil do usuário" title="Abrir perfil do usuário" aria-haspopup="dialog">
         <span class="reference-user-copy"><strong id="headerUserName">Usuário</strong><small id="headerUserRole">Perfil</small></span>
         <span class="reference-user-avatar" id="headerUserAvatar">US<i aria-label="Online"></i></span>
+        <span class="reference-user-chevron" data-header-icon="chevronDown" aria-hidden="true"></span>
       </button>
     </div>
   </header>
@@ -11960,7 +12398,7 @@
       function decorateStatuses(root){root.querySelectorAll?.(".tag,.os-chip,.industrial-status,.stage15-status").forEach(tag=>{if(tag.querySelector(":scope>.gm-status-icon"))return;const holder=document.createElement("span");holder.className="gm-status-icon";holder.innerHTML=markup(statusName(tag.textContent),{size:13});holder.setAttribute("aria-hidden","true");tag.prepend(holder)})}
       function decorateContext(root){root.querySelectorAll?.(".machine-menu-item,.location-menu-item").forEach(button=>{const action=button.dataset.machineAction||button.dataset.locationAction||"";const map={checklists:"checklist",newOrder:"clipboardPlus",history:"history",openOrders:"workOrders",pending:"flag",compiled:"indicators",specialist:"assistant",movements:"stockMoves"};const icon=button.querySelector(":scope>span:first-child");if(icon)apply(icon,map[action]||quickName(button.textContent,action));const label=button.textContent.trim();if(label){button.setAttribute("aria-label",label);button.setAttribute("title",label)}})}
       function decorateButtons(root){root.querySelectorAll?.("button,.stage19-menu summary,.asset-row-actions summary,.tenant-row-actions summary").forEach(button=>{if(button.matches(".reference-header-user"))return;const visible=String(button.textContent||"").trim();const semantic=[button.getAttribute("aria-label"),button.getAttribute("title"),visible,button.getAttribute("onclick"),button.id,button.className].filter(Boolean).join(" ");let name=semanticActionName(semantic);if(!name){const glyphMap={"＋":"plus","☷":"filter","‹":"arrowLeft","←":"arrowLeft","›":"arrowRight","→":"arrowRight","↑":"chevronUp","↓":"chevronDown","⋮":"more","✓":"checkCircle","▶":"play","✋":"downtime","⚠":"alertTriangle","⚙":"maintenance"};name=Object.entries(glyphMap).find(([glyph])=>visible.includes(glyph))?.[1]||""}if(!name)return;const glyphOnly=!!visible&&!/[\p{L}\p{N}]/u.test(visible);const accessible=button.getAttribute("aria-label")||button.getAttribute("title")||actionLabels[name]||labels[name]||name;if(!button.getAttribute("aria-label")&&(!visible||glyphOnly))button.setAttribute("aria-label",accessible);if(!button.getAttribute("title")&&(!visible||glyphOnly||button.classList.contains("gm-icon-only")))button.setAttribute("title",accessible);const special=button.querySelector(":scope>i");if(special){apply(special,name);return}const existing=button.querySelector(":scope>.gm-button-icon");if(existing)return;if(!button.children.length){const cleaned=visible.replace(/^[^\p{L}\p{N}]+/u,"").replace(/\s*[\u2190-\u2199\u21bb\u22ee\u203a\u2039]+$/u,"").trim();if(cleaned)button.textContent=cleaned}const textAfter=String(button.textContent||"").trim();const onlySymbol=(!textAfter||!/[\p{L}\p{N}]/u.test(textAfter))&&!button.querySelector("span,strong,small");if(onlySymbol){button.innerHTML=markup(name);button.classList.add("gm-icon-only");button.setAttribute("aria-label",accessible);button.setAttribute("title",accessible);return}if(button.querySelector(":scope>.gm-icon"))return;const holder=document.createElement("span");holder.className="gm-button-icon";holder.innerHTML=markup(name,{size:16});holder.setAttribute("aria-hidden","true");const svg=button.querySelector(":scope>svg.ui-icon");if(svg)svg.replaceWith(holder);else button.prepend(holder)})}
-      function decorateHeader(root){root.querySelectorAll?.(".topbar-search>.ui-icon,.reference-search-icon").forEach(icon=>apply(icon,"search"));const notification=root.querySelector?.(".reference-notification");if(notification){const host=notification.querySelector(".reference-notification-icon")||notification.querySelector("svg");if(host?.tagName?.toLowerCase()==="svg")host.outerHTML=`<span class="reference-notification-icon" aria-hidden="true">${markup("bell",{size:20})}</span>`;else apply(host,"bell")}const help=root.querySelector?.(".reference-help");if(help&&!help.querySelector(".gm-icon")){help.textContent="";help.insertAdjacentHTML("afterbegin",markup("help",{size:20}))}}
+      function decorateHeader(root){root.querySelectorAll?.(".topbar-search>.ui-icon,.reference-search-icon").forEach(icon=>apply(icon,"search"));root.querySelectorAll?.("[data-header-icon]").forEach(icon=>apply(icon,icon.dataset.headerIcon));const notification=root.querySelector?.(".reference-notification");if(notification){const host=notification.querySelector(".reference-notification-icon")||notification.querySelector("svg");if(host?.tagName?.toLowerCase()==="svg")host.outerHTML=`<span class="reference-notification-icon" aria-hidden="true">${markup("bell",{size:20})}</span>`;else apply(host,"bell")}const help=root.querySelector?.(".reference-help");if(help&&!help.querySelector(".gm-icon")){help.textContent="";help.insertAdjacentHTML("afterbegin",markup("help",{size:20}))}}
       function decorate(root=document){if(root.nodeType!==1&&root.nodeType!==9)return;decorateMenu(root);decorateHeader(root);decorateDashboard(root);decorateDynamic(root);decorateMetrics(root);decorateStatuses(root);decorateContext(root);decorateButtons(root)}
       window.GMIcons={paths,labels,actionLabels,viewIcons,groupIcons,kpiIcons,metricIcons,markup,statusName,actionName:semanticActionName,quickName,decorate};window.gmIcon=(name,options)=>markup(name,options);window.gmStatusIcon=value=>`<span class="gm-status-icon" aria-hidden="true">${markup(statusName(value),{size:13})}</span>`;
       let queued=false;const pending=new Set();const flush=()=>{queued=false;pending.forEach(node=>decorate(node));pending.clear()};const observer=new MutationObserver(records=>{records.forEach(record=>{const target=record.target.nodeType===1?record.target:record.target.parentElement;if(target)pending.add(target)});if(!queued){queued=true;requestAnimationFrame(flush)}});observer.observe(document.documentElement,{subtree:true,childList:true});if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>decorate(document),{once:true});else decorate(document);
@@ -15168,7 +15606,12 @@
       scopedSetItem(NAV_COLLAPSED_KEY, isCollapsed ? "1" : "0", "user");
       const hideButton = $("navToggleBtn");
       const showButton = $("navRailToggle");
-      $("topbarMenuBtn")?.setAttribute("aria-expanded", String(!isCollapsed));
+      const topbarButton = $("topbarMenuBtn");
+      topbarButton?.setAttribute("aria-expanded", String(!isCollapsed));
+      if (topbarButton) {
+        topbarButton.title = window.matchMedia("(max-width:600px)").matches ? "Abrir menu" : (isCollapsed ? "Expandir menu" : "Recolher menu");
+        topbarButton.setAttribute("aria-label", topbarButton.title);
+      }
       if (hideButton) {
         const icon = hideButton.querySelector("i");
         const label = hideButton.querySelector("span");
@@ -16243,6 +16686,58 @@
       return document.getElementById(view) && canAccessView(view) ? view : firstAllowedView();
     }
 
+    const HEADER_GROUP_LABELS = {
+      maintenance: "Manutenção",
+      assets: "Ativos e Instalações",
+      materials: "Materiais",
+      planning: "Planejamento",
+      analytics: "Gestão",
+      admin: "Administração"
+    };
+
+    function updateHeaderContext(activeNavView, activeTab, resolvedView) {
+      const page = resolvedView === "spares" ? "Materiais e Estoque" : (activeTab?.textContent.trim() || "Visão Geral");
+      const groupKey = activeTab?.closest("[data-nav-group]")?.dataset.navGroup || "";
+      const group = HEADER_GROUP_LABELS[groupKey] || (activeNavView === "dashboard" ? "Início" : "GestMan365");
+      if ($("topbarViewTitle")) $("topbarViewTitle").textContent = page;
+      if ($("topbarBreadcrumbGroup")) $("topbarBreadcrumbGroup").textContent = group;
+      if ($("topbarBreadcrumbPage")) $("topbarBreadcrumbPage").textContent = page;
+      document.querySelector(".reference-topbar-heading")?.setAttribute("title", `${group} / ${page}`);
+    }
+
+    function openHeaderMobileSearch() {
+      document.body.classList.remove("header-context-open");
+      document.body.classList.add("header-search-open");
+      $("headerContextBtn")?.setAttribute("aria-expanded", "false");
+      $("headerMobileSearchBtn")?.setAttribute("aria-expanded", "true");
+      window.setTimeout(() => {
+        $("globalSearch")?.focus();
+        $("globalSearch")?.select();
+      }, 0);
+    }
+
+    function closeHeaderMobileSearch(options = {}) {
+      document.body.classList.remove("header-search-open");
+      $("headerMobileSearchBtn")?.setAttribute("aria-expanded", "false");
+      if (options.restoreFocus !== false) $("headerMobileSearchBtn")?.focus();
+    }
+
+    function closeHeaderContext(options = {}) {
+      document.body.classList.remove("header-context-open");
+      $("headerContextBtn")?.setAttribute("aria-expanded", "false");
+      if (options.restoreFocus) $("headerContextBtn")?.focus();
+    }
+
+    function toggleHeaderContext(event) {
+      event?.stopPropagation?.();
+      const willOpen = !document.body.classList.contains("header-context-open");
+      document.body.classList.remove("header-search-open");
+      $("headerMobileSearchBtn")?.setAttribute("aria-expanded", "false");
+      document.body.classList.toggle("header-context-open", willOpen);
+      $("headerContextBtn")?.setAttribute("aria-expanded", String(willOpen));
+      if (willOpen) $("dashboardPlantFilter")?.focus();
+    }
+
     function setView(view, options = {}) {
       if (!currentAccount) return;
       const requestedNavView = view;
@@ -16275,7 +16770,7 @@
       const activeNavView = materialsRoute ? requestedNavView : nextView;
       document.querySelectorAll(".tab").forEach(tab => tab.classList.toggle("active", tab.dataset.view === activeNavView));
       const activeTab = document.querySelector(`.tab[data-view="${activeNavView}"]`);
-      if ($("topbarViewTitle")) $("topbarViewTitle").textContent = nextView === "spares" ? "Materiais e Estoque" : (activeTab?.textContent.trim() || "Dashboard");
+      updateHeaderContext(activeNavView, activeTab, nextView);
       openNavGroupForView(activeNavView);
       if (!options.keepCrudForm) hideCrudFormsInView(nextView);
       applyPermissionVisibility();
@@ -21565,12 +22060,16 @@
       document.body.classList.add("mobile-nav-open");
       $("mobileMoreBtn")?.setAttribute("aria-expanded", "true");
       $("topbarMenuBtn")?.setAttribute("aria-expanded", "true");
+      $("topbarMenuBtn")?.setAttribute("aria-label", "Fechar menu");
+      if ($("topbarMenuBtn")) $("topbarMenuBtn").title = "Fechar menu";
       $("navMobileClose")?.focus({ preventScroll:true });
     }
     function closeMobileNavigation() {
       document.body.classList.remove("mobile-nav-open");
       $("mobileMoreBtn")?.setAttribute("aria-expanded", "false");
       $("topbarMenuBtn")?.setAttribute("aria-expanded", "false");
+      $("topbarMenuBtn")?.setAttribute("aria-label", "Abrir menu");
+      if ($("topbarMenuBtn")) $("topbarMenuBtn").title = "Abrir menu";
     }
     function openMobileMoreMenu() { openMobileNavigation(); }
     function setMobileOrderFilter(filter,button) { mobileOrderFilter=filter; osCurrentPage=1; document.querySelectorAll("#mobileOsFilters button").forEach(item=>item.classList.toggle("active",item===button)); render(); }
@@ -25877,11 +26376,29 @@
     window.addEventListener("keydown", event => {
       const target = event.target;
       const typing = target && ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName);
+      if (event.key === "Escape" && document.body.classList.contains("header-search-open")) {
+        event.preventDefault();
+        closeHeaderMobileSearch();
+        return;
+      }
+      if (event.key === "Escape" && document.body.classList.contains("header-context-open")) {
+        event.preventDefault();
+        closeHeaderContext({ restoreFocus: true });
+        return;
+      }
       if (((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") || (event.key === "/" && !typing)) {
         event.preventDefault();
-        $("globalSearch").focus();
-        $("globalSearch").select();
+        if (window.matchMedia("(max-width:600px)").matches) openHeaderMobileSearch();
+        else {
+          $("globalSearch").focus();
+          $("globalSearch").select();
+        }
       }
+    });
+    document.addEventListener("click", event => {
+      if (!document.body.classList.contains("header-context-open")) return;
+      if ($("headerDashboardFilters")?.contains(event.target) || $("headerContextBtn")?.contains(event.target)) return;
+      closeHeaderContext();
     });
     updateIndustrialClock();
     window.setInterval(updateIndustrialClock, 30000);
