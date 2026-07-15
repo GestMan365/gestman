@@ -11179,6 +11179,26 @@
       .profile-session-actions { grid-template-columns: 1fr !important; }
       .profile-session-actions .btn { width: 100% !important; }
     }
+    /* Favoritos: módulos escolhidos pelo usuário no menu lateral */
+    .nav-module-favorite-row,.nav-favorite-copy-row{display:grid;grid-template-columns:minmax(0,1fr) 32px;align-items:center;gap:3px;min-width:0}
+    .nav-module-favorite-row>.tab,.nav-favorite-copy-row>.tab{min-width:0!important;width:100%!important}
+    .favorite-module-icon{display:grid;place-items:center;width:24px;height:24px;color:#7fb8ed}.favorite-module-icon .gm-icon{width:18px!important;height:18px!important}
+    .nav-favorite-toggle{display:grid;place-items:center;width:30px;height:30px;padding:0;border:1px solid transparent;border-radius:8px;background:transparent;color:#647b96;cursor:pointer;transition:color .16s,background .16s,border-color .16s,transform .12s}
+    .nav-favorite-toggle:hover,.nav-favorite-toggle:focus-visible{color:#facc15;background:rgba(250,204,21,.1);border-color:rgba(250,204,21,.3);outline:none}
+    .nav-favorite-toggle:active{transform:scale(.9)}.nav-favorite-toggle.is-favorite{color:#facc15}.nav-favorite-toggle.is-favorite .gm-icon{fill:rgba(250,204,21,.3);filter:drop-shadow(0 0 4px rgba(250,204,21,.22))}
+    .sidebar-favorite-star-icon{display:grid;place-items:center}.sidebar-favorite-star-icon .gm-icon{width:17px!important;height:17px!important}
+    .sidebar-favorites-empty{display:grid;grid-template-columns:24px minmax(0,1fr);align-items:center;gap:7px;padding:9px;color:#8295ad}.sidebar-favorites-empty small{font-size:10px;line-height:1.35}.sidebar-favorites-empty .gm-icon{color:#facc15}
+    .sidebar-favorites-manage{margin-top:3px!important;border-top:1px solid #1f334a!important;border-radius:0 0 8px 8px!important}.sidebar-favorites-manage .tab-icon{color:#facc15!important}
+    body.sidebar-collapsed .nav-module-favorite-row{display:block}body.sidebar-collapsed .nav-module-favorite-row>.nav-favorite-toggle{display:none!important}
+    .sidebar-favorites-page-head{align-items:center}.sidebar-favorites-total{padding:8px 12px;border:1px solid #2c425c;border-radius:999px;background:#0d1b2c;color:#9fc7ef;font-size:12px;font-weight:800;white-space:nowrap}
+    .sidebar-favorites-page-section{padding:14px;display:grid;gap:12px}.sidebar-favorites-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.sidebar-favorites-section-head h2{margin:0 0 3px;font-size:15px}.sidebar-favorites-section-head p{margin:0;color:#8ea2ba;font-size:11px}
+    .sidebar-favorites-page-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.sidebar-favorite-page-card{display:grid;grid-template-columns:minmax(0,1fr) 42px;align-items:center;min-width:0;border:1px solid #263b53;border-radius:11px;background:#0c1929;overflow:hidden;transition:border-color .16s,background .16s,transform .16s}.sidebar-favorite-page-card:hover{border-color:#35618d;background:#102238;transform:translateY(-1px)}.sidebar-favorite-page-card.is-favorite{border-color:rgba(250,204,21,.32)}
+    .sidebar-favorite-page-open{display:flex;align-items:center;gap:10px;min-width:0;min-height:66px;padding:10px;border:0;background:transparent;color:#e9f1fa;text-align:left;cursor:pointer}.sidebar-favorite-page-open i{display:grid;place-items:center;flex:0 0 36px;height:36px;border-radius:9px;background:#102d4e;color:#38a0ff}.sidebar-favorite-page-open>span{display:grid;min-width:0;gap:3px}.sidebar-favorite-page-open strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}.sidebar-favorite-page-open small{color:#8095ad;font-size:9px}
+    .sidebar-favorite-page-toggle{display:grid;place-items:center;width:36px;height:36px;margin:auto;border:1px solid #2b435e;border-radius:9px;background:#0b1726;color:#6e829a;cursor:pointer}.sidebar-favorite-page-toggle:hover,.sidebar-favorite-page-toggle:focus-visible,.sidebar-favorite-page-toggle.is-favorite{color:#facc15;border-color:rgba(250,204,21,.45);background:rgba(250,204,21,.08);outline:none}.sidebar-favorite-page-toggle.is-favorite .gm-icon{fill:rgba(250,204,21,.3)}
+    .sidebar-favorites-page-empty{min-height:130px}.sidebar-favorites-page-empty>.gm-icon{color:#facc15}
+    @media(max-width:900px){.sidebar-favorites-page-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:600px){.sidebar-favorites-page-head{align-items:flex-start}.sidebar-favorites-page-grid{grid-template-columns:1fr}.nav-favorite-toggle{width:38px;height:38px}.nav-module-favorite-row,.nav-favorite-copy-row{grid-template-columns:minmax(0,1fr) 40px}.sidebar-favorite-page-open{min-height:70px}.sidebar-favorite-page-toggle{width:42px;height:42px}}
+
     /* O.S. simplificada: seleção obrigatória e explícita de executantes */
     .os-simple-form{display:grid;gap:12px;max-width:920px;margin:auto;color:var(--text,#f8fafc)}
     .os-form-section,.os-quick-details{border:1px solid #263a52;border-radius:12px;background:#0b1726;overflow:hidden}
@@ -11340,14 +11360,10 @@
       <div class="nav-pinned">
         <button class="tab active" data-view="dashboard" title="Visão Geral"><span class="tab-icon"></span><span>Visão Geral</span></button>
         <details class="nav-quick-access" data-nav-quick>
-          <summary title="Acessos Rápidos"><span class="tab-icon"></span><span>Acessos Rápidos</span><i></i></summary>
+          <summary title="Favoritos"><span class="tab-icon"></span><span>Favoritos</span><i></i></summary>
           <div class="nav-quick-list">
-            <button class="tab" data-view="quickAccess"><span class="tab-icon"></span><span>Central de Acessos</span></button>
-            <button type="button" data-nav-permission="orders" onclick="openOrderModal()"><span class="gm-button-icon"></span>Nova O.S.</button>
-            <button type="button" data-nav-permission="checklists" onclick="openQuickChecklist()"><span class="gm-button-icon"></span>Executar Checklist</button>
-            <button type="button" data-nav-permission="downtime" onclick="setView('downtime');openCrudFormForCreate('downtimeForm')"><span class="gm-button-icon"></span>Registrar Parada</button>
-            <button type="button" data-nav-permission="materialRequests" onclick="setView('materialRequests');openCrudFormForCreate('materialRequestForm')"><span class="gm-button-icon"></span>Solicitar Material</button>
-            <button type="button" data-nav-permission="assets" onclick="setView('assets')"><span class="gm-button-icon"></span>Consultar Ativo</button>
+            <div class="sidebar-favorites-empty"><span></span><small>Clique na estrela de um módulo para adicioná-lo aqui.</small></div>
+            <button class="tab sidebar-favorites-manage" type="button" data-view="quickAccess"><span class="tab-icon"></span><span>Gerenciar favoritos</span></button>
           </div>
         </details>
       </div>
@@ -12367,6 +12383,7 @@
       const paths = {
         dashboard:`<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="4" rx="1"/><rect x="14" y="11" width="7" height="10" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>`,
         quick:`<path d="m13 2-9 12h7l-1 8 9-12h-7z"/><path d="M4 5h4M16 19h4"/>`,
+        star:`<path d="m12 2.8 2.8 5.7 6.3.9-4.6 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2-4.6-4.4 6.3-.9z"/>`,
         maintenance:`<path d="M14.7 6.3a4 4 0 0 0-5-5L7.6 3.4l3 3L8 9l-3-3-2.1 2.1a4 4 0 0 0 5 5L16.8 22l4.2-4.2-8.9-8.9"/>`,
         workOrders:`<path d="M9 5h6M9 3h6v4H9z"/><rect x="5" y="5" width="14" height="16" rx="2"/><path d="m9 14 2 2 4-4M9 10h6"/>`,
         activeOrders:`<path d="M5 3v18M19 3v18"/><path d="m9 7 7 5-7 5z"/>`,
@@ -12477,7 +12494,7 @@
         sun:`<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>`,
         moon:`<path d="M21 14.5A8.2 8.2 0 0 1 9.5 3 8.5 8.5 0 1 0 21 14.5Z"/>`
       };
-      const labels={dashboard:"Visão Geral",quick:"Acessos Rápidos",workOrders:"Ordens de Serviço",activeOrders:"O.S. em execução",plans:"Planos de Manutenção",checklist:"Checklists",measurements:"Medições",pending:"Ações Pendentes",downtime:"Paradas",diary:"Diário de Manutenção",assets:"Ativos e Equipamentos",tags:"Identificadores de Ativos",areas:"Áreas Operacionais",regions:"Regiões",locations:"Setores e Locais",installation:"Locais de Instalação",documents:"Documentos",tools:"Ferramentas",parts:"Catálogo de Peças",stock:"Almoxarifado",stockMoves:"Movimentações de Estoque",stockTransfers:"Transferências de Estoque",materialRequests:"Solicitações de Materiais",suppliers:"Fornecedores",calendar:"Calendário Operacional",productiveCalendar:"Calendários Produtivos",teams:"Recursos e Equipes",indicators:"Indicadores",reports:"Relatórios",assistant:"IA GestMan365",users:"Usuários e Permissões"};
+      const labels={dashboard:"Visão Geral",quick:"Favoritos",workOrders:"Ordens de Serviço",activeOrders:"O.S. em execução",plans:"Planos de Manutenção",checklist:"Checklists",measurements:"Medições",pending:"Ações Pendentes",downtime:"Paradas",diary:"Diário de Manutenção",assets:"Ativos e Equipamentos",tags:"Identificadores de Ativos",areas:"Áreas Operacionais",regions:"Regiões",locations:"Setores e Locais",installation:"Locais de Instalação",documents:"Documentos",tools:"Ferramentas",parts:"Catálogo de Peças",stock:"Almoxarifado",stockMoves:"Movimentações de Estoque",stockTransfers:"Transferências de Estoque",materialRequests:"Solicitações de Materiais",suppliers:"Fornecedores",calendar:"Calendário Operacional",productiveCalendar:"Calendários Produtivos",teams:"Recursos e Equipes",indicators:"Indicadores",reports:"Relatórios",assistant:"IA GestMan365",users:"Usuários e Permissões"};
       const actionLabels={bell:"Notificações",help:"Ajuda",panelLeft:"Alternar menu lateral",search:"Buscar",clipboardPlus:"Nova O.S.",packagePlus:"Adicionar material",plus:"Adicionar",edit:"Editar",eye:"Visualizar detalhes",eyeOff:"Ocultar",trash:"Excluir",circleOff:"Inativar",undo:"Reativar",save:"Salvar",checkCircle:"Confirmar",x:"Fechar",arrowLeft:"Anterior",arrowRight:"Próximo",chevronUp:"Mover para cima",chevronDown:"Mover para baixo",filterX:"Limpar filtros",sliders:"Mais filtros",filter:"Filtrar",download:"Baixar",upload:"Importar",printer:"Imprimir",send:"Compartilhar",paperclip:"Anexar",camera:"Adicionar evidência",history:"Ver histórico",copy:"Duplicar",move:"Reordenar",play:"Executar",pause:"Pausar",timer:"Registrar tempo",message:"Adicionar observação",link:"Vincular",more:"Mais ações",user:"Perfil do usuário",logout:"Sair"};
       const aliases={details:"eye",done:"checkCircle",check:"checkCircle",delete:"trash",print:"printer",share:"send",pdf:"reports",home:"dashboard",menu:"more",settings:"sliders",success:"checkCircle",error:"xCircle",warning:"alertTriangle"};
       const clean=value=>String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/\s+/g," ").trim();
@@ -12547,7 +12564,7 @@
     const STAGE21_APP_VERSION = "2026.07.21";
     const STAGE21_PASSWORD_ITERATIONS = 120000;
     const PERMISSION_MODULES = [
-      { key: "dashboard", label: "Dashboard e acessos rápidos", views: ["dashboard", "quickAccess"] },
+      { key: "dashboard", label: "Dashboard e favoritos", views: ["dashboard", "quickAccess"] },
       { key: "map", label: "Estrutura de instalação", views: ["map"] },
       { key: "assets", label: "Ativos e equipamentos", views: ["assets"] },
       { key: "tags", label: "Identificadores de ativos", views: ["tags"] },
@@ -15254,6 +15271,8 @@
         const visibleItems = Array.from(group.querySelectorAll(".tab")).filter(item => !item.classList.contains("is-permission-hidden"));
         group.classList.toggle("is-empty", visibleItems.length === 0);
       });
+      syncSidebarFavoritePermissionVisibility();
+      renderSidebarFavorites();
       applyActionPermissionVisibility();
     }
 
@@ -15265,7 +15284,7 @@
     function applyActionPermissionVisibility(root = document) {
       if (!currentAccount) return;
       root.querySelectorAll(".view button, .view [role='button'], #genericModal button").forEach(element => {
-        if (element.matches(".close,[data-close-modal],[data-view],[data-mobile-view],[data-view-button]") || element.closest(".tenant-user-admin")) return;
+        if (element.matches(".close,[data-close-modal],[data-view],[data-mobile-view],[data-view-button],[data-favorite-action]") || element.closest(".tenant-user-admin")) return;
         const actionText = element.dataset.permissionAction || element.textContent || element.title || element.getAttribute("aria-label") || "";
         const requiredLevel = element.dataset.requiredLevel || actionPermissionKeyFromText(actionText);
         const allowed = profileAllowsAction(actionModuleForElement(element), requiredLevel, actionText);
@@ -15796,7 +15815,7 @@
     }
 
     function openNavGroupForView(view) {
-      const button = document.querySelector(`.tab[data-view="${view}"]`);
+      const button = document.querySelector(`.tab[data-view="${view}"]:not([data-favorite-copy])`);
       const group = button?.closest("[data-nav-group]");
       const quick = button?.closest("[data-nav-quick]");
       document.querySelectorAll("[data-nav-group]").forEach(item => { item.open = item === group; });
@@ -16902,7 +16921,7 @@
       document.querySelectorAll(".view").forEach(section => section.classList.toggle("active", section.id === nextView));
       const activeNavView = materialsRoute ? requestedNavView : nextView;
       document.querySelectorAll(".tab").forEach(tab => tab.classList.toggle("active", tab.dataset.view === activeNavView));
-      const activeTab = document.querySelector(`.tab[data-view="${activeNavView}"]`);
+      const activeTab = document.querySelector(`.tab[data-view="${activeNavView}"]:not([data-favorite-copy])`);
       updateHeaderContext(activeNavView, activeTab, nextView);
       openNavGroupForView(activeNavView);
       if (!options.keepCrudForm) hideCrudFormsInView(nextView);
@@ -22575,11 +22594,111 @@
     const STAGE20_SUPPLIER_EXTRAS_KEY="gestman365.suppliers.extras.v1";
     const STAGE20_QUICK_KEY="gestman365.quickAccess.v1";
     const STAGE20_QUICK_USAGE_KEY="gestman365.quickAccess.usage.v1";
+    const SIDEBAR_FAVORITES_KEY="gestman365.sidebarFavorites.v1";
     const STAGE20_NOTIFICATIONS_KEY="gestman365.notifications.v1";
     const STAGE20_NOTIFICATION_PREFS_KEY="gestman365.notificationPreferences.v1";
     const STAGE20_SUPPLIER_CATEGORIES=["Fornecedor de peças","Prestador de manutenção","Calibração","Locação","Ferramentas","Serviços técnicos","Engenharia","Inspeção","Transporte","Outro"];
     const STAGE20_NOTIFICATION_CATEGORIES=["Ordem de Serviço","Plano Preventivo","Checklist","Medição","Parada","Ação Pendente","Estoque","Ferramenta","Documento","Fornecedor","Equipe e Agenda","Sistema"];
     const stage20SupplierUi={search:"",category:"",status:"",document:"",page:1,selectedId:"",tab:"overview"};
+
+    function sidebarModuleCatalog() {
+      return [...document.querySelectorAll('.industrial-sidebar-scroll .tab[data-view]:not([data-favorite-copy])')]
+        .filter(button => !button.closest('[data-nav-quick]') && button.dataset.view !== "quickAccess")
+        .map(button => ({
+          view:button.dataset.view,
+          name:button.querySelector('span:last-child')?.textContent?.trim() || button.textContent.trim(),
+          icon:window.GMIcons?.viewIcons?.[button.dataset.view] || "dashboard",
+          button
+        }))
+        .filter((item,index,rows) => rows.findIndex(row => row.view === item.view) === index);
+    }
+
+    function sidebarFavoriteViews() {
+      let parsed = null;
+      try { parsed = JSON.parse(scopedGetItem(SIDEBAR_FAVORITES_KEY, "user") || "null"); } catch (_) {}
+      const saved = Array.isArray(parsed?.ids) ? parsed.ids : [];
+      const allowed = new Set(sidebarModuleCatalog().filter(item => canAccessView(item.view)).map(item => item.view));
+      return [...new Set(saved)].filter(view => allowed.has(view));
+    }
+
+    function saveSidebarFavoriteViews(views) {
+      const valid = [...new Set(views)].filter(view => sidebarModuleCatalog().some(item => item.view === view) && canAccessView(view));
+      scopedSetItem(SIDEBAR_FAVORITES_KEY, JSON.stringify({ version:1, ids:valid }), "user");
+      return valid;
+    }
+
+    function syncSidebarFavoritePermissionVisibility() {
+      document.querySelectorAll('.nav-module-favorite-row').forEach(row => {
+        row.classList.toggle('is-permission-hidden', row.querySelector('.tab')?.classList.contains('is-permission-hidden'));
+      });
+    }
+
+    function sidebarFavoriteIcon(view, active, size = 17) {
+      return `<span class="sidebar-favorite-star-icon">${gmIcon("star", { size })}</span><span class="sr-only">${active ? "Remover dos favoritos" : "Adicionar aos favoritos"}</span>`;
+    }
+
+    function toggleSidebarFavorite(view, event) {
+      event?.preventDefault?.();
+      event?.stopPropagation?.();
+      const current = sidebarFavoriteViews();
+      const removing = current.includes(view);
+      const next = saveSidebarFavoriteViews(removing ? current.filter(item => item !== view) : [...current, view]);
+      renderSidebarFavorites();
+      if (document.querySelector('.view.active')?.id === "quickAccess") renderFavoritesPage();
+      const item = sidebarModuleCatalog().find(entry => entry.view === view);
+      showToast(`${item?.name || "Módulo"} ${removing ? "removido dos" : "adicionado aos"} favoritos.`);
+      return next;
+    }
+
+    function renderSidebarFavorites() {
+      const quick = document.querySelector('[data-nav-quick]');
+      const list = quick?.querySelector('.nav-quick-list');
+      if (!quick || !list) return;
+      const summary = quick.querySelector(':scope>summary');
+      if (summary) {
+        summary.title = "Favoritos";
+        const label = summary.querySelector('span:nth-child(2)');
+        if (label) label.textContent = "Favoritos";
+      }
+      list.id = "sidebarFavoritesList";
+      const catalog = sidebarModuleCatalog();
+      const favorites = sidebarFavoriteViews().map(view => catalog.find(item => item.view === view)).filter(Boolean);
+      list.innerHTML = `${favorites.length ? favorites.map(item => `<div class="nav-favorite-copy-row"><button class="tab" type="button" data-view="${escapeHtml(item.view)}" data-favorite-copy="true" onclick="setView('${escapeHtml(item.view)}')"><span class="favorite-module-icon">${gmIcon(item.icon,{size:18})}</span><span>${escapeHtml(item.name)}</span></button><button class="nav-favorite-toggle is-favorite" type="button" data-favorite-view="${escapeHtml(item.view)}" aria-pressed="true" aria-label="Remover ${escapeHtml(item.name)} dos favoritos" title="Remover dos favoritos" onclick="toggleSidebarFavorite('${escapeHtml(item.view)}',event)">${sidebarFavoriteIcon(item.view,true)}</button></div>`).join("") : `<div class="sidebar-favorites-empty"><span>${gmIcon("star",{size:18})}</span><small>Clique na estrela de um módulo para adicioná-lo aqui.</small></div>`}<button class="tab sidebar-favorites-manage" type="button" data-view="quickAccess" data-favorite-copy="true" onclick="setView('quickAccess')"><span class="favorite-module-icon">${gmIcon("star",{size:18})}</span><span>Gerenciar favoritos</span></button>`;
+      const active = document.querySelector('.view.active')?.id || "";
+      list.querySelectorAll('.tab[data-view]').forEach(button => button.classList.toggle('active', button.dataset.view === active));
+      const chosen = new Set(favorites.map(item => item.view));
+      document.querySelectorAll('.nav-favorite-toggle[data-favorite-view]').forEach(button => {
+        const selected = chosen.has(button.dataset.favoriteView);
+        button.classList.toggle('is-favorite', selected);
+        button.setAttribute('aria-pressed', String(selected));
+        button.setAttribute('aria-label', `${selected ? "Remover" : "Adicionar"} ${sidebarModuleCatalog().find(item => item.view === button.dataset.favoriteView)?.name || "módulo"} ${selected ? "dos" : "aos"} favoritos`);
+        button.title = selected ? "Remover dos favoritos" : "Adicionar aos favoritos";
+      });
+      decorate(list);
+      initSidebarTooltips();
+    }
+
+    function initSidebarFavorites() {
+      const quickList = document.querySelector('[data-nav-quick] .nav-quick-list');
+      if (quickList) quickList.innerHTML = "";
+      sidebarModuleCatalog().forEach(item => {
+        const button = item.button;
+        if (button.closest('.nav-module-favorite-row')) return;
+        const row = document.createElement('div');
+        row.className = 'nav-module-favorite-row';
+        button.parentNode.insertBefore(row, button);
+        row.appendChild(button);
+        const star = document.createElement('button');
+        star.type = 'button';
+        star.className = 'nav-favorite-toggle';
+        star.dataset.favoriteView = item.view;
+        star.innerHTML = sidebarFavoriteIcon(item.view, false);
+        star.addEventListener('click', event => toggleSidebarFavorite(item.view, event));
+        row.appendChild(star);
+      });
+      syncSidebarFavoritePermissionVisibility();
+      renderSidebarFavorites();
+    }
     let stage20SupplierSaveLock=false;
 
     function stage20Json(key,fallback,scope="tenant"){try{const value=JSON.parse(scopedGetItem(key,scope)||"null");return value??fallback}catch{return fallback}}
@@ -22657,6 +22776,21 @@
 
     /* Etapa 20 — Central interna de notificações */
     const stage20NotificationUi={tab:"all",period:"all",category:"",level:"",status:"active"};
+    function sidebarFavoritePageCard(item, selected) {
+      return `<article class="sidebar-favorite-page-card ${selected ? "is-favorite" : ""}"><button class="sidebar-favorite-page-open" type="button" data-favorite-action onclick="setView('${escapeHtml(item.view)}')"><i>${gmIcon(item.icon,{size:22})}</i><span><strong>${escapeHtml(item.name)}</strong><small>Abrir módulo</small></span></button><button class="sidebar-favorite-page-toggle ${selected ? "is-favorite" : ""}" type="button" data-favorite-action aria-pressed="${selected}" aria-label="${selected ? "Remover" : "Adicionar"} ${escapeHtml(item.name)} ${selected ? "dos" : "aos"} favoritos" title="${selected ? "Remover dos favoritos" : "Adicionar aos favoritos"}" onclick="toggleSidebarFavorite('${escapeHtml(item.view)}',event)">${sidebarFavoriteIcon(item.view,selected,20)}</button></article>`;
+    }
+
+    function renderFavoritesPage() {
+      const root = $("stage20QuickRoot");
+      if (!root) return;
+      const catalog = sidebarModuleCatalog().filter(item => canAccessView(item.view));
+      const favoriteViews = sidebarFavoriteViews();
+      const favorites = favoriteViews.map(view => catalog.find(item => item.view === view)).filter(Boolean);
+      root.innerHTML = `<header class="stage20-page-head sidebar-favorites-page-head"><div><span class="stage20-eyebrow">ATALHOS PESSOAIS</span><h1>Favoritos</h1><p>Clique na estrela ao lado de qualquer módulo para montar sua lista de acesso rápido.</p></div><div class="sidebar-favorites-total">${favorites.length} favorito${favorites.length === 1 ? "" : "s"}</div></header><section class="stage20-panel sidebar-favorites-page-section"><div class="sidebar-favorites-section-head"><div><h2>Meus favoritos</h2><p>Seus módulos preferidos, salvos somente para o seu usuário.</p></div></div>${favorites.length ? `<div class="sidebar-favorites-page-grid">${favorites.map(item => sidebarFavoritePageCard(item,true)).join("")}</div>` : `<div class="stage20-empty sidebar-favorites-page-empty">${gmIcon("star",{size:30})}<strong>Nenhum módulo favorito.</strong><span>Use as estrelas abaixo ou no menu lateral para adicionar.</span></div>`}</section><section class="stage20-panel sidebar-favorites-page-section"><div class="sidebar-favorites-section-head"><div><h2>Todos os módulos</h2><p>A lista respeita as permissões do seu perfil.</p></div></div><div class="sidebar-favorites-page-grid">${catalog.map(item => sidebarFavoritePageCard(item,favoriteViews.includes(item.view))).join("")}</div></section>`;
+      decorate(root);
+    }
+    renderStage20Quick = renderFavoritesPage;
+
     function stage20Notifications(){const rows=stage20Json(STAGE20_NOTIFICATIONS_KEY,[],"user");return(Array.isArray(rows)?rows:[]).filter(n=>!n.recipientId||n.recipientId===currentAccount?.user?.id).sort((a,b)=>Number(b.createdAt)-Number(a.createdAt))}
     function stage20SaveNotifications(rows){scopedSetItem(STAGE20_NOTIFICATIONS_KEY,JSON.stringify(rows.slice(0,500)),"user")}
     function stage20NotificationPrefs(){const saved=stage20Json(STAGE20_NOTIFICATION_PREFS_KEY,{version:1,categories:{}},"user");return saved?.version===1?{version:1,categories:saved.categories||{}}:{version:1,categories:{}}}
@@ -27425,6 +27559,7 @@
     applyTheme(currentTheme);
     initNavCollapse();
     initNavGroups();
+    initSidebarFavorites();
     renderAuthScreen();
     if (currentAccount) {
       captureSyncBaseline();
