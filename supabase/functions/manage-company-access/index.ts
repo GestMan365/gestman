@@ -79,14 +79,17 @@ Deno.serve(async (req) => {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  const { data: company, error: companyError } = await service
+  const { data: company, error: companyError } = await userClient
     .from("gm_companies")
-    .select("id,trade_name,name,status")
+    .select("id,name,status")
     .eq("id", companyId)
     .maybeSingle();
-  if (companyError || !company) return json(req, 404, { error: "Empresa não encontrada." });
+  if (companyError || !company) {
+    console.error("Falha ao localizar empresa", companyError?.message ?? "registro ausente");
+    return json(req, 404, { error: "Empresa não encontrada." });
+  }
 
-  const { data: members, error: membersError } = await service
+  const { data: members, error: membersError } = await userClient
     .from("gm_company_members")
     .select("user_id,role,active")
     .eq("company_id", companyId);
