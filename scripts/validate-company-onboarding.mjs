@@ -8,8 +8,10 @@ const migration = fs.readFileSync(path.join(root, "supabase/migrations/202607160
 const emailMigration = fs.readFileSync(path.join(root, "supabase/migrations/202607170001_company_request_email_notification.sql"), "utf8");
 const accessMigration = fs.readFileSync(path.join(root, "supabase/migrations/202607170002_company_access_without_email.sql"), "utf8");
 const emailValidationMigration = fs.readFileSync(path.join(root, "supabase/migrations/202607180001_fix_company_request_email_validation.sql"), "utf8");
+const companyManagementMigration = fs.readFileSync(path.join(root, "supabase/migrations/202607180002_company_management_hardening.sql"), "utf8");
 const edge = fs.readFileSync(path.join(root, "supabase/functions/convert-company-request/index.ts"), "utf8");
 const submitEdge = fs.readFileSync(path.join(root, "supabase/functions/submit-company-request/index.ts"), "utf8");
+const companyAccessEdge = fs.readFileSync(path.join(root, "supabase/functions/manage-company-access/index.ts"), "utf8");
 const accessFlow = html.slice(
   html.indexOf("/* Fluxo de aprovacao e criacao de acesso"),
   html.indexOf("async function loadPlatformCompanies", html.indexOf("/* Fluxo de aprovacao e criacao de acesso"))
@@ -79,12 +81,26 @@ test("detalhe mostra andamento e historico", has(html, "platformRequestProgress"
 test("criacao de acesso ajuda dominio usuario e senha", has(html, "checkPlatformDomainAvailability", "platformUsernameHelp", "generatePlatformPassword", "togglePlatformPassword"));
 test("dialogo administrativo preserva foco e acoes visiveis", has(html, "gmPlatformDialogReturnFocus", "platform-dialog-actions is-sticky", 'dialog.querySelector("input:not([type=hidden]),textarea,button")?.focus()'));
 test("tabelas administrativas identificam coluna de acoes", has(html, '"Status", "A\\u00e7\\u00f5es"', '"\\u00daltimo acesso", "A\\u00e7\\u00f5es"'));
+test("central de empresas possui quatro secoes", has(html, "Central profissional de empresas clientes", '["overview","Vis\\u00e3o geral"]', '["access","Acesso"]', '["plan","Plano e cadastro"]', '["history","Hist\\u00f3rico"]'));
+test("empresas possuem busca ordenacao e filtros", has(html, "upgradePlatformCompanyToolbar", "platformCompanySort", "clearPlatformCompanyFilters", "filterPlatformCompaniesByStatus"));
+test("gestao mostra capacidade contrato unidades e auditoria", has(html, "platformCompanyOverviewHtml", "platformCapacity", "platformCompanyAuditHtml", "gm_platform_audit_log?select=*"));
+test("cadastro e plano usam formularios separados", has(html, "platformCompanyRegistrationHtml", "platformCompanyPlanHtml", "savePlatformCompanyRegistration", "savePlatformCompanyPlan"));
+test("suspensao e arquivamento exigem confirmacao", has(html, "preparePlatformCompanyAction", "executePlatformCompanyAction", "Confirmar suspens\\u00e3o", "Confirmar arquivamento"));
+test("suspensao bloqueia e reativacao libera usuarios", has(companyAccessEdge, "suspend_company", "reactivate_company", "archive_company", 'ban_duration: banDuration') && has(html, "Empresa e acessos suspensos", "Empresa e acessos reativados"));
+test("login recusa empresa suspensa ou arquivada", has(html, '["suspended","archived"].includes', "O acesso desta empresa est\\u00e1 suspenso"));
+test("senha nunca e recuperada nem armazenada no painel", has(html, "resetPlatformCompanyPassword", "A senha atual nunca \\u00e9 exibida", "n\\u00e3o ficar\\u00e1 salva no painel") && !companyAccessEdge.includes("password_hash"));
+test("redefinicao de senha restrita a membro da empresa", has(companyAccessEdge, "Usuário não pertence a esta empresa", "gm_company_members", "auth.admin.updateUserById"));
+test("redefinicao registra auditoria sem senha", has(companyAccessEdge, "company.access.password_reset", "metadata: { user_id: userId }") && !companyAccessEdge.includes("new_password:"));
+test("gestao reforca limites conforme uso real", has(companyManagementMigration, "v_member_count", "v_unit_count", "nao pode ser menor que o uso atual"));
+test("migration de gestao preserva dados", !/\b(truncate|drop\s+table|delete\s+from)\b/i.test(companyManagementMigration));
 test("compensacao se conversao falhar", edge.includes("auth.admin.deleteUser"));
 test("CORS sem wildcard", !edge.includes('Access-Control-Allow-Origin\": \"*'));
 const edgeTranspile = ts.transpileModule(edge, { compilerOptions:{ target:ts.ScriptTarget.ES2022, module:ts.ModuleKind.ESNext }, reportDiagnostics:true });
 test("Edge Function sem erro de sintaxe TypeScript", !(edgeTranspile.diagnostics || []).some(item => item.category === ts.DiagnosticCategory.Error));
 const submitEdgeTranspile = ts.transpileModule(submitEdge, { compilerOptions:{ target:ts.ScriptTarget.ES2022, module:ts.ModuleKind.ESNext }, reportDiagnostics:true });
 test("Edge Function de envio sem erro de sintaxe TypeScript", !(submitEdgeTranspile.diagnostics || []).some(item => item.category === ts.DiagnosticCategory.Error));
+const companyAccessEdgeTranspile = ts.transpileModule(companyAccessEdge, { compilerOptions:{ target:ts.ScriptTarget.ES2022, module:ts.ModuleKind.ESNext }, reportDiagnostics:true });
+test("Edge Function de gestao de acesso sem erro de sintaxe TypeScript", !(companyAccessEdgeTranspile.diagnostics || []).some(item => item.category === ts.DiagnosticCategory.Error));
 
 const cnpjDigits = value => String(value || "").replace(/\D/g, "").slice(0, 14);
 function isValidCnpj(value) {
