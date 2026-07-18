@@ -19,8 +19,29 @@ function cors(req: Request) {
 function json(req: Request, status: number, body: Record<string, unknown>) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...cors(req), "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
+    headers: {
+      ...cors(req),
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": "no-store",
+    },
   });
+}
+
+function normalizeAccessUsername(value: unknown) {
+  return String(value ?? "")
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]+/g, ".")
+    .replace(/[._-]{2,}/g, ".")
+    .replace(/^[._-]+|[._-]+$/g, "")
+    .slice(0, 48);
+}
+
+function tenantAuthEmail(companySlug: string, username: string) {
+  const domainKey = companySlug.replace(/[^a-z0-9]+/g, "").slice(0, 48);
+  return `${username}.${domainKey}@login.gestman365.com.br`;
 }
 
 Deno.serve(async (req) => {
@@ -36,14 +57,18 @@ Deno.serve(async (req) => {
   }
 
   const authorization = req.headers.get("authorization") ?? "";
-  if (!authorization.startsWith("Bearer ")) return json(req, 401, { error: "Autenticação necessária." });
+  if (!authorization.startsWith("Bearer ")) {
+    return json(req, 401, { error: "Autenticação necessária." });
+  }
 
   const userClient = createClient(SUPABASE_URL, ANON_KEY, {
     global: { headers: { Authorization: authorization } },
     auth: { persistSession: false, autoRefreshToken: false },
   });
   const { data: userData, error: userError } = await userClient.auth.getUser(authorization.slice(7));
-  if (userError || !userData.user) return json(req, 401, { error: "Sessão inválida ou expirada." });
+  if (userError || !userData.user) {
+    return json(req, 401, { error: "Sessão inválida ou expirada." });
+  }
 
   const { data: platformRole } = await userClient.rpc("gm_current_platform_role");
   if (!(["owner", "superadmin"].includes(String(platformRole)))) {
@@ -59,8 +84,8 @@ Deno.serve(async (req) => {
 
   const required = [
     "request_id", "company_slug", "plan_code", "user_limit", "unit_limit",
-    "storage_limit_mb", "starts_on", "initial_status", "main_unit_name",
-    "admin_name", "admin_email", "admin_password",
+    "starts_on", "initial_status", "main_unit_name",
+    "admin_name", "admin_username", "admin_password",
   ];
   if (required.some((key) => !String(input[key] ?? "").trim())) {
     return json(req, 400, { error: "Preencha todos os dados obrigatórios da conversão." });
@@ -68,9 +93,16 @@ Deno.serve(async (req) => {
 
   const companySlug = String(input.company_slug).trim().toLowerCase();
   if (!/^[a-z0-9][a-z0-9-]{2,47}$/.test(companySlug)) {
-    return json(req, 400, { error: "O domínio deve ter entre 3 e 48 caracteres, usando apenas letras minúsculas, números e hífen." });
+    return json(req, 400, {
+      error: "O domínio deve ter entre 3 e 48 caracteres, usando apenas letras minúsculas, números e hífen.",
+    });
   }
-  const adminEmail = String(input.admin_email).trim().toLowerCase();
+
+  const adminUsername = normalizeAccessUsername(input.admin_username);
+  if (adminUsername.length < 2) {
+    return json(req, 400, { error: "Informe um nome de usuario com pelo menos 2 caracteres." });
+  }
+  const adminEmail = tenantAuthEmail(companySlug, adminUsername);
   const adminPassword = String(input.admin_password);
   if (adminPassword.length < 8 || adminPassword.length > 128) {
     return json(req, 400, { error: "A senha deve ter entre 8 e 128 caracteres." });
@@ -85,6 +117,7 @@ Deno.serve(async (req) => {
     email_confirm: true,
     user_metadata: {
       display_name: String(input.admin_name).trim(),
+      access_username: adminUsername,
       onboarding: "company_admin",
       company_slug: companySlug,
     },
@@ -93,7 +126,7 @@ Deno.serve(async (req) => {
     const duplicate = /already|registered|exists/i.test(String(createError?.message ?? ""));
     return json(req, duplicate ? 409 : 422, {
       error: duplicate
-        ? "Este usuário já possui uma conta. Informe outro e-mail para o acesso inicial."
+        ? "Este nome de usuário já está em uso neste domínio. Informe outro usuário."
         : "Não foi possível criar o usuário de acesso.",
     });
   }
@@ -106,7 +139,7 @@ Deno.serve(async (req) => {
     p_plan_code: String(input.plan_code).trim(),
     p_user_limit: Number(input.user_limit),
     p_unit_limit: Number(input.unit_limit),
-    p_storage_limit_mb: Number(input.storage_limit_mb),
+    p_storage_limit_mb: 10240,
     p_starts_on: input.starts_on,
     p_trial_ends_on: input.trial_ends_on || null,
     p_initial_status: input.initial_status,
@@ -131,7 +164,7 @@ Deno.serve(async (req) => {
   return json(req, 201, {
     ok: true,
     company_id: companyId,
-    access: { domain: companySlug, username: adminEmail },
+    access: { domain: companySlug, username: adminUsername },
     email_sent: false,
     message: "Empresa e acesso criados. Nenhum e-mail foi enviado ao cliente.",
   });
