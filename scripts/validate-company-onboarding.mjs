@@ -7,6 +7,7 @@ const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
 const migration = fs.readFileSync(path.join(root, "supabase/migrations/202607160004_company_onboarding_admin.sql"), "utf8");
 const emailMigration = fs.readFileSync(path.join(root, "supabase/migrations/202607170001_company_request_email_notification.sql"), "utf8");
 const accessMigration = fs.readFileSync(path.join(root, "supabase/migrations/202607170002_company_access_without_email.sql"), "utf8");
+const emailValidationMigration = fs.readFileSync(path.join(root, "supabase/migrations/202607180001_fix_company_request_email_validation.sql"), "utf8");
 const edge = fs.readFileSync(path.join(root, "supabase/functions/convert-company-request/index.ts"), "utf8");
 const submitEdge = fs.readFileSync(path.join(root, "supabase/functions/submit-company-request/index.ts"), "utf8");
 const results = [];
@@ -22,6 +23,7 @@ test("campos publicos obrigatorios", ["trade_name","legal_name","cnpj","responsi
 test("validacao e mascaras no cliente", has(html, "function isValidCnpj", "formatCnpjInput", "formatPhoneInput", "validateCompanyRequest"));
 test("bloqueio de envio concorrente", has(html, "gmCompanyRequestSubmitting", "button.disabled = true"));
 test("estado de sucesso", has(html, "companyRequestSuccess", "Solicita&ccedil;&atilde;o registrada no painel GestMan365"));
+test("confirmacao explicita apos envio", has(html, "Solicita&ccedil;&atilde;o enviada com sucesso!", 'aria-live="polite"', "successPanel.scrollIntoView"));
 test("mesmo fundo e logo do login", has(html, "body.company-request-route .auth-screen{display:flex!important", "companyRequestLogoHost", "#authScreen .auth-logo-img"));
 test("textos publicos sem codificacao quebrada", !html.slice(html.indexOf('<section class="company-request-screen"'), html.indexOf('<header class="topbar')).match(/Ãƒ|Ã§|Ã£|Ã¡|â†|âœ/));
 test("layout responsivo", has(html, "@media(max-width:900px)", "@media(max-width:600px)", ".company-request-form"));
@@ -33,8 +35,10 @@ test("nenhuma senha em company_requests", !/company_requests[\s\S]{0,2500}\bpass
 test("CNPJ duplicado bloqueado no banco", has(migration, "company_requests_open_cnpj_uidx", "where status in ('pending', 'reviewing', 'approved', 'converted')"));
 test("visitante sem SELECT/UPDATE/DELETE", has(migration, "revoke all on public.company_requests from anon", "company_requests_platform_select"));
 test("cadastro publico apenas por RPC", has(migration, "gm_submit_company_request", "grant execute on function public.gm_submit_company_request(jsonb) to anon"));
+test("validacao de e-mail corrigida no banco", has(emailValidationMigration, "create or replace function public.gm_submit_company_request", "'^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$'") && !emailValidationMigration.includes("[A-Z0-9.\\\\-]"));
 test("formulario grava diretamente pela RPC segura", has(html, 'gmPublicRpc("gm_submit_company_request", { p_request:data })', "/rest/v1/rpc/"));
 test("envio ao painel independe do servico de e-mail", !html.includes('gmPublicFunction("submit-company-request", data)'));
+test("atualizacao do painel sem recarregar autenticacao", has(html, "refreshPlatformRequests(event,this)", "async function refreshPlatformRequests", "Painel atualizado sem sair da administração."));
 test("destinatario de teste somente no servidor", submitEdge.includes('andsantos15@hotmail.com') && !html.includes('andsantos15@hotmail.com'));
 test("credencial do e-mail somente em segredo", submitEdge.includes('Deno.env.get("RESEND_API_KEY")') && !html.includes("RESEND_API_KEY"));
 test("e-mail usa remetente configurado", has(submitEdge, 'Deno.env.get("GESTMAN_EMAIL_FROM")', "reply_to: data.responsible_email"));
