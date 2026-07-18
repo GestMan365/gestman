@@ -33,7 +33,8 @@ test("nenhuma senha em company_requests", !/company_requests[\s\S]{0,2500}\bpass
 test("CNPJ duplicado bloqueado no banco", has(migration, "company_requests_open_cnpj_uidx", "where status in ('pending', 'reviewing', 'approved', 'converted')"));
 test("visitante sem SELECT/UPDATE/DELETE", has(migration, "revoke all on public.company_requests from anon", "company_requests_platform_select"));
 test("cadastro publico apenas por RPC", has(migration, "gm_submit_company_request", "grant execute on function public.gm_submit_company_request(jsonb) to anon"));
-test("formulario usa Edge Function de envio", has(html, 'gmPublicFunction("submit-company-request", data)', "/functions/v1/"));
+test("formulario grava diretamente pela RPC segura", has(html, 'gmPublicRpc("gm_submit_company_request", { p_request:data })', "/rest/v1/rpc/"));
+test("envio ao painel independe do servico de e-mail", !html.includes('gmPublicFunction("submit-company-request", data)'));
 test("destinatario de teste somente no servidor", submitEdge.includes('andsantos15@hotmail.com') && !html.includes('andsantos15@hotmail.com'));
 test("credencial do e-mail somente em segredo", submitEdge.includes('Deno.env.get("RESEND_API_KEY")') && !html.includes("RESEND_API_KEY"));
 test("e-mail usa remetente configurado", has(submitEdge, 'Deno.env.get("GESTMAN_EMAIL_FROM")', "reply_to: data.responsible_email"));
