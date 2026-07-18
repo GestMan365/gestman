@@ -28,6 +28,7 @@ test("mesmo fundo e logo do login", has(html, "body.company-request-route .auth-
 test("textos publicos sem codificacao quebrada", !html.slice(html.indexOf('<section class="company-request-screen"'), html.indexOf('<header class="topbar')).match(/Ãƒ|Ã§|Ã£|Ã¡|â†|âœ/));
 test("layout responsivo", has(html, "@media(max-width:900px)", "@media(max-width:600px)", ".company-request-form"));
 test("rotas administrativas", has(html, "admin/solicitacoes", "admin/empresas", "platformRequests", "platformCompanies"));
+test("recarregamento autenticado sem flash do login", has(html, '<body class="auth-loading auth-restoring">', "body.auth-restoring::after", "gm-auth-restore-spin", 'if (!window.__gestmanHasSavedSession())'));
 test("guarda proprietario/superadmin", has(html, "function isPlatformAdmin", '["owner", "superadmin"]', "gm_current_platform_role"));
 test("migration aditiva sem exclusao de dados", !/\b(truncate|drop\s+table|delete\s+from\s+(?!public\.company_requests))/i.test(migration));
 test("tabela de solicitacoes e status", has(migration, "create table if not exists public.company_requests", "'pending', 'reviewing', 'approved', 'rejected', 'converted'"));
