@@ -9,6 +9,7 @@ const emailMigration = fs.readFileSync(path.join(root, "supabase/migrations/2026
 const accessMigration = fs.readFileSync(path.join(root, "supabase/migrations/202607170002_company_access_without_email.sql"), "utf8");
 const emailValidationMigration = fs.readFileSync(path.join(root, "supabase/migrations/202607180001_fix_company_request_email_validation.sql"), "utf8");
 const companyManagementMigration = fs.readFileSync(path.join(root, "supabase/migrations/202607180002_company_management_hardening.sql"), "utf8");
+const companyDeletionMigration = fs.readFileSync(path.join(root, "supabase/migrations/202607180003_company_permanent_deletion.sql"), "utf8");
 const edge = fs.readFileSync(path.join(root, "supabase/functions/convert-company-request/index.ts"), "utf8");
 const submitEdge = fs.readFileSync(path.join(root, "supabase/functions/submit-company-request/index.ts"), "utf8");
 const companyAccessEdge = fs.readFileSync(path.join(root, "supabase/functions/manage-company-access/index.ts"), "utf8");
@@ -94,6 +95,11 @@ test("gestao mostra capacidade contrato unidades e auditoria", has(html, "platfo
 test("cadastro e plano usam formularios separados", has(html, "platformCompanyRegistrationHtml", "platformCompanyPlanHtml", "savePlatformCompanyRegistration", "savePlatformCompanyPlan"));
 test("suspensao e arquivamento exigem confirmacao", has(html, "preparePlatformCompanyAction", "executePlatformCompanyAction", "Confirmar suspens\\u00e3o", "Confirmar arquivamento"));
 test("suspensao bloqueia e reativacao libera usuarios", has(companyAccessEdge, "suspend_company", "reactivate_company", "archive_company", 'ban_duration: banDuration') && has(html, "Empresa e acessos suspensos", "Empresa e acessos reativados"));
+test("exclusao definitiva exige senha somente no servidor", has(companyAccessEdge, 'Deno.env.get("GESTMAN_COMPANY_DELETE_PASSWORD")', "secureEqual", "Senha de exclusÃ£o incorreta") && !html.includes("172644"));
+test("botao de exclusao alerta irreversibilidade", has(html, "Excluir empresa definitivamente", "executePlatformCompanyDeletion", "Esta a\\u00e7\\u00e3o n\\u00e3o pode ser desfeita", 'type="password"'));
+test("exclusao remove empresa e vinculos por cascata", has(companyDeletionMigration, "gm_permanently_delete_company", "delete from public.company_requests", "delete from public.gm_companies", "gm_platform_audit_log"));
+test("exclusao remove usuarios do Supabase Auth", has(companyAccessEdge, "delete_company", "gm_permanently_delete_company", "auth.admin.deleteUser", "auth_users_deleted"));
+test("empresa da plataforma protegida contra exclusao", has(companyDeletionMigration, "lower(coalesce(v_company.slug, '')) = 'gestman'") && has(companyAccessEdge, 'String(company.slug ?? "").toLowerCase() === "gestman"'));
 test("login recusa empresa suspensa ou arquivada", has(html, '["suspended","archived"].includes', "O acesso desta empresa est\\u00e1 suspenso"));
 test("senha nunca e recuperada nem armazenada no painel", has(html, "resetPlatformCompanyPassword", "A senha atual nunca \\u00e9 exibida", "n\\u00e3o ficar\\u00e1 salva no painel") && !companyAccessEdge.includes("password_hash"));
 test("redefinicao de senha restrita a membro da empresa", has(companyAccessEdge, "Usuário não pertence a esta empresa", "gm_company_members", "auth.admin.updateUserById"));

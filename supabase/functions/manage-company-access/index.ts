@@ -4,6 +4,7 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const APP_ORIGIN = Deno.env.get("GESTMAN_APP_ORIGIN") ?? "https://gestman365.github.io";
+const COMPANY_DELETE_PASSWORD = Deno.env.get("GESTMAN_COMPANY_DELETE_PASSWORD") ?? "";
 
 function cors(req: Request) {
   const origin = req.headers.get("origin") ?? "";
@@ -29,6 +30,21 @@ function json(req: Request, status: number, body: Record<string, unknown>) {
 
 function isUuid(value: unknown) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value ?? ""));
+}
+
+async function secureEqual(left: string, right: string) {
+  const encoder = new TextEncoder();
+  const [leftHash, rightHash] = await Promise.all([
+    crypto.subtle.digest("SHA-256", encoder.encode(left)),
+    crypto.subtle.digest("SHA-256", encoder.encode(right)),
+  ]);
+  const leftBytes = new Uint8Array(leftHash);
+  const rightBytes = new Uint8Array(rightHash);
+  let difference = leftBytes.length ^ rightBytes.length;
+  for (let index = 0; index < leftBytes.length; index += 1) {
+    difference |= leftBytes[index] ^ rightBytes[index];
+  }
+  return difference === 0;
 }
 
 Deno.serve(async (req) => {
@@ -71,7 +87,7 @@ Deno.serve(async (req) => {
   const action = String(input.action ?? "");
   if (!isUuid(companyId)) return json(req, 400, { error: "Empresa inválida." });
   const statusActions = ["suspend_company", "reactivate_company", "archive_company"];
-  if (!["inspect", "reset_password", ...statusActions].includes(action)) {
+  if (!["inspect", "reset_password", "delete_company", ...statusActions].includes(action)) {
     return json(req, 400, { error: "Ação inválida." });
   }
 
@@ -81,7 +97,7 @@ Deno.serve(async (req) => {
 
   const { data: company, error: companyError } = await userClient
     .from("gm_companies")
-    .select("id,name,status")
+    .select("id,name,slug,status")
     .eq("id", companyId)
     .maybeSingle();
   if (companyError || !company) {
@@ -96,6 +112,79 @@ Deno.serve(async (req) => {
   if (membersError) return json(req, 422, { error: "Não foi possível consultar os usuários da empresa." });
 
   const memberList = Array.isArray(members) ? members : [];
+  if (action === "delete_company") {
+    if (!COMPANY_DELETE_PASSWORD) {
+      return json(req, 503, { error: "A senha de exclusÃ£o ainda nÃ£o foi configurada no servidor." });
+    }
+    const deletionPassword = String(input.deletion_password ?? "");
+    if (!deletionPassword || !(await secureEqual(deletionPassword, COMPANY_DELETE_PASSWORD))) {
+      return json(req, 403, { error: "Senha de exclusÃ£o incorreta." });
+    }
+    if (String(company.slug ?? "").toLowerCase() === "gestman") {
+      return json(req, 403, { error: "A empresa da plataforma nÃ£o pode ser excluÃ­da." });
+    }
+
+    const memberUserIds = memberList.map((member) => String(member.user_id));
+    const protectedAuthUsers = new Set<string>();
+    if (memberUserIds.length) {
+      const [{ data: otherMemberships }, { data: platformAdmins }] = await Promise.all([
+        userClient
+          .from("gm_company_members")
+          .select("user_id")
+          .in("user_id", memberUserIds)
+          .neq("company_id", companyId),
+        userClient
+          .from("gm_platform_admins")
+          .select("user_id")
+          .in("user_id", memberUserIds)
+          .eq("active", true),
+      ]);
+      [...(otherMemberships ?? []), ...(platformAdmins ?? [])].forEach((entry) => {
+        protectedAuthUsers.add(String(entry.user_id));
+      });
+    }
+
+    const { data: deletedMemberIds, error: deletionError } = await userClient.rpc(
+      "gm_permanently_delete_company",
+      { p_company_id: companyId },
+    );
+    if (deletionError) {
+      console.error("Falha ao excluir empresa", deletionError.message);
+      return json(req, 422, { error: "NÃ£o foi possÃ­vel excluir a empresa e seus dados." });
+    }
+
+    const authUserIds = (Array.isArray(deletedMemberIds) ? deletedMemberIds.map(String) : memberUserIds)
+      .filter((userId) => !protectedAuthUsers.has(userId));
+    const authFailures: string[] = [];
+    for (const userId of [...new Set(authUserIds)]) {
+      let removed = false;
+      for (let attempt = 0; attempt < 3 && !removed; attempt += 1) {
+        const { error: authDeleteError } = await service.auth.admin.deleteUser(userId);
+        removed = !authDeleteError;
+      }
+      if (!removed) authFailures.push(userId);
+    }
+
+    if (authFailures.length) {
+      console.error("Falha ao remover alguns usuarios do Auth", authFailures);
+      return json(req, 207, {
+        ok: false,
+        company_id: companyId,
+        database_deleted: true,
+        auth_failures: authFailures.length,
+        error: "A empresa foi removida, mas alguns usuÃ¡rios do Auth exigem revisÃ£o manual.",
+      });
+    }
+
+    return json(req, 200, {
+      ok: true,
+      company_id: companyId,
+      database_deleted: true,
+      auth_users_deleted: authUserIds.length,
+      shared_users_preserved: protectedAuthUsers.size,
+    });
+  }
+
   if (action === "inspect") {
     const users = await Promise.all(memberList.map(async (member) => {
       const { data: authData } = await service.auth.admin.getUserById(String(member.user_id));
