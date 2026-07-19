@@ -16,6 +16,11 @@ const accessFlow = html.slice(
   html.indexOf("/* Fluxo de aprovacao e criacao de acesso"),
   html.indexOf("async function loadPlatformCompanies", html.indexOf("/* Fluxo de aprovacao e criacao de acesso"))
 );
+const effectiveAccessFlowStart = html.lastIndexOf("function platformConversionForm");
+const effectiveAccessFlow = html.slice(
+  effectiveAccessFlowStart,
+  html.indexOf("function initPlatformAdmin", effectiveAccessFlowStart)
+);
 const results = [];
 function test(name, condition) {
   if (!condition) throw new Error(`FALHOU: ${name}`);
@@ -67,18 +72,20 @@ test("senha somente no Supabase Auth", has(edge, "admin_password", "auth.admin.c
 test("credenciais exibidas uma unica vez no painel", has(html, "renderPlatformAccessCreated", "Copie estes dados agora", "a senha não é salva no painel"));
 test("nenhum envio automatico ao cliente na conversao", has(html, "Nenhum e-mail foi enviado ao cliente", "Envio ao cliente ficará para uma etapa futura"));
 test("aprovacao abre etapa exclusiva de criacao de acesso", has(html, "APROVADA &middot; ETAPA 2 DE 2", "Crie o acesso da empresa", 'item.status==="approved"'));
-test("formulario solicita dominio usuario e senha", has(accessFlow, 'name="company_slug"', 'name="admin_username"', 'name="admin_password"', "Criar empresa e liberar acesso"));
-test("usuario de acesso nao exige email", has(accessFlow, "Usu&aacute;rio de acesso", 'type="text"', "Digite qualquer nome de usu&aacute;rio") && !accessFlow.includes('name="admin_email"'));
+test("formulario solicita somente dominio login e senha", has(effectiveAccessFlow, 'name="company_slug"', 'name="admin_username"', 'name="admin_password"', "Criar acesso") && !effectiveAccessFlow.includes('name="plan_code"') && !effectiveAccessFlow.includes('name="user_limit"') && !effectiveAccessFlow.includes('name="unit_limit"') && !effectiveAccessFlow.includes('name="admin_name"'));
+test("login de acesso nao exige email", has(effectiveAccessFlow, "Login do usu&aacute;rio", 'type="text"', "Digite o login") && !effectiveAccessFlow.includes('name="admin_email"'));
 test("login converte usuario livre em identidade segura", has(html, "function normalizeAccessUsername", "function tenantAuthEmail", "loginTenantUserByUsername") && has(edge, "normalizeAccessUsername", "tenantAuthEmail", "access_username"));
 test("armazenamento removido do fluxo administrativo", !accessFlow.includes('name="storage_limit_mb"') && has(html, 'delete payload.storage_limit_mb', 'input[name="storage_limit_mb"]') && edge.includes("p_storage_limit_mb: 10240"));
 test("exemplo abaixo do dominio removido", !accessFlow.includes("<small>Ex.:"));
-test("acesso fica disponivel imediatamente", has(html, "Acesso liberado imediatamente ap&oacute;s confirmar", "Empresa salva e acesso liberado com sucesso", "j&aacute; pode entrar no CMMS"));
+test("acesso fica disponivel imediatamente", has(html, "Acesso liberado imediatamente.", "Empresa salva e acesso liberado com sucesso", "j&aacute; pode entrar no CMMS"));
 test("janela administrativa sem textos corrompidos no fluxo novo", !html.slice(html.indexOf("/* Fluxo de aprovacao e criacao de acesso"), html.indexOf("async function loadPlatformCompanies", html.indexOf("/* Fluxo de aprovacao e criacao de acesso"))).match(/Ãƒ|Ã‚|Ã§|Ã£/));
 test("metricas administrativas filtram por status", has(html, "filterPlatformRequestsByStatus", 'aria-pressed="${selected===status}"'));
 test("filtros administrativos incluem ordenacao e limpeza", has(html, 'id="platformRequestSort"', "clearPlatformRequestFilters", "Mais recentes", "Mais antigas"));
 test("acoes administrativas mudam conforme o status", has(html, 'pending:"Revisar"', 'approved:"Criar acesso"', 'converted:"Ver cadastro"'));
 test("detalhe mostra andamento e historico", has(html, "platformRequestProgress", "platformRequestHistory", "Hist\\u00f3rico da solicita\\u00e7\\u00e3o"));
 test("criacao de acesso ajuda dominio usuario e senha", has(html, "checkPlatformDomainAvailability", "platformUsernameHelp", "generatePlatformPassword", "togglePlatformPassword"));
+test("servidor deriva cadastro da solicitacao aprovada", has(edge, '.from("company_requests")', '"id,responsible_name,estimated_users,estimated_units,status"', 'requestData.status !== "approved"'));
+test("servidor exige somente dados de acesso", has(edge, 'const required = ["request_id", "company_slug", "admin_username", "admin_password"]') && !edge.includes('"plan_code", "user_limit", "unit_limit"'));
 test("dialogo administrativo preserva foco e acoes visiveis", has(html, "gmPlatformDialogReturnFocus", "platform-dialog-actions is-sticky", 'dialog.querySelector("input:not([type=hidden]),textarea,button")?.focus()'));
 test("tabelas administrativas identificam coluna de acoes", has(html, '"Status", "A\\u00e7\\u00f5es"', '"\\u00daltimo acesso", "A\\u00e7\\u00f5es"'));
 test("central de empresas possui quatro secoes", has(html, "Central profissional de empresas clientes", '["overview","Vis\\u00e3o geral"]', '["access","Acesso"]', '["plan","Plano e cadastro"]', '["history","Hist\\u00f3rico"]'));

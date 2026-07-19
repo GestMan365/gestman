@@ -82,11 +82,7 @@ Deno.serve(async (req) => {
     return json(req, 400, { error: "Dados inválidos." });
   }
 
-  const required = [
-    "request_id", "company_slug", "plan_code", "user_limit", "unit_limit",
-    "starts_on", "initial_status", "main_unit_name",
-    "admin_name", "admin_username", "admin_password",
-  ];
+  const required = ["request_id", "company_slug", "admin_username", "admin_password"];
   if (required.some((key) => !String(input[key] ?? "").trim())) {
     return json(req, 400, { error: "Preencha todos os dados obrigatórios da conversão." });
   }
@@ -111,12 +107,24 @@ Deno.serve(async (req) => {
   const service = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
+  const { data: requestData, error: requestError } = await service
+    .from("company_requests")
+    .select("id,responsible_name,estimated_users,estimated_units,status")
+    .eq("id", input.request_id)
+    .maybeSingle();
+  if (requestError || !requestData) {
+    return json(req, 404, { error: "Solicitação aprovada não encontrada." });
+  }
+  if (requestData.status !== "approved") {
+    return json(req, 409, { error: "A solicitação precisa estar aprovada antes da criação do acesso." });
+  }
+
   const { data: created, error: createError } = await service.auth.admin.createUser({
     email: adminEmail,
     password: adminPassword,
     email_confirm: true,
     user_metadata: {
-      display_name: String(input.admin_name).trim(),
+      display_name: String(requestData.responsible_name || adminUsername).trim(),
       access_username: adminUsername,
       onboarding: "company_admin",
       company_slug: companySlug,
@@ -136,15 +144,15 @@ Deno.serve(async (req) => {
     p_actor_user_id: userData.user.id,
     p_admin_user_id: created.user.id,
     p_company_slug: companySlug,
-    p_plan_code: String(input.plan_code).trim(),
-    p_user_limit: Number(input.user_limit),
-    p_unit_limit: Number(input.unit_limit),
+    p_plan_code: "Profissional",
+    p_user_limit: Math.max(1, Number(requestData.estimated_users || 1)),
+    p_unit_limit: Math.max(1, Number(requestData.estimated_units || 1)),
     p_storage_limit_mb: 10240,
-    p_starts_on: input.starts_on,
-    p_trial_ends_on: input.trial_ends_on || null,
-    p_initial_status: input.initial_status,
-    p_main_unit_name: String(input.main_unit_name).trim(),
-    p_admin_name: String(input.admin_name).trim(),
+    p_starts_on: new Date().toISOString().slice(0, 10),
+    p_trial_ends_on: null,
+    p_initial_status: "active",
+    p_main_unit_name: "Unidade Principal",
+    p_admin_name: String(requestData.responsible_name || adminUsername).trim(),
     p_admin_email: adminEmail,
   };
   const { data: companyId, error: conversionError } = await service.rpc(
