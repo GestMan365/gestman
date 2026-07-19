@@ -84,7 +84,7 @@ test("filtros administrativos incluem ordenacao e limpeza", has(html, 'id="platf
 test("acoes administrativas mudam conforme o status", has(html, 'pending:"Revisar"', 'approved:"Criar acesso"', 'converted:"Ver cadastro"'));
 test("detalhe mostra andamento e historico", has(html, "platformRequestProgress", "platformRequestHistory", "Hist\\u00f3rico da solicita\\u00e7\\u00e3o"));
 test("criacao de acesso ajuda dominio usuario e senha", has(html, "checkPlatformDomainAvailability", "platformUsernameHelp", "generatePlatformPassword", "togglePlatformPassword"));
-test("servidor deriva cadastro da solicitacao aprovada", has(edge, '.from("company_requests")', '"id,responsible_name,estimated_users,estimated_units,status"', 'requestData.status !== "approved"'));
+test("servidor deriva cadastro da solicitacao aprovada", has(edge, 'await userClient', '.from("company_requests")', '"id,responsible_name,estimated_users,estimated_units,status"', 'requestData.status !== "approved"'));
 test("servidor exige somente dados de acesso", has(edge, 'const required = ["request_id", "company_slug", "admin_username", "admin_password"]') && !edge.includes('"plan_code", "user_limit", "unit_limit"'));
 test("dialogo administrativo preserva foco e acoes visiveis", has(html, "gmPlatformDialogReturnFocus", "platform-dialog-actions is-sticky", 'dialog.querySelector("input:not([type=hidden]),textarea,button")?.focus()'));
 test("tabelas administrativas identificam coluna de acoes", has(html, '"Status", "A\\u00e7\\u00f5es"', '"\\u00daltimo acesso", "A\\u00e7\\u00f5es"'));

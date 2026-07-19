@@ -107,12 +107,13 @@ Deno.serve(async (req) => {
   const service = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
-  const { data: requestData, error: requestError } = await service
+  const { data: requestData, error: requestError } = await userClient
     .from("company_requests")
     .select("id,responsible_name,estimated_users,estimated_units,status")
     .eq("id", input.request_id)
     .maybeSingle();
   if (requestError || !requestData) {
+    console.error("Falha ao localizar solicitação aprovada", requestError?.message ?? "registro ausente");
     return json(req, 404, { error: "Solicitação aprovada não encontrada." });
   }
   if (requestData.status !== "approved") {
