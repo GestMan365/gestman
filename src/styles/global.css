@@ -229,6 +229,12 @@ textarea {
   background: transparent;
 }
 
+.btn.danger {
+  border-color: #ef4444;
+  background: #fff1f2;
+  color: #991b1b;
+}
+
 .login-page,
 .center-page,
 .route-loading {
@@ -523,6 +529,207 @@ textarea {
   padding: 16px 18px;
 }
 
+.request-filters,
+.request-list-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 10px 26px rgba(8,39,91,.06);
+}
+
+.request-filters {
+  display: grid;
+  grid-template-columns: minmax(260px, 2fr) repeat(3, minmax(155px, 1fr)) auto;
+  align-items: end;
+  gap: 12px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.request-filters label,
+.request-form label,
+.rejection-form label {
+  display: grid;
+  gap: 6px;
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.request-filters input,
+.request-filters select,
+.request-form input,
+.request-form select,
+.request-form textarea,
+.rejection-form textarea {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #fff;
+  color: var(--ink);
+}
+
+.request-form textarea,
+.rejection-form textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.request-form small {
+  color: var(--muted);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.request-list-card {
+  overflow: hidden;
+}
+
+.request-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.request-list-header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.request-list-header p {
+  margin: 4px 0 0;
+  color: var(--muted);
+}
+
+.request-state {
+  margin: 0;
+  padding: 38px 18px;
+  color: var(--muted);
+  text-align: center;
+  font-weight: 700;
+}
+
+.request-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.request-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.request-table th,
+.request-table td {
+  padding: 13px 14px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.request-table th {
+  background: #f7f9fd;
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+
+.request-table td > span:not(.priority-badge):not(.request-status),
+.request-table td strong + span {
+  display: block;
+  max-width: 380px;
+  margin-top: 4px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.request-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.priority-badge,
+.request-status,
+.request-number {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 5px 9px;
+  border: 1px solid currentColor;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.request-number {
+  margin-bottom: 7px;
+  background: #e8f0ff;
+  color: var(--blue);
+}
+
+.priority-baixa,
+.request-status-aberta {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.priority-media,
+.request-status-em_analise {
+  background: #fffbeb;
+  color: #92400e;
+}
+
+.priority-alta,
+.request-status-rejeitada,
+.request-status-cancelada {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.priority-critica {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.request-status-aprovada,
+.request-status-convertida_em_os {
+  background: #ecfdf5;
+  color: #166534;
+}
+
+.request-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  padding: 18px;
+}
+
+.request-details {
+  width: min(760px, 100%);
+}
+
+.request-details > .dialog-actions,
+.rejection-form {
+  border-top: 1px solid var(--line);
+  padding: 16px 18px;
+}
+
+.request-actions {
+  flex-wrap: wrap;
+}
+
+.rejection-form {
+  display: grid;
+  gap: 12px;
+}
+
 @media (max-width: 840px) {
   .app-shell {
     grid-template-columns: 1fr;
@@ -605,6 +812,59 @@ textarea {
   .details-wide {
     grid-column: auto;
   }
+
+  .request-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .request-search {
+    grid-column: 1 / -1;
+  }
+
+  .request-table-wrap {
+    overflow: visible;
+  }
+
+  .request-table,
+  .request-table tbody,
+  .request-table tr,
+  .request-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .request-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+
+  .request-table tr {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .request-table td {
+    display: grid;
+    grid-template-columns: minmax(112px, .7fr) minmax(0, 1.3fr);
+    gap: 10px;
+    padding: 8px 0;
+    border: 0;
+  }
+
+  .request-table td::before {
+    content: attr(data-label);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  .request-form {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 520px) {
@@ -621,6 +881,7 @@ textarea {
   }
 
   .asset-list-header,
+  .request-list-header,
   .dialog-header,
   .dialog-actions {
     align-items: stretch;
@@ -633,5 +894,13 @@ textarea {
 
   .dialog-card {
     max-height: calc(100vh - 16px);
+  }
+
+  .request-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .request-search {
+    grid-column: auto;
   }
 }

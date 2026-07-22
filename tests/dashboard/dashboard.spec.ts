@@ -49,18 +49,18 @@ test.describe("GestMan365 - Dashboard", () => {
     await loginToDashboard(page);
 
     const destinations = [
-      ["Ativos", "ativos"],
-      ["Solicitacoes", "solicitacoes"],
-      ["Ordens de Servico", "ordens-servico"],
-      ["PCM", "pcm"],
-      ["Relatorios", "relatorios"],
-      ["Administracao", "administracao"]
+      ["Ativos", "ativos", /^Ativos$/],
+      ["Solicitacoes", "solicitacoes", /^Solicita/],
+      ["Ordens de Servico", "ordens-servico", /^Ordens de Servico$/],
+      ["PCM", "pcm", /^PCM$/],
+      ["Relatorios", "relatorios", /^Relatorios$/],
+      ["Administracao", "administracao", /^Administracao$/]
     ] as const;
 
-    for (const [label, path] of destinations) {
+    for (const [label, path, heading] of destinations) {
       await page.getByRole("link", { name: label, exact: true }).click();
       await expect(page).toHaveURL(new RegExp(`#\\/${path}$`));
-      await expect(page.getByRole("heading", { name: label, exact: true })).toBeVisible();
+      await expect(page.getByRole("heading", { name: heading })).toBeVisible();
     }
   });
 
