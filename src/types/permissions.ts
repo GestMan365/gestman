@@ -76,6 +76,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, PermissionKey[]> = {
     "ordensServico:execute",
     "ordensServico:close",
     "pcm:view",
+    "pcm:plan",
     "relatorios:view"
   ],
   PLANEJADOR: [

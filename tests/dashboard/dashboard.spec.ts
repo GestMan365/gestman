@@ -52,7 +52,7 @@ test.describe("GestMan365 - Dashboard", () => {
       ["Ativos", "ativos", /^Ativos$/],
       ["Solicitacoes", "solicitacoes", /^Solicita/],
       ["Ordens de Servico", "ordens-servico", /^Ordens de Servi/],
-      ["PCM", "pcm", /^PCM$/],
+      ["PCM", "pcm", /^PCM e Manuten/],
       ["Relatorios", "relatorios", /^Relatorios$/],
       ["Administracao", "administracao", /^Administracao$/]
     ] as const;

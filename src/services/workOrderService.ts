@@ -294,6 +294,54 @@ export const workOrderService = {
     return copyOrder(order);
   },
 
+  async generateFromMaintenancePlan(empresaId: string, input: {
+    planId: string;
+    planCode: string;
+    planVersion: number;
+    competence: string;
+    assetId: string;
+    title: string;
+    description: string;
+    maintenanceType: WorkOrderDraft["maintenanceType"];
+    priority: WorkOrderDraft["priority"];
+    criticality: WorkOrderDraft["criticality"];
+    estimatedDurationMinutes: number;
+    procedure: string;
+    instructions?: string;
+    plannedMaterials: string[];
+    plannedTools: string[];
+    checklist: string[];
+  }, actor: WorkOrderActor): Promise<{ order: WorkOrder; created: boolean }> {
+    requireDemoMode();
+    const assets = await assetService.list(empresaId);
+    const asset = assets.find(item => item.id === input.assetId && item.empresaId === empresaId);
+    if (!asset) throw new WorkOrderServiceError("O ativo do plano não pertence à empresa ativa.");
+    if (!asset.isActive) throw new WorkOrderServiceError("Ativo inativo não pode gerar Ordem de Serviço preventiva.");
+    const orders = readOrders(empresaId);
+    const existing = orders.find(item => item.maintenancePlanId === input.planId && item.maintenanceCompetence === input.competence && !item.isCancelled);
+    if (existing) return { order: copyOrder(existing), created: false };
+    const now = new Date().toISOString();
+    const number = nextNumber(orders);
+    const order = seedOrder(empresaId, number, {
+      title: input.title, description: input.description, maintenanceType: input.maintenanceType,
+      priority: input.priority, criticality: input.criticality, assetId: input.assetId,
+      sectorId: asset.setorId, locationId: asset.localId
+    }, "PLANEJADA", {
+      id: `demo-plan-work-order-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      maintenancePlanId: input.planId, maintenancePlanCode: input.planCode,
+      maintenancePlanVersion: input.planVersion, maintenanceCompetence: input.competence,
+      plannerId: actor.id, plannedDate: `${input.competence}T08:00`,
+      estimatedDurationMinutes: input.estimatedDurationMinutes, procedure: input.procedure,
+      instructions: input.instructions,
+      plannedMaterials: input.plannedMaterials.map((description, index) => ({ id: `plan-material-${index + 1}`, description, quantity: 1, unit: "un" })),
+      plannedTools: [...input.plannedTools], checklist: [...input.checklist],
+      createdAt: now, updatedAt: now,
+      history: [event("CRIACAO", `O.S. gerada pelo plano ${input.planCode}.`, now, actor)]
+    });
+    writeOrders(empresaId, [...orders, order]);
+    return { order: copyOrder(order), created: true };
+  },
+
   async update(empresaId: string, id: string, draft: WorkOrderDraft, actor: WorkOrderActor): Promise<WorkOrder> {
     requireDemoMode();
     await validateDraft(empresaId, draft);

@@ -1,23 +1,44 @@
-import { ModuleCard } from "@/components/common/ModuleCard";
+import { useEffect, useMemo, useState } from "react";
 import { PageHeader } from "@/components/common/PageHeader";
+import { MaintenancePlanDetailsDialog } from "@/components/pcm/MaintenancePlanDetailsDialog";
+import { MaintenancePlanFormDialog } from "@/components/pcm/MaintenancePlanFormDialog";
 import { PermissionGate } from "@/components/security/PermissionGate";
+import { useAuth } from "@/hooks/useAuth";
+import { usePermission } from "@/hooks/usePermission";
+import { useTenant } from "@/hooks/useTenant";
+import { assetService } from "@/services/assetService";
+import { pcmService } from "@/services/pcmService";
+import { isDemoAuthMode } from "@/services/supabaseClient";
+import type { Asset } from "@/types/assets";
+import { PLAN_STATUS_LABELS, TRIGGER_TYPE_LABELS, type MaintenancePlan, type MaintenancePlanDraft, type MaintenancePlanStatus, type MaintenanceTriggerType } from "@/types/pcm";
 
+function message(error: unknown) { return error instanceof Error ? error.message : "Não foi possível concluir a operação."; }
 export function PcmPage() {
-  return (
-    <>
-      <PageHeader
-        title="PCM"
-        description="Planejamento e controle da manutencao preventiva, corretiva e programada."
-        actions={(
-          <PermissionGate permission="pcm:plan">
-            <button className="btn primary" type="button">Planejar</button>
-          </PermissionGate>
-        )}
-      />
-      <div className="module-grid">
-        <ModuleCard title="Calendario produtivo" description="Base para programacao de O.S, planos e recursos." />
-        <ModuleCard title="Planos de manutencao" description="Preparado para frequencias, checklists e materiais." />
-      </div>
-    </>
-  );
+  const { user } = useAuth(); const { activeTenant } = useTenant(); const { can } = usePermission();
+  const [plans, setPlans] = useState<MaintenancePlan[]>([]); const [assets, setAssets] = useState<Asset[]>([]); const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(""); const [feedback, setFeedback] = useState(""); const [search, setSearch] = useState(""); const [status, setStatus] = useState<MaintenancePlanStatus | "">(""); const [trigger, setTrigger] = useState<MaintenanceTriggerType | "">(""); const [assetId, setAssetId] = useState(""); const [overdueOnly, setOverdueOnly] = useState(false);
+  const [formOpen, setFormOpen] = useState(false); const [formPlan, setFormPlan] = useState<MaintenancePlan | null>(null); const [formError, setFormError] = useState(""); const [saving, setSaving] = useState(false); const [details, setDetails] = useState<MaintenancePlan | null>(null);
+  const actor = { id: user?.id ?? "unknown", name: user?.name ?? "Usuário" }; const canPlan = can("pcm:plan"); const canManage = can("pcm:manage");
+  useEffect(() => { let cancelled = false; if (!activeTenant) { setLoading(false); return; } setLoading(true); Promise.all([pcmService.list(activeTenant.id), assetService.list(activeTenant.id)]).then(([planItems, assetItems]) => { if (!cancelled) { setPlans(planItems); setAssets(assetItems); } }).catch(e => { if (!cancelled) setError(message(e)); }).finally(() => { if (!cancelled) setLoading(false); }); return () => { cancelled = true; }; }, [activeTenant]);
+  const filtered = useMemo(() => { const query = search.trim().toLocaleLowerCase("pt-BR"); return plans.filter(plan => !query || [plan.code, plan.name, plan.description].some(value => value.toLocaleLowerCase("pt-BR").includes(query))).filter(plan => !status || plan.status === status).filter(plan => !trigger || plan.triggerType === trigger).filter(plan => !assetId || plan.assetId === assetId).filter(plan => !overdueOnly || pcmService.isOverdue(plan)).sort((a, b) => a.nextExecution.localeCompare(b.nextExecution)); }, [assetId, overdueOnly, plans, search, status, trigger]);
+  const active = plans.filter(plan => plan.status === "ATIVO").length; const overdue = plans.filter(pcmService.isOverdue).length; const weeklyHours = plans.filter(plan => plan.status === "ATIVO").reduce((sum, plan) => sum + plan.estimatedDurationMinutes / 60, 0);
+  function asset(plan: MaintenancePlan) { return assets.find(item => item.id === plan.assetId); }
+  function update(plan: MaintenancePlan, text: string) { setPlans(current => current.map(item => item.id === plan.id ? plan : item)); setDetails(plan); setFeedback(text); setError(""); }
+  async function save(draft: MaintenancePlanDraft) { if (!activeTenant) return; setSaving(true); setFormError(""); try { const plan = formPlan ? await pcmService.update(activeTenant.id, formPlan.id, draft, actor) : await pcmService.create(activeTenant.id, draft, actor); setPlans(current => formPlan ? current.map(item => item.id === plan.id ? plan : item) : [...current, plan]); setFormOpen(false); setFormPlan(null); setFeedback(formPlan ? "Plano atualizado com rastreabilidade." : "Plano criado em rascunho."); } catch (e) { setFormError(message(e)); } finally { setSaving(false); } }
+  async function action(operation: () => Promise<MaintenancePlan>, text: string) { try { update(await operation(), text); } catch (e) { setError(message(e)); throw e; } }
+  async function generate() { if (!activeTenant || !details) return; try { const result = await pcmService.generateWorkOrder(activeTenant.id, details.id, actor); update(result.plan, result.created ? `${result.order.number} gerada e vinculada ao plano.` : `${result.order.number} já existia para esta competência; nenhuma duplicidade foi criada.`); } catch (e) { setError(message(e)); throw e; } }
+  async function cleanup() { if (!activeTenant || !window.confirm("Remover somente planos com prefixo QA-AUTO-PCM?")) return; const count = await pcmService.cleanupQaPlans(activeTenant.id); setPlans(current => current.filter(plan => !plan.code.startsWith(pcmService.qaPrefix))); setFeedback(`${count} plano(s) QA removido(s) desta sessão.`); }
+  return <>
+    <PageHeader title="PCM e Manutenção Preventiva" description="Planeje periodicidades, programe intervenções e gere O.S. preventivas com rastreabilidade." actions={<div className="page-actions">{isDemoAuthMode && canManage ? <button className="btn ghost" type="button" onClick={cleanup}>Limpar dados QA</button> : null}<PermissionGate permission="pcm:plan"><button className="btn primary" type="button" onClick={() => { setFormPlan(null); setFormError(""); setFormOpen(true); }}>Novo plano</button></PermissionGate></div>} />
+    <section className="pcm-summary" aria-label="Resumo do PCM"><article><span>Planos ativos</span><strong>{active}</strong></article><article><span>Planos atrasados</span><strong>{overdue}</strong></article><article><span>Horas preventivas previstas</span><strong>{weeklyHours.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} h</strong><small>Estrutura base; capacidade da equipe ainda não cadastrada</small></article><article><span>Backlog em semanas</span><strong>Estrutura base</strong><small>Exige horas pendentes e capacidade semanal disponível</small></article></section>
+    <section className="pcm-filters" aria-label="Filtros de planos de manutenção"><label className="pcm-search">Buscar plano<input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar por código, nome ou descrição" /></label><label>Status<select value={status} onChange={e => setStatus(e.target.value as MaintenancePlanStatus | "")}><option value="">Todos os status</option>{Object.entries(PLAN_STATUS_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label><label>Gatilho<select value={trigger} onChange={e => setTrigger(e.target.value as MaintenanceTriggerType | "")}><option value="">Todos os gatilhos</option>{Object.entries(TRIGGER_TYPE_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label><label>Ativo<select aria-label="Ativo do plano" value={assetId} onChange={e => setAssetId(e.target.value)}><option value="">Todos os ativos</option>{assets.map(item => <option key={item.id} value={item.id}>{item.tag}</option>)}</select></label><label className="pcm-check"><input type="checkbox" checked={overdueOnly} onChange={e => setOverdueOnly(e.target.checked)} /> Somente atrasados</label><button className="btn ghost" type="button" onClick={() => { setSearch(""); setStatus(""); setTrigger(""); setAssetId(""); setOverdueOnly(false); }}>Limpar filtros</button></section>
+    {feedback ? <div className="feedback-message" role="status">{feedback}</div> : null}{error ? <div className="error-message" role="alert">{error}</div> : null}
+    <section className="pcm-list-card" aria-labelledby="pcm-list-title"><header className="request-list-header"><div><h2 id="pcm-list-title">Planos e programação</h2><p>{filtered.length} de {plans.length} plano(s)</p></div>{isDemoAuthMode ? <span className="demo-badge">Dados demo QA-AUTO-PCM</span> : null}</header>
+      {loading ? <p className="request-state" role="status">Carregando planos...</p> : null}{!loading && !error && filtered.length === 0 ? <p className="request-state">Nenhum plano encontrado para os filtros informados.</p> : null}
+      {!loading && filtered.length > 0 ? <div className="pcm-table-wrap"><table className="pcm-table"><thead><tr><th>Código</th><th>Plano</th><th>Ativo</th><th>Periodicidade</th><th>Próxima execução</th><th>Status</th><th>Ações</th></tr></thead><tbody>{filtered.map(plan => <tr key={plan.id}><td data-label="Código"><strong>{plan.code}</strong><span>v{plan.version}</span></td><td data-label="Plano"><strong>{plan.name}</strong><span>{plan.description}</span></td><td data-label="Ativo"><strong>{asset(plan)?.tag ?? "Não encontrado"}</strong><span>{asset(plan)?.name ?? "Ativo indisponível"}</span></td><td data-label="Periodicidade"><strong>{TRIGGER_TYPE_LABELS[plan.triggerType]}</strong><span>{plan.triggerType === "CALENDARIO" ? `A cada ${plan.frequency} ${plan.calendarUnit?.toLocaleLowerCase("pt-BR")}(s)` : `Limite ${plan.meterLimit ?? "não informado"}`}</span></td><td data-label="Próxima execução"><strong>{plan.nextExecution}</strong>{pcmService.isOverdue(plan) ? <span className="overdue-label">Atrasado</span> : null}</td><td data-label="Status"><span className={`work-order-status status-${plan.status.toLowerCase()}`}>{PLAN_STATUS_LABELS[plan.status]}</span></td><td data-label="Ações"><button className="btn ghost" type="button" aria-label={`Ver detalhes de ${plan.code}`} onClick={() => setDetails(plan)}>Ver detalhes</button></td></tr>)}</tbody></table></div> : null}
+    </section>
+    <section className="pcm-calendar" aria-label="Programação preventiva"><header><div><h2>Calendário preventivo</h2><p>Próximas execuções dos planos visíveis</p></div></header><div>{filtered.filter(plan => plan.status === "ATIVO").slice(0, 6).map(plan => <article key={plan.id}><time dateTime={plan.nextExecution}>{plan.nextExecution}</time><strong>{plan.code}</strong><span>{plan.name}</span></article>)}</div></section>
+    {formOpen ? <MaintenancePlanFormDialog plan={formPlan} assets={assets} error={formError} saving={saving} onClose={() => setFormOpen(false)} onSave={save} /> : null}
+    {details && activeTenant ? <MaintenancePlanDetailsDialog plan={details} asset={asset(details)} canPlan={canPlan} canManage={canManage} onClose={() => setDetails(null)} onEdit={() => { setFormPlan(details); setFormError(""); setDetails(null); setFormOpen(true); }} onActivate={() => action(() => pcmService.activate(activeTenant.id, details.id, actor), "Plano ativado.")} onSuspend={reason => action(() => pcmService.suspend(activeTenant.id, details.id, reason, actor), "Plano suspenso.")} onReactivate={() => action(() => pcmService.reactivate(activeTenant.id, details.id, actor), "Plano reativado.")} onArchive={() => action(() => pcmService.archive(activeTenant.id, details.id, actor), "Plano arquivado.")} onGenerate={generate} onMeter={value => action(() => pcmService.registerMeter(activeTenant.id, details.id, value, actor), "Leitura registrada.")} /> : null}
+  </>;
 }

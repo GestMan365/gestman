@@ -48,6 +48,10 @@ export interface WorkOrder {
   number: string;
   requestId?: string;
   sourceRequestNumber?: string;
+  maintenancePlanId?: string;
+  maintenancePlanCode?: string;
+  maintenancePlanVersion?: number;
+  maintenanceCompetence?: string;
   requesterId?: string;
   requesterName?: string;
   assetId?: string;
