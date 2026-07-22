@@ -207,10 +207,17 @@ function nextNumber(requests: MaintenanceRequest[]): string {
 export const requestService = {
   qaPrefix: QA_PREFIX,
   allowedTransitions: ALLOWED_TRANSITIONS,
+  demoStorageKey: storageKey,
 
   async list(empresaId: string): Promise<MaintenanceRequest[]> {
     requireDemoMode();
     return readRequests(empresaId).map(request => ({ ...request, attachments: [...request.attachments] }));
+  },
+
+  async getById(empresaId: string, id: string): Promise<MaintenanceRequest | undefined> {
+    requireDemoMode();
+    const request = readRequests(empresaId).find(item => item.id === id && item.empresaId === empresaId);
+    return request ? { ...request, attachments: [...request.attachments] } : undefined;
   },
 
   async create(empresaId: string, draft: RequestDraft, requester: RequesterIdentity): Promise<MaintenanceRequest> {

@@ -51,7 +51,7 @@ test.describe("GestMan365 - Dashboard", () => {
     const destinations = [
       ["Ativos", "ativos", /^Ativos$/],
       ["Solicitacoes", "solicitacoes", /^Solicita/],
-      ["Ordens de Servico", "ordens-servico", /^Ordens de Servico$/],
+      ["Ordens de Servico", "ordens-servico", /^Ordens de Servi/],
       ["PCM", "pcm", /^PCM$/],
       ["Relatorios", "relatorios", /^Relatorios$/],
       ["Administracao", "administracao", /^Administracao$/]

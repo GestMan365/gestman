@@ -17,7 +17,7 @@ interface RequestDetailsDialogProps {
   onClose: () => void;
   onEdit: () => void;
   onTransition: (target: RequestStatus, reason?: string) => Promise<void>;
-  onPrepareConversion: () => Promise<void>;
+  onConvertToWorkOrder: () => Promise<void>;
 }
 
 export function RequestDetailsDialog({
@@ -29,7 +29,7 @@ export function RequestDetailsDialog({
   onClose,
   onEdit,
   onTransition,
-  onPrepareConversion
+  onConvertToWorkOrder
 }: RequestDetailsDialogProps) {
   const [showRejection, setShowRejection] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
@@ -73,6 +73,9 @@ export function RequestDetailsDialog({
           {request.conversionPreparedAt ? (
             <div className="details-wide"><dt>Conversão em O.S.</dt><dd>Preparada; aguardando integração com o módulo de Ordens de Serviço.</dd></div>
           ) : null}
+          {request.workOrderId ? (
+            <div className="details-wide"><dt>Ordem de Serviço</dt><dd>O.S. criada e vinculada com sucesso.</dd></div>
+          ) : null}
         </dl>
 
         {showRejection ? (
@@ -114,10 +117,10 @@ export function RequestDetailsDialog({
               <button
                 className="btn primary"
                 type="button"
-                onClick={onPrepareConversion}
-                disabled={Boolean(request.conversionPreparedAt)}
+                onClick={onConvertToWorkOrder}
+                disabled={Boolean(request.workOrderId)}
               >
-                {request.conversionPreparedAt ? "Conversão preparada" : "Preparar conversão em O.S."}
+                {request.workOrderId ? "O.S. criada" : "Gerar Ordem de Serviço"}
               </button>
             ) : null}
           </footer>

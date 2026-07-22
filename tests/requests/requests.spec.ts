@@ -231,7 +231,7 @@ test.describe("GestMan365 - Solicitacoes", () => {
 
     await details.getByRole("button", { name: "Aprovar", exact: true }).click();
     await expect(details.getByText("Aprovada", { exact: true })).toBeVisible();
-    await expect(details.getByRole("button", { name: /Preparar convers/ })).toBeVisible();
+    await expect(details.getByRole("button", { name: /Gerar Ordem/ })).toBeVisible();
   });
 
   test("rejeita solicitacao em analise somente com motivo", async ({ page }) => {
@@ -259,18 +259,18 @@ test.describe("GestMan365 - Solicitacoes", () => {
     await expect(details.getByRole("button", { name: /Mover para an.lise|Editar solicita|Cancelar solicita/ })).toHaveCount(0);
   });
 
-  test("prepara conversao aprovada uma unica vez sem criar O.S. artificial", async ({ page }) => {
+  test("converte solicitacao aprovada e cria vinculo real com uma unica O.S. demo", async ({ page }) => {
     await openRequests(page);
     const details = await openDetails(page, "QA-AUTO-SOL-003");
-    await details.getByRole("button", { name: /Preparar convers/ }).click();
+    await details.getByRole("button", { name: /Gerar Ordem/ }).click();
 
-    await expect(details.getByRole("button", { name: /Convers.o preparada/ })).toBeDisabled();
-    await expect(details.getByText("Aprovada", { exact: true })).toBeVisible();
-    await expect(details.getByText(/aguardando integra.*Ordens de Servi/)).toBeVisible();
+    await expect(details.getByText(/O.S. criada e vinculada/)).toBeVisible();
+    await expect(details.getByText(/Convertida em O.S/)).toBeVisible();
+    await expect(details.getByRole("button", { name: /Gerar Ordem/ })).toHaveCount(0);
     const stored = await page.evaluate(key => JSON.parse(sessionStorage.getItem(key) ?? "[]"), REQUEST_STORAGE_KEY);
-    const approved = stored.find((item: { number: string }) => item.number === "QA-AUTO-SOL-003");
-    expect(approved.workOrderId).toBeUndefined();
-    expect(approved.status).toBe("APROVADA");
+    const converted = stored.find((item: { number: string }) => item.number === "QA-AUTO-SOL-003");
+    expect(converted.workOrderId).toBeTruthy();
+    expect(converted.status).toBe("CONVERTIDA_EM_OS");
   });
 
   test("perfil Solicitante ve somente os proprios registros e pode abrir chamado", async ({ page }) => {

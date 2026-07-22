@@ -49,6 +49,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, PermissionKey[]> = {
     "ordensServico:create",
     "ordensServico:edit",
     "ordensServico:delete",
+    "ordensServico:plan",
     "ordensServico:execute",
     "ordensServico:close",
     "ordensServico:manage",
@@ -71,6 +72,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, PermissionKey[]> = {
     "ordensServico:view",
     "ordensServico:create",
     "ordensServico:edit",
+    "ordensServico:plan",
     "ordensServico:execute",
     "ordensServico:close",
     "pcm:view",
@@ -83,6 +85,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, PermissionKey[]> = {
     "ordensServico:view",
     "ordensServico:create",
     "ordensServico:edit",
+    "ordensServico:plan",
     "pcm:view",
     "pcm:plan",
     "relatorios:view"
@@ -93,8 +96,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, PermissionKey[]> = {
     "solicitacoes:view",
     "solicitacoes:create",
     "ordensServico:view",
-    "ordensServico:execute",
-    "ordensServico:close"
+    "ordensServico:execute"
   ],
   SOLICITANTE: [
     "dashboard:view",

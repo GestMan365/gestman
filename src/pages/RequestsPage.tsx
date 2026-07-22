@@ -8,6 +8,7 @@ import { usePermission } from "@/hooks/usePermission";
 import { useTenant } from "@/hooks/useTenant";
 import { assetService } from "@/services/assetService";
 import { requestService } from "@/services/requestService";
+import { workOrderService } from "@/services/workOrderService";
 import { isDemoAuthMode } from "@/services/supabaseClient";
 import type { Asset } from "@/types/assets";
 import {
@@ -158,13 +159,16 @@ export function RequestsPage() {
     }
   }
 
-  async function prepareConversion() {
+  async function convertToWorkOrder() {
     if (!activeTenant || !detailsRequest) return;
     try {
-      const updated = await requestService.prepareConversion(activeTenant.id, detailsRequest.id);
-      setRequests(current => current.map(request => request.id === updated.id ? updated : request));
-      setDetailsRequest(updated);
-      setFeedback("Conversão preparada. A O.S. será criada quando o módulo estiver integrado.");
+      const result = await workOrderService.convertApprovedRequest(activeTenant.id, detailsRequest.id, {
+        id: user?.id ?? "unknown",
+        name: user?.name ?? "Usuário"
+      });
+      setRequests(current => current.map(request => request.id === result.request.id ? result.request : request));
+      setDetailsRequest(result.request);
+      setFeedback(`${result.order.number} criada e vinculada à solicitação.`);
       setPageError("");
     } catch (error) {
       setPageError(errorMessage(error));
@@ -338,7 +342,7 @@ export function RequestsPage() {
           onClose={() => setDetailsRequest(null)}
           onEdit={() => openEditForm(detailsRequest)}
           onTransition={transitionRequest}
-          onPrepareConversion={prepareConversion}
+          onConvertToWorkOrder={convertToWorkOrder}
         />
       ) : null}
     </>
