@@ -20,6 +20,12 @@ export interface LoginCredentials {
   password: string;
 }
 
+export type AuthErrorCode =
+  | "INVALID_CREDENTIALS"
+  | "AUTH_NOT_CONFIGURED"
+  | "INACTIVE_USER"
+  | "AUTH_UNAVAILABLE";
+
 export const USER_ROLE_LABELS: Record<UserRole, string> = {
   ADMINISTRADOR: "Administrador",
   SUPERVISOR: "Supervisor",

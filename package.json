@@ -4,9 +4,14 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc --noEmit -p tsconfig.json && vite build",
-    "preview": "vite preview"
+    "dev": "node scripts/vite-dev.mjs",
+    "build": "tsc --noEmit -p tsconfig.json && node scripts/vite-build.mjs",
+    "preview": "node scripts/vite-preview.mjs",
+    "test:e2e": "npm run build && playwright test --project=chromium",
+    "test:e2e:headed": "npm run build && playwright test --project=chromium --headed",
+    "test:e2e:ui": "npm run build && playwright test --project=chromium --ui",
+    "test:e2e:report": "playwright show-report",
+    "qa": "npm run test:e2e"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
@@ -15,6 +20,7 @@
     "react-router-dom": "^6.26.2"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "@types/node": "^22.5.1",
     "@types/react": "^18.3.4",
     "@types/react-dom": "^18.3.0",
