@@ -1,0 +1,71 @@
+-- GestMan365 Supabase snapshot — reference only, captured 2026-07-22.
+-- Schema-only. No customer data. Do not apply directly to production.
+--
+-- IMPORTANT: This file is a catalog reference, not a complete CREATE TABLE dump.
+-- pg_dump/Supabase CLI was not available in the inspected worktree. Unknown
+-- column details were not invented. Obtain an official schema-only dump before
+-- building the baseline migration.
+
+-- 43 public tables confirmed remotely:
+-- public.ativos
+-- public.chamados
+-- public.checklists
+-- public.company_requests
+-- public.empresas
+-- public.equipamentos
+-- public.estoque_saldos
+-- public.estoques
+-- public.eventos_ordem_servico
+-- public.fornecedores
+-- public.gestman_empresas
+-- public.gestman_usuarios
+-- public.gm_audit_log
+-- public.gm_companies
+-- public.gm_company_members
+-- public.gm_company_subscriptions
+-- public.gm_company_units
+-- public.gm_platform_admins
+-- public.gm_platform_audit_log
+-- public.gm_profiles
+-- public.gm_public_rate_limits
+-- public.gm_tenant_state
+-- public.gm_user_preferences
+-- public.locais_instalacao
+-- public.movimentacoes_estoque
+-- public.movimentacoes_estoque_itens
+-- public.movimentacoes_tags
+-- public.ordens_servico
+-- public.pecas
+-- public.perfil_permissoes
+-- public.perfis
+-- public.perfis_acesso
+-- public.permissoes
+-- public.preventivas
+-- public.regioes
+-- public.requisicoes_materiais
+-- public.requisicoes_materiais_itens
+-- public.subtags
+-- public.subtags_equipamento
+-- public.tags
+-- public.transferencias_estoque
+-- public.transferencias_estoque_itens
+-- public.usuarios_empresas
+
+-- Key confirmed definitions (catalog projection):
+-- gm_tenant_state: company_id uuid PK/FK, state jsonb, version bigint,
+--   updated_by uuid FK auth.users, updated_at timestamptz.
+-- gm_user_preferences: company_id uuid, user_id uuid, preferences jsonb,
+--   updated_at timestamptz; composite ownership by company/user.
+-- gm_audit_log: id bigint PK, company_id uuid FK, user_id uuid FK,
+--   action text, entity text, entity_id text, metadata jsonb, created_at timestamptz.
+-- gm_companies: id uuid PK, name text, slug text UNIQUE, status text,
+--   created_by uuid FK auth.users, timestamps and company registration fields.
+-- gm_company_members: company_id/user_id association, role, active,
+--   access_username, access_profile, permission_levels jsonb, region_id,
+--   executor and timestamps.
+-- gm_profiles: user_id uuid PK/FK auth.users, display/contact/job/avatar fields,
+--   active, details jsonb and timestamps.
+
+-- One remote view exists:
+-- public.vw_ordens_servico_completa
+

@@ -1,0 +1,34 @@
+-- GestMan365 Supabase snapshot — reference only, captured 2026-07-22.
+-- Schema-only. No customer data. No bucket INSERT is included.
+-- Do not apply directly to production.
+
+-- Bucket: gestman-attachments
+-- Public: false
+-- Per-bucket file limit: unset (project default shown as 50 MB)
+-- MIME restriction: none
+
+-- Exact policy expressions observed on storage.objects:
+-- gm_storage_select, SELECT, authenticated
+-- USING (
+--   bucket_id = 'gestman-attachments'
+--   AND gm_is_company_member(gm_storage_company_id(name))
+-- )
+--
+-- gm_storage_insert, INSERT, authenticated
+-- WITH CHECK (
+--   bucket_id = 'gestman-attachments'
+--   AND gm_member_can(gm_storage_company_id(name), gm_storage_module(name), 'operate')
+-- )
+--
+-- gm_storage_update, UPDATE, authenticated
+-- USING/WITH CHECK (
+--   bucket_id = 'gestman-attachments'
+--   AND gm_member_can(gm_storage_company_id(name), gm_storage_module(name), 'operate')
+-- )
+--
+-- gm_storage_delete, DELETE, authenticated
+-- USING (
+--   bucket_id = 'gestman-attachments'
+--   AND gm_member_can(gm_storage_company_id(name), gm_storage_module(name), 'manage')
+-- )
+
