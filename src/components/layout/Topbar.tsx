@@ -12,6 +12,7 @@ export function Topbar() {
         <span className="topbar-eyebrow">Empresa ativa</span>
         <select
           className="tenant-select"
+          aria-label="Empresa ativa"
           value={activeTenant?.id ?? ""}
           onChange={event => setActiveTenantId(event.target.value)}
         >
