@@ -14,6 +14,7 @@ $deliveryPaths = @(
     'SECURITY_REMEDIATION_SCOPE.md',
     'SUPABASE_SECURITY_DEPLOYMENT_PLAN.md',
     'SUPABASE_SECURITY_ROLLBACK.md',
+    'supabase/functions/bootstrap-company/index.ts',
     'supabase/functions/submit-company-request/index.ts',
     'supabase/migrations/202607220001_security_legacy_hardening.sql',
     'supabase/migrations/202607220002_security_bootstrap_and_rpc_grants.sql',
@@ -82,11 +83,22 @@ try {
     $frontendChanges = @(
         git diff --name-only HEAD -- @frontendPaths
         git ls-files --others --exclude-standard -- @frontendPaths
-    ) | Where-Object { $_ }
-    if ($frontendChanges) {
-        Fail ("frontend changed in security delivery: " + ($frontendChanges -join ', '))
+    ) | Where-Object { $_ } | Sort-Object -Unique
+    $unexpectedFrontendChanges = $frontendChanges |
+        Where-Object { $_ -notin @('index.html', '404.html') }
+    if ($unexpectedFrontendChanges) {
+        Fail ("unexpected frontend files changed: " + ($unexpectedFrontendChanges -join ', '))
     }
-    Pass 'frontend files unchanged'
+    foreach ($frontendFile in @('index.html', '404.html')) {
+        $frontendText = Get-Content -LiteralPath (Join-Path $root $frontendFile) -Raw
+        if ($frontendText -notmatch 'gmAuthenticatedFunction\("bootstrap-company"') {
+            Fail "$frontendFile does not use authenticated bootstrap Edge Function"
+        }
+        if ($frontendText -match 'gmRpc\("gm_bootstrap_company"') {
+            Fail "$frontendFile still calls browser bootstrap RPC directly"
+        }
+    }
+    Pass 'frontend bootstrap contract changed only in index.html and 404.html'
 
     $deliveryFiles = $deliveryPaths |
         ForEach-Object { Join-Path $root $_ } |
@@ -119,6 +131,16 @@ try {
         Fail 'public request RPC still uses the anonymous client'
     }
     Pass 'service role remains server-side for public request RPC'
+
+    $bootstrapEdgePath = Join-Path $root 'supabase\functions\bootstrap-company\index.ts'
+    $bootstrapEdgeText = Get-Content -LiteralPath $bootstrapEdgePath -Raw
+    if ($bootstrapEdgeText -notmatch 'service\.auth\.getUser\(token\)') {
+        Fail 'bootstrap Edge Function does not validate the Supabase Auth token'
+    }
+    if ($bootstrapEdgeText -notmatch 'gm_bootstrap_company_server') {
+        Fail 'bootstrap Edge Function does not call the service-role-only RPC'
+    }
+    Pass 'bootstrap service role remains server-side and Auth identity is validated'
 
     $fourthMigration = Get-ChildItem -Path (Join-Path $root 'supabase\migrations') `
         -Filter '202607220004*.sql' -File -ErrorAction SilentlyContinue

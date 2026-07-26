@@ -4,7 +4,7 @@
 
 O frontend cria/autentica um usuário no Supabase Auth e chama diretamente `gm_bootstrap_company`. O banco remoto, porém, concede a função somente a `service_role`; concedê-la a `authenticated` ampliaria a superfície de abuso.
 
-## Solução recomendada e ainda não implementada
+## Solução implementada
 
 Combinação de **Edge Function autenticada** e **RPC interna service-role-only**:
 
@@ -14,7 +14,8 @@ Combinação de **Edge Function autenticada** e **RPC interna service-role-only*
 4. a Edge chama uma RPC server-side com o usuário validado;
 5. a RPC verifica usuário Auth existente, ausência de vínculo anterior, slug e campos;
 6. cria empresa, perfil, vínculo administrador, estado vazio, preferências e auditoria em uma transação;
-7. retorna somente identificadores e papel, sem credenciais.
+7. retorna somente nome, slug e indicador de criação, sem identificadores
+   internos ou credenciais.
 
 `service_role` deve permanecer apenas no ambiente da Edge Function. O endpoint não deve criar
 usuário Auth nem receber senha.
@@ -31,8 +32,15 @@ usuário Auth nem receber senha.
 - auditoria `company.bootstrap`;
 - resposta sem e-mail, senha, token ou metadados Auth.
 
-Estado real: a Edge Function de bootstrap não existe nesta entrega e não foi criada por falta
-de contrato confirmado. O frontend ainda chama `gm_bootstrap_company` diretamente. A migration
-`202607220002` prepara a restrição para `service_role`, mas sua promoção está bloqueada até a
-Edge possuir validação, rate limit, idempotência, logs, tratamento de falha e resposta mínima,
-e até o frontend ser trocado e homologado. Esta tarefa não altera a interface nem o frontend.
+Estado real: a Edge Function `bootstrap-company` valida o JWT com Supabase
+Auth, aceita somente nome, slug e nome de exibição, exige chave de
+idempotência, limita o payload, aplica rate limit e chama
+`gm_bootstrap_company_server` com `service_role`. A RPC server-side usa lock
+transacional por usuário, valida a identidade em `auth.users`, cria empresa,
+perfil, vínculo, estado, preferências e auditoria atomicamente e retorna somente
+nome, slug e indicador de criação. O frontend deixou de chamar
+`gm_bootstrap_company` diretamente e preserva o mesmo formulário.
+
+A migration `202607220002` revoga a execução do bootstrap legado para
+`PUBLIC`, `anon` e `authenticated` e mantém as duas RPCs de bootstrap acessíveis
+somente por `service_role`.

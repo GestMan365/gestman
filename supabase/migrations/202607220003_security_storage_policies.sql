@@ -6,7 +6,6 @@ begin;
 do $$
 begin
   if to_regclass('storage.objects') is not null then
-    execute 'alter table storage.objects enable row level security';
     execute 'drop policy if exists gm_storage_select on storage.objects';
     execute 'drop policy if exists gm_storage_insert on storage.objects';
     execute 'drop policy if exists gm_storage_update on storage.objects';

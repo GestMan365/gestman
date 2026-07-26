@@ -1,25 +1,45 @@
 # Security checks
 
-This folder contains local-only validation helpers for the Supabase security remediation.
+Este diretório contém validações locais e especificações de segurança do
+Supabase do GestMan365.
 
-The static PowerShell check focuses on:
-
-1. legacy permissive policies;
-2. open grants to `public` and `anon`;
-3. `service_role` references in the frontend;
-4. absence of frontend changes in this security-only delivery;
-5. absence of credential, token and `.env` files;
-6. no SELECT/RETURNING of legacy password values;
-7. server-side use of `service_role` for the public request RPC;
-8. accidental introduction of a fourth migration without confirmed dependencies.
-
-Run locally:
+## Verificação estática
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass `
   -File ".\tests\security\security_static_checks.ps1"
 ```
 
-The SQL files are pgTAP specifications only. They were not executed because this workspace
-does not have an isolated Supabase/PostgreSQL test environment. They must never be pointed at
-production.
+Ela verifica policies permissivas, grants abertos, uso indevido de
+`service_role` no frontend, segredos versionados, exposição da coluna legada
+`senha`, contrato da Edge Function de bootstrap e uso do endpoint autenticado
+em `index.html` e `404.html`.
+
+## Bootstrap publicado no staging
+
+O precheck real do bootstrap usa variáveis de ambiente fornecidas somente ao
+processo:
+
+```powershell
+node .\scripts\validate-staging-bootstrap.mjs
+```
+
+## Suíte real de segurança no staging
+
+```powershell
+node .\scripts\validate-staging-security.mjs
+```
+
+As duas suítes exigem URL e chaves do projeto de staging por variáveis de
+ambiente. Nunca grave esses valores no repositório, em relatórios ou na linha
+de comando compartilhada.
+
+A suíte completa cria apenas fixtures com prefixo `QA-SECURITY`, testa RLS,
+RPCs, Storage, onboarding e Edge Functions, e remove exatamente essas fixtures
+ao final.
+
+## Especificações SQL
+
+Os arquivos `*.spec.sql` documentam contratos pgTAP. Eles nunca devem ser
+executados contra produção. Para testes locais, use banco Docker descartável;
+para testes integrados, use somente o projeto GestMan365 Staging confirmado.

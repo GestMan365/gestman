@@ -10,6 +10,11 @@ begin
     execute 'grant execute on function public.gm_bootstrap_company(text,text,text) to service_role';
   end if;
 
+  if to_regprocedure('public.gm_bootstrap_company_server(uuid,text,text,text,text)') is not null then
+    execute 'revoke all on function public.gm_bootstrap_company_server(uuid,text,text,text,text) from public, anon, authenticated';
+    execute 'grant execute on function public.gm_bootstrap_company_server(uuid,text,text,text,text) to service_role';
+  end if;
+
   if to_regprocedure('public.gm_load_tenant_state()') is not null then
     execute 'revoke all on function public.gm_load_tenant_state() from public, anon';
     execute 'grant execute on function public.gm_load_tenant_state() to authenticated';

@@ -4,6 +4,7 @@ import ts from "typescript";
 
 const root = process.cwd();
 const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
+const baseline = fs.readFileSync(path.join(root, "supabase/baseline/20260726_gestman_schema_baseline.sql"), "utf8");
 const migration = fs.readFileSync(path.join(root, "supabase/migrations/202607160004_company_onboarding_admin.sql"), "utf8");
 const emailMigration = fs.readFileSync(path.join(root, "supabase/migrations/202607170001_company_request_email_notification.sql"), "utf8");
 const accessMigration = fs.readFileSync(path.join(root, "supabase/migrations/202607170002_company_access_without_email.sql"), "utf8");
@@ -12,6 +13,7 @@ const companyManagementMigration = fs.readFileSync(path.join(root, "supabase/mig
 const companyDeletionMigration = fs.readFileSync(path.join(root, "supabase/migrations/202607180003_company_permanent_deletion.sql"), "utf8");
 const edge = fs.readFileSync(path.join(root, "supabase/functions/convert-company-request/index.ts"), "utf8");
 const submitEdge = fs.readFileSync(path.join(root, "supabase/functions/submit-company-request/index.ts"), "utf8");
+const bootstrapEdge = fs.readFileSync(path.join(root, "supabase/functions/bootstrap-company/index.ts"), "utf8");
 const companyAccessEdge = fs.readFileSync(path.join(root, "supabase/functions/manage-company-access/index.ts"), "utf8");
 const accessFlow = html.slice(
   html.indexOf("/* Fluxo de aprovacao e criacao de acesso"),
@@ -51,8 +53,8 @@ test("CNPJ duplicado bloqueado no banco", has(migration, "company_requests_open_
 test("visitante sem SELECT/UPDATE/DELETE", has(migration, "revoke all on public.company_requests from anon", "company_requests_platform_select"));
 test("cadastro publico apenas por RPC", has(migration, "gm_submit_company_request", "grant execute on function public.gm_submit_company_request(jsonb) to anon"));
 test("validacao de e-mail corrigida no banco", has(emailValidationMigration, "create or replace function public.gm_submit_company_request", "'^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$'") && !emailValidationMigration.includes("[A-Z0-9.\\\\-]"));
-test("formulario grava diretamente pela RPC segura", has(html, 'gmPublicRpc("gm_submit_company_request", { p_request:data })', "/rest/v1/rpc/"));
-test("envio ao painel independe do servico de e-mail", !html.includes('gmPublicFunction("submit-company-request", data)'));
+test("formulario envia pela Edge Function segura", has(html, 'gmPublicFunction("submit-company-request", data)', "/functions/v1/${name}") && !html.includes('gmPublicRpc("gm_submit_company_request"'));
+test("envio ao painel independe do servico de e-mail", has(submitEdge, "panel_registered: true", "if (!RESEND_API_KEY || !EMAIL_FROM)"));
 test("atualizacao do painel sem recarregar autenticacao", has(html, "refreshPlatformRequests(event,this)", "async function refreshPlatformRequests", "Painel atualizado sem sair da administração."));
 test("destinatario de teste somente no servidor", submitEdge.includes('andsantos15@hotmail.com') && !html.includes('andsantos15@hotmail.com'));
 test("credencial do e-mail somente em segredo", submitEdge.includes('Deno.env.get("RESEND_API_KEY")') && !html.includes("RESEND_API_KEY"));
@@ -67,18 +69,23 @@ test("company_id unico gerado", has(migration, "v_company_id uuid", "returning i
 test("auditoria de revisao/conversao/gestao", has(migration, "gm_platform_audit_log", "company_request.converted", "company.'||p_action"));
 test("service role ausente do frontend", !html.includes("SUPABASE_SERVICE_ROLE_KEY") && !html.includes("service_role"));
 test("service role restrita a Edge Function", has(edge, "SUPABASE_SERVICE_ROLE_KEY", "auth.admin.createUser", "gm_convert_company_request_with_access_internal"));
+test("bootstrap usa Edge Function autenticada", has(html, 'gmAuthenticatedFunction("bootstrap-company"', '"x-idempotency-key"') && !html.includes('gmRpc("gm_bootstrap_company"'));
+test("bootstrap valida identidade Auth no servidor", has(bootstrapEdge, "service.auth.getUser(token)", "gm_bootstrap_company_server", "p_user_id: user.id"));
+test("bootstrap rejeita campos extras e limita payload", has(bootstrapEdge, "ALLOWED_FIELDS", "MAX_BODY_BYTES", "Solicitação muito grande."));
+test("bootstrap possui rate limit e idempotencia", has(bootstrapEdge, "gm_consume_public_rate_limit", "x-idempotency-key", "p_idempotency_key"));
+test("bootstrap nao recebe senha nem campos administrativos", !/\bpassword\b|empresa_id|company_id|permission|access_profile|global_role/i.test(bootstrapEdge));
 test("acesso criado sem convite ou e-mail ao cliente", has(edge, "email_confirm: true", "email_sent: false") && !edge.includes("inviteUserByEmail"));
 test("dominio explicito validado no servidor e banco", has(edge, "company_slug", "^[a-z0-9]") && has(accessMigration, "p_company_slug", "Dominio invalido"));
 test("senha somente no Supabase Auth", has(edge, "admin_password", "auth.admin.createUser") && !/admin_password|password/i.test(accessMigration));
 test("credenciais exibidas uma unica vez no painel", has(html, "renderPlatformAccessCreated", "Copie estes dados agora", "a senha não é salva no painel"));
 test("nenhum envio automatico ao cliente na conversao", has(html, "Nenhum e-mail foi enviado ao cliente", "Envio ao cliente ficará para uma etapa futura"));
 test("aprovacao abre etapa exclusiva de criacao de acesso", has(html, "APROVADA &middot; ETAPA 2 DE 2", "Crie o acesso da empresa", 'item.status==="approved"'));
-test("formulario solicita somente dominio login e senha", has(effectiveAccessFlow, 'name="company_slug"', 'name="admin_username"', 'name="admin_password"', "Criar acesso") && !effectiveAccessFlow.includes('name="plan_code"') && !effectiveAccessFlow.includes('name="user_limit"') && !effectiveAccessFlow.includes('name="unit_limit"') && !effectiveAccessFlow.includes('name="admin_name"'));
-test("login de acesso nao exige email", has(effectiveAccessFlow, "Login do usu&aacute;rio", 'type="text"', "Digite o login") && !effectiveAccessFlow.includes('name="admin_email"'));
+test("formulario separa credenciais e contrato", has(effectiveAccessFlow, 'name="company_slug"', 'name="admin_username"', 'name="admin_password"', 'name="plan_code"', 'name="user_limit"', 'name="unit_limit"', 'name="admin_name"', "Criar empresa e liberar acesso"));
+test("login de acesso nao exige email", has(effectiveAccessFlow, "Usu&aacute;rio de acesso", 'type="text"', 'name="admin_username"') && !effectiveAccessFlow.includes('name="admin_email"'));
 test("login converte usuario livre em identidade segura", has(html, "function normalizeAccessUsername", "function tenantAuthEmail", "loginTenantUserByUsername") && has(edge, "normalizeAccessUsername", "tenantAuthEmail", "access_username"));
 test("armazenamento removido do fluxo administrativo", !accessFlow.includes('name="storage_limit_mb"') && has(html, 'delete payload.storage_limit_mb', 'input[name="storage_limit_mb"]') && edge.includes("p_storage_limit_mb: 10240"));
 test("exemplo abaixo do dominio removido", !accessFlow.includes("<small>Ex.:"));
-test("acesso fica disponivel imediatamente", has(html, "Acesso liberado imediatamente.", "Empresa salva e acesso liberado com sucesso", "j&aacute; pode entrar no CMMS"));
+test("acesso fica disponivel imediatamente", has(html, "Acesso liberado imediatamente ap&oacute;s confirmar.", "Empresa salva e acesso liberado com sucesso", "j&aacute; pode entrar no CMMS"));
 test("janela administrativa sem textos corrompidos no fluxo novo", !html.slice(html.indexOf("/* Fluxo de aprovacao e criacao de acesso"), html.indexOf("async function loadPlatformCompanies", html.indexOf("/* Fluxo de aprovacao e criacao de acesso"))).match(/Ãƒ|Ã‚|Ã§|Ã£/));
 test("metricas administrativas filtram por status", has(html, "filterPlatformRequestsByStatus", 'aria-pressed="${selected===status}"'));
 test("filtros administrativos incluem ordenacao e limpeza", has(html, 'id="platformRequestSort"', "clearPlatformRequestFilters", "Mais recentes", "Mais antigas"));
@@ -89,19 +96,19 @@ test("servidor deriva cadastro da solicitacao aprovada", has(edge, 'await userCl
 test("servidor exige somente dados de acesso", has(edge, 'const required = ["request_id", "company_slug", "admin_username", "admin_password"]') && !edge.includes('"plan_code", "user_limit", "unit_limit"'));
 test("dialogo administrativo preserva foco e acoes visiveis", has(html, "gmPlatformDialogReturnFocus", "platform-dialog-actions is-sticky", 'dialog.querySelector("input:not([type=hidden]),textarea,button")?.focus()'));
 test("tabelas administrativas identificam coluna de acoes", has(html, '"Status", "A\\u00e7\\u00f5es"', '"\\u00daltimo acesso", "A\\u00e7\\u00f5es"'));
-test("central de empresas possui quatro secoes", has(html, "Central profissional de empresas clientes", '["overview","Vis\\u00e3o geral"]', '["access","Acesso"]', '["plan","Plano e cadastro"]', '["history","Hist\\u00f3rico"]'));
-test("empresas possuem busca ordenacao e filtros", has(html, "upgradePlatformCompanyToolbar", "platformCompanySort", "clearPlatformCompanyFilters", "filterPlatformCompaniesByStatus"));
-test("gestao mostra capacidade contrato unidades e auditoria", has(html, "platformCompanyOverviewHtml", "platformCapacity", "platformCompanyAuditHtml", "gm_platform_audit_log?select=*"));
-test("cadastro e plano usam formularios separados", has(html, "platformCompanyRegistrationHtml", "platformCompanyPlanHtml", "savePlatformCompanyRegistration", "savePlatformCompanyPlan"));
-test("suspensao e arquivamento exigem confirmacao", has(html, "preparePlatformCompanyAction", "executePlatformCompanyAction", "Confirmar suspens\\u00e3o", "Confirmar arquivamento"));
-test("suspensao bloqueia e reativacao libera usuarios", has(companyAccessEdge, "suspend_company", "reactivate_company", "archive_company", 'ban_duration: banDuration') && has(html, "Empresa e acessos suspensos", "Empresa e acessos reativados"));
+test("central de empresas possui tres secoes", has(html, '[["overview"', '["access"', '["registration"'));
+test("empresas possuem busca e filtros", has(html, "platformCompanySearch", "platformCompanyPlan", "platformCompanyStatus", "filteredPlatformCompanies"));
+test("gestao mostra capacidade de usuarios e unidades", has(html, "platformCompanyOverviewHtml", "companyUnits", "companyMembers", "gmPlatformSubscriptions"));
+test("cadastro e plano usam formularios separados", has(html, "platformCompanyRegistrationHtml", "platformCompanyRegistration", "platformCompanyPlan", "savePlatformCompanyRegistration", "savePlatformCompanyPlan"));
+test("suspensao e arquivamento permanecem disponiveis", has(html, "managePlatformCompany", "'suspend'", "'archive'", "'reactivate'"));
+test("suspensao bloqueia e reativacao libera usuarios", has(companyAccessEdge, "suspend_company", "reactivate_company", "archive_company", 'ban_duration: banDuration') && has(html, "managePlatformCompany", "'suspend'", "'reactivate'"));
 test("exclusao definitiva exige senha somente no servidor", has(companyAccessEdge, 'Deno.env.get("GESTMAN_COMPANY_DELETE_PASSWORD")', "secureEqual", "Senha de exclusÃ£o incorreta") && !html.includes("172644"));
-test("botao de exclusao alerta irreversibilidade", has(html, "Excluir empresa definitivamente", "executePlatformCompanyDeletion", "Esta a\\u00e7\\u00e3o n\\u00e3o pode ser desfeita", 'type="password"'));
+test("botao de exclusao alerta irreversibilidade", has(html, "Excluir empresa e todos os dados", "preparePlatformCompanyDeletion", "executePlatformCompanyDeletion", 'type="password"'));
 test("exclusao remove empresa e vinculos por cascata", has(companyDeletionMigration, "gm_permanently_delete_company", "delete from public.company_requests", "delete from public.gm_companies", "gm_platform_audit_log"));
 test("exclusao remove usuarios do Supabase Auth", has(companyAccessEdge, "delete_company", "gm_permanently_delete_company", "auth.admin.deleteUser", "auth_users_deleted"));
 test("empresa da plataforma protegida contra exclusao", has(companyDeletionMigration, "lower(coalesce(v_company.slug, '')) = 'gestman'") && has(companyAccessEdge, 'String(company.slug ?? "").toLowerCase() === "gestman"'));
-test("login recusa empresa suspensa ou arquivada", has(html, '["suspended","archived"].includes', "O acesso desta empresa est\\u00e1 suspenso"));
-test("senha nunca e recuperada nem armazenada no painel", has(html, "resetPlatformCompanyPassword", "A senha atual nunca \\u00e9 exibida", "n\\u00e3o ficar\\u00e1 salva no painel") && !companyAccessEdge.includes("password_hash"));
+test("login recusa empresa suspensa ou arquivada", has(html, "gmLoadContext") && baseline.includes("c.status = 'active'"));
+test("senha nunca e recuperada nem armazenada no painel", has(html, "resetPlatformCompanyPassword", "A senha atual não pode ser visualizada", "não ficará salva no painel") && !companyAccessEdge.includes("password_hash"));
 test("redefinicao de senha restrita a membro da empresa", has(companyAccessEdge, "Usuário não pertence a esta empresa", "gm_company_members", "auth.admin.updateUserById"));
 test("redefinicao registra auditoria sem senha", has(companyAccessEdge, "company.access.password_reset", "metadata: { user_id: userId }") && !companyAccessEdge.includes("new_password:"));
 test("gestao reforca limites conforme uso real", has(companyManagementMigration, "v_member_count", "v_unit_count", "nao pode ser menor que o uso atual"));
@@ -112,6 +119,8 @@ const edgeTranspile = ts.transpileModule(edge, { compilerOptions:{ target:ts.Scr
 test("Edge Function sem erro de sintaxe TypeScript", !(edgeTranspile.diagnostics || []).some(item => item.category === ts.DiagnosticCategory.Error));
 const submitEdgeTranspile = ts.transpileModule(submitEdge, { compilerOptions:{ target:ts.ScriptTarget.ES2022, module:ts.ModuleKind.ESNext }, reportDiagnostics:true });
 test("Edge Function de envio sem erro de sintaxe TypeScript", !(submitEdgeTranspile.diagnostics || []).some(item => item.category === ts.DiagnosticCategory.Error));
+const bootstrapEdgeTranspile = ts.transpileModule(bootstrapEdge, { compilerOptions:{ target:ts.ScriptTarget.ES2022, module:ts.ModuleKind.ESNext }, reportDiagnostics:true });
+test("Edge Function de bootstrap sem erro de sintaxe TypeScript", !(bootstrapEdgeTranspile.diagnostics || []).some(item => item.category === ts.DiagnosticCategory.Error));
 const companyAccessEdgeTranspile = ts.transpileModule(companyAccessEdge, { compilerOptions:{ target:ts.ScriptTarget.ES2022, module:ts.ModuleKind.ESNext }, reportDiagnostics:true });
 test("Edge Function de gestao de acesso sem erro de sintaxe TypeScript", !(companyAccessEdgeTranspile.diagnostics || []).some(item => item.category === ts.DiagnosticCategory.Error));
 
