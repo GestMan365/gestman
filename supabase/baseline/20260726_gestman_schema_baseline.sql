@@ -900,7 +900,7 @@ ALTER TABLE ONLY "public"."ordens_servico"
     ADD CONSTRAINT "ordens_servico_ativo_id_fkey" FOREIGN KEY ("ativo_id") REFERENCES "public"."ativos"("id") ON DELETE SET NULL;
 
 ALTER TABLE ONLY "public"."ordens_servico"
-    ADD CONSTRAINT "ordens_servico_equipamento_id_fkey" FOREIGN KEY ("equipamento_id") REFERENCES "public"."equipamentos"("id") ON DELETE SET NULL NOT VALID;
+    ADD CONSTRAINT "ordens_servico_equipamento_id_fkey" FOREIGN KEY ("equipamento_id") REFERENCES "public"."equipamentos"("id") ON DELETE SET NULL;
 
 ALTER TABLE ONLY "public"."pecas"
     ADD CONSTRAINT "pecas_fornecedor_id_fkey" FOREIGN KEY ("fornecedor_id") REFERENCES "public"."fornecedores"("id") ON DELETE SET NULL;
@@ -1010,12 +1010,12 @@ begin
 end;
 $$;
 
-CREATE OR REPLACE FUNCTION "public"."gestman_login"("p_login" "text", "p_email" "text", "p_senha" "text") RETURNS TABLE("empresa_id" "uuid", "empresa_login" "text", "empresa_nome" "text", "empresa_plano" "text", "empresa_status" "text", "empresa_aprovado" boolean, "empresa_remote_sync" boolean, "usuario_id" "uuid", "usuario_nome" "text", "usuario_email" "text", "usuario_senha" "text", "usuario_perfil" "text", "usuario_ativo" boolean, "usuario_permissoes" "jsonb", "usuario_foto_url" "text")
+CREATE OR REPLACE FUNCTION "public"."gestman_login"("p_login" "text", "p_email" "text", "p_senha" "text") RETURNS TABLE("empresa_id" "uuid", "empresa_login" "text", "empresa_nome" "text", "empresa_plano" "text", "empresa_status" "text", "empresa_aprovado" boolean, "empresa_remote_sync" boolean, "usuario_id" "uuid", "usuario_nome" "text", "usuario_email" "text", "usuario_perfil" "text", "usuario_ativo" boolean, "usuario_permissoes" "jsonb", "usuario_foto_url" "text")
     LANGUAGE "sql" SECURITY DEFINER
     SET "search_path" TO 'public'
     AS $$
   select e.id, e.login, e.nome, e.plano, e.status, e.aprovado, e.remote_sync,
-         u.id, u.nome, u.email, u.senha, u.perfil, u.ativo, u.permissoes, u.foto_url
+         u.id, u.nome, u.email, u.perfil, u.ativo, u.permissoes, u.foto_url
   from public.gestman_empresas e
   join public.gestman_usuarios u on u.empresa_id = e.id
   where lower(e.login) = lower(coalesce(p_login, ''))

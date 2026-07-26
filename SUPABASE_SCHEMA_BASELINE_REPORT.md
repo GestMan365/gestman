@@ -17,8 +17,8 @@ Arquivo criado:
 `supabase/baseline/20260726_gestman_schema_baseline.sql`
 
 SHA-256 do baseline:
-`A3087AF1059E3A86B3A1C5A03AC4575AAD740D7C52013D11424A3E16F17C10FA`
-(109.147 bytes, 2.462 linhas).
+`DC78B41A5ABB7A3DC3062353C168638BFE244F92B2ECC594E9DBB45524BAABBA`
+(109.104 bytes, 2.462 linhas).
 
 O baseline contém o esquema `public`, as dependências declarativas da aplicação,
 RLS restritiva, grants mínimos e as quatro políticas de Storage. Não contém
@@ -202,6 +202,7 @@ O baseline:
 
 - bloqueia INSERT com senha;
 - bloqueia alteração da senha existente;
+- não retorna a coluna `senha` pela função legada `gestman_login`;
 - remove execução de `gestman_login` de `PUBLIC`, `anon` e `authenticated`;
 - não concede acesso direto à tabela para clientes.
 
@@ -231,6 +232,9 @@ Nenhuma remoção ou transformação de valores existentes foi executada.
 - quatro policies de Storage incluídas;
 - 14/14 triggers preservados e um trigger de contenção adicionado;
 - view preservada;
+- 140 constraints válidas no catálogo e nenhuma constraint pendente de
+  validação;
+- 20 índices não associados a constraints e nenhum índice inválido;
 - parênteses balanceados;
 - tags dollar-quote balanceadas;
 - uma transação `BEGIN`/`COMMIT`;
@@ -241,10 +245,57 @@ Nenhuma remoção ou transformação de valores existentes foi executada.
 
 ## Validação local e bloqueios
 
-O cliente Docker 29.6.2 está instalado, mas o daemon Docker Desktop não estava
-em execução e o named pipe `docker_engine` não existia. Também não há `psql`
-local. Por isso, não foi possível executar o baseline em PostgreSQL descartável
-nesta tarefa. Nenhum resultado de execução de banco foi presumido.
+O Docker Desktop 4.83.0 foi iniciado e o cliente e servidor Docker 29.6.2
+ficaram ativos. A validação usou Supabase CLI 2.109.1 e um PostgreSQL Supabase
+17.6 descartável, publicado somente em `127.0.0.1`. Nenhuma URL, referência ou
+credencial de projeto remoto foi usada.
+
+O baseline foi executado três vezes a partir de banco vazio. Duas correções
+comprovadas foram aplicadas entre as tentativas:
+
+1. `gestman_login` deixou de declarar e selecionar a coluna textual `senha`;
+2. a foreign key `ordens_servico_equipamento_id_fkey` deixou de ser criada com
+   `NOT VALID`.
+
+A terceira execução foi concluída integralmente. O catálogo final apresentou:
+
+- 43 tabelas;
+- 38 funções;
+- 140 constraints, todas validadas;
+- 20 índices não associados a constraints, todos válidos;
+- três sequences;
+- uma view;
+- 15 triggers;
+- 19 policies no schema `public`;
+- RLS habilitado nas 43 tabelas.
+
+O pgTAP 1.3.3 executou 26 verificações de RLS, isolamento multiempresa,
+contexto, RPCs, grants e contenção da senha: 26 aprovadas e zero reprovadas.
+Uma execução inicial do harness usou incorretamente a assinatura de
+`throws_ok`; os seis resultados aparentes foram corrigidos no próprio harness
+e não exigiram mudança funcional no baseline.
+
+As três migrations de segurança de 22/07 foram aplicadas localmente, em ordem,
+após o baseline:
+
+- `202607220001_security_legacy_hardening.sql`: aprovada;
+- `202607220002_security_bootstrap_and_rpc_grants.sql`: aprovada localmente,
+  mas continua bloqueada para promoção remota até existir bootstrap
+  server-side;
+- `202607220003_security_storage_policies.sql`: transação aprovada, com bloco
+  de policies sem efeito porque `storage.objects` não existia no banco
+  descartável.
+
+Após as migrations, as contagens permaneceram estáveis, não havia funções
+retornando `senha`, grants de execução para `PUBLIC`/`anon`, policies
+permissivas, índices inválidos ou funções `SECURITY DEFINER` sem
+`search_path`.
+
+Os testes de Storage continuam bloqueados: o contêiner somente de banco
+possuía o schema `storage`, mas não as tabelas gerenciadas
+`storage.objects`/`storage.buckets`. Portanto, as policies condicionais foram
+validadas sintaticamente, mas o comportamento de upload/download não foi
+declarado como aprovado.
 
 O snapshot registra um event trigger chamado `rls_auto_enable`, porém o dump
 schema-only contém apenas a função associada e não contém o `CREATE EVENT
@@ -253,11 +304,12 @@ inventado e permanece bloqueado até uma definição autoritativa.
 
 Antes de aplicar no staging, ainda é obrigatório:
 
-1. validar o baseline em Supabase local/Docker com schemas e roles gerenciados;
-2. provisionar o bucket privado por API/CLI;
+1. inicializar o serviço Storage completo e testar as quatro policies e o
+   bucket privado;
+2. implementar o bootstrap server-side antes de promover a migration 002;
 3. definir como registrar o baseline no histórico para não reaplicar migrations
    históricas equivalentes;
-4. executar os testes negativos de RLS, RPC e Storage.
+4. obter a definição autoritativa do event trigger antes de recriá-lo.
 
 ## Garantias da tarefa
 
