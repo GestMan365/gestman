@@ -6,6 +6,7 @@ import { AssetsPage } from "@/pages/AssetsPage";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { ForbiddenPage } from "@/pages/ForbiddenPage";
 import { LoginPage } from "@/pages/LoginPage";
+import { InventoryPage } from "@/pages/InventoryPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 import { PcmPage } from "@/pages/PcmPage";
 import { ReportsPage } from "@/pages/ReportsPage";
@@ -40,6 +41,10 @@ export function App() {
             <Route
               path="/pcm"
               element={<ProtectedRoute moduleKey="pcm"><PcmPage /></ProtectedRoute>}
+            />
+            <Route
+              path="/estoque"
+              element={<ProtectedRoute moduleKey="estoque"><InventoryPage /></ProtectedRoute>}
             />
             <Route
               path="/relatorios"

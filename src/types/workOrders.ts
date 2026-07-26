@@ -27,7 +27,7 @@ export type WorkOrderCriticality = "BAIXA" | "MEDIA" | "ALTA" | "CRITICA";
 
 export interface WorkOrderHistoryEvent {
   id: string;
-  type: "CRIACAO" | "STATUS" | "PLANEJAMENTO" | "ATRIBUICAO" | "APONTAMENTO" | "PAUSA" | "RETOMADA" | "CONCLUSAO" | "ENCERRAMENTO" | "REABERTURA" | "CANCELAMENTO";
+  type: "CRIACAO" | "STATUS" | "PLANEJAMENTO" | "ATRIBUICAO" | "APONTAMENTO" | "PAUSA" | "RETOMADA" | "CONCLUSAO" | "ENCERRAMENTO" | "REABERTURA" | "CANCELAMENTO" | "MATERIAL" | "FERRAMENTA";
   description: string;
   at: string;
   actorId: string;
@@ -36,9 +36,23 @@ export interface WorkOrderHistoryEvent {
 
 export interface WorkOrderMaterial {
   id: string;
+  inventoryItemId?: string;
   description: string;
   quantity: number;
   unit: string;
+  unitCost?: number;
+  totalCost?: number;
+}
+
+export interface WorkOrderInventoryMovement {
+  movementId: string;
+  type: "RESERVA" | "CANCELAMENTO_RESERVA" | "CONSUMO_OS" | "DEVOLUCAO_OS";
+  itemId: string;
+  itemCode: string;
+  quantity: number;
+  unit: string;
+  totalCost?: number;
+  at: string;
 }
 
 export interface WorkOrder {
@@ -71,6 +85,7 @@ export interface WorkOrder {
   plannedDate?: string;
   estimatedDurationMinutes?: number;
   plannedMaterials: WorkOrderMaterial[];
+  reservedMaterials: WorkOrderMaterial[];
   plannedTools: string[];
   instructions?: string;
   procedure?: string;
@@ -85,6 +100,7 @@ export interface WorkOrder {
   downtimeMinutes: number;
   participants: string[];
   usedMaterials: WorkOrderMaterial[];
+  inventoryMovements: WorkOrderInventoryMovement[];
   usedTools: string[];
   observations: string[];
   photos: string[];

@@ -63,6 +63,10 @@ Ativado por `VITE_AUTH_MODE=supabase` ou pela ausencia da variavel. Usa `signInW
 
 ## Testes
 
+### Estoque e materiais
+
+A suíte `tests/inventory/inventory.spec.ts` cobre 56 cenários E2E com dados identificados por `QA-AUTO-EST` e `QA-AUTO-FERR`. No modo demo, o estado é isolado por empresa em `sessionStorage`. A futura persistência Supabase deve manter as mesmas invariantes em transação, aplicar RLS por empresa e garantir idempotência por chave única.
+
 - Playwright executa inicialmente no Chromium, com um worker para fluxos que alteram estado.
 - Captura de tela e video sao preservados em falha; trace e coletado na primeira repeticao.
 - O servidor de teste e compilado com modo demo explicito.

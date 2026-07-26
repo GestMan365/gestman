@@ -6,6 +6,7 @@ export type ModuleKey =
   | "solicitacoes"
   | "ordensServico"
   | "pcm"
+  | "estoque"
   | "relatorios"
   | "administracao";
 
@@ -28,6 +29,7 @@ export const MODULE_LABELS: Record<ModuleKey, string> = {
   solicitacoes: "Solicitacoes",
   ordensServico: "Ordens de Servico",
   pcm: "PCM",
+  estoque: "Estoque e Materiais",
   relatorios: "Relatorios",
   administracao: "Administracao"
 };
@@ -56,6 +58,14 @@ export const ROLE_PERMISSIONS: Record<UserRole, PermissionKey[]> = {
     "pcm:view",
     "pcm:plan",
     "pcm:manage",
+    "estoque:view",
+    "estoque:create",
+    "estoque:edit",
+    "estoque:delete",
+    "estoque:approve",
+    "estoque:plan",
+    "estoque:execute",
+    "estoque:manage",
     "relatorios:view",
     "administracao:view",
     "administracao:manage"
@@ -77,6 +87,9 @@ export const ROLE_PERMISSIONS: Record<UserRole, PermissionKey[]> = {
     "ordensServico:close",
     "pcm:view",
     "pcm:plan",
+    "estoque:view",
+    "estoque:approve",
+    "estoque:execute",
     "relatorios:view"
   ],
   PLANEJADOR: [
@@ -89,6 +102,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, PermissionKey[]> = {
     "ordensServico:plan",
     "pcm:view",
     "pcm:plan",
+    "estoque:view",
+    "estoque:plan",
     "relatorios:view"
   ],
   TECNICO: [
@@ -97,7 +112,9 @@ export const ROLE_PERMISSIONS: Record<UserRole, PermissionKey[]> = {
     "solicitacoes:view",
     "solicitacoes:create",
     "ordensServico:view",
-    "ordensServico:execute"
+    "ordensServico:execute",
+    "estoque:view",
+    "estoque:execute"
   ],
   SOLICITANTE: [
     "dashboard:view",

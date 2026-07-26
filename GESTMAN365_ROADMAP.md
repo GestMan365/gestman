@@ -32,6 +32,8 @@ Planos de manutencao, periodicidades, calendario, backlog, recursos e geracao co
 
 ## Fase 5 — Estoque (P1)
 
+Fundação demo implementada: itens, saldos, movimentos, reservas, consumo/devolução em O.S., ferramentas, permissões e 56 testes E2E. A promoção para Supabase permanece pendente e exige schema, RLS, transações, auditoria e migração controlada.
+
 Catalogo de pecas, almoxarifados, entradas, saidas, transferencias, requisicoes e estoque minimo.
 
 **Criterio de aceite:** toda movimentacao e rastreavel, o saldo permanece consistente e alertas refletem o estoque real.

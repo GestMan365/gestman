@@ -8,6 +8,7 @@ import type {
   WorkOrderDraft,
   WorkOrderExecutionLog,
   WorkOrderHistoryEvent,
+  WorkOrderMaterial,
   WorkOrderPlan,
   WorkOrderStatus
 } from "@/types/workOrders";
@@ -86,11 +87,13 @@ function seedOrder(
     locationId: draft.locationId,
     symptom: draft.symptom,
     plannedMaterials: [],
+    reservedMaterials: [],
     plannedTools: [],
     workingMinutes: 0,
     downtimeMinutes: 0,
     participants: [],
     usedMaterials: [],
+    inventoryMovements: [],
     usedTools: [],
     observations: [],
     photos: [],
@@ -213,7 +216,9 @@ function copyOrder(order: WorkOrder): WorkOrder {
     history: order.history.map(item => ({ ...item })),
     observations: [...order.observations], participants: [...order.participants],
     plannedMaterials: order.plannedMaterials.map(item => ({ ...item })),
+    reservedMaterials: (order.reservedMaterials ?? []).map(item => ({ ...item })),
     usedMaterials: order.usedMaterials.map(item => ({ ...item })),
+    inventoryMovements: (order.inventoryMovements ?? []).map(item => ({ ...item })),
     plannedTools: [...order.plannedTools], usedTools: [...order.usedTools],
     photos: [...order.photos], attachments: [...order.attachments],
     checklist: [...order.checklist], measurements: [...order.measurements]
@@ -275,6 +280,73 @@ export const workOrderService = {
     return readOrders(empresaId).filter(order => order.empresaId === empresaId).map(copyOrder);
   },
 
+  async get(empresaId: string, id: string): Promise<WorkOrder> {
+    requireDemoMode();
+    return copyOrder(findOrder(readOrders(empresaId), empresaId, id));
+  },
+
+  async recordInventoryMovement(empresaId: string, id: string, input: {
+    movementId: string;
+    type: "RESERVA" | "CANCELAMENTO_RESERVA" | "CONSUMO_OS" | "DEVOLUCAO_OS";
+    itemId: string;
+    itemCode: string;
+    description: string;
+    quantity: number;
+    unit: string;
+    unitCost?: number;
+    totalCost?: number;
+    at: string;
+  }, actor: WorkOrderActor): Promise<WorkOrder> {
+    requireDemoMode();
+    const orders = readOrders(empresaId);
+    const current = findOrder(orders, empresaId, id);
+    if (["ENCERRADA", "CANCELADA"].includes(current.status)) throw new WorkOrderServiceError("O.S. encerrada ou cancelada não aceita nova movimentação de material.");
+    if ((current.inventoryMovements ?? []).some(item => item.movementId === input.movementId)) return copyOrder(current);
+    const reserved = (current.reservedMaterials ?? []).map(item => ({ ...item }));
+    const used = current.usedMaterials.map(item => ({ ...item }));
+    function adjust(lines: WorkOrderMaterial[], delta: number) {
+      const line = lines.find(item => item.inventoryItemId === input.itemId);
+      if (line) {
+        line.quantity = Math.max(0, line.quantity + delta);
+        if (input.unitCost != null) {
+          line.unitCost = input.unitCost;
+          line.totalCost = Number((line.quantity * input.unitCost).toFixed(2));
+        }
+      }
+      else if (delta > 0) lines.push({ id: `${input.type.toLowerCase()}-${input.itemId}`, inventoryItemId: input.itemId, description: input.description, quantity: delta, unit: input.unit, unitCost: input.unitCost, totalCost: input.totalCost });
+      return lines.filter(item => item.quantity > 0);
+    }
+    let nextReserved = reserved; let nextUsed = used;
+    if (input.type === "RESERVA") nextReserved = adjust(reserved, input.quantity);
+    if (input.type === "CANCELAMENTO_RESERVA") nextReserved = adjust(reserved, -input.quantity);
+    if (input.type === "CONSUMO_OS") { nextReserved = adjust(reserved, -Math.min(input.quantity, reserved.find(item => item.inventoryItemId === input.itemId)?.quantity ?? 0)); nextUsed = adjust(used, input.quantity); }
+    if (input.type === "DEVOLUCAO_OS") nextUsed = adjust(used, -input.quantity);
+    const now = input.at;
+    const updated: WorkOrder = {
+      ...current, reservedMaterials: nextReserved, usedMaterials: nextUsed,
+      inventoryMovements: [...(current.inventoryMovements ?? []), { movementId: input.movementId, type: input.type, itemId: input.itemId, itemCode: input.itemCode, quantity: input.quantity, unit: input.unit, totalCost: input.totalCost, at: input.at }],
+      updatedAt: now,
+      history: [...current.history, event("MATERIAL", `${input.type}: ${input.quantity} ${input.unit} de ${input.itemCode}.`, now, actor)]
+    };
+    return replaceOrder(empresaId, orders, updated);
+  },
+
+  async recordToolEvent(empresaId: string, id: string, input: { toolId: string; toolCode: string; action: "EMPRESTIMO" | "DEVOLUCAO"; at: string }, actor: WorkOrderActor): Promise<WorkOrder> {
+    requireDemoMode();
+    const orders = readOrders(empresaId);
+    const current = findOrder(orders, empresaId, id);
+    if (input.action === "EMPRESTIMO" && ["ENCERRADA", "CANCELADA"].includes(current.status)) throw new WorkOrderServiceError("O.S. encerrada ou cancelada não aceita empréstimo de ferramenta.");
+    const marker = `${input.action}:${input.toolId}:${input.at}`;
+    if (current.history.some(item => item.description.includes(marker))) return copyOrder(current);
+    const updated: WorkOrder = {
+      ...current,
+      usedTools: current.usedTools.includes(input.toolCode) ? current.usedTools : [...current.usedTools, input.toolCode],
+      updatedAt: input.at,
+      history: [...current.history, event("FERRAMENTA", `${marker} — ${input.action === "EMPRESTIMO" ? "Ferramenta emprestada" : "Ferramenta devolvida"}: ${input.toolCode}.`, input.at, actor)]
+    };
+    return replaceOrder(empresaId, orders, updated);
+  },
+
   async create(empresaId: string, draft: WorkOrderDraft, actor: WorkOrderActor): Promise<WorkOrder> {
     requireDemoMode();
     await validateDraft(empresaId, draft);
@@ -333,7 +405,7 @@ export const workOrderService = {
       plannerId: actor.id, plannedDate: `${input.competence}T08:00`,
       estimatedDurationMinutes: input.estimatedDurationMinutes, procedure: input.procedure,
       instructions: input.instructions,
-      plannedMaterials: input.plannedMaterials.map((description, index) => ({ id: `plan-material-${index + 1}`, description, quantity: 1, unit: "un" })),
+      plannedMaterials: input.plannedMaterials.map((description, index) => ({ id: `plan-material-${index + 1}`, inventoryItemId: description.startsWith("QA-AUTO-EST-") ? description.toLowerCase() : undefined, description, quantity: 1, unit: "un" })),
       plannedTools: [...input.plannedTools], checklist: [...input.checklist],
       createdAt: now, updatedAt: now,
       history: [event("CRIACAO", `O.S. gerada pelo plano ${input.planCode}.`, now, actor)]

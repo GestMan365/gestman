@@ -39,6 +39,15 @@ export function WorkOrderDetailsDialog(props: Props) {
       {order.reopenReason ? <div className="details-wide"><dt>Motivo da reabertura</dt><dd>{order.reopenReason}</dd></div> : null}
     </dl>
 
+    <section className="work-order-history" aria-label="Materiais da Ordem de Serviço">
+      <h3>Materiais e custos</h3>
+      <div className="work-order-material-columns">
+        <div><strong>Previstos</strong>{order.plannedMaterials.length ? <ul>{order.plannedMaterials.map(item => <li key={item.id}>{item.description} · {item.quantity} {item.unit}</li>)}</ul> : <p>Nenhum material previsto.</p>}</div>
+        <div><strong>Reservados</strong>{order.reservedMaterials.length ? <ul>{order.reservedMaterials.map(item => <li key={item.id}>{item.description} · {item.quantity} {item.unit}</li>)}</ul> : <p>Nenhum material reservado.</p>}</div>
+        <div><strong>Consumidos</strong>{order.usedMaterials.length ? <ul>{order.usedMaterials.map(item => <li key={item.id}>{item.description} · {item.quantity} {item.unit}{item.totalCost == null ? "" : ` · ${item.totalCost.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}`}</li>)}</ul> : <p>Nenhum material consumido.</p>}</div>
+      </div>
+    </section>
+
     <section className="work-order-history" aria-label="Histórico da Ordem de Serviço"><h3>Histórico</h3><ol>{order.history.map(item => <li key={item.id}><strong>{item.description}</strong><span>{item.actorName} · {new Date(item.at).toLocaleString("pt-BR")}</span></li>)}</ol></section>
 
     {mode === "PLAN" ? <form className="inline-action-form" onSubmit={event => { event.preventDefault(); void run(() => props.onPlan(plan)); }}>

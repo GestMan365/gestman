@@ -43,12 +43,17 @@ function seedPlan(empresaId: string, partial: Partial<MaintenancePlan> & Pick<Ma
 }
 
 function seeds(empresaId: string): MaintenancePlan[] {
-  return [
+  const plans: MaintenancePlan[] = [
     seedPlan(empresaId, { id: "qa-auto-pcm-mot-001", assetId: "qa-auto-ativo-mot-001", code: "QA-AUTO-PCM-MOT-001", name: "Inspeção preventiva mensal do motor", description: "Inspecionar condições mecânicas e elétricas do motor.", triggerType: "CALENDARIO", frequency: 1, calendarUnit: "MES", startDate: "2026-07-01", nextExecution: "2026-08-01", procedure: "Inspecionar ruído, vibração, temperatura e conexões.", plannedTools: ["Multímetro"], checklist: [{ id: "mot-1", description: "Verificar ruído anormal", required: true, answerType: "SIM_NAO", order: 1 }] }),
     seedPlan(empresaId, { id: "qa-auto-pcm-bom-001", assetId: "qa-auto-ativo-bom-001", code: "QA-AUTO-PCM-BOM-001", name: "Inspeção trimestral da bomba", description: "Inspecionar selo, alinhamento e vazamentos da bomba.", triggerType: "CALENDARIO", frequency: 3, calendarUnit: "MES", startDate: "2026-07-05", nextExecution: "2026-10-05", procedure: "Bloquear o equipamento e verificar o conjunto hidráulico.", estimatedDurationMinutes: 90 }),
     seedPlan(empresaId, { id: "qa-auto-pcm-cmp-001", assetId: "qa-auto-ativo-cmp-001", code: "QA-AUTO-PCM-CMP-001", name: "Manutenção do compressor por horímetro", description: "Realizar manutenção a cada 500 horas.", triggerType: "HORIMETRO", frequency: 500, calendarUnit: undefined, startDate: "2026-07-01", nextExecution: "2026-08-15", meterCurrent: 2500, meterLimit: 3000, meterUnit: "HORAS", procedure: "Verificar filtros, óleo, correias e vazamentos.", estimatedDurationMinutes: 120 }),
     seedPlan(empresaId, { id: "qa-auto-pcm-ins-001", assetId: "qa-auto-ativo-cmp-001", code: "QA-AUTO-PCM-INS-001", name: "Inspeção semanal de vazamentos", description: "Percorrer a rede e registrar vazamentos.", maintenanceType: "INSPECAO", criticality: "MEDIA", defaultPriority: "BAIXA", triggerType: "CALENDARIO", frequency: 1, calendarUnit: "SEMANA", startDate: "2026-07-20", nextExecution: "2026-07-27", procedure: "Inspecionar conexões e identificar perdas com etiqueta.", estimatedDurationMinutes: 45 })
   ];
+  return plans.map(plan => {
+    if (plan.id === "qa-auto-pcm-mot-001") return { ...plan, plannedMaterials: ["QA-AUTO-EST-ROL-6205"], plannedTools: ["QA-AUTO-FERR-001"] };
+    if (plan.id === "qa-auto-pcm-cmp-001") return { ...plan, plannedMaterials: ["QA-AUTO-EST-FILTRO-001", "QA-AUTO-EST-OLEO-ISO68"] };
+    return plan;
+  });
 }
 
 function valid(value: unknown): value is MaintenancePlan {

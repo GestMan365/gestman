@@ -16,6 +16,16 @@ Permissoes devem ser aplicadas por modulo e operacao. Ocultar um botao nao subst
 
 ## Modulos
 
+### Estoque, materiais e ferramentas
+
+- cadastro de itens com unidade, categoria, níveis de reposição, localização e custo médio opcional;
+- saldo disponível calculado por `total - reservado - bloqueado`;
+- movimentos rastreáveis e imutáveis, com usuário, data, motivo e vínculo opcional com O.S.;
+- reservas, consumo, devolução e custos realizados refletidos na Ordem de Serviço;
+- materiais previstos pelo PCM não alteram saldo até uma movimentação operacional;
+- ferramentas possuem disponibilidade, responsável, previsão de devolução, alerta de atraso e histórico;
+- permissões seguem o perfil e a empresa ativa.
+
 - Dashboard e indicadores operacionais;
 - Ativos e equipamentos;
 - Solicitacoes de manutencao;
