@@ -179,10 +179,10 @@ Deno.serve(async (req) => {
   if (validationError === "BOT") return json(req, 201, { ok: true });
   if (validationError) return json(req, 400, { error: validationError });
 
-  const publicClient = createClient(SUPABASE_URL, ANON_KEY, {
+  const serviceClient = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
-  const { data: inserted, error: insertError } = await publicClient.rpc("gm_submit_company_request", {
+  const { data: inserted, error: insertError } = await serviceClient.rpc("gm_submit_company_request", {
     p_request: data,
   });
   if (insertError) {
