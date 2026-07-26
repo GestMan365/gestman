@@ -1,0 +1,13 @@
+-- GestMan365 Staging baseline metadata, captured 2026-07-26.
+-- Project ref intentionally masked in documentation.
+-- Source Git commit: 0c86d90.
+--
+-- The staging project had no application migrations, public application
+-- tables, Edge Functions or listed Storage objects before this task.
+--
+-- An authoritative schema-only dump was attempted with:
+--   supabase db dump --linked --schema public,storage
+--
+-- The command could not run because Docker Desktop/pg_dump was unavailable.
+-- No DDL from production was copied and no missing object was invented.
+-- See 202607150001_gestman_baseline.review.sql for the dependency inventory.
