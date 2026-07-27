@@ -30130,12 +30130,7 @@
         // A solicitação precisa chegar ao painel mesmo quando o serviço de
         // notificação por e-mail estiver indisponível. A RPC pública é a porta
         // segura, validada e sem acesso direto do visitante à tabela.
-        const inserted = await gmPublicRpc("gm_submit_company_request", { p_request:data });
-        const result = {
-          ok:true,
-          request_id:String(inserted?.[0]?.request_id || ""),
-          panel_registered:true
-        };
+        const result = await gmPublicFunction("submit-company-request", data);
         const successText = $("companyRequestSuccessText");
         if (successText) successText.textContent =
           "Solicitação registrada no painel administrativo GestMan365. Nossa equipe analisará os dados antes de criar o domínio, o usuário e a senha.";

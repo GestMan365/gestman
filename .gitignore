@@ -5,3 +5,6 @@ dist/
 .DS_Store
 Thumbs.db
 supabase/.temp/
+test-results/
+playwright-report/
+blob-report/
