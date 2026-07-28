@@ -96,7 +96,7 @@ Todos os dados `QA-E2E-STAGING-` e `QA-SECURITY` foram removidos. Dados não QA 
 
 ## Dependências
 
-Nenhuma dependência foi atualizada. O `npm audit` completo ainda registra cinco vulnerabilidades: três moderadas e duas altas, relacionadas a `esbuild`/Vite, PostCSS e React Router. A correção deve ocorrer em tarefa separada, pois parte das atualizações envolve mudança de versão principal e exige nova regressão completa.
+Na auditoria específica de dependências, o PostCSS transitivo foi atualizado de `8.5.15` para `8.5.24`, removendo o achado alto correspondente sem mudança de versão principal. O `npm audit` passou a registrar quatro vulnerabilidades: três moderadas e uma alta, relacionadas a `esbuild`/Vite e React Router. As correções restantes exigem Vite 6.4.3+ e React Router 7.18+, mudanças de versão principal que devem ocorrer em tarefas separadas.
 
 ## Escopo e garantias
 

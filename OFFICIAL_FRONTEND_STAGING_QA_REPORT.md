@@ -136,17 +136,17 @@ O DOM inicial real não apresentou IDs duplicados, mas as redefinições de fun�
 
 ## Vulnerabilidades npm
 
-`npm audit` encontrou 5 vulnerabilidades: 3 moderadas e 2 altas.
+O diagnóstico original encontrou 5 vulnerabilidades: 3 moderadas e 2 altas. A auditoria específica de 28/07/2026 atualizou somente o PostCSS transitivo para uma versão corrigida; o resultado atual é 4 vulnerabilidades: 3 moderadas e 1 alta.
 
 | Pacote | Severidade | Alcance | Versão corrigida/candidata | Breaking change | Testes necessários |
 |---|---|---|---|---|---|
 | `esbuild` | moderada | servidor de desenvolvimento via Vite; não é runtime do monólito publicado | `0.25.0+`; o audit propõe Vite `8.1.5` | sim, via major do Vite | build, preview, E2E completo |
-| `postcss` | alta | cadeia de build; risco ao processar source maps não confiáveis | `8.5.18+` | baixo se atualização transitiva compatível | build e inspeção de CSS |
+| `postcss` | corrigida | cadeia de build; não integra o runtime publicado | atualizado para `8.5.24` | não | `npm ci`, TypeScript, build e checks locais aprovados |
 | `react-router` | moderada | aplicação React paralela; não participa do runtime do HTML monolítico | `7.18.0+` | sim, major 6 → 7 | rotas, autenticação e E2E React |
 | `react-router-dom` | moderada | dependência direta da aplicação React paralela | `7.18.0+`; não existe correção `6.30.5` publicada | sim, major 6 → 7 | rotas, links, redirects e E2E React |
 | `vite` | alta | servidor/build local; não é biblioteca runtime do GitHub Pages | `6.4.3+` cobre os advisories listados; `npm audit` propõe `8.1.5` | possível/alto | TypeScript, build, preview e E2E completo |
 
-Nenhuma dependência foi atualizada automaticamente nesta tarefa.
+Nenhuma atualização ampla ou forçada foi executada. Vite e React Router permanecem pendentes por exigirem mudança de versão principal.
 
 ## Limpeza
 
@@ -158,7 +158,7 @@ Nenhuma dependência foi atualizada automaticamente nesta tarefa.
 
 As quatro correções estão aptas para revisão local do commit. Antes de qualquer promoção futura, revisar separadamente:
 
-1. as cinco vulnerabilidades npm pendentes, sem atualização automática nesta tarefa;
+1. as quatro vulnerabilidades npm pendentes, todas fora do bundle do monólito publicado;
 2. o tamanho elevado do bundle;
 3. funções/listeners duplicados do monólito em tarefa isolada.
 

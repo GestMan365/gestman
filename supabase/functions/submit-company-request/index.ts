@@ -15,15 +15,15 @@ type CompanyRequest = {
   legal_name: string;
   cnpj: string;
   responsible_name: string;
-  responsible_role?: string;
+  responsible_role: string;
   responsible_email: string;
   responsible_phone: string;
   city: string;
   state: string;
-  estimated_users?: number | null;
-  estimated_units?: number | null;
-  message?: string;
-  website?: string;
+  estimated_users: number | null;
+  estimated_units: number | null;
+  message: string;
+  website: string;
 };
 
 function requestId() {
