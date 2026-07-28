@@ -7,6 +7,8 @@ const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
 const EMAIL_FROM = Deno.env.get("GESTMAN_EMAIL_FROM") ?? "";
 const NOTIFICATION_EMAIL = Deno.env.get("GESTMAN_REQUEST_EMAIL_TO") ?? "andsantos15@hotmail.com";
 const APP_ORIGIN = Deno.env.get("GESTMAN_APP_ORIGIN") ?? "https://gestman365.github.io";
+const RATE_LIMIT_ATTEMPTS = 6;
+const RATE_LIMIT_WINDOW_SECONDS = 60 * 60;
 
 type CompanyRequest = {
   trade_name: string;
@@ -24,6 +26,11 @@ type CompanyRequest = {
   website?: string;
 };
 
+function requestId() {
+  const bytes = crypto.getRandomValues(new Uint8Array(12));
+  return `req_${Array.from(bytes, (value) => value.toString(16).padStart(2, "0")).join("")}`;
+}
+
 function cors(req: Request) {
   const origin = req.headers.get("origin") ?? "";
   const allowed = origin === APP_ORIGIN || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
@@ -35,8 +42,16 @@ function cors(req: Request) {
   };
 }
 
-function json(req: Request, status: number, body: Record<string, unknown>) {
-  return new Response(JSON.stringify(body), {
+function json(
+  req: Request,
+  status: number,
+  body: Record<string, unknown>,
+  traceId = "",
+) {
+  return new Response(JSON.stringify({
+    ...body,
+    ...(traceId ? { trace_id: traceId } : {}),
+  }), {
     status,
     headers: {
       ...cors(req),
@@ -52,6 +67,30 @@ function text(value: unknown, max = 200) {
 
 function digits(value: unknown, max: number) {
   return String(value ?? "").replace(/\D/g, "").slice(0, max);
+}
+
+async function sha256(value: string) {
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(value),
+  );
+  return Array.from(new Uint8Array(digest), (byte) =>
+    byte.toString(16).padStart(2, "0")
+  ).join("");
+}
+
+function requestOriginSignal(req: Request) {
+  for (const name of ["cf-connecting-ip", "x-forwarded-for", "x-real-ip"]) {
+    const candidate = (req.headers.get(name) ?? "").split(",")[0].trim().toLowerCase();
+    if (
+      candidate.length >= 3
+      && candidate.length <= 64
+      && /^[0-9a-f:.]+$/i.test(candidate)
+    ) {
+      return candidate;
+    }
+  }
+  return "unavailable";
 }
 
 function escapeHtml(value: unknown) {
@@ -157,37 +196,95 @@ function emailText(data: CompanyRequest, requestId: string) {
 }
 
 Deno.serve(async (req) => {
+  const traceId = requestId();
+  const respond = (
+    status: number,
+    body: Record<string, unknown>,
+  ) => json(req, status, body, traceId);
+
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors(req) });
-  if (req.method !== "POST") return json(req, 405, { error: "Método não permitido." });
+  if (req.method !== "POST") return respond(405, { error: "Método não permitido." });
 
   const origin = req.headers.get("origin") ?? "";
   if (origin && origin !== APP_ORIGIN && !/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
-    return json(req, 403, { error: "Origem não autorizada." });
+    return respond(403, { error: "Origem não autorizada." });
   }
   if (!SUPABASE_URL || !ANON_KEY || !SERVICE_ROLE_KEY) {
-    return json(req, 503, { error: "O serviço de cadastro ainda não foi configurado." });
+    console.error("company_request_configuration_missing", { requestId: traceId });
+    return respond(503, { error: "O serviço de cadastro ainda não foi configurado." });
   }
 
   let input: Record<string, unknown>;
   try {
     input = await req.json();
   } catch {
-    return json(req, 400, { error: "Dados inválidos." });
+    return respond(400, { error: "Dados inválidos." });
   }
   const data = normalize(input);
   const validationError = validate(data);
-  if (validationError === "BOT") return json(req, 201, { ok: true });
-  if (validationError) return json(req, 400, { error: validationError });
+  if (validationError === "BOT") return respond(201, { ok: true });
+  if (validationError) return respond(400, { error: validationError });
 
   const serviceClient = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
+  const [requestLookup, companyLookup] = await Promise.all([
+    serviceClient
+      .from("company_requests")
+      .select("id")
+      .eq("cnpj", data.cnpj)
+      .in("status", ["pending", "reviewing", "approved", "converted"])
+      .limit(1),
+    serviceClient
+      .from("gm_companies")
+      .select("id")
+      .eq("cnpj", data.cnpj)
+      .limit(1),
+  ]);
+  if (requestLookup.error || companyLookup.error) {
+    console.error("company_request_idempotency_lookup_failed", { requestId: traceId });
+    return respond(503, {
+      error: "Não foi possível verificar a solicitação agora. Tente novamente em alguns instantes.",
+    });
+  }
+  if (requestLookup.data?.length || companyLookup.data?.length) {
+    return respond(409, {
+      error: "Já existe uma solicitação ou empresa cadastrada para este CNPJ.",
+      code: "GM_REQUEST_EXISTS",
+    });
+  }
+
+  const rateKey = await sha256(
+    `submit-company-request:v1:${requestOriginSignal(req)}`,
+  );
+  const { data: rateAllowed, error: rateError } = await serviceClient.rpc(
+    "gm_consume_public_rate_limit",
+    {
+      p_key_hash: rateKey,
+      p_limit: RATE_LIMIT_ATTEMPTS,
+      p_window_seconds: RATE_LIMIT_WINDOW_SECONDS,
+    },
+  );
+  if (rateError) {
+    console.error("company_request_rate_limit_failed", { requestId: traceId });
+    return respond(503, {
+      error: "O cadastro está temporariamente indisponível. Tente novamente em alguns instantes.",
+    });
+  }
+  if (!rateAllowed) {
+    console.warn("company_request_rate_limited", { requestId: traceId });
+    return respond(429, {
+      error: "Muitas solicitações foram enviadas. Aguarde alguns minutos e tente novamente.",
+      code: "RATE_LIMITED",
+    });
+  }
+
   const { data: inserted, error: insertError } = await serviceClient.rpc("gm_submit_company_request", {
     p_request: data,
   });
   if (insertError) {
     const duplicate = insertError.code === "23505";
-    return json(req, duplicate ? 409 : 422, {
+    return respond(duplicate ? 409 : 422, {
       error: duplicate
         ? "Já existe uma solicitação ou empresa cadastrada para este CNPJ."
         : "Não foi possível registrar a solicitação.",
@@ -195,11 +292,12 @@ Deno.serve(async (req) => {
     });
   }
 
-  const requestId = String(inserted?.[0]?.request_id ?? "");
+  const insertedRequestId = String(inserted?.[0]?.request_id ?? "");
   if (!RESEND_API_KEY || !EMAIL_FROM) {
-    return json(req, 201, {
+    console.info("company_request_completed", { requestId: traceId, emailSent: false });
+    return respond(201, {
       ok: true,
-      request_id: requestId,
+      request_id: insertedRequestId,
       panel_registered: true,
       email_sent: false,
       message: "Solicitação registrada no painel administrativo GestMan365.",
@@ -217,8 +315,8 @@ Deno.serve(async (req) => {
       to: [NOTIFICATION_EMAIL],
       reply_to: data.responsible_email,
       subject: `Nova solicitação GestMan365 — ${data.trade_name}`,
-      html: emailHtml(data, requestId),
-      text: emailText(data, requestId),
+      html: emailHtml(data, insertedRequestId),
+      text: emailText(data, insertedRequestId),
     }),
   });
   const mailResult = await mailResponse.json().catch(() => ({}));
@@ -231,11 +329,14 @@ Deno.serve(async (req) => {
     await service.from("company_requests").update({
       notification_email: NOTIFICATION_EMAIL,
       notification_error: providerError,
-    }).eq("id", requestId);
-    console.error("company_request_email_failed", { requestId, status: mailResponse.status, providerError });
-    return json(req, 202, {
+    }).eq("id", insertedRequestId);
+    console.error("company_request_email_failed", {
+      requestId: traceId,
+      status: mailResponse.status,
+    });
+    return respond(202, {
       ok: true,
-      request_id: requestId,
+      request_id: insertedRequestId,
       panel_registered: true,
       email_sent: false,
       warning: "Solicitação registrada no painel; a notificação interna por e-mail será revisada.",
@@ -246,11 +347,12 @@ Deno.serve(async (req) => {
     notification_email: NOTIFICATION_EMAIL,
     notification_sent_at: new Date().toISOString(),
     notification_error: null,
-  }).eq("id", requestId);
+  }).eq("id", insertedRequestId);
 
-  return json(req, 201, {
+  console.info("company_request_completed", { requestId: traceId, emailSent: true });
+  return respond(201, {
     ok: true,
-    request_id: requestId,
+    request_id: insertedRequestId,
     panel_registered: true,
     email_sent: true,
     notification_email: NOTIFICATION_EMAIL,

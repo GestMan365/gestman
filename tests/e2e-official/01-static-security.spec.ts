@@ -72,15 +72,17 @@ test("DOM inicial não possui IDs repetidos nem labels órfãos", async ({ page 
   expect(audit.duplicates).toEqual([]);
 });
 
-test("solicitação pública ainda não possui rate limit server-side", async () => {
+test("solicitação pública possui rate limit server-side com falha segura", async () => {
   const source = fs.readFileSync(
     path.join(env.root, "supabase", "functions", "submit-company-request", "index.ts"),
     "utf8",
   );
-  test.info().annotations.push({
-    type: "bug-confirmado",
-    description: "A Edge Function pública valida duplicidade, mas não consome rate limit.",
-  });
-  test.fail(true, "Defeito conhecido: endpoint público sem controle de taxa server-side.");
-  expect(source).toMatch(/gm_consume_public_rate_limit|rate.?limit/i);
+  expect(source).toContain('"gm_consume_public_rate_limit"');
+  expect(source).toContain("RATE_LIMIT_ATTEMPTS");
+  expect(source).toContain("RATE_LIMIT_WINDOW_SECONDS");
+  expect(source).toContain("company_request_rate_limit_failed");
+  expect(source).toContain("return respond(503");
+  expect(source).toContain("return respond(429");
+  expect(source).toContain("requestOriginSignal(req)");
+  expect(source).not.toMatch(/input\.(rate|limit)|data\.(rate|limit)/i);
 });

@@ -17136,7 +17136,7 @@
               <details class="tenant-row-actions"><summary aria-label="Ações de ${escapeHtml(tenantUserDisplayName(user))}">⋮</summary><div>
                 <button type="button" onclick="editTenantUser('${user.id}')">Editar</button>
                 <button type="button" onclick="editTenantUserProfile('${user.id}')">Redefinir perfil</button>
-                ${protectedAdmin || isCurrent ? "" : `<button type="button" onclick="toggleTenantUserActive('${user.id}')">${user.active !== false ? "Desativar" : "Ativar"}</button>`}
+                ${protectedAdmin || isCurrent ? "" : `<button type="button" onclick="toggleTenantUserActive('${user.id}')">${user.active !== false ? "Remover acesso desta empresa" : "Restaurar acesso nesta empresa"}</button>`}
               </div></details>
             </td>
           </tr>
@@ -17158,9 +17158,9 @@
         await gmAuthenticatedFunction("manage-company-user", { action:"set_active", user_id:id, active:nextActive });
         authStore.users = authStore.users.map(item => item.id === id ? { ...item, active:nextActive } : item);
         saveAuthStore(authStore);
-        stage21WriteAudit({ module:"Usuários e Permissões", action:nextActive ? "Usuário ativado" : "Usuário inativado", record:user.username || user.email, before, after:{ ...before, active:nextActive }, result:"Sucesso", origin:"Administração" });
+        stage21WriteAudit({ module:"Usuários e Permissões", action:nextActive ? "Acesso empresarial restaurado" : "Acesso empresarial removido", record:user.username || user.email, before, after:{ ...before, active:nextActive }, result:"Sucesso", origin:"Administração" });
         await openProfileModal();
-        showToast(nextActive ? "Usuário ativado com acesso imediato." : "Usuário desativado no Supabase. O histórico foi preservado.");
+        showToast(nextActive ? "Acesso a esta empresa restaurado." : "Acesso removido somente desta empresa. O perfil global e o histórico foram preservados.");
       } catch (error) {
         showToast(error?.message || "Não foi possível alterar o acesso do usuário.", "error");
       }
@@ -17171,7 +17171,7 @@
       const user = authStore.users.find(item => item.id === id && item.companyId === currentAccount?.company?.id);
       if (!user || isPrimaryAdmin(user) || user.id === currentAccount?.user?.id) return;
       if (user.active === false) { performTenantUserActiveToggle(id); return; }
-      requestDestructiveConfirmation("Desativar este usuário?", "O acesso será bloqueado, mas o histórico será preservado.", "Desativar usuário", () => performTenantUserActiveToggle(id));
+      requestDestructiveConfirmation("Remover acesso desta empresa?", "O acesso será bloqueado somente nesta empresa. O perfil global, outros vínculos e o histórico serão preservados.", "Remover acesso desta empresa", () => performTenantUserActiveToggle(id));
     }
 
     function editTenantUser(id) {
@@ -17236,7 +17236,7 @@
       const existing = authStore.users.find(item => item.id === id && item.companyId === companyId);
       if (existing?.active !== false && $("tenantUserActive").value === "false" && !tenantUserDeactivationConfirmed) {
         $("tenantInactiveConfirm")?.classList.remove("is-hidden");
-        showToast("Confirme a desativação para continuar.", "warning");
+        showToast("Confirme a remoção do acesso desta empresa para continuar.", "warning");
         return;
       }
       const loginUser = normalizeAccessUsername($("tenantUserEmail").value);
@@ -23303,12 +23303,33 @@
       if (unique.some(item => item.value === current)) select.value = current;
     }
 
+    function orderDueState(order, referenceTime = Date.now()) {
+      if (isClosedOrder(order?.status)) return { key:"completed", label:"Concluída", days:0, due:null };
+      const rawDue = order?.dueAt || order?.deadline || order?.scheduledAt || "";
+      if (!String(rawDue).trim()) return { key:"no-date", label:"Sem data", days:null, due:null };
+      const due = parseCalendarDate(rawDue);
+      const iso = String(rawDue).trim().match(/^(\d{4})-(\d{2})-(\d{2})/);
+      const br = String(rawDue).trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+      const validParts = !due || Number.isNaN(due.getTime()) ? false
+        : iso ? due.getFullYear() === Number(iso[1]) && due.getMonth() === Number(iso[2]) - 1 && due.getDate() === Number(iso[3])
+        : br ? due.getFullYear() === Number(br[3]) && due.getMonth() === Number(br[2]) - 1 && due.getDate() === Number(br[1])
+        : true;
+      if (!validParts) return { key:"invalid", label:"Data inválida", days:null, due:null };
+      const today = new Date(referenceTime);
+      if (Number.isNaN(today.getTime())) return { key:"invalid", label:"Data inválida", days:null, due:null };
+      today.setHours(0, 0, 0, 0);
+      due.setHours(0, 0, 0, 0);
+      const days = Math.round((due.getTime() - today.getTime()) / 86400000);
+      if (days < 0) return { key:"overdue", label:"Atrasada", days, due };
+      if (days === 0) return { key:"due-today", label:"Vence hoje", days, due };
+      if (days <= 3) return { key:"due-soon", label:"Próxima do vencimento", days, due };
+      return { key:"on-time", label:"No prazo", days, due };
+    }
+
     function orderIsLate(order) {
-      if (isClosedOrder(order.status)) return false;
-      if (normalizeTextKey(order.status).includes("atras")) return true;
-      const due = parseCalendarDate(order.scheduledAt);
-      const today = new Date(); today.setHours(0, 0, 0, 0);
-      return Boolean(due && due.getTime() < today.getTime());
+      if (isClosedOrder(order?.status)) return false;
+      if (normalizeTextKey(order?.status).includes("atras")) return true;
+      return orderDueState(order).key === "overdue";
     }
 
     function orderStatusChip(order) {
@@ -25634,7 +25655,7 @@
                     </div>
                   </div>
                 </details>
-                <div class="tenant-inactive-confirm is-hidden" id="tenantInactiveConfirm" role="alert"><div><strong>Desativar este usuário?</strong><p>O acesso será bloqueado, mas o histórico será preservado.</p></div><div class="toolbar"><button class="btn" type="button" onclick="this.closest('#tenantInactiveConfirm').classList.add('is-hidden')">Voltar</button><button class="btn danger" type="button" onclick="confirmTenantUserDeactivation()">Desativar usuário</button></div></div>
+      <div class="tenant-inactive-confirm is-hidden" id="tenantInactiveConfirm" role="alert"><div><strong>Remover acesso desta empresa?</strong><p>O perfil global, os acessos a outras empresas e o histórico serão preservados. “Desativar usuário globalmente” é uma ação separada e restrita à administração da plataforma.</p></div><div class="toolbar"><button class="btn" type="button" onclick="this.closest('#tenantInactiveConfirm').classList.add('is-hidden')">Voltar</button><button class="btn danger" type="button" onclick="confirmTenantUserDeactivation()">Remover acesso desta empresa</button></div></div>
               </div>
               <div class="tenant-user-editor-foot">
                 <button class="btn cancel" type="button" id="cancelTenantUserForm">Cancelar</button>
@@ -30143,7 +30164,9 @@
         form.reset();
       } catch (error) {
         const status = $("companyRequestStatus"); status.hidden = false;
-        status.textContent = error.code === "23505" || /existe|duplic/i.test(error.message)
+        status.textContent = error.code === "429" || error.code === "RATE_LIMITED"
+          ? "Muitas solicitações foram enviadas. Aguarde alguns minutos e tente novamente."
+          : error.code === "23505" || error.code === "GM_REQUEST_EXISTS" || /existe|duplic/i.test(error.message)
           ? "J\u00e1 existe uma solicita\u00e7\u00e3o ou empresa cadastrada para este CNPJ."
           : error.code === "22023"
             ? String(error.message || "Os dados informados n\u00e3o s\u00e3o v\u00e1lidos. Revise os campos e tente novamente.")

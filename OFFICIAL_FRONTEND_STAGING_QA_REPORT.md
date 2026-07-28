@@ -1,8 +1,9 @@
 # GestMan365 — QA do frontend oficial contra Staging
 
-Data da execução: 26/07/2026
+Data da execução original: 26/07/2026
+Revalidação das correções: 28/07/2026
 Branch: `codex/github-current-20260722`
-Base validada: `13225af`
+Base das correções: `60e3aa2`
 Escopo: monólito oficial (`index.html` e fallback `404.html`) conectado somente ao Supabase Staging.
 
 ## Resumo executivo
@@ -10,12 +11,12 @@ Escopo: monólito oficial (`index.html` e fallback `404.html`) conectado somente
 - O Staging é diferente da produção e foi usado por configuração local ignorada pelo Git.
 - Nenhuma URL, project ref, senha, chave publishable de Staging ou chave `service_role` foi versionada.
 - A produção não recebeu chamadas, dados, migrations ou alterações.
-- A suíte oficial contém 22 testes Playwright e terminou sem falhas inesperadas.
-- Dos 22 testes, 17 passaram integralmente e 5 foram falhas esperadas que reproduzem quatro defeitos conhecidos.
+- A suíte oficial contém 22 testes Playwright e terminou com `22 aprovados`, `0 reprovados` e `0 ignorados`.
+- As cinco falhas anteriormente esperadas foram removidas após a correção dos quatro defeitos conhecidos.
 - Os 66 testes de segurança remota existentes também passaram (`10` de bootstrap e `56` de segurança).
 - Os 91 checks de onboarding/JavaScript passaram.
 - Todos os dados e anexos `QA-E2E-STAGING-` foram removidos; a conferência final retornou zero.
-- A publicação em produção não é recomendada antes do tratamento dos quatro bugs confirmados.
+- As correções foram aplicadas e validadas somente no Staging; não houve promoção para produção.
 
 ## Ambiente e execução
 
@@ -35,7 +36,7 @@ Escopo: monólito oficial (`index.html` e fallback `404.html`) conectado somente
 5. Correção cirúrgica no `404.html`: o fallback ainda chamava diretamente `gm_submit_company_request`; agora usa a mesma Edge Function `submit-company-request` do `index.html`.
 6. Inclusão dos diretórios de saída do Playwright no `.gitignore`.
 
-Não houve redesign, refatoração ampla, alteração de schema, migration, Edge Function, produção ou deploy.
+Na revalidação de 28/07/2026 foram acrescentadas duas migrations de hardening, atualizada a Edge Function pública e corrigidos somente os blocos autorizados do frontend. Não houve redesign, refatoração ampla, alteração de produção ou deploy público.
 
 ## Resultados dos testes
 
@@ -58,45 +59,38 @@ Não houve redesign, refatoração ampla, alteração de schema, migration, Edge
 | Usuários da empresa | Listagem isolada e desativação do membership aprovadas |
 | Storage | Upload, leitura, isolamento, anon/inativo, exclusão e limpeza aprovados |
 | Responsividade | Cinco resoluções sem overflow horizontal global |
-| Console e rede | Nenhum erro inesperado além do bug `orderDueState` |
+| Console e rede | Nenhum erro JavaScript ou de rede inesperado |
 | Chamadas à produção | Nenhuma detectada |
 
-Resultado final do Playwright: `22 concluídos`, `0 falhas inesperadas`, `0 ignorados`.
-Composição: `17 aprovados integrais` e `5 falhas esperadas`, usadas para registrar quatro bugs confirmados.
+Resultado final do Playwright: `22 aprovados`, `0 reprovados`, `0 ignorados`.
+As cinco falhas esperadas da execução anterior agora passam como regressões obrigatórias.
 
-## Bugs confirmados
+## Bugs corrigidos e revalidados
 
-### 1. Onboarding público sem rate limit server-side
+### 1. Rate limit server-side do onboarding público
 
-- Severidade recomendada: alta.
-- Evidência estática: a Edge Function não consome helper de rate limit.
-- Evidência dinâmica: oito solicitações consecutivas válidas foram aceitas sem resposta HTTP `429`.
-- Impacto: spam, abuso do endpoint, consumo de banco e eventual consumo do provedor de e-mail.
-- Recomendação: aplicar rate limit por IP/identificador derivado no servidor, com chave hash, janela curta e resposta `429`.
+- A Edge Function consome o helper atômico `gm_consume_public_rate_limit`.
+- A origem é derivada no servidor e armazenada somente como hash.
+- Rajadas retornam HTTP `429` com código estável, enquanto repetição idempotente de CNPJ continua retornando conflito.
+- O frontend apresenta mensagem clara e restaura o botão de envio.
 
-### 2. Storage aceita traversal com barra codificada
+### 2. Canonicalização de caminhos do Storage
 
-- Severidade recomendada: alta.
-- Evidência: upload com segmento `..%2F` retornou HTTP `200`.
-- O teste de segurança anterior bloqueia outra forma de traversal, mas não cobre esta variante codificada.
-- Isolamento entre empresas permaneceu ativo no cenário testado.
-- Recomendação: normalizar e rejeitar segmentos codificados antes da autorização; adicionar o caso à regressão de Storage.
+- A migration de hardening exige caminho canônico antes de resolver empresa e módulo.
+- Foram bloqueadas variantes com traversal codificado, duplamente codificado, barra invertida, barra absoluta, controles, separadores Unicode, segmento longo e nome vazio.
+- Upload, leitura e exclusão autorizados continuam funcionando no caminho canônico.
 
-### 3. Desativação da empresa altera perfil global
+### 3. Separação entre membership e perfil global
 
-- Severidade recomendada: média/alta em ambiente multiempresa.
-- O membership da empresa foi desativado corretamente.
-- A mesma operação também definiu `gm_profiles.active = false`.
-- Impacto: um usuário que participe de mais de uma empresa pode ser bloqueado globalmente ao ser desativado em apenas uma.
-- Recomendação: manter o estado de acesso por membership e alterar o perfil global somente em operação administrativa global explícita.
+- Remover acesso de uma empresa altera apenas `gm_company_members.active`.
+- O perfil global e memberships de outras empresas permanecem ativos.
+- A desativação global foi separada em RPC restrita ao administrador da plataforma.
+- A interface diferencia “Remover acesso desta empresa” de “Desativar usuário globalmente”.
 
-### 4. `orderDueState is not defined`
+### 4. `orderDueState`
 
-- Severidade recomendada: média.
-- Reproduzido ao navegar pelos módulos de calendário/programação.
-- Existem chamadas a `orderDueState`, mas não existe declaração correspondente; o código possui `orderIsLate`.
-- Impacto: `pageerror` e risco de renderização incompleta de calendário/planos.
-- Recomendação: corrigir cirurgicamente as duas chamadas e executar novamente a suíte completa.
+- A função foi implementada com estados determinísticos para concluída, sem data, inválida, atrasada, vence hoje, próxima e no prazo.
+- Calendário, programação e módulos principais abriram sem `pageerror` ou erro de console.
 
 ## Dívida técnica observada
 
@@ -113,7 +107,7 @@ O DOM inicial real não apresentou IDs duplicados, mas as redefinições de fun�
 - Nenhuma chamada a outro projeto Supabase foi detectada durante a regressão autenticada.
 - Nenhum token, senha ou chave privada apareceu na interface ou nos logs de teste.
 - Respostas negativas previstas: login inválido, CNPJ duplicado, conflito de versão, acesso anônimo/inativo/cross-tenant e arquivo inexistente.
-- Erro inesperado reproduzido: `orderDueState is not defined`.
+- Nenhum erro inesperado de JavaScript foi reproduzido após a correção de `orderDueState`.
 - O bootstrap do navegador usa somente a Edge Function autenticada.
 - O onboarding corrigido usa somente a Edge Function pública.
 - O `gm_bootstrap_company` não é chamado diretamente pelo navegador.
@@ -162,16 +156,13 @@ Nenhuma dependência foi atualizada automaticamente nesta tarefa.
 
 ## Recomendação
 
-Não promover esta revisão para produção ainda. Prioridade sugerida:
+As quatro correções estão aptas para revisão local do commit. Antes de qualquer promoção futura, revisar separadamente:
 
-1. rate limit do onboarding;
-2. normalização de path no Storage;
-3. separar ativação global de perfil da ativação por membership;
-4. corrigir `orderDueState`;
-5. reduzir funções/listeners duplicados em tarefa isolada;
-6. atualizar Vite/PostCSS e planejar a migração do React Router separadamente.
+1. as cinco vulnerabilidades npm pendentes, sem atualização automática nesta tarefa;
+2. o tamanho elevado do bundle;
+3. funções/listeners duplicados do monólito em tarefa isolada.
 
 Produção alterada: **Não**
-Staging alterado: **somente dados QA temporários, posteriormente removidos**
+Staging alterado: **somente as duas migrations e a Edge Function autorizadas; dados QA posteriormente removidos**
 Frontend público implantado: **Não**
 Push realizado: **Não**

@@ -50,6 +50,30 @@ test("módulos principais abrem sem exceções JavaScript", async ({ page }) => 
   });
   page.on("requestfailed", (request) => requestFailures.push(request.failure()?.errorText || "request failed"));
   await login(page, data.identities.adminA);
+  const dueStates = await page.evaluate(() => {
+    const classify = (window as typeof window & {
+      orderDueState: (order: Record<string, unknown>, reference: number) => { key: string };
+    }).orderDueState;
+    const reference = new Date(2026, 6, 28, 12).getTime();
+    return [
+      classify({ status: "Aberta" }, reference).key,
+      classify({ status: "Aberta", scheduledAt: "2026-08-10" }, reference).key,
+      classify({ status: "Aberta", scheduledAt: "2026-07-28" }, reference).key,
+      classify({ status: "Aberta", scheduledAt: "2026-07-30" }, reference).key,
+      classify({ status: "Aberta", scheduledAt: "2026-07-20" }, reference).key,
+      classify({ status: "Concluída", scheduledAt: "2026-07-20" }, reference).key,
+      classify({ status: "Aberta", scheduledAt: "2026-02-31" }, reference).key,
+    ];
+  });
+  expect(dueStates).toEqual([
+    "no-date",
+    "on-time",
+    "due-today",
+    "due-soon",
+    "overdue",
+    "completed",
+    "invalid",
+  ]);
   const views = [
     "dashboard", "assets", "orders", "calendar", "preventivePlans", "checklists",
     "activeOrders", "downtime", "measurements", "operationalDiary",
@@ -62,18 +86,9 @@ test("módulos principais abrem sem exceções JavaScript", async ({ page }) => 
     await openView(page, view);
     await expect(page.locator(`#${view}`)).toBeVisible();
   }
-  const knownConsole = consoleIssues.filter((message) => message.includes("orderDueState is not defined"));
-  const unexpectedConsole = consoleIssues.filter((message) => !message.includes("orderDueState is not defined"));
-  const knownPageErrors = errors.filter((message) => message === "orderDueState is not defined");
-  const unexpectedPageErrors = errors.filter((message) => message !== "orderDueState is not defined");
   expect(foreignSupabaseRequest).toBe(false);
   expect(networkIssues).toEqual([]);
   expect(requestFailures).toEqual([]);
-  expect(unexpectedConsole).toEqual([]);
-  expect(unexpectedPageErrors).toEqual([]);
-  test.fail(
-    knownPageErrors.length > 0 || knownConsole.length > 0,
-    "Defeito conhecido: calendário/programação chama orderDueState, mas a função não existe.",
-  );
-  expect([...knownPageErrors, ...knownConsole]).toEqual([]);
+  expect(consoleIssues).toEqual([]);
+  expect(errors).toEqual([]);
 });

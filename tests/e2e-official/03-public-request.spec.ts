@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { expect, test } from "@playwright/test";
 import { api, env, fixture, marker, rows } from "./support/staging-api.mjs";
 
@@ -69,13 +70,15 @@ test("fallback 404 abre onboarding, valida e evita envio duplicado", async ({ pa
   expect(duplicateCheck.payload).toHaveLength(1);
 });
 
-test("onboarding público limita rajadas de solicitações", async () => {
-  const statuses: number[] = [];
-  for (let index = 1; index <= 8; index += 1) {
-    const response = await api("/functions/v1/submit-company-request", {
+test("onboarding público limita rajadas, preserva idempotência e recupera a interface", async ({ page }) => {
+  const startedAt = new Date(Date.now() - 1000).toISOString();
+  const responses = await Promise.all(Array.from({ length: 8 }, (_, offset) => {
+    const index = offset + 1;
+    return api("/functions/v1/submit-company-request", {
       method: "POST",
       key: env.publishableKey,
       token: env.publishableKey,
+      headers: { "x-rate-limit-key": `browser-controlled-${index}` },
       body: {
         trade_name: `${marker}RATE-${index}`,
         legal_name: `${marker}RATE-${index} LTDA`,
@@ -89,15 +92,91 @@ test("onboarding público limita rajadas de solicitações", async () => {
         estimated_users: 2,
         estimated_units: 1,
         message: `${marker}TESTE DE RATE LIMIT`,
+        rate_limit_key: `browser-controlled-${index}`,
       },
     });
-    statuses.push(response.status);
-  }
-  const rateLimited = statuses.includes(429);
-  test.info().annotations.push({
-    type: "bug-confirmado",
-    description: `Nenhuma resposta 429 em rajada controlada: ${statuses.join(", ")}.`,
+  }));
+  const statuses = responses.map((response) => response.status);
+  expect(statuses).toContain(429);
+  expect(statuses.filter((status) => status === 201 || status === 202).length).toBeLessThanOrEqual(6);
+  expect(responses.filter((response) => response.status === 429).every((response) =>
+    response.payload?.code === "RATE_LIMITED"
+    && /^req_[0-9a-f]{24}$/.test(String(response.payload?.trace_id || ""))
+  )).toBe(true);
+
+  const idempotentRetry = await api("/functions/v1/submit-company-request", {
+    method: "POST",
+    key: env.publishableKey,
+    token: env.publishableKey,
+    body: {
+      trade_name: `${marker}SOLICITACAO`,
+      legal_name: `${marker}SOLICITACAO LTDA`,
+      cnpj: fixture.requestCnpj,
+      responsible_name: `${marker}RESPONSAVEL`,
+      responsible_email: fixture.requestEmail,
+      responsible_phone: "11999990001",
+      city: "Sao Paulo",
+      state: "SP",
+    },
   });
-  test.fail(!rateLimited, "Defeito conhecido: submit-company-request não aplica rate limit.");
-  expect(rateLimited).toBe(true);
+  expect(idempotentRetry.status).toBe(409);
+  expect(idempotentRetry.payload?.code).toBe("GM_REQUEST_EXISTS");
+
+  const rpcKey = createHash("sha256")
+    .update(`${marker}RATE-RPC-${Date.now()}`)
+    .digest("hex");
+  const atomic = await Promise.all(Array.from({ length: 8 }, () =>
+    api("/rest/v1/rpc/gm_consume_public_rate_limit", {
+      method: "POST",
+      body: { p_key_hash: rpcKey, p_limit: 3, p_window_seconds: 60 },
+    })
+  ));
+  expect(atomic.every((response) => response.status === 200)).toBe(true);
+  expect(atomic.filter((response) => response.payload === true).length).toBe(3);
+  await api(`/rest/v1/gm_public_rate_limits?key_hash=eq.${rpcKey}`, {
+    method: "PATCH",
+    body: {
+      window_started_at: new Date(Date.now() - 120_000).toISOString(),
+      attempts: 3,
+    },
+    headers: { Prefer: "return=minimal" },
+  });
+  const newWindow = await api("/rest/v1/rpc/gm_consume_public_rate_limit", {
+    method: "POST",
+    body: { p_key_hash: rpcKey, p_limit: 3, p_window_seconds: 60 },
+  });
+  expect(newWindow.status).toBe(200);
+  expect(newWindow.payload).toBe(true);
+
+  await page.route("**/functions/v1/submit-company-request", (route) =>
+    route.fulfill({
+      status: 429,
+      contentType: "application/json",
+      body: JSON.stringify({
+        error: "Muitas solicitações foram enviadas.",
+        code: "RATE_LIMITED",
+        trace_id: "req_000000000000000000000000",
+      }),
+    })
+  );
+  await page.goto("/cadastrar-empresa");
+  await fillValidRequest(page);
+  await page.locator("#companyRequestSubmit").click();
+  await expect(page.locator("#companyRequestStatus")).toContainText(
+    /Muitas solicitações foram enviadas.*tente novamente/i,
+  );
+  await expect(page.locator("#companyRequestSubmit")).toBeEnabled();
+  await expect(page.locator("#companyRequestSubmit")).toHaveText("Enviar para análise");
+
+  await api(`/rest/v1/gm_public_rate_limits?key_hash=eq.${rpcKey}`, {
+    method: "DELETE",
+    headers: { Prefer: "return=minimal" },
+  });
+  await api(
+    `/rest/v1/gm_public_rate_limits?updated_at=gte.${encodeURIComponent(startedAt)}`,
+    {
+      method: "DELETE",
+      headers: { Prefer: "return=minimal" },
+    },
+  );
 });

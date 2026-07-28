@@ -109,14 +109,31 @@ test("Storage isola tenant, nega anônimo/inativo e permite ciclo autorizado", a
   );
   expect([400, 401, 403, 404]).toContain(inactiveUpload.status);
 
-  const traversalPath = `${data.companyAId}/documents/..%2Fescape.txt`;
-  const traversal = await api(`/storage/v1/object/${bucket}/${traversalPath}`, {
-    method: "POST",
-    key: env.publishableKey,
-    token: sessionA.access_token,
-    body: bytes,
-    headers: { "Content-Type": "text/plain", "x-upsert": "false" },
-  });
+  const invalidPaths = [
+    `${data.companyAId}/documents/..%2F${fixture.attachmentName}`,
+    `${data.companyAId}/documents/%2e%2e%2f${fixture.attachmentName}`,
+    `${data.companyAId}/documents/%252e%252e%252f${fixture.attachmentName}`,
+    `${data.companyAId}/documents/..%5C${fixture.attachmentName}`,
+    `${data.companyAId}/documents/%2Fetc%2F${fixture.attachmentName}`,
+    `${data.companyAId}/documents/%2F%2F${fixture.attachmentName}`,
+    `${data.companyAId}/documents/%00${fixture.attachmentName}`,
+    `${data.companyAId}/documents/%EF%BC%8E%EF%BC%8E%EF%BC%8F${fixture.attachmentName}`,
+    `${data.companyAId}/documents/${"a".repeat(260)}.txt`,
+    `${data.companyAId}/documents/`,
+  ];
+  const invalidUploads = [];
+  for (const invalidPath of invalidPaths) {
+    invalidUploads.push(await api(`/storage/v1/object/${bucket}/${invalidPath}`, {
+      method: "POST",
+      key: env.publishableKey,
+      token: sessionA.access_token,
+      body: bytes,
+      headers: { "Content-Type": "text/plain", "x-upsert": "false" },
+    }));
+  }
+  expect(invalidUploads.every((result) =>
+    [400, 401, 403, 404].includes(result.status)
+  )).toBe(true);
   const remove = await api(`/storage/v1/object/${bucket}`, {
     method: "DELETE",
     key: env.publishableKey,
@@ -135,12 +152,6 @@ test("Storage isola tenant, nega anônimo/inativo e permite ciclo autorizado", a
     token: sessionA.access_token,
     body: { prefixes: [`${data.companyAId}/documents/../escape.txt`, `${data.companyAId}/escape.txt`] },
   });
-  test.info().annotations.push({
-    type: "bug-confirmado",
-    description: `Storage aceitou caminho com traversal (HTTP ${traversal.status}).`,
-  });
-  test.fail(traversal.status >= 200 && traversal.status < 300, "Defeito conhecido: caminho traversal aceito pelo Storage.");
-  expect([400, 401, 403, 404]).toContain(traversal.status);
 });
 
 test("dados sensíveis e senha textual não aparecem nas tabelas do tenant", async () => {
