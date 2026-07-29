@@ -14097,6 +14097,681 @@
       }
     }
   </style>
+  <style id="design-phase-03">
+    /* Design Phase 03: engenharia visual dos modulos internos. */
+    body:not(.auth-required):not(.auth-loading):not(.panel-mode) {
+      --im-surface: var(--d2-surface, #ffffff);
+      --im-surface-soft: var(--d2-surface-soft, #f7fafc);
+      --im-surface-strong: var(--d2-surface-strong, #edf3f6);
+      --im-border: var(--d2-border, #d6e1e7);
+      --im-border-strong: var(--d2-border-strong, #bdccd5);
+      --im-text: var(--d2-text, #172630);
+      --im-text-soft: var(--d2-text-soft, #465d69);
+      --im-muted: var(--d2-muted, #647a86);
+      --im-accent: #16879a;
+      --im-accent-soft: color-mix(in srgb, var(--im-accent) 12%, transparent);
+      --im-positive: #16835f;
+      --im-warning: #ad6a0a;
+      --im-danger: #c23d4c;
+      --im-radius-sm: 8px;
+      --im-radius: 12px;
+      --im-radius-lg: 16px;
+      --im-shadow: 0 8px 24px rgba(18, 46, 59, .08);
+    }
+
+    body:not(.theme-light):not(.auth-required):not(.auth-loading):not(.panel-mode) {
+      --im-accent: #5ec3d1;
+      --im-positive: #4bd09b;
+      --im-warning: #f2b85b;
+      --im-danger: #fb7185;
+      --im-shadow: 0 10px 28px rgba(0, 0, 0, .24);
+    }
+
+    :is(#spares,#stock,#stockMoves,#materialRequests,#stockTransfers,#preventivePlans,#calendar,#checklists,#measurements) {
+      color: var(--im-text);
+    }
+
+    :is(#spares,#stock,#stockMoves,#materialRequests,#stockTransfers,#preventivePlans,#calendar,#checklists,#measurements)
+    :is(.materials-workspace,.preventive-workspace,.preventive-calendar-shell,.checklist-workspace,.stage15-workspace) {
+      gap: 16px;
+      min-width: 0;
+    }
+
+    :is(#spares,#preventivePlans,#calendar,#checklists,#measurements)
+    :is(.materials-page-head,.preventive-page-head,.checklist-page-head,.stage15-page-head) {
+      align-items: flex-start;
+      min-height: 96px;
+      border: 1px solid var(--im-border);
+      border-radius: var(--im-radius-lg);
+      padding: 20px 22px;
+      background:
+        linear-gradient(135deg, var(--im-accent-soft), transparent 48%),
+        var(--im-surface);
+      box-shadow: var(--im-shadow);
+    }
+
+    :is(#spares,#preventivePlans,#calendar,#checklists,#measurements)
+    :is(.materials-page-head,.preventive-page-head,.checklist-page-head,.stage15-page-head) h1 {
+      margin: 4px 0 6px;
+      color: var(--im-text);
+      font-size: clamp(22px, 2.1vw, 30px);
+      line-height: 1.15;
+      letter-spacing: -.025em;
+    }
+
+    :is(#spares,#preventivePlans,#calendar,#checklists,#measurements)
+    :is(.materials-page-head,.preventive-page-head,.checklist-page-head,.stage15-page-head) p {
+      max-width: 760px;
+      margin: 0;
+      color: var(--im-text-soft);
+      line-height: 1.55;
+    }
+
+    :is(.materials-eyebrow,.preventive-eyebrow,.checklist-eyebrow,.stage15-eyebrow) {
+      color: var(--im-accent);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .13em;
+    }
+
+    :is(.materials-head-actions,.preventive-head-actions,.checklist-head-actions,.stage15-head-actions) {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    :is(#spares,#preventivePlans,#checklists,#measurements)
+    :is(.materials-metrics,.preventive-metrics,.checklist-metrics,.stage15-metrics) {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px;
+    }
+
+    :is(.materials-metric,.preventive-metric,.checklist-metric,.stage15-metric) {
+      min-width: 0;
+      min-height: 88px;
+      border: 1px solid var(--im-border);
+      border-radius: var(--im-radius);
+      padding: 14px 15px;
+      color: var(--im-text);
+      background: var(--im-surface);
+      box-shadow: 0 3px 12px rgba(18, 46, 59, .055);
+    }
+
+    :is(.materials-metric,.preventive-metric,.checklist-metric,.stage15-metric) i {
+      display: grid;
+      place-items: center;
+      flex: 0 0 34px;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      color: var(--im-accent);
+      background: var(--im-accent-soft);
+      font-style: normal;
+    }
+
+    :is(.materials-metric,.preventive-metric,.checklist-metric,.stage15-metric) strong {
+      display: block;
+      overflow: hidden;
+      color: var(--im-text);
+      font-size: 21px;
+      line-height: 1.15;
+      text-overflow: ellipsis;
+    }
+
+    :is(.materials-metric,.preventive-metric,.checklist-metric,.stage15-metric) span {
+      display: block;
+      margin-top: 4px;
+      color: var(--im-muted);
+      font-size: 12px;
+      line-height: 1.3;
+    }
+
+    :is(.materials-metric.danger,.preventive-metric.danger,.checklist-metric.danger,.stage15-metric.danger) {
+      border-left: 3px solid var(--im-danger);
+    }
+
+    :is(.materials-metric.warn,.preventive-metric.warn,.checklist-metric.warn,.stage15-metric.warn) {
+      border-left: 3px solid var(--im-warning);
+    }
+
+    :is(.materials-metric.success,.preventive-metric.success,.checklist-metric.success,.stage15-metric.success) {
+      border-left: 3px solid var(--im-positive);
+    }
+
+    :is(.materials-tabs,.checklist-tabs,.stage15-tabs,.calendar-mode-group) {
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      border: 1px solid var(--im-border);
+      border-radius: 11px;
+      padding: 4px;
+      background: var(--im-surface-soft);
+      scrollbar-width: thin;
+    }
+
+    :is(.materials-tabs,.checklist-tabs,.stage15-tabs,.calendar-mode-group) button {
+      min-height: 38px;
+      border: 0;
+      border-radius: 8px;
+      padding: 8px 13px;
+      color: var(--im-text-soft);
+      background: transparent;
+      white-space: nowrap;
+    }
+
+    :is(.materials-tabs,.checklist-tabs,.stage15-tabs,.calendar-mode-group) button:is(.active,[aria-selected="true"]) {
+      color: var(--im-text);
+      background: var(--im-surface);
+      box-shadow: 0 2px 7px rgba(18, 46, 59, .09);
+    }
+
+    :is(.materials-toolbar,.preventive-filter-panel,.preventive-calendar-filters,.checklist-filter-panel,.stage15-filter-panel) {
+      align-items: center;
+      gap: 10px;
+      border: 1px solid var(--im-border);
+      border-radius: var(--im-radius);
+      padding: 11px;
+      background: var(--im-surface);
+      box-shadow: none;
+    }
+
+    :is(.materials-search,.preventive-search,.checklist-search,.stage15-search) {
+      min-width: min(280px, 100%);
+      border-color: var(--im-border-strong);
+      border-radius: 9px;
+      color: var(--im-text);
+      background: var(--im-surface-soft);
+    }
+
+    :is(.materials-list-panel,.preventive-list-panel,.checklist-list-panel,.stage15-list-panel,.preventive-calendar-app) {
+      min-width: 0;
+      overflow: hidden;
+      border: 1px solid var(--im-border);
+      border-radius: var(--im-radius-lg);
+      background: var(--im-surface);
+      box-shadow: var(--im-shadow);
+    }
+
+    :is(.materials-list-meta,.preventive-list-meta,.checklist-list-meta,.stage15-list-meta,.calendar-toolbar) {
+      min-height: 58px;
+      border-bottom: 1px solid var(--im-border);
+      padding: 12px 16px;
+      color: var(--im-text);
+      background: var(--im-surface-soft);
+    }
+
+    :is(.materials-table-wrap,.preventive-table-wrap,.checklist-table-wrap,.stage15-table-wrap,.table-wrap) {
+      max-width: 100%;
+      overflow: auto;
+      scrollbar-color: var(--im-border-strong) transparent;
+    }
+
+    :is(#spares,#preventivePlans,#checklists,#measurements) table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    :is(#spares,#preventivePlans,#checklists,#measurements) thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      border-bottom: 1px solid var(--im-border);
+      padding: 12px 14px;
+      color: var(--im-muted);
+      background: var(--im-surface-soft);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .055em;
+      text-transform: uppercase;
+    }
+
+    :is(#spares,#preventivePlans,#checklists,#measurements) tbody td {
+      border-bottom: 1px solid color-mix(in srgb, var(--im-border) 72%, transparent);
+      padding: 13px 14px;
+      color: var(--im-text-soft);
+      vertical-align: middle;
+    }
+
+    :is(#spares,#preventivePlans,#checklists,#measurements) tbody tr:hover {
+      background: color-mix(in srgb, var(--im-accent) 5%, var(--im-surface));
+    }
+
+    :is(.materials-mobile-card,.preventive-mobile-card,.checklist-mobile-card,.stage15-mobile-card) {
+      border: 1px solid var(--im-border);
+      border-radius: var(--im-radius);
+      color: var(--im-text);
+      background: var(--im-surface);
+      box-shadow: 0 4px 14px rgba(18, 46, 59, .07);
+    }
+
+    :is(.materials-pagination,.preventive-pagination,.checklist-pagination,.stage15-pagination) {
+      min-height: 54px;
+      border-top: 1px solid var(--im-border);
+      padding: 10px 14px;
+      color: var(--im-muted);
+      background: var(--im-surface-soft);
+    }
+
+    :is(.materials-empty,.preventive-empty,.checklist-empty,.stage15-empty,.empty,.gm-system-state) {
+      display: grid;
+      justify-items: center;
+      gap: 7px;
+      min-height: 128px;
+      border: 1px dashed var(--im-border-strong);
+      border-radius: var(--im-radius);
+      padding: 24px 18px;
+      color: var(--im-text-soft);
+      background: color-mix(in srgb, var(--im-surface-soft) 88%, transparent);
+      text-align: center;
+    }
+
+    :is(.materials-empty,.preventive-empty,.checklist-empty,.stage15-empty,.empty,.gm-system-state) strong {
+      color: var(--im-text);
+      font-size: 15px;
+    }
+
+    .gm-system-state[data-state="error"] {
+      border-color: color-mix(in srgb, var(--im-danger) 48%, var(--im-border));
+      color: var(--im-danger);
+      background: color-mix(in srgb, var(--im-danger) 7%, var(--im-surface));
+    }
+
+    .gm-system-state[data-state="success"] {
+      border-color: color-mix(in srgb, var(--im-positive) 44%, var(--im-border));
+      color: var(--im-positive);
+      background: color-mix(in srgb, var(--im-positive) 7%, var(--im-surface));
+    }
+
+    .gm-loading-skeleton {
+      min-height: 14px;
+      border-radius: 6px;
+      background: linear-gradient(90deg, var(--im-surface-strong), var(--im-surface), var(--im-surface-strong));
+      background-size: 220% 100%;
+      animation: gm-phase3-loading 1.2s linear infinite;
+    }
+
+    @keyframes gm-phase3-loading {
+      to { background-position: -220% 0; }
+    }
+
+    .calendar-status-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      border: 1px solid var(--im-border);
+      border-radius: var(--im-radius);
+      padding: 10px 12px;
+      background: var(--im-surface);
+    }
+
+    .calendar-status-legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 28px;
+      border: 1px solid var(--im-border);
+      border-radius: 999px;
+      padding: 4px 9px;
+      color: var(--im-text-soft);
+      background: var(--im-surface-soft);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .calendar-status-legend i {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--legend-color, var(--im-accent));
+    }
+
+    #calendar :is(.calendar-grid,.calendar-weekdays) {
+      min-width: 720px;
+    }
+
+    #calendar .calendar-main {
+      max-width: 100%;
+      overflow: auto;
+    }
+
+    #calendar .calendar-day.today {
+      outline: 2px solid var(--im-accent);
+      outline-offset: -2px;
+      background: color-mix(in srgb, var(--im-accent) 7%, var(--im-surface));
+    }
+
+    #stage19CalendarRoot .stage19-head {
+      border: 1px solid var(--im-border);
+      border-radius: var(--im-radius-lg);
+      padding: 20px 22px;
+      background: linear-gradient(135deg, var(--im-accent-soft), transparent 48%), var(--im-surface);
+      box-shadow: var(--im-shadow);
+    }
+
+    #stage19CalendarRoot .stage19-calendar-shell {
+      overflow: hidden;
+      border-color: var(--im-border);
+      border-radius: var(--im-radius-lg);
+      background: var(--im-surface);
+      box-shadow: var(--im-shadow);
+    }
+
+    #stage19CalendarRoot :is(.stage19-filter-panel,.stage19-calendar-head) {
+      border-color: var(--im-border);
+      background: var(--im-surface-soft);
+    }
+
+    #stage19CalendarRoot .stage19-calendar-grid {
+      min-width: 1040px;
+    }
+
+    #stage19CalendarRoot .stage19-calendar-event {
+      min-height: 76px;
+      border-left: 3px solid var(--event, var(--im-accent));
+      padding: 8px;
+      text-align: left;
+    }
+
+    #stage19CalendarRoot .stage19-calendar-event :is(strong,span,small) {
+      display: block;
+      overflow: visible;
+      white-space: normal;
+      text-overflow: clip;
+      line-height: 1.3;
+    }
+
+    :is(.stage15-chart,.stage15-chart-card,.stage15-trend-card,.s16-chart-card,.s16-chart-shell) {
+      min-width: 0;
+      border: 1px solid var(--im-border);
+      border-radius: var(--im-radius);
+      color: var(--im-text);
+      background: var(--im-surface);
+      box-shadow: none;
+    }
+
+    :is(.stage15-chart,.stage15-chart-card,.stage15-trend-card,.s16-chart-card,.s16-chart-shell) canvas {
+      max-width: 100%;
+    }
+
+    #genericModalBox {
+      overflow: hidden;
+      border-color: var(--im-border);
+      border-radius: var(--im-radius-lg);
+      color: var(--im-text);
+      background: var(--im-surface);
+      box-shadow: 0 28px 70px rgba(4, 20, 28, .32);
+    }
+
+    #genericModalBox .modal-head {
+      position: sticky;
+      top: 0;
+      z-index: 8;
+      min-height: 62px;
+      border-bottom: 1px solid var(--im-border);
+      padding: 13px 18px;
+      color: var(--im-text);
+      background: color-mix(in srgb, var(--im-surface) 96%, transparent);
+      backdrop-filter: blur(12px);
+    }
+
+    #genericModalBox .modal-body {
+      overscroll-behavior: contain;
+      background: var(--im-surface);
+    }
+
+    #genericModalBox :is(.materials-form-actions,.tenant-user-editor-foot,.profile-session-actions) {
+      position: sticky;
+      bottom: 0;
+      z-index: 6;
+      border-top: 1px solid var(--im-border);
+      padding: 12px 0 0;
+      background: var(--im-surface);
+    }
+
+    .gm-settings-shell {
+      display: grid;
+      grid-template-columns: 210px minmax(0, 1fr);
+      min-height: min(660px, 74vh);
+      border: 1px solid var(--im-border);
+      border-radius: var(--im-radius);
+      overflow: hidden;
+      background: var(--im-surface);
+    }
+
+    .gm-settings-nav {
+      display: grid;
+      align-content: start;
+      gap: 4px;
+      border-right: 1px solid var(--im-border);
+      padding: 14px 10px;
+      background: var(--im-surface-soft);
+    }
+
+    .gm-settings-nav strong {
+      padding: 5px 9px 10px;
+      color: var(--im-muted);
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .gm-settings-nav button {
+      justify-content: flex-start;
+      min-height: 40px;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      padding: 8px 10px;
+      color: var(--im-text-soft);
+      background: transparent;
+      text-align: left;
+    }
+
+    .gm-settings-nav button:is(.active,[aria-selected="true"]) {
+      border-color: color-mix(in srgb, var(--im-accent) 24%, var(--im-border));
+      color: var(--im-text);
+      background: var(--im-accent-soft);
+    }
+
+    .gm-settings-content {
+      min-width: 0;
+      overflow: auto;
+      padding: 18px;
+    }
+
+    .gm-settings-panel[hidden] {
+      display: none;
+    }
+
+    .gm-settings-panel-head {
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--im-border);
+      padding-bottom: 12px;
+    }
+
+    .gm-settings-panel-head h2 {
+      margin: 0 0 5px;
+      color: var(--im-text);
+      font-size: 19px;
+    }
+
+    .gm-settings-panel-head p {
+      margin: 0;
+      color: var(--im-muted);
+      line-height: 1.5;
+    }
+
+    .gm-settings-panel .profile-admin-users {
+      border: 0;
+      box-shadow: none;
+    }
+
+    .gm-settings-placeholder {
+      display: grid;
+      gap: 8px;
+      border: 1px dashed var(--im-border-strong);
+      border-radius: var(--im-radius);
+      padding: 22px;
+      color: var(--im-text-soft);
+      background: var(--im-surface-soft);
+    }
+
+    .gm-settings-placeholder strong {
+      color: var(--im-text);
+    }
+
+    .gm-settings-appearance {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border: 1px solid var(--im-border);
+      border-radius: var(--im-radius);
+      padding: 16px;
+      background: var(--im-surface-soft);
+    }
+
+    .tenant-company-access,
+    .tenant-global-status {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      border: 1px solid var(--im-border);
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 11px;
+      font-weight: 750;
+      line-height: 1.2;
+    }
+
+    .tenant-company-access.is-active {
+      border-color: color-mix(in srgb, var(--im-positive) 35%, var(--im-border));
+      color: var(--im-positive);
+      background: color-mix(in srgb, var(--im-positive) 8%, var(--im-surface));
+    }
+
+    .tenant-company-access.is-inactive {
+      border-color: color-mix(in srgb, var(--im-warning) 35%, var(--im-border));
+      color: var(--im-warning);
+      background: color-mix(in srgb, var(--im-warning) 8%, var(--im-surface));
+    }
+
+    .tenant-global-status {
+      color: var(--im-muted);
+      background: var(--im-surface-soft);
+    }
+
+    :is(button,.btn,.tab,input,select,textarea,[tabindex]):focus-visible {
+      outline: 3px solid color-mix(in srgb, var(--im-accent) 42%, transparent);
+      outline-offset: 2px;
+    }
+
+    @media (max-width: 900px) {
+      :is(#spares,#preventivePlans,#calendar,#checklists,#measurements)
+      :is(.materials-page-head,.preventive-page-head,.checklist-page-head,.stage15-page-head) {
+        min-height: 0;
+        padding: 16px;
+      }
+      :is(.materials-head-actions,.preventive-head-actions,.checklist-head-actions,.stage15-head-actions) {
+        width: 100%;
+        justify-content: flex-start;
+      }
+      :is(.materials-head-actions,.preventive-head-actions,.checklist-head-actions,.stage15-head-actions) .btn {
+        flex: 1 1 150px;
+      }
+      :is(.materials-toolbar,.preventive-filter-panel,.preventive-calendar-filters,.checklist-filter-panel,.stage15-filter-panel) {
+        align-items: stretch;
+      }
+      .gm-settings-shell {
+        grid-template-columns: 1fr;
+        min-height: 0;
+      }
+      .gm-settings-nav {
+        display: flex;
+        overflow-x: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--im-border);
+        padding: 8px;
+      }
+      .gm-settings-nav strong {
+        display: none;
+      }
+      .gm-settings-nav button {
+        flex: 0 0 auto;
+        white-space: nowrap;
+      }
+    }
+
+    @media (max-width: 600px) {
+      :is(#spares,#preventivePlans,#calendar,#checklists,#measurements) {
+        padding-inline: 0;
+      }
+      :is(#spares,#preventivePlans,#calendar,#checklists,#measurements)
+      :is(.materials-page-head,.preventive-page-head,.checklist-page-head,.stage15-page-head) {
+        border-radius: 12px;
+        padding: 14px;
+      }
+      :is(#spares,#preventivePlans,#checklists,#measurements)
+      :is(.materials-metrics,.preventive-metrics,.checklist-metrics,.stage15-metrics) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      :is(.materials-tabs,.checklist-tabs,.stage15-tabs) {
+        display: flex !important;
+        grid-template-columns: none !important;
+        justify-content: flex-start !important;
+        overflow-x: auto !important;
+      }
+      :is(.materials-tabs,.checklist-tabs,.stage15-tabs) button {
+        flex: 0 0 auto !important;
+        min-width: 112px !important;
+        white-space: nowrap !important;
+      }
+      :is(.materials-metric,.preventive-metric,.checklist-metric,.stage15-metric) {
+        min-height: 82px;
+        padding: 12px;
+      }
+      :is(.materials-metric,.preventive-metric,.checklist-metric,.stage15-metric) strong {
+        font-size: 18px;
+      }
+      .calendar-status-legend {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+      }
+      #stage19CalendarRoot .stage19-head {
+        padding: 14px;
+      }
+      #stage19CalendarRoot .stage19-calendar-grid {
+        min-width: 920px;
+      }
+      #genericModalBox.large {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+      }
+      #genericModalBox.large .modal-body {
+        max-height: calc(100dvh - 62px) !important;
+        padding: 12px !important;
+      }
+      .gm-settings-content {
+        padding: 12px;
+      }
+      .gm-settings-appearance {
+        align-items: stretch;
+        flex-direction: column;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .gm-loading-skeleton {
+        animation: none;
+      }
+    }
+  </style>
 </head>
 <body class="auth-loading auth-restoring">
   <script id="design-theme-bootstrap">
@@ -15627,6 +16302,14 @@
           <select class="field" id="calendarStatusFilter" aria-label="Filtrar status"><option value="">Todos os status</option><option>Planejada</option><option>Próxima do vencimento</option><option>Atrasada</option><option>Em execução</option><option>Concluída</option><option>Pausada</option></select>
           <select class="field" id="calendarTypeFilter" aria-label="Filtrar tipo"><option value="">Todos os tipos</option><option>Preventiva</option><option>Corretiva</option><option>Preditiva</option><option>Inspeção</option></select>
           <button class="btn" type="button" onclick="clearPreventiveCalendarFilters()">Limpar filtros</button>
+        </div>
+        <div class="calendar-status-legend" aria-label="Legenda de status do calendário">
+          <span><i style="--legend-color:#2f80ed"></i>Planejada</span>
+          <span><i style="--legend-color:#d97706"></i>Próxima do vencimento</span>
+          <span><i style="--legend-color:#dc3545"></i>Atrasada</span>
+          <span><i style="--legend-color:#7c3aed"></i>Em execução</span>
+          <span><i style="--legend-color:#16835f"></i>Concluída</span>
+          <span><i style="--legend-color:#64748b"></i>Pausada</span>
         </div>
         <div class="calendar-app panel preventive-calendar-app">
           <div class="calendar-main">
@@ -19014,6 +19697,7 @@
         role:profile === "admin" ? "admin" : "user",
         accessProfile:profile,
         active:row.active !== false,
+        globalActive:typeof row.global_active === "boolean" ? row.global_active : null,
         permissions:profile === "admin" ? allPermissions(true) : {},
         permissionLevels:levels,
         photo:row.avatar_url || "",
@@ -19046,7 +19730,8 @@
             <td>${escapeHtml(tenantUserDisplayName(user))}</td>
             <td>${escapeHtml(user.contactEmail || user.email || "-")}</td>
             <td>${accessProfileChip(user)}</td>
-            <td><span class="tag ${user.active !== false ? "status-success" : "status-inactive"}">${user.active !== false ? "Ativo" : "Inativo"}</span></td>
+            <td><span class="tenant-company-access ${user.active !== false ? "is-active" : "is-inactive"}">${user.active !== false ? "Acesso ativo nesta empresa" : "Acesso removido desta empresa"}</span></td>
+            <td><span class="tenant-global-status">${user.globalActive === true ? "Usuário global ativo" : user.globalActive === false ? "Usuário global desativado" : "Status global não informado"}</span></td>
             <td>${escapeHtml(tenantUserRegionLabel(user))}</td>
             <td>${user.lastAccessAt ? formatDateTime(user.lastAccessAt) : "Nunca acessou"}</td>
             <td class="actions">
@@ -19058,7 +19743,7 @@
             </td>
           </tr>
         `;
-      }).join("") || `<tr><td colspan="7" class="empty">Nenhum usuário cadastrado.</td></tr>`;
+      }).join("") || `<tr><td colspan="8" class="empty">Nenhum usuário cadastrado.</td></tr>`;
     }
 
     function editTenantUserProfile(id) {
@@ -19076,7 +19761,7 @@
         authStore.users = authStore.users.map(item => item.id === id ? { ...item, active:nextActive } : item);
         saveAuthStore(authStore);
         stage21WriteAudit({ module:"Usuários e Permissões", action:nextActive ? "Acesso empresarial restaurado" : "Acesso empresarial removido", record:user.username || user.email, before, after:{ ...before, active:nextActive }, result:"Sucesso", origin:"Administração" });
-        await openProfileModal();
+        await openProfileModal("users");
         showToast(nextActive ? "Acesso a esta empresa restaurado." : "Acesso removido somente desta empresa. O perfil global e o histórico foram preservados.");
       } catch (error) {
         showToast(error?.message || "Não foi possível alterar o acesso do usuário.", "error");
@@ -27452,6 +28137,90 @@
         orderFilterPanel.classList.remove("is-hidden");
         orderFilterPanel.querySelector(".gm-mobile-filter-close")?.remove();
       }
+      root.querySelectorAll(".table-wrap").forEach(wrapper => {
+        if (!wrapper.hasAttribute("tabindex")) wrapper.tabIndex = 0;
+        if (!wrapper.hasAttribute("aria-label")) wrapper.setAttribute("aria-label", "Tabela com rolagem");
+      });
+      root.querySelectorAll(".empty,.materials-empty,.preventive-empty,.checklist-empty,.stage15-empty").forEach(empty => {
+        if (!empty.hasAttribute("role")) empty.setAttribute("role", "status");
+        if (!empty.hasAttribute("aria-live")) empty.setAttribute("aria-live", "polite");
+      });
+      root.querySelectorAll(".is-loading,[aria-busy='true']").forEach(element => element.setAttribute("aria-busy", "true"));
+      root.querySelectorAll(".calendar-status-legend i").forEach(icon => icon.setAttribute("aria-hidden", "true"));
+    }
+
+    function phase3SettingsPlaceholder(title, description) {
+      return `<div class="gm-settings-placeholder gm-system-state" data-state="empty"><strong>${escapeHtml(title)}</strong><span>${escapeHtml(description)}</span></div>`;
+    }
+
+    function switchPhase3SettingsPanel(panel) {
+      const shell = $("gmSettingsShell");
+      if (!shell) return;
+      const available = shell.querySelector(`[data-settings-panel="${panel}"]`) ? panel : "company";
+      shell.querySelectorAll("[data-settings-target]").forEach(button => {
+        const active = button.dataset.settingsTarget === available;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-selected", String(active));
+        button.tabIndex = active ? 0 : -1;
+      });
+      shell.querySelectorAll("[data-settings-panel]").forEach(section => {
+        const active = section.dataset.settingsPanel === available;
+        section.hidden = !active;
+        section.classList.toggle("active", active);
+      });
+      shell.dataset.activePanel = available;
+    }
+
+    function updatePhase3AppearancePanel() {
+      const label = $("gmSettingsThemeValue");
+      if (label) label.textContent = currentTheme === "light" ? "Tema claro" : "Tema escuro";
+    }
+
+    function togglePhase3SettingsTheme() {
+      toggleSystemTheme();
+      updatePhase3AppearancePanel();
+    }
+
+    function mountPhase3Settings(initialPanel = "company") {
+      const body = $("genericBody");
+      const profile = $("profileForm");
+      if (!body || !profile || $("gmSettingsShell")) return;
+      const users = body.querySelector(".tenant-user-admin");
+      const shell = document.createElement("div");
+      shell.className = "gm-settings-shell";
+      shell.id = "gmSettingsShell";
+      shell.innerHTML = `
+        <nav class="gm-settings-nav" aria-label="Categorias de configurações" role="tablist" aria-orientation="vertical">
+          <strong>Configurações</strong>
+          <button type="button" role="tab" data-settings-target="company" onclick="switchPhase3SettingsPanel('company')">Empresa e perfil</button>
+          ${users ? `<button type="button" role="tab" data-settings-target="users" onclick="switchPhase3SettingsPanel('users')">Usuários e acessos</button>` : ""}
+          <button type="button" role="tab" data-settings-target="maintenance" onclick="switchPhase3SettingsPanel('maintenance')">Manutenção</button>
+          <button type="button" role="tab" data-settings-target="orders" onclick="switchPhase3SettingsPanel('orders')">Ordens de Serviço</button>
+          <button type="button" role="tab" data-settings-target="stock" onclick="switchPhase3SettingsPanel('stock')">Estoque</button>
+          <button type="button" role="tab" data-settings-target="notifications" onclick="switchPhase3SettingsPanel('notifications')">Notificações</button>
+          <button type="button" role="tab" data-settings-target="appearance" onclick="switchPhase3SettingsPanel('appearance')">Aparência</button>
+          <button type="button" role="tab" data-settings-target="integrations" onclick="switchPhase3SettingsPanel('integrations')">Integrações</button>
+          <button type="button" role="tab" data-settings-target="security" onclick="switchPhase3SettingsPanel('security')">Segurança</button>
+        </nav>
+        <div class="gm-settings-content">
+          <section class="gm-settings-panel" data-settings-panel="company" role="tabpanel"><header class="gm-settings-panel-head"><h2>Empresa e perfil</h2><p>Dados visíveis da empresa e preferências do usuário atual.</p></header><div data-settings-host="company"></div></section>
+          ${users ? `<section class="gm-settings-panel" data-settings-panel="users" role="tabpanel" hidden><header class="gm-settings-panel-head"><h2>Usuários e acessos</h2><p>Gerencie o vínculo com esta empresa sem confundir o acesso empresarial com o status global.</p></header><div data-settings-host="users"></div></section>` : ""}
+          <section class="gm-settings-panel" data-settings-panel="maintenance" role="tabpanel" hidden>${phase3SettingsPlaceholder("Manutenção", "As regras permanecem nos módulos de planos preventivos, checklists e medições.")}</section>
+          <section class="gm-settings-panel" data-settings-panel="orders" role="tabpanel" hidden>${phase3SettingsPlaceholder("Ordens de Serviço", "Nenhuma configuração adicional está disponível nesta versão. O fluxo atual foi preservado.")}</section>
+          <section class="gm-settings-panel" data-settings-panel="stock" role="tabpanel" hidden>${phase3SettingsPlaceholder("Estoque", "Parâmetros de peças, almoxarifados e movimentações continuam em seus módulos de origem.")}</section>
+          <section class="gm-settings-panel" data-settings-panel="notifications" role="tabpanel" hidden>${phase3SettingsPlaceholder("Notificações", "Os alertas operacionais atuais continuam ativos, sem novas preferências nesta etapa.")}</section>
+          <section class="gm-settings-panel" data-settings-panel="appearance" role="tabpanel" hidden><header class="gm-settings-panel-head"><h2>Aparência</h2><p>Alterne o tema sem alterar dados ou regras do sistema.</p></header><div class="gm-settings-appearance"><div><strong id="gmSettingsThemeValue">Tema atual</strong><p class="muted">A preferência é mantida para o usuário atual.</p></div><button class="btn" type="button" onclick="togglePhase3SettingsTheme()">Alternar tema</button></div></section>
+          <section class="gm-settings-panel" data-settings-panel="integrations" role="tabpanel" hidden>${phase3SettingsPlaceholder("Integrações", "Nenhuma integração foi criada ou alterada nesta fase visual.")}</section>
+          <section class="gm-settings-panel" data-settings-panel="security" role="tabpanel" hidden><header class="gm-settings-panel-head"><h2>Segurança</h2><p>Visão administrativa dos controles já existentes.</p></header><div id="stage21SecurityRoot"></div></section>
+        </div>
+      `;
+      body.append(shell);
+      shell.querySelector('[data-settings-host="company"]')?.append(profile);
+      if (users) shell.querySelector('[data-settings-host="users"]')?.append(users);
+      $("genericTitle").textContent = "Configurações e acessos";
+      updatePhase3AppearancePanel();
+      switchPhase3SettingsPanel(initialPanel === "users" && users ? "users" : initialPanel);
+      standardizeUiComponents(shell);
     }
 
     function openModal(title, html, large = false) {
@@ -27506,7 +28275,7 @@
       }
     }
 
-    async function openProfileModal() {
+    async function openProfileModal(initialPanel = "company") {
       removeAutomaticPermissionTestUsers();
       const user = currentAccount?.user || {};
       const userPhoto = user.photo || "";
@@ -27533,7 +28302,7 @@
             </div>
             <div class="table-wrap tenant-user-list" id="tenantUserListPanel">
               <table>
-                <thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Status</th><th>Região</th><th>Último acesso</th><th>Ações</th></tr></thead>
+                <thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Acesso na empresa</th><th>Status global</th><th>Região</th><th>Último acesso</th><th>Ações</th></tr></thead>
                 <tbody id="tenantUserRows"></tbody>
               </table>
             </div>
@@ -27589,6 +28358,7 @@
           </div>
         ` : ""}
       `, true);
+      mountPhase3Settings(initialPanel);
       if ($("profilePhotoFile")) $("profilePhotoFile").addEventListener("change", event => {
         const file = event.target.files?.[0];
         if (!file) return;
@@ -27649,6 +28419,8 @@
           showToast(error?.message || "Não foi possível carregar os usuários do Supabase.", "error");
         }
       }
+      if (typeof renderStage21SecurityCenter === "function") renderStage21SecurityCenter();
+      standardizeUiComponents($("gmSettingsShell") || $("genericModalBox"));
     }
 
     function formatDateTime(value) {
@@ -30080,8 +30852,8 @@
       const requesters=Array.from(new Set(state.materialRequests.map(item=>item.requester).filter(Boolean))).sort();preserve("materialsRequesterFilter",`<option value="">Todos</option>${requesters.map(item=>`<option>${escapeHtml(item)}</option>`).join("")}`);
       preserve("materialsOrderFilter",`<option value="">Todas</option>${state.orders.map(item=>`<option value="${item.id}">${escapeHtml(item.number)}</option>`).join("")}`);
     }
-    function materialsMetricHtml(){const reserved=state.spareParts.reduce((sum,item)=>sum+materialReservedQuantity(item.id),0),low=state.spareParts.filter(item=>["low","empty"].includes(materialPartStatus(item).key)).length,pending=state.materialRequests.filter(item=>!MATERIAL_REQUEST_CLOSED.has(item.status)).length,total=state.spareParts.reduce((sum,item)=>sum+Number(item.balance||0),0);return[
-      ["▣",state.spareParts.filter(item=>item.active!==false).length,"Peças ativas",""],["▦",formatQuantityForUnit(total,"UN"),"Saldo físico total","success"],["◆",formatQuantityForUnit(reserved,"UN"),"Quantidade reservada","reserved"],["!",low,"Itens críticos","danger"],["◷",pending,"Solicitações pendentes","warn"]
+    function materialsMetricHtml(){const movements=materialMovementRows(),movedIds=new Set(movements.map(item=>item.spareId).filter(Boolean)),activeParts=state.spareParts.filter(item=>item.active!==false),low=activeParts.filter(item=>["low","empty"].includes(materialPartStatus(item).key)).length,withoutMovement=activeParts.filter(item=>!movedIds.has(item.id)).length,hasReferenceValue=activeParts.some(item=>Number(item.referenceValue||0)>0),estimatedValue=activeParts.reduce((sum,item)=>sum+(Number(item.balance||0)*Number(item.referenceValue||0)),0),recent=movements.filter(item=>materialWithinPeriod(item,30)).length;return[
+      ["▣",activeParts.length,"Itens cadastrados",""],["!",low,"Abaixo do mínimo","danger"],["○",withoutMovement,"Sem movimentação","warn"],["R$",hasReferenceValue?formatCurrency(estimatedValue):"Sem dados","Valor estimado","success"],["↕",recent,"Movimentações em 30 dias",""]
     ].map(([icon,value,label,kind])=>`<div class="materials-metric ${kind}"><i>${icon}</i><div><strong>${value}</strong><span>${label}</span></div></div>`).join("")}
     function renderMaterialsAlerts(){const target=$("materialsAlertPanel");if(!target)return;const critical=state.spareParts.filter(item=>["low","empty"].includes(materialPartStatus(item).key)),waiting=state.materialRequests.filter(item=>["Enviada","Em análise","Aprovada","Separação","Parcialmente atendida"].includes(item.status));if(!critical.length&&!waiting.length){target.className="materials-alert-panel is-empty";target.innerHTML=`<div class="materials-alert-copy"><i>✓</i><div><strong>Nenhum item requer reposição no momento.</strong><span>Os saldos disponíveis estão dentro dos limites cadastrados.</span></div></div>`;return}target.className="materials-alert-panel";target.innerHTML=`<div class="materials-alert-copy"><i>!</i><div><strong>${critical.length} item(ns) crítico(s) · ${waiting.length} solicitação(ões) aguardando atendimento</strong><span>Priorize peças sem estoque, reservas e materiais vinculados a O.S.</span></div></div><button class="btn" type="button" onclick="showCriticalMaterialItems()">Ver itens críticos</button>`}
     function materialRowMenu(button){document.querySelectorAll(".materials-row-menu.open").forEach(item=>{if(item!==button.closest(".materials-row-menu"))item.classList.remove("open")});button.closest(".materials-row-menu")?.classList.toggle("open")}
@@ -30728,7 +31500,7 @@
       setView(button.dataset.view);
     }));
     document.querySelectorAll("[data-nav-action]").forEach(button => button.addEventListener("click", () => {
-      if (button.dataset.navAction === "users" && isAdminUser()) openProfileModal();
+      if (button.dataset.navAction === "users" && isAdminUser()) openProfileModal("users");
       if (window.matchMedia("(max-width:600px)").matches) closeMobileNavigation();
     }));
     document.querySelectorAll(".nav-quick-list > button").forEach(button => button.addEventListener("click", () => {
