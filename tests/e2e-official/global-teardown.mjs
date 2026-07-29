@@ -6,5 +6,5 @@ export default async function globalTeardown() {
   if (Object.values(remaining).some((value) => value !== 0)) {
     throw new Error(`QA cleanup incomplete: ${JSON.stringify(remaining)}`);
   }
-  console.log("QA-E2E-STAGING cleanup verified: zero records remain.");
+  console.log("QA-DESIGN-FINAL cleanup verified: zero records remain.");
 }

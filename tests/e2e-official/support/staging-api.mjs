@@ -5,13 +5,13 @@ import { loadOfficialStagingEnv } from "../../../scripts/e2e-official-env.mjs";
 
 export const env = loadOfficialStagingEnv();
 export const bucket = "gestman-attachments";
-export const marker = "QA-E2E-STAGING-";
+export const marker = "QA-DESIGN-FINAL-";
 export const fixtureFile = path.join(env.root, "supabase", ".temp", "official-e2e-fixture.json");
 
 export const fixture = Object.freeze({
-  slugA: "qa-e2e-staging-a",
-  slugB: "qa-e2e-staging-b",
-  convertedSlug: "qa-e2e-staging-converted",
+  slugA: "qa-design-final-a",
+  slugB: "qa-design-final-b",
+  convertedSlug: "qa-design-final-converted",
   companyAName: `${marker}EMPRESA-A`,
   companyBName: `${marker}EMPRESA-B`,
   adminAUsername: "admin.a",
@@ -20,7 +20,7 @@ export const fixture = Object.freeze({
   inactiveUsername: "inativo.a",
   platformUsername: "platform.qa",
   requestCnpj: "11222333000181",
-  requestEmail: "qa-e2e-staging-request@example.invalid",
+  requestEmail: "qa-design-final-request@example.invalid",
   attachmentName: `${marker}attachment.txt`,
 });
 
@@ -129,7 +129,7 @@ async function deleteMatchingStorageObjects(companyIds) {
 }
 
 export async function cleanupQa() {
-  const companyResult = await rows("gm_companies", "select=id,slug&slug=like.qa-e2e-staging-*");
+  const companyResult = await rows("gm_companies", "select=id,slug&slug=like.qa-design-final-*");
   const companyIds = Array.isArray(companyResult.payload)
     ? companyResult.payload.map((item) => item.id)
     : [];
@@ -139,7 +139,7 @@ export async function cleanupQa() {
     method: "DELETE",
     headers: { Prefer: "return=minimal" },
   });
-  await api("/rest/v1/gm_companies?slug=like.qa-e2e-staging-*", {
+  await api("/rest/v1/gm_companies?slug=like.qa-design-final-*", {
     method: "DELETE",
     headers: { Prefer: "return=minimal" },
   });
@@ -151,8 +151,8 @@ export async function cleanupQa() {
     const metadata = user.user_metadata || {};
     if (
       metadata.qa_marker === marker
-      || email.includes("qae2estaging")
-      || String(metadata.company_slug || "").startsWith("qa-e2e-staging-")
+      || email.includes("qadesignfinal")
+      || String(metadata.company_slug || "").startsWith("qa-design-final-")
     ) {
       const hash = createHash("sha256")
         .update(`bootstrap-company:${user.id}`)
@@ -172,7 +172,7 @@ export async function cleanupQa() {
 
 export async function cleanupSummary() {
   const [companies, requests, profiles, objects] = await Promise.all([
-    rows("gm_companies", "select=id&slug=like.qa-e2e-staging-*"),
+    rows("gm_companies", "select=id&slug=like.qa-design-final-*"),
     rows("company_requests", `select=id&trade_name=like.${encodeURIComponent(`${marker}*`)}`),
     rows("gm_profiles", `select=user_id&display_name=like.${encodeURIComponent(`${marker}*`)}`),
     api(`/storage/v1/object/list/${bucket}`, {
@@ -184,7 +184,7 @@ export async function cleanupSummary() {
   const users = Array.isArray(listed.payload?.users)
     ? listed.payload.users.filter((user) =>
       user.user_metadata?.qa_marker === marker
-      || String(user.email || "").toLowerCase().includes("qae2estaging"))
+      || String(user.email || "").toLowerCase().includes("qadesignfinal"))
     : [];
   const storage = Array.isArray(objects.payload)
     ? objects.payload.filter((item) => String(item.name || "").includes(marker))

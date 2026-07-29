@@ -17,6 +17,7 @@ test("admin lista somente usuários da empresa e desativa operador sem alterar p
 
   await login(page, data.identities.adminA);
   await page.getByRole("button", { name: "Abrir perfil do usuário" }).click();
+  await page.getByRole("tab", { name: "Usuários e acessos" }).click();
   await expect(page.locator("#tenantUserRows")).toContainText(data.identities.operatorA.displayName);
   await expect(page.locator("#tenantUserRows")).not.toContainText(data.identities.adminB.displayName);
 
@@ -31,7 +32,7 @@ test("admin lista somente usuários da empresa e desativa operador sem alterar p
     "button",
     { name: /Remover acesso desta empresa/i },
   ).click();
-  await expect(operatorRow).toContainText(/Inativo/i, { timeout: 30_000 });
+  await expect(operatorRow).toContainText(/Acesso removido desta empresa/i, { timeout: 30_000 });
   await expect(page.locator("#tenantUserForm")).toBeHidden();
 
   const authStillValid = await signIn(data.identities.operatorA.email);

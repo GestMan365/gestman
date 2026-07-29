@@ -18,6 +18,8 @@ test("login inválido é controlado, login válido persiste e logout encerra ses
   await expect(page.locator(".toast, [role=alert]").filter({ hasText: /não foi possível|verifique|incorret/i }).first()).toBeVisible();
 
   await login(page, data.identities.adminA);
+  await expect.poll(() => page.evaluate(() =>
+    Boolean(sessionStorage.getItem("gestman365.supabase.session.v1")))).toBe(true);
   await page.reload();
   await expect(page.getByRole("banner")).toBeVisible({ timeout: 20_000 });
   await expect(page.getByRole("button", { name: "Abrir perfil do usuário" })).toContainText(data.marker);

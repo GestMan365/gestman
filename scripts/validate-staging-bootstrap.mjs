@@ -7,8 +7,8 @@ if (!baseUrl || !anonKey || !serviceKey || qaPassword.length < 12) {
   throw new Error("Staging validation environment is incomplete.");
 }
 
-const qaEmail = "qa-security-bootstrap@example.invalid";
-const qaSlug = "qa-security-bootstrap";
+const qaEmail = "qa-design-final-bootstrap@example.invalid";
+const qaSlug = "qa-design-final-bootstrap";
 let passed = 0;
 let failed = 0;
 
@@ -79,7 +79,7 @@ async function main() {
       email: qaEmail,
       password: qaPassword,
       email_confirm: true,
-      user_metadata: { qa_marker: "QA-SECURITY" },
+      user_metadata: { qa_marker: "QA-DESIGN-FINAL-" },
     },
   });
   check("QA Auth user created", created.status === 200 || created.status === 201);
@@ -97,9 +97,9 @@ async function main() {
     method: "POST",
     key: anonKey,
     token: anonKey,
-    headers: { "x-idempotency-key": "qa-security-precheck-unauth-0001" },
+    headers: { "x-idempotency-key": "qa-design-final-precheck-unauth-0001" },
     body: {
-      name: "QA-SECURITY-COMPANY-A",
+      name: "QA-DESIGN-FINAL-COMPANY-A",
       slug: qaSlug,
       display_name: "QA Security Administrator",
     },
@@ -110,9 +110,9 @@ async function main() {
     method: "POST",
     key: anonKey,
     token: accessToken,
-    headers: { "x-idempotency-key": "qa-security-precheck-field-0001" },
+    headers: { "x-idempotency-key": "qa-design-final-precheck-field-0001" },
     body: {
-      name: "QA-SECURITY-COMPANY-A",
+      name: "QA-DESIGN-FINAL-COMPANY-A",
       slug: qaSlug,
       display_name: "QA Security Administrator",
       company_id: "forbidden",
@@ -124,7 +124,7 @@ async function main() {
     method: "POST",
     key: anonKey,
     token: accessToken,
-    headers: { "x-idempotency-key": "qa-security-precheck-large-0001" },
+    headers: { "x-idempotency-key": "qa-design-final-precheck-large-0001" },
     body: JSON.stringify({
       name: "X".repeat(9000),
       slug: qaSlug,
@@ -133,14 +133,14 @@ async function main() {
   });
   check("oversized payload rejected", oversized.status === 413);
 
-  const idempotencyKey = "qa-security-precheck-valid-0001";
+  const idempotencyKey = "qa-design-final-precheck-valid-0001";
   const valid = await api("/functions/v1/bootstrap-company", {
     method: "POST",
     key: anonKey,
     token: accessToken,
     headers: { "x-idempotency-key": idempotencyKey },
     body: {
-      name: "QA-SECURITY-COMPANY-A",
+      name: "QA-DESIGN-FINAL-COMPANY-A",
       slug: qaSlug,
       display_name: "QA Security Administrator",
     },
@@ -161,7 +161,7 @@ async function main() {
     token: accessToken,
     headers: { "x-idempotency-key": idempotencyKey },
     body: {
-      name: "QA-SECURITY-COMPANY-A",
+      name: "QA-DESIGN-FINAL-COMPANY-A",
       slug: qaSlug,
       display_name: "QA Security Administrator",
     },

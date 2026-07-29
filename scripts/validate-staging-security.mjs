@@ -10,16 +10,16 @@ if (!baseUrl || !anonKey || !serviceKey || qaPassword.length < 12) {
 }
 
 const bucket = "gestman-attachments";
-const companyASlug = "qa-security-company-a";
-const companyBSlug = "qa-security-company-b";
-const convertedSlug = "qa-security-converted";
+const companyASlug = "qa-design-final-company-a";
+const companyBSlug = "qa-design-final-company-b";
+const convertedSlug = "qa-design-final-converted";
 const requestCnpj = "11222333000181";
 const emails = {
-  adminA: "qa-security-admin-a@example.invalid",
-  commonA: "qa-security-common-a@example.invalid",
-  userB: "qa-security-user-b@example.invalid",
-  inactive: "qa-security-inactive@example.invalid",
-  duplicate: "qa-security-duplicate@example.invalid",
+  adminA: "qa-design-final-admin-a@example.invalid",
+  commonA: "qa-design-final-common-a@example.invalid",
+  userB: "qa-design-final-user-b@example.invalid",
+  inactive: "qa-design-final-inactive@example.invalid",
+  duplicate: "qa-design-final-duplicate@example.invalid",
 };
 
 let passed = 0;
@@ -86,7 +86,7 @@ async function createAuthUser(email) {
       email,
       password: qaPassword,
       email_confirm: true,
-      user_metadata: { qa_marker: "QA-SECURITY" },
+      user_metadata: { qa_marker: "QA-DESIGN-FINAL-" },
     },
   });
   if ((result.status === 200 || result.status === 201) && result.payload?.id) {
@@ -128,10 +128,10 @@ async function deleteAuthUsersByMarker() {
     const email = String(user.email || "").toLowerCase();
     const metadata = user.user_metadata || {};
     if (
-      email.startsWith("qa-security-")
+      email.startsWith("qa-design-final-")
       || email.includes("qasecurity")
-      || metadata.qa_marker === "QA-SECURITY"
-      || String(metadata.company_slug || "").startsWith("qa-security")
+      || metadata.qa_marker === "QA-DESIGN-FINAL-"
+      || String(metadata.company_slug || "").startsWith("qa-design-final")
     ) {
       await api(`/auth/v1/admin/users/${encodeURIComponent(user.id)}`, {
         method: "DELETE",
@@ -196,8 +196,8 @@ async function main() {
   const bootstrapA = await bootstrap(
     tokenAdminA,
     companyASlug,
-    "QA-SECURITY-COMPANY-A",
-    "qa-security-company-a-create-0001",
+    "QA-DESIGN-FINAL-COMPANY-A",
+    "qa-design-final-company-a-create-0001",
   );
   check("Company A bootstrap succeeded", bootstrapA.status === 201);
   check(
@@ -213,14 +213,14 @@ async function main() {
     bootstrap(
       tokenB,
       companyBSlug,
-      "QA-SECURITY-COMPANY-B",
-      "qa-security-company-b-create-0001",
+      "QA-DESIGN-FINAL-COMPANY-B",
+      "qa-design-final-company-b-create-0001",
     ),
     bootstrap(
       tokenB,
       companyBSlug,
-      "QA-SECURITY-COMPANY-B",
-      "qa-security-company-b-create-0001",
+      "QA-DESIGN-FINAL-COMPANY-B",
+      "qa-design-final-company-b-create-0001",
     ),
   ]);
   check(
@@ -232,8 +232,8 @@ async function main() {
   const repeatedA = await bootstrap(
     tokenAdminA,
     companyASlug,
-    "QA-SECURITY-COMPANY-A",
-    "qa-security-company-a-create-0001",
+    "QA-DESIGN-FINAL-COMPANY-A",
+    "qa-design-final-company-a-create-0001",
   );
   check("bootstrap retry after uncertain response is safe", repeatedA.status === 200);
 
@@ -253,13 +253,13 @@ async function main() {
       user_id: commonA.id,
       display_name: "QA Security Common A",
       active: true,
-      details: { qa_marker: "QA-SECURITY" },
+      details: { qa_marker: "QA-DESIGN-FINAL-" },
     },
     {
       user_id: inactive.id,
       display_name: "QA Security Inactive",
       active: false,
-      details: { qa_marker: "QA-SECURITY" },
+      details: { qa_marker: "QA-DESIGN-FINAL-" },
     },
   ]);
   await serviceInsert("gm_company_members", [
@@ -314,7 +314,7 @@ async function main() {
     method: "POST",
     key: anonKey,
     token: anonKey,
-    body: { nome: "QA-SECURITY-FORBIDDEN" },
+    body: { nome: "QA-DESIGN-FINAL-FORBIDDEN" },
   });
   check("anon cannot insert operational rows", anonInsert.status >= 400);
 
@@ -446,8 +446,8 @@ async function main() {
     body: {
       p_expected_version: Number(loadedA?.version || 0),
       p_state: {
-        assets: [{ id: "QA-SECURITY-ASSET-001", name: "QA Security Asset" }],
-        orders: [{ id: "QA-SECURITY-ORDER-001", description: "QA Security Order" }],
+        assets: [{ id: "QA-DESIGN-FINAL-ASSET-001", name: "QA Design Final Asset" }],
+        orders: [{ id: "QA-DESIGN-FINAL-ORDER-001", description: "QA Design Final Order" }],
       },
     },
   });
@@ -468,7 +468,7 @@ async function main() {
   check(
     "Company B state is isolated from Company A",
     loadBAfter.status === 200
-      && !JSON.stringify(loadedB?.state || {}).includes("QA-SECURITY-ASSET-001"),
+      && !JSON.stringify(loadedB?.state || {}).includes("QA-DESIGN-FINAL-ASSET-001"),
   );
 
   const arbitraryTenant = await api("/rest/v1/rpc/gm_save_tenant_state", {
@@ -506,7 +506,7 @@ async function main() {
         p_name: "Forbidden",
         p_slug: "forbidden",
         p_display_name: "Forbidden",
-        p_idempotency_key: "qa-security-forbidden-0001",
+        p_idempotency_key: "qa-design-final-forbidden-0001",
       },
     },
   );
@@ -524,13 +524,13 @@ async function main() {
   });
   check("administrative RPC respects tenant role", commonAdminRpc.status >= 400);
 
-  const ownPath = `${companyAId}/documents/qa-security-attachment.txt`;
+  const ownPath = `${companyAId}/documents/qa-design-final-attachment.txt`;
   storagePaths.add(ownPath);
   const uploadOwn = await api(`/storage/v1/object/${bucket}/${ownPath}`, {
     method: "POST",
     key: anonKey,
     token: tokenAdminA,
-    body: "QA-SECURITY attachment",
+    body: "QA-DESIGN-FINAL attachment",
     headers: { "Content-Type": "text/plain", "x-upsert": "false" },
   });
   check("authorized upload to company path succeeds", uploadOwn.status === 200);
@@ -541,7 +541,7 @@ async function main() {
   });
   check(
     "authorized read from company path succeeds",
-    readOwn.status === 200 && String(readOwn.payload).includes("QA-SECURITY"),
+    readOwn.status === 200 && String(readOwn.payload).includes("QA-DESIGN-FINAL"),
   );
 
   const crossStorageRead = await api(`/storage/v1/object/${bucket}/${ownPath}`, {
@@ -575,7 +575,7 @@ async function main() {
     method: "POST",
     key: anonKey,
     token: tokenAdminA,
-    body: "QA-SECURITY traversal",
+    body: "QA-DESIGN-FINAL traversal",
     headers: { "Content-Type": "text/plain" },
   });
   check("Storage path traversal is blocked", traversal.status >= 400);
@@ -599,7 +599,7 @@ async function main() {
   const invalidPayload = await api("/functions/v1/bootstrap-company", authOptions(
     tokenDuplicate,
     { name: "", slug: "bad slug", display_name: "" },
-    { "x-idempotency-key": "qa-security-invalid-payload-0001" },
+    { "x-idempotency-key": "qa-design-final-invalid-payload-0001" },
   ));
   check("bootstrap rejects invalid payload", invalidPayload.status === 400);
 
@@ -609,11 +609,11 @@ async function main() {
       tokenDuplicate,
       {
         name: "QA Duplicate",
-        slug: "qa-security-duplicate",
+        slug: "qa-design-final-duplicate",
         display_name: "QA Duplicate",
         role: "owner",
       },
-      { "x-idempotency-key": "qa-security-admin-field-0001" },
+      { "x-idempotency-key": "qa-design-final-admin-field-0001" },
     ),
   );
   check("bootstrap rejects administrative fields", invalidAdminField.status === 400);
@@ -621,8 +621,8 @@ async function main() {
   const duplicateSlug = await bootstrap(
     tokenDuplicate,
     companyASlug,
-    "QA-SECURITY-DUPLICATE",
-    "qa-security-duplicate-slug-0001",
+    "QA-DESIGN-FINAL-DUPLICATE",
+    "qa-design-final-duplicate-slug-0001",
   );
   check("bootstrap rejects duplicate tenant slug", duplicateSlug.status === 409);
 
@@ -645,8 +645,8 @@ async function main() {
     rateResults.push(await bootstrap(
       tokenAdminA,
       companyASlug,
-      "QA-SECURITY-COMPANY-A",
-      `qa-security-rate-${String(index).padStart(4, "0")}`,
+      "QA-DESIGN-FINAL-COMPANY-A",
+      `qa-design-final-rate-${String(index).padStart(4, "0")}`,
     ));
   }
   check(
@@ -655,18 +655,18 @@ async function main() {
   );
 
   const validRequest = {
-    trade_name: "QA-SECURITY-PUBLIC-REQUEST",
+    trade_name: "QA-DESIGN-FINAL-PUBLIC-REQUEST",
     legal_name: "QA Security Public Request Ltda",
     cnpj: requestCnpj,
     responsible_name: "QA Security Requester",
     responsible_role: "QA",
-    responsible_email: "qa-security-request@example.invalid",
+    responsible_email: "qa-design-final-request@example.invalid",
     responsible_phone: "11999999999",
     city: "Sao Paulo",
     state: "SP",
     estimated_users: 3,
     estimated_units: 1,
-    message: "QA-SECURITY onboarding validation",
+    message: "QA-DESIGN-FINAL onboarding validation",
     website: "",
   };
   const publicRequest = await api("/functions/v1/submit-company-request", {
@@ -719,7 +719,7 @@ async function main() {
     body: {
       p_request_id: requestId,
       p_status: "approved",
-      p_internal_notes: "QA-SECURITY approved",
+      p_internal_notes: "QA-DESIGN-FINAL approved",
     },
   });
   check("platform administrator can approve QA request", approved.status === 200);
@@ -771,7 +771,7 @@ try {
 
 const remainingCompanies = await serviceRows(
   "gm_companies",
-  "select=id&slug=like.qa-security-*",
+  "select=id&slug=like.qa-design-final-*",
 );
 const remainingRequests = await serviceRows(
   "company_requests",
