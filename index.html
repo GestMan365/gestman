@@ -14772,6 +14772,200 @@
       }
     }
   </style>
+  <style id="design-phase-04">
+    /* Design Phase 04: acabamento transversal, microinteracoes e acessibilidade. */
+    body:not(.auth-required):not(.auth-loading):not(.panel-mode) {
+      --f4-control-ring: color-mix(in srgb, var(--im-accent, #16879a) 42%, transparent);
+      --f4-panel-hover: color-mix(in srgb, var(--im-accent, #16879a) 5%, var(--im-surface, #fff));
+      --f4-divider: color-mix(in srgb, var(--im-border, #d6e1e7) 76%, transparent);
+    }
+
+    .view.active {
+      min-width: 0;
+      animation: f4-view-enter .16s ease-out both;
+    }
+
+    .view.active :is(.panel,.side-box,.card,article) {
+      min-width: 0;
+    }
+
+    .view.active :is(.panel,.side-box,.card):not(.is-hidden) {
+      transition: border-color .16s ease, box-shadow .16s ease, background-color .16s ease;
+    }
+
+    .view.active :is(.panel,.side-box):focus-within {
+      border-color: color-mix(in srgb, var(--im-accent, #16879a) 38%, var(--im-border, #d6e1e7));
+    }
+
+    :is(.btn,button,.tab,[role="button"]) {
+      -webkit-tap-highlight-color: transparent;
+      transition: color .14s ease, background-color .14s ease, border-color .14s ease, box-shadow .14s ease, transform .14s ease;
+    }
+
+    :is(.btn,button,.tab,[role="button"]):not(:disabled):active {
+      transform: translateY(1px);
+    }
+
+    :is(.btn,button,.tab,[role="button"]):focus-visible,
+    :is(input,select,textarea,summary,[tabindex]):focus-visible {
+      outline: 3px solid var(--f4-control-ring) !important;
+      outline-offset: 2px !important;
+    }
+
+    :is(input,select,textarea).field {
+      min-width: 0;
+      transition: border-color .14s ease, box-shadow .14s ease, background-color .14s ease;
+    }
+
+    :is(input,select,textarea).field:hover:not(:disabled) {
+      border-color: color-mix(in srgb, var(--im-accent, #16879a) 28%, var(--im-border-strong, #bdccd5));
+    }
+
+    :is(input,select,textarea).field:focus {
+      border-color: var(--im-accent, #16879a);
+      box-shadow: 0 0 0 3px var(--f4-control-ring);
+    }
+
+    :is(input,select,textarea).field:disabled,
+    :is(input,select,textarea).field[readonly] {
+      color: var(--im-muted, #647a86);
+      background: var(--im-surface-strong, #edf3f6);
+    }
+
+    .view.active :is(.table-wrap,[class$="-table-wrap"]) {
+      max-width: 100%;
+      overscroll-behavior-inline: contain;
+      scrollbar-gutter: stable;
+    }
+
+    .view.active table tbody tr {
+      transition: background-color .12s ease;
+    }
+
+    .view.active table tbody tr:focus-within {
+      background: var(--f4-panel-hover);
+      outline: 2px solid var(--f4-control-ring);
+      outline-offset: -2px;
+    }
+
+    .view.active thead th {
+      box-shadow: inset 0 -1px 0 var(--f4-divider);
+    }
+
+    :is(.modal-actions,.materials-form-actions,.stage14-form-actions,.stage15-form-actions,.tenant-user-editor-foot,.profile-session-actions) {
+      gap: 8px;
+    }
+
+    #genericModalBox .modal-body > :is(form,.form-grid,.form,.materials-form,.stage14-form,.stage15-form) {
+      min-width: 0;
+    }
+
+    #genericModalBox .modal-body :is(.toolbar,.modal-actions):last-child {
+      margin-top: 14px;
+    }
+
+    #genericModalBox .modal-body :is(.side-box,.gm-system-state) {
+      line-height: 1.5;
+    }
+
+    #genericModalBox[aria-busy="true"]::after,
+    .view.active[aria-busy="true"]::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 30;
+      cursor: progress;
+      background: color-mix(in srgb, var(--im-surface, #fff) 62%, transparent);
+      backdrop-filter: blur(1px);
+    }
+
+    :is(.empty,.materials-empty,.preventive-empty,.checklist-empty,.stage15-empty,.stage21-empty,.gm-system-state) {
+      text-wrap: balance;
+    }
+
+    :is(.empty,.materials-empty,.preventive-empty,.checklist-empty,.stage15-empty,.stage21-empty,.gm-system-state) > :is(p,span) {
+      max-width: 58ch;
+      line-height: 1.55;
+    }
+
+    .toast {
+      isolation: isolate;
+    }
+
+    .toast.open {
+      animation: f4-toast-enter .18s ease-out both;
+    }
+
+    .nav .tab,
+    .gm-settings-nav button {
+      position: relative;
+    }
+
+    .nav .tab::after,
+    .gm-settings-nav button::after {
+      content: "";
+      position: absolute;
+      inset-block: 8px;
+      left: 0;
+      width: 2px;
+      border-radius: 999px;
+      background: transparent;
+    }
+
+    .nav .tab.active::after,
+    .gm-settings-nav button.active::after {
+      background: var(--im-accent, #16879a);
+    }
+
+    @keyframes f4-view-enter {
+      from { opacity: .82; transform: translateY(3px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    @keyframes f4-toast-enter {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    @media (max-width: 900px) {
+      .view.active {
+        max-width: 100%;
+      }
+      #genericModalBox .modal-body :is(.toolbar,.modal-actions):last-child {
+        position: sticky;
+        bottom: 0;
+        z-index: 9;
+        border-top: 1px solid var(--im-border, #d6e1e7);
+        padding-top: 10px;
+        padding-bottom: max(4px, env(safe-area-inset-bottom));
+        background: var(--im-surface, #fff);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .view.active :is(.btn,button:not(.close),input,select,textarea,summary[role="button"]) {
+        min-height: 42px;
+      }
+      #genericModalBox:not(.large) {
+        width: min(100%, calc(100vw - 12px)) !important;
+        max-height: calc(100dvh - 12px) !important;
+      }
+      #genericModalBox .modal-body {
+        overscroll-behavior: contain;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .view.active,
+      .toast.open {
+        animation: none !important;
+      }
+      :is(.btn,button,.tab,[role="button"],.field,.panel,.side-box,.card) {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
 </head>
 <body class="auth-loading auth-restoring">
   <script id="design-theme-bootstrap">

@@ -14772,6 +14772,200 @@
       }
     }
   </style>
+  <style id="design-phase-04">
+    /* Design Phase 04: acabamento transversal, microinteracoes e acessibilidade. */
+    body:not(.auth-required):not(.auth-loading):not(.panel-mode) {
+      --f4-control-ring: color-mix(in srgb, var(--im-accent, #16879a) 42%, transparent);
+      --f4-panel-hover: color-mix(in srgb, var(--im-accent, #16879a) 5%, var(--im-surface, #fff));
+      --f4-divider: color-mix(in srgb, var(--im-border, #d6e1e7) 76%, transparent);
+    }
+
+    .view.active {
+      min-width: 0;
+      animation: f4-view-enter .16s ease-out both;
+    }
+
+    .view.active :is(.panel,.side-box,.card,article) {
+      min-width: 0;
+    }
+
+    .view.active :is(.panel,.side-box,.card):not(.is-hidden) {
+      transition: border-color .16s ease, box-shadow .16s ease, background-color .16s ease;
+    }
+
+    .view.active :is(.panel,.side-box):focus-within {
+      border-color: color-mix(in srgb, var(--im-accent, #16879a) 38%, var(--im-border, #d6e1e7));
+    }
+
+    :is(.btn,button,.tab,[role="button"]) {
+      -webkit-tap-highlight-color: transparent;
+      transition: color .14s ease, background-color .14s ease, border-color .14s ease, box-shadow .14s ease, transform .14s ease;
+    }
+
+    :is(.btn,button,.tab,[role="button"]):not(:disabled):active {
+      transform: translateY(1px);
+    }
+
+    :is(.btn,button,.tab,[role="button"]):focus-visible,
+    :is(input,select,textarea,summary,[tabindex]):focus-visible {
+      outline: 3px solid var(--f4-control-ring) !important;
+      outline-offset: 2px !important;
+    }
+
+    :is(input,select,textarea).field {
+      min-width: 0;
+      transition: border-color .14s ease, box-shadow .14s ease, background-color .14s ease;
+    }
+
+    :is(input,select,textarea).field:hover:not(:disabled) {
+      border-color: color-mix(in srgb, var(--im-accent, #16879a) 28%, var(--im-border-strong, #bdccd5));
+    }
+
+    :is(input,select,textarea).field:focus {
+      border-color: var(--im-accent, #16879a);
+      box-shadow: 0 0 0 3px var(--f4-control-ring);
+    }
+
+    :is(input,select,textarea).field:disabled,
+    :is(input,select,textarea).field[readonly] {
+      color: var(--im-muted, #647a86);
+      background: var(--im-surface-strong, #edf3f6);
+    }
+
+    .view.active :is(.table-wrap,[class$="-table-wrap"]) {
+      max-width: 100%;
+      overscroll-behavior-inline: contain;
+      scrollbar-gutter: stable;
+    }
+
+    .view.active table tbody tr {
+      transition: background-color .12s ease;
+    }
+
+    .view.active table tbody tr:focus-within {
+      background: var(--f4-panel-hover);
+      outline: 2px solid var(--f4-control-ring);
+      outline-offset: -2px;
+    }
+
+    .view.active thead th {
+      box-shadow: inset 0 -1px 0 var(--f4-divider);
+    }
+
+    :is(.modal-actions,.materials-form-actions,.stage14-form-actions,.stage15-form-actions,.tenant-user-editor-foot,.profile-session-actions) {
+      gap: 8px;
+    }
+
+    #genericModalBox .modal-body > :is(form,.form-grid,.form,.materials-form,.stage14-form,.stage15-form) {
+      min-width: 0;
+    }
+
+    #genericModalBox .modal-body :is(.toolbar,.modal-actions):last-child {
+      margin-top: 14px;
+    }
+
+    #genericModalBox .modal-body :is(.side-box,.gm-system-state) {
+      line-height: 1.5;
+    }
+
+    #genericModalBox[aria-busy="true"]::after,
+    .view.active[aria-busy="true"]::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 30;
+      cursor: progress;
+      background: color-mix(in srgb, var(--im-surface, #fff) 62%, transparent);
+      backdrop-filter: blur(1px);
+    }
+
+    :is(.empty,.materials-empty,.preventive-empty,.checklist-empty,.stage15-empty,.stage21-empty,.gm-system-state) {
+      text-wrap: balance;
+    }
+
+    :is(.empty,.materials-empty,.preventive-empty,.checklist-empty,.stage15-empty,.stage21-empty,.gm-system-state) > :is(p,span) {
+      max-width: 58ch;
+      line-height: 1.55;
+    }
+
+    .toast {
+      isolation: isolate;
+    }
+
+    .toast.open {
+      animation: f4-toast-enter .18s ease-out both;
+    }
+
+    .nav .tab,
+    .gm-settings-nav button {
+      position: relative;
+    }
+
+    .nav .tab::after,
+    .gm-settings-nav button::after {
+      content: "";
+      position: absolute;
+      inset-block: 8px;
+      left: 0;
+      width: 2px;
+      border-radius: 999px;
+      background: transparent;
+    }
+
+    .nav .tab.active::after,
+    .gm-settings-nav button.active::after {
+      background: var(--im-accent, #16879a);
+    }
+
+    @keyframes f4-view-enter {
+      from { opacity: .82; transform: translateY(3px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    @keyframes f4-toast-enter {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    @media (max-width: 900px) {
+      .view.active {
+        max-width: 100%;
+      }
+      #genericModalBox .modal-body :is(.toolbar,.modal-actions):last-child {
+        position: sticky;
+        bottom: 0;
+        z-index: 9;
+        border-top: 1px solid var(--im-border, #d6e1e7);
+        padding-top: 10px;
+        padding-bottom: max(4px, env(safe-area-inset-bottom));
+        background: var(--im-surface, #fff);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .view.active :is(.btn,button:not(.close),input,select,textarea,summary[role="button"]) {
+        min-height: 42px;
+      }
+      #genericModalBox:not(.large) {
+        width: min(100%, calc(100vw - 12px)) !important;
+        max-height: calc(100dvh - 12px) !important;
+      }
+      #genericModalBox .modal-body {
+        overscroll-behavior: contain;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .view.active,
+      .toast.open {
+        animation: none !important;
+      }
+      :is(.btn,button,.tab,[role="button"],.field,.panel,.side-box,.card) {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
 </head>
 <body class="auth-loading auth-restoring">
   <script id="design-theme-bootstrap">
@@ -32086,6 +32280,7 @@
     var gmRemoteSaveTimer = null;
     var gmRemoteSavePromise = Promise.resolve();
     var gmStateDirty = false;
+    var gmSyncConflict = null;
     var gmRefreshPromise = null;
     var gmPreferences = {};
     var gmPreferencesReady = false;
@@ -32316,6 +32511,7 @@
       hasPendingLocalSync = true;
       hasSessionLocalChange = true;
       clearTimeout(gmRemoteSaveTimer);
+      if (gmSyncConflict) return;
       gmRemoteSaveTimer = setTimeout(() => {
         gmRemoteSavePromise = gmRemoteSavePromise.then(() => gmPersistState(false));
       }, 250);
@@ -32324,8 +32520,125 @@
     function persistLocalStateOnly() { saveState(); }
     function persistDemoStateLocalOnly() { saveState(); }
 
-    async function gmPersistState(showMessage = false) {
+    function gmNormalizeRemoteState(rawState) {
+      const nextState = normalizeState(rawState || emptyState());
+      nextState.profile = {
+        ...(nextState.profile || {}),
+        name:currentAccount?.user?.name || nextState.profile?.name || "Usuario",
+        email:currentAccount?.user?.email || nextState.profile?.email || "",
+        role:isAdminUser() ? "Administrador" : "Usuario"
+      };
+      return nextState;
+    }
+
+    function gmChangedTopLevelKeys(baseState, nextState) {
+      const base = baseState && typeof baseState === "object" ? baseState : {};
+      const next = nextState && typeof nextState === "object" ? nextState : {};
+      return [...new Set([...Object.keys(base), ...Object.keys(next)])]
+        .filter(key => JSON.stringify(base[key]) !== JSON.stringify(next[key]));
+    }
+
+    function gmDownloadSyncConflict() {
+      if (!gmSyncConflict?.localState) return;
+      const payload = {
+        exportedAt:new Date().toISOString(),
+        companyId:currentAccount?.company?.id || "",
+        reason:"GM_STATE_CONFLICT",
+        changedKeys:gmSyncConflict.localKeys || [],
+        state:gmSyncConflict.localState
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type:"application/json;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `gestman-conflito-${new Date().toISOString().replace(/[:.]/g, "-")}.json`;
+      document.body.append(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+      showToast("Copia local baixada com sucesso.");
+    }
+
+    function gmShowSyncConflictModal() {
+      if (!gmSyncConflict) return;
+      const overlap = (gmSyncConflict.overlapKeys || []).map(key => `<code>${escapeHtml(key)}</code>`).join(", ");
+      openModal("Conflito de sincroniza\u00e7\u00e3o", `
+        <div class="form-grid">
+          <div class="form-section" style="grid-column:1/-1">
+            <h3>Suas altera\u00e7\u00f5es continuam nesta tela</h3>
+            <p>Outro dispositivo alterou os mesmos dados enquanto voc\u00ea trabalhava. Nada foi descartado automaticamente.</p>
+            ${overlap ? `<p><strong>Dados em conflito:</strong> ${overlap}</p>` : ""}
+          </div>
+          <div class="modal-actions" style="grid-column:1/-1">
+            <button class="btn ghost" type="button" onclick="gmDownloadSyncConflict()">Baixar c\u00f3pia local</button>
+            <button class="btn ghost" type="button" onclick="closeModal()">Continuar nesta tela</button>
+            <button class="btn danger" type="button" onclick="gmUseServerSyncConflict()">Usar vers\u00e3o do servidor</button>
+          </div>
+        </div>
+      `, true);
+    }
+
+    function gmUseServerSyncConflict() {
+      if (!gmSyncConflict?.remoteState) return;
+      if (!confirm("Usar a versao do servidor? Baixe uma copia local antes se precisar guardar suas alteracoes.")) return;
+      state = normalizeState(JSON.parse(JSON.stringify(gmSyncConflict.remoteState)));
+      gmRemoteStateVersion = Number(gmSyncConflict.remoteVersion || 0);
+      gmRemoteStateUpdatedAt = gmSyncConflict.remoteUpdatedAt || "";
+      gmRemoteLastSavedState = normalizeState(JSON.parse(JSON.stringify(state)));
+      gmSyncConflict = null;
+      gmStateDirty = false;
+      hasPendingLocalSync = false;
+      hasSessionLocalChange = false;
+      captureSyncBaseline();
+      closeModal();
+      render();
+      showToast("Versao do servidor carregada.", "warning");
+    }
+
+    async function gmHandleStateConflict(snapshot, showMessage, conflictAttempt) {
+      const rows = await gmRpc("gm_load_tenant_state", {});
+      const remote = Array.isArray(rows) ? rows[0] : rows;
+      if (!remote) throw new Error("GM_COMPANY_STATE_NOT_FOUND");
+      const remoteState = gmNormalizeRemoteState(remote.state);
+      const localKeys = gmChangedTopLevelKeys(gmRemoteLastSavedState, snapshot);
+      const remoteKeys = gmChangedTopLevelKeys(gmRemoteLastSavedState, remoteState);
+      const overlapKeys = localKeys.filter(key => remoteKeys.includes(key));
+
+      if (!overlapKeys.length && conflictAttempt < 1) {
+        const mergedState = normalizeState(JSON.parse(JSON.stringify(remoteState)));
+        localKeys.forEach(key => { mergedState[key] = JSON.parse(JSON.stringify(snapshot[key])); });
+        state = normalizeState(mergedState);
+        gmRemoteStateVersion = Number(remote.version || 0);
+        gmRemoteStateUpdatedAt = remote.updated_at || "";
+        gmRemoteLastSavedState = normalizeState(JSON.parse(JSON.stringify(remoteState)));
+        gmStateDirty = true;
+        return gmPersistState(showMessage, conflictAttempt + 1);
+      }
+
+      state = normalizeState(JSON.parse(JSON.stringify(snapshot)));
+      gmSyncConflict = {
+        localState:normalizeState(JSON.parse(JSON.stringify(snapshot))),
+        remoteState,
+        remoteVersion:Number(remote.version || 0),
+        remoteUpdatedAt:remote.updated_at || "",
+        localKeys,
+        remoteKeys,
+        overlapKeys
+      };
+      gmStateDirty = true;
+      hasPendingLocalSync = true;
+      hasSessionLocalChange = true;
+      gmShowSyncConflictModal();
+      showToast("Conflito detectado. Suas altera\u00e7\u00f5es foram preservadas nesta tela.", "warning");
+      return false;
+    }
+
+    async function gmPersistState(showMessage = false, conflictAttempt = 0) {
       if (!currentAccount || !gmStateDirty) return true;
+      if (gmSyncConflict) {
+        gmShowSyncConflictModal();
+        return false;
+      }
       clearTimeout(gmRemoteSaveTimer);
       gmRemoteSaveTimer = null;
       const snapshot = JSON.parse(JSON.stringify(state));
@@ -32338,6 +32651,7 @@
         gmRemoteStateVersion = Number(result?.version ?? gmRemoteStateVersion + 1);
         gmRemoteStateUpdatedAt = result?.updated_at || new Date().toISOString();
         gmRemoteLastSavedState = normalizeState(snapshot);
+        gmSyncConflict = null;
         gmStateDirty = false;
         hasPendingLocalSync = false;
         hasSessionLocalChange = false;
@@ -32346,9 +32660,17 @@
       } catch (error) {
         stage21TechnicalLog("error", "supabase.state.save", error);
         if (String(error?.message || "").includes("GM_STATE_CONFLICT")) {
-          gmStateDirty = false;
-          await loadSupabaseState(false, true);
-          showToast("Os dados foram atualizados em outro dispositivo. A versao mais recente foi carregada.", "warning");
+          try {
+            return await gmHandleStateConflict(snapshot, showMessage, conflictAttempt);
+          } catch (conflictError) {
+            stage21TechnicalLog("error", "supabase.state.conflict", conflictError);
+            state = normalizeState(snapshot);
+            gmStateDirty = true;
+            showToast("Conflito detectado. Seus dados continuam nesta tela; tente novamente antes de sair.", "warning");
+          }
+        } else if (/GM_(DELETE_)?PERMISSION_DENIED/.test(String(error?.message || ""))) {
+          gmStateDirty = true;
+          showToast("Seu perfil n\u00e3o possui permiss\u00e3o para concluir esta altera\u00e7\u00e3o.", "error");
         } else {
           gmStateDirty = true;
           showToast("Nao foi possivel salvar no Supabase. Tente novamente antes de sair.", "error");
@@ -32365,17 +32687,12 @@
         const rows = await gmRpc("gm_load_tenant_state", {});
         const remote = Array.isArray(rows) ? rows[0] : rows;
         if (!remote) throw new Error("GM_COMPANY_STATE_NOT_FOUND");
-        const nextState = normalizeState(remote.state || emptyState());
-        nextState.profile = {
-          ...(nextState.profile || {}),
-          name:currentAccount.user.name,
-          email:currentAccount.user.email,
-          role:isAdminUser() ? "Administrador" : "Usuario"
-        };
+        const nextState = gmNormalizeRemoteState(remote.state);
         state = nextState;
         gmRemoteStateVersion = Number(remote.version || 0);
         gmRemoteStateUpdatedAt = remote.updated_at || "";
         gmRemoteLastSavedState = normalizeState(JSON.parse(JSON.stringify(state)));
+        gmSyncConflict = null;
         gmStateDirty = false;
         hasPendingLocalSync = false;
         hasSessionLocalChange = false;
