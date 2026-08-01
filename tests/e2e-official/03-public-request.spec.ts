@@ -85,7 +85,7 @@ test("onboarding público limita rajadas, preserva idempotência e recupera a in
         cnpj: validCnpj(index),
         responsible_name: `${marker}RESPONSAVEL-${index}`,
         responsible_role: "QA",
-        responsible_email: `qa-design-final-rate-${index}@example.invalid`,
+        responsible_email: `qa-3d-design-rate-${index}@example.invalid`,
         responsible_phone: "11999990001",
         city: "Sao Paulo",
         state: "SP",

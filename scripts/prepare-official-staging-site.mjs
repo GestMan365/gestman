@@ -16,6 +16,11 @@ function replaceSingle(text, pattern, replacement, label, file) {
 
 fs.rmSync(outputDirectory, { recursive: true, force: true });
 fs.mkdirSync(outputDirectory, { recursive: true });
+const uiAssetsSource = path.join(env.root, "assets", "ui");
+if (!fs.existsSync(uiAssetsSource)) {
+  throw new Error("Professional UI assets are missing.");
+}
+fs.cpSync(uiAssetsSource, path.join(outputDirectory, "assets", "ui"), { recursive: true });
 
 for (const file of sources) {
   let html = fs.readFileSync(path.join(env.root, file), "utf8");
@@ -36,6 +41,9 @@ for (const file of sources) {
 
   if (html.includes(env.serviceRoleKey) || /sb_secret_[A-Za-z0-9_-]+/.test(html)) {
     throw new Error(`${file}: server-only key leaked into browser artifact.`);
+  }
+  if (/data:image\/[^;]+;base64,/i.test(html)) {
+    throw new Error(`${file}: Base64 image assets are forbidden in the browser artifact.`);
   }
   if (!html.includes('gmAuthenticatedFunction("bootstrap-company"')) {
     throw new Error(`${file}: secure bootstrap Edge contract is absent.`);
@@ -61,4 +69,4 @@ for (const [name, pattern] of [["bootstrap contract", contractPattern], ["authen
   }
 }
 
-console.log("Official monolith staging artifact prepared (index and 404 verified).");
+console.log("Official monolith staging artifact prepared (index, 404 and local UI assets verified).");
