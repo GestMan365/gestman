@@ -7,9 +7,9 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const htmlFiles = ["index.html", "404.html"];
 const uiRoot = path.join(root, "assets", "ui");
 const illustrationRoot = path.join(uiRoot, "illustrations");
-const iconRegistryPath = path.join(uiRoot, "icon-registry.js");
+const iconRegistryPath = path.join(root, "assets", "icons", "flaticon", "icon-registry.js");
 const stylesheetHref = "assets/ui/gestman-3d.css";
-const iconRegistrySrc = "assets/ui/icon-registry.js";
+const iconRegistrySrc = "assets/icons/flaticon/icon-registry.js";
 
 function sha256(value) {
   return crypto.createHash("sha256").update(value).digest("hex");

@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { fileURLToPath, URL } from "node:url";
-import { copyFileSync, mkdirSync } from "node:fs";
+import { cpSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 
 const rootFile = (file: string) => fileURLToPath(new URL(`./${file}`, import.meta.url));
@@ -10,9 +10,10 @@ function copyClassicUiRuntime() {
   return {
     name: "copy-classic-ui-runtime",
     closeBundle() {
-      const target = rootFile("dist/assets/ui/icon-registry.js");
+      const source = rootFile("assets/icons/flaticon");
+      const target = rootFile("dist/assets/icons/flaticon");
       mkdirSync(dirname(target), { recursive: true });
-      copyFileSync(rootFile("assets/ui/icon-registry.js"), target);
+      cpSync(source, target, { recursive: true });
     },
   };
 }

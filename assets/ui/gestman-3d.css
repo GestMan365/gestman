@@ -622,6 +622,70 @@ body:not(.auth-required):not(.auth-loading) .nav {
   overflow: visible;
 }
 
+/* Flaticon UIcons locais: o SVG licenciado funciona como máscara e herda a cor do contexto. */
+.gm-flaticon-icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  flex: 0 0 auto;
+  background-color: currentColor;
+  -webkit-mask-image: var(--gm-icon-source);
+  mask-image: var(--gm-icon-source);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  pointer-events: none;
+}
+
+.gm-flaticon-icon::before {
+  content: none !important;
+}
+
+.gm-flaticon-attribution {
+  display: block;
+  margin-top: 5px;
+  color: #91a8bd;
+  font-size: 10px;
+  line-height: 1.25;
+  text-decoration: none;
+}
+
+.gm-flaticon-attribution:hover,
+.gm-flaticon-attribution:focus-visible {
+  color: #c8e4ff;
+  text-decoration: underline;
+}
+
+body.sidebar-collapsed .gm-flaticon-attribution {
+  display: none;
+}
+
+body.theme-light .gm-flaticon-attribution {
+  color: #526b82;
+}
+
+.auth-field-icon .gm-flaticon-icon,
+.auth-password-toggle .gm-flaticon-icon,
+.auth-submit-arrow .gm-flaticon-icon {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.auth-footer-icon .gm-flaticon-icon {
+  width: 34px !important;
+  height: 34px !important;
+}
+
+@media (max-width: 680px) {
+  .auth-footer-icon .gm-flaticon-icon {
+    width: 25px !important;
+    height: 25px !important;
+  }
+}
+
 .gm-icon-rendered {
   filter: drop-shadow(0 1px 0 rgba(255, 255, 255, .18)) drop-shadow(0 3px 4px rgba(0, 0, 0, .30));
 }

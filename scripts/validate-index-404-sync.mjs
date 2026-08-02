@@ -55,9 +55,9 @@ function validateExternalAssets(file, html) {
 }
 
 function validateExternalJavaScript() {
-  const file = path.join(root, "assets", "ui", "icon-registry.js");
+  const file = path.join(root, "assets", "icons", "flaticon", "icon-registry.js");
   const source = fs.readFileSync(file, "utf8");
-  new vm.Script(source, { filename: "assets/ui/icon-registry.js" });
+  new vm.Script(source, { filename: "assets/icons/flaticon/icon-registry.js" });
   return { file: path.relative(root, file).replaceAll("\\", "/"), bytes: Buffer.byteLength(source) };
 }
 
