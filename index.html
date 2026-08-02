@@ -15395,10 +15395,32 @@ body.theme-light .gm-icon-surface {
   background: rgba(5,41,67,.2);
 }
 #map .map-region-title {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
   color: #7bc1ff;
   font-size: 12px;
   letter-spacing: .06em;
   text-transform: uppercase;
+}
+#map .map-hierarchy-kicker {
+  flex: 0 0 auto;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+#map .map-hierarchy-separator {
+  flex: 0 0 auto;
+  color: #6f8da5;
+}
+#map .map-hierarchy-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#map .map-zone-title .map-hierarchy-kicker {
+  color: #31dd82;
 }
 #map .map-zone {
   position: absolute !important;
@@ -15417,11 +15439,22 @@ body.theme-light .gm-icon-surface {
   box-shadow: inset 0 0 28px rgba(34,197,94,.08), 0 0 26px rgba(34,197,94,.18);
 }
 #map .map-zone-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
   color: #d8ffe6;
   font-size: 12px;
+  line-height: 1.18;
+  overflow: visible;
+  white-space: normal;
+}
+#map .map-zone-title .map-hierarchy-name {
+  display: -webkit-box;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 #map .map-zone-subtitle {
   color: #87a9ba;
@@ -24229,7 +24262,7 @@ body.panel-mode .os-live-desc span {
       const visibleAssets = state.assets.filter(asset => visibleLocationIds.has(asset.locationId) && industrialMapAssetMatchesOperationalFilter(asset, operationalFilter) && (!q || normalizeTextKey(`${asset.code} ${asset.name} ${locationName(asset.locationId)} ${asset.category || asset.type || ""}`).includes(q)));
       const regions = state.regions.filter(region => !regionFilter ? visibleRegionIds.has(region.id) : region.id === regionFilter).map(region => `
         <div class="map-region" style="left:${region.x}%;top:${mapVisualY(region.y, extentY)}%;width:${region.w}%;height:${mapVisualH(region.h, extentY)}%;border-color:${region.color || "rgba(255,255,255,.2)"};">
-          <div class="map-region-caption"><div class="map-region-title">${escapeHtml(region.name || "Região")}</div></div>
+          <div class="map-region-caption"><div class="map-region-title"><span class="map-hierarchy-kicker">REGI&Atilde;O</span><span class="map-hierarchy-separator">&mdash;</span><span class="map-hierarchy-name">${escapeHtml(region.name || "Região")}</span></div></div>
         </div>
       `).join("");
       const zones = visibleLocations.map(location => {
@@ -24238,8 +24271,8 @@ body.panel-mode .os-live-desc span {
         return `
         <button type="button" class="map-zone" data-location="${escapeHtml(location.id)}" style="left:${location.x}%;top:${mapVisualY(location.y, extentY)}%;width:${location.w}%;height:${mapVisualH(location.h, extentY)}%;--industrial-map-zone-height:${mapVisualH(location.h, extentY)}%;border-color:${location.color || "#2387ff"};" aria-label="Abrir local ${escapeHtml(location.name || "Local")}">
           <div class="map-zone-caption">
-            <div class="map-zone-title">${escapeHtml(location.name || "Local")}</div>
-            <span class="map-zone-subtitle">${escapeHtml(regionName(location.regionId))} · ${escapeHtml(ptBrText(location.type || "Local"))} · ${locationAssets.length} máquina(s)${activeOrderCount ? ` · ${activeOrderCount} O.S.` : ""}</span>
+            <div class="map-zone-title"><span class="map-hierarchy-kicker">LOCAL</span><span class="map-hierarchy-separator">&mdash;</span><span class="map-hierarchy-name">${escapeHtml(location.name || "Local")}</span></div>
+            <span class="map-zone-subtitle">${escapeHtml(ptBrText(location.type || "Local"))} · ${locationAssets.length} máquina(s)${activeOrderCount ? ` · ${activeOrderCount} O.S.` : ""}</span>
           </div>
         </button>`;
       }).join("");
