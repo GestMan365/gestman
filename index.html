@@ -15401,6 +15401,14 @@ body.theme-light .gm-icon-surface {
   text-transform: uppercase;
 }
 #map .map-zone {
+  position: absolute !important;
+  display: block !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: var(--industrial-map-zone-height, 120px) !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  transform: none !important;
   border-color: rgba(35,197,94,.68) !important;
   background: linear-gradient(180deg, rgba(6,87,46,.2), rgba(8,41,43,.18));
 }
@@ -15411,18 +15419,56 @@ body.theme-light .gm-icon-surface {
 #map .map-zone-title {
   color: #d8ffe6;
   font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 #map .map-zone-subtitle {
   color: #87a9ba;
-  white-space: nowrap;
+  display: -webkit-box;
+  overflow: hidden;
+  line-height: 1.2;
+  white-space: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+#map .map-zone-caption {
+  top: 8px;
+  right: 8px;
+  bottom: auto;
+  left: 8px;
+  min-width: 0;
+  padding: 7px 9px;
+  border: 1px solid rgba(35,197,94,.2);
+  border-radius: 7px;
+  background: rgba(5,28,35,.78);
 }
 #map .machine-node {
-  width: 94px;
-  gap: 5px;
+  position: absolute !important;
+  display: grid !important;
+  grid-template-columns: 64px minmax(0, 1fr) !important;
+  align-items: center !important;
+  justify-items: stretch !important;
+  width: 220px !important;
+  min-width: 220px !important;
+  max-width: 220px !important;
+  min-height: 0 !important;
+  height: auto !important;
+  gap: 8px !important;
+  padding: 8px !important;
+  overflow: visible !important;
+  transform: translate(-50%, -50%) !important;
+  border: 1px solid #31566f !important;
+  border-radius: 10px !important;
+  background: linear-gradient(145deg, #102d43, #081b2c) !important;
+  box-shadow: 0 9px 22px rgba(0,0,0,.38), inset 0 1px rgba(255,255,255,.06) !important;
+  color: #f5fbff !important;
+  text-align: left !important;
+  cursor: grab !important;
 }
 #map .machine-icon {
-  width: 70px;
-  height: 54px;
+  width: 62px;
+  height: 56px;
   overflow: hidden;
   border-color: #31566f;
   background: linear-gradient(145deg, #102d43, #081b2c);
@@ -15447,24 +15493,50 @@ body.theme-light .gm-icon-surface {
 }
 #map .machine-label {
   display: grid;
-  max-width: 94px;
-  text-align: center;
-  line-height: 1.08;
+  min-width: 0;
+  max-width: none;
+  gap: 3px;
+  text-align: left;
+  line-height: 1.18;
   text-shadow: 0 2px 5px #000;
 }
 #map .machine-label strong {
-  overflow: hidden;
+  overflow: visible;
   color: #f5fbff;
+  font-size: 11px;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+#map .machine-label small {
+  display: -webkit-box;
+  overflow: hidden;
+  color: #86a0b4;
   font-size: 10px;
+  line-height: 1.2;
+  text-overflow: clip;
+  white-space: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+#map .machine-state {
+  overflow: hidden;
+  color: #66dea0;
+  font-size: 9px;
+  font-weight: 800;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-#map .machine-label small {
-  overflow: hidden;
-  color: #86a0b4;
-  font-size: 9px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+#map .machine-node:hover,
+#map .machine-node:focus-visible {
+  transform: translate(-50%, -50%) !important;
+  border-color: #2bd374 !important;
+  box-shadow: 0 10px 26px rgba(0,0,0,.42), 0 0 0 3px rgba(43,211,116,.16) !important;
+}
+#map .machine-node.dragging {
+  cursor: grabbing !important;
+  opacity: .9;
+  z-index: 9;
 }
 #map .industrial-map-side {
   align-self: start;
@@ -15550,7 +15622,8 @@ body.theme-light .gm-icon-surface {
   background: #091c2d;
 }
 #map .map-detail-orders,
-#map .map-location-machine-list {
+#map .map-location-machine-list,
+#map .map-detail-movements {
   display: grid;
   gap: 6px;
 }
@@ -15583,6 +15656,29 @@ body.theme-light .gm-icon-surface {
   border-radius: 8px;
   color: #7e9caf;
   text-align: center;
+}
+#map .map-detail-movements {
+  padding-top: 4px;
+}
+#map .map-detail-movements > strong {
+  color: #dcecff;
+  font-size: 11px;
+}
+#map .map-detail-movement {
+  display: grid;
+  gap: 3px;
+  padding: 8px;
+  border: 1px solid #1b3e5b;
+  border-radius: 7px;
+  background: #0a2032;
+}
+#map .map-detail-movement span {
+  color: #e9f5ff;
+  font-size: 10px;
+}
+#map .map-detail-movement small {
+  color: #8ea8bb;
+  font-size: 9px;
 }
 #map .installation-structure-details {
   margin-top: 4px;
@@ -16937,7 +17033,7 @@ body.panel-mode .os-live-desc span {
       <div class="industrial-map-workspace">
         <header class="industrial-map-page-head">
           <div><span class="industrial-map-eyebrow">LOCALIZAÇÃO DO PARQUE INDUSTRIAL</span><h1>Mapa Industrial</h1><p>Visualize a hierarquia Região → Local → Máquina, identifique equipamentos por foto e acompanhe alertas de O.S.</p></div>
-          <div class="industrial-map-page-actions"><button class="btn" type="button" onclick="setView('regions')">Regiões</button><button class="btn" type="button" onclick="setView('locations')">Locais</button><button class="btn" type="button" onclick="setView('assets')">Ativos</button><button class="btn primary" type="button" onclick="openOsPanelWindow()">Abrir Painel de O.S.</button></div>
+              <div class="industrial-map-page-actions"><button class="btn" type="button" onclick="setView('regions')">Regiões</button><button class="btn" type="button" onclick="setView('regions')">Locais do mapa</button><button class="btn" type="button" onclick="setView('assets')">Ativos</button><button class="btn primary" type="button" onclick="openOsPanelWindow()">Abrir Painel de O.S.</button></div>
         </header>
         <div class="industrial-map-filters" aria-label="Filtros do mapa industrial">
           <label class="industrial-map-search"><span aria-hidden="true">⌕</span><input class="field" id="imSearch" placeholder="Buscar máquina, TAG, local ou região" oninput="renderMap()"></label>
@@ -16947,7 +17043,7 @@ body.panel-mode .os-live-desc span {
           <button class="btn ghost" type="button" onclick="clearIndustrialMapFilters()">Limpar</button>
         </div>
         <div class="map-shell industrial-map-shell">
-          <div class="industrial-map-canvas-shell"><div class="industrial-map" id="industrialMap" aria-label="Mapa das regiões, locais e máquinas"></div><p class="industrial-map-help">Clique em uma máquina para ver os dados. Usuários autorizados podem arrastar o equipamento para reposicioná-lo dentro de um local.</p></div>
+              <div class="industrial-map-canvas-shell"><div class="industrial-map" id="industrialMap" aria-label="Mapa das regiões, locais e máquinas"></div><p class="industrial-map-help">Clique em uma máquina para ver os dados. Arraste dentro do mesmo Local para reposicionar ou solte em outro Local para registrar uma movimentação. Não é permitido deixar equipamentos fora de um Local.</p></div>
           <aside class="map-side industrial-map-side" id="mapDetails" aria-live="polite"><div class="industrial-map-side-empty"><strong>Selecione uma máquina ou local</strong><span>Os detalhes, a foto e as ordens ativas serão exibidos aqui.</span></div></aside>
         </div>
       </div>
@@ -22171,6 +22267,25 @@ body.panel-mode .os-live-desc span {
         y >= Number(location.y) &&
         y <= Number(location.y) + Number(location.h);
     }
+    function machineLocationBounds(location) {
+      const width = Math.max(1, Number(location?.w || 0));
+      const height = Math.max(1, Number(location?.h || 0));
+      const horizontalInset = Math.min(13, Math.max(5, width / 2 - 2));
+      const verticalInset = Math.min(9, Math.max(4, height / 2 - 2));
+      return {
+        horizontalInset,
+        verticalInset,
+        minX: Number(location?.x || 0) + horizontalInset,
+        maxX: Number(location?.x || 0) + width - horizontalInset,
+        minY: Number(location?.y || 0) + verticalInset,
+        maxY: Number(location?.y || 0) + height - verticalInset
+      };
+    }
+    function machineCenterInsideLocation(location, x, y) {
+      if (!location) return false;
+      const bounds = machineLocationBounds(location);
+      return Number(x) >= bounds.minX && Number(x) <= bounds.maxX && Number(y) >= bounds.minY && Number(y) <= bounds.maxY;
+    }
     function locationAt(x, y) {
       return state.locations.find(location => pointInsideLocation(location, x, y));
     }
@@ -23939,10 +24054,10 @@ body.panel-mode .os-live-desc span {
         regionLocations.forEach((location) => {
           const machines = state.assets.filter(asset => asset.locationId === location.id);
           const count = Math.max(1, machines.length);
-          const cols = Math.min(8, Math.max(3, Math.ceil(Math.sqrt(count))));
+          const cols = Math.min(4, Math.max(1, Math.ceil(Math.sqrt(count))));
           const rows = Math.max(1, Math.ceil(count / cols));
-          const w = Math.min(88, Math.max(28, 14 + cols * 9));
-          const h = Math.min(70, Math.max(22, 13 + rows * 10));
+          const w = Math.min(90, Math.max(35, 10 + cols * 25));
+          const h = Math.min(76, Math.max(30, 12 + rows * 18));
           if (cursorX + w > 96) {
             cursorX = 4;
             cursorY += rowH + 4;
@@ -23983,17 +24098,15 @@ body.panel-mode .os-live-desc span {
       state.locations.forEach(location => {
         const machines = state.assets.filter(asset => asset.locationId === location.id);
         if (!machines.length) return;
-        const cols = Math.max(3, Math.floor(Number(location.w || 30) / 10));
+        const cols = Math.max(1, Math.floor((Number(location.w || 35) - 10) / 25));
         const rows = Math.max(1, Math.ceil(machines.length / cols));
-        const minX = Number(location.x) + 5;
-        const maxX = Number(location.x) + Number(location.w) - 5;
-        const minY = Number(location.y) + 10;
-        const maxY = Number(location.y) + Number(location.h) - 6;
+        const bounds = machineLocationBounds(location);
+        const { minX, maxX, minY, maxY } = bounds;
         const slots = [];
         for (let row = 0; row < rows; row++) {
           for (let col = 0; col < cols; col++) {
-            const sx = Math.min(maxX, minX + col * 9);
-            const sy = Math.min(maxY, minY + row * 10);
+            const sx = Math.min(maxX, minX + col * 25);
+            const sy = Math.min(maxY, minY + row * 18);
             slots.push({ x: Number(sx.toFixed(2)), y: Number(sy.toFixed(2)) });
           }
         }
@@ -24007,7 +24120,7 @@ body.panel-mode .os-live-desc span {
           const currentX = Number(asset.x || 0);
           const currentY = Number(asset.y || 0);
           const currentKey = `${currentX.toFixed(1)}:${currentY.toFixed(1)}`;
-          const inside = pointInsideLocation(location, currentX, currentY);
+          const inside = machineCenterInsideLocation(location, currentX, currentY);
           let slot = null;
           if (inside && !occupied.has(currentKey)) {
             slot = { x: currentX, y: currentY };
@@ -24029,33 +24142,32 @@ body.panel-mode .os-live-desc span {
       if (!location) return { x: 50, y: 50 };
       const machines = state.assets.filter(asset => asset.locationId === locationId && asset.id !== excludeId);
       const index = machines.length;
-      const cols = Math.max(3, Math.floor(Number(location.w || 30) / 10));
+      const cols = Math.max(1, Math.floor((Number(location.w || 35) - 10) / 25));
       const col = index % cols;
       const row = Math.floor(index / cols);
-      const x = Number(location.x) + 6 + col * 9;
-      const y = Number(location.y) + 10 + row * 10;
+      const bounds = machineLocationBounds(location);
+      const x = bounds.minX + col * 25;
+      const y = bounds.minY + row * 18;
       return {
-        x: Number(Math.min(Number(location.x) + Number(location.w) - 5, x).toFixed(2)),
-        y: Number(Math.min(Number(location.y) + Number(location.h) - 5, y).toFixed(2))
+        x: Number(Math.min(bounds.maxX, x).toFixed(2)),
+        y: Number(Math.min(bounds.maxY, y).toFixed(2))
       };
     }
     function snapMachineToLocation(locationId, x, y, excludeId = "") {
       const location = byId(state.locations, locationId);
       if (!location) return { x: 50, y: 50 };
-      const minX = Number(location.x) + 5;
-      const maxX = Number(location.x) + Number(location.w) - 5;
-      const minY = Number(location.y) + 10;
-      const maxY = Number(location.y) + Number(location.h) - 6;
-      const cols = Math.max(3, Math.floor(Number(location.w || 30) / 10));
-      const rows = Math.max(1, Math.ceil(Number(location.h || 24) / 10));
+      const bounds = machineLocationBounds(location);
+      const { minX, maxX, minY, maxY } = bounds;
+      const cols = Math.max(1, Math.floor((Number(location.w || 35) - 10) / 25));
+      const rows = Math.max(1, Math.ceil(Number(location.h || 30) / 18));
       const used = new Set(state.assets
         .filter(asset => asset.locationId === locationId && asset.id !== excludeId)
         .map(asset => `${Number(asset.x).toFixed(1)}:${Number(asset.y).toFixed(1)}`));
       const slots = [];
       for (let row = 0; row < rows; row++) {
         for (let col = 0; col < cols; col++) {
-          const sx = Math.min(maxX, minX + col * 9);
-          const sy = Math.min(maxY, minY + row * 10);
+          const sx = Math.min(maxX, minX + col * 25);
+          const sy = Math.min(maxY, minY + row * 18);
           const key = `${Number(sx).toFixed(1)}:${Number(sy).toFixed(1)}`;
           slots.push({ x: sx, y: sy, used: used.has(key), dist: Math.hypot(sx - Number(x), sy - Number(y)) });
         }
@@ -24124,7 +24236,7 @@ body.panel-mode .os-live-desc span {
         const locationAssets = state.assets.filter(asset => asset.locationId === location.id);
         const activeOrderCount = state.orders.filter(order => locationAssets.some(asset => asset.id === order.assetId) && !isClosedOrder(order.status)).length;
         return `
-        <button type="button" class="map-zone" data-location="${escapeHtml(location.id)}" style="left:${location.x}%;top:${mapVisualY(location.y, extentY)}%;width:${location.w}%;height:${mapVisualH(location.h, extentY)}%;border-color:${location.color || "#2387ff"};" aria-label="Abrir local ${escapeHtml(location.name || "Local")}">
+        <button type="button" class="map-zone" data-location="${escapeHtml(location.id)}" style="left:${location.x}%;top:${mapVisualY(location.y, extentY)}%;width:${location.w}%;height:${mapVisualH(location.h, extentY)}%;--industrial-map-zone-height:${mapVisualH(location.h, extentY)}%;border-color:${location.color || "#2387ff"};" aria-label="Abrir local ${escapeHtml(location.name || "Local")}">
           <div class="map-zone-caption">
             <div class="map-zone-title">${escapeHtml(location.name || "Local")}</div>
             <span class="map-zone-subtitle">${escapeHtml(regionName(location.regionId))} · ${escapeHtml(ptBrText(location.type || "Local"))} · ${locationAssets.length} máquina(s)${activeOrderCount ? ` · ${activeOrderCount} O.S.` : ""}</span>
@@ -24137,13 +24249,17 @@ body.panel-mode .os-live-desc span {
         return `
           <button class="machine-node match ${photo ? "has-photo" : ""}" data-machine="${escapeHtml(asset.id)}" style="left:${asset.x}%;top:${mapVisualY(asset.y, extentY)}%;" aria-label="${escapeHtml(`${asset.code || "Sem TAG"} - ${asset.name || "Equipamento"}`)}">
             <span class="machine-icon"><span class="machine-icon-fallback">${visualIcon(asset.icon)}</span>${photo ? `<img class="machine-photo" src="${escapeHtml(photo)}" alt="Foto de ${escapeHtml(asset.name || "equipamento")}" loading="lazy">` : ""}${alert ? `<span class="machine-alert ${alert.className}">${alert.count}</span>` : ""}</span>
-            <span class="machine-label"><strong>${escapeHtml(asset.code || "SEM TAG")}</strong><small>${escapeHtml(asset.name || "Equipamento")}</small></span>
+            <span class="machine-label"><strong>${escapeHtml(asset.code || "SEM TAG")}</strong><small>${escapeHtml(asset.name || "Equipamento")}</small><span class="machine-state">${escapeHtml(ptBrText(asset.status || "Sem status"))} · ${escapeHtml(ptBrText(asset.criticality || "Sem criticidade"))}</span></span>
           </button>`;
       }).join("");
       const emptyResult = visibleAssets.length ? "" : `<div class="industrial-map-result-empty"><strong>Nenhuma máquina corresponde aos filtros</strong><span>Altere a busca ou limpe os filtros para visualizar o parque completo.</span></div>`;
       map.innerHTML = regions + zones + machines + emptyResult;
       map.querySelectorAll("[data-location]").forEach(button => {
-        button.addEventListener("click", event => {
+        button.addEventListener("click", () => {
+          showLocationDetails(button.dataset.location);
+        });
+        button.addEventListener("contextmenu", event => {
+          event.preventDefault();
           showLocationDetails(button.dataset.location);
           openLocationMenu(event, button.dataset.location);
         });
@@ -24155,6 +24271,10 @@ body.panel-mode .os-live-desc span {
             button.dataset.dragged = "0";
             return;
           }
+          showMachineDetails(button.dataset.machine);
+        });
+        button.addEventListener("contextmenu", event => {
+          event.preventDefault();
           showMachineDetails(button.dataset.machine);
           openMachineMenu(event, button.dataset.machine);
         });
@@ -24249,6 +24369,10 @@ body.panel-mode .os-live-desc span {
       if (!asset) return;
       const location = byId(state.locations, asset.locationId);
       const activeOrders = activeOrdersForAsset(id);
+      const movementHistory = state.movements
+        .filter(item => item.assetId === id)
+        .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0))
+        .slice(0, 3);
       const photo = String(asset.photo || "").trim();
       $("mapDetails").innerHTML = `
         <div class="map-detail-photo">${photo ? `<img src="${escapeHtml(photo)}" alt="Foto de ${escapeHtml(asset.name || "equipamento")}">` : visualIcon(asset.icon)}</div>
@@ -24256,6 +24380,7 @@ body.panel-mode .os-live-desc span {
         <div class="map-detail-grid"><span><small>Região</small>${escapeHtml(regionName(location?.regionId))}</span><span><small>Local / linha</small>${escapeHtml(locationShortName(asset.locationId))}</span><span><small>O.S. ativas</small>${activeOrders.length}</span><span><small>Marca / modelo</small>${escapeHtml([asset.brand, asset.model].filter(Boolean).join(" · ") || "Não informado")}</span></div>
         <div class="map-detail-description"><small>Componentes / identificação</small><span>${escapeHtml(asset.components || `${tagDisplayName(asset.tagId)} / ${subtagName(asset.subtagId)}`)}</span></div>
         ${activeOrders.length ? `<div class="map-detail-orders"><strong>Ordens ativas</strong>${activeOrders.slice(0, 4).map(order => `<button type="button" onclick="showOrderDetails('${escapeHtml(order.id)}')"><span>${escapeHtml(order.number || "O.S.")}</span><small>${escapeHtml(orderTitle(order))}</small>${orderStatusChip(order)}</button>`).join("")}</div>` : `<div class="map-detail-no-orders">Nenhuma ordem ativa para esta máquina.</div>`}
+        ${movementHistory.length ? `<div class="map-detail-movements"><strong>Últimas movimentações</strong>${movementHistory.map(item => `<div class="map-detail-movement"><span>${escapeHtml(item.fromLocationName || "Origem não informada")} → ${escapeHtml(item.toLocationName || "Destino não informado")}</span><small>${escapeHtml(formatDateTime(item.createdAt))} · ${escapeHtml(item.responsible || "Responsável não informado")} · ${escapeHtml(item.reason || "Sem motivo informado")}</small></div>`).join("")}</div>` : ""}
         <div class="toolbar"><button class="btn" type="button" onclick="setView('assets');setTimeout(()=>openAssetDetail('${escapeHtml(asset.id)}'),0)">Ver ativo</button><button class="btn primary" type="button" onclick="openAssetOrder('${escapeHtml(asset.id)}')">Nova O.S.</button></div>
         ${renderMachineSubtagTree(asset)}
       `;
@@ -29679,19 +29804,22 @@ body.panel-mode .os-live-desc span {
     function openMoveReasonModal() {
       const asset = byId(state.assets, pendingMove?.assetId);
       if (!asset || !pendingMove) return;
-      openModal("Motivo do deslocamento", `
+      const defaultResponsible = state.profile?.name || currentAccount?.user?.name || "";
+      openModal("Registrar movimentação de equipamento", `
         <form class="form" id="moveReasonForm">
           <div class="full side-box">
-            <strong>${asset.code} - ${asset.name}</strong>
-            <span><strong>De:</strong> ${pendingMove.fromLocationName}</span>
-            <span><strong>Para:</strong> ${pendingMove.toLocationName}</span>
+            <strong>${escapeHtml(asset.code || "SEM TAG")} - ${escapeHtml(asset.name || "Equipamento")}</strong>
+            <span><strong>Origem:</strong> ${escapeHtml(pendingMove.fromLocationName || "Local não informado")}</span>
+            <span><strong>Destino:</strong> ${escapeHtml(pendingMove.toLocationName || "Local não informado")}</span>
+            <span><strong>Data e hora:</strong> ${escapeHtml(formatDateTime(Date.now()))}</span>
           </div>
-          <label class="full">Motivo do deslocamento <textarea class="field" id="moveReason" required placeholder="Ex: reposicionado para dentro da Fase 1 após reorganização da linha"></textarea></label>
-          <label>Responsável <input class="field" id="moveResponsible" placeholder="Nome do responsável"></label>
-          <label>Tipo <select class="field" id="moveType"><option>Ajuste de layout</option><option>Movimentação física</option><option>Correção de cadastro</option><option>Manutenção</option></select></label>
+          <label>Tipo de movimentação *<select class="field" id="moveType" required><option>Movimentação física</option><option>Ajuste de layout</option><option>Manutenção</option><option>Correção de cadastro</option></select></label>
+          <label>Responsável *<input class="field" id="moveResponsible" required value="${escapeHtml(defaultResponsible)}" placeholder="Nome do responsável"></label>
+          <label class="full">Motivo da movimentação *<textarea class="field" id="moveReason" required placeholder="Ex.: transferência para outra linha após reorganização da produção"></textarea></label>
+          <div class="full side-box"><span>A localização do equipamento somente será alterada após a confirmação. O registro ficará disponível no histórico do mapa.</span></div>
           <div class="full toolbar">
-            <button class="btn primary" type="submit">Confirmar deslocamento</button>
             <button class="btn" type="button" id="cancelMoveReason">Cancelar e voltar</button>
+            <button class="btn primary" type="submit">Confirmar movimentação</button>
           </div>
         </form>
       `);
@@ -29707,14 +29835,21 @@ body.panel-mode .os-live-desc span {
       if (!asset) return;
       const reason = $("moveReason").value.trim();
       if (!reason) {
-        showToast("Informe o motivo do deslocamento.");
+        showToast("Informe o motivo da movimentação.");
         return;
       }
+      const responsible = $("moveResponsible").value.trim();
+      if (!responsible) {
+        showToast("Informe o responsável pela movimentação.");
+        return;
+      }
+      const now = Date.now();
       state.assets = state.assets.map(item => item.id === pendingMove.assetId ? {
         ...item,
         x: pendingMove.newX,
         y: pendingMove.newY,
-        locationId: pendingMove.toLocationId
+        locationId: pendingMove.toLocationId,
+        updatedAt: now
       } : item);
       state.movements.unshift({
         id: uid("move"),
@@ -29730,15 +29865,15 @@ body.panel-mode .os-live-desc span {
         fromLocationName: pendingMove.fromLocationName,
         toLocationName: pendingMove.toLocationName,
         reason,
-        responsible: $("moveResponsible").value.trim(),
+        responsible,
         type: $("moveType").value,
-        createdAt: Date.now()
+        createdAt: now
       });
       pendingMove = null;
       saveState();
       closeModal();
       render();
-      showToast("Deslocamento registrado.");
+      showToast("Movimentação de equipamento registrada.");
     }
     function cancelMachineMove() {
       pendingMove = null;
