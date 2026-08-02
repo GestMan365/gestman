@@ -27023,7 +27023,45 @@ body.panel-mode .os-live-desc span {
         </div>`;
       if (targetId === "activeOrdersPanel") stopPanelAutoScroll();
     }
+    function mountRegionLocationAdmin() {
+      const regionsView = $("regions");
+      if (!regionsView) return;
+      let host = $("regionsLocationAdminHost");
+      if (!host) {
+        host = document.createElement("div");
+        host.id = "regionsLocationAdminHost";
+        host.className = "grid location-admin regions-location-admin";
+        regionsView.appendChild(host);
+      }
+      const regionFormPanel = $("regionForm")?.closest(".panel");
+      const locationFormPanel = $("locationForm")?.closest(".panel");
+      const locationTablePanel = $("locationRows")?.closest(".panel");
+      [regionFormPanel, locationFormPanel, locationTablePanel].filter(Boolean).forEach(panel => {
+        if (panel.parentElement !== host) host.appendChild(panel);
+      });
+      const locationTitle = locationTablePanel?.querySelector(".panel-title");
+      if (locationTitle) locationTitle.textContent = "Locais do mapa industrial";
+      const header = regionsView.querySelector(":scope > .panel > .panel-head");
+      const createRegionButton = header?.querySelector(".btn.primary");
+      if (createRegionButton) {
+        createRegionButton.removeAttribute("onclick");
+        createRegionButton.onclick = () => openCrudFormForCreate("regionForm");
+      }
+      if (header && !$("showMapLocationFormBtn")) {
+        const toolbar = document.createElement("div");
+        toolbar.className = "toolbar";
+        const localButton = document.createElement("button");
+        localButton.className = "btn";
+        localButton.type = "button";
+        localButton.id = "showMapLocationFormBtn";
+        localButton.textContent = "Novo local";
+        localButton.addEventListener("click", () => openCrudFormForCreate("locationForm"));
+        toolbar.append(createRegionButton, localButton);
+        header.appendChild(toolbar);
+      }
+    }
     function renderRegionsModule() {
+      mountRegionLocationAdmin();
       const target = $("regionsModuleRows");
       if (!target) return;
       target.innerHTML = (state.regions || []).map(region => {
@@ -30717,7 +30755,8 @@ body.panel-mode .os-live-desc span {
     }
     function editRegion(id) {
       const item = byId(state.regions, id); if (!item) return;
-      setView("locations");
+      setView("regions");
+      mountRegionLocationAdmin();
       $("regionId").value = item.id;
       $("regionName").value = item.name;
       $("regionFormTitle").textContent = "Editar região";
@@ -30725,6 +30764,11 @@ body.panel-mode .os-live-desc span {
     }
     async function deleteRegion(id, confirmed = false) {
       const linkedLocations = state.locations.filter(location => location.regionId === id);
+      if (linkedLocations.length) {
+        openModal("Exclusão bloqueada", `<div class="side-box"><strong>Esta região possui ${linkedLocations.length} local(is) vinculado(s).</strong><span>Mova ou exclua os locais antes de remover a região. Nenhum equipamento será desvinculado automaticamente.</span></div>`);
+        showToast("Exclusão bloqueada: existem locais vinculados.", "warning");
+        return;
+      }
       const linkedIds = new Set(linkedLocations.map(location => location.id));
       const question = linkedLocations.length
         ? `Excluir esta região e ${linkedLocations.length} local(is) de instalação vinculado(s)? Os equipamentos ficarão sem local.`
@@ -30748,12 +30792,19 @@ body.panel-mode .os-live-desc span {
     }
     function editLocation(id) {
       const item = byId(state.locations, id); if (!item) return;
-      setView("locations");
+      setView("regions");
+      mountRegionLocationAdmin();
       $("locationId").value = item.id; $("locationRegion").value = item.regionId || state.regions[0]?.id || ""; $("locationName").value = item.name; $("locationType").value = item.type;
       $("locationFormTitle").textContent = "Editar local de instalação";
       showCrudForm("locationForm");
     }
     async function deleteLocation(id, confirmed = false) {
+      const linkedAssets = state.assets.filter(asset => asset.locationId === id);
+      if (linkedAssets.length) {
+        openModal("Exclusão bloqueada", `<div class="side-box"><strong>Este local possui ${linkedAssets.length} equipamento(s) vinculado(s).</strong><span>Mova os equipamentos para outro local antes de excluir. Nenhum vínculo será removido automaticamente.</span></div>`);
+        showToast("Exclusão bloqueada: existem equipamentos vinculados.", "warning");
+        return;
+      }
       if (!confirmed) { requestDestructiveConfirmation("Excluir este local?", "O local será removido e os equipamentos vinculados ficarão sem local definido.", "Excluir local", () => deleteLocation(id, true)); return; }
       if (!await confirmRemoteDelete("locais_instalacao", id, "local")) return;
       state.locations = state.locations.filter(item => item.id !== id);
@@ -32246,7 +32297,11 @@ body.panel-mode .os-live-desc span {
       event.preventDefault();
       const id = $("regionId").value || uid("region");
       const existing = byId(state.regions, id);
-      const payload = { id, name: value("regionName"), color: existing?.color || "#ff8a4c", x: existing?.x || 2, y: existing?.y || 4, w: existing?.w || 96, h: existing?.h || 24 };
+      const name = value("regionName");
+      if (!name) { showToast("Informe o nome da região.", "warning"); $("regionName")?.focus(); return; }
+      const duplicate = state.regions.find(item => item.id !== id && normalizeTextKey(item.name) === normalizeTextKey(name));
+      if (duplicate) { showToast("Já existe uma região com este nome.", "warning"); $("regionName")?.focus(); return; }
+      const payload = { id, name, color: existing?.color || "#ff8a4c", x: existing?.x || 2, y: existing?.y || 4, w: existing?.w || 96, h: existing?.h || 24 };
       state.regions = state.regions.filter(item => item.id !== id).concat(payload);
       saveState(); resetRegionForm(); render(); showToast("Região salva.");
     });
@@ -32258,8 +32313,12 @@ body.panel-mode .os-live-desc span {
       }
       const id = $("locationId").value || uid("loc");
       const existing = byId(state.locations, id);
+      const name = value("locationName");
+      if (!name) { showToast("Informe o nome do local.", "warning"); $("locationName")?.focus(); return; }
+      const duplicate = state.locations.find(item => item.id !== id && item.regionId === $("locationRegion").value && normalizeTextKey(item.name) === normalizeTextKey(name));
+      if (duplicate) { showToast("Já existe um local com este nome nesta região.", "warning"); $("locationName")?.focus(); return; }
       const palette = ["#123f8d", "#0f766e", "#7c3aed", "#b45309", "#be123c", "#2563eb"];
-      const payload = { id, regionId: $("locationRegion").value || state.regions[0]?.id || "", name: value("locationName"), type: $("locationType").value, color: existing?.color || palette[state.locations.length % palette.length], x: existing?.x || 4, y: existing?.y || 12, w: existing?.w || 32, h: existing?.h || 24 };
+      const payload = { id, regionId: $("locationRegion").value || state.regions[0]?.id || "", name, type: $("locationType").value, color: existing?.color || palette[state.locations.length % palette.length], x: existing?.x || 4, y: existing?.y || 12, w: existing?.w || 32, h: existing?.h || 24 };
       state.locations = state.locations.filter(item => item.id !== id).concat(payload);
       saveState(); resetLocationForm(); render(); showToast("Local salvo.");
     });
