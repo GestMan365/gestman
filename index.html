@@ -14102,6 +14102,38 @@ body:not(.auth-required):not(.auth-loading) .nav {
   height: 38px !important;
   color: #9cafc1 !important;
 }
+@media (min-width: 901px) {
+  body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) :is(
+    .nav-module-favorite-row,
+    .nav-favorite-copy-row
+  ) {
+    height: auto !important;
+    min-height: 42px !important;
+    max-height: none !important;
+    overflow: visible !important;
+    flex: 0 0 auto !important;
+  }
+  body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) :is(
+    .nav-module-favorite-row,
+    .nav-favorite-copy-row
+  ) > .tab,
+  body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) .nav-group-items .tab {
+    height: auto !important;
+    min-height: 42px !important;
+    max-height: none !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+  }
+  body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) .nav .tab > span:nth-child(2) {
+    white-space: normal !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+    hyphens: none !important;
+    line-height: 1.25 !important;
+  }
+}
 .industrial-critical-alerts {
   margin: 7px 9px 8px !important;
   padding: 9px 10px !important;
