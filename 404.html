@@ -22383,19 +22383,63 @@ body.panel-mode .os-live-desc span {
         y >= Number(location.y) &&
         y <= Number(location.y) + Number(location.h);
     }
+    const INDUSTRIAL_MAP_MACHINE_GRID = Object.freeze({
+      maxColumns: 3,
+      horizontalInset: 13,
+      horizontalStep: 28,
+      headerCenterOffset: 20,
+      verticalStep: 20,
+      bottomInset: 10
+    });
+    function industrialMapMachineGrid(machineCount = 1) {
+      const count = Math.max(1, Number(machineCount) || 1);
+      const cols = Math.min(
+        INDUSTRIAL_MAP_MACHINE_GRID.maxColumns,
+        count <= INDUSTRIAL_MAP_MACHINE_GRID.maxColumns ? count : Math.max(1, Math.ceil(Math.sqrt(count)))
+      );
+      const rows = Math.max(1, Math.ceil(count / cols));
+      return {
+        cols,
+        rows,
+        width: Math.max(35, INDUSTRIAL_MAP_MACHINE_GRID.horizontalInset * 2 + (cols - 1) * INDUSTRIAL_MAP_MACHINE_GRID.horizontalStep),
+        height: Math.max(34, INDUSTRIAL_MAP_MACHINE_GRID.headerCenterOffset + (rows - 1) * INDUSTRIAL_MAP_MACHINE_GRID.verticalStep + INDUSTRIAL_MAP_MACHINE_GRID.bottomInset)
+      };
+    }
     function machineLocationBounds(location) {
       const width = Math.max(1, Number(location?.w || 0));
       const height = Math.max(1, Number(location?.h || 0));
-      const horizontalInset = Math.min(13, Math.max(5, width / 2 - 2));
-      const verticalInset = Math.min(9, Math.max(4, height / 2 - 2));
+      const horizontalInset = Math.min(INDUSTRIAL_MAP_MACHINE_GRID.horizontalInset, Math.max(5, width / 2 - 2));
+      const topInset = Math.min(INDUSTRIAL_MAP_MACHINE_GRID.headerCenterOffset, Math.max(6, height / 2));
+      const bottomInset = Math.min(INDUSTRIAL_MAP_MACHINE_GRID.bottomInset, Math.max(4, height / 2 - 2));
+      const rawMinY = Number(location?.y || 0) + topInset;
+      const rawMaxY = Number(location?.y || 0) + height - bottomInset;
+      const centerY = Number(location?.y || 0) + height / 2;
       return {
         horizontalInset,
-        verticalInset,
+        verticalInset: topInset,
         minX: Number(location?.x || 0) + horizontalInset,
         maxX: Number(location?.x || 0) + width - horizontalInset,
-        minY: Number(location?.y || 0) + verticalInset,
-        maxY: Number(location?.y || 0) + height - verticalInset
+        minY: Math.min(rawMinY, rawMaxY) || centerY,
+        maxY: Math.max(rawMinY, rawMaxY) || centerY
       };
+    }
+    function machineGridSlots(location, machineCount = 1) {
+      if (!location) return [];
+      const layout = industrialMapMachineGrid(machineCount);
+      const bounds = machineLocationBounds(location);
+      const xStep = layout.cols > 1 ? (bounds.maxX - bounds.minX) / (layout.cols - 1) : 0;
+      const yStep = layout.rows > 1 ? (bounds.maxY - bounds.minY) / (layout.rows - 1) : 0;
+      const slots = [];
+      for (let row = 0; row < layout.rows; row++) {
+        for (let col = 0; col < layout.cols; col++) {
+          if (slots.length >= machineCount) break;
+          slots.push({
+            x: Number((layout.cols === 1 ? (bounds.minX + bounds.maxX) / 2 : bounds.minX + col * xStep).toFixed(2)),
+            y: Number((layout.rows === 1 ? bounds.minY : bounds.minY + row * yStep).toFixed(2))
+          });
+        }
+      }
+      return slots;
     }
     function machineCenterInsideLocation(location, x, y) {
       if (!location) return false;
@@ -24169,11 +24213,9 @@ body.panel-mode .os-live-desc span {
         let bottom = cursorY + 10;
         regionLocations.forEach((location) => {
           const machines = state.assets.filter(asset => asset.locationId === location.id);
-          const count = Math.max(1, machines.length);
-          const cols = Math.min(4, Math.max(1, Math.ceil(Math.sqrt(count))));
-          const rows = Math.max(1, Math.ceil(count / cols));
-          const w = Math.min(90, Math.max(35, 10 + cols * 25));
-          const h = Math.min(76, Math.max(30, 12 + rows * 18));
+          const layout = industrialMapMachineGrid(machines.length);
+          const w = Math.min(90, layout.width);
+          const h = layout.height;
           if (cursorX + w > 96) {
             cursorX = 4;
             cursorY += rowH + 4;
@@ -24214,36 +24256,22 @@ body.panel-mode .os-live-desc span {
       state.locations.forEach(location => {
         const machines = state.assets.filter(asset => asset.locationId === location.id);
         if (!machines.length) return;
-        const cols = Math.max(1, Math.floor((Number(location.w || 35) - 10) / 25));
-        const rows = Math.max(1, Math.ceil(machines.length / cols));
-        const bounds = machineLocationBounds(location);
-        const { minX, maxX, minY, maxY } = bounds;
-        const slots = [];
-        for (let row = 0; row < rows; row++) {
-          for (let col = 0; col < cols; col++) {
-            const sx = Math.min(maxX, minX + col * 25);
-            const sy = Math.min(maxY, minY + row * 18);
-            slots.push({ x: Number(sx.toFixed(2)), y: Number(sy.toFixed(2)) });
-          }
-        }
+        const availableSlots = machineGridSlots(location, machines.length);
         const sortedMachines = [...machines].sort((a, b) =>
           Number(a.y || 0) - Number(b.y || 0) ||
           Number(a.x || 0) - Number(b.x || 0) ||
           String(a.code || a.name || a.id).localeCompare(String(b.code || b.name || b.id), "pt-BR")
         );
-        const occupied = new Set();
         sortedMachines.forEach(asset => {
           const currentX = Number(asset.x || 0);
           const currentY = Number(asset.y || 0);
-          const currentKey = `${currentX.toFixed(1)}:${currentY.toFixed(1)}`;
-          const inside = machineCenterInsideLocation(location, currentX, currentY);
-          let slot = null;
-          if (inside && !occupied.has(currentKey)) {
-            slot = { x: currentX, y: currentY };
-          } else {
-            slot = slots.find(candidate => !occupied.has(`${candidate.x.toFixed(1)}:${candidate.y.toFixed(1)}`)) || slots[0];
-          }
-          occupied.add(`${slot.x.toFixed(1)}:${slot.y.toFixed(1)}`);
+          const slotIndex = availableSlots.reduce((bestIndex, candidate, index, rows) => {
+            if (bestIndex < 0) return index;
+            const best = rows[bestIndex];
+            return Math.hypot(candidate.x - currentX, candidate.y - currentY) < Math.hypot(best.x - currentX, best.y - currentY) ? index : bestIndex;
+          }, -1);
+          const [slot] = availableSlots.splice(Math.max(0, slotIndex), 1);
+          if (!slot) return;
           relocatedAssets.set(asset.id, {
             ...asset,
             x: Number(slot.x.toFixed(2)),
@@ -24257,42 +24285,26 @@ body.panel-mode .os-live-desc span {
       const location = byId(state.locations, locationId);
       if (!location) return { x: 50, y: 50 };
       const machines = state.assets.filter(asset => asset.locationId === locationId && asset.id !== excludeId);
-      const index = machines.length;
-      const cols = Math.max(1, Math.floor((Number(location.w || 35) - 10) / 25));
-      const col = index % cols;
-      const row = Math.floor(index / cols);
-      const bounds = machineLocationBounds(location);
-      const x = bounds.minX + col * 25;
-      const y = bounds.minY + row * 18;
-      return {
-        x: Number(Math.min(bounds.maxX, x).toFixed(2)),
-        y: Number(Math.min(bounds.maxY, y).toFixed(2))
-      };
+      const predictedLayout = industrialMapMachineGrid(machines.length + 1);
+      const predictedLocation = { ...location, w: Math.max(Number(location.w || 0), predictedLayout.width), h: Math.max(Number(location.h || 0), predictedLayout.height) };
+      return machineGridSlots(predictedLocation, machines.length + 1)[machines.length] || machineGridSlots(predictedLocation, 1)[0] || { x: 50, y: 50 };
     }
     function snapMachineToLocation(locationId, x, y, excludeId = "") {
       const location = byId(state.locations, locationId);
       if (!location) return { x: 50, y: 50 };
-      const bounds = machineLocationBounds(location);
-      const { minX, maxX, minY, maxY } = bounds;
-      const cols = Math.max(1, Math.floor((Number(location.w || 35) - 10) / 25));
-      const rows = Math.max(1, Math.ceil(Number(location.h || 30) / 18));
-      const used = new Set(state.assets
-        .filter(asset => asset.locationId === locationId && asset.id !== excludeId)
-        .map(asset => `${Number(asset.x).toFixed(1)}:${Number(asset.y).toFixed(1)}`));
-      const slots = [];
-      for (let row = 0; row < rows; row++) {
-        for (let col = 0; col < cols; col++) {
-          const sx = Math.min(maxX, minX + col * 25);
-          const sy = Math.min(maxY, minY + row * 18);
-          const key = `${Number(sx).toFixed(1)}:${Number(sy).toFixed(1)}`;
-          slots.push({ x: sx, y: sy, used: used.has(key), dist: Math.hypot(sx - Number(x), sy - Number(y)) });
-        }
-      }
-      const slot = slots.filter(item => !item.used).sort((a, b) => a.dist - b.dist)[0] || slots.sort((a, b) => a.dist - b.dist)[0];
-      return {
-        x: Number(Math.min(maxX, Math.max(minX, slot?.x || x)).toFixed(2)),
-        y: Number(Math.min(maxY, Math.max(minY, slot?.y || y)).toFixed(2))
-      };
+      const others = state.assets.filter(asset => asset.locationId === locationId && asset.id !== excludeId);
+      const predictedLayout = industrialMapMachineGrid(others.length + 1);
+      const predictedLocation = { ...location, w: Math.max(Number(location.w || 0), predictedLayout.width), h: Math.max(Number(location.h || 0), predictedLayout.height) };
+      const availableSlots = machineGridSlots(predictedLocation, others.length + 1);
+      [...others].sort((a, b) => Number(a.y || 0) - Number(b.y || 0) || Number(a.x || 0) - Number(b.x || 0)).forEach(asset => {
+        const occupiedIndex = availableSlots.reduce((bestIndex, candidate, index, rows) => {
+          if (bestIndex < 0) return index;
+          const best = rows[bestIndex];
+          return Math.hypot(candidate.x - Number(asset.x || 0), candidate.y - Number(asset.y || 0)) < Math.hypot(best.x - Number(asset.x || 0), best.y - Number(asset.y || 0)) ? index : bestIndex;
+        }, -1);
+        if (occupiedIndex >= 0) availableSlots.splice(occupiedIndex, 1);
+      });
+      return availableSlots.sort((a, b) => Math.hypot(a.x - Number(x), a.y - Number(y)) - Math.hypot(b.x - Number(x), b.y - Number(y)))[0] || machineGridSlots(predictedLocation, 1)[0] || { x: 50, y: 50 };
     }
     function refreshIndustrialMapFilters() {
       const regionSelect = $("imRegionFilter");
