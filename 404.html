@@ -16304,6 +16304,323 @@ body.panel-mode .os-live-desc span {
       background: #fff2cf !important;
       color: #86500b !important;
     }
+
+    /* Visão Geral: elimina superfícies escuras fixas quando o tema claro está ativo. */
+    body.theme-light #dashboard .industrial-dashboard-heading {
+      color: #17344a !important;
+      background:
+        radial-gradient(circle at 88% 0%, rgba(42, 180, 181, .16), transparent 34%),
+        linear-gradient(125deg, #ffffff 0%, #f0f9fb 62%, #e1f3f5 100%) !important;
+      border-color: #bcd7df !important;
+      box-shadow: 0 16px 38px rgba(35, 83, 103, .11) !important;
+    }
+    body.theme-light #dashboard .d2-dashboard-welcome > span {
+      color: #08768e !important;
+    }
+    body.theme-light #dashboard .d2-dashboard-welcome h1 {
+      color: #17344a !important;
+    }
+    body.theme-light #dashboard .d2-dashboard-welcome p {
+      color: #506b7e !important;
+    }
+    body.theme-light #dashboard .d2-dashboard-context span {
+      color: #17667b !important;
+      background: rgba(228, 245, 248, .9) !important;
+      border-color: #bddde4 !important;
+    }
+    body.theme-light #dashboard .dashboard-config-trigger {
+      color: #17667b !important;
+      background: rgba(255, 255, 255, .86) !important;
+      border-color: #a9cfd8 !important;
+      box-shadow: 0 4px 12px rgba(35, 83, 103, .08) !important;
+    }
+    body.theme-light #dashboard .dashboard-config-trigger:hover,
+    body.theme-light #dashboard .dashboard-config-trigger:focus-visible {
+      color: #0b6177 !important;
+      background: #ffffff !important;
+      border-color: #63aab9 !important;
+    }
+    body.theme-light #dashboard .industrial-dashboard-live {
+      color: #24465b !important;
+      background: rgba(255, 255, 255, .82) !important;
+      border-color: #b5d4dc !important;
+      box-shadow: 0 4px 12px rgba(35, 83, 103, .07) !important;
+    }
+    body.theme-light #dashboard .industrial-dashboard-live :is(span, strong) {
+      color: #24465b !important;
+    }
+
+    body.theme-light #dashboard .industrial-card-head button,
+    body.theme-light #dashboard .chart-link-button {
+      color: #29506f !important;
+      background: #f5f9fc !important;
+      border-color: #c5d6e4 !important;
+      box-shadow: none !important;
+    }
+    body.theme-light #dashboard .industrial-card-head button:hover,
+    body.theme-light #dashboard .industrial-card-head button:focus-visible,
+    body.theme-light #dashboard .chart-link-button:hover,
+    body.theme-light #dashboard .chart-link-button:focus-visible {
+      color: #0c65b5 !important;
+      background: #e8f3fd !important;
+      border-color: #78acd8 !important;
+    }
+    body.theme-light #dashboard .industrial-quick-actions button {
+      color: #29445e !important;
+      background: #f6f9fc !important;
+      border-color: #c9d8e5 !important;
+      box-shadow: 0 2px 7px rgba(35, 70, 103, .05) !important;
+    }
+    body.theme-light #dashboard .industrial-quick-actions button:hover,
+    body.theme-light #dashboard .industrial-quick-actions button:focus-visible {
+      color: #0d65b5 !important;
+      background: #eaf4fc !important;
+      border-color: #78acd8 !important;
+    }
+    body.theme-light #dashboard .industrial-quick-actions :is(strong, small) {
+      color: #29445e !important;
+    }
+    body.theme-light #dashboard .industrial-quick-actions small {
+      color: #60758a !important;
+    }
+
+    body.theme-light #dashboard .industrial-stacked-chart {
+      border-top-color: #d5e1eb !important;
+      background: repeating-linear-gradient(to top, transparent 0 44px, rgba(165, 184, 202, .42) 45px 46px) !important;
+    }
+    body.theme-light #dashboard .trend-chart-shell {
+      border-color: #cbd9e5 !important;
+      background: linear-gradient(180deg, #f8fbfd, #eef5fa) !important;
+    }
+    body.theme-light #dashboard .trend-chart-legend {
+      color: #526b82 !important;
+    }
+    body.theme-light #dashboard .trend-summary div {
+      background: #f7fafc !important;
+      border-color: #d2dee9 !important;
+    }
+    body.theme-light #dashboard .trend-summary span {
+      color: #60758a !important;
+    }
+    body.theme-light #dashboard .trend-summary strong {
+      color: #17324b !important;
+    }
+    body.theme-light #dashboard .maintenance-backlog-row > span,
+    body.theme-light #dashboard .maintenance-backlog-footer span,
+    body.theme-light #dashboard .asset-health-legend-row {
+      color: #526b82 !important;
+    }
+    body.theme-light #dashboard .maintenance-backlog-row > strong,
+    body.theme-light #dashboard .maintenance-backlog-footer strong,
+    body.theme-light #dashboard .asset-health-legend-row strong {
+      color: #17324b !important;
+    }
+    body.theme-light #dashboard .maintenance-backlog-row > small,
+    body.theme-light #dashboard .asset-health-legend-row small {
+      color: #60758a !important;
+    }
+    body.theme-light #dashboard :is(.maintenance-backlog-footer, .asset-health-footer) {
+      border-top-color: #d5e1eb !important;
+    }
+    body.theme-light #dashboard .asset-health-donut::after,
+    body.theme-light #dashboard .industrial-donut::before {
+      background: #f7fafc !important;
+      border-color: #cbd9e5 !important;
+      box-shadow: inset 0 0 0 1px #d5e1eb !important;
+    }
+    body.theme-light #dashboard :is(.asset-health-donut, .industrial-donut) strong {
+      color: #17324b !important;
+    }
+    body.theme-light #dashboard :is(.asset-health-donut, .industrial-donut) span,
+    body.theme-light #dashboard .industrial-legend-row {
+      color: #60758a !important;
+    }
+    body.theme-light #dashboard .industrial-legend-row strong {
+      color: #17324b !important;
+    }
+
+    body.theme-light #dashboard .dashboard-alert-item {
+      color: #17324b !important;
+      background: #f7fafc !important;
+      border-color: #cbd9e5 !important;
+      border-left-color: var(--alert-color) !important;
+    }
+    body.theme-light #dashboard .dashboard-alert-item:hover {
+      background: #edf6fd !important;
+      border-color: #8bb9df !important;
+      border-left-color: var(--alert-color) !important;
+    }
+    body.theme-light #dashboard .dashboard-alert-icon,
+    body.theme-light #dashboard .dashboard-alert-priority {
+      background: color-mix(in srgb, var(--alert-color) 10%, #ffffff) !important;
+    }
+    body.theme-light #dashboard .dashboard-alert-copy strong {
+      color: #17324b !important;
+    }
+    body.theme-light #dashboard .dashboard-alert-copy span,
+    body.theme-light #dashboard .dashboard-alert-meta time {
+      color: #60758a !important;
+    }
+    body.theme-light #dashboard .industrial-order-row {
+      color: #29445e !important;
+      background: #f7fafc !important;
+      border-color: #cbd9e5 !important;
+    }
+    body.theme-light #dashboard .industrial-order-row:hover {
+      background: #edf6fd !important;
+      border-color: #8bb9df !important;
+    }
+    body.theme-light #dashboard .industrial-order-row strong {
+      color: #17324b !important;
+    }
+    body.theme-light #dashboard .industrial-order-row > span,
+    body.theme-light #dashboard .industrial-order-row small {
+      color: #60758a !important;
+    }
+    body.theme-light #dashboard .os-panel-machine-photo {
+      color: #0b70c9 !important;
+      background: #e8f3fc !important;
+      border-color: #b8d3e9 !important;
+    }
+    body.theme-light #dashboard .os-chip.status-overdue {
+      color: #991b1b !important;
+      background: #fee2e2 !important;
+      border-color: #f4aaaa !important;
+    }
+
+    body.theme-light #dashboard .maintenance-agenda-card {
+      color: #17324b !important;
+      background: #ffffff !important;
+      border-color: #cbd9e5 !important;
+    }
+    body.theme-light #dashboard .maintenance-agenda-head {
+      color: #17324b !important;
+      background: #f6f9fc !important;
+      border-bottom-color: #d4e0ea !important;
+    }
+    body.theme-light #dashboard .maintenance-agenda-head h2 {
+      color: #17324b !important;
+    }
+    body.theme-light #dashboard .maintenance-agenda-navigation span {
+      color: #526b82 !important;
+    }
+    body.theme-light #dashboard :is(.maintenance-agenda-navigation button, .maintenance-agenda-mode) {
+      color: #29445e !important;
+      background: #ffffff !important;
+      border-color: #c3d3e1 !important;
+    }
+    body.theme-light #dashboard :is(.maintenance-agenda-navigation button, .maintenance-agenda-mode):hover,
+    body.theme-light #dashboard :is(.maintenance-agenda-navigation button, .maintenance-agenda-mode):focus-visible {
+      color: #0d65b5 !important;
+      background: #eaf4fc !important;
+      border-color: #78acd8 !important;
+    }
+    body.theme-light #dashboard .maintenance-agenda-scroll {
+      scrollbar-color: #9db5ca #edf3f8 !important;
+    }
+    body.theme-light #dashboard .maintenance-agenda-days {
+      color: #526b82 !important;
+      background: #f2f7fb !important;
+      border-bottom-color: #d4e0ea !important;
+    }
+    body.theme-light #dashboard .maintenance-agenda-day {
+      color: #526b82 !important;
+      border-left-color: #dbe5ee !important;
+    }
+    body.theme-light #dashboard .maintenance-agenda-day strong {
+      color: #17324b !important;
+    }
+    body.theme-light #dashboard .maintenance-agenda-day.today {
+      color: #0d65b5 !important;
+      background: linear-gradient(180deg, #e1f0fd, #edf7ff) !important;
+      border-color: #86b8e2 !important;
+      box-shadow: 0 4px 12px rgba(35, 91, 141, .1) !important;
+    }
+    body.theme-light #dashboard .maintenance-agenda-day.today strong {
+      color: #0b5da7 !important;
+    }
+    body.theme-light #dashboard .maintenance-agenda-grid,
+    body.theme-light #dashboard .maintenance-agenda-time {
+      color: #526b82 !important;
+      background: #fbfdff !important;
+    }
+    body.theme-light #dashboard .maintenance-agenda-slot {
+      background: linear-gradient(90deg, rgba(29, 140, 255, .018), transparent 70%) !important;
+      border-left-color: #dce6ef !important;
+      border-bottom-color: #e4ebf2 !important;
+    }
+    body.theme-light #dashboard .maintenance-agenda-slot.major {
+      border-bottom-color: #c7d6e3 !important;
+    }
+    body.theme-light #dashboard .maintenance-agenda-event {
+      color: #17324b !important;
+      background: linear-gradient(90deg, color-mix(in srgb, var(--agenda-color, #1d8cff) 14%, #ffffff), color-mix(in srgb, var(--agenda-color, #1d8cff) 7%, #ffffff)) !important;
+      box-shadow: 0 4px 12px rgba(35, 70, 103, .11) !important;
+    }
+    body.theme-light #dashboard .maintenance-agenda-event span {
+      color: #405b73 !important;
+      opacity: 1 !important;
+    }
+    body.theme-light #dashboard .maintenance-agenda-empty {
+      color: #60758a !important;
+      background: #f7fafc !important;
+      border-color: #bfcfdd !important;
+    }
+    body.theme-light #dashboard .maintenance-agenda-footer {
+      background: #f7fafc !important;
+      border-top-color: #d4e0ea !important;
+    }
+    /* O redesign anterior usa seletores mais específicos; esta camada garante a precedência do tema claro. */
+    body.theme-light:not(.auth-required):not(.auth-loading) #dashboard .industrial-dashboard-heading {
+      color: #17344a !important;
+      background:
+        radial-gradient(circle at 88% 0%, rgba(42, 180, 181, .16), transparent 34%),
+        linear-gradient(125deg, #ffffff 0%, #f0f9fb 62%, #e1f3f5 100%) !important;
+      border: 1px solid #bcd7df !important;
+      box-shadow: 0 16px 38px rgba(35, 83, 103, .11) !important;
+    }
+    body.theme-light:not(.auth-required):not(.auth-loading) #dashboard .industrial-dashboard-heading::after {
+      border-color: rgba(37, 145, 164, .07) !important;
+    }
+    body.theme-light:not(.auth-required):not(.auth-loading) #dashboard .industrial-dashboard-heading h1 {
+      color: #17344a !important;
+    }
+    body.theme-light:not(.auth-required):not(.auth-loading) #dashboard .industrial-dashboard-heading p {
+      color: #506b7e !important;
+    }
+    body.theme-light:not(.auth-required):not(.auth-loading) #dashboard .dashboard-config-trigger {
+      color: #17667b !important;
+      background: rgba(255, 255, 255, .86) !important;
+      border-color: #a9cfd8 !important;
+      box-shadow: 0 4px 12px rgba(35, 83, 103, .08) !important;
+    }
+    body.theme-light:not(.auth-required):not(.auth-loading) #dashboard .industrial-dashboard-live {
+      color: #24465b !important;
+      background: rgba(255, 255, 255, .82) !important;
+      border-color: #b5d4dc !important;
+      box-shadow: 0 4px 12px rgba(35, 83, 103, .07) !important;
+    }
+    body.theme-light:not(.auth-required):not(.auth-loading) #dashboard .industrial-dashboard-live :is(span, strong) {
+      color: #24465b !important;
+    }
+    body.theme-light:not(.auth-required):not(.auth-loading) #dashboard .industrial-card-head button {
+      color: #29506f !important;
+      background: #f5f9fc !important;
+      border-color: #c5d6e4 !important;
+      box-shadow: none !important;
+    }
+    body.theme-light:not(.auth-required):not(.auth-loading) #dashboard .industrial-quick-actions button {
+      color: #29445e !important;
+      background: #f6f9fc !important;
+      border-color: #c9d8e5 !important;
+      box-shadow: 0 2px 7px rgba(35, 70, 103, .05) !important;
+    }
+    body.theme-light:not(.auth-required):not(.auth-loading) #dashboard .industrial-quick-actions button:hover,
+    body.theme-light:not(.auth-required):not(.auth-loading) #dashboard .industrial-quick-actions button:focus-visible {
+      color: #0d65b5 !important;
+      background: #eaf4fc !important;
+      border-color: #78acd8 !important;
+    }
   </style>
   <style id="gestman-global-typography">
     :root { --gestman-font-family: Consolas, "Cascadia Mono", "Courier New", monospace; }
