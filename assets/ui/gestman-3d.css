@@ -1938,6 +1938,105 @@ body.theme-light .gm-icon-surface {
   }
 }
 
+/* Ajuste desktop do cabecalho e do rodape lateral. */
+body:not(.auth-required):not(.auth-loading) .reference-topbar,
+body:not(.auth-required):not(.auth-loading) .reference-topbar > *,
+body:not(.auth-required):not(.auth-loading) .reference-topbar-actions {
+  min-width: 0 !important;
+}
+
+body:not(.auth-required):not(.auth-loading) .reference-topbar-search {
+  width: 100% !important;
+  min-width: 0 !important;
+  justify-self: stretch !important;
+}
+
+body:not(.auth-required):not(.auth-loading) .reference-topbar-actions {
+  max-width: 100% !important;
+}
+
+body:not(.auth-required):not(.auth-loading) .industrial-sidebar-footer {
+  min-height: 64px !important;
+  height: auto !important;
+  padding: 9px 12px !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  align-content: center !important;
+  justify-items: start !important;
+  gap: 4px !important;
+  overflow: visible !important;
+}
+
+body:not(.auth-required):not(.auth-loading) .sidebar-system-status,
+body:not(.auth-required):not(.auth-loading) .industrial-sidebar-footer small {
+  max-width: 100% !important;
+  overflow: visible !important;
+  white-space: nowrap !important;
+}
+
+@media (min-width: 901px) and (max-width: 1700px) {
+  body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) .reference-topbar {
+    grid-template-columns: minmax(160px, 190px) minmax(180px, 1fr) auto !important;
+    gap: 10px !important;
+  }
+
+  body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) .header-context-trigger {
+    display: grid !important;
+  }
+
+  body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) .header-dashboard-filters {
+    position: fixed !important;
+    top: calc(var(--gm-header-height) + 8px) !important;
+    right: 16px !important;
+    z-index: 190 !important;
+    width: min(430px, calc(100vw - 32px)) !important;
+    height: auto !important;
+    min-height: 66px !important;
+    padding: 12px !important;
+    display: none !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+    background: var(--gm-surface-raised) !important;
+    border: 1px solid var(--gm-border) !important;
+    border-radius: 12px !important;
+    box-shadow: var(--gm-shadow-lg) !important;
+  }
+
+  body:not(.sidebar-collapsed).header-context-open:not(.auth-required):not(.auth-loading) .header-dashboard-filters {
+    display: grid !important;
+  }
+
+  body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) .header-dashboard-filters > label,
+  body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) .header-dashboard-filters > label:first-child,
+  body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) .header-dashboard-filters > label:last-child {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1400px) {
+  body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) .reference-user-copy {
+    display: none !important;
+  }
+
+  body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) .reference-header-user {
+    flex: 0 0 58px !important;
+    width: 58px !important;
+    min-width: 58px !important;
+    max-width: 58px !important;
+    grid-template-columns: 34px 12px !important;
+    padding-inline: 5px !important;
+  }
+}
+
+@media (min-width: 901px) {
+  body.sidebar-collapsed:not(.auth-required):not(.auth-loading) .industrial-sidebar-footer {
+    min-height: 52px !important;
+    padding: 6px !important;
+    justify-items: center !important;
+  }
+}
+
 @media (max-width: 380px) {
   .reference-notification,
   .system-theme-toggle {
