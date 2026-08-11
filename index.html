@@ -8182,7 +8182,7 @@
       #orders .os-detail-tabs { position:sticky; top:0; z-index:3; background:#0f1b2b; }
       #orders .os-detail-actions { position:sticky; bottom:0; z-index:4; padding:10px; background:#07111f; }
       #orders .os-detail-actions .btn { display:none !important; }
-      #orders .os-detail-actions .mobile-primary,#orders .os-detail-actions .mobile-close { display:block !important; min-height:48px !important; }
+      #orders .os-detail-actions .mobile-primary,#orders .os-detail-actions .mobile-qr,#orders .os-detail-actions .mobile-close { display:block !important; min-height:48px !important; }
       #orders .os-detail-actions .mobile-primary { flex:1 1 100%; }
       .mobile-execution-shortcuts { padding:9px 12px; grid-template-columns:repeat(3,1fr); gap:6px; border-bottom:1px solid #1f334a; }
       .mobile-execution-shortcuts button { min-height:54px !important; padding:6px 3px !important; color:#9fcaff !important; background:#0b1929 !important; border:1px solid #1f334a !important; border-radius:7px !important; box-shadow:none !important; font-size:var(--font-size-xs) !important; }
@@ -16732,7 +16732,57 @@ body.panel-mode .os-live-desc span {
     body, body *, body *::before, body *::after { font-family: var(--gestman-font-family) !important; }
     body { font-variant-ligatures: none; text-rendering: optimizeLegibility; }
   </style>
-</head>
+  <style id="qr-identification-styles">
+    .qr-manager{display:grid;gap:16px;place-items:center;padding:4px;color:#dbeafe}
+    .qr-manager-intro{max-width:680px;margin:0;color:#8fa4ba;text-align:center;font-size:var(--font-size-xs);line-height:1.55}
+    .qr-manager-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+    .qr-manager-link{max-width:680px;padding:9px 11px;border:1px solid #27415f;border-radius:8px;background:#081524;color:#86b7e7;font-size:var(--font-size-xs);overflow-wrap:anywhere}
+    .gm-qr-svg{display:block;width:100%;height:100%;background:#fff}
+    .equipment-tag{box-sizing:border-box;display:grid;grid-template-columns:39mm minmax(0,1fr);gap:4mm;width:96mm;min-height:56mm;padding:4mm;border:1px solid #16395b;border-radius:3mm;background:#fff;color:#07111f;overflow:hidden}
+    .equipment-tag-qr{display:grid;place-items:center;width:39mm;height:39mm;padding:2mm;border:1px solid #d3dfec;border-radius:2mm;background:#fff}
+    .equipment-tag-body{display:flex;min-width:0;flex-direction:column}
+    .equipment-tag-brand{display:flex;align-items:center;gap:2mm;padding-bottom:2mm;border-bottom:1px solid #d8e2ec}
+    .equipment-tag-brand img{display:block;width:auto;max-width:35mm;height:8mm;object-fit:contain;object-position:left center}
+    .equipment-tag-kind{margin-left:auto;color:#1768aa;font-size:7pt;font-weight:900;letter-spacing:.08em}
+    .equipment-tag-code{margin-top:2.5mm;color:#075b9f;font:900 12pt/1.1 Arial,sans-serif;overflow-wrap:anywhere}
+    .equipment-tag-name{margin-top:1mm;color:#07111f;font:800 10pt/1.15 Arial,sans-serif;overflow-wrap:anywhere}
+    .equipment-tag-meta{display:grid;gap:.8mm;margin-top:2mm;color:#24384d;font:600 7.5pt/1.25 Arial,sans-serif}
+    .equipment-tag-meta span{overflow-wrap:anywhere}
+    .equipment-tag-meta b{color:#07111f}
+    .equipment-tag-scan{margin-top:auto;padding-top:2mm;color:#526779;font:700 6.8pt/1.2 Arial,sans-serif;text-transform:uppercase;letter-spacing:.04em}
+    .order-qr-card{box-sizing:border-box;display:grid;grid-template-columns:46mm minmax(0,1fr);gap:6mm;width:min(100%,180mm);min-height:75mm;padding:6mm;border:1px solid #16395b;border-radius:3mm;background:#fff;color:#07111f}
+    .order-qr-code{display:grid;place-items:center;width:46mm;height:46mm;padding:2mm;border:1px solid #d3dfec;border-radius:2mm;background:#fff}
+    .order-qr-copy{display:flex;min-width:0;flex-direction:column}
+    .order-qr-copy h3{margin:1.5mm 0 1mm;color:#075b9f;font:900 15pt/1.1 Arial,sans-serif}
+    .order-qr-copy>strong{color:#07111f;font:800 11pt/1.25 Arial,sans-serif}
+    .order-qr-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2mm;margin-top:3mm}
+    .order-qr-grid div{padding:2mm;border:1px solid #dce5ee;border-radius:1.5mm;background:#f4f8fb}
+    .order-qr-grid span{display:block;color:#526779;font:700 6.5pt/1 Arial,sans-serif;text-transform:uppercase}
+    .order-qr-grid b{display:block;margin-top:1mm;color:#07111f;font:800 8pt/1.2 Arial,sans-serif;overflow-wrap:anywhere}
+    .order-qr-scan{margin-top:auto;padding-top:2mm;color:#526779;font:700 7pt/1.2 Arial,sans-serif}
+    #qrPrintSheet{display:none}
+    body.theme-light .qr-manager{color:#0f2741}
+    body.theme-light .qr-manager-intro{color:#52677e}
+    body.theme-light .qr-manager-link{border-color:#c8d8e7;background:#f3f8fc;color:#174f80}
+    @media(max-width:760px){
+      .equipment-tag{grid-template-columns:34mm minmax(0,1fr);width:min(100%,96mm);min-height:52mm;padding:3mm}
+      .equipment-tag-qr{width:34mm;height:34mm}
+      .order-qr-card{grid-template-columns:36mm minmax(0,1fr);gap:4mm;padding:4mm}
+      .order-qr-code{width:36mm;height:36mm}
+      .order-qr-grid{grid-template-columns:1fr}
+    }
+    @media print{
+      @page{margin:5mm}
+      body.qr-print-active{margin:0!important;background:#fff!important}
+      body.qr-print-active>*:not(#qrPrintSheet){display:none!important}
+      body.qr-print-active #qrPrintSheet{display:block!important;position:static!important;margin:0!important;padding:0!important;background:#fff!important;color:#000!important}
+      .qr-print-title{margin:0 0 5mm;color:#07111f;font:800 14pt/1.2 Arial,sans-serif}
+      .qr-print-grid{display:grid;grid-template-columns:repeat(2,96mm);gap:3mm;align-items:start}
+      .qr-print-grid .equipment-tag{break-inside:avoid;page-break-inside:avoid}
+      .qr-print-order{display:grid;place-items:center;min-height:120mm}
+      .qr-print-order .order-qr-card{break-inside:avoid;page-break-inside:avoid}
+    }
+  </style></head>
 <body class="auth-loading auth-restoring">
   <script id="design-theme-bootstrap">
     (() => {
@@ -17830,7 +17880,7 @@ body.panel-mode .os-live-desc span {
       <div class="assets-workspace">
         <header class="assets-page-head">
           <div><span class="assets-eyebrow">GESTÃO DO PARQUE INDUSTRIAL</span><h1>Ativos e Equipamentos</h1><p>Localize equipamentos, acompanhe sua condição e acesse todo o histórico de manutenção.</p></div>
-          <div class="assets-page-actions"><button class="btn" id="assetFilterToggle" type="button" onclick="toggleAssetFilters()">⌁ Filtros</button><button class="btn primary" id="createAssetBtn" type="button" data-permission-module="assets" data-required-level="manage" data-permission-action="Criar ativo" onclick="openAssetCreate()">＋ Novo Ativo</button></div>
+          <div class="assets-page-actions"><button class="btn" id="assetFilterToggle" type="button" onclick="toggleAssetFilters()">⌁ Filtros</button><button class="btn" id="printAssetTagsBtn" type="button" onclick="printAssetTags()">Imprimir etiquetas</button><button class="btn primary" id="createAssetBtn" type="button" data-permission-module="assets" data-required-level="manage" data-permission-action="Criar ativo" onclick="openAssetCreate()">＋ Novo Ativo</button></div>
         </header>
         <div class="asset-metric-strip" id="assetMetricStrip"></div>
         <section class="asset-filter-panel" id="assetFilterPanel">
@@ -18360,6 +18410,7 @@ body.panel-mode .os-live-desc span {
   <div class="toast" id="toast"></div>
 
   <script src="assets/icons/flaticon/icon-registry.js"></script>
+  <script src="assets/vendor/qrcode-generator.js"></script>
 
   <script>
     /*
@@ -18694,12 +18745,26 @@ body.panel-mode .os-live-desc span {
     function assetIdFromRoute() {
       return String(new URLSearchParams(window.location.search || "").get("ativo") || "").trim();
     }
+    function orderIdFromRoute() {
+      return String(new URLSearchParams(window.location.search || "").get("os") || "").trim();
+    }
+    function openRoutedOrderIfAvailable() {
+      const orderId = orderIdFromRoute();
+      if (!orderId || !currentAccount || !byId(state.orders, orderId) || !canAccessView("orders")) return false;
+      selectedOrderId = orderId;
+      selectedOrderDetailTab = "general";
+      setView("orders", { persist: false, silent: true });
+      return true;
+    }
     function openRoutedAssetIfAvailable() {
       const assetId = assetIdFromRoute();
       if (!assetId || !currentAccount || !byId(state.assets, assetId) || !canAccessView("assets")) return false;
       setView("assets", { persist: false, silent: true });
       openAssetDetail(assetId);
       return true;
+    }
+    function openRoutedEntityIfAvailable() {
+      return openRoutedOrderIfAvailable() || openRoutedAssetIfAvailable();
     }
     function companyDisplayNameFromLogin(login) {
       const suffix = normalizeCompanyLogin(login).slice(GESTMAN_LOGIN_PREFIX.length);
@@ -21010,7 +21075,7 @@ body.panel-mode .os-live-desc span {
       currentAccount = resolveCurrentAccount(authStore);
       reloadTenantData();
       applyAuthState();
-      if (!openRoutedAssetIfAvailable()) setView(savedActiveView(), { persist: false, silent: true });
+      if (!openRoutedEntityIfAvailable()) setView(savedActiveView(), { persist: false, silent: true });
       loadSupabaseState(false);
       stage21WriteAudit({ module:"Autenticação", action:"Login realizado", record:user.email, result:"Sucesso", origin:"Interface web" });
       showToast(`Bem-vindo, ${user.name}.`);
@@ -27489,7 +27554,7 @@ body.panel-mode .os-live-desc span {
       const closed = isClosedOrder(order.status) || key.includes("cancel");
       const paused = key.includes("paus");
       const running = isRunningOrder(order.status);
-      return `${!closed && !running && !paused ? `<button class="btn primary mobile-primary" type="button" onclick="confirmStartOrder('${order.id}')">Iniciar serviço</button>` : ""}${running ? `<button class="btn mobile-primary" type="button" onclick="changeOrderOperationalStatus('${order.id}','Pausada')">Pausar</button><button class="btn primary mobile-primary" type="button" onclick="finishOrder('${order.id}')">Concluir</button>` : ""}${paused ? `<button class="btn primary mobile-primary" type="button" onclick="changeOrderOperationalStatus('${order.id}','Em execucao')">Retomar</button>` : ""}${!closed ? `<button class="btn" type="button" onclick="editOrder('${order.id}')">Editar</button><button class="btn danger" type="button" onclick="cancelOrder('${order.id}')">Cancelar</button>` : `<span class="muted">O.S encerrada — disponível somente para consulta.</span>`}<button class="btn mobile-close" type="button" onclick="selectedOrderId=null;render()">Fechar</button>`;
+      return `${!closed && !running && !paused ? `<button class="btn primary mobile-primary" type="button" onclick="confirmStartOrder('${order.id}')">Iniciar serviço</button>` : ""}${running ? `<button class="btn mobile-primary" type="button" onclick="changeOrderOperationalStatus('${order.id}','Pausada')">Pausar</button><button class="btn primary mobile-primary" type="button" onclick="finishOrder('${order.id}')">Concluir</button>` : ""}${paused ? `<button class="btn primary mobile-primary" type="button" onclick="changeOrderOperationalStatus('${order.id}','Em execucao')">Retomar</button>` : ""}${!closed ? `<button class="btn" type="button" onclick="editOrder('${order.id}')">Editar</button><button class="btn danger" type="button" onclick="cancelOrder('${order.id}')">Cancelar</button>` : `<span class="muted">O.S encerrada — disponível somente para consulta.</span>`}<button class="btn mobile-qr" type="button" onclick="openOrderQr('${order.id}')">QR Code</button><button class="btn mobile-close" type="button" onclick="selectedOrderId=null;render()">Fechar</button>`;
     }
     const mobileOrderActionLocks = new Set();
     async function changeOrderOperationalStatus(id, status) {
@@ -27610,7 +27675,7 @@ body.panel-mode .os-live-desc span {
       if(!$("assetRows"))return;assetFilterOptions();renderAssetMetrics();const rows=filteredAssetsWorkspace(),pages=Math.max(1,Math.ceil(rows.length/ASSET_PAGE_SIZE));assetWorkspacePage=Math.min(assetWorkspacePage,pages);const pageRows=rows.slice((assetWorkspacePage-1)*ASSET_PAGE_SIZE,assetWorkspacePage*ASSET_PAGE_SIZE);
       if($("assetResultCount"))$("assetResultCount").textContent=`${rows.length} ativo${rows.length===1?"":"s"}`;
       if($("assetResultDescription"))$("assetResultDescription").textContent=rows.length===state.assets.length?"Todos os equipamentos cadastrados":"Resultado dos filtros aplicados";
-      const actionMenu=asset=>`<details class="asset-row-actions" onclick="event.stopPropagation()"><summary aria-label="Ações de ${escapeHtml(asset.name)}">⋮</summary><div><button type="button" onclick="openAssetDetail('${asset.id}')">Ver detalhes</button>${canManageAssets()?`<button type="button" onclick="editAsset('${asset.id}')">Editar ativo</button><button type="button" onclick="duplicateAsset('${asset.id}')">Duplicar</button>`:""}<button type="button" onclick="openAssetQr('${asset.id}')">Gerar QR Code</button></div></details>`;
+      const actionMenu=asset=>`<details class="asset-row-actions" onclick="event.stopPropagation()"><summary aria-label="Ações de ${escapeHtml(asset.name)}">⋮</summary><div><button type="button" onclick="openAssetDetail('${asset.id}')">Ver detalhes</button>${canManageAssets()?`<button type="button" onclick="editAsset('${asset.id}')">Editar ativo</button><button type="button" onclick="duplicateAsset('${asset.id}')">Duplicar</button>`:""}<button type="button" onclick="openAssetQr('${asset.id}')">QR Code / Etiqueta</button></div></details>`;
       $("assetRows").innerHTML=pageRows.map(asset=>{const last=assetLastMaintenance(asset.id),next=assetNextMaintenance(asset.id);return`<tr tabindex="0" onclick="openAssetDetail('${asset.id}')" onkeydown="if(event.key==='Enter')openAssetDetail('${asset.id}')"><td><strong>${escapeHtml(asset.code||"-")}</strong></td><td><div class="asset-name-cell"><span class="asset-list-icon">${visualIcon(asset.icon)}</span><strong>${escapeHtml(asset.name||"Equipamento")}</strong></div></td><td>${escapeHtml(locationName(asset.locationId)||"Sem local")}</td><td>${escapeHtml(assetCategoryLabel(asset))}</td><td>${tag(asset.criticality||"Baixa")}</td><td>${tag(asset.status||"Operando")}</td><td>${assetDateLabel(last?.finishedAt||last?.createdAt)}</td><td>${assetDateLabel(next?.nextExecution)}</td><td>${actionMenu(asset)}</td></tr>`;}).join("")||`<tr><td colspan="9" class="empty">Nenhum equipamento encontrado.</td></tr>`;
       if($("assetMobileList"))$("assetMobileList").innerHTML=pageRows.map(asset=>{const next=assetNextMaintenance(asset.id);return`<article class="asset-mobile-card" tabindex="0" onclick="openAssetDetail('${asset.id}')"><div class="asset-mobile-card-top"><div><code>${escapeHtml(asset.code||"SEM TAG")}</code><h3>${escapeHtml(asset.name||"Equipamento")}</h3></div>${tag(asset.status||"Operando")}</div><p>${escapeHtml(locationName(asset.locationId)||"Sem local informado")}</p><div class="asset-mobile-card-tags">${tag(asset.criticality||"Baixa")}</div><div class="asset-mobile-next"><span>Próxima manutenção</span><strong>${assetDateLabel(next?.nextExecution)}</strong></div></article>`;}).join("")||`<div class="asset-empty">Nenhum equipamento encontrado.</div>`;
       if($("assetPagination"))$("assetPagination").innerHTML=`<span>${rows.length?`${(assetWorkspacePage-1)*ASSET_PAGE_SIZE+1}–${Math.min(assetWorkspacePage*ASSET_PAGE_SIZE,rows.length)} de ${rows.length}`:"0 resultados"}</span><button type="button" ${assetWorkspacePage<=1?"disabled":""} onclick="changeAssetWorkspacePage(${assetWorkspacePage-1})">‹</button>${Array.from({length:pages},(_,i)=>i+1).slice(Math.max(0,assetWorkspacePage-3),Math.max(5,assetWorkspacePage+2)).map(page=>`<button type="button" class="${page===assetWorkspacePage?"active":""}" onclick="changeAssetWorkspacePage(${page})">${page}</button>`).join("")}<button type="button" ${assetWorkspacePage>=pages?"disabled":""} onclick="changeAssetWorkspacePage(${assetWorkspacePage+1})">›</button>`;
@@ -27644,7 +27709,7 @@ body.panel-mode .os-live-desc span {
       if (!visibleTabs.some(([key]) => key === selectedAssetTab)) selectedAssetTab = "overview";
       const canOperateOrders = permissionAtLeast("orders", "operate");
       const canOperateChecklists = permissionAtLeast("checklists", "operate");
-      target.innerHTML = `<div class="asset-detail-head"><div class="asset-detail-top"><div class="asset-detail-ident"><div class="asset-detail-photo">${asset.photo?`<img src="${asset.photo}" alt="${escapeHtml(asset.name)}">`:visualIcon(asset.icon)}</div><div class="asset-detail-title"><span>${escapeHtml(asset.code||"SEM TAG")}</span><h2>${escapeHtml(asset.name||"Equipamento")}</h2><div class="asset-detail-tags">${tag(asset.status||"Operando")}${tag(asset.criticality||"Baixa")}<span class="tag">${escapeHtml(locationName(asset.locationId)||"Sem local")}</span></div></div></div><div class="asset-detail-actions"><button class="btn" type="button" onclick="closeAssetDetail()">Voltar</button>${canOperateOrders?`<button class="btn primary" type="button" onclick="openAssetOrder('${asset.id}')">Abrir O.S.</button>`:""}<details class="asset-detail-menu"><summary aria-label="Mais ações">⋮</summary><div>${canManageAssets()?`<button type="button" onclick="editAsset('${asset.id}')">Editar ativo</button>`:""}${canOperateOrders?`<button type="button" onclick="openAssetMeasurement('${asset.id}')">Registrar medição</button>`:""}${canOperateChecklists?`<button type="button" onclick="openAssetChecklist('${asset.id}')">Executar checklist</button>`:""}<button type="button" onclick="openAssetQr('${asset.id}')">Gerar QR Code</button>${profile!=="warehouse"?`<button type="button" onclick="selectAssetTab('documents')">Ver documentos</button>`:""}${canManageAssets()&&asset.status!=="Inativo"?`<button type="button" onclick="inactivateAsset('${asset.id}')">Inativar ativo</button>`:""}</div></details></div></div>${activeStop?`<div class="asset-active-stop"><strong>Parada ativa:</strong> ${escapeHtml(activeStop.reason||activeStop.type||"Equipamento indisponível")} · desde ${formatDateTime(downtimeDateFromInput(activeStop.startAt)?.getTime())}</div>`:""}</div><nav class="asset-tabs">${visibleTabs.map(([key,label])=>`<button type="button" class="${selectedAssetTab===key?"active":""}" onclick="selectAssetTab('${key}')">${label}</button>`).join("")}</nav><div class="asset-tab-body">${assetTabContent(asset,selectedAssetTab)}</div>`;
+      target.innerHTML = `<div class="asset-detail-head"><div class="asset-detail-top"><div class="asset-detail-ident"><div class="asset-detail-photo">${asset.photo?`<img src="${asset.photo}" alt="${escapeHtml(asset.name)}">`:visualIcon(asset.icon)}</div><div class="asset-detail-title"><span>${escapeHtml(asset.code||"SEM TAG")}</span><h2>${escapeHtml(asset.name||"Equipamento")}</h2><div class="asset-detail-tags">${tag(asset.status||"Operando")}${tag(asset.criticality||"Baixa")}<span class="tag">${escapeHtml(locationName(asset.locationId)||"Sem local")}</span></div></div></div><div class="asset-detail-actions"><button class="btn" type="button" onclick="closeAssetDetail()">Voltar</button>${canOperateOrders?`<button class="btn primary" type="button" onclick="openAssetOrder('${asset.id}')">Abrir O.S.</button>`:""}<details class="asset-detail-menu"><summary aria-label="Mais ações">⋮</summary><div>${canManageAssets()?`<button type="button" onclick="editAsset('${asset.id}')">Editar ativo</button>`:""}${canOperateOrders?`<button type="button" onclick="openAssetMeasurement('${asset.id}')">Registrar medição</button>`:""}${canOperateChecklists?`<button type="button" onclick="openAssetChecklist('${asset.id}')">Executar checklist</button>`:""}<button type="button" onclick="openAssetQr('${asset.id}')">QR Code / Etiqueta</button>${profile!=="warehouse"?`<button type="button" onclick="selectAssetTab('documents')">Ver documentos</button>`:""}${canManageAssets()&&asset.status!=="Inativo"?`<button type="button" onclick="inactivateAsset('${asset.id}')">Inativar ativo</button>`:""}</div></details></div></div>${activeStop?`<div class="asset-active-stop"><strong>Parada ativa:</strong> ${escapeHtml(activeStop.reason||activeStop.type||"Equipamento indisponível")} · desde ${formatDateTime(downtimeDateFromInput(activeStop.startAt)?.getTime())}</div>`:""}</div><nav class="asset-tabs">${visibleTabs.map(([key,label])=>`<button type="button" class="${selectedAssetTab===key?"active":""}" onclick="selectAssetTab('${key}')">${label}</button>`).join("")}</nav><div class="asset-tab-body">${assetTabContent(asset,selectedAssetTab)}</div>`;
       applyPermissionVisibility();
     }
     function openAssetOrder(assetId){openOrderModal(assetId);}
@@ -27653,8 +27718,158 @@ body.panel-mode .os-live-desc span {
     function openAssetChecklist(assetId){const item=assetChecklists(assetId)[0];if(!item){showToast("Nenhum checklist vinculado a este ativo.");return;}openChecklistExecution(item.id);}
     function openAssetMaterialRequest(assetId){if(!permissionAtLeast("stock","operate"))return denyProfileAccess();const order=assetOrders(assetId).find(item=>!isClosedOrder(item.status));setView("materialRequests");openMaterialRequestForm("","",order?.id||"");if(!order&&$("materialsRequestAsset"))$("materialsRequestAsset").value=assetId;}
     function inactivateAsset(id,confirmed=false){if(!canManageAssets())return denyProfileAccess();const asset=byId(state.assets,id);if(!asset)return;if(!confirmed){requestDestructiveConfirmation("Inativar este ativo?","O ativo continuará no histórico e seus vínculos serão preservados.","Inativar ativo",()=>inactivateAsset(id,true));return;}state.assets=state.assets.map(item=>item.id===id?{...item,status:"Inativo",updatedAt:Date.now()}:item);saveState();render();showToast("Ativo inativado. O histórico foi preservado.");}
-    function assetQrUrl(assetId){const base=location.href.split("#")[0].split("?")[0];return`${base}?ativo=${encodeURIComponent(assetId)}`;}
-    function openAssetQr(assetId){const asset=byId(state.assets,assetId);if(!asset)return;const route=assetQrUrl(assetId),image=`https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=${encodeURIComponent(route)}`;openModal(`QR Code · ${asset.code||asset.name}`,`<div class="asset-qr-panel"><img src="${image}" alt="QR Code do ativo ${escapeHtml(asset.code||asset.name)}"><p>O código abre somente o identificador deste ativo no GestMan365. As permissões do usuário continuam sendo validadas ao acessar.</p><div class="asset-qr-actions"><button class="btn" type="button" onclick="window.print()">Imprimir</button><a class="btn primary" href="${image}" download="QR-${escapeHtml(asset.code||"ativo")}.png">Baixar imagem</a></div></div>`);}
+    function qrEntityUrl(param, id) {
+      const currentUrl = new URL(window.location.href);
+      const route = new URL(currentUrl.pathname, currentUrl.origin);
+      const companyLogin = currentAccount?.company?.login || companyLoginFromRoute();
+      const companySlug = companyLoginDisplay(companyLogin);
+      if (companySlug) route.searchParams.set("empresa", companySlug);
+      route.searchParams.set(param, id);
+      return route.toString();
+    }
+    function assetQrUrl(assetId) { return qrEntityUrl("ativo", assetId); }
+    function orderQrUrl(orderId) { return qrEntityUrl("os", orderId); }
+    function qrSvgMarkup(text, label = "QR Code GestMan365") {
+      if (typeof window.qrcode !== "function") throw new Error("Gerador local de QR Code indisponível.");
+      const qr = window.qrcode(0, "M");
+      qr.addData(String(text || ""));
+      qr.make();
+      return qr.createSvgTag({ cellSize:4, margin:8, scalable:true })
+        .replace("<svg ", `<svg class="gm-qr-svg" role="img" aria-label="${escapeHtml(label)}" `);
+    }
+    function qrSafeFileName(value, fallback = "gestman365") {
+      const clean = String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9_-]+/g, "-").replace(/^-+|-+$/g, "");
+      return clean || fallback;
+    }
+    function assetQrLocation(asset) {
+      const location = byId(state.locations, asset?.locationId);
+      const region = byId(state.regions, location?.regionId);
+      return [region?.name, location?.name].filter(Boolean).join(" / ") || locationName(asset?.locationId) || "Local não informado";
+    }
+    function equipmentTagMarkup(asset) {
+      const route = assetQrUrl(asset.id);
+      const category = assetCategoryLabel(asset) || "Equipamento";
+      const model = [asset.brand, asset.model].filter(Boolean).join(" ") || "Não informado";
+      return `<article class="equipment-tag" data-asset-tag="${escapeHtml(asset.id)}">
+        <div class="equipment-tag-qr">${qrSvgMarkup(route, `QR Code do ativo ${asset.code || asset.name}`)}</div>
+        <div class="equipment-tag-body">
+          <div class="equipment-tag-brand"><img src="assets/ui/illustrations/gestman365-logo.png" alt="GestMan365"><span class="equipment-tag-kind">ATIVO</span></div>
+          <div class="equipment-tag-code">${escapeHtml(asset.code || "SEM TAG")}</div>
+          <div class="equipment-tag-name">${escapeHtml(asset.name || "Equipamento")}</div>
+          <div class="equipment-tag-meta">
+            <span><b>Tipo:</b> ${escapeHtml(category)}</span>
+            <span><b>Local:</b> ${escapeHtml(assetQrLocation(asset))}</span>
+            <span><b>Modelo:</b> ${escapeHtml(model)}</span>
+            <span><b>Status:</b> ${escapeHtml(asset.status || "Não informado")} · <b>Criticidade:</b> ${escapeHtml(asset.criticality || "Não informada")}</span>
+          </div>
+          <div class="equipment-tag-scan">Escaneie para consultar o histórico do equipamento</div>
+        </div>
+      </article>`;
+    }
+    function orderQrCardMarkup(order) {
+      const asset = byId(state.assets, order.assetId) || {};
+      const route = orderQrUrl(order.id);
+      return `<article class="order-qr-card" data-order-qr="${escapeHtml(order.id)}">
+        <div class="order-qr-code">${qrSvgMarkup(route, `QR Code da ordem ${order.number || "de serviço"}`)}</div>
+        <div class="order-qr-copy">
+          <div class="equipment-tag-brand"><img src="assets/ui/illustrations/gestman365-logo.png" alt="GestMan365"><span class="equipment-tag-kind">ORDEM DE SERVIÇO</span></div>
+          <h3>${escapeHtml(order.number || "O.S.")}</h3>
+          <strong>${escapeHtml(orderTitle(order))}</strong>
+          <div class="order-qr-grid">
+            <div><span>Equipamento</span><b>${escapeHtml(asset.code || "-")} · ${escapeHtml(asset.name || "Não informado")}</b></div>
+            <div><span>Local</span><b>${escapeHtml(assetQrLocation(asset))}</b></div>
+            <div><span>Status</span><b>${escapeHtml(ptBrText(order.status || "Aberta"))}</b></div>
+            <div><span>Prioridade</span><b>${escapeHtml(ptBrText(order.priority || "Não informada"))}</b></div>
+            <div><span>Responsável</span><b>${escapeHtml(order.executor || "Não informado")}</b></div>
+            <div><span>Prazo</span><b>${escapeHtml(order.scheduledAt ? assetDateLabel(order.scheduledAt) : "Não definido")}</b></div>
+          </div>
+          <div class="order-qr-scan">Escaneie para abrir esta O.S. no GestMan365. Login e permissões continuam obrigatórios.</div>
+        </div>
+      </article>`;
+    }
+    let qrPrintCleanupTimer = 0;
+    function cleanupQrPrintSheet() {
+      clearTimeout(qrPrintCleanupTimer);
+      document.body.classList.remove("qr-print-active");
+      $("qrPrintSheet")?.remove();
+    }
+    function printQrSheet(title, bodyMarkup, kind = "tags") {
+      cleanupQrPrintSheet();
+      const sheet = document.createElement("section");
+      sheet.id = "qrPrintSheet";
+      sheet.innerHTML = `<h1 class="qr-print-title">${escapeHtml(title)}</h1><div class="${kind === "order" ? "qr-print-order" : "qr-print-grid"}">${bodyMarkup}</div>`;
+      document.body.appendChild(sheet);
+      document.body.classList.add("qr-print-active");
+      window.addEventListener("afterprint", cleanupQrPrintSheet, { once:true });
+      qrPrintCleanupTimer = window.setTimeout(cleanupQrPrintSheet, 60000);
+      window.setTimeout(() => window.print(), 80);
+    }
+    function downloadQrSvg(route, fileName, label) {
+      try {
+        const svg = `<?xml version="1.0" encoding="UTF-8"?>\n${qrSvgMarkup(route, label)}`;
+        const url = URL.createObjectURL(new Blob([svg], { type:"image/svg+xml;charset=utf-8" }));
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `${qrSafeFileName(fileName)}.svg`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      } catch (error) {
+        showToast(error?.message || "Não foi possível baixar o QR Code.", "error");
+      }
+    }
+    function printAssetTags(assetId = "") {
+      try {
+        const assets = assetId ? [byId(state.assets, assetId)].filter(Boolean) : filteredAssetsWorkspace();
+        if (!assets.length) return showToast("Nenhum equipamento disponível para impressão.", "warning");
+        printQrSheet(`Etiquetas de equipamentos · ${assets.length}`, assets.map(equipmentTagMarkup).join(""));
+      } catch (error) {
+        showToast(error?.message || "Não foi possível preparar as etiquetas.", "error");
+      }
+    }
+    function openAssetQr(assetId) {
+      const asset = byId(state.assets, assetId);
+      if (!asset) return;
+      try {
+        const route = assetQrUrl(assetId);
+        openModal(`QR Code e etiqueta · ${asset.code || asset.name}`, `<div class="qr-manager">
+          ${equipmentTagMarkup(asset)}
+          <p class="qr-manager-intro">Etiqueta industrial pronta para impressão. O QR Code é gerado no próprio navegador, não envia dados a serviços externos e abre somente este equipamento após validar login e permissões.</p>
+          <div class="qr-manager-actions">
+            <button class="btn primary" type="button" onclick="printAssetTags('${asset.id}')">Imprimir etiqueta</button>
+            <button class="btn" type="button" onclick="downloadQrSvg(assetQrUrl('${asset.id}'),'QR-${qrSafeFileName(asset.code || asset.name)}','QR Code do ativo')">Baixar QR em SVG</button>
+          </div>
+          <a class="qr-manager-link" href="${escapeHtml(route)}" target="_blank" rel="noopener">${escapeHtml(route)}</a>
+        </div>`, true);
+      } catch (error) {
+        showToast(error?.message || "Não foi possível gerar o QR Code.", "error");
+      }
+    }
+    function printOrderQr(orderId) {
+      const order = byId(state.orders, orderId);
+      if (!order) return;
+      try { printQrSheet(`Identificação da ${order.number || "Ordem de Serviço"}`, orderQrCardMarkup(order), "order"); }
+      catch (error) { showToast(error?.message || "Não foi possível preparar a impressão.", "error"); }
+    }
+    function openOrderQr(orderId) {
+      const order = byId(state.orders, orderId);
+      if (!order) return;
+      try {
+        const route = orderQrUrl(orderId);
+        openModal(`QR Code · ${order.number || "Ordem de Serviço"}`, `<div class="qr-manager">
+          ${orderQrCardMarkup(order)}
+          <p class="qr-manager-intro">O QR Code identifica esta Ordem de Serviço e abre seu detalhamento após validar o usuário e as permissões da empresa.</p>
+          <div class="qr-manager-actions">
+            <button class="btn primary" type="button" onclick="printOrderQr('${order.id}')">Imprimir ficha QR</button>
+            <button class="btn" type="button" onclick="downloadQrSvg(orderQrUrl('${order.id}'),'QR-${qrSafeFileName(order.number || order.id)}','QR Code da Ordem de Serviço')">Baixar QR em SVG</button>
+          </div>
+          <a class="qr-manager-link" href="${escapeHtml(route)}" target="_blank" rel="noopener">${escapeHtml(route)}</a>
+        </div>`, true);
+      } catch (error) {
+        showToast(error?.message || "Não foi possível gerar o QR Code da O.S.", "error");
+      }
+    }
     function preventiveCanManage(){return permissionAtLeast("preventivePlans","manage");}
     function planOrders(planId){return state.orders.filter(item=>item.preventivePlanId===planId);}
     function planIntervalDays(plan={}){const amount=Math.max(1,Number(plan.frequencyAmount||1));const unit=plan.frequencyUnit||"days";if(plan.frequencyPreset&&plan.frequencyPreset!=="custom")return Number(plan.intervalDays||1);return unit==="weeks"?amount*7:unit==="months"?amount*30:unit==="years"?amount*365:amount;}
@@ -30387,7 +30602,7 @@ body.panel-mode .os-live-desc span {
               ${isRunningOrder(order.status) ? `<button class="icon-btn" type="button" title="Finalizar" onclick="finishOrder('${order.id}')">OK</button>` : ""}
               <button class="icon-btn" type="button" title="Copiar" onclick="simpleOrderAction('${order.id}', 'copy')">CP</button>
               <button class="icon-btn" type="button" title="Compartilhar" onclick="simpleOrderAction('${order.id}', 'Compartilhamento')">SH</button>
-              <button class="icon-btn" type="button" title="Imprimir" onclick="simpleOrderAction('${order.id}', 'Impressao')">PR</button>
+              <button class="icon-btn" type="button" title="QR Code da O.S." onclick="openOrderQr('${order.id}')">QR</button><button class="icon-btn" type="button" title="Imprimir" onclick="simpleOrderAction('${order.id}', 'Impressao')">PR</button>
             </div>
           </div>
           <div class="side-box" id="detailTabPanel">${detailTabContent("Geral", order)}</div>
@@ -31472,7 +31687,7 @@ body.panel-mode .os-live-desc span {
               <button class="btn" onclick="showOrderDetails('${order.id}')">${actionIcon("details", "edit")}Detalhes</button>
               <button class="btn" onclick="editOrder('${order.id}')">${actionIcon("edit", "edit")}Editar / Preencher</button>
               ${isRunningOrder(order.status) ? `<button class="btn" onclick="finishOrder('${order.id}')">${actionIcon("done", "done")}Encerrar</button>` : ""}
-              <button class="btn" onclick="simpleOrderAction('${order.id}', 'Impressao')">${actionIcon("print", "edit")}Imprimir</button>
+              <button class="btn" onclick="openOrderQr('${order.id}')">${actionIcon("details", "edit")}QR Code</button><button class="btn" onclick="simpleOrderAction('${order.id}', 'Impressao')">${actionIcon("print", "edit")}Imprimir</button>
               <button class="btn" onclick="simpleOrderAction('${order.id}', 'Compartilhamento')">${actionIcon("share", "edit")}Compartilhar O.S</button>
               <button class="btn" onclick="simpleOrderAction('${order.id}', 'copy')">${actionIcon("copy", "edit")}Copiar O.S</button>
               ${!isRunningOrder(order.status) && !isClosedOrder(order.status) ? `<button class="btn primary" onclick="confirmStartOrder('${order.id}')">${actionIcon("play", "play")}Iniciar O.S</button>` : ""}
@@ -31765,7 +31980,7 @@ body.panel-mode .os-live-desc span {
                 <button class="icon-btn" type="button" title="Gerar PDF" onclick="simpleOrderAction('${order.id}', 'PDF')">PDF</button>
                 <button class="icon-btn" type="button" title="Copiar" onclick="simpleOrderAction('${order.id}', 'copy')">CP</button>
                 <button class="icon-btn" type="button" title="Compartilhar" onclick="simpleOrderAction('${order.id}', 'Compartilhamento')">SH</button>
-                <button class="icon-btn" type="button" title="Imprimir" onclick="simpleOrderAction('${order.id}', 'Impressao')">PR</button>
+                <button class="icon-btn" type="button" title="QR Code da O.S." onclick="openOrderQr('${order.id}')">QR</button><button class="icon-btn" type="button" title="Imprimir" onclick="simpleOrderAction('${order.id}', 'Impressao')">PR</button>
               </div>
             </div>
             <div class="side-box" id="detailTabPanel">${detailTabContent("Geral", order)}</div>
@@ -32123,7 +32338,7 @@ body.panel-mode .os-live-desc span {
     function openMaterialFulfillment(id){if(!materialsCanOperate())return denyProfileAccess();const request=byId(state.materialRequests,id);if(!request)return;const items=materialRequestItems(request);openModal("Separação e Entrega",`<form class="materials-form" id="materialFulfillmentForm"><div class="side-box"><strong>${escapeHtml(request.number)}</strong><span>Informe apenas o que será entregue agora. Quantidades faltantes continuarão pendentes.</span></div><div class="material-request-items">${items.map(item=>{const part=byId(state.spareParts,item.spareId)||{},approved=Number(item.approvedQty??item.quantity),remaining=Math.max(0,approved-Number(item.deliveredQty||0));return`<div class="material-request-item"><label>Peça<input class="field" readonly value="${escapeHtml(part.code||"-")} - ${escapeHtml(part.name||"Peça")}"></label><label>Pendente<input class="field" readonly value="${remaining}"></label><label>Almoxarifado<select class="field" data-fulfillment-stock="${item.id}">${materialStockOptions(item.stockId)}</select></label><label>Entregar agora<input class="field" type="number" min="0" max="${remaining}" step="${unitRequiresInteger(part.unit||"UN")?1:.01}" value="${Math.min(remaining,materialAvailableQuantity(item.spareId,item.stockId))}" data-fulfillment-qty="${item.id}"></label></div>`}).join("")}</div><div class="materials-form-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Concluir atendimento</button></div></form>`,true);$("materialFulfillmentForm").addEventListener("submit",event=>{event.preventDefault();confirmMaterialFulfillment(id)})}
     async function confirmMaterialFulfillment(id){if(!materialsCanOperate())return denyProfileAccess();if(materialsMutationLocks.has(`fulfill:${id}`))return;const request=byId(state.materialRequests,id);if(!request||!["Separação","Parcialmente atendida"].includes(request.status)){showToast("Esta solicitação não está disponível para atendimento.");return}const items=materialRequestItems(request),deliveries=[];for(const item of items){const approved=Number(item.approvedQty??item.quantity),remaining=Math.max(0,approved-Number(item.deliveredQty||0)),quantity=Number(document.querySelector(`[data-fulfillment-qty="${item.id}"]`)?.value||0),stockId=document.querySelector(`[data-fulfillment-stock="${item.id}"]`)?.value||item.stockId;if(quantity<0||quantity>remaining){showToast("Quantidade de atendimento inválida.");return}if(quantity>0){if(!stockId){showToast("Selecione o almoxarifado dos itens atendidos.");return}deliveries.push({item,quantity,stockId})}}if(!deliveries.length){showToast("Informe ao menos uma quantidade para atendimento.");return}const grouped=new Map();deliveries.forEach(row=>{const key=`${row.item.spareId}|${row.stockId}`;grouped.set(key,(grouped.get(key)||0)+row.quantity)});for(const[key,quantity]of grouped){const[spareId,stockId]=key.split("|");if(quantity>materialAvailableQuantity(spareId,stockId)){showToast(`Saldo disponível insuficiente para ${spareName(spareId)}.`);return}}materialsMutationLocks.add(`fulfill:${id}`);const now=Date.now(),movementBase=state.inventoryMovements.length+1,payloads=deliveries.map((row,index)=>{const part=byId(state.spareParts,row.item.spareId),before=materialPhysicalBalance(row.item.spareId,row.stockId);return{id:uid("stock_move"),itemId:uid("stock_move_item"),number:`MOV-${String(movementBase+index).padStart(4,"0")}`,type:"Saída",stockId:row.stockId,spareId:row.item.spareId,quantity:normalizeQuantityForSpareId(row.item.spareId,row.quantity),owner:state.profile?.name||"Usuário",status:"Concluída",reason:"Solicitação de material",orderId:request.orderId||"",requestId:id,note:`Atendimento da solicitação ${request.number}`,balanceBefore:before,balanceAfter:before-row.quantity,createdAt:now+index,operationKey:`fulfillment:${id}:${row.item.id}:${Number(row.item.deliveredQty||0)}`}});for(const payload of payloads){if(!applyStockBalanceChange(null,payload,stockMoveBalanceEffect)){materialsMutationLocks.delete(`fulfill:${id}`);return}}payloads.forEach(payload=>addMaterialUsageToOrder(payload.orderId,payload));const deliveredByItem=new Map(deliveries.map(row=>[row.item.id,row.quantity]));const nextItems=items.map(item=>({...item,deliveredQty:Number(item.deliveredQty||0)+Number(deliveredByItem.get(item.id)||0)})),complete=nextItems.every(item=>Number(item.deliveredQty||0)>=Number(item.approvedQty??item.quantity));state.inventoryMovements=[...payloads,...state.inventoryMovements];state.materialRequests=state.materialRequests.map(item=>item.id===id?{...item,items:nextItems,status:complete?"Atendida":"Parcialmente atendida",inventoryApplied:true,attendant:state.profile?.name||"Usuário",fulfilledAt:complete?Date.now():item.fulfilledAt,updatedAt:Date.now()}:item);saveState();closeModal();render();showToast(complete?"Solicitação atendida e saídas registradas.":"Atendimento parcial registrado; o saldo restante continua pendente.");setTimeout(()=>materialsMutationLocks.delete(`fulfill:${id}`),1500)}
     window.renderMaterialsWorkspace=renderMaterialsWorkspace;window.changeMaterialsPage=changeMaterialsPage;window.selectMaterialsTab=selectMaterialsTab;window.toggleMaterialsFilters=toggleMaterialsFilters;window.clearMaterialsFilters=clearMaterialsFilters;window.runMaterialsPrimaryAction=runMaterialsPrimaryAction;window.showCriticalMaterialItems=showCriticalMaterialItems;window.showMaterialReplenishmentList=showMaterialReplenishmentList;window.materialRowMenu=materialRowMenu;window.openMaterialPartForm=openMaterialPartForm;window.saveMaterialPart=saveMaterialPart;window.toggleMaterialPartActive=toggleMaterialPartActive;window.openMaterialPartDetail=openMaterialPartDetail;window.selectMaterialPartTab=selectMaterialPartTab;window.openMaterialMovementForm=openMaterialMovementForm;window.updateMaterialMovementPreview=updateMaterialMovementPreview;window.showMaterialMovementDetails=showMaterialMovementDetails;window.openReservationAction=openReservationAction;window.confirmReservationAction=confirmReservationAction;window.openMaterialRequestForm=openMaterialRequestForm;window.addMaterialRequestDraftItem=addMaterialRequestDraftItem;window.updateMaterialRequestDraftItem=updateMaterialRequestDraftItem;window.removeMaterialRequestDraftItem=removeMaterialRequestDraftItem;window.saveMaterialRequest=saveMaterialRequest;window.openMaterialRequestDetail=openMaterialRequestDetail;window.sendMaterialRequest=sendMaterialRequest;window.cancelMaterialRequest=cancelMaterialRequest;window.approveMaterialRequest=approveMaterialRequest;window.openPartialMaterialApproval=openPartialMaterialApproval;window.confirmPartialMaterialApproval=confirmPartialMaterialApproval;window.openMaterialRejection=openMaterialRejection;window.startMaterialSeparation=startMaterialSeparation;window.openMaterialFulfillment=openMaterialFulfillment;window.confirmMaterialFulfillment=confirmMaterialFulfillment;
-    window.toggleAssetFilters = toggleAssetFilters; window.resetAssetWorkspacePage = resetAssetWorkspacePage; window.renderAssetsWorkspace = renderAssetsWorkspace; window.clearAssetFilters = clearAssetFilters; window.sortAssetsWorkspace = sortAssetsWorkspace; window.changeAssetWorkspacePage = changeAssetWorkspacePage; window.openAssetCreate = openAssetCreate; window.openAssetDetail = openAssetDetail; window.closeAssetDetail = closeAssetDetail; window.selectAssetTab = selectAssetTab; window.openAssetOrder = openAssetOrder; window.openAssetMeasurement = openAssetMeasurement; window.openAssetDowntime = openAssetDowntime; window.openAssetChecklist = openAssetChecklist; window.openAssetMaterialRequest = openAssetMaterialRequest; window.inactivateAsset = inactivateAsset; window.openAssetQr = openAssetQr;
+    window.toggleAssetFilters = toggleAssetFilters; window.resetAssetWorkspacePage = resetAssetWorkspacePage; window.renderAssetsWorkspace = renderAssetsWorkspace; window.clearAssetFilters = clearAssetFilters; window.sortAssetsWorkspace = sortAssetsWorkspace; window.changeAssetWorkspacePage = changeAssetWorkspacePage; window.openAssetCreate = openAssetCreate; window.openAssetDetail = openAssetDetail; window.closeAssetDetail = closeAssetDetail; window.selectAssetTab = selectAssetTab; window.openAssetOrder = openAssetOrder; window.openAssetMeasurement = openAssetMeasurement; window.openAssetDowntime = openAssetDowntime; window.openAssetChecklist = openAssetChecklist; window.openAssetMaterialRequest = openAssetMaterialRequest; window.inactivateAsset = inactivateAsset; window.openAssetQr = openAssetQr; window.printAssetTags = printAssetTags; window.openOrderQr = openOrderQr; window.printOrderQr = printOrderQr; window.downloadQrSvg = downloadQrSvg; window.assetQrUrl = assetQrUrl; window.orderQrUrl = orderQrUrl; window.qrSafeFileName = qrSafeFileName;
     window.resetPreventivePage = resetPreventivePage; window.togglePreventiveFilters = togglePreventiveFilters; window.clearPreventiveFilters = clearPreventiveFilters; window.sortPreventivePlans = sortPreventivePlans; window.changePreventivePage = changePreventivePage; window.renderPreventivePlansWorkspace = renderPreventivePlansWorkspace; window.openPreventivePlanDetail = openPreventivePlanDetail; window.closePreventivePlanDetail = closePreventivePlanDetail; window.selectPreventiveTab = selectPreventiveTab; window.duplicatePreventivePlan = duplicatePreventivePlan; window.togglePreventivePlanPause = togglePreventivePlanPause; window.reactivatePreventivePlan = reactivatePreventivePlan; window.reprogramPreventivePlan = reprogramPreventivePlan; window.updatePlanFrequencyPreview = updatePlanFrequencyPreview; window.confirmGeneratePreventivePlanOrder = confirmGeneratePreventivePlanOrder; window.togglePreventiveCalendarFilters = togglePreventiveCalendarFilters; window.clearPreventiveCalendarFilters = clearPreventiveCalendarFilters; window.openPreventiveCalendarEvent = openPreventiveCalendarEvent;
     window.renderChecklistWorkspace=renderChecklistWorkspace;window.changeChecklistPage=changeChecklistPage;window.clearChecklistFilters=clearChecklistFilters;window.toggleChecklistFilters=toggleChecklistFilters;window.toggleChecklistRowMenu=toggleChecklistRowMenu;window.openChecklistModelDetail=openChecklistModelDetail;window.openChecklistStart=openChecklistStart;window.continueChecklistExecution=continueChecklistExecution;window.setChecklistRunMode=setChecklistRunMode;window.moveChecklistRunItem=moveChecklistRunItem;window.saveChecklistDraft=saveChecklistDraft;window.removeChecklistEvidence=removeChecklistEvidence;window.createChecklistPending=createChecklistPending;window.openChecklistNonconformOrder=openChecklistNonconformOrder;window.reviewChecklistFinalization=reviewChecklistFinalization;window.confirmFinalizeChecklist=confirmFinalizeChecklist;window.duplicateChecklistModel=duplicateChecklistModel;window.toggleChecklistStatus=toggleChecklistStatus;
     /* Etapa 14 — fluxos operacionais simplificados */
@@ -33711,7 +33926,7 @@ body.panel-mode .os-live-desc span {
         if (!isPlatformAdmin() && context) await loadSupabaseState(false, true);
         const routedPlatformView = platformRouteView() || "platformRequests";
         if (isPlatformAdmin()) setView(routedPlatformView, { persist:false, silent:true, route:false });
-        else if (!openRoutedAssetIfAvailable()) setView(savedActiveView(), { persist:false, silent:true });
+        else if (!openRoutedEntityIfAvailable()) setView(savedActiveView(), { persist:false, silent:true });
         setAuthLoginStatus();
         showToast(`Bem-vindo, ${currentAccount.user.name}.`);
         return true;
@@ -33794,7 +34009,7 @@ body.panel-mode .os-live-desc span {
         if (!isPlatformAdmin() && context) await loadSupabaseState(false, true);
         const routedPlatformView = platformRouteView() || "platformRequests";
         if (isPlatformAdmin()) setView(routedPlatformView, { persist:false, silent:true, route:false });
-        else if (!openRoutedAssetIfAvailable()) setView(savedActiveView(), { persist:false, silent:true });
+        else if (!openRoutedEntityIfAvailable()) setView(savedActiveView(), { persist:false, silent:true });
         setAuthLoginStatus();
         showToast(`Bem-vindo, ${currentAccount.user.name}.`);
         return true;
@@ -33906,7 +34121,7 @@ body.panel-mode .os-live-desc span {
         if (!isPlatformAdmin() && context) await loadSupabaseState(false, true);
         const routedPlatformView = platformRouteView() || "platformRequests";
         if (isPlatformAdmin()) setView(routedPlatformView, { persist:false, silent:true, route:false });
-        else if (!openRoutedAssetIfAvailable()) setView(savedActiveView(), { persist:false, silent:true });
+        else if (!openRoutedEntityIfAvailable()) setView(savedActiveView(), { persist:false, silent:true });
         return true;
       } catch (error) {
         gmClearSession();
@@ -34850,7 +35065,7 @@ body.panel-mode .os-live-desc span {
     if (currentAccount) {
       captureSyncBaseline();
       applyAuthState();
-      if (!openRoutedAssetIfAvailable()) setView(savedActiveView(), { persist: false, silent: true });
+      if (!openRoutedEntityIfAvailable()) setView(savedActiveView(), { persist: false, silent: true });
       applyPanelMode();
       loadSupabaseState(false);
     } else {

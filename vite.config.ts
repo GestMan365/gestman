@@ -10,10 +10,16 @@ function copyClassicUiRuntime() {
   return {
     name: "copy-classic-ui-runtime",
     closeBundle() {
-      const source = rootFile("assets/icons/flaticon");
-      const target = rootFile("dist/assets/icons/flaticon");
-      mkdirSync(dirname(target), { recursive: true });
-      cpSync(source, target, { recursive: true });
+      const runtimeDirectories = [
+        ["assets/icons/flaticon", "dist/assets/icons/flaticon"],
+        ["assets/vendor", "dist/assets/vendor"],
+      ];
+      runtimeDirectories.forEach(([sourcePath, targetPath]) => {
+        const source = rootFile(sourcePath);
+        const target = rootFile(targetPath);
+        mkdirSync(dirname(target), { recursive: true });
+        cpSync(source, target, { recursive: true });
+      });
     },
   };
 }
