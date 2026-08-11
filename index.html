@@ -16710,6 +16710,22 @@ body.panel-mode .os-live-desc span {
     body.theme-light:not(.auth-required):not(.auth-loading) #dashboard .dashboard-alert-copy span {
       line-height: 1.4 !important;
     }
+    /* Cabeçalho simplificado: busca global e filtros de planta/período removidos da interface. */
+    .reference-topbar,
+    body.sidebar-collapsed .reference-topbar {
+      grid-template-columns: minmax(0, 1fr) auto !important;
+    }
+    .reference-topbar-search,
+    .header-dashboard-filters,
+    .header-context-trigger,
+    .header-mobile-search,
+    .header-dashboard-filters + .reference-header-separator {
+      display: none !important;
+    }
+    .reference-topbar-actions {
+      grid-column: 2 !important;
+      justify-self: end !important;
+    }
   </style>
   <style id="gestman-global-typography">
     :root { --gestman-font-family: Consolas, "Cascadia Mono", "Courier New", monospace; }
