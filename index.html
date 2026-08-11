@@ -16033,6 +16033,157 @@ body.panel-mode .os-live-desc strong {
 body.panel-mode .os-live-desc span {
   color: #9eb3c4;
 }
+#activeOrdersPanel .os-card-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  align-items: start;
+}
+#activeOrdersPanel .os-live-card,
+#activeOrdersPanel .os-live-head,
+#activeOrdersPanel .os-live-title,
+#activeOrdersPanel .os-live-route > span,
+#activeOrdersPanel .os-live-data > span,
+#activeOrdersPanel .os-live-desc,
+#activeOrdersPanel .os-live-foot {
+  min-width: 0;
+}
+#activeOrdersPanel .os-live-card {
+  align-self: start;
+  overflow: hidden;
+}
+#activeOrdersPanel .os-live-head {
+  grid-template-columns: 56px minmax(0, 1fr) auto;
+}
+#activeOrdersPanel .os-live-number {
+  max-width: 100%;
+  white-space: nowrap;
+}
+#activeOrdersPanel .os-live-route {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+#activeOrdersPanel .os-live-route > span {
+  display: grid;
+  gap: 2px;
+  padding: 7px 8px;
+  border: 1px solid rgba(108, 139, 168, .24);
+  border-radius: 6px;
+  background: rgba(117, 145, 169, .07);
+  color: var(--ink);
+  font-weight: 700;
+}
+#activeOrdersPanel .os-live-route small {
+  color: var(--muted);
+  font-size: var(--font-size-xs);
+  font-weight: 900;
+}
+#activeOrdersPanel .os-live-route > span,
+#activeOrdersPanel .os-live-data > span,
+#activeOrdersPanel .os-live-desc,
+#activeOrdersPanel .os-live-desc > * {
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+#activeOrdersPanel .os-live-data {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+#activeOrdersPanel .os-live-data :is(.os-chip, .tag) {
+  max-width: 100%;
+  white-space: normal;
+}
+#activeOrdersPanel .os-live-desc {
+  min-height: 0;
+}
+#activeOrdersPanel .os-live-foot .btn {
+  flex: 0 0 auto;
+}
+body.theme-light #activeOrdersPanel .os-panel-machine-photo {
+  color: #0b70c9 !important;
+  background: linear-gradient(145deg, #f8fbfe, #e7f2fb) !important;
+  border-color: #abcbe4 !important;
+  box-shadow: 0 5px 13px rgba(31, 86, 128, .13) !important;
+}
+body.theme-light #activeOrdersPanel .os-panel-machine-photo .gm-icon {
+  color: inherit !important;
+}
+body.panel-mode #activeOrdersPanel .os-card-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+body.panel-mode #activeOrdersPanel .os-live-data {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+body.panel-mode .topbar,
+body.panel-mode .reference-topbar,
+body.panel-mode .nav {
+  display: none !important;
+}
+body.panel-mode .workspace {
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+}
+body.theme-light.panel-mode {
+  background: #eaf1f7 !important;
+  color: #17324b !important;
+}
+body.theme-light.panel-mode .workspace {
+  background: radial-gradient(circle at 50% 0, rgba(37, 142, 230, .10), transparent 44%), #eaf1f7 !important;
+}
+body.theme-light.panel-mode #activeOrders .panel {
+  border-color: #bfd0de !important;
+  background: #ffffff !important;
+}
+body.theme-light.panel-mode .os-broadcast-head {
+  border-bottom-color: #c8d7e3 !important;
+  background: linear-gradient(180deg, #ffffff, #f2f7fb) !important;
+}
+body.theme-light.panel-mode .os-broadcast-brand img {
+  padding: 6px;
+  border: 1px solid #173957;
+  border-radius: 8px;
+  background: #071827;
+  box-shadow: 0 5px 13px rgba(31, 66, 94, .15);
+}
+body.theme-light.panel-mode .os-broadcast-brand h1,
+body.theme-light.panel-mode .os-broadcast-clock time {
+  color: #17324b !important;
+}
+body.theme-light.panel-mode .os-broadcast-brand p,
+body.theme-light.panel-mode .os-broadcast-clock span {
+  color: #60758a !important;
+}
+body.theme-light.panel-mode .os-broadcast-metrics > span {
+  border-color: #c8d7e3 !important;
+  background: #f6f9fc !important;
+}
+body.theme-light.panel-mode .os-broadcast-metrics small {
+  color: #60758a !important;
+}
+body.theme-light.panel-mode .os-broadcast-metrics strong {
+  color: #17324b !important;
+}
+body.theme-light.panel-mode #activeOrdersPanel {
+  background: #eaf1f7 !important;
+}
+body.theme-light.panel-mode #activeOrdersPanel .os-live-card {
+  border-color: #b9ccdb !important;
+  background: #ffffff !important;
+  color: #17324b !important;
+  box-shadow: 0 9px 22px rgba(31, 66, 94, .10) !important;
+}
+body.theme-light.panel-mode #activeOrdersPanel .os-live-route > span,
+body.theme-light.panel-mode #activeOrdersPanel .os-live-data > span,
+body.theme-light.panel-mode #activeOrdersPanel .os-live-desc {
+  border-color: #cfdae4 !important;
+  background: #f5f8fb !important;
+  color: #17324b !important;
+}
+body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title strong, .os-live-desc strong) {
+  color: #17324b !important;
+}
+body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live-desc span, .os-live-route small, .os-live-data small) {
+  color: #60758a !important;
+}
 @media (max-width: 1180px) {
   #map .industrial-map-filters {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -18299,7 +18450,7 @@ body.panel-mode .os-live-desc span {
           <div class="toolbar"><button class="btn primary" type="button" onclick="openOsPanelWindow()">Abrir em nova tela</button></div>
         </div>
         <header class="os-broadcast-head">
-          <div class="os-broadcast-brand"><img src="assets/ui/illustrations/gestman365-logo.png" alt="GestMan365"><div><span>ACOMPANHAMENTO OPERACIONAL</span><h1>Painel de Ordens de Serviço</h1><p>Atualização automática a cada 30 segundos</p></div></div>
+          <div class="os-broadcast-brand"><img src="assets/ui/illustrations/gestman365-logo.png" alt="GestMan365"><div><span>ACOMPANHAMENTO OPERACIONAL</span><h1>Painel de Ordens de Serviço</h1><p>Atualização automática ao vivo</p></div></div>
           <div class="os-broadcast-clock"><time id="osPanelClock">--:--</time><span id="osPanelDate">--/--/----</span></div>
           <div class="os-broadcast-actions"><button class="btn" type="button" onclick="copyOsPanelLink()">Copiar link</button><button class="btn" type="button" onclick="toggleOsPanelFullscreen()">Tela cheia</button><button class="btn" type="button" onclick="closeOsPanelMode()">Voltar ao sistema</button></div>
           <div class="os-broadcast-filters">
@@ -18310,7 +18461,7 @@ body.panel-mode .os-live-desc span {
           </div>
           <div class="os-broadcast-metrics" id="osPanelMetrics"></div>
         </header>
-        <div id="activeOrdersPanel" class="active-os-list"></div>
+        <div id="activeOrdersPanel" class="active-os-list" tabindex="0" aria-label="Ordens de serviço abertas e em execução"></div>
       </div>
     </section>
     <section class="view" id="reports">
@@ -19437,6 +19588,8 @@ body.panel-mode .os-live-desc span {
     let panelScrollTimer = null;
     let panelScrollDirection = 1;
     let panelScrollPausedUntil = 0;
+    let osPanelRemoteTimer = null;
+    let osPanelLiveChannel = null;
     const preventivePlanGenerationLocks = new Set();
     const checklistExecutionLocks = new Set();
     let pendingActionSaveLock = false;
@@ -22838,10 +22991,9 @@ body.panel-mode .os-live-desc span {
       url.hash = "";
       const panelWindow = window.open(url.toString(), "_blank");
       if (!panelWindow) {
-        showToast("O navegador bloqueou a nova janela. Permita pop-ups para abrir o Painel de O.S.", "warning");
+        showToast("O navegador bloqueou a nova aba. Permita pop-ups para abrir o Painel de O.S.", "warning");
         return false;
       }
-      panelWindow.opener = null;
       return true;
     }
     function openSystemHelp() {
@@ -22888,7 +23040,33 @@ body.panel-mode .os-live-desc span {
       document.title = "Painel O.S - GestMan365";
       setView("activeOrders");
       updateIndustrialClock();
-      stopPanelAutoScroll();
+      setupOsPanelLiveSync();
+      schedulePanelAutoScroll(2500);
+    }
+    function getOsPanelLiveChannel() {
+      if (!("BroadcastChannel" in window)) return null;
+      if (!osPanelLiveChannel) osPanelLiveChannel = new BroadcastChannel("gestman365-os-panel-v1");
+      return osPanelLiveChannel;
+    }
+    function notifyOsPanelUpdate() {
+      try {
+        getOsPanelLiveChannel()?.postMessage({ type:"orders-updated", at:Date.now() });
+      } catch {}
+    }
+    function setupOsPanelLiveSync() {
+      if (!isPanelMode()) return;
+      const channel = getOsPanelLiveChannel();
+      if (channel && !channel.__gestmanPanelListener) {
+        channel.__gestmanPanelListener = true;
+        channel.addEventListener("message", event => {
+          if (event.data?.type === "orders-updated" && currentAccount) loadSupabaseState(false, true);
+        });
+      }
+      if (!osPanelRemoteTimer) {
+        osPanelRemoteTimer = window.setInterval(() => {
+          if (currentAccount && document.visibilityState === "visible" && !gmStateDirty) loadSupabaseState(false, true);
+        }, 5000);
+      }
     }
     function setupPanelAutoScrollInteractions() {
       if (document.body.dataset.panelScrollEvents === "1") return;
@@ -22908,9 +23086,46 @@ body.panel-mode .os-live-desc span {
     }
     function schedulePanelAutoScroll(delay = 5000) {
       stopPanelAutoScroll();
+      if (!isPanelMode()) return;
+      panelScrollTimer = window.setTimeout(startPanelAutoScroll, Math.max(0, Number(delay) || 0));
     }
     function startPanelAutoScroll() {
       stopPanelAutoScroll();
+      if (!isPanelMode()) return;
+      setupPanelAutoScrollInteractions();
+      const container = $("activeOrdersPanel");
+      if (!container) return;
+      const maxScroll = () => Math.max(0, container.scrollHeight - container.clientHeight);
+      if (maxScroll() <= 2) {
+        panelScrollTimer = window.setTimeout(startPanelAutoScroll, 3000);
+        return;
+      }
+      let previousFrame = performance.now();
+      const step = timestamp => {
+        if (!isPanelMode() || !container.isConnected) {
+          stopPanelAutoScroll();
+          return;
+        }
+        if (Date.now() < panelScrollPausedUntil) {
+          previousFrame = timestamp;
+          panelScrollFrame = requestAnimationFrame(step);
+          return;
+        }
+        const bottom = maxScroll();
+        if (container.scrollTop >= bottom - 1) {
+          panelScrollFrame = null;
+          panelScrollTimer = window.setTimeout(() => {
+            container.scrollTo({ top:0, behavior:"smooth" });
+            panelScrollTimer = window.setTimeout(startPanelAutoScroll, 1200);
+          }, 5000);
+          return;
+        }
+        const elapsed = Math.min(80, Math.max(0, timestamp - previousFrame));
+        container.scrollTop = Math.min(bottom, container.scrollTop + Math.max(.5, elapsed * .024));
+        previousFrame = timestamp;
+        panelScrollFrame = requestAnimationFrame(step);
+      };
+      panelScrollFrame = requestAnimationFrame(step);
     }
     function tagClass(value) {
       const key = statusKey(ptBrText(value));
@@ -28018,6 +28233,7 @@ body.panel-mode .os-live-desc span {
     function renderActiveOrdersPanel(targetId, limit = 0) {
       const target = $(targetId);
       if (!target) return;
+      const previousScrollTop = target.scrollTop;
       const panelFiltersEnabled = targetId === "activeOrdersPanel" && isPanelMode();
       if (targetId === "activeOrdersPanel") refreshOsPanelFilters();
       const q = panelFiltersEnabled ? normalizeTextKey($("osPanelSearch")?.value || "") : "";
@@ -28057,6 +28273,9 @@ body.panel-mode .os-live-desc span {
             const ageMs = Date.now() - Number(order.createdAt || Date.now());
             const photo = String(asset.photo || "").trim();
             const dueState = orderDueState(order);
+            const title = orderTitle(order);
+            const description = order.description || order.maintenance || "Sem descrição informada.";
+            const showDescription = normalizeTextKey(description) !== normalizeTextKey(title);
             const liveState = running
               ? { className: "running", label: "EM EXECUÇÃO" }
               : overdue
@@ -28082,12 +28301,19 @@ body.panel-mode .os-live-desc span {
                   <span><small>Tipo</small>${escapeHtml(ptBrText(order.type || order.maintenanceType || "Não informado"))}</span>
                   <span><small>Solicitante</small>${escapeHtml(order.requester || "Não informado")}</span>
                 </div>
-                <div class="os-live-desc"><strong>${escapeHtml(orderTitle(order))}</strong><span>${escapeHtml(order.description || order.maintenance || "Sem descrição informada.")}</span></div>
+                <div class="os-live-desc"><strong>${escapeHtml(title)}</strong>${showDescription ? `<span>${escapeHtml(description)}</span>` : ""}</div>
                 <div class="os-live-foot"><span class="live-dot ${liveState.className}">${liveState.label}</span><button class="btn" onclick="showOrderDetails('${escapeHtml(order.id)}')">${actionIcon("details", "edit")}Detalhes</button></div>
               </article>`;
           }).join("")}
         </div>`;
-      if (targetId === "activeOrdersPanel") stopPanelAutoScroll();
+      if (targetId === "activeOrdersPanel" && isPanelMode()) {
+        requestAnimationFrame(() => {
+          target.scrollTop = Math.min(previousScrollTop, Math.max(0, target.scrollHeight - target.clientHeight));
+          if (!panelScrollFrame && !panelScrollTimer) schedulePanelAutoScroll(2500);
+        });
+      } else if (targetId === "activeOrdersPanel") {
+        stopPanelAutoScroll();
+      }
     }
     function mountRegionLocationAdmin() {
       const regionsView = $("regions");
@@ -33841,6 +34067,7 @@ body.panel-mode .os-live-desc span {
         gmStateDirty = false;
         hasPendingLocalSync = false;
         hasSessionLocalChange = false;
+        notifyOsPanelUpdate();
         if (showMessage) showToast("Dados salvos no Supabase.");
         return true;
       } catch (error) {
@@ -33872,6 +34099,7 @@ body.panel-mode .os-live-desc span {
         const rows = await gmRpc("gm_load_tenant_state", {});
         const remote = Array.isArray(rows) ? rows[0] : rows;
         if (!remote) throw new Error("GM_COMPANY_STATE_NOT_FOUND");
+        if (isPanelMode() && gmRemoteStateUpdatedAt && Number(remote.version || 0) === gmRemoteStateVersion && remote.updated_at === gmRemoteStateUpdatedAt) return true;
         const nextState = gmNormalizeRemoteState(remote.state);
         state = nextState;
         gmRemoteStateVersion = Number(remote.version || 0);
@@ -34156,6 +34384,7 @@ body.panel-mode .os-live-desc span {
         const routedPlatformView = platformRouteView() || "platformRequests";
         if (isPlatformAdmin()) setView(routedPlatformView, { persist:false, silent:true, route:false });
         else if (!openRoutedEntityIfAvailable()) setView(savedActiveView(), { persist:false, silent:true });
+        applyPanelMode();
         return true;
       } catch (error) {
         gmClearSession();
