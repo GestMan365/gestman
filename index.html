@@ -16915,6 +16915,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     .order-qr-grid div{padding:2mm;border:1px solid #dce5ee;border-radius:1.5mm;background:#f4f8fb}
     .order-qr-grid span{display:block;color:#526779;font:700 6.5pt/1 Arial,sans-serif;text-transform:uppercase}
     .order-qr-grid b{display:block;margin-top:1mm;color:#07111f;font:800 8pt/1.2 Arial,sans-serif;overflow-wrap:anywhere}
+    .order-qr-grid .order-qr-wide{grid-column:1/-1}
     .order-qr-scan{margin-top:auto;padding-top:2mm;color:#526779;font:700 7pt/1.2 Arial,sans-serif}
     #qrPrintSheet{display:none}
     body.theme-light .qr-manager{color:#0f2741}
@@ -28011,9 +28012,13 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function orderQrCardMarkup(order) {
       const asset = byId(state.assets, order.assetId) || {};
       const route = orderQrUrl(order.id);
+      const location = byId(state.locations, asset.locationId) || {};
+      const region = byId(state.regions, location.regionId) || {};
       const startedAt = order.realStartAt || order.startedAt;
       const finishedAt = order.realEndAt || order.finishedAt || order.completedAt;
       const printedBy = tenantUserDisplayName(currentAccount?.user || {}) || state.profile?.name || currentAccount?.user?.email || "Usuário GestMan365";
+      const printedAt = orderQrDateTimeLabel(Date.now());
+      const scheduledAt = order.scheduledAt || order.deadline;
       return `<article class="order-qr-card" data-order-qr="${escapeHtml(order.id)}">
         <div class="order-qr-code">${qrSvgMarkup(route, `QR Code da ordem ${order.number || "de serviço"}`)}</div>
         <div class="order-qr-copy">
@@ -28022,15 +28027,20 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           <strong>${escapeHtml(orderTitle(order))}</strong>
           <div class="order-qr-grid">
             <div><span>Equipamento</span><b>${escapeHtml(asset.code || "-")} · ${escapeHtml(asset.name || "Não informado")}</b></div>
-            <div><span>Local</span><b>${escapeHtml(assetQrLocation(asset))}</b></div>
+            <div><span>Região</span><b>${escapeHtml(region.name || "Não informada")}</b></div>
+            <div><span>Local</span><b>${escapeHtml(location.name || "Não informado")}</b></div>
+            <div><span>Solicitado por</span><b>${escapeHtml(order.requester || "Não informado")}</b></div>
             <div><span>Status</span><b>${escapeHtml(ptBrText(order.status || "Aberta"))}</b></div>
             <div><span>Prioridade</span><b>${escapeHtml(ptBrText(order.priority || "Não informada"))}</b></div>
-            <div><span>Responsável</span><b>${escapeHtml(order.executor || "Não informado")}</b></div>
-            <div><span>Prazo</span><b>${escapeHtml(order.scheduledAt ? assetDateLabel(order.scheduledAt) : "Não definido")}</b></div>
+            <div><span>Executante</span><b>${escapeHtml(order.executor || "Não informado")}</b></div>
+            <div><span>Tipo de manutenção</span><b>${escapeHtml(ptBrText(order.type || order.maintenanceType || "Não informado"))}</b></div>
+            <div><span>Data programada</span><b>${escapeHtml(scheduledAt ? orderQrDateTimeLabel(scheduledAt) : "Não definida")}</b></div>
+            <div><span>Abertura</span><b>${escapeHtml(orderQrDateTimeLabel(order.createdAt))}</b></div>
             <div><span>Início</span><b>${escapeHtml(orderQrDateTimeLabel(startedAt))}</b></div>
             <div><span>Término</span><b>${escapeHtml(finishedAt ? orderQrDateTimeLabel(finishedAt) : startedAt && !isClosedOrder(order.status) ? "Em andamento" : "Não registrado")}</b></div>
             <div><span>Tempo da O.S.</span><b>${escapeHtml(orderQrDurationLabel(order))}</b></div>
-            <div><span>Impresso por</span><b>${escapeHtml(printedBy)}</b></div>
+            <div class="order-qr-wide"><span>Impresso por</span><b>${escapeHtml(printedBy)} · ${escapeHtml(printedAt)}</b></div>
+            ${order.comment ? `<div class="order-qr-wide"><span>Comentários</span><b>${escapeHtml(order.comment)}</b></div>` : ""}
           </div>
           <div class="order-qr-scan">Escaneie para abrir esta O.S. no GestMan365. Login e permissões continuam obrigatórios.</div>
         </div>
@@ -28105,15 +28115,12 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const order = byId(state.orders, orderId);
       if (!order) return;
       try {
-        const route = orderQrUrl(orderId);
         openModal(`QR Code · ${order.number || "Ordem de Serviço"}`, `<div class="qr-manager">
           ${orderQrCardMarkup(order)}
           <p class="qr-manager-intro">O QR Code identifica esta Ordem de Serviço e abre seu detalhamento após validar o usuário e as permissões da empresa.</p>
           <div class="qr-manager-actions">
             <button class="btn primary" type="button" onclick="printOrderQr('${order.id}')">Imprimir ficha QR</button>
-            <button class="btn" type="button" onclick="downloadQrSvg(orderQrUrl('${order.id}'),'QR-${qrSafeFileName(order.number || order.id)}','QR Code da Ordem de Serviço')">Baixar QR em SVG</button>
           </div>
-          <a class="qr-manager-link" href="${escapeHtml(route)}" target="_blank" rel="noopener">${escapeHtml(route)}</a>
         </div>`, true);
       } catch (error) {
         showToast(error?.message || "Não foi possível gerar o QR Code da O.S.", "error");
