@@ -2052,12 +2052,17 @@
     .icon-btn {
       width: 32px;
       height: 30px;
+      display: inline-grid;
+      place-items: center;
+      padding: 0;
+      line-height: 1;
       border: 1px solid rgba(255,255,255,.2);
       border-radius: 6px;
       background: #162746;
       color: #fff;
       font-weight: 900;
     }
+    .icon-btn .gm-icon { width: 18px; height: 18px; }
     .detail-grid {
       display: grid;
       grid-template-columns: 130px minmax(0, 1fr) 130px minmax(0, 1fr);
@@ -30626,12 +30631,12 @@ body.panel-mode .os-live-desc span {
               <strong>${order.number}</strong>
             </div>
             <div class="icon-actions">
-              <button class="icon-btn" type="button" title="Gerar PDF" onclick="simpleOrderAction('${order.id}', 'PDF')">PDF</button>
-              ${!isRunningOrder(order.status) && !isClosedOrder(order.status) ? `<button class="icon-btn" type="button" title="Iniciar" onclick="confirmStartOrder('${order.id}')">INI</button>` : ""}
-              ${isRunningOrder(order.status) ? `<button class="icon-btn" type="button" title="Finalizar" onclick="finishOrder('${order.id}')">OK</button>` : ""}
-              <button class="icon-btn" type="button" title="Copiar" onclick="simpleOrderAction('${order.id}', 'copy')">CP</button>
-              <button class="icon-btn" type="button" title="Compartilhar" onclick="simpleOrderAction('${order.id}', 'Compartilhamento')">SH</button>
-              <button class="icon-btn" type="button" title="QR Code da O.S." onclick="openOrderQr('${order.id}')">QR</button><button class="icon-btn" type="button" title="Imprimir" onclick="simpleOrderAction('${order.id}', 'Impressao')">PR</button>
+              <button class="icon-btn gm-icon-only" type="button" title="Gerar PDF" aria-label="Gerar PDF" onclick="simpleOrderAction('${order.id}', 'PDF')">${gmIcon("reports", { size:18 })}</button>
+              ${!isRunningOrder(order.status) && !isClosedOrder(order.status) ? `<button class="icon-btn gm-icon-only" type="button" title="Iniciar O.S." aria-label="Iniciar O.S." onclick="confirmStartOrder('${order.id}')">${gmIcon("play", { size:18 })}</button>` : ""}
+              ${isRunningOrder(order.status) ? `<button class="icon-btn gm-icon-only" type="button" title="Finalizar O.S." aria-label="Finalizar O.S." onclick="finishOrder('${order.id}')">${gmIcon("checkCircle", { size:18 })}</button>` : ""}
+              <button class="icon-btn gm-icon-only" type="button" title="Copiar O.S." aria-label="Copiar O.S." onclick="simpleOrderAction('${order.id}', 'copy')">${gmIcon("copy", { size:18 })}</button>
+              <button class="icon-btn gm-icon-only" type="button" title="Compartilhar O.S." aria-label="Compartilhar O.S." onclick="simpleOrderAction('${order.id}', 'Compartilhamento')">${gmIcon("send", { size:18 })}</button>
+              <button class="icon-btn gm-icon-only" type="button" title="QR Code da O.S." aria-label="QR Code da O.S." onclick="openOrderQr('${order.id}')">${gmIcon("link", { size:18 })}</button><button class="icon-btn gm-icon-only" type="button" title="Imprimir O.S." aria-label="Imprimir O.S." onclick="simpleOrderAction('${order.id}', 'Impressao')">${gmIcon("printer", { size:18 })}</button>
             </div>
           </div>
           <div class="side-box" id="detailTabPanel">${detailTabContent("Geral", order)}</div>
@@ -32006,10 +32011,10 @@ body.panel-mode .os-live-desc span {
             <div class="detail-toolbar">
               <div class="toolbar"><button class="btn" type="button" onclick="simpleOrderAction('${order.id}', 'Modelo')">Modelos</button><strong>${order.number}</strong></div>
               <div class="icon-actions">
-                <button class="icon-btn" type="button" title="Gerar PDF" onclick="simpleOrderAction('${order.id}', 'PDF')">PDF</button>
-                <button class="icon-btn" type="button" title="Copiar" onclick="simpleOrderAction('${order.id}', 'copy')">CP</button>
-                <button class="icon-btn" type="button" title="Compartilhar" onclick="simpleOrderAction('${order.id}', 'Compartilhamento')">SH</button>
-                <button class="icon-btn" type="button" title="QR Code da O.S." onclick="openOrderQr('${order.id}')">QR</button><button class="icon-btn" type="button" title="Imprimir" onclick="simpleOrderAction('${order.id}', 'Impressao')">PR</button>
+                <button class="icon-btn gm-icon-only" type="button" title="Gerar PDF" aria-label="Gerar PDF" onclick="simpleOrderAction('${order.id}', 'PDF')">${gmIcon("reports", { size:18 })}</button>
+                <button class="icon-btn gm-icon-only" type="button" title="Copiar O.S." aria-label="Copiar O.S." onclick="simpleOrderAction('${order.id}', 'copy')">${gmIcon("copy", { size:18 })}</button>
+                <button class="icon-btn gm-icon-only" type="button" title="Compartilhar O.S." aria-label="Compartilhar O.S." onclick="simpleOrderAction('${order.id}', 'Compartilhamento')">${gmIcon("send", { size:18 })}</button>
+                <button class="icon-btn gm-icon-only" type="button" title="QR Code da O.S." aria-label="QR Code da O.S." onclick="openOrderQr('${order.id}')">${gmIcon("link", { size:18 })}</button><button class="icon-btn gm-icon-only" type="button" title="Imprimir O.S." aria-label="Imprimir O.S." onclick="simpleOrderAction('${order.id}', 'Impressao')">${gmIcon("printer", { size:18 })}</button>
               </div>
             </div>
             <div class="side-box" id="detailTabPanel">${detailTabContent("Geral", order)}</div>
