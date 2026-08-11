@@ -16742,7 +16742,7 @@ body.panel-mode .os-live-desc span {
     .equipment-tag-qr{display:grid;place-items:center;width:39mm;height:39mm;padding:2mm;border:1px solid #d3dfec;border-radius:2mm;background:#fff}
     .equipment-tag-body{display:flex;min-width:0;flex-direction:column}
     .equipment-tag-brand{display:flex;align-items:center;gap:2mm;padding-bottom:2mm;border-bottom:1px solid #d8e2ec}
-    .equipment-tag-brand img{display:block;width:auto;max-width:35mm;height:8mm;object-fit:contain;object-position:left center}
+    .equipment-tag-brand img{display:block;width:auto;max-width:35mm;height:8mm;object-fit:contain;object-position:left center;filter:brightness(0) saturate(100%);opacity:.88}
     .equipment-tag-kind{margin-left:auto;color:#1768aa;font-size:7pt;font-weight:900;letter-spacing:.08em}
     .equipment-tag-code{margin-top:2.5mm;color:#075b9f;font:900 12pt/1.1 Arial,sans-serif;overflow-wrap:anywhere}
     .equipment-tag-name{margin-top:1mm;color:#07111f;font:800 10pt/1.15 Arial,sans-serif;overflow-wrap:anywhere}
@@ -27766,9 +27766,34 @@ body.panel-mode .os-live-desc span {
         </div>
       </article>`;
     }
+    function orderQrDateTimeLabel(value) {
+      const date = validOperationalDate(value);
+      return date ? new Intl.DateTimeFormat("pt-BR", { dateStyle:"short", timeStyle:"short" }).format(date) : "Não registrado";
+    }
+    function orderQrDurationLabel(order = {}) {
+      const directHours = [order.actualDurationHours, order.actualHours, order.executionHours]
+        .map(Number).find(value => Number.isFinite(value) && value > 0);
+      let totalMinutes = Number.isFinite(directHours) ? Math.round(directHours * 60) : null;
+      if (totalMinutes === null) {
+        const started = validOperationalDate(order.realStartAt || order.startedAt);
+        const finished = validOperationalDate(order.realEndAt || order.finishedAt || order.completedAt)
+          || (started && !isClosedOrder(order.status) ? new Date() : null);
+        if (started && finished && finished >= started) {
+          totalMinutes = Math.max(0, Math.round((finished - started) / 60000) - Math.round(Math.max(0, Number(order.pauseHours || 0)) * 60));
+        }
+      }
+      if (totalMinutes === null) return "Não calculado";
+      const days = Math.floor(totalMinutes / 1440);
+      const hours = Math.floor((totalMinutes % 1440) / 60);
+      const minutes = totalMinutes % 60;
+      return [days ? `${days}d` : "", hours ? `${hours}h` : "", `${minutes}min`].filter(Boolean).join(" ");
+    }
     function orderQrCardMarkup(order) {
       const asset = byId(state.assets, order.assetId) || {};
       const route = orderQrUrl(order.id);
+      const startedAt = order.realStartAt || order.startedAt;
+      const finishedAt = order.realEndAt || order.finishedAt || order.completedAt;
+      const printedBy = tenantUserDisplayName(currentAccount?.user || {}) || state.profile?.name || currentAccount?.user?.email || "Usuário GestMan365";
       return `<article class="order-qr-card" data-order-qr="${escapeHtml(order.id)}">
         <div class="order-qr-code">${qrSvgMarkup(route, `QR Code da ordem ${order.number || "de serviço"}`)}</div>
         <div class="order-qr-copy">
@@ -27782,6 +27807,10 @@ body.panel-mode .os-live-desc span {
             <div><span>Prioridade</span><b>${escapeHtml(ptBrText(order.priority || "Não informada"))}</b></div>
             <div><span>Responsável</span><b>${escapeHtml(order.executor || "Não informado")}</b></div>
             <div><span>Prazo</span><b>${escapeHtml(order.scheduledAt ? assetDateLabel(order.scheduledAt) : "Não definido")}</b></div>
+            <div><span>Início</span><b>${escapeHtml(orderQrDateTimeLabel(startedAt))}</b></div>
+            <div><span>Término</span><b>${escapeHtml(finishedAt ? orderQrDateTimeLabel(finishedAt) : startedAt && !isClosedOrder(order.status) ? "Em andamento" : "Não registrado")}</b></div>
+            <div><span>Tempo da O.S.</span><b>${escapeHtml(orderQrDurationLabel(order))}</b></div>
+            <div><span>Impresso por</span><b>${escapeHtml(printedBy)}</b></div>
           </div>
           <div class="order-qr-scan">Escaneie para abrir esta O.S. no GestMan365. Login e permissões continuam obrigatórios.</div>
         </div>
