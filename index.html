@@ -2112,20 +2112,30 @@
       height: 118px;
       border: 1px solid rgba(255,255,255,.34);
       border-radius: 6px;
-      background:
-        linear-gradient(transparent 70%, rgba(255,255,255,.22) 71%, transparent 72%),
-        rgba(255,255,255,.04);
-      display: grid;
-      place-items: center;
-      color: rgba(255,255,255,.54);
-      font-size: var(--font-size-heading-md);
-      font-weight: 700;
+      background: #fff;
+      position: relative;
+      overflow: hidden;
       cursor: crosshair;
     }
-    .signature-box.signed {
-      color: #fff;
-      font-family: "Segoe Script", "Brush Script MT", cursive;
-      font-size: var(--font-size-2xl);
+    .signature-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+    .signature-placeholder {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: #60758a;
+      font-size: var(--font-size-heading-md);
+      font-weight: 700;
+      pointer-events: none;
+      user-select: none;
+    }
+    .signature-box.signed .signature-placeholder {
+      display: none;
     }
     .epi-list {
       border: 1px solid rgba(255,255,255,.2);
@@ -2989,14 +2999,8 @@
       color: #0b1d3d;
     }
     body.theme-light .signature-box {
-      background:
-        linear-gradient(transparent 70%, rgba(13,47,115,.18) 71%, transparent 72%),
-        rgba(255,255,255,.86);
+      background: #fff;
       border-color: rgba(13,47,115,.24);
-      color: rgba(11,29,61,.55);
-    }
-    body.theme-light .signature-box.signed {
-      color: #0b1d3d;
     }
     body.theme-light .menu-item {
       color: #0b1d3d;
@@ -30382,12 +30386,15 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           </div>`;
       }
       if (tabKey === "assinatura") {
-        const signed = order.signatureText || "";
+        const signed = Boolean(order.signatureImage);
         return `
           <div class="tab-workspace">
-            <div class="toolbar"><button class="btn primary" type="button" id="addSignatureBtn">Adicionar assinatura</button><button class="btn danger" type="button" id="clearSignatureBtn">Limpar</button></div>
+            <div class="toolbar"><button class="btn primary" type="button" id="addSignatureBtn">Salvar assinatura</button><button class="btn danger" type="button" id="clearSignatureBtn">Limpar</button></div>
             <div class="signature-panel">
-              <div class="signature-box ${signed ? "signed" : ""}" id="signatureBox">${escapeHtml(signed || "Assine Aqui")}</div>
+              <div class="signature-box ${signed ? "signed" : ""}" id="signatureBox">
+                <canvas class="signature-canvas" id="signatureCanvas" aria-label="Área para desenhar a assinatura livremente"></canvas>
+                <span class="signature-placeholder" id="signaturePlaceholder">Assine aqui com o mouse</span>
+              </div>
               <div class="form">
                 <label>Nome / empresa / cargo <input class="field" id="signatureName" value="${escapeHtml(order.signatureName || order.executor || "")}" placeholder="Nome / Empresa / Cargo"></label>
                 <label>Data <input class="field" value="${formatDateTime(order.signatureAt)}" readonly></label>
@@ -30621,6 +30628,81 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       refreshOrderMaterialsTab(orderId);
       showToast("Material removido e estoque estornado.");
     }
+    function initializeOrderSignatureCanvas(canvas, box, initialImage = "") {
+      if (!canvas || !box) return;
+      const rect = box.getBoundingClientRect();
+      const width = Math.max(320, Math.round(rect.width || 640));
+      const height = Math.max(110, Math.round(rect.height || 118));
+      const ratio = Math.min(Math.max(window.devicePixelRatio || 1, 1), 2);
+      canvas.width = Math.round(width * ratio);
+      canvas.height = Math.round(height * ratio);
+      const context = canvas.getContext("2d");
+      context.setTransform(ratio, 0, 0, ratio, 0, 0);
+      context.lineCap = "round";
+      context.lineJoin = "round";
+      context.lineWidth = 2.4;
+      context.strokeStyle = "#071d35";
+      canvas.dataset.hasInk = "false";
+      const clearCanvas = () => {
+        context.clearRect(0, 0, width, height);
+        canvas.dataset.hasInk = "false";
+        box.classList.remove("signed");
+      };
+      const pointFromEvent = event => {
+        const bounds = canvas.getBoundingClientRect();
+        return {
+          x: (event.clientX - bounds.left) * (width / Math.max(bounds.width, 1)),
+          y: (event.clientY - bounds.top) * (height / Math.max(bounds.height, 1))
+        };
+      };
+      let drawing = false;
+      canvas.addEventListener("pointerdown", event => {
+        if (event.pointerType === "mouse" && event.button !== 0) return;
+        event.preventDefault();
+        drawing = true;
+        canvas.setPointerCapture(event.pointerId);
+        const point = pointFromEvent(event);
+        context.beginPath();
+        context.moveTo(point.x, point.y);
+        context.lineTo(point.x + .01, point.y + .01);
+        context.stroke();
+        canvas.dataset.hasInk = "true";
+        box.classList.add("signed");
+      });
+      canvas.addEventListener("pointermove", event => {
+        if (!drawing) return;
+        event.preventDefault();
+        const point = pointFromEvent(event);
+        context.lineTo(point.x, point.y);
+        context.stroke();
+      });
+      const stopDrawing = event => {
+        if (!drawing) return;
+        drawing = false;
+        context.closePath();
+        if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+      };
+      canvas.addEventListener("pointerup", stopDrawing);
+      canvas.addEventListener("pointercancel", stopDrawing);
+      canvas.signatureClear = () => {
+        canvas.dataset.ignoreInitial = "true";
+        clearCanvas();
+      };
+      canvas.signatureHasInk = () => canvas.dataset.hasInk === "true";
+      canvas.signatureDataUrl = () => canvas.toDataURL("image/png");
+      if (initialImage) {
+        const image = new Image();
+        image.onload = () => {
+          if (canvas.dataset.ignoreInitial === "true") return;
+          clearCanvas();
+          context.drawImage(image, 0, 0, width, height);
+          canvas.dataset.hasInk = "true";
+          box.classList.add("signed");
+        };
+        image.onerror = clearCanvas;
+        image.src = initialImage;
+      }
+    }
     function wireDetailTab(tabName, orderId) {
       const tabKey = statusKey(tabName);
       const panel = $("detailTabPanel");
@@ -30763,17 +30845,23 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         const add = $("addSignatureBtn");
         const clear = $("clearSignatureBtn");
         const box = $("signatureBox");
-        if (add && box) add.addEventListener("click", () => {
-          const name = value("signatureName") || "Assinatura digital";
-          box.textContent = name;
-          box.classList.add("signed");
-          updateOrderExtras(orderId, { signatureText: name, signatureName: name, signatureAt: Date.now() });
-          showToast("Assinatura registrada na O.S.");
+        const canvas = $("signatureCanvas");
+        const order = byId(state.orders, orderId) || {};
+        initializeOrderSignatureCanvas(canvas, box, order.signatureImage || "");
+        if (add && box && canvas) add.addEventListener("click", () => {
+          if (!canvas.signatureHasInk?.()) {
+            showToast("Desenhe a assinatura com o mouse antes de salvar.");
+            return;
+          }
+          const name = value("signatureName") || order.executor || "Assinante não informado";
+          updateOrderExtras(orderId, { signatureImage: canvas.signatureDataUrl(), signatureText: "", signatureName: name, signatureAt: Date.now() });
+          refreshOrderDetailTab(tabName, orderId);
+          showToast("Assinatura manuscrita salva na O.S.");
         });
-        if (clear && box) clear.addEventListener("click", () => {
-          box.textContent = "Assine Aqui";
-          box.classList.remove("signed");
-          updateOrderExtras(orderId, { signatureText: "", signatureName: "", signatureAt: null });
+        if (clear && box && canvas) clear.addEventListener("click", () => {
+          canvas.signatureClear?.();
+          updateOrderExtras(orderId, { signatureImage: "", signatureText: "", signatureName: "", signatureAt: null });
+          refreshOrderDetailTab(tabName, orderId);
           showToast("Assinatura removida.");
         });
       }
