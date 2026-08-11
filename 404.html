@@ -16984,6 +16984,177 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       .qr-print-order{display:grid;place-items:center;min-height:120mm}
       .qr-print-order .order-qr-card{break-inside:avoid;page-break-inside:avoid}
     }
+  </style>
+  <style id="gestman-pagination-standard">
+    body:not(.auth-required):not(.auth-loading) {
+      --gm-pagination-accent: #16879a;
+      --gm-pagination-accent-soft: #dff2f5;
+      --gm-pagination-accent-text: #ffffff;
+    }
+    body:not(.theme-light):not(.auth-required):not(.auth-loading) {
+      --gm-pagination-accent: #5ec3d1;
+      --gm-pagination-accent-soft: #123541;
+      --gm-pagination-accent-text: #061c24;
+    }
+    body:not(.auth-required):not(.auth-loading) :is(
+      .os-pagination,
+      .asset-pagination,
+      .materials-pagination,
+      .preventive-pagination,
+      .checklist-pagination,
+      .stage14-pagination,
+      .stage15-pagination,
+      .s16-pager,
+      .stage18-pagination,
+      .stage19-pagination,
+      .stage20-pagination
+    ) {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: flex-end !important;
+      gap: 6px !important;
+      min-height: 58px !important;
+      padding: 10px 14px !important;
+      border-top: 1px solid var(--im-border, var(--gm-border)) !important;
+      color: var(--im-muted, var(--gm-text-secondary)) !important;
+      background: var(--im-surface-soft, var(--gm-surface-1)) !important;
+    }
+    body:not(.auth-required):not(.auth-loading) :is(
+      .os-pagination,
+      .asset-pagination,
+      .materials-pagination,
+      .preventive-pagination,
+      .checklist-pagination,
+      .stage14-pagination,
+      .stage15-pagination,
+      .s16-pager,
+      .stage18-pagination,
+      .stage19-pagination,
+      .stage20-pagination
+    ) > span {
+      margin-right: auto !important;
+      color: var(--im-muted, var(--gm-text-secondary)) !important;
+      font-size: 12px !important;
+    }
+    body:not(.auth-required):not(.auth-loading) :is(
+      .os-pagination,
+      .asset-pagination,
+      .materials-pagination,
+      .preventive-pagination,
+      .checklist-pagination,
+      .stage14-pagination,
+      .stage15-pagination,
+      .s16-pager,
+      .stage18-pagination,
+      .stage19-pagination,
+      .stage20-pagination
+    ) > div {
+      display: flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+    }
+    body:not(.auth-required):not(.auth-loading) :is(
+      .os-pagination,
+      .asset-pagination,
+      .materials-pagination,
+      .preventive-pagination,
+      .checklist-pagination,
+      .stage14-pagination,
+      .stage15-pagination,
+      .s16-pager,
+      .stage18-pagination,
+      .stage19-pagination,
+      .stage20-pagination
+    ) button {
+      display: inline-grid !important;
+      place-items: center !important;
+      flex: 0 0 38px !important;
+      width: 38px !important;
+      min-width: 38px !important;
+      height: 38px !important;
+      min-height: 38px !important;
+      padding: 0 !important;
+      border: 1px solid var(--im-border-strong, var(--gm-border)) !important;
+      border-radius: 9px !important;
+      color: var(--im-text-soft, var(--gm-text-secondary)) !important;
+      background: var(--im-surface, var(--gm-surface-2)) !important;
+      box-shadow: none !important;
+      font-size: 13px !important;
+      font-weight: 800 !important;
+      line-height: 1 !important;
+      transform: none !important;
+    }
+    body:not(.auth-required):not(.auth-loading) :is(
+      .os-pagination,
+      .asset-pagination,
+      .materials-pagination,
+      .preventive-pagination,
+      .checklist-pagination,
+      .stage14-pagination,
+      .stage15-pagination,
+      .s16-pager,
+      .stage18-pagination,
+      .stage19-pagination,
+      .stage20-pagination
+    ) button:hover:not(:disabled):not(.active):not([aria-current="page"]) {
+      border-color: var(--gm-pagination-accent) !important;
+      color: var(--im-text, var(--gm-text-primary)) !important;
+      background: var(--gm-pagination-accent-soft) !important;
+    }
+    body:not(.auth-required):not(.auth-loading) :is(
+      .os-pagination,
+      .asset-pagination,
+      .materials-pagination,
+      .preventive-pagination,
+      .checklist-pagination,
+      .stage14-pagination,
+      .stage15-pagination,
+      .s16-pager,
+      .stage18-pagination,
+      .stage19-pagination,
+      .stage20-pagination
+    ) button:is(.active,[aria-current="page"]) {
+      border-color: var(--gm-pagination-accent) !important;
+      color: var(--gm-pagination-accent-text) !important;
+      background: var(--gm-pagination-accent) !important;
+      box-shadow: 0 4px 10px color-mix(in srgb, var(--gm-pagination-accent) 28%, transparent) !important;
+    }
+    body:not(.auth-required):not(.auth-loading) :is(
+      .os-pagination,
+      .asset-pagination,
+      .materials-pagination,
+      .preventive-pagination,
+      .checklist-pagination,
+      .stage14-pagination,
+      .stage15-pagination,
+      .s16-pager,
+      .stage18-pagination,
+      .stage19-pagination,
+      .stage20-pagination
+    ) button:disabled {
+      border-color: var(--im-border, var(--gm-border)) !important;
+      color: var(--im-muted, var(--gm-text-muted)) !important;
+      background: var(--im-surface-soft, var(--gm-surface-1)) !important;
+      box-shadow: none !important;
+      opacity: .42 !important;
+    }
+    body:not(.auth-required):not(.auth-loading) :is(
+      .os-pagination,
+      .asset-pagination,
+      .materials-pagination,
+      .preventive-pagination,
+      .checklist-pagination,
+      .stage14-pagination,
+      .stage15-pagination,
+      .s16-pager,
+      .stage18-pagination,
+      .stage19-pagination,
+      .stage20-pagination
+    ) button:focus-visible {
+      outline: 2px solid var(--gm-pagination-accent) !important;
+      outline-offset: 2px !important;
+      box-shadow: none !important;
+    }
   </style></head>
 <body class="auth-loading auth-restoring">
   <script id="design-theme-bootstrap">
