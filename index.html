@@ -16937,7 +16937,19 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     .qr-manager{display:grid;gap:16px;place-items:center;padding:4px;color:#dbeafe}
     .qr-manager-intro{max-width:680px;margin:0;color:#8fa4ba;text-align:center;font-size:var(--font-size-xs);line-height:1.55}
     .qr-manager-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
-    .qr-manager-link{max-width:680px;padding:9px 11px;border:1px solid #27415f;border-radius:8px;background:#081524;color:#86b7e7;font-size:var(--font-size-xs);overflow-wrap:anywhere}
+    .stage17-select-check{width:18px;height:18px;margin:0;accent-color:#1d8cff;cursor:pointer}
+    .stage17-tag-batch{display:grid;gap:10px;width:min(860px,100%)}
+    .stage17-tag-batch-list{display:grid;gap:7px;max-height:52vh;overflow:auto;padding-right:4px}
+    .stage17-tag-batch-item{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px;border:1px solid #29425e;border-radius:10px;background:#091827;cursor:pointer}
+    .stage17-tag-batch-item:hover{border-color:#1d8cff;background:#10243a}
+    .stage17-tag-batch-item strong,.stage17-tag-batch-item span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .stage17-tag-batch-item span{margin-top:3px;color:#8297ae;font-size:var(--font-size-xs)}
+    .stage17-tag-batch-item small{color:#65b4ff;font-size:var(--font-size-xs);white-space:nowrap}
+    body.theme-light .stage17-tag-batch-item{border-color:#cbd8e5;background:#f7fafc}
+    body.theme-light .stage17-tag-batch-item:hover{border-color:#1684ea;background:#edf6fd}
+    body.theme-light .stage17-tag-batch-item strong{color:#17314b}
+    body.theme-light .stage17-tag-batch-item span{color:#60758c}
+    body.theme-light .stage17-tag-batch-item small{color:#0b6fae}
     .gm-qr-svg{display:block;width:100%;height:100%;background:#fff}
     .equipment-tag{box-sizing:border-box;display:grid;grid-template-columns:39mm minmax(0,1fr);gap:4mm;width:96mm;min-height:56mm;padding:4mm;border:1px solid #16395b;border-radius:3mm;background:#fff;color:#07111f;overflow:hidden}
     .equipment-tag-qr{display:grid;place-items:center;width:39mm;height:39mm;padding:2mm;border:1px solid #d3dfec;border-radius:2mm;background:#fff}
@@ -16965,8 +16977,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     #qrPrintSheet{display:none}
     body.theme-light .qr-manager{color:#0f2741}
     body.theme-light .qr-manager-intro{color:#52677e}
-    body.theme-light .qr-manager-link{border-color:#c8d8e7;background:#f3f8fc;color:#174f80}
     @media(max-width:760px){
+      .stage17-tag-batch-item{grid-template-columns:auto minmax(0,1fr)}
+      .stage17-tag-batch-item small{grid-column:2}
       .equipment-tag{grid-template-columns:34mm minmax(0,1fr);width:min(100%,96mm);min-height:52mm;padding:3mm}
       .equipment-tag-qr{width:34mm;height:34mm}
       .order-qr-card{grid-template-columns:36mm minmax(0,1fr);gap:4mm;padding:4mm}
@@ -16979,8 +16992,17 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       body.qr-print-active>*:not(#qrPrintSheet){display:none!important}
       body.qr-print-active #qrPrintSheet{display:block!important;position:static!important;margin:0!important;padding:0!important;background:#fff!important;color:#000!important}
       .qr-print-title{margin:0 0 5mm;color:#07111f;font:800 14pt/1.2 Arial,sans-serif}
-      .qr-print-grid{display:grid;grid-template-columns:repeat(2,96mm);gap:3mm;align-items:start}
-      .qr-print-grid .equipment-tag{break-inside:avoid;page-break-inside:avoid}
+      #qrPrintSheet[data-kind="tags"] .qr-print-title{display:none}
+      .qr-print-grid{display:grid;grid-template-columns:repeat(3,64mm);grid-auto-rows:65mm;gap:3mm;align-items:start}
+      .qr-print-grid .equipment-tag{grid-template-columns:22mm minmax(0,1fr);gap:2mm;width:64mm;height:65mm;min-height:65mm;padding:2.5mm;border-radius:2mm;break-inside:avoid;page-break-inside:avoid}
+      .qr-print-grid .equipment-tag-qr{width:22mm;height:22mm;padding:1mm;border-radius:1.5mm}
+      .qr-print-grid .equipment-tag-brand{gap:1mm;padding-bottom:1mm}
+      .qr-print-grid .equipment-tag-brand img{max-width:23mm;height:5.5mm}
+      .qr-print-grid .equipment-tag-kind{font-size:5.5pt}
+      .qr-print-grid .equipment-tag-code{margin-top:1.5mm;font-size:8.5pt}
+      .qr-print-grid .equipment-tag-name{margin-top:.7mm;font-size:7.5pt}
+      .qr-print-grid .equipment-tag-meta{gap:.5mm;margin-top:1mm;font-size:5.8pt;line-height:1.18}
+      .qr-print-grid .equipment-tag-scan{padding-top:1mm;font-size:5pt;line-height:1.1}
       .qr-print-order{display:grid;place-items:center;min-height:120mm}
       .qr-print-order .order-qr-card{break-inside:avoid;page-break-inside:avoid}
     }
@@ -28789,6 +28811,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       cleanupQrPrintSheet();
       const sheet = document.createElement("section");
       sheet.id = "qrPrintSheet";
+      sheet.dataset.kind = kind;
       sheet.innerHTML = `<h1 class="qr-print-title">${escapeHtml(title)}</h1><div class="${kind === "order" ? "qr-print-order" : "qr-print-grid"}">${bodyMarkup}</div>`;
       document.body.appendChild(sheet);
       document.body.classList.add("qr-print-active");
@@ -28813,26 +28836,64 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     function printAssetTags(assetId = "") {
       try {
-        const assets = assetId ? [byId(state.assets, assetId)].filter(Boolean) : filteredAssetsWorkspace();
+        const requestedIds = Array.isArray(assetId) ? assetId : assetId ? [assetId] : [];
+        const assets = requestedIds.length ? requestedIds.map(id => byId(state.assets, id)).filter(Boolean) : filteredAssetsWorkspace();
         if (!assets.length) return showToast("Nenhum equipamento disponível para impressão.", "warning");
+        if (assets.length > 12) return showToast("Selecione no máximo 12 equipamentos por folha A4.", "warning");
         printQrSheet(`Etiquetas de equipamentos · ${assets.length}`, assets.map(equipmentTagMarkup).join(""));
       } catch (error) {
         showToast(error?.message || "Não foi possível preparar as etiquetas.", "error");
       }
     }
+    function stage17PrintSelectionCount() { return stage17Ui.identifierPrintIds instanceof Set ? stage17Ui.identifierPrintIds.size : 0; }
+    function stage17ClearTagSelection() { stage17Ui.identifierPrintIds = new Set(); renderStage17Identifiers(); }
+    function stage17ToggleTagSelection(assetId, checked) {
+      if (!(stage17Ui.identifierPrintIds instanceof Set)) stage17Ui.identifierPrintIds = new Set();
+      if (checked && !stage17Ui.identifierPrintIds.has(assetId) && stage17Ui.identifierPrintIds.size >= 12) {
+        showToast("Uma folha A4 comporta no máximo 12 etiquetas.", "warning");
+        renderStage17Identifiers();
+        return;
+      }
+      checked ? stage17Ui.identifierPrintIds.add(assetId) : stage17Ui.identifierPrintIds.delete(assetId);
+      renderStage17Identifiers();
+    }
+    function stage17OpenTagBatch() {
+      const selected = stage17Ui.identifierPrintIds instanceof Set ? new Set(stage17Ui.identifierPrintIds) : new Set();
+      const assets = (state.assets || []).filter(asset => asset.status !== "Inativo");
+      openModal("Imprimir etiquetas em lote", `<div class="stage17-tag-batch">
+        <div class="stage17-note">Selecione até 12 equipamentos. A folha A4 será organizada em 3 colunas × 4 linhas, com todas as etiquetas no mesmo tamanho.</div>
+        <div class="stage17-tag-batch-list">${assets.map(asset => `<label class="stage17-tag-batch-item"><input class="stage17-select-check" type="checkbox" value="${escapeHtml(asset.id)}" ${selected.has(asset.id)?"checked":""} onchange="stage17UpdateBatchCounter()"><span><strong>${escapeHtml(asset.code || "SEM TAG")} · ${escapeHtml(asset.name || "Equipamento")}</strong><span>${escapeHtml(assetQrLocation(asset))}</span></span><small>${escapeHtml(asset.status || "Não informado")}</small></label>`).join("")}</div>
+        <div class="toolbar"><span id="stage17TagBatchCounter" class="stage17-note">${selected.size} de 12 selecionado(s)</span><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" id="stage17PrintBatchButton" type="button" onclick="stage17PrintTagBatch()" ${selected.size?"":"disabled"}>Imprimir selecionados</button></div>
+      </div>`, true);
+      stage17UpdateBatchCounter(false);
+    }
+    function stage17UpdateBatchCounter(enforceLimit = true) {
+      const checks = [...document.querySelectorAll('.stage17-tag-batch-list input[type="checkbox"]')], selected = checks.filter(input => input.checked);
+      if (enforceLimit && selected.length > 12) {
+        selected[selected.length - 1].checked = false;
+        showToast("Uma folha A4 comporta no máximo 12 etiquetas.", "warning");
+      }
+      const count = checks.filter(input => input.checked).length, counter = $("stage17TagBatchCounter"), button = $("stage17PrintBatchButton");
+      if (counter) counter.textContent = `${count} de 12 selecionado(s)`;
+      if (button) button.disabled = count === 0;
+    }
+    function stage17PrintTagBatch() {
+      const ids = [...document.querySelectorAll('.stage17-tag-batch-list input[type="checkbox"]:checked')].map(input => input.value).slice(0,12);
+      if (!ids.length) return showToast("Selecione pelo menos um equipamento.", "warning");
+      stage17Ui.identifierPrintIds = new Set(ids);
+      closeModal();
+      printAssetTags(ids);
+    }
     function openAssetQr(assetId) {
       const asset = byId(state.assets, assetId);
       if (!asset) return;
       try {
-        const route = assetQrUrl(assetId);
         openModal(`QR Code e etiqueta · ${asset.code || asset.name}`, `<div class="qr-manager">
           ${equipmentTagMarkup(asset)}
           <p class="qr-manager-intro">Etiqueta industrial pronta para impressão. O QR Code é gerado no próprio navegador, não envia dados a serviços externos e abre somente este equipamento após validar login e permissões.</p>
           <div class="qr-manager-actions">
             <button class="btn primary" type="button" onclick="printAssetTags('${asset.id}')">Imprimir etiqueta</button>
-            <button class="btn" type="button" onclick="downloadQrSvg(assetQrUrl('${asset.id}'),'QR-${qrSafeFileName(asset.code || asset.name)}','QR Code do ativo')">Baixar QR em SVG</button>
           </div>
-          <a class="qr-manager-link" href="${escapeHtml(route)}" target="_blank" rel="noopener">${escapeHtml(route)}</a>
         </div>`, true);
       } catch (error) {
         showToast(error?.message || "Não foi possível gerar o QR Code.", "error");
@@ -29178,7 +29239,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       $("mobileDowntimeForm").addEventListener("submit",event=>{event.preventDefault();if(downtimeSaveLock)return;const assetId=$("mobileDowntimeAsset").value,reason=value("mobileDowntimeReason"),startAt=$("mobileDowntimeStart").value;if(!assetId||!reason||!startAt){showToast("Informe equipamento, início e motivo.");return;}downtimeSaveLock=true;state.downtimes.unshift({id:uid("downtime"),assetId,orderId:$("mobileDowntimeOrder").value,reason,description:value("mobileDowntimeNote")||reason,type:DOWNTIME_TYPES[0],startAt,endAt:"",status:"Ativa",owner:currentTechnicianName(),area:value("mobileDowntimeArea"),impact:$("mobileDowntimeImpact").value,createdAt:Date.now(),updatedAt:Date.now()});saveState();closeModal();render();showToast("Parada registrada.");setTimeout(()=>downtimeSaveLock=false,800);});
     }
     // Etapa 17 — estrutura física, áreas, locais e identificadores
-    const stage17Ui = { areaSearch:"", sectorSearch:"", installationSearch:"", identifierSearch:"", selectedInstallation:"", installationTab:"overview", expanded:new Set() };
+    const stage17Ui = { areaSearch:"", sectorSearch:"", installationSearch:"", identifierSearch:"", identifierPrintIds:new Set(), selectedInstallation:"", installationTab:"overview", expanded:new Set() };
     const STAGE17_IDENTIFIER_TYPES = ["TAG","Patrimônio","Número de série","Código interno","QR Code","RFID"];
     function stage17PlantName(area){ return byId(state.regions,area?.plantId)?.name || byId(state.regions,area?.regionId)?.name || state.regions[0]?.name || "Unidade Industrial 01"; }
     function stage17AreaName(id){ return byId(state.operationalAreas,id)?.name || "Área não informada"; }
@@ -29242,10 +29303,11 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const result=[];(state.assets||[]).forEach(asset=>{const stored=Array.isArray(asset.identifiers)?asset.identifiers:[];stored.forEach(identifier=>result.push({...identifier,assetId:asset.id,asset}));if(asset.code&&!stored.some(i=>normalizeTextKey(i.value)===normalizeTextKey(asset.code)&&i.type==="TAG"&&i.active!==false))result.push({id:`legacy:${asset.id}`,assetId:asset.id,asset,type:"TAG",value:asset.code,main:true,active:true,createdAt:asset.createdAt,legacy:true});});return result;
     }
     function renderStage17Identifiers(){
-      const root=$("stage17IdentifiersRoot");if(!root)return;const query=normalizeTextKey(stage17Ui.identifierSearch),all=stage17AllIdentifiers(),rows=all.filter(item=>!query||normalizeTextKey(`${item.value} ${item.type} ${item.asset.code} ${item.asset.name}`).includes(query));const active=all.filter(i=>i.active!==false).length;
+      const root=$("stage17IdentifiersRoot");if(!root)return;queueMicrotask(stage17EnsureBatchPrintButton);const query=normalizeTextKey(stage17Ui.identifierSearch),all=stage17AllIdentifiers(),rows=all.filter(item=>!query||normalizeTextKey(`${item.value} ${item.type} ${item.asset.code} ${item.asset.name}`).includes(query));const active=all.filter(i=>i.active!==false).length;
       root.innerHTML=`<header class="stage17-head"><div><span class="stage17-eyebrow">IDENTIFICAÇÃO DO PARQUE</span><h1>Identificadores de Ativos</h1><p>TAG identifica o ativo; o local de instalação informa onde ele está fisicamente.</p></div><div class="stage17-actions"><button class="btn primary" onclick="stage17OpenIdentifierForm()">＋ Novo identificador</button></div></header><div class="stage17-summary"><div class="stage17-stat"><span>Identificadores</span><strong>${all.length}</strong><small>${active} ativos</small></div><div class="stage17-stat"><span>TAGs principais</span><strong>${all.filter(i=>i.type==="TAG"&&i.main&&i.active!==false).length}</strong><small>Uma por ativo</small></div><div class="stage17-stat"><span>Ativos identificados</span><strong>${new Set(all.filter(i=>i.active!==false).map(i=>i.assetId)).size}</strong><small>Do total de ${state.assets.length}</small></div><div class="stage17-stat"><span>QR Code</span><strong>${all.filter(i=>i.type==="QR Code"&&i.active!==false).length}</strong><small>Reutiliza o QR do ativo</small></div></div><section class="stage17-panel"><div class="stage17-panel-head"><div><h2>Lista de identificadores</h2><p>Valores ativos são únicos em todo o parque.</p></div></div><div class="stage17-filters"><input class="field" value="${escapeHtml(stage17Ui.identifierSearch)}" placeholder="Buscar TAG, código ou ativo" oninput="stage17Ui.identifierSearch=this.value;renderStage17Identifiers()"><select class="field" onchange="stage17Ui.identifierSearch=this.value;renderStage17Identifiers()"><option value="">Todos os tipos</option>${STAGE17_IDENTIFIER_TYPES.map(t=>`<option>${t}</option>`).join("")}</select></div><div class="stage17-table-wrap"><table class="stage17-table"><thead><tr><th>Identificador</th><th>Tipo</th><th>Ativo</th><th>Local atual</th><th>Situação</th><th>Ações</th></tr></thead><tbody>${rows.length?rows.map(i=>`<tr><td><span class="stage17-code">${escapeHtml(i.value)}</span>${i.main?` <span class="stage17-badge main">Principal</span>`:""}</td><td>${escapeHtml(i.type)}</td><td><strong>${escapeHtml(i.asset.name)}</strong><span class="stage17-path">${escapeHtml(i.asset.code)}</span></td><td><span class="stage17-path">${escapeHtml(stage17AssetLocationPath(i.asset))}</span></td><td>${stage17ActiveBadge(i.active===false?"Inativo":"Ativo")}</td><td><div class="stage17-row-actions"><button class="btn" onclick="stage17OpenIdentifierForm('${i.assetId}','${i.id}')">Editar</button>${i.type==="QR Code"||i.type==="TAG"?`<button class="btn" onclick="openAssetQr('${i.assetId}')">QR</button>`:""}<button class="btn" onclick="stage17ToggleIdentifier('${i.assetId}','${i.id}')">${i.active===false?"Reativar":"Inativar"}</button></div></td></tr>`).join(""):`<tr><td colspan="6" class="stage17-empty">Nenhum identificador encontrado.</td></tr>`}</tbody></table></div>${stage17MobileCards(rows,i=>`<article class="stage17-mobile-card"><div class="stage17-mobile-card-head"><div><span class="stage17-code">${escapeHtml(i.value)}</span><strong>${escapeHtml(i.asset.name)}</strong></div>${stage17ActiveBadge(i.active===false?"Inativo":"Ativo")}</div><p>${escapeHtml(i.type)} · ${escapeHtml(stage17AssetLocationPath(i.asset))}</p><div class="stage17-row-actions"><button class="btn" onclick="stage17OpenIdentifierForm('${i.assetId}','${i.id}')">Editar</button>${i.type==="TAG"?`<button class="btn" onclick="openAssetQr('${i.assetId}')">QR</button>`:""}</div></article>`)}</section>`;
     }
-    function renderStage17(){renderStage17Areas();renderStage17Sectors();renderStage17Installations();renderStage17Identifiers();stage17RefreshAssetInstallationSelect();}
+    function stage17EnsureBatchPrintButton(){const root=$("stage17IdentifiersRoot"),actions=root?.querySelector(".stage17-head .stage17-actions");if(!actions||actions.querySelector("[data-stage17-batch-print]"))return;const button=document.createElement("button");button.type="button";button.className="btn";button.dataset.stage17BatchPrint="true";button.textContent="Imprimir etiquetas em lote";button.addEventListener("click",stage17OpenTagBatch);actions.prepend(button);}
+    function renderStage17(){renderStage17Areas();renderStage17Sectors();renderStage17Installations();renderStage17Identifiers();stage17EnsureBatchPrintButton();stage17RefreshAssetInstallationSelect();}
     function stage17ToggleTree(id){stage17Ui.expanded.has(id)?stage17Ui.expanded.delete(id):stage17Ui.expanded.add(id);renderStage17Installations();}
     function stage17ExpandAll(){const all=state.installationStructures||[];if(stage17Ui.expanded.size===all.length)stage17Ui.expanded.clear();else all.forEach(i=>stage17Ui.expanded.add(i.id));renderStage17Installations();}
     function stage17SelectInstallation(id,tab="overview"){stage17Ui.selectedInstallation=id;stage17Ui.installationTab=tab;stage17Ui.expanded.add(id);renderStage17Installations();}
