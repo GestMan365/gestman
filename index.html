@@ -17517,6 +17517,179 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     body.theme-light #map .installation-structure-details > summary {
       color: #29445e !important;
     }
+
+    /* Calendario operacional: leitura mensal convencional */
+    #stage19CalendarRoot .stage19-calendar-shell {
+      gap: 0;
+      border-radius: 18px !important;
+      overflow: hidden !important;
+    }
+    #stage19CalendarRoot .stage19-calendar-head {
+      margin: 10px 12px 0;
+      padding: 10px 12px;
+      border: 1px solid #263d55;
+      border-radius: 12px;
+      background: #0b1a2a;
+    }
+    #stage19CalendarRoot .stage19-calendar-scroll {
+      padding: 0 12px 14px;
+    }
+    #stage19CalendarRoot .stage19-calendar-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(105px, 1fr));
+      min-width: 1040px;
+      gap: 8px;
+      padding: 12px 0 8px;
+    }
+    #stage19CalendarRoot .stage19-calendar-weekdays span {
+      color: #8297ae;
+      font-size: 10px;
+      font-weight: 850;
+      letter-spacing: .08em;
+      text-align: center;
+    }
+    #stage19CalendarRoot .stage19-calendar-weekday {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 30px;
+      color: #8297ae;
+      font-size: 10px;
+      font-weight: 850;
+      letter-spacing: .08em;
+      text-align: center;
+    }
+    #stage19CalendarRoot .stage19-calendar-grid {
+      gap: 8px;
+      padding: 0;
+      background: transparent;
+    }
+    #stage19CalendarRoot .stage19-calendar-day {
+      min-height: 150px;
+      padding: 8px;
+      overflow: hidden;
+      border: 1px solid #263d55;
+      border-radius: 12px;
+      background: #0a1929;
+      box-shadow: 0 4px 12px rgba(0,0,0,.1);
+    }
+    #stage19CalendarRoot .stage19-calendar-day.outside-month { opacity: .48; }
+    #stage19CalendarRoot .stage19-calendar-day.today {
+      border-color: #1d8cff;
+      box-shadow: 0 0 0 2px rgba(29,140,255,.16), 0 5px 14px rgba(0,0,0,.12);
+    }
+    #stage19CalendarRoot .stage19-calendar-date {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-height: 28px;
+      margin-bottom: 6px;
+    }
+    #stage19CalendarRoot .stage19-calendar-date span {
+      display: grid;
+      place-items: center;
+      min-width: 26px;
+      height: 26px;
+      padding: 0 6px;
+      border-radius: 999px;
+      color: #dbe7f3;
+      font-weight: 850;
+    }
+    #stage19CalendarRoot .stage19-calendar-day.today .stage19-calendar-date span {
+      color: #fff;
+      background: #1d8cff;
+    }
+    #stage19CalendarRoot .stage19-calendar-date small {
+      color: #71869e;
+      font-size: 9px;
+    }
+    #stage19CalendarRoot .stage19-month-grid .stage19-calendar-event {
+      min-height: 0 !important;
+      margin-bottom: 5px;
+      padding: 6px 7px !important;
+      border: 1px solid color-mix(in srgb, var(--event,#1d8cff) 45%, #263d55) !important;
+      border-left: 4px solid var(--event,#1d8cff) !important;
+      border-radius: 8px !important;
+      background: color-mix(in srgb, var(--event,#1d8cff) 10%, #0c1b2b) !important;
+      box-shadow: none !important;
+    }
+    #stage19CalendarRoot .stage19-month-grid .stage19-calendar-event > strong {
+      display: block !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      white-space: nowrap !important;
+    }
+    #stage19CalendarRoot .stage19-month-grid .stage19-calendar-event > span { display: none !important; }
+    #stage19CalendarRoot .stage19-month-grid .stage19-calendar-event > small {
+      margin-top: 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap !important;
+    }
+    #stage19CalendarRoot .stage19-calendar-event:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.06);
+    }
+    #stage19CalendarRoot .stage19-calendar-empty {
+      display: block;
+      padding: 12px 4px;
+      color: #60758c;
+      font-size: 10px;
+    }
+    #stage19CalendarRoot .stage19-calendar-more {
+      width: 100%;
+      padding: 5px 7px;
+      border: 0;
+      border-radius: 7px;
+      color: #5caeff;
+      background: transparent;
+      font-size: 10px;
+      font-weight: 800;
+      text-align: left;
+      cursor: pointer;
+    }
+    #stage19CalendarRoot .stage19-calendar-more:hover { background: rgba(29,140,255,.1); }
+    body.theme-light #stage19CalendarRoot .stage19-calendar-shell {
+      border-color: #c8d6e3 !important;
+      background: #fff !important;
+      box-shadow: 0 8px 24px rgba(31,55,81,.08) !important;
+    }
+    body.theme-light #stage19CalendarRoot .stage19-calendar-head {
+      border-color: #cbd8e5 !important;
+      background: #f7fafc !important;
+    }
+    body.theme-light #stage19CalendarRoot :is(.stage19-calendar-weekdays span,.stage19-calendar-weekday) { color: #526981 !important; }
+    body.theme-light #stage19CalendarRoot .stage19-calendar-day {
+      border-color: #d0dce7 !important;
+      background: #fff !important;
+      box-shadow: 0 3px 10px rgba(31,55,81,.05) !important;
+    }
+    body.theme-light #stage19CalendarRoot .stage19-calendar-day.outside-month {
+      background: #f5f8fb !important;
+      opacity: .65;
+    }
+    body.theme-light #stage19CalendarRoot .stage19-calendar-day.today {
+      border-color: #1684ea !important;
+      background: #f5faff !important;
+      box-shadow: 0 0 0 2px rgba(22,132,234,.12), 0 4px 12px rgba(31,55,81,.08) !important;
+    }
+    body.theme-light #stage19CalendarRoot .stage19-calendar-date span { color: #17314b !important; }
+    body.theme-light #stage19CalendarRoot .stage19-calendar-day.today .stage19-calendar-date span {
+      color: #fff !important;
+      background: #167fe5 !important;
+    }
+    body.theme-light #stage19CalendarRoot :is(.stage19-calendar-date small,.stage19-calendar-empty) { color: #60758c !important; }
+    body.theme-light #stage19CalendarRoot .stage19-month-grid .stage19-calendar-event {
+      color: #17314b !important;
+      background: color-mix(in srgb, var(--event,#167fe5) 9%, #fff) !important;
+    }
+    body.theme-light #stage19CalendarRoot .stage19-month-grid .stage19-calendar-event :is(strong,small) { color: #29445e !important; }
+    body.theme-light #stage19CalendarRoot .stage19-calendar-more { color: #0b6fae !important; }
+    body.theme-light #stage19CalendarRoot .stage19-calendar-more:hover { background: #eaf4fc !important; }
+    @media(max-width:650px) {
+      #stage19CalendarRoot .stage19-calendar-weekdays { display: none !important; }
+    }
   </style></head>
 <body class="auth-loading auth-restoring">
   <script id="design-theme-bootstrap">
@@ -29205,7 +29378,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       state.resources.forEach(resource=>stage19ResourceUnavailability(resource).forEach(item=>{const start=stage19Date(item.startAt),end=stage19Date(item.endAt);if(start&&end)events.push({id:`unavailability:${resource.id}:${item.id}`,kind:"Indisponibilidade",sourceId:item.id,start,end,title:item.type,assetId:"",teamId:resource.teamId||"",resourceId:resource.id,responsible:resource.name,status:"Indisponibilidade",priority:"—",note:item.reason||item.note||""});}));
       state.downtimes.filter(item=>normalizeTextKey(item.type).includes("planej")||normalizeTextKey(item.status).includes("planej")).forEach(item=>{const start=stage19Date(item.startAt),end=stage19Date(item.endAt)||new Date(start?.getTime()+3600000);if(start)events.push({id:`downtime:${item.id}`,kind:"Parada planejada",sourceId:item.id,start,end,title:item.reason||"Parada planejada",assetId:item.assetId,teamId:item.teamId||"",resourceId:"",responsible:item.owner||"Sem responsável",status:"Planejada",priority:item.impact||"Média"});});return events;
     }
-    function stage19CalendarRange(){const anchor=stage19Date(stage19Ui.calendarAnchor)||new Date(),mode=stage19Ui.calendarMode||((window.matchMedia&&window.matchMedia("(max-width:650px)").matches)?"list":"week");if(mode==="day"){const start=new Date(anchor);start.setHours(0,0,0,0);return{start,end:stage19AddDays(start,1),days:[start],label:start.toLocaleDateString("pt-BR",{weekday:"long",day:"2-digit",month:"long"})};}if(mode==="month"){const first=new Date(anchor.getFullYear(),anchor.getMonth(),1),start=stage19StartOfWeek(first),days=Array.from({length:42},(_,i)=>stage19AddDays(start,i));return{start,end:stage19AddDays(start,42),days,label:anchor.toLocaleDateString("pt-BR",{month:"long",year:"numeric"})};}const start=stage19StartOfWeek(anchor),length=mode==="list"?30:7,days=Array.from({length},(_,i)=>stage19AddDays(start,i));return{start,end:stage19AddDays(start,length),days,label:`${start.toLocaleDateString("pt-BR")} – ${stage19AddDays(start,length-1).toLocaleDateString("pt-BR")}`};}
+    function stage19CalendarRange(){const anchor=stage19Date(stage19Ui.calendarAnchor)||new Date(),mode=stage19Ui.calendarMode||((window.matchMedia&&window.matchMedia("(max-width:650px)").matches)?"list":"month");if(mode==="day"){const start=new Date(anchor);start.setHours(0,0,0,0);return{start,end:stage19AddDays(start,1),days:[start],label:start.toLocaleDateString("pt-BR",{weekday:"long",day:"2-digit",month:"long"})};}if(mode==="month"){const first=new Date(anchor.getFullYear(),anchor.getMonth(),1),start=stage19StartOfWeek(first),days=Array.from({length:42},(_,i)=>stage19AddDays(start,i));return{start,end:stage19AddDays(start,42),days,label:anchor.toLocaleDateString("pt-BR",{month:"long",year:"numeric"})};}const start=stage19StartOfWeek(anchor),length=mode==="list"?30:7,days=Array.from({length},(_,i)=>stage19AddDays(start,i));return{start,end:stage19AddDays(start,length),days,label:`${start.toLocaleDateString("pt-BR")} – ${stage19AddDays(start,length-1).toLocaleDateString("pt-BR")}`};}
     function stage19EventAreaId(event){const asset=byId(state.assets,event.assetId),installation=stage17AssetInstallation(asset),sector=byId(state.sectorsLocations,installation?.sectorLocationId);return sector?.operationalAreaId||"";}
     function stage19EventUnit(event){return byId(state.teams,event.teamId)?.unit||byId(state.resources,event.resourceId)?.unit||"Unidade Industrial 01";}
     function stage19EventSpecialty(event){return byId(state.teams,event.teamId)?.specialty||byId(state.resources,event.resourceId)?.specialty||"";}
@@ -29213,11 +29386,18 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function stage19CalendarColor(event){if(event.kind==="Indisponibilidade")return"#94a3b8";if(event.kind==="Preventiva")return"#a855f7";if(event.status==="Atrasada")return"#ef4444";if(event.status==="Em execução")return"#f97316";if(event.status==="Concluída")return"#22c55e";return"#1d8cff";}
     function stage19CalendarEventButton(event){return `<button class="stage19-calendar-event" style="--event:${stage19CalendarColor(event)}" onclick="stage19OpenCalendarEvent('${event.id}')"><strong>${escapeHtml(event.start.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}))} · ${escapeHtml(event.title)}</strong><span>${escapeHtml(machineName(event.assetId))} · ${escapeHtml(event.responsible||"Sem responsável")}</span><small>${escapeHtml(event.kind)} · ${escapeHtml(event.status)} · ${escapeHtml(event.priority)}${event.planId?" · origem preventiva":""}</small></button>`;}
     function stage19SetCalendarMode(mode){stage19Ui.calendarMode=mode;renderStage19Calendar();}
-    function stage19ShiftCalendar(direction){const anchor=stage19Date(stage19Ui.calendarAnchor)||new Date(),mode=stage19Ui.calendarMode||"week",amount=mode==="day"?1:mode==="month"?30:mode==="list"?30:7;stage19Ui.calendarAnchor=stage19DateKey(stage19AddDays(anchor,direction*amount));renderStage19Calendar();}
+    function stage19ShiftCalendar(direction){const anchor=stage19Date(stage19Ui.calendarAnchor)||new Date(),mode=stage19Ui.calendarMode||"month";if(mode==="month"){anchor.setDate(1);anchor.setMonth(anchor.getMonth()+direction);stage19Ui.calendarAnchor=stage19DateKey(anchor);}else{const amount=mode==="day"?1:mode==="list"?30:7;stage19Ui.calendarAnchor=stage19DateKey(stage19AddDays(anchor,direction*amount));}renderStage19Calendar();}
+    function stage19OpenCalendarDay(dateKey){stage19Ui.calendarAnchor=dateKey;stage19Ui.calendarMode="day";renderStage19Calendar();}
     function stage19ClearCalendarFilters(){Object.assign(stage19Ui,{calendarTeam:"",calendarResource:"",calendarStatus:"",calendarType:"",calendarAsset:"",calendarPriority:"",calendarUnit:"",calendarArea:"",calendarSpecialty:"",calendarSearch:"",calendarMine:false,calendarUnassigned:false});renderStage19Calendar();}
     function stage19CalendarFilterCount(){return [stage19Ui.calendarTeam,stage19Ui.calendarResource,stage19Ui.calendarStatus,stage19Ui.calendarType,stage19Ui.calendarAsset,stage19Ui.calendarPriority,stage19Ui.calendarUnit,stage19Ui.calendarArea,stage19Ui.calendarSpecialty,stage19Ui.calendarSearch,stage19Ui.calendarMine,stage19Ui.calendarUnassigned].filter(Boolean).length;}
     function renderStage19Calendar(){
-      const root=$("stage19CalendarRoot");if(!root)return;if(!stage19Ui.calendarMode)stage19Ui.calendarMode=window.matchMedia&&window.matchMedia("(max-width:650px)").matches?"list":"week";const range=stage19CalendarRange(),events=stage19FilteredCalendarEvents(range),byDay=new Map(range.days.map(day=>[stage19DateKey(day),[]]));events.forEach(event=>{const key=stage19DateKey(event.start);if(byDay.has(key))byDay.get(key).push(event)});const grid=range.days.map(day=>`<div class="stage19-calendar-day ${stage19DateKey(day)===stage19DateKey(new Date())?"today":""}"><strong>${day.toLocaleDateString("pt-BR",{weekday:"short",day:"2-digit",month:"2-digit"})}</strong>${(byDay.get(stage19DateKey(day))||[]).slice(0,6).map(stage19CalendarEventButton).join("")||`<span class="stage19-sub">Sem atividades</span>`}</div>`).join(""),list=events.map(event=>`<article class="stage19-card" onclick="stage19OpenCalendarEvent('${event.id}')"><div class="stage19-card-head"><div><span class="stage19-code">${stage19DateLabel(event.start)}</span><h3>${escapeHtml(event.title)}</h3></div>${stage19Chip(event.status)}</div><p>${escapeHtml(event.kind)} · ${escapeHtml(machineName(event.assetId))}</p><p>${escapeHtml(stage19TeamName(event.teamId))} · ${escapeHtml(event.responsible||"Sem responsável")}</p><div class="stage19-card-foot"><span>${escapeHtml(event.priority)}</span><button class="btn" onclick="event.stopPropagation();stage19OpenCalendarEvent('${event.id}')">Abrir</button></div></article>`).join("");const statuses=[...new Set(stage19CalendarEvents().map(e=>e.status))],types=[...new Set(stage19CalendarEvents().map(e=>e.kind))];
+      const root=$("stage19CalendarRoot");
+      if(!root)return;
+      if(!stage19Ui.calendarMode)stage19Ui.calendarMode=window.matchMedia&&window.matchMedia("(max-width:650px)").matches?"list":"month";
+      const range=stage19CalendarRange(),events=stage19FilteredCalendarEvents(range),byDay=new Map(range.days.map(day=>[stage19DateKey(day),[]]));
+      events.forEach(event=>{const key=stage19DateKey(event.start);if(byDay.has(key))byDay.get(key).push(event)});
+      const monthView=stage19Ui.calendarMode==="month",monthAnchor=stage19Date(stage19Ui.calendarAnchor)||new Date(),weekdayCells=monthView?["SEG","TER","QUA","QUI","SEX","SÁB","DOM"].map(day=>`<span class="stage19-calendar-weekday">${day}</span>`).join(""):"",grid=weekdayCells+range.days.map(day=>{const key=stage19DateKey(day),dayEvents=byDay.get(key)||[],limit=monthView?3:6,outside=monthView&&day.getMonth()!==monthAnchor.getMonth(),dateLabel=monthView?String(day.getDate()):day.toLocaleDateString("pt-BR",{weekday:"short",day:"2-digit",month:"2-digit"}),visible=dayEvents.slice(0,limit).map(stage19CalendarEventButton).join(""),overflow=dayEvents.length>limit?`<button class="stage19-calendar-more" onclick="stage19OpenCalendarDay('${key}')">+${dayEvents.length-limit} atividade(s)</button>`:"",empty=monthView?`<span class="stage19-calendar-empty">Sem eventos</span>`:`<span class="stage19-sub">Sem atividades</span>`;return `<div class="stage19-calendar-day ${key===stage19DateKey(new Date())?"today":""} ${outside?"outside-month":""}"><div class="stage19-calendar-date"><span>${dateLabel}</span>${dayEvents.length?`<small>${dayEvents.length} evento(s)</small>`:""}</div>${visible||empty}${overflow}</div>`;}).join(""),list=events.map(event=>`<article class="stage19-card" onclick="stage19OpenCalendarEvent('${event.id}')"><div class="stage19-card-head"><div><span class="stage19-code">${stage19DateLabel(event.start)}</span><h3>${escapeHtml(event.title)}</h3></div>${stage19Chip(event.status)}</div><p>${escapeHtml(event.kind)} · ${escapeHtml(machineName(event.assetId))}</p><p>${escapeHtml(stage19TeamName(event.teamId))} · ${escapeHtml(event.responsible||"Sem responsável")}</p><div class="stage19-card-foot"><span>${escapeHtml(event.priority)}</span><button class="btn" onclick="event.stopPropagation();stage19OpenCalendarEvent('${event.id}')">Abrir</button></div></article>`).join("");
+      const statuses=[...new Set(stage19CalendarEvents().map(e=>e.status))],types=[...new Set(stage19CalendarEvents().map(e=>e.kind))];
       root.innerHTML=`<header class="stage19-head"><div><span class="stage19-eyebrow">PLANEJAMENTO E DISPONIBILIDADE</span><h1>Calendário Operacional</h1><p>O.S., preventivas, checklists e indisponibilidades em uma única visão sem duplicações.</p></div><div class="stage19-actions">${stage19CanManage()?`<button class="btn" onclick="stage19OpenUnavailability()">Registrar indisponibilidade</button><button class="btn primary" onclick="stage19OpenAssignment()">Atribuir O.S.</button>`:""}</div></header><section class="stage19-panel stage19-calendar-shell"><div class="stage19-filter-panel"><select class="field" onchange="stage19Ui.calendarTeam=this.value;renderStage19Calendar()"><option value="">Todas as equipes</option>${state.teams.map(t=>`<option value="${t.id}" ${stage19Ui.calendarTeam===t.id?"selected":""}>${escapeHtml(t.name)}</option>`).join("")}</select><select class="field" onchange="stage19Ui.calendarResource=this.value;renderStage19Calendar()"><option value="">Todos os responsáveis</option>${state.resources.map(r=>`<option value="${r.id}" ${stage19Ui.calendarResource===r.id?"selected":""}>${escapeHtml(r.name)}</option>`).join("")}</select><select class="field" onchange="stage19Ui.calendarStatus=this.value;renderStage19Calendar()"><option value="">Todos os status</option>${statuses.map(s=>`<option ${stage19Ui.calendarStatus===s?"selected":""}>${escapeHtml(s)}</option>`).join("")}</select><select class="field" onchange="stage19Ui.calendarType=this.value;renderStage19Calendar()"><option value="">Todos os tipos</option>${types.map(s=>`<option ${stage19Ui.calendarType===s?"selected":""}>${escapeHtml(s)}</option>`).join("")}</select><details><summary class="btn">Mais filtros <span class="stage19-filter-count">${stage19CalendarFilterCount()}</span></summary><div style="display:grid;gap:8px;margin-top:8px"><select class="field" onchange="stage19Ui.calendarAsset=this.value;renderStage19Calendar()"><option value="">Todos os equipamentos</option>${state.assets.map(a=>`<option value="${a.id}" ${stage19Ui.calendarAsset===a.id?"selected":""}>${escapeHtml(a.code)} · ${escapeHtml(a.name)}</option>`).join("")}</select><select class="field" onchange="stage19Ui.calendarPriority=this.value;renderStage19Calendar()"><option value="">Todas as prioridades</option>${["Baixa","Média","Alta","Urgente"].map(p=>`<option ${stage19Ui.calendarPriority===p?"selected":""}>${p}</option>`).join("")}</select><select class="field" onchange="stage19Ui.calendarUnit=this.value;renderStage19Calendar()"><option value="">Todas as unidades</option>${[...new Set([...state.teams.map(t=>t.unit),...state.resources.map(r=>r.unit),"Unidade Industrial 01"].filter(Boolean))].sort().map(unit=>`<option value="${escapeHtml(unit)}" ${stage19Ui.calendarUnit===unit?"selected":""}>${escapeHtml(unit)}</option>`).join("")}</select><select class="field" onchange="stage19Ui.calendarArea=this.value;renderStage19Calendar()"><option value="">Todas as áreas</option>${state.operationalAreas.map(area=>`<option value="${area.id}" ${stage19Ui.calendarArea===area.id?"selected":""}>${escapeHtml(area.name)}</option>`).join("")}</select><select class="field" onchange="stage19Ui.calendarSpecialty=this.value;renderStage19Calendar()"><option value="">Todas as especialidades</option>${[...new Set([...state.teams.map(t=>t.specialty),...state.resources.map(r=>r.specialty)].filter(Boolean))].sort().map(s=>`<option value="${escapeHtml(s)}" ${stage19Ui.calendarSpecialty===s?"selected":""}>${escapeHtml(s)}</option>`).join("")}</select><input class="field" value="${escapeHtml(stage19Ui.calendarSearch)}" placeholder="Buscar plano ou O.S." onchange="stage19Ui.calendarSearch=this.value;renderStage19Calendar()"><label><input type="checkbox" ${stage19Ui.calendarMine?"checked":""} onchange="stage19Ui.calendarMine=this.checked;renderStage19Calendar()"> Somente minhas atividades</label><label><input type="checkbox" ${stage19Ui.calendarUnassigned?"checked":""} onchange="stage19Ui.calendarUnassigned=this.checked;renderStage19Calendar()"> Sem responsável</label></div></details><button class="btn" onclick="stage19ClearCalendarFilters()">Limpar filtros</button></div><div class="stage19-calendar-head"><div class="stage19-calendar-modes">${[["day","Dia"],["week","Semana"],["month","Mês"],["list","Lista"]].map(([key,label])=>`<button class="btn ${stage19Ui.calendarMode===key?"active":""}" onclick="stage19SetCalendarMode('${key}')">${label}</button>`).join("")}</div><div class="stage19-calendar-title">${escapeHtml(range.label)}</div><div class="stage19-calendar-nav"><button class="btn" onclick="stage19Ui.calendarAnchor=stage19DateKey(new Date());renderStage19Calendar()">Hoje</button><button class="btn" onclick="stage19ShiftCalendar(-1)">‹</button><button class="btn" onclick="stage19ShiftCalendar(1)">›</button></div></div><div class="stage19-calendar-scroll"><div class="stage19-calendar-grid ${stage19Ui.calendarMode==="month"?"stage19-month-grid":stage19Ui.calendarMode==="day"?"stage19-day-grid":""}" style="${stage19Ui.calendarMode==="list"?"display:none":""}">${grid}</div></div><div class="stage19-calendar-list" style="${stage19Ui.calendarMode==="list"?"display:grid":"display:none"}">${list||`<div class="stage19-empty">Nenhuma atividade programada para este período.</div>`}</div></section>`;
     }
     function stage19OpenCalendarEvent(id){const event=stage19CalendarEvents().find(item=>item.id===id);if(!event)return;const team=byId(state.teams,event.teamId),resource=byId(state.resources,event.resourceId),asset=byId(state.assets,event.assetId),location=byId(state.locations,asset?.locationId);openModal("Atividade operacional",`<div class="stage19-detail-head"><div><span class="stage19-code">${escapeHtml(event.kind)}</span><h2>${escapeHtml(event.title)}</h2><p>${stage19Chip(event.status)} · prioridade ${escapeHtml(event.priority)}</p></div></div><div class="stage19-info-grid" style="margin-top:12px"><div class="stage19-info"><span>Equipamento</span><strong>${escapeHtml(asset?`${asset.code} · ${asset.name}`:"Não informado")}</strong></div><div class="stage19-info"><span>Local</span><strong>${escapeHtml(location?.name||"Não informado")}</strong></div><div class="stage19-info"><span>Equipe</span><strong>${escapeHtml(team?.name||"Sem equipe")}</strong></div><div class="stage19-info"><span>Responsável</span><strong>${escapeHtml(resource?.name||event.responsible||"Sem responsável")}</strong></div><div class="stage19-info"><span>Início</span><strong>${stage19DateLabel(event.start)}</strong></div><div class="stage19-info"><span>Duração prevista</span><strong>${((event.end-event.start)/3600000).toLocaleString("pt-BR")}h</strong></div></div>${event.note?`<div class="stage19-note" style="margin-top:10px">${escapeHtml(event.note)}</div>`:""}<div class="toolbar" style="margin-top:12px">${event.kind==="O.S."?`<button class="btn primary" onclick="closeModal();showOrderDetails('${event.sourceId}')">Abrir O.S.</button>${stage19CanManage()?`<button class="btn" onclick="stage19OpenAssignment('${event.sourceId}')">Reprogramar ou reatribuir</button>`:""}`:event.kind==="Preventiva"?`<button class="btn primary" onclick="closeModal();setView('preventivePlans');openPreventivePlanDetail('${event.sourceId}')">Abrir plano</button>`:event.kind==="Checklist"?`<button class="btn primary" onclick="closeModal();setView('checklists')">Abrir checklist</button>`:event.kind==="Indisponibilidade"?`<button class="btn" onclick="stage19OpenResource('${event.resourceId}','unavailability')">Abrir recurso</button>`:""}</div>`,true);}
