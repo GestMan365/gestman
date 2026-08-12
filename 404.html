@@ -17238,6 +17238,31 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     body.theme-light .modal:has(.stage14-tabs) .stage14-detail-head p {
       color: #60758c !important;
     }
+  </style>
+  <style id="sidebar-version-footer-fix">
+    body:not(.auth-required):not(.auth-loading) .industrial-sidebar-footer.sidebar-version-only {
+      justify-content: center !important;
+      overflow: hidden !important;
+      text-align: center !important;
+    }
+    body:not(.auth-required):not(.auth-loading) .industrial-sidebar-footer.sidebar-version-only small {
+      display: block;
+      max-width: 100%;
+      color: #b8cbd2 !important;
+      white-space: nowrap;
+    }
+    body:not(.auth-required):not(.auth-loading) .industrial-sidebar-footer.sidebar-version-only > :not(small) {
+      display: none !important;
+    }
+    @media (max-width: 900px) {
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) .industrial-sidebar-footer.sidebar-version-only {
+        width: 100% !important;
+        min-width: 100% !important;
+      }
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) .industrial-sidebar-footer.sidebar-version-only small {
+        display: block !important;
+      }
+    }
   </style></head>
 <body class="auth-loading auth-restoring">
   <script id="design-theme-bootstrap">
@@ -17898,9 +17923,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         <div class="nav-group-items"><button class="tab" type="button" data-nav-action="users"><span class="tab-icon"></span><span>Usuários e Permissões</span></button></div>
       </details>
     </div>
-    <footer class="industrial-sidebar-footer" aria-label="Informações do sistema">
-      <span class="sidebar-system-status" title="Sistema operacional"><i aria-hidden="true"></i><span>Sistema operacional</span></span>
-      <small>GestMan365 <b>V.1.00</b></small>
+    <footer class="industrial-sidebar-footer sidebar-version-only" aria-label="Versão do sistema">
+      <small>GestMan <b>V.1.0.0</b></small>
     </footer>
   </nav>
   <main class="workspace">
