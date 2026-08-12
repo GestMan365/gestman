@@ -17263,6 +17263,62 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         display: block !important;
       }
     }
+  </style>
+  <style id="operational-light-icon-fixes">
+    body.theme-light :is(
+      #orders .os-metric-icon,
+      #checklists .checklist-metric i,
+      #measurements .stage15-metric i,
+      #pendingActions .stage14-metric i,
+      #assets .asset-list-icon
+    ).gm-icon-surface {
+      border-color: color-mix(in srgb, var(--gm-icon-accent, #16879a) 32%, #cbd8e5) !important;
+      color: color-mix(in srgb, var(--gm-icon-accent, #16879a) 82%, #17314b) !important;
+      background: color-mix(in srgb, var(--gm-icon-accent, #16879a) 11%, #ffffff) !important;
+      background-image: none !important;
+      box-shadow: none !important;
+      filter: none !important;
+    }
+    body.theme-light :is(
+      #orders .os-metric-icon,
+      #checklists .checklist-metric i,
+      #measurements .stage15-metric i,
+      #pendingActions .stage14-metric i,
+      #assets .asset-list-icon
+    ).gm-icon-surface::before {
+      border: 0 !important;
+      background: none !important;
+    }
+    body.theme-light :is(
+      #orders .os-metric-icon,
+      #checklists .checklist-metric i,
+      #measurements .stage15-metric i,
+      #pendingActions .stage14-metric i,
+      #assets .asset-list-icon
+    ).gm-icon-surface .gm-icon-rendered {
+      color: inherit !important;
+      filter: none !important;
+    }
+    body.theme-light #assets .asset-row-actions > summary {
+      border-color: #c4d3e1 !important;
+      color: #27445f !important;
+      background: #f4f8fb !important;
+      box-shadow: none !important;
+    }
+    body.theme-light #assets .asset-row-actions[open] > summary,
+    body.theme-light #assets .asset-row-actions > summary:hover {
+      border-color: #16879a !important;
+      color: #0b6f7e !important;
+      background: #e5f4f6 !important;
+    }
+    body.theme-light #assets .asset-row-actions > div button {
+      color: #27445f !important;
+      background: transparent !important;
+    }
+    body.theme-light #assets .asset-row-actions > div button:hover {
+      color: #0b6fae !important;
+      background: #eef5fb !important;
+    }
   </style></head>
 <body class="auth-loading auth-restoring">
   <script id="design-theme-bootstrap">
