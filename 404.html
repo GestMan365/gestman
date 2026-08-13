@@ -17719,9 +17719,13 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       try {
         const savedTheme = localStorage.getItem("gestman365-theme");
         const initialTheme = savedTheme === "light" ? "light" : "dark";
-        document.body.classList.toggle("theme-light", initialTheme === "light");
-        document.documentElement.dataset.gmTheme = initialTheme;
-        document.documentElement.style.colorScheme = initialTheme;
+        const publicDarkSurface = document.body.classList.contains("auth-loading")
+          || /\/(cadastrar-empresa)\/?$/.test(window.location.pathname)
+          || window.location.hash === "#cadastrar-empresa";
+        const renderedTheme = publicDarkSurface ? "dark" : initialTheme;
+        document.body.classList.toggle("theme-light", renderedTheme === "light");
+        document.documentElement.dataset.gmTheme = renderedTheme;
+        document.documentElement.style.colorScheme = renderedTheme;
       } catch {
         document.body.classList.remove("theme-light");
         document.documentElement.dataset.gmTheme = "dark";
@@ -22462,9 +22466,11 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     function applyTheme(theme = currentTheme, options = {}) {
       currentTheme = theme === "light" ? "light" : "dark";
-      document.body.classList.toggle("theme-light", currentTheme === "light");
-      document.documentElement.dataset.gmTheme = currentTheme;
-      document.documentElement.style.colorScheme = currentTheme;
+      const publicDarkSurface = !currentAccount || isCompanyRequestRoute();
+      const renderedTheme = publicDarkSurface ? "dark" : currentTheme;
+      document.body.classList.toggle("theme-light", renderedTheme === "light");
+      document.documentElement.dataset.gmTheme = renderedTheme;
+      document.documentElement.style.colorScheme = renderedTheme;
       try { localStorage.setItem(THEME_KEY, currentTheme); } catch {}
       if (currentAccount) scopedSetItem(THEME_KEY, currentTheme, "user");
       const button = $("themeBtn");
@@ -22477,7 +22483,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         if (label) label.textContent = isLight ? "Claro" : "Escuro";
       }
       const themeMeta = document.querySelector('meta[name="theme-color"]');
-      if (themeMeta) themeMeta.content = currentTheme === "light" ? "#ffffff" : "#081727";
+      if (themeMeta) themeMeta.content = renderedTheme === "light" ? "#ffffff" : "#081727";
       if (!options.silent && typeof showToast === "function") showToast(`Modo ${currentTheme === "light" ? "claro" : "escuro"} ativado.`);
       return currentTheme;
     }

@@ -41,6 +41,7 @@ test("bloqueio de envio concorrente", has(html, "gmCompanyRequestSubmitting", "b
 test("estado de sucesso", has(html, "companyRequestSuccess", "Solicita&ccedil;&atilde;o registrada no painel GestMan365"));
 test("confirmacao explicita apos envio", has(html, "Solicita&ccedil;&atilde;o enviada com sucesso!", 'aria-live="polite"', "successPanel.scrollIntoView"));
 test("mesmo fundo e logo do login", has(html, "body.company-request-route .auth-screen{display:flex!important", "companyRequestLogoHost", "#authScreen .auth-logo-img"));
+test("login e cadastro publico permanecem no modo escuro", has(html, 'const publicDarkSurface = document.body.classList.contains("auth-loading")', 'const publicDarkSurface = !currentAccount || isCompanyRequestRoute()', 'const renderedTheme = publicDarkSurface ? "dark" : currentTheme'));
 test("textos publicos sem codificacao quebrada", !html.slice(html.indexOf('<section class="company-request-screen"'), html.indexOf('<header class="topbar')).match(/Ãƒ|Ã§|Ã£|Ã¡|â†|âœ/));
 test("layout responsivo", has(html, "@media(max-width:900px)", "@media(max-width:600px)", ".company-request-form"));
 test("rotas administrativas", has(html, "admin/solicitacoes", "admin/empresas", "platformRequests", "platformCompanies"));
