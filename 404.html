@@ -28550,12 +28550,19 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function openOrderMoreActions() {
       openModal("Mais ações de O.S", `<div class="os-detail-list"><button class="os-detail-list-item" type="button" onclick="closeModal();setView('calendar')"><strong>Calendário operacional</strong><span>›</span></button><button class="os-detail-list-item" type="button" onclick="closeModal();setView('preventivePlans')"><strong>Programação preventiva</strong><span>›</span></button><button class="os-detail-list-item" type="button" onclick="closeModal();setView('reports')"><strong>Relatórios de manutenção</strong><span>›</span></button></div>`);
     }
-    function orderActionButtons(order) {
+    function baseOrderActionButtons(order) {
       const key = normalizeTextKey(order.status);
       const closed = isClosedOrder(order.status) || key.includes("cancel");
       const paused = key.includes("paus");
       const running = isRunningOrder(order.status);
       return `${!closed && !running && !paused ? `<button class="btn primary mobile-primary" type="button" onclick="confirmStartOrder('${order.id}')">Iniciar serviço</button>` : ""}${running ? `<button class="btn mobile-primary" type="button" onclick="changeOrderOperationalStatus('${order.id}','Pausada')">Pausar</button><button class="btn primary mobile-primary" type="button" onclick="finishOrder('${order.id}')">Concluir</button>` : ""}${paused ? `<button class="btn primary mobile-primary" type="button" onclick="changeOrderOperationalStatus('${order.id}','Em execucao')">Retomar</button>` : ""}${!closed ? `<button class="btn" type="button" onclick="editOrder('${order.id}')">Editar</button><button class="btn danger" type="button" onclick="cancelOrder('${order.id}')">Cancelar</button>` : `<span class="muted">O.S encerrada — disponível somente para consulta.</span>`}<button class="btn mobile-qr" type="button" onclick="openOrderQr('${order.id}')">QR Code</button><button class="btn mobile-close" type="button" onclick="selectedOrderId=null;render()">Fechar</button>`;
+    }
+    function orderAdminDeleteButton(order) {
+      if (!order || !isAdminUser()) return "";
+      return `<button class="btn danger" type="button" onclick="deleteOrder('${order.id}')">Excluir O.S.</button>`;
+    }
+    function orderActionButtons(order) {
+      return `${baseOrderActionButtons(order)}${orderAdminDeleteButton(order)}`;
     }
     const mobileOrderActionLocks = new Set();
     async function changeOrderOperationalStatus(id, status) {
@@ -33085,13 +33092,71 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       state.assets = state.assets.map(asset => asset.subtagId === id ? { ...asset, subtagId: "" } : asset);
       saveState(); render(); showToast("Subtag excluída.");
     }
+    function orderRecordReferences(value, orderId, seen = new Set()) {
+      if (!value || typeof value !== "object") return false;
+      if (seen.has(value)) return false;
+      seen.add(value);
+      if (Array.isArray(value)) return value.some(item => orderRecordReferences(item, orderId, seen));
+      const targetId = String(orderId || "");
+      const entries = Object.entries(value);
+      const compact = text => normalizeTextKey(text).replace(/[^a-z0-9]/g, "");
+      const directReference = entries.some(([key, nested]) => {
+        const normalizedKey = compact(key);
+        return (normalizedKey.endsWith("orderid") || normalizedKey === "ordemservicoid" || normalizedKey === "osid")
+          && String(nested || "") === targetId;
+      });
+      if (directReference) return true;
+      const relationKinds = [value.type, value.entityType, value.kind, value.view, value.originType, value.sourceType].map(compact);
+      const isOrderRelation = relationKinds.some(kind => ["os", "orders", "ordemservico", "ordemdeservico", "workorder"].includes(kind));
+      if (isOrderRelation) {
+        const relationIds = [value.id, value.entityId, value.recordId, value.referenceId, value.targetId, value.originId, value.sourceId];
+        if (relationIds.some(referenceId => String(referenceId || "") === targetId)) return true;
+      }
+      return entries.some(([, nested]) => orderRecordReferences(nested, orderId, seen));
+    }
+    function orderDeletionLinks(orderId) {
+      const labels = {
+        checklistExecutions: ["execução de checklist", "execuções de checklist"],
+        downtimes: ["parada operacional", "paradas operacionais"],
+        pendingActions: ["ação pendente", "ações pendentes"],
+        maintenanceJournal: ["registro no diário", "registros no diário"],
+        materialRequests: ["solicitação de material", "solicitações de material"],
+        inventoryMovements: ["movimentação de estoque", "movimentações de estoque"],
+        toolLoans: ["empréstimo de ferramenta", "empréstimos de ferramentas"],
+        measurements: ["medição", "medições"],
+        documents: ["documento", "documentos"],
+        suppliers: ["serviço de fornecedor", "serviços de fornecedores"]
+      };
+      return Object.entries(state).flatMap(([collection, records]) => {
+        if (collection === "orders" || !Array.isArray(records)) return [];
+        const count = records.filter(record => orderRecordReferences(record, orderId)).length;
+        if (!count) return [];
+        const names = labels[collection] || [`registro em ${collection}`, `registros em ${collection}`];
+        return [{ collection, count, label: names[count === 1 ? 0 : 1] }];
+      });
+    }
+    function orderDeletionLinkSummary(links) {
+      return links.map(link => `${link.count} ${link.label}`).join("; ");
+    }
     function editOrder(id) {
       if (!namedOperationAllowed("editOrder", "orders", "manage", [id])) return denyProfileAccess();
       const item = byId(state.orders, id); if (!item) return;
       openOrderModal(item.assetId, item.id);
     }
-    async function deleteOrder(id, ask = true) {
+    async function baseDeleteOrder(id, ask = true) {
+      if (!isAdminUser()) {
+        showBlockingMessage("Exclusão restrita", "Somente administradores podem excluir Ordens de Serviço.");
+        return;
+      }
       if (!namedOperationAllowed("deleteOrder", "orders", "manage", [id, ask])) return denyProfileAccess();
+      const order = byId(state.orders, id);
+      if (!order) return;
+      const links = orderDeletionLinks(id);
+      if (links.length) {
+        const total = links.reduce((sum, link) => sum + link.count, 0);
+        showBlockingMessage("Exclusão bloqueada", `A O.S. ${order.number || "selecionada"} possui ${total} vínculo(s): ${orderDeletionLinkSummary(links)}. Remova os vínculos correspondentes ou mantenha a O.S. no histórico operacional.`);
+        return;
+      }
       if (ask) {
         requestDestructiveConfirmation("Excluir esta Ordem de Serviço?", "A O.S. será removida do cadastro e deixará de aparecer no histórico operacional.", "Excluir O.S.", () => deleteOrder(id, false));
         return;
@@ -33101,6 +33166,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       state.orders = state.orders.filter(item => item.id !== id);
       saveState(); render();
       showToast("O.S excluída.");
+    }
+    async function deleteOrder(id, ask = true) {
+      return baseDeleteOrder(id, ask);
     }
     async function startOrder(id, executorName = "") {
       if (!namedOperationAllowed("startOrder", "orders", "operate", [id, executorName])) return denyProfileAccess();
