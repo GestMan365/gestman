@@ -35407,6 +35407,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (!response.ok) {
         const error = new Error(payload?.error || "Não foi possível enviar a solicitação.");
         error.code = payload?.code || String(response.status);
+        error.traceId = payload?.trace_id || "";
         throw error;
       }
       return payload;
@@ -35507,9 +35508,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           ? "J\u00e1 existe uma solicita\u00e7\u00e3o ou empresa cadastrada para este CNPJ."
           : error.code === "22023"
             ? String(error.message || "Os dados informados n\u00e3o s\u00e3o v\u00e1lidos. Revise os campos e tente novamente.")
-            : String(error.message || "").includes("configurado")
-              ? error.message
-              : "N\u00e3o foi poss\u00edvel enviar agora. Revise os dados e tente novamente.";
+            : String(error.message || "N\u00e3o foi poss\u00edvel enviar agora. Revise os dados e tente novamente.");
+        if (error.traceId) status.textContent += ` Protocolo: ${error.traceId}.`;
         status.scrollIntoView({ behavior:"smooth", block:"center" });
       } finally { gmCompanyRequestSubmitting = false; button.disabled = false; button.textContent = "Enviar para an\u00e1lise"; }
     }

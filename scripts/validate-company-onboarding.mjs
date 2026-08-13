@@ -54,6 +54,8 @@ test("visitante sem SELECT/UPDATE/DELETE", has(migration, "revoke all on public.
 test("cadastro publico apenas por RPC", has(migration, "gm_submit_company_request", "grant execute on function public.gm_submit_company_request(jsonb) to anon"));
 test("validacao de e-mail corrigida no banco", has(emailValidationMigration, "create or replace function public.gm_submit_company_request", "'^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$'") && !emailValidationMigration.includes("[A-Z0-9.\\\\-]"));
 test("formulario envia pela Edge Function segura", has(html, 'gmPublicFunction("submit-company-request", data)', "/functions/v1/${name}") && !html.includes('gmPublicRpc("gm_submit_company_request"'));
+test("envio publico usa RPC segura sem SELECT direto bloqueado", has(submitEdge, '"gm_submit_company_request"', '"gm_consume_public_rate_limit"') && !/\.from\("(?:company_requests|gm_companies)"\)\s*\.select/i.test(submitEdge));
+test("falha publica preserva mensagem e protocolo do servidor", has(html, "error.traceId = payload?.trace_id", "Protocolo: ${error.traceId}"));
 test("envio ao painel independe do servico de e-mail", has(submitEdge, "panel_registered: true", "if (!RESEND_API_KEY || !EMAIL_FROM)"));
 test("atualizacao do painel sem recarregar autenticacao", has(html, "refreshPlatformRequests(event,this)", "async function refreshPlatformRequests", "Painel atualizado sem sair da administração."));
 test("destinatario de teste somente no servidor", submitEdge.includes('andsantos15@hotmail.com') && !html.includes('andsantos15@hotmail.com'));

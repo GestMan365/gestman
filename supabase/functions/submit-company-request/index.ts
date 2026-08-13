@@ -228,32 +228,6 @@ Deno.serve(async (req) => {
   const serviceClient = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
-  const [requestLookup, companyLookup] = await Promise.all([
-    serviceClient
-      .from("company_requests")
-      .select("id")
-      .eq("cnpj", data.cnpj)
-      .in("status", ["pending", "reviewing", "approved", "converted"])
-      .limit(1),
-    serviceClient
-      .from("gm_companies")
-      .select("id")
-      .eq("cnpj", data.cnpj)
-      .limit(1),
-  ]);
-  if (requestLookup.error || companyLookup.error) {
-    console.error("company_request_idempotency_lookup_failed", { requestId: traceId });
-    return respond(503, {
-      error: "Não foi possível verificar a solicitação agora. Tente novamente em alguns instantes.",
-    });
-  }
-  if (requestLookup.data?.length || companyLookup.data?.length) {
-    return respond(409, {
-      error: "Já existe uma solicitação ou empresa cadastrada para este CNPJ.",
-      code: "GM_REQUEST_EXISTS",
-    });
-  }
-
   const rateKey = await sha256(
     `submit-company-request:v1:${requestOriginSignal(req)}`,
   );
@@ -284,11 +258,17 @@ Deno.serve(async (req) => {
   });
   if (insertError) {
     const duplicate = insertError.code === "23505";
+    console.error("company_request_insert_failed", {
+      requestId: traceId,
+      code: insertError.code ?? "unknown",
+    });
     return respond(duplicate ? 409 : 422, {
       error: duplicate
         ? "Já existe uma solicitação ou empresa cadastrada para este CNPJ."
-        : "Não foi possível registrar a solicitação.",
-      code: insertError.code ?? "",
+        : insertError.code === "22023"
+          ? "Os dados informados não foram aceitos. Revise os campos e tente novamente."
+          : "Não foi possível registrar a solicitação agora. Tente novamente em alguns instantes.",
+      code: duplicate ? "GM_REQUEST_EXISTS" : insertError.code ?? "",
     });
   }
 
