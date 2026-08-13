@@ -19236,8 +19236,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           </div>
           <form class="ai-form" id="aiForm">
             <label>Pergunta <textarea class="field" id="aiQuestion" placeholder="Ex: QUAIS O.S ESTÃO EM EXECUÇÃO"></textarea></label>
-            <button class="btn primary" type="submit">Perguntar IA</button>
-            <div class="side-box"><strong>Base da IA</strong><span id="aiScopeText">Somente dados registrados no sistema.</span></div>
+            <button class="btn primary" id="aiSubmitBtn" type="submit">Perguntar IA</button>
+            <div class="side-box"><strong>Base da IA</strong><span id="aiScopeText">Somente dados internos autorizados. Sem consulta à internet.</span></div>
           </form>
         </div>
       </div>
@@ -25770,6 +25770,25 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (q.includes("equipamento") || q.includes("equip")) return state.assets.length ? state.assets.map(asset => `${asset.code} - ${asset.name} | ${locationName(asset.locationId)} | ${asset.status}`).join("\n") : "NENHUM EQUIPAMENTO CADASTRADO.";
       if (q.includes("resumo") || q.includes("geral")) return `RESUMO DO SISTEMA:\nO.S TOTAL: ${counts.total}\nABERTAS: ${counts.abertas}\nEM EXECUÇÃO: ${counts.execucao}\nCONCLUÍDAS: ${counts.concluidas}\nEQUIPAMENTOS: ${state.assets.length}\nREGIÕES: ${state.regions.length}\nLOCAIS DE INSTALAÇÃO: ${state.locations.length}\nPEÇAS ABAIXO DO MÍNIMO: ${lowStockItems().length}`;
       return `TENHO DADOS DO SISTEMA SOBRE ${state.assets.length} EQUIPAMENTOS, ${state.regions.length} REGIÕES, ${state.locations.length} LOCAIS DE INSTALAÇÃO, ${state.orders.length} ORDENS DE SERVIÇO E ${lowStockItems().length} PEÇAS ABAIXO DO MÍNIMO. PERGUNTE POR O.S ABERTAS, EM EXECUÇÃO, EXECUTANTE, ESTOQUE MÍNIMO, MTTR, MTBF, DISPONIBILIDADE, REGIÃO, LOCAL OU EQUIPAMENTO.`;
+    }
+    let aiQueryPending = false;
+    async function askSystemAi(question) {
+      const cleanQuestion = String(question || "").trim();
+      if (!cleanQuestion) throw new Error("Digite uma pergunta sobre os dados do GestMan365.");
+      try {
+        const result = await gmAuthenticatedFunction("ai-gestman", { question:cleanQuestion });
+        if (!result?.answer) throw new Error("A IA não retornou uma resposta válida.");
+        if ($("aiScopeText")) $("aiScopeText").textContent = "OpenAI protegida no servidor · somente dados internos autorizados · sem internet.";
+        return String(result.answer);
+      } catch (error) {
+        const code = String(error?.code || "");
+        const message = String(error?.message || "");
+        const localFallback = ["404", "AI_NOT_CONFIGURED", "AI_BACKEND_NOT_CONFIGURED"].includes(code)
+          || /not found|não foi encontrada|ainda não foi (configurada|ativada)/i.test(message);
+        if (!localFallback) throw error;
+        if ($("aiScopeText")) $("aiScopeText").textContent = "Modo local seguro · somente regras e dados carregados do GestMan365 · sem internet.";
+        return `${answerSystemAi(cleanQuestion)}\n\nMODO LOCAL SEGURO: a IA conversacional ainda não foi ativada no servidor.`;
+      }
     }
     function statusKey(status = "") {
       return String(status).normalize("NFD").replace(/[\u0300-\u036f?]/g, "").toLowerCase();
@@ -34210,9 +34229,21 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       calendarViewDate = new Date();
       renderCalendar();
     });
-    $("aiForm").addEventListener("submit", event => {
+    $("aiForm").addEventListener("submit", async event => {
       event.preventDefault();
-      $("aiAnswer").textContent = ptBrText(answerSystemAi($("aiQuestion").value));
+      if (aiQueryPending) return;
+      const button = $("aiSubmitBtn");
+      aiQueryPending = true;
+      if (button) { button.disabled = true; button.textContent = "Consultando..."; }
+      $("aiAnswer").textContent = "CONSULTANDO SOMENTE OS DADOS AUTORIZADOS DO GESTMAN365...";
+      try {
+        $("aiAnswer").textContent = ptBrText(await askSystemAi($("aiQuestion").value));
+      } catch (error) {
+        $("aiAnswer").textContent = ptBrText(error?.message || "A IA está temporariamente indisponível. Tente novamente.");
+      } finally {
+        aiQueryPending = false;
+        if (button) { button.disabled = false; button.textContent = "Perguntar IA"; }
+      }
     });
     $("aiRefreshBtn").addEventListener("click", () => {
       renderAssistantSummary();

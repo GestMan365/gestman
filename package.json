@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc --noEmit -p tsconfig.json && vite build",
     "preview": "vite preview",
+    "test:ai:static": "node scripts/validate-ai-gestman.mjs",
     "test:e2e:official": "playwright test -c playwright.official.config.ts",
     "test:e2e:official:headed": "playwright test -c playwright.official.config.ts --headed"
   },
