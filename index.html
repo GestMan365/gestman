@@ -18140,6 +18140,115 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     body.theme-light:not(.auth-required):not(.auth-loading) .reference-topbar .reference-user-chevron {
       color: #8eb0c8 !important;
     }
+    /* Área segura uniforme para títulos e ações em todos os módulos. */
+    body:not(.auth-required):not(.auth-loading) :is(
+      [class$="-page-head"],
+      [class*="-page-head "],
+      .industrial-dashboard-heading,
+      .stage14-head,
+      .stage15-head,
+      .stage16-head,
+      .stage17-head,
+      .stage18-head,
+      .stage19-head,
+      .stage20-head,
+      .s16-head
+    ) {
+      box-sizing: border-box !important;
+      min-height: 86px !important;
+      padding: 18px 20px !important;
+      gap: 20px !important;
+    }
+    body:not(.auth-required):not(.auth-loading) :is(
+      [class$="-page-head"],
+      [class*="-page-head "],
+      .industrial-dashboard-heading,
+      .stage14-head,
+      .stage15-head,
+      .stage16-head,
+      .stage17-head,
+      .stage18-head,
+      .stage19-head,
+      .stage20-head,
+      .s16-head
+    ) > :first-child {
+      min-width: 0 !important;
+      margin: 0 !important;
+    }
+    body:not(.auth-required):not(.auth-loading) :is(
+      [class$="-page-head"],
+      [class*="-page-head "],
+      .industrial-dashboard-heading,
+      .stage14-head,
+      .stage15-head,
+      .stage16-head,
+      .stage17-head,
+      .stage18-head,
+      .stage19-head,
+      .stage20-head,
+      .s16-head
+    ) :is(
+      .os-page-actions,
+      .preventive-head-actions,
+      .checklist-head-actions,
+      .stage14-head-actions,
+      .stage15-head-actions,
+      .stage16-head-actions,
+      .stage17-head-actions,
+      .stage18-head-actions,
+      .stage19-head-actions,
+      .stage20-head-actions,
+      .s16-head-actions,
+      .industrial-heading-actions
+    ) {
+      align-self: center !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      gap: 9px !important;
+      flex-wrap: wrap !important;
+    }
+    body:not(.auth-required):not(.auth-loading) :is(
+      .industrial-card-head,
+      .maintenance-agenda-head,
+      .panel-head,
+      .modal-head,
+      .materials-list-head,
+      .checklist-list-head,
+      .preventive-list-head,
+      .stage14-list-head,
+      .stage15-list-head,
+      .stage16-list-head,
+      .stage17-list-head,
+      .stage18-list-head,
+      .stage19-list-head,
+      .stage20-list-head,
+      .s16-panel-head,
+      .asset-tab-toolbar,
+      .os-detail-head
+    ) {
+      box-sizing: border-box !important;
+      padding-left: 16px !important;
+      padding-right: 16px !important;
+    }
+    @media (max-width: 900px) {
+      body:not(.auth-required):not(.auth-loading) :is(
+        [class$="-page-head"],
+        [class*="-page-head "],
+        .industrial-dashboard-heading,
+        .stage14-head,
+        .stage15-head,
+        .stage16-head,
+        .stage17-head,
+        .stage18-head,
+        .stage19-head,
+        .stage20-head,
+        .s16-head
+      ) {
+        min-height: 76px !important;
+        padding: 15px 16px !important;
+        gap: 14px !important;
+      }
+    }
     /* Navegação lateral: títulos livres e controles posicionados sem sobreposição. */
     @media (min-width: 901px) {
       body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) .industrial-sidebar-brand {
