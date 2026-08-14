@@ -24787,22 +24787,11 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           date,
           title: plan.name || "Manutenção preventiva",
           subtitle: `${machineName(plan.assetId) || "Plano preventivo"} · ${date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`,
-          color: "#22c55e",
+          color: "#1d8cff",
           duration: 1.5,
           action: "setView('preventivePlans')"
         });
       });
-      const currentStart = industrialAgendaMonday(new Date());
-      if (!events.length && calendarDateKey(start) === calendarDateKey(currentStart)) {
-        const demo = [
-          { day:0, hour:8, minute:0, duration:1, title:"Lubrificação Redutor", subtitle:"M-102 · 08:00–09:00", color:"#22c55e" },
-          { day:0, hour:10, minute:0, duration:1.5, title:"Inspeção Elétrica", subtitle:"PA-03 · 10:00–11:30", color:"#1d8cff" },
-          { day:2, hour:12, minute:30, duration:1.5, title:"Análise Vibracional", subtitle:"CB-01 · 12:30–14:00", color:"#f97316" },
-          { day:0, hour:14, minute:30, duration:2, title:"Troca de Rolamento", subtitle:"TR-05 · 14:30–16:30", color:"#1d8cff" },
-          { day:4, hour:15, minute:0, duration:1, title:"Calibração Instrumentos", subtitle:"IN-07 · 15:00–16:00", color:"#1d8cff" }
-        ];
-        events = demo.map(item => { const date = new Date(start); date.setDate(start.getDate() + item.day); date.setHours(item.hour, item.minute, 0, 0); return { ...item, date, action: "setView('calendar')" }; });
-      }
       const dayHeaders = days.map(date => `<div class="maintenance-agenda-day ${calendarDateKey(date) === todayKey ? "today" : ""}"><span>${escapeHtml(date.toLocaleDateString("pt-BR", { weekday: "short" }).replace(".", ""))}</span><strong>${date.getDate()}</strong></div>`).join("");
       const slots = Array.from({ length: 20 }, (_, row) => Array.from({ length: 7 }, (_, day) => `<div class="maintenance-agenda-slot ${row % 4 === 3 ? "major" : ""}" style="grid-column:${day + 2};grid-row:${row + 1}"></div>`).join("")).join("");
       const timeLabels = [8,10,12,14,16].map(hour => `<div class="maintenance-agenda-time" style="grid-column:1;grid-row:${(hour - 8) * 2 + 1}">${String(hour).padStart(2, "0")}:00</div>`).join("");
@@ -24813,7 +24802,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         const span = Math.max(2, Math.min(20 - startSlot, Math.round(Number(event.duration || 1) * 2)));
         return `<button class="maintenance-agenda-event" type="button" onclick="${event.action}" style="--agenda-color:${event.color};grid-column:${day + 2};grid-row:${startSlot + 1}/span ${span}" title="${escapeHtml(event.title)}"><strong>${escapeHtml(event.title)}</strong><span>${escapeHtml(event.subtitle)}</span></button>`;
       }).join("");
-      target.innerHTML = `<div class="maintenance-agenda-days"><div></div>${dayHeaders}</div><div class="maintenance-agenda-grid">${slots}${timeLabels}${eventBlocks || `<div class="maintenance-agenda-empty">Nenhuma manutenção programada nesta semana.</div>`}</div>`;
+      target.innerHTML = `<div class="maintenance-agenda-days"><div></div>${dayHeaders}</div><div class="maintenance-agenda-grid">${slots}${timeLabels}${eventBlocks || `<div class="maintenance-agenda-empty">Nenhuma manutenção registrada nesta semana.</div>`}</div>`;
     }
     function renderIndustrialLatestOrders() {
       const target = $("industrialLatestOrders"); if (!target) return;
