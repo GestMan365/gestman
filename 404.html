@@ -18069,6 +18069,82 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       border-color: #bfd5e7 !important;
       box-shadow: none !important;
     }
+    /* Navegação lateral: títulos livres e controles posicionados sem sobreposição. */
+    @media (min-width: 901px) {
+      body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) .industrial-sidebar-brand {
+        height: 100px !important;
+        min-height: 100px !important;
+        flex: 0 0 100px !important;
+        padding: 8px 10px 9px !important;
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+        grid-template-rows: 48px 30px !important;
+        align-content: center !important;
+        align-items: center !important;
+        justify-items: stretch !important;
+        gap: 5px !important;
+      }
+      body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) .industrial-sidebar-brand > .brand-logo-img,
+      body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) .industrial-sidebar-brand .sidebar-logo-frame {
+        grid-row: 1 !important;
+        justify-self: center !important;
+      }
+      body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) .industrial-sidebar-brand .nav-toggle-btn {
+        grid-row: 2 !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        height: 30px !important;
+        min-height: 30px !important;
+        margin: 0 !important;
+        justify-self: stretch !important;
+        border-radius: 8px !important;
+      }
+      body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) .nav :is(.nav-group, .nav-quick-access) > summary {
+        grid-template-columns: minmax(0, 1fr) 24px !important;
+        column-gap: 8px !important;
+        padding-right: 7px !important;
+      }
+      body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) .nav :is(.nav-group, .nav-quick-access) > summary > span:nth-child(2) {
+        grid-column: 1 !important;
+        min-width: 0 !important;
+        padding-right: 3px !important;
+      }
+      body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) .nav :is(.nav-group, .nav-quick-access) > summary > i {
+        grid-column: 2 !important;
+        width: 24px !important;
+        height: 24px !important;
+        margin: 0 !important;
+        display: grid !important;
+        place-items: center !important;
+        justify-self: end !important;
+        position: static !important;
+      }
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) .industrial-sidebar-brand {
+        height: 88px !important;
+        min-height: 88px !important;
+        flex: 0 0 88px !important;
+        padding: 5px 7px 7px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 5px !important;
+      }
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) .industrial-sidebar-brand .nav-toggle-btn {
+        width: 42px !important;
+        min-width: 42px !important;
+        height: 30px !important;
+        min-height: 30px !important;
+        flex: 0 0 30px !important;
+        margin: 0 !important;
+      }
+      .industrial-sidebar-brand .nav-toggle-btn .gm-icon,
+      body.sidebar-collapsed .industrial-sidebar-brand .nav-toggle-btn .gm-icon {
+        width: 18px !important;
+        height: 18px !important;
+        transform: none !important;
+      }
+    }
     @media (max-width: 650px) {
       .nav .tab-icon,
       .nav .nav-group-icon {
@@ -23106,7 +23182,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (hideButton) {
         const icon = hideButton.querySelector("i");
         const label = hideButton.querySelector("span");
-        if (icon) icon.innerHTML = gmIcon("panelLeft", { size:18 });
+        if (icon) icon.innerHTML = gmIcon(isCollapsed ? "arrowRight" : "arrowLeft", { size:18 });
         if (label) label.textContent = isCollapsed ? "Expandir menu" : "Recolher menu";
         hideButton.title = isCollapsed ? "Expandir menu" : "Recolher menu";
         hideButton.setAttribute("aria-label", hideButton.title);
