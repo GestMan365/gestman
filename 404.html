@@ -17869,10 +17869,10 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     .nav .tab-icon,
     .nav .nav-group-icon {
-      width: 28px !important;
-      height: 28px !important;
-      min-width: 28px !important;
-      border-radius: 7px !important;
+      width: 32px !important;
+      height: 32px !important;
+      min-width: 32px !important;
+      border-radius: 8px !important;
       color: #71c9f4 !important;
       background: rgba(31, 151, 214, .07) !important;
       border: 1px solid rgba(71, 167, 220, .16) !important;
@@ -17880,8 +17880,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     .nav .tab-icon .gm-icon,
     .nav .nav-group-icon .gm-icon {
-      width: 18px !important;
-      height: 18px !important;
+      width: 19px !important;
+      height: 19px !important;
     }
     .nav :is(.tab.active, .tab[aria-current="page"]) .tab-icon,
     .nav-group.contains-active > summary .nav-group-icon {
@@ -17892,9 +17892,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     body.sidebar-collapsed .nav .tab-icon,
     body.sidebar-collapsed .nav .nav-group-icon {
-      width: 30px !important;
-      height: 30px !important;
-      min-width: 30px !important;
+      width: 36px !important;
+      height: 36px !important;
+      min-width: 36px !important;
       color: #71c9f4 !important;
       background: rgba(31, 151, 214, .07) !important;
       border-color: rgba(71, 167, 220, .16) !important;
@@ -17902,8 +17902,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     body.sidebar-collapsed .nav .tab-icon .gm-icon,
     body.sidebar-collapsed .nav .nav-group-icon .gm-icon {
-      width: 20px !important;
-      height: 20px !important;
+      width: 21px !important;
+      height: 21px !important;
     }
     .nav :is(.tab, .nav-group > summary, .nav-quick-access > summary):hover :is(.tab-icon, .nav-group-icon) {
       color: #a9e7ff !important;
@@ -18027,6 +18027,39 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       border-color: color-mix(in srgb, var(--gm-icon-accent) 25%, #cbd8e5) !important;
       box-shadow: none !important;
     }
+    /* A árvore lateral permanece uma superfície escura também no tema claro. */
+    body.theme-light .nav :is(.tab-icon, .nav-group-icon) {
+      color: #77d4f6 !important;
+      background: rgba(19, 142, 198, .10) !important;
+      border-color: rgba(84, 190, 232, .30) !important;
+      box-shadow: none !important;
+    }
+    body.theme-light .nav :is(.tab.active, .tab[aria-current="page"]) .tab-icon,
+    body.theme-light .nav-group.contains-active > summary .nav-group-icon {
+      color: #9ce7ff !important;
+      background: rgba(26, 164, 218, .18) !important;
+      border-color: rgba(105, 208, 246, .52) !important;
+    }
+    body.theme-light .nav .nav-favorite-toggle,
+    body.theme-light .nav .nav-toggle-btn {
+      color: #79cceb !important;
+      background: #0a2234 !important;
+      border-color: #28516b !important;
+      box-shadow: none !important;
+    }
+    body.theme-light .nav .nav-favorite-toggle:hover,
+    body.theme-light .nav .nav-favorite-toggle:focus-visible,
+    body.theme-light .nav .nav-toggle-btn:hover,
+    body.theme-light .nav .nav-toggle-btn:focus-visible {
+      color: #b5efff !important;
+      background: #103047 !important;
+      border-color: #4382a5 !important;
+    }
+    body.theme-light .nav .nav-favorite-toggle.is-favorite {
+      color: #47c7ef !important;
+      background: rgba(28, 156, 207, .14) !important;
+      border-color: rgba(79, 194, 235, .42) !important;
+    }
     body.theme-light .gm-icon-rendered {
       filter: none !important;
     }
@@ -18039,9 +18072,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     @media (max-width: 650px) {
       .nav .tab-icon,
       .nav .nav-group-icon {
-        width: 32px !important;
-        height: 32px !important;
-        min-width: 32px !important;
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
       }
       .nav .tab-icon .gm-icon,
       .nav .nav-group-icon .gm-icon {
