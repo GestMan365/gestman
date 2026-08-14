@@ -18361,6 +18361,109 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         min-height: 42px !important;
       }
     }
+    /* Cabeçalho e árvore de módulos permanecem escuros em qualquer tema. */
+    body:not(.auth-required):not(.auth-loading) .reference-topbar {
+      color: #dce9f5 !important;
+      background: #081a2b !important;
+      border-bottom-color: #17334c !important;
+      box-shadow: 0 6px 18px rgba(2, 12, 22, .22) !important;
+    }
+    body:not(.auth-required):not(.auth-loading) .reference-topbar::before {
+      background: linear-gradient(90deg, transparent, rgba(49, 157, 220, .48), transparent) !important;
+    }
+    body:not(.auth-required):not(.auth-loading) .reference-topbar :is(
+      .reference-topbar-heading > strong,
+      #topbarViewTitle,
+      .reference-user-copy strong,
+      .system-theme-toggle .theme-label
+    ) {
+      color: #eef7ff !important;
+    }
+    body:not(.auth-required):not(.auth-loading) .reference-topbar .header-breadcrumb > :is(span:first-child, i),
+    body:not(.auth-required):not(.auth-loading) .reference-topbar .reference-user-copy small {
+      color: #91a9bd !important;
+    }
+    body:not(.auth-required):not(.auth-loading) .reference-topbar .header-breadcrumb > span:last-child {
+      color: #48bff1 !important;
+    }
+    body:not(.auth-required):not(.auth-loading) .reference-topbar :is(
+      .topbar-menu-btn,
+      .reference-icon-button,
+      .system-theme-toggle,
+      .reference-header-user,
+      .header-context-trigger
+    ) {
+      color: #d6e7f5 !important;
+      background: #0d2538 !important;
+      border-color: #27485f !important;
+      box-shadow: none !important;
+    }
+    body:not(.auth-required):not(.auth-loading) .reference-topbar :is(
+      .topbar-menu-btn,
+      .reference-icon-button,
+      .system-theme-toggle,
+      .reference-header-user,
+      .header-context-trigger
+    ):hover {
+      color: #ffffff !important;
+      background: #12324a !important;
+      border-color: #3c708e !important;
+    }
+    body:not(.auth-required):not(.auth-loading) .reference-topbar :is([data-header-icon], .reference-user-chevron) {
+      color: #9fc4da !important;
+    }
+    body:not(.auth-required):not(.auth-loading) .reference-topbar .reference-header-separator {
+      background: rgba(151, 184, 207, .38) !important;
+    }
+    body.theme-light:not(.auth-required):not(.auth-loading) .nav {
+      color: #d7e4f0 !important;
+      background:
+        radial-gradient(circle at 45% -7%, rgba(38, 132, 255, .20), transparent 26%),
+        linear-gradient(180deg, #081a2b 0, var(--gm-bg-sidebar) 42%, #06111e 100%) !important;
+      border-right-color: #17334c !important;
+      box-shadow: 12px 0 34px rgba(0, 0, 0, .20) !important;
+    }
+    body.theme-light:not(.auth-required):not(.auth-loading) :is(.industrial-sidebar-brand, .sidebar-mobile-head) {
+      color: #d7e4f0 !important;
+      background: #071726 !important;
+      border-color: #17334c !important;
+    }
+    body.theme-light:not(.auth-required):not(.auth-loading) .industrial-sidebar-scroll {
+      color: #d7e4f0 !important;
+      background: transparent !important;
+      border-color: #17334c !important;
+    }
+    body.theme-light:not(.auth-required):not(.auth-loading) .nav :is(.tab, .nav-group > summary, .nav-quick-access > summary) {
+      color: #b7c8d8 !important;
+      background: transparent !important;
+      border-color: transparent !important;
+    }
+    body.theme-light:not(.auth-required):not(.auth-loading) .nav :is(.tab, .nav-group > summary, .nav-quick-access > summary) > span {
+      color: inherit !important;
+    }
+    body.theme-light:not(.auth-required):not(.auth-loading) .nav :is(.tab, .nav-group > summary, .nav-quick-access > summary):hover {
+      color: #ffffff !important;
+      background: rgba(64, 135, 198, .10) !important;
+      border-color: rgba(89, 158, 219, .18) !important;
+    }
+    body.theme-light:not(.auth-required):not(.auth-loading) .nav :is(.tab.active, .tab[aria-current="page"]),
+    body.theme-light:not(.auth-required):not(.auth-loading) .nav .nav-group.contains-active > summary {
+      color: #ffffff !important;
+      background: linear-gradient(90deg, rgba(38, 132, 255, .25), rgba(38, 132, 255, .07)) !important;
+      border-color: rgba(76, 154, 255, .30) !important;
+      box-shadow: inset 3px 0 #36a3ff, 0 6px 16px rgba(0, 0, 0, .12) !important;
+    }
+    body.theme-light:not(.auth-required):not(.auth-loading) .nav .nav-section-label {
+      color: #70889f !important;
+    }
+    body.theme-light:not(.auth-required):not(.auth-loading) .industrial-sidebar-footer {
+      color: #8298ac !important;
+      background: rgba(2, 11, 20, .48) !important;
+      border-color: #17334c !important;
+    }
+    body.theme-light:not(.auth-required):not(.auth-loading) .industrial-sidebar-footer :is(span, small, b) {
+      color: #a8bdcf !important;
+    }
   </style></head>
 <body class="auth-loading auth-restoring">
   <script id="design-theme-bootstrap">
