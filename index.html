@@ -13398,6 +13398,70 @@
       border: 0;
       box-shadow: none;
     }
+    .company-brand-form {
+      margin-top: 16px;
+      border-top: 1px solid var(--im-border);
+      padding-top: 16px;
+    }
+    .company-brand-intro {
+      display: grid;
+      gap: 5px;
+      grid-column: 1 / -1;
+    }
+    .company-brand-intro strong {
+      color: var(--im-text);
+      font-size: 16px;
+    }
+    .company-brand-intro span {
+      color: var(--im-muted);
+      line-height: 1.5;
+    }
+    .company-logo-manager {
+      display: grid;
+      grid-template-columns: minmax(180px, 260px) minmax(0, 1fr);
+      align-items: center;
+      gap: 16px;
+      grid-column: 1 / -1;
+      border: 1px solid var(--im-border);
+      border-radius: var(--im-radius);
+      padding: 14px;
+      background: var(--im-surface-soft);
+    }
+    .company-logo-preview {
+      display: grid;
+      place-items: center;
+      min-height: 118px;
+      border: 1px dashed var(--im-border-strong);
+      border-radius: 10px;
+      padding: 12px;
+      color: var(--im-muted);
+      background: #fff;
+      text-align: center;
+    }
+    .company-logo-preview img {
+      display: block;
+      width: 100%;
+      max-width: 220px;
+      height: 92px;
+      object-fit: contain;
+    }
+    .company-logo-controls {
+      display: grid;
+      gap: 10px;
+      min-width: 0;
+    }
+    .company-logo-controls p {
+      margin: 0;
+      color: var(--im-muted);
+      line-height: 1.5;
+    }
+    .company-brand-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+      grid-column: 1 / -1;
+    }
     .gm-settings-placeholder {
       display: grid;
       gap: 8px;
@@ -13544,6 +13608,12 @@
       .gm-settings-appearance {
         align-items: stretch;
         flex-direction: column;
+      }
+      .company-logo-manager {
+        grid-template-columns: 1fr;
+      }
+      .company-brand-actions .btn {
+        flex: 1 1 180px;
       }
     }
     @media (prefers-reduced-motion: reduce) {
@@ -16956,6 +17026,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     .equipment-tag-body{display:flex;min-width:0;flex-direction:column}
     .equipment-tag-brand{display:flex;align-items:center;gap:2mm;padding-bottom:2mm;border-bottom:1px solid #d8e2ec}
     .equipment-tag-brand img{display:block;width:auto;max-width:35mm;height:8mm;object-fit:contain;object-position:left center;filter:brightness(0) saturate(100%);opacity:.88}
+    .equipment-tag-brand img.company-document-logo.is-company-logo{filter:none;opacity:1}
     .equipment-tag-kind{margin-left:auto;color:#1768aa;font-size:7pt;font-weight:900;letter-spacing:.08em}
     .equipment-tag-code{margin-top:2.5mm;color:#075b9f;font:900 12pt/1.1 Arial,sans-serif;overflow-wrap:anywhere}
     .equipment-tag-name{margin-top:1mm;color:#07111f;font:800 10pt/1.15 Arial,sans-serif;overflow-wrap:anywhere}
@@ -16974,6 +17045,15 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     .order-qr-grid b{display:block;margin-top:1mm;color:#07111f;font:800 8pt/1.2 Arial,sans-serif;overflow-wrap:anywhere}
     .order-qr-grid .order-qr-wide{grid-column:1/-1}
     .order-qr-scan{margin-top:auto;padding-top:2mm;color:#526779;font:700 7pt/1.2 Arial,sans-serif}
+    .company-document-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 13px;border-bottom:1px solid #d8e2ec;background:#fff;color:#07111f}
+    .company-document-logo{display:block;max-width:100%;max-height:54px;object-fit:contain;object-position:left center}
+    .company-document-logo.is-system-logo{filter:brightness(0) saturate(100%);opacity:.88}
+    .company-document-header img{display:block;width:auto;max-width:190px;height:54px;object-fit:contain;object-position:left center}
+    .company-document-header img.is-system-logo{filter:brightness(0) saturate(100%);opacity:.88}
+    .company-document-header div{min-width:0;text-align:right}
+    .company-document-header strong,.company-document-header span{display:block}
+    .company-document-header strong{font:800 13px/1.25 Arial,sans-serif}
+    .company-document-header span{margin-top:3px;color:#526779;font:600 10px/1.3 Arial,sans-serif}
     #qrPrintSheet{display:none}
     body.theme-light .qr-manager{color:#0f2741}
     body.theme-light .qr-manager-intro{color:#52677e}
@@ -19943,8 +20023,136 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         name: user?.name || "Administrador",
         role: isAdminUser(user) ? "Administrador" : "Usuário",
         email: user?.email || "",
-        photo: user?.photo || ""
+        photo: user?.photo || "",
+        companyLogo: "",
+        companyLogoName: "",
+        companyLogoUpdatedAt: ""
       };
+    }
+    const COMPANY_LOGO_INPUT_LIMIT = 3 * 1024 * 1024;
+    const COMPANY_LOGO_STORED_LIMIT = 700 * 1024;
+    const COMPANY_LOGO_FALLBACK = "assets/ui/illustrations/gestman365-logo.png";
+    let pendingCompanyLogoData = "";
+    let pendingCompanyLogoName = "";
+    function isCompanyLogoDataUrl(value) {
+      return /^data:image\/(?:png|jpeg|webp);base64,[a-z0-9+/=\s]+$/i.test(String(value || ""));
+    }
+    function companyLogoData() {
+      const value = String(state?.profile?.companyLogo || "");
+      return isCompanyLogoDataUrl(value) && value.length <= COMPANY_LOGO_STORED_LIMIT * 1.4 ? value : "";
+    }
+    function companyDocumentLogoMarkup(alt = "Logo da empresa") {
+      const customLogo = companyLogoData();
+      const source = customLogo || COMPANY_LOGO_FALLBACK;
+      const logoClass = customLogo ? "is-company-logo" : "is-system-logo";
+      return `<img class="company-document-logo ${logoClass}" src="${source}" alt="${escapeHtml(alt)}">`;
+    }
+    function companyDocumentHeaderMarkup(title = "Documento") {
+      const companyName = currentAccount?.company?.name || "Empresa";
+      return `<div class="company-document-header">${companyDocumentLogoMarkup(`Logo de ${companyName}`)}<div><strong>${escapeHtml(companyName)}</strong><span>${escapeHtml(title)}</span></div></div>`;
+    }
+    function mountCompanyReportPrintHeader() {
+      if (!document.body.classList.contains("stage16-printing")) return;
+      const panel = document.querySelector("#reports .s16-report-result .s16-panel");
+      if (!panel || panel.querySelector("[data-company-print-header]")) return;
+      const wrapper = document.createElement("div");
+      wrapper.dataset.companyPrintHeader = "true";
+      const title = panel.querySelector(".s16-panel-head strong")?.textContent || "Relatório";
+      wrapper.innerHTML = companyDocumentHeaderMarkup(title);
+      panel.prepend(wrapper);
+    }
+    function removeCompanyReportPrintHeader() {
+      document.querySelectorAll("[data-company-print-header]").forEach(element => element.remove());
+    }
+    window.addEventListener("beforeprint", mountCompanyReportPrintHeader);
+    window.addEventListener("afterprint", removeCompanyReportPrintHeader);
+    function companyLogoPreviewMarkup(data = companyLogoData()) {
+      return data
+        ? `<img src="${data}" alt="Prévia da logo da empresa">`
+        : `<span>Nenhuma logo da empresa cadastrada.<br>A marca GestMan365 será usada como padrão nos documentos.</span>`;
+    }
+    function blobAsDataUrl(blob) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ""));
+        reader.onerror = () => reject(new Error("Não foi possível ler a imagem selecionada."));
+        reader.readAsDataURL(blob);
+      });
+    }
+    function canvasAsBlob(canvas, type, quality) {
+      return new Promise(resolve => canvas.toBlob(resolve, type, quality));
+    }
+    async function prepareCompanyLogoFile(file) {
+      const issue = stage21AllowedFile(file, {
+        maxBytes:COMPANY_LOGO_INPUT_LIMIT,
+        types:["image/png", "image/jpeg", "image/webp"],
+        extensions:["png", "jpg", "jpeg", "webp"]
+      });
+      if (issue) throw new Error(issue);
+      const originalData = await blobAsDataUrl(file);
+      const image = await new Promise((resolve, reject) => {
+        const candidate = new Image();
+        candidate.onload = () => resolve(candidate);
+        candidate.onerror = () => reject(new Error("O arquivo selecionado não é uma imagem válida."));
+        candidate.src = originalData;
+      });
+      const scale = Math.min(1, 900 / Math.max(1, image.naturalWidth), 360 / Math.max(1, image.naturalHeight));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+      canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+      const context = canvas.getContext("2d");
+      if (!context) throw new Error("Não foi possível preparar a logo da empresa.");
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      let blob = await canvasAsBlob(canvas, "image/png");
+      if (blob && blob.size > COMPANY_LOGO_STORED_LIMIT) blob = await canvasAsBlob(canvas, "image/webp", .88);
+      if (!blob || blob.size > COMPANY_LOGO_STORED_LIMIT) throw new Error("A logo continua muito grande após a otimização. Use uma imagem mais simples.");
+      const data = await blobAsDataUrl(blob);
+      if (!isCompanyLogoDataUrl(data)) throw new Error("Não foi possível validar a logo otimizada.");
+      return data;
+    }
+    async function handleCompanyLogoFile(event) {
+      const input = event.currentTarget;
+      const file = input.files?.[0];
+      if (!file) return;
+      input.disabled = true;
+      try {
+        pendingCompanyLogoData = await prepareCompanyLogoFile(file);
+        pendingCompanyLogoName = String(file.name || "logo-da-empresa").slice(0, 180);
+        if ($("companyLogoPreview")) $("companyLogoPreview").innerHTML = companyLogoPreviewMarkup(pendingCompanyLogoData);
+        showToast("Logo preparada. Clique em Salvar logo da empresa para confirmar.");
+      } catch (error) {
+        input.value = "";
+        showToast(error?.message || "Não foi possível preparar a logo da empresa.", "warning");
+      } finally {
+        input.disabled = false;
+      }
+    }
+    function clearPendingCompanyLogo() {
+      pendingCompanyLogoData = "";
+      pendingCompanyLogoName = "";
+      if ($("companyLogoFile")) $("companyLogoFile").value = "";
+      if ($("companyLogoPreview")) $("companyLogoPreview").innerHTML = companyLogoPreviewMarkup("");
+    }
+    async function saveCompanyBrandFromForm(event) {
+      event.preventDefault();
+      if (!isAdminUser()) return denyProfileAccess();
+      const submitButton = event.submitter;
+      if (submitButton) submitButton.disabled = true;
+      state.profile = {
+        ...(state.profile || defaultProfileForAccount()),
+        companyLogo:pendingCompanyLogoData,
+        companyLogoName:pendingCompanyLogoName,
+        companyLogoUpdatedAt:Date.now()
+      };
+      saveState();
+      const saved = await gmPersistState(true);
+      if (submitButton) submitButton.disabled = false;
+      if (!saved) return;
+      stage21WriteAudit({ module:"Configurações", action:pendingCompanyLogoData ? "Logo da empresa atualizada" : "Logo da empresa removida", record:currentAccount?.company?.name || "empresa", result:"Sucesso" });
+      closeModal();
+      render();
+      showToast(pendingCompanyLogoData ? "Logo da empresa salva e aplicada aos documentos." : "Logo da empresa removida. A marca padrão será usada nos documentos.");
     }
     function tenantRemoteSyncEnabled() {
       return currentAccount?.company?.remoteSync === true;
@@ -20688,6 +20896,15 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     function normalizeState(raw) {
       const normalized = { ...emptyState(), ...raw };
+      const rawProfile = normalized.profile && typeof normalized.profile === "object" ? normalized.profile : {};
+      const normalizedCompanyLogo = String(rawProfile.companyLogo || "");
+      normalized.profile = {
+        ...defaultProfileForAccount(),
+        ...rawProfile,
+        companyLogo:isCompanyLogoDataUrl(normalizedCompanyLogo) && normalizedCompanyLogo.length <= COMPANY_LOGO_STORED_LIMIT * 1.4 ? normalizedCompanyLogo : "",
+        companyLogoName:String(rawProfile.companyLogoName || "").slice(0, 180),
+        companyLogoUpdatedAt:Number(rawProfile.companyLogoUpdatedAt || 0) || ""
+      };
       normalized.regions = Array.isArray(normalized.regions) ? normalized.regions : [];
       normalized.locations = Array.isArray(normalized.locations) ? normalized.locations : [];
       normalized.tags = Array.isArray(normalized.tags) ? normalized.tags : [];
@@ -28761,7 +28978,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       return `<article class="equipment-tag" data-asset-tag="${escapeHtml(asset.id)}">
         <div class="equipment-tag-qr">${qrSvgMarkup(route, `QR Code do ativo ${asset.code || asset.name}`)}</div>
         <div class="equipment-tag-body">
-          <div class="equipment-tag-brand"><img src="assets/ui/illustrations/gestman365-logo.png" alt="GestMan365"><span class="equipment-tag-kind">ATIVO</span></div>
+          <div class="equipment-tag-brand">${companyDocumentLogoMarkup("Logo da empresa")}<span class="equipment-tag-kind">ATIVO</span></div>
           <div class="equipment-tag-code">${escapeHtml(asset.code || "SEM TAG")}</div>
           <div class="equipment-tag-name">${escapeHtml(asset.name || "Equipamento")}</div>
           <div class="equipment-tag-meta">
@@ -28809,7 +29026,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       return `<article class="order-qr-card" data-order-qr="${escapeHtml(order.id)}">
         <div class="order-qr-code">${qrSvgMarkup(route, `QR Code da ordem ${order.number || "de serviço"}`)}</div>
         <div class="order-qr-copy">
-          <div class="equipment-tag-brand"><img src="assets/ui/illustrations/gestman365-logo.png" alt="GestMan365"><span class="equipment-tag-kind">ORDEM DE SERVIÇO</span></div>
+          <div class="equipment-tag-brand">${companyDocumentLogoMarkup("Logo da empresa")}<span class="equipment-tag-kind">ORDEM DE SERVIÇO</span></div>
           <h3>${escapeHtml(order.number || "O.S.")}</h3>
           <strong>${escapeHtml(orderTitle(order))}</strong>
           <div class="order-qr-grid">
@@ -30746,9 +30963,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       root.querySelectorAll(".is-loading,[aria-busy='true']").forEach(element => element.setAttribute("aria-busy", "true"));
       root.querySelectorAll(".calendar-status-legend i").forEach(icon => icon.setAttribute("aria-hidden", "true"));
     }
-    function phase3SettingsPlaceholder(title, description) {
-      return `<div class="gm-settings-placeholder gm-system-state" data-state="empty"><strong>${escapeHtml(title)}</strong><span>${escapeHtml(description)}</span></div>`;
-    }
     function switchPhase3SettingsPanel(panel) {
       const shell = $("gmSettingsShell");
       if (!shell) return;
@@ -30766,17 +30980,10 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       });
       shell.dataset.activePanel = available;
     }
-    function updatePhase3AppearancePanel() {
-      const label = $("gmSettingsThemeValue");
-      if (label) label.textContent = currentTheme === "light" ? "Tema claro" : "Tema escuro";
-    }
-    function togglePhase3SettingsTheme() {
-      toggleSystemTheme();
-      updatePhase3AppearancePanel();
-    }
     function mountPhase3Settings(initialPanel = "company") {
       const body = $("genericBody");
       const profile = $("profileForm");
+      const companyBrand = $("companyBrandForm");
       if (!body || !profile || $("gmSettingsShell")) return;
       const users = body.querySelector(".tenant-user-admin");
       const shell = document.createElement("div");
@@ -30787,31 +30994,17 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           <strong>Configurações</strong>
           <button type="button" role="tab" data-settings-target="company" onclick="switchPhase3SettingsPanel('company')">Empresa e perfil</button>
           ${users ? `<button type="button" role="tab" data-settings-target="users" onclick="switchPhase3SettingsPanel('users')">Usuários e acessos</button>` : ""}
-          <button type="button" role="tab" data-settings-target="maintenance" onclick="switchPhase3SettingsPanel('maintenance')">Manutenção</button>
-          <button type="button" role="tab" data-settings-target="orders" onclick="switchPhase3SettingsPanel('orders')">Ordens de Serviço</button>
-          <button type="button" role="tab" data-settings-target="stock" onclick="switchPhase3SettingsPanel('stock')">Estoque</button>
-          <button type="button" role="tab" data-settings-target="notifications" onclick="switchPhase3SettingsPanel('notifications')">Notificações</button>
-          <button type="button" role="tab" data-settings-target="appearance" onclick="switchPhase3SettingsPanel('appearance')">Aparência</button>
-          <button type="button" role="tab" data-settings-target="integrations" onclick="switchPhase3SettingsPanel('integrations')">Integrações</button>
-          <button type="button" role="tab" data-settings-target="security" onclick="switchPhase3SettingsPanel('security')">Segurança</button>
         </nav>
         <div class="gm-settings-content">
-          <section class="gm-settings-panel" data-settings-panel="company" role="tabpanel"><header class="gm-settings-panel-head"><h2>Empresa e perfil</h2><p>Dados visíveis da empresa e preferências do usuário atual.</p></header><div data-settings-host="company"></div></section>
+          <section class="gm-settings-panel" data-settings-panel="company" role="tabpanel"><header class="gm-settings-panel-head"><h2>Empresa e perfil</h2><p>Dados do usuário atual e identidade documental da empresa.</p></header><div data-settings-host="company"></div></section>
           ${users ? `<section class="gm-settings-panel" data-settings-panel="users" role="tabpanel" hidden><header class="gm-settings-panel-head"><h2>Usuários e acessos</h2><p>Gerencie o vínculo com esta empresa sem confundir o acesso empresarial com o status global.</p></header><div data-settings-host="users"></div></section>` : ""}
-          <section class="gm-settings-panel" data-settings-panel="maintenance" role="tabpanel" hidden>${phase3SettingsPlaceholder("Manutenção", "As regras permanecem nos módulos de planos preventivos, checklists e medições.")}</section>
-          <section class="gm-settings-panel" data-settings-panel="orders" role="tabpanel" hidden>${phase3SettingsPlaceholder("Ordens de Serviço", "Nenhuma configuração adicional está disponível nesta versão. O fluxo atual foi preservado.")}</section>
-          <section class="gm-settings-panel" data-settings-panel="stock" role="tabpanel" hidden>${phase3SettingsPlaceholder("Estoque", "Parâmetros de peças, almoxarifados e movimentações continuam em seus módulos de origem.")}</section>
-          <section class="gm-settings-panel" data-settings-panel="notifications" role="tabpanel" hidden>${phase3SettingsPlaceholder("Notificações", "Os alertas operacionais atuais continuam ativos, sem novas preferências nesta etapa.")}</section>
-          <section class="gm-settings-panel" data-settings-panel="appearance" role="tabpanel" hidden><header class="gm-settings-panel-head"><h2>Aparência</h2><p>Alterne o tema sem alterar dados ou regras do sistema.</p></header><div class="gm-settings-appearance"><div><strong id="gmSettingsThemeValue">Tema atual</strong><p class="muted">A preferência é mantida para o usuário atual.</p></div><button class="btn" type="button" onclick="togglePhase3SettingsTheme()">Alternar tema</button></div></section>
-          <section class="gm-settings-panel" data-settings-panel="integrations" role="tabpanel" hidden>${phase3SettingsPlaceholder("Integrações", "Nenhuma integração foi criada ou alterada nesta fase visual.")}</section>
-          <section class="gm-settings-panel" data-settings-panel="security" role="tabpanel" hidden><header class="gm-settings-panel-head"><h2>Segurança</h2><p>Visão administrativa dos controles já existentes.</p></header><div id="stage21SecurityRoot"></div></section>
         </div>
       `;
       body.append(shell);
       shell.querySelector('[data-settings-host="company"]')?.append(profile);
+      if (companyBrand) shell.querySelector('[data-settings-host="company"]')?.append(companyBrand);
       if (users) shell.querySelector('[data-settings-host="users"]')?.append(users);
       $("genericTitle").textContent = "Configurações e acessos";
-      updatePhase3AppearancePanel();
       switchPhase3SettingsPanel(initialPanel === "users" && users ? "users" : initialPanel);
       standardizeUiComponents(shell);
     }
@@ -30867,6 +31060,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       removeAutomaticPermissionTestUsers();
       const user = currentAccount?.user || {};
       const userPhoto = user.photo || "";
+      pendingCompanyLogoData = companyLogoData();
+      pendingCompanyLogoName = String(state.profile?.companyLogoName || "");
       openModal("Perfil do usuário", `
         <form class="form" id="profileForm">
           <label>Empresa <input class="field" value="${escapeHtml(currentAccount?.company?.name || "")}" disabled></label>
@@ -30878,6 +31073,19 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           <div class="full side-box"><strong>Prévia</strong><span id="profilePreview">${userPhoto ? `<img src="${userPhoto}" style="width:72px;height:72px;border-radius:999px;object-fit:cover">` : "Sem foto cadastrada"}</span></div>
           <div class="full toolbar profile-session-actions"><button class="btn primary" type="submit">Salvar perfil</button><button class="btn danger" type="button" onclick="logoutTenantUser()">Sair da conta</button></div>
         </form>
+        ${isAdminUser() ? `
+          <form class="form company-brand-form" id="companyBrandForm">
+            <div class="company-brand-intro"><strong>Logo da empresa nos documentos</strong><span>Esta marca será usada nas fichas de O.S., etiquetas de ativos e relatórios impressos. O logo do sistema e a tela de login não serão alterados.</span></div>
+            <div class="company-logo-manager">
+              <div class="company-logo-preview" id="companyLogoPreview">${companyLogoPreviewMarkup(pendingCompanyLogoData)}</div>
+              <div class="company-logo-controls">
+                <label>Selecionar logo da empresa<input class="field" id="companyLogoFile" type="file" accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp"></label>
+                <p>Formatos permitidos: PNG, JPG e WebP. A imagem é redimensionada e validada antes de ser salva para esta empresa.</p>
+              </div>
+            </div>
+            <div class="company-brand-actions"><button class="btn" id="removeCompanyLogo" type="button">Remover logo cadastrada</button><button class="btn primary" type="submit">Salvar logo da empresa</button></div>
+          </form>
+        ` : ""}
         ${isAdminUser() ? `
           <div class="panel profile-admin-users tenant-user-admin">
             <div class="panel-head">
@@ -30947,6 +31155,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         ` : ""}
       `, true);
       mountPhase3Settings(initialPanel);
+      $("companyLogoFile")?.addEventListener("change", handleCompanyLogoFile);
+      $("removeCompanyLogo")?.addEventListener("click", clearPendingCompanyLogo);
+      $("companyBrandForm")?.addEventListener("submit", saveCompanyBrandFromForm);
       if ($("profilePhotoFile")) $("profilePhotoFile").addEventListener("change", event => {
         const file = event.target.files?.[0];
         if (!file) return;
@@ -32892,7 +33103,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       return `
         <div style="background:#fff;color:#111;border-radius:6px;padding:18px;min-height:430px">
           <div style="display:flex;align-items:center;gap:20px;border-bottom:2px solid #4055ff;padding-bottom:8px">
-            <div style="background:#ff4b68;color:#fff;padding:12px 18px">GestMan365</div>
+            <div style="width:190px">${companyDocumentLogoMarkup("Logo da empresa")}</div>
             <h2 style="color:#4055b9;margin:0">Compilado de Checklist</h2>
           </div>
           <p><strong>Região:</strong> ${regionName(byId(state.locations, asset.locationId)?.regionId)} &nbsp; <strong>Local:</strong> ${locationShortName(asset.locationId)} &nbsp; <strong>Equipamento:</strong> ${asset.name} - ${asset.code}</p>
