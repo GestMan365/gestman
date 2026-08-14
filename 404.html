@@ -18088,35 +18088,91 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       place-items: center !important;
       line-height: 0 !important;
     }
+    /* O cabeçalho permanece escuro também quando o conteúdo está no modo claro. */
+    body.theme-light:not(.auth-required):not(.auth-loading) .reference-topbar {
+      color: #dce9f5 !important;
+      background: #081a2b !important;
+      border-bottom-color: #17334c !important;
+      box-shadow: 0 6px 18px rgba(2, 12, 22, .22) !important;
+    }
+    body.theme-light:not(.auth-required):not(.auth-loading) .reference-topbar::before {
+      background: linear-gradient(90deg, transparent, rgba(49, 157, 220, .48), transparent) !important;
+    }
+    body.theme-light:not(.auth-required):not(.auth-loading) .reference-topbar :is(
+      .reference-topbar-heading > strong,
+      #topbarViewTitle,
+      .reference-user-copy strong
+    ) {
+      color: #eef7ff !important;
+    }
+    body.theme-light:not(.auth-required):not(.auth-loading) .reference-topbar :is(
+      .header-breadcrumb,
+      .reference-user-copy small
+    ) {
+      color: #91a9bd !important;
+    }
+    body.theme-light:not(.auth-required):not(.auth-loading) .reference-topbar .header-breadcrumb span:last-child {
+      color: #48bff1 !important;
+    }
+    body.theme-light:not(.auth-required):not(.auth-loading) .reference-topbar :is(
+      .topbar-menu-btn,
+      .reference-icon-button,
+      .system-theme-toggle,
+      .reference-header-user,
+      .header-context-trigger
+    ) {
+      color: #d6e7f5 !important;
+      background: #0d2538 !important;
+      border-color: #27485f !important;
+      box-shadow: none !important;
+    }
+    body.theme-light:not(.auth-required):not(.auth-loading) .reference-topbar :is(
+      .topbar-menu-btn,
+      .reference-icon-button,
+      .system-theme-toggle,
+      .reference-header-user,
+      .header-context-trigger
+    ):hover {
+      color: #ffffff !important;
+      background: #12324a !important;
+      border-color: #3c708e !important;
+    }
+    body.theme-light:not(.auth-required):not(.auth-loading) .reference-topbar .reference-user-chevron {
+      color: #8eb0c8 !important;
+    }
     /* Navegação lateral: títulos livres e controles posicionados sem sobreposição. */
     @media (min-width: 901px) {
       body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) .industrial-sidebar-brand {
-        height: 100px !important;
-        min-height: 100px !important;
-        flex: 0 0 100px !important;
-        padding: 8px 10px 9px !important;
-        display: grid !important;
-        grid-template-columns: minmax(0, 1fr) !important;
-        grid-template-rows: 48px 30px !important;
-        align-content: center !important;
+        position: relative !important;
+        height: var(--gm-header-height) !important;
+        min-height: var(--gm-header-height) !important;
+        flex: 0 0 var(--gm-header-height) !important;
+        padding: 8px 10px !important;
+        display: flex !important;
         align-items: center !important;
-        justify-items: stretch !important;
-        gap: 5px !important;
+        justify-content: center !important;
+        gap: 0 !important;
+        border-bottom-color: #17334c !important;
       }
       body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) .industrial-sidebar-brand > .brand-logo-img,
       body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) .industrial-sidebar-brand .sidebar-logo-frame {
-        grid-row: 1 !important;
-        justify-self: center !important;
+        margin: 0 auto !important;
       }
       body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) .industrial-sidebar-brand .nav-toggle-btn {
-        grid-row: 2 !important;
-        width: 100% !important;
+        position: absolute !important;
+        z-index: 4 !important;
+        top: calc(var(--gm-header-height) + 7px) !important;
+        left: 8px !important;
+        right: 8px !important;
+        width: auto !important;
         min-width: 0 !important;
         height: 30px !important;
         min-height: 30px !important;
         margin: 0 !important;
-        justify-self: stretch !important;
         border-radius: 8px !important;
+      }
+      body:not(.auth-required):not(.auth-loading) .industrial-sidebar-scroll {
+        padding-top: 50px !important;
       }
       body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) .nav :is(.nav-group, .nav-quick-access) > summary {
         grid-template-columns: minmax(0, 1fr) 24px !important;
@@ -18139,17 +18195,24 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         position: static !important;
       }
       body.sidebar-collapsed:not(.auth-required):not(.auth-loading) .industrial-sidebar-brand {
-        height: 88px !important;
-        min-height: 88px !important;
-        flex: 0 0 88px !important;
-        padding: 5px 7px 7px !important;
+        position: relative !important;
+        height: var(--gm-header-height) !important;
+        min-height: var(--gm-header-height) !important;
+        flex: 0 0 var(--gm-header-height) !important;
+        padding: 5px 7px !important;
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
         justify-content: center !important;
-        gap: 5px !important;
+        gap: 0 !important;
+        border-bottom-color: #17334c !important;
       }
       body.sidebar-collapsed:not(.auth-required):not(.auth-loading) .industrial-sidebar-brand .nav-toggle-btn {
+        position: absolute !important;
+        z-index: 4 !important;
+        top: calc(var(--gm-header-height) + 7px) !important;
+        left: 15px !important;
+        right: auto !important;
         width: 42px !important;
         min-width: 42px !important;
         height: 30px !important;
