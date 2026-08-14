@@ -18069,6 +18069,25 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       border-color: #bfd5e7 !important;
       box-shadow: none !important;
     }
+    /* Cabeçalho: avatar e seta centralizados na altura útil do controle de perfil. */
+    body:not(.auth-required):not(.auth-loading) .reference-header-user {
+      padding-top: 3px !important;
+      padding-bottom: 3px !important;
+      align-items: center !important;
+    }
+    body:not(.auth-required):not(.auth-loading) .reference-user-avatar {
+      align-self: center !important;
+      justify-self: center !important;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+    }
+    body:not(.auth-required):not(.auth-loading) .reference-user-chevron {
+      align-self: center !important;
+      justify-self: center !important;
+      display: grid !important;
+      place-items: center !important;
+      line-height: 0 !important;
+    }
     /* Navegação lateral: títulos livres e controles posicionados sem sobreposição. */
     @media (min-width: 901px) {
       body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) .industrial-sidebar-brand {
