@@ -17023,7 +17023,10 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     body.theme-light .stage17-tag-batch-item small{color:#0b6fae}
     .gm-qr-svg{display:block;width:100%;height:100%;background:#fff}
     .equipment-tag{box-sizing:border-box;display:grid;grid-template-columns:39mm minmax(0,1fr);gap:4mm;width:96mm;min-height:56mm;padding:4mm;border:1px solid #16395b;border-radius:3mm;background:#fff;color:#07111f;overflow:hidden}
+    .equipment-tag-code-column,.order-qr-code-column{display:flex;min-width:0;flex-direction:column;align-items:center}
     .equipment-tag-qr{display:grid;place-items:center;width:39mm;height:39mm;padding:2mm;border:1px solid #d3dfec;border-radius:2mm;background:#fff}
+    .company-qr-logo{box-sizing:border-box;display:flex;width:100%;min-height:8mm;margin-top:2mm;align-items:center;justify-content:center;padding:1mm;border:1px solid #d3dfec;border-radius:1.5mm;background:#fff}
+    .company-qr-logo .company-document-logo{display:block;width:auto;max-width:100%;max-height:7mm;object-fit:contain;object-position:center}
     .equipment-tag-body{display:flex;min-width:0;flex-direction:column}
     .equipment-tag-brand{display:flex;align-items:center;gap:2mm;padding-bottom:2mm;border-bottom:1px solid #d8e2ec}
     .equipment-tag-brand img{display:block;width:auto;max-width:35mm;height:8mm;object-fit:contain;object-position:left center;filter:brightness(0) saturate(100%);opacity:.88}
@@ -17047,6 +17050,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     .order-qr-grid .order-qr-wide{grid-column:1/-1}
     .order-qr-scan{margin-top:auto;padding-top:2mm;color:#526779;font:700 7pt/1.2 Arial,sans-serif}
     .company-document-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 13px;border-bottom:1px solid #d8e2ec;background:#fff;color:#07111f}
+    .company-document-brands{display:flex;min-width:0;align-items:center;gap:12px;flex-wrap:wrap}
+    .company-document-brands .company-document-logo{width:auto;max-width:190px;max-height:54px}
+    .company-document-brands .company-document-logo.is-company-logo{max-width:150px;max-height:46px;padding-left:12px;border-left:1px solid #d8e2ec;filter:none;opacity:1}
     .company-document-logo{display:block;max-width:100%;max-height:54px;object-fit:contain;object-position:left center}
     .company-document-logo.is-system-logo{filter:brightness(0) saturate(100%);opacity:.88}
     .company-document-header img{display:block;width:auto;max-width:190px;height:54px;object-fit:contain;object-position:left center}
@@ -17077,6 +17083,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       .qr-print-grid{display:grid;grid-template-columns:repeat(3,64mm);grid-auto-rows:65mm;gap:3mm;align-items:start}
       .qr-print-grid .equipment-tag{grid-template-columns:22mm minmax(0,1fr);gap:2mm;width:64mm;height:65mm;min-height:65mm;padding:2.5mm;border-radius:2mm;break-inside:avoid;page-break-inside:avoid}
       .qr-print-grid .equipment-tag-qr{width:22mm;height:22mm;padding:1mm;border-radius:1.5mm}
+      .qr-print-grid .company-qr-logo{min-height:7mm;margin-top:1.5mm;padding:.7mm}
+      .qr-print-grid .company-qr-logo .company-document-logo{max-height:5.7mm}
       .qr-print-grid .equipment-tag-brand{gap:1mm;padding-bottom:1mm}
       .qr-print-grid .equipment-tag-brand img{max-width:23mm;height:5.5mm}
       .qr-print-grid .equipment-tag-kind{font-size:5.5pt}
@@ -20602,15 +20610,23 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const value = String(state?.profile?.companyLogo || "");
       return isCompanyLogoDataUrl(value) && value.length <= COMPANY_LOGO_STORED_LIMIT * 1.4 ? value : "";
     }
+    function systemDocumentLogoMarkup(alt = "Logo GestMan365") {
+      return `<img class="company-document-logo is-system-logo" src="${COMPANY_LOGO_FALLBACK}" alt="${escapeHtml(alt)}">`;
+    }
     function companyDocumentLogoMarkup(alt = "Logo da empresa") {
       const customLogo = companyLogoData();
-      const source = customLogo || COMPANY_LOGO_FALLBACK;
-      const logoClass = customLogo ? "is-company-logo" : "is-system-logo";
-      return `<img class="company-document-logo ${logoClass}" src="${source}" alt="${escapeHtml(alt)}">`;
+      return customLogo ? `<img class="company-document-logo is-company-logo" src="${customLogo}" alt="${escapeHtml(alt)}">` : "";
+    }
+    function companyDocumentBrandsMarkup(companyName = currentAccount?.company?.name || "Empresa") {
+      return `<div class="company-document-brands">${systemDocumentLogoMarkup("Logo GestMan365")}${companyDocumentLogoMarkup(`Logo de ${companyName}`)}</div>`;
+    }
+    function companyQrLogoMarkup(companyName = currentAccount?.company?.name || "Empresa") {
+      const customLogo = companyDocumentLogoMarkup(`Logo de ${companyName}`);
+      return customLogo ? `<div class="company-qr-logo">${customLogo}</div>` : "";
     }
     function companyDocumentHeaderMarkup(title = "Documento") {
       const companyName = currentAccount?.company?.name || "Empresa";
-      return `<div class="company-document-header">${companyDocumentLogoMarkup(`Logo de ${companyName}`)}<div><strong>${escapeHtml(companyName)}</strong><span>${escapeHtml(title)}</span></div></div>`;
+      return `<div class="company-document-header">${companyDocumentBrandsMarkup(companyName)}<div><strong>${escapeHtml(companyName)}</strong><span>${escapeHtml(title)}</span></div></div>`;
     }
     function mountCompanyReportPrintHeader() {
       if (!document.body.classList.contains("stage16-printing")) return;
@@ -29539,9 +29555,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const category = assetCategoryLabel(asset) || "Equipamento";
       const model = [asset.brand, asset.model].filter(Boolean).join(" ") || "Não informado";
       return `<article class="equipment-tag" data-asset-tag="${escapeHtml(asset.id)}">
-        <div class="equipment-tag-qr">${qrSvgMarkup(route, `QR Code do ativo ${asset.code || asset.name}`)}</div>
+        <div class="equipment-tag-code-column"><div class="equipment-tag-qr">${qrSvgMarkup(route, `QR Code do ativo ${asset.code || asset.name}`)}</div>${companyQrLogoMarkup()}</div>
         <div class="equipment-tag-body">
-          <div class="equipment-tag-brand">${companyDocumentLogoMarkup("Logo da empresa")}<span class="equipment-tag-kind">ATIVO</span></div>
+          <div class="equipment-tag-brand">${systemDocumentLogoMarkup("Logo GestMan365")}<span class="equipment-tag-kind">ATIVO</span></div>
           <div class="equipment-tag-code">${escapeHtml(asset.code || "SEM TAG")}</div>
           <div class="equipment-tag-name">${escapeHtml(asset.name || "Equipamento")}</div>
           <div class="equipment-tag-meta">
@@ -29587,9 +29603,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const printedAt = orderQrDateTimeLabel(Date.now());
       const scheduledAt = order.scheduledAt || order.deadline;
       return `<article class="order-qr-card" data-order-qr="${escapeHtml(order.id)}">
-        <div class="order-qr-code">${qrSvgMarkup(route, `QR Code da ordem ${order.number || "de serviço"}`)}</div>
+        <div class="order-qr-code-column"><div class="order-qr-code">${qrSvgMarkup(route, `QR Code da ordem ${order.number || "de serviço"}`)}</div>${companyQrLogoMarkup()}</div>
         <div class="order-qr-copy">
-          <div class="equipment-tag-brand">${companyDocumentLogoMarkup("Logo da empresa")}<span class="equipment-tag-kind">ORDEM DE SERVIÇO</span></div>
+          <div class="equipment-tag-brand">${systemDocumentLogoMarkup("Logo GestMan365")}<span class="equipment-tag-kind">ORDEM DE SERVIÇO</span></div>
           <h3>${escapeHtml(order.number || "O.S.")}</h3>
           <strong>${escapeHtml(orderTitle(order))}</strong>
           <div class="order-qr-grid">
@@ -33683,7 +33699,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       return `
         <div style="background:#fff;color:#111;border-radius:6px;padding:18px;min-height:430px">
           <div style="display:flex;align-items:center;gap:20px;border-bottom:2px solid #4055ff;padding-bottom:8px">
-            <div style="width:190px">${companyDocumentLogoMarkup("Logo da empresa")}</div>
+            <div>${companyDocumentBrandsMarkup()}</div>
             <h2 style="color:#4055b9;margin:0">Compilado de Checklist</h2>
           </div>
           <p><strong>Região:</strong> ${regionName(byId(state.locations, asset.locationId)?.regionId)} &nbsp; <strong>Local:</strong> ${locationShortName(asset.locationId)} &nbsp; <strong>Equipamento:</strong> ${asset.name} - ${asset.code}</p>
