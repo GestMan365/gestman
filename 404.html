@@ -17257,6 +17257,24 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       outline-offset: 2px !important;
       box-shadow: none !important;
     }
+    body:not(.auth-required):not(.auth-loading) .preventive-pagination > button:first-of-type,
+    body:not(.auth-required):not(.auth-loading) .preventive-pagination > button:last-child {
+      font-size: 0 !important;
+    }
+    body:not(.auth-required):not(.auth-loading) .preventive-pagination > button:first-of-type::before,
+    body:not(.auth-required):not(.auth-loading) .preventive-pagination > button:last-child::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-top: 2px solid currentColor;
+      border-right: 2px solid currentColor;
+    }
+    body:not(.auth-required):not(.auth-loading) .preventive-pagination > button:first-of-type::before {
+      transform: rotate(-135deg);
+    }
+    body:not(.auth-required):not(.auth-loading) .preventive-pagination > button:last-child::before {
+      transform: rotate(45deg);
+    }
   </style>
   <style id="downtime-light-theme-fixes">
     body.theme-light #downtime .stage14-metric i.gm-icon-surface {
