@@ -17811,6 +17811,248 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     @media(max-width:650px) {
       #stage19CalendarRoot .stage19-calendar-weekdays { display: none !important; }
     }
+    /* GestMan365 CMMS — sistema técnico de ícones 2D
+       Mantém o registro semântico existente e remove somente relevo, brilho e
+       tratamentos 3D. Cores de estado continuam reservadas a risco e operação. */
+    :root {
+      --gm-icon-blue: #2f91f5;
+      --gm-icon-cyan: #16b7d5;
+      --gm-icon-turquoise: #15b8a6;
+      --gm-icon-line: 1.85;
+      --gm-icon-surface-dark: rgba(30, 142, 214, .08);
+      --gm-icon-border-dark: rgba(84, 180, 235, .27);
+    }
+    .gm-icon {
+      shape-rendering: geometricPrecision !important;
+    }
+    .gm-icon-rendered {
+      filter: none !important;
+    }
+    .gm-icon-surface {
+      --gm-icon-accent: var(--gm-icon-blue);
+      --gm-icon-accent-soft: transparent;
+      color: var(--gm-icon-accent) !important;
+      background: color-mix(in srgb, var(--gm-icon-accent) 9%, transparent) !important;
+      border: 1px solid color-mix(in srgb, var(--gm-icon-accent) 28%, transparent) !important;
+      box-shadow: none !important;
+    }
+    .gm-icon-surface::before {
+      display: none !important;
+      content: none !important;
+    }
+    .gm-icon-surface[data-gm-tone="blue"] {
+      --gm-icon-accent: var(--gm-icon-blue);
+    }
+    .gm-icon-surface[data-gm-tone="cyan"] {
+      --gm-icon-accent: var(--gm-icon-cyan);
+    }
+    .gm-icon-surface[data-gm-tone="green"] {
+      --gm-icon-accent: var(--gm-icon-turquoise);
+    }
+    .gm-icon-surface[data-gm-tone="purple"] {
+      --gm-icon-accent: #6f8cf5;
+    }
+    .gm-icon-surface[data-gm-tone="steel"] {
+      --gm-icon-accent: #88a2bc;
+    }
+    .gm-icon-surface[data-gm-tone="amber"] {
+      --gm-icon-accent: #e9a72f;
+    }
+    .gm-icon-surface[data-gm-tone="red"] {
+      --gm-icon-accent: #ef5f69;
+    }
+    .gm-icon-inline,
+    .gm-button-icon,
+    .gm-status-icon {
+      filter: none !important;
+      box-shadow: none !important;
+    }
+    .nav .tab-icon,
+    .nav .nav-group-icon {
+      width: 28px !important;
+      height: 28px !important;
+      min-width: 28px !important;
+      border-radius: 7px !important;
+      color: #71c9f4 !important;
+      background: rgba(31, 151, 214, .07) !important;
+      border: 1px solid rgba(71, 167, 220, .16) !important;
+      box-shadow: none !important;
+    }
+    .nav .tab-icon .gm-icon,
+    .nav .nav-group-icon .gm-icon {
+      width: 18px !important;
+      height: 18px !important;
+    }
+    .nav :is(.tab.active, .tab[aria-current="page"]) .tab-icon,
+    .nav-group.contains-active > summary .nav-group-icon {
+      color: #8bdcff !important;
+      background: rgba(28, 151, 224, .16) !important;
+      border-color: rgba(87, 190, 242, .42) !important;
+      box-shadow: none !important;
+    }
+    body.sidebar-collapsed .nav .tab-icon,
+    body.sidebar-collapsed .nav .nav-group-icon {
+      width: 30px !important;
+      height: 30px !important;
+      min-width: 30px !important;
+      color: #71c9f4 !important;
+      background: rgba(31, 151, 214, .07) !important;
+      border-color: rgba(71, 167, 220, .16) !important;
+      box-shadow: none !important;
+    }
+    body.sidebar-collapsed .nav .tab-icon .gm-icon,
+    body.sidebar-collapsed .nav .nav-group-icon .gm-icon {
+      width: 20px !important;
+      height: 20px !important;
+    }
+    .nav :is(.tab, .nav-group > summary, .nav-quick-access > summary):hover :is(.tab-icon, .nav-group-icon) {
+      color: #a9e7ff !important;
+      background: rgba(30, 159, 227, .12) !important;
+      border-color: rgba(91, 190, 239, .30) !important;
+    }
+    .nav-favorite-toggle,
+    .sidebar-favorite-page-toggle {
+      color: #7e9ab5 !important;
+      box-shadow: none !important;
+    }
+    .nav-favorite-toggle.is-favorite,
+    .sidebar-favorite-page-toggle:not(.is-remove)[aria-pressed="true"] {
+      color: #35b9ec !important;
+      border-color: rgba(53, 185, 236, .38) !important;
+      background: rgba(53, 185, 236, .09) !important;
+    }
+    .nav-favorite-toggle.is-favorite .gm-icon,
+    .sidebar-favorite-page-toggle .gm-icon {
+      fill: none !important;
+      filter: none !important;
+    }
+    :is(
+      .professional-kpi-icon,
+      .stage20-shortcut-icon,
+      .stage20-notification-icon,
+      .s16-kpi-icon,
+      .asset-metric-icon,
+      .os-metric-icon,
+      .checklist-metric > i,
+      .preventive-metric > i,
+      .stage14-metric > i,
+      .stage15-metric > i,
+      .dashboard-alert-icon,
+      .machine-icon,
+      .asset-list-icon,
+      .stage17-tree-icon,
+      .subtag-tree-icon,
+      .subtag-leaf-icon,
+      .favorite-module-icon,
+      .industrial-quick-actions button > i,
+      .mobile-tech-actions button > i
+    ).gm-icon-surface {
+      border-radius: 8px !important;
+      box-shadow: none !important;
+    }
+    #dashboard .professional-kpi-icon {
+      width: 40px !important;
+      height: 40px !important;
+      min-width: 40px !important;
+      border-radius: 9px !important;
+    }
+    #dashboard .professional-kpi-icon .gm-icon {
+      width: 22px !important;
+      height: 22px !important;
+    }
+    .industrial-quick-actions button > i,
+    .stage20-shortcut-icon,
+    .stage20-notification-icon,
+    .s16-kpi-icon {
+      width: 34px !important;
+      height: 34px !important;
+      min-width: 34px !important;
+    }
+    .industrial-quick-actions button > i .gm-icon,
+    .stage20-shortcut-icon .gm-icon,
+    .stage20-notification-icon .gm-icon,
+    .s16-kpi-icon .gm-icon {
+      width: 19px !important;
+      height: 19px !important;
+    }
+    .gm-button-icon {
+      width: 17px !important;
+      height: 17px !important;
+      min-width: 17px !important;
+      flex: 0 0 17px !important;
+      color: currentColor !important;
+    }
+    .gm-button-icon .gm-icon,
+    .action-icon .gm-icon,
+    .gm-icon-only .gm-icon {
+      width: 17px !important;
+      height: 17px !important;
+    }
+    .gm-icon-only {
+      display: inline-grid !important;
+      place-items: center !important;
+      line-height: 0 !important;
+    }
+    .gm-icon-only:not(.primary):not(.danger):not(.success):not(.warning) {
+      color: var(--gm-info) !important;
+      background: color-mix(in srgb, var(--gm-info) 7%, var(--gm-surface)) !important;
+      border-color: color-mix(in srgb, var(--gm-info) 24%, var(--gm-border)) !important;
+      box-shadow: none !important;
+    }
+    .gm-icon-only:not(:disabled):hover {
+      color: color-mix(in srgb, var(--gm-info) 84%, white) !important;
+      background: color-mix(in srgb, var(--gm-info) 13%, var(--gm-surface)) !important;
+      border-color: color-mix(in srgb, var(--gm-info) 45%, var(--gm-border)) !important;
+    }
+    .action-icon {
+      display: inline-grid !important;
+      place-items: center !important;
+      border: 1px solid currentColor !important;
+      border-radius: 7px !important;
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+    .action-icon.play { color: var(--gm-icon-turquoise) !important; }
+    .action-icon.done { color: var(--gm-success) !important; }
+    .action-icon.edit { color: var(--gm-icon-blue) !important; }
+    .action-icon.delete { color: var(--gm-danger) !important; }
+    .gm-status-icon {
+      color: currentColor !important;
+      background: transparent !important;
+      border: 0 !important;
+    }
+    body.theme-light .gm-icon-surface {
+      color: color-mix(in srgb, var(--gm-icon-accent) 84%, #17314b) !important;
+      background: color-mix(in srgb, var(--gm-icon-accent) 8%, #ffffff) !important;
+      border-color: color-mix(in srgb, var(--gm-icon-accent) 25%, #cbd8e5) !important;
+      box-shadow: none !important;
+    }
+    body.theme-light .gm-icon-rendered {
+      filter: none !important;
+    }
+    body.theme-light .gm-icon-only:not(.primary):not(.danger):not(.success):not(.warning) {
+      color: #176ca8 !important;
+      background: #f6fbff !important;
+      border-color: #bfd5e7 !important;
+      box-shadow: none !important;
+    }
+    @media (max-width: 650px) {
+      .nav .tab-icon,
+      .nav .nav-group-icon {
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+      }
+      .nav .tab-icon .gm-icon,
+      .nav .nav-group-icon .gm-icon {
+        width: 20px !important;
+        height: 20px !important;
+      }
+      .gm-icon-only {
+        min-width: 42px !important;
+        min-height: 42px !important;
+      }
+    }
   </style></head>
 <body class="auth-loading auth-restoring">
   <script id="design-theme-bootstrap">
