@@ -3,7 +3,14 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-const APP_ORIGIN = Deno.env.get("GESTMAN_APP_ORIGIN") ?? "https://gestman365.github.io";
+const DEFAULT_APP_ORIGIN = "https://app.gestman.com.br";
+const APP_ORIGIN = Deno.env.get("GESTMAN_APP_ORIGIN") ?? DEFAULT_APP_ORIGIN;
+const ALLOWED_APP_ORIGINS = new Set([APP_ORIGIN, DEFAULT_APP_ORIGIN, "https://gestman365.github.io"]);
+
+function isAllowedOrigin(origin: string) {
+  return ALLOWED_APP_ORIGINS.has(origin)
+    || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+}
 const MAX_BODY_BYTES = 8 * 1024;
 const ALLOWED_FIELDS = new Set(["name", "slug", "display_name"]);
 
@@ -21,10 +28,9 @@ function requestId() {
 function cors(req: Request) {
   const origin = req.headers.get("origin") ?? "";
   const allowed = !origin
-    || origin === APP_ORIGIN
-    || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+    || isAllowedOrigin(origin);
   return {
-    "Access-Control-Allow-Origin": allowed && origin ? origin : APP_ORIGIN,
+    "Access-Control-Allow-Origin": allowed && origin ? origin : DEFAULT_APP_ORIGIN,
     "Access-Control-Allow-Headers":
       "authorization, apikey, content-type, x-client-info, x-idempotency-key",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -89,8 +95,7 @@ Deno.serve(async (req) => {
   const origin = req.headers.get("origin") ?? "";
   if (
     origin
-    && origin !== APP_ORIGIN
-    && !/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)
+    && !isAllowedOrigin(origin)
   ) {
     return json(req, 403, { error: "Solicitação não autorizada.", request_id: reqId });
   }

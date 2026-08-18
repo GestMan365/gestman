@@ -18947,7 +18947,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           <label>Email do administrador <input class="field" id="setupAdminEmail" required type="email" autocomplete="username" placeholder="admin@empresa.com"></label>
           <label class="full">Senha inicial <input class="field" id="setupAdminPassword" required type="password" autocomplete="new-password" minlength="8" placeholder="Mínimo de 8 caracteres"></label>
           <div class="full toolbar"><button class="btn primary" type="submit">Criar empresa</button><button class="btn" id="showLoginButton" type="button">Já tenho acesso</button></div>
-          <div class="full auth-note">A empresa e o primeiro administrador serão criados diretamente no Supabase, em um ambiente vazio e isolado.</div>
+          <div class="full auth-note">A empresa e o primeiro administrador serão criados diretamente no banco de dados, em um ambiente vazio e isolado.</div>
         </form>
       </div>
     </div>
@@ -21015,7 +21015,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         mergeApprovalData(companyFromLoginRpcRow(row), [authenticatedUser]);
         return true;
       } catch (error) {
-        console.error("Falha ao chamar gestman_login no Supabase:", error);
+        console.error("Falha ao chamar gestman_login no banco de dados:", error);
         return false;
       }
     }
@@ -21034,7 +21034,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         });
         return true;
       } catch (error) {
-        console.error("Falha ao enviar solicitação de empresa ao Supabase:", error);
+        console.error("Falha ao enviar solicitação de empresa ao banco de dados:", error);
         return false;
       }
     }
@@ -21052,7 +21052,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         mergeApprovalData(company, users);
         return true;
       } catch (error) {
-        console.error("Falha ao consultar aprovação no Supabase:", error);
+        console.error("Falha ao consultar aprovação no banco de dados:", error);
         return false;
       }
     }
@@ -21421,7 +21421,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const deleted = await deleteSupabaseRow(table, id, { silent: true });
       if (!deleted) {
         forgetDeletedRecord(table, id);
-        showToast(`Não consegui confirmar a exclusão de ${label} no Supabase.`);
+        showToast(`Não consegui confirmar a exclusão de ${label} no banco de dados.`);
         return false;
       }
       return true;
@@ -21449,7 +21449,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             if (!dependenciesDeleted) throw new Error("Falha ao excluir vínculos da peça.");
           }
           const confirmed = await performConfirmedDelete(table, id);
-          if (!confirmed) throw new Error("Exclusão não confirmada pelo Supabase.");
+          if (!confirmed) throw new Error("Exclusão não confirmada pelo banco de dados.");
           removePendingUpsert(table, id);
           removeBaselineRow(table, id);
           deletedRecords[table][id] = { ...(deletedRecords[table][id] || {}), confirmed: true };
@@ -22808,7 +22808,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       $('authLoginForm').classList.add('is-hidden');
       $('authSetupForm').classList.remove('is-hidden');
       $('authTitle').textContent = 'Criar primeira empresa';
-      $('authSubtitle').textContent = 'Configure o ambiente inicial no Supabase';
+      $('authSubtitle').textContent = 'Configure o ambiente inicial no banco de dados';
       updateSetupCompanyLogin();
       $('setupCompanyName')?.focus();
     }
@@ -22868,7 +22868,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       authStore = loadAuthStore();
       const company = authStore.companies.find(item => item.login === login && item.status !== "Bloqueada");
       if (company && !companyIsApproved(company)) {
-        showToast("Empresa aguardando aprovação da GestMan no Supabase.");
+        showToast("Empresa aguardando aprovação da GestMan no banco de dados.");
         return false;
       }
       const candidate = authStore.users.find(item =>
@@ -22949,8 +22949,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       $("setupAdminPassword").value = "";
       applyAuthState();
       showToast(sent
-        ? `Solicitação enviada. Aprove no Supabase e use o login ${company.login}.`
-        : `Solicitação criada. Crie/aprove no Supabase o login ${company.login}.`
+        ? `Solicitação enviada. Aprove no banco de dados e use o login ${company.login}.`
+        : `Solicitação criada. Crie/aprove no banco de dados o login ${company.login}.`
       );
       return true;
     }
@@ -23290,7 +23290,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         authStore.users = authStore.users.filter(item => item.id !== id);
         saveAuthStore(authStore);
         renderUsers();
-        showToast("Usuário excluído do Supabase.");
+        showToast("Usuário excluído do banco de dados.");
       } catch (error) {
         showToast(error?.message || "Não foi possível excluir o usuário.", "error");
       }
@@ -23325,7 +23325,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const accessProfile = ACCESS_PROFILES[$("tenantUserRole").value] ? $("tenantUserRole").value : "technician";
       const active = $("tenantUserActive").value === "true";
       const submitButton = event.currentTarget.querySelector('[type="submit"]');
-      if (submitButton) { submitButton.disabled = true; submitButton.textContent = "Salvando no Supabase..."; }
+      if (submitButton) { submitButton.disabled = true; submitButton.textContent = "Salvando no banco de dados..."; }
       try {
         const remote = await gmAuthenticatedFunction("manage-company-user", {
           action:existing ? "update" : "create",
@@ -23351,9 +23351,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         applyAuthState();
         renderUsers();
         stage21WriteAudit({ module:"Usuários e Permissões", action:existing ? "Usuário atualizado" : "Usuário criado", record:loginUser, before:existing ? { active:existing.active, accessProfile:accessProfileForUser(existing) } : null, after:{ active, accessProfile }, result:"Sucesso", origin:"Administração" });
-        showToast(existing ? "Usuário atualizado no Supabase." : "Usuário criado no Supabase e acesso liberado imediatamente.");
+        showToast(existing ? "Usuário atualizado no banco de dados." : "Usuário criado no banco de dados e acesso liberado imediatamente.");
       } catch (error) {
-        showToast(error?.message || "Não foi possível salvar o usuário no Supabase.", "error");
+        showToast(error?.message || "Não foi possível salvar o usuário no banco de dados.", "error");
       } finally {
         if (submitButton) { submitButton.disabled = false; submitButton.textContent = "Salvar usuário"; }
       }
@@ -23668,7 +23668,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         return typeof data === "string" ? data : nextOrderNumber();
       } catch (error) {
         console.error(error);
-        showToast("Não consegui buscar número no Supabase. Usei número local temporário.");
+        showToast("Não consegui buscar número no banco de dados. Usei número local temporário.");
         return nextOrderNumber();
       }
     }
@@ -23680,7 +23680,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       };
     }
     async function supabaseFetch(path, options = {}) {
-      if (!SUPABASE_READY) throw new Error("Supabase não configurado.");
+      if (!SUPABASE_READY) throw new Error("Banco de dados não configurado.");
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 15000);
       let response;
@@ -23730,7 +23730,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         .catch(error => {
           remoteTenantIsolationVerified = false;
           stage21TechnicalLog("warning", "supabase.tenant-isolation", error);
-          if (showMessage) showToast("Sincronização remota bloqueada: o isolamento por empresa não está configurado no Supabase.", "warning");
+          if (showMessage) showToast("Sincronização remota bloqueada: o isolamento por empresa não está configurado no banco de dados.", "warning");
           return false;
         })
         .finally(() => { remoteTenantIsolationPromise = null; });
@@ -24140,7 +24140,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (!await stage21VerifyRemoteTenantIsolation(!options.silent)) return false;
       try {
         const confirmed = await performConfirmedDelete(table, id);
-        if (!confirmed) throw new Error("Exclusão não confirmada pelo Supabase.");
+        if (!confirmed) throw new Error("Exclusão não confirmada pelo banco de dados.");
         removePendingUpsert(table, id);
         removeBaselineRow(table, id);
         if (deletedRecords?.[table]?.[id]) {
@@ -24150,7 +24150,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         return true;
       } catch (error) {
         console.error(error);
-        if (!options.silent) showToast("Não consegui confirmar a exclusão no Supabase.");
+        if (!options.silent) showToast("Não consegui confirmar a exclusão no banco de dados.");
         return false;
       }
     }
@@ -24380,13 +24380,13 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         ];
         const results = await Promise.all(reads.map(([key, path]) => safeSupabaseRead(key, path)));
         const failures = results.filter(item => item.error);
-        if (failures.length === results.length) throw new Error("Nenhuma tabela do Supabase pôde ser carregada.");
+        if (failures.length === results.length) throw new Error("Nenhuma tabela do banco de dados pôde ser carregada.");
         const remoteData = Object.fromEntries(results.map(item => [item.key, item.data || []]));
         Object.keys(remoteData).forEach(key => {
           remoteData[key] = filterRemoteRowsForCompany(filterDeletedRows(key, remoteData[key]));
         });
         if (!hasBusinessData(previousState) && remoteDataIsLegacyGlobal(remoteData)) {
-          if (showMessage) showToast("Empresa nova mantida zerada. Dados antigos sem empresa no Supabase foram ignorados.");
+          if (showMessage) showToast("Empresa nova mantida zerada. Dados antigos sem empresa no banco de dados foram ignorados.");
           return false;
         }
         const integerRepairTargets = integerQuantityRepairTargets(remoteData);
@@ -24408,7 +24408,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           hasSessionLocalChange = true;
           scopedSetItem(PENDING_SYNC_KEY, "1");
           shouldPushLocal = true;
-          if (showMessage) showToast("Supabase vazio. Enviando o cadastro atual sem apagar dados locais.");
+          if (showMessage) showToast("banco de dados vazio. Enviando o cadastro atual sem apagar dados locais.");
           return false;
         }
         state = mergeRemoteWithLocal(stateFromDb(remoteData), previousState, shouldPreferLocal);
@@ -24447,13 +24447,13 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         render();
         if (showMessage) {
           showToast(failures.length
-            ? `Dados atualizados. ${failures.length} tabela(s) precisam de configuração no Supabase.`
-            : "Dados atualizados do Supabase para este aparelho.");
+            ? `Dados atualizados. ${failures.length} tabela(s) precisam de configuração no banco de dados.`
+            : "Dados atualizados do banco de dados para este aparelho.");
         }
         return failures.length === 0;
       } catch (error) {
         console.error(error);
-        if (showMessage) showToast("Não consegui carregar o Supabase. Os dados locais foram preservados.");
+        if (showMessage) showToast("Não consegui carregar os dados. Os dados locais foram preservados.");
         return false;
       } finally {
         isLoadingRemote = false;
@@ -24461,7 +24461,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           const uploaded = await syncSupabaseNow(false);
           if (showMessage) {
             showToast(uploaded
-              ? "Cadastro enviado ao Supabase para alinhar os aparelhos."
+              ? "Cadastro enviado ao banco de dados para alinhar os aparelhos."
               : "Alguns dados continuam pendentes. Verifique a conexão e tente novamente.");
           }
         }
@@ -24519,14 +24519,14 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         hasPendingLocalSync = false;
         hasSessionLocalChange = false;
         scopedRemoveItem(PENDING_SYNC_KEY);
-        if (showMessage) showToast("Dados enviados ao Supabase e disponíveis nos outros aparelhos.");
+        if (showMessage) showToast("Dados enviados ao banco de dados e disponíveis nos outros aparelhos.");
         return true;
       } catch (error) {
         console.error(error);
         hasPendingLocalSync = true;
         hasSessionLocalChange = true;
         scopedSetItem(PENDING_SYNC_KEY, "1");
-        if (showMessage) showToast("Falha ao sincronizar Supabase. Os dados locais foram preservados.");
+        if (showMessage) showToast("Falha ao sincronizar os dados. Os dados locais foram preservados.");
         return false;
       }
     }
@@ -30894,7 +30894,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function stage21SetAuditFilter(key,value){stage21AuditUi[key]=value;renderStage21Audit()}
     function renderStage21Audit(){const root=$("stage21AuditRoot");if(!root||!isAdminUser())return;const all=stage21AuditRows(),rows=stage21FilteredAudit(),users=[...new Set(all.map(x=>x.user))].sort(),modules=[...new Set(all.map(x=>x.module))].sort(),results=[...new Set(all.map(x=>x.result))].sort();root.innerHTML=`<div class="stage21-filters"><input class="field" type="date" value="${escapeHtml(stage21AuditUi.from)}" aria-label="Data inicial" onchange="stage21SetAuditFilter('from',this.value)"><input class="field" type="date" value="${escapeHtml(stage21AuditUi.to)}" aria-label="Data final" onchange="stage21SetAuditFilter('to',this.value)"><select class="field" aria-label="Usuário" onchange="stage21SetAuditFilter('user',this.value)"><option value="">Todos os usuários</option>${users.map(x=>`<option ${stage21AuditUi.user===x?"selected":""}>${escapeHtml(x)}</option>`).join("")}</select><select class="field" aria-label="Módulo" onchange="stage21SetAuditFilter('module',this.value)"><option value="">Todos os módulos</option>${modules.map(x=>`<option ${stage21AuditUi.module===x?"selected":""}>${escapeHtml(x)}</option>`).join("")}</select><input class="field" value="${escapeHtml(stage21AuditUi.action)}" placeholder="Filtrar ação" oninput="clearTimeout(window.stage21AuditTimer);window.stage21AuditTimer=setTimeout(()=>stage21SetAuditFilter('action',this.value),250)"><select class="field" aria-label="Resultado" onchange="stage21SetAuditFilter('result',this.value)"><option value="">Todos os resultados</option>${results.map(x=>`<option ${stage21AuditUi.result===x?"selected":""}>${escapeHtml(x)}</option>`).join("")}</select></div><div class="stage21-table-wrap"><table class="stage21-table"><thead><tr><th>Data e hora</th><th>Usuário</th><th>Módulo</th><th>Ação</th><th>Registro</th><th>Resultado</th><th>Resumo</th></tr></thead><tbody>${rows.map(row=>`<tr><td>${new Date(row.at).toLocaleString("pt-BR")}</td><td>${escapeHtml(row.user)}</td><td>${escapeHtml(row.module)}</td><td>${escapeHtml(row.action)}</td><td>${escapeHtml(row.record||"—")}</td><td>${escapeHtml(row.result)}</td><td>${escapeHtml([row.before?`Antes: ${row.before}`:"",row.after?`Depois: ${row.after}`:""].filter(Boolean).join(" · ")||row.origin||"—")}</td></tr>`).join("")||`<tr><td colspan="7"><div class="stage21-empty">Nenhum evento real de auditoria corresponde aos filtros.</div></td></tr>`}</tbody></table></div><small class="muted">Exibindo até 100 eventos. O histórico local não possui a mesma imutabilidade de um log mantido em servidor.</small>`}
     function renderStage21SecurityCenter(){
-      const root=$("stage21SecurityRoot");if(!root||!isAdminUser())return;const counts=stage21CollectionCounts(state),points=stage21RestorePoints(),remote=tenantRemoteSyncEnabled()?(remoteTenantIsolationVerified===true?"Isolamento por empresa verificado":remoteTenantIsolationVerified===false?"Bloqueada por falta de isolamento":"Validação exigida ao conectar"):"Desativada para esta empresa";root.innerHTML=`<div class="stage21-center-head"><div><h3>Segurança, auditoria e recuperação</h3><p>Proteções locais reais e sincronização remota condicionada ao isolamento por empresa.</p></div><span class="stage21-badge ${remoteTenantIsolationVerified===false?"warning":""}">● ${escapeHtml(remote)}</span></div><div class="stage21-grid"><div class="stage21-card"><span>Persistência operacional</span><strong>localStorage por empresa</strong><small>${stage21TotalRecords(counts).toLocaleString("pt-BR")} registros · ${stage21FormatBytes(stage21StorageBytes())}</small></div><div class="stage21-card"><span>Credenciais locais</span><strong>PBKDF2-SHA-256</strong><small>Senhas não são gravadas em texto simples no navegador.</small></div><div class="stage21-card"><span>Recuperação local</span><strong>${points.length} ponto(s)</strong><small>Limite controlado de 3 cópias antes de operações críticas.</small></div></div><div class="stage21-actions"><button class="btn primary" type="button" onclick="stage21CreateBackup()">Criar backup local</button><button class="btn" type="button" onclick="document.getElementById('stage21BackupFile').click()">Restaurar backup</button><input class="stage21-file" id="stage21BackupFile" type="file" accept=".json,application/json" onchange="stage21SelectBackupFile(this)"></div><div class="stage21-note">O backup inclui o estado operacional desta empresa, vínculos locais de fornecedores e auditoria. Não inclui senha, sessão, token, chave, cache ou fila técnica.</div><div class="stage21-note warning">O backup do banco remoto não é simulado pela interface. Quando o Supabase estiver ativo, a cópia integral deve ser feita pelos mecanismos do próprio provedor; este arquivo cobre somente os dados locais recuperáveis desta empresa.</div><details class="stage21-section" open><summary>Pontos de restauração locais</summary><div class="stage21-section-body"><div class="stage21-restore-list">${points.map(point=>`<div class="stage21-restore-item"><div><strong>${escapeHtml(point.origin)}</strong><span>${new Date(point.createdAt).toLocaleString("pt-BR")} · versão ${escapeHtml(point.appVersion)} · ${stage21TotalRecords(point.counts).toLocaleString("pt-BR")} registros</span></div><button class="btn" onclick="stage21ConfirmRestorePoint('${point.id}')">Restaurar</button></div>`).join("")||`<div class="stage21-empty">Nenhum ponto criado. Um ponto será gerado automaticamente antes de uma restauração.</div>`}</div><small class="muted">Espaço usado pelos pontos: ${stage21FormatBytes(stage21RestorePointSize(points))}.</small></div></details><details class="stage21-section"><summary>Auditoria local (somente ADM)</summary><div class="stage21-section-body" id="stage21AuditRoot"></div></details><details class="stage21-section"><summary>Arquitetura e limitações reais</summary><div class="stage21-section-body"><div class="stage21-grid"><div class="stage21-card"><span>Aplicação publicada</span><strong>HTML/CSS/JavaScript monolítico</strong><small>GitHub Pages, sem build obrigatório para o arquivo atual.</small></div><div class="stage21-card"><span>Backend disponível</span><strong>Supabase REST parcial</strong><small>Chave pública; escrita somente após validar escopo por empresa.</small></div><div class="stage21-card"><span>Arquivos</span><strong>Dados locais ou HTTPS</strong><small>Não existe storage privado em nuvem nesta versão.</small></div></div><div class="stage21-note warning">As permissões do frontend reduzem erros e acessos acidentais, mas não substituem RLS e autenticação de servidor. O SQL legado com políticas globais deve ser migrado antes de habilitar sincronização remota.</div></div></details>`;renderStage21Audit()}
+      const root=$("stage21SecurityRoot");if(!root||!isAdminUser())return;const counts=stage21CollectionCounts(state),points=stage21RestorePoints(),remote=tenantRemoteSyncEnabled()?(remoteTenantIsolationVerified===true?"Isolamento por empresa verificado":remoteTenantIsolationVerified===false?"Bloqueada por falta de isolamento":"Validação exigida ao conectar"):"Desativada para esta empresa";root.innerHTML=`<div class="stage21-center-head"><div><h3>Segurança, auditoria e recuperação</h3><p>Proteções locais reais e sincronização remota condicionada ao isolamento por empresa.</p></div><span class="stage21-badge ${remoteTenantIsolationVerified===false?"warning":""}">● ${escapeHtml(remote)}</span></div><div class="stage21-grid"><div class="stage21-card"><span>Persistência operacional</span><strong>localStorage por empresa</strong><small>${stage21TotalRecords(counts).toLocaleString("pt-BR")} registros · ${stage21FormatBytes(stage21StorageBytes())}</small></div><div class="stage21-card"><span>Credenciais locais</span><strong>PBKDF2-SHA-256</strong><small>Senhas não são gravadas em texto simples no navegador.</small></div><div class="stage21-card"><span>Recuperação local</span><strong>${points.length} ponto(s)</strong><small>Limite controlado de 3 cópias antes de operações críticas.</small></div></div><div class="stage21-actions"><button class="btn primary" type="button" onclick="stage21CreateBackup()">Criar backup local</button><button class="btn" type="button" onclick="document.getElementById('stage21BackupFile').click()">Restaurar backup</button><input class="stage21-file" id="stage21BackupFile" type="file" accept=".json,application/json" onchange="stage21SelectBackupFile(this)"></div><div class="stage21-note">O backup inclui o estado operacional desta empresa, vínculos locais de fornecedores e auditoria. Não inclui senha, sessão, token, chave, cache ou fila técnica.</div><div class="stage21-note warning">O backup do banco remoto não é simulado pela interface. Quando o banco de dados estiver ativo, a cópia integral deve ser feita pelos mecanismos do próprio provedor; este arquivo cobre somente os dados locais recuperáveis desta empresa.</div><details class="stage21-section" open><summary>Pontos de restauração locais</summary><div class="stage21-section-body"><div class="stage21-restore-list">${points.map(point=>`<div class="stage21-restore-item"><div><strong>${escapeHtml(point.origin)}</strong><span>${new Date(point.createdAt).toLocaleString("pt-BR")} · versão ${escapeHtml(point.appVersion)} · ${stage21TotalRecords(point.counts).toLocaleString("pt-BR")} registros</span></div><button class="btn" onclick="stage21ConfirmRestorePoint('${point.id}')">Restaurar</button></div>`).join("")||`<div class="stage21-empty">Nenhum ponto criado. Um ponto será gerado automaticamente antes de uma restauração.</div>`}</div><small class="muted">Espaço usado pelos pontos: ${stage21FormatBytes(stage21RestorePointSize(points))}.</small></div></details><details class="stage21-section"><summary>Auditoria local (somente ADM)</summary><div class="stage21-section-body" id="stage21AuditRoot"></div></details><details class="stage21-section"><summary>Arquitetura e limitações reais</summary><div class="stage21-section-body"><div class="stage21-grid"><div class="stage21-card"><span>Aplicação publicada</span><strong>HTML/CSS/JavaScript monolítico</strong><small>GitHub Pages, sem build obrigatório para o arquivo atual.</small></div><div class="stage21-card"><span>Backend disponível</span><strong>API de dados remota</strong><small>Chave pública; escrita somente após validar escopo por empresa.</small></div><div class="stage21-card"><span>Arquivos</span><strong>Dados locais ou HTTPS</strong><small>Não existe storage privado em nuvem nesta versão.</small></div></div><div class="stage21-note warning">As permissões do frontend reduzem erros e acessos acidentais, mas não substituem RLS e autenticação de servidor. O SQL legado com políticas globais deve ser migrado antes de habilitar sincronização remota.</div></div></details>`;renderStage21Audit()}
     function stage21HandleError(error,context,userMessage="Ocorreu um erro inesperado. Tente novamente."){stage21TechnicalLog("error",context,error);showToast(userMessage,"error");return false}
     function stage21ErrorId(context="ui"){return`GM-${stage21StableCode(`${context}:${Date.now()}`).slice(-8).toUpperCase()}`}
     function stage21StableCode(value){let hash=2166136261;for(const char of String(value)){hash^=char.charCodeAt(0);hash=Math.imul(hash,16777619)}return(hash>>>0).toString(16)}
@@ -31219,7 +31219,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         && await deleteSupabaseRow("pecas", id, { remember: false, silent: true });
       if (!remoteDeleted) {
         forgetDeletedRecord("pecas", id);
-        showToast("Não consegui confirmar a exclusão da peça no Supabase.");
+        showToast("Não consegui confirmar a exclusão da peça no banco de dados.");
         return;
       }
       removePendingUpsert("pecas", id);
@@ -31877,7 +31877,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         const nextEmail = normalizeEmail($("profileEditEmail").value);
         const nextPhoto = $("profileEditPhoto").value.trim();
         const submitButton = event.currentTarget.querySelector('[type="submit"]');
-        if (submitButton) { submitButton.disabled = true; submitButton.textContent = "Salvando no Supabase..."; }
+        if (submitButton) { submitButton.disabled = true; submitButton.textContent = "Salvando no banco de dados..."; }
         try {
           await supabaseFetch(`gm_profiles?user_id=eq.${encodeURIComponent(currentUserId)}`, {
             method:"PATCH",
@@ -31890,9 +31890,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           stage21WriteAudit({ module:"Configurações", action:"Perfil atualizado", record:nextEmail || currentAccount?.user?.username || "perfil", before:previousProfile, after:{ name:nextName, email:nextEmail, photo:Boolean(nextPhoto) }, result:"Sucesso" });
           closeModal();
           render();
-          showToast("Perfil individual atualizado no Supabase.");
+          showToast("Perfil individual atualizado no banco de dados.");
         } catch (error) {
-          showToast(error?.message || "Não foi possível salvar o perfil no Supabase.", "error");
+          showToast(error?.message || "Não foi possível salvar o perfil no banco de dados.", "error");
         } finally {
           if (submitButton) { submitButton.disabled = false; submitButton.textContent = "Salvar perfil"; }
         }
@@ -31914,7 +31914,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           await gmLoadCompanyUsers();
           renderUsers();
         } catch (error) {
-          showToast(error?.message || "Não foi possível carregar os usuários do Supabase.", "error");
+          showToast(error?.message || "Não foi possível carregar os usuários do banco de dados.", "error");
         }
       }
       if (typeof renderStage21SecurityCenter === "function") renderStage21SecurityCenter();
@@ -32794,7 +32794,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         closeModal();
         render();
         showToast(remoteSaved
-          ? "Detalhes da O.S salvos no Supabase."
+          ? "Detalhes da O.S salvos no banco de dados."
           : "Detalhes da O.S salvos localmente. Sincronização pendente."
         );
       });
@@ -34103,7 +34103,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       }
       render();
       showToast(remoteSaved
-        ? "O.S iniciada e salva no Supabase."
+        ? "O.S iniciada e salva no banco de dados."
         : "O.S iniciada localmente. Sincronização pendente."
       );
     }
@@ -34230,7 +34230,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       closeModal();
       render();
       showToast(remoteSaved
-        ? "O.S finalizada e salva no Supabase."
+        ? "O.S finalizada e salva no banco de dados."
         : "O.S finalizada localmente. Sincronização pendente."
       );
     }
@@ -35243,7 +35243,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       state.suppliers = state.suppliers.filter(item => item.id !== id).concat(payload);
       saveState();
       const saved = await saveSingleSupabase("fornecedores", supplierDbRow(payload));
-      resetSupplierForm(); render(); showToast(saved ? "Fornecedor salvo no Supabase." : "Fornecedor salvo localmente. Sincronização pendente.");
+      resetSupplierForm(); render(); showToast(saved ? "Fornecedor salvo no banco de dados." : "Fornecedor salvo localmente. Sincronização pendente.");
     });
     $("stockForm").addEventListener("submit", async event => {
       event.preventDefault();
@@ -35258,7 +35258,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         state.stockLocations = state.stockLocations.filter(item => item.id !== id).concat(payload);
         saveState();
         const saved = await saveSingleSupabase("estoques", stockDbRow(payload));
-        resetStockForm(); render(); showToast(saved ? "Almoxarifado salvo no Supabase." : "Almoxarifado salvo localmente. Sincronização pendente.");
+        resetStockForm(); render(); showToast(saved ? "Almoxarifado salvo no banco de dados." : "Almoxarifado salvo localmente. Sincronização pendente.");
       } finally {
         setTimeout(() => { delete form.dataset.saving; }, 600);
       }
@@ -35292,7 +35292,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       state.spareParts = state.spareParts.filter(item => item.id !== id).concat(payload);
       saveState();
       const saved = await saveSingleSupabase("pecas", spareDbRow(payload));
-      resetSpareForm(); render(); showToast(saved ? "Peça salva no Supabase." : "Peça salva localmente. Sincronização pendente.");
+      resetSpareForm(); render(); showToast(saved ? "Peça salva no banco de dados." : "Peça salva localmente. Sincronização pendente.");
     });
     $("stockMoveForm").addEventListener("submit", async event => {
       event.preventDefault();
@@ -35626,7 +35626,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     document.addEventListener("visibilitychange", () => {
       if (currentAccount && document.visibilityState === "visible") loadSupabaseState(false);
     });
-    /* Fonte unica de verdade: Supabase. Nenhum dado operacional e persistido no navegador. */
+    /* Fonte unica de verdade: banco de dados. Nenhum dado operacional e persistido no navegador. */
     var GM_SUPABASE_SESSION_KEY = "gestman365.supabase.session.v1";
     var gmRemoteStateVersion = 0;
     var gmRemoteStateUpdatedAt = "";
@@ -35691,7 +35691,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       return { apikey:SUPABASE_KEY, Authorization:`Bearer ${token}`, ...extra };
     }
     async function supabaseFetch(path, options = {}) {
-      if (!SUPABASE_READY) throw new Error("Supabase nao configurado.");
+      if (!SUPABASE_READY) throw new Error("Banco de dados nao configurado.");
       await gmEnsureSession(false);
       const request = async () => fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
         ...options,
@@ -35982,7 +35982,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         hasPendingLocalSync = false;
         hasSessionLocalChange = false;
         notifyOsPanelUpdate();
-        if (showMessage) showToast("Dados salvos no Supabase.");
+        if (showMessage) showToast("Dados salvos no banco de dados.");
         return true;
       } catch (error) {
         stage21TechnicalLog("error", "supabase.state.save", error);
@@ -36000,7 +36000,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           showToast("Seu perfil n\u00e3o possui permiss\u00e3o para concluir esta altera\u00e7\u00e3o.", "error");
         } else {
           gmStateDirty = true;
-          showToast("Nao foi possivel salvar no Supabase. Tente novamente antes de sair.", "error");
+          showToast("Nao foi possivel salvar no banco de dados. Tente novamente antes de sair.", "error");
         }
         return false;
       }
@@ -36025,11 +36025,11 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         hasSessionLocalChange = false;
         captureSyncBaseline();
         render();
-        if (showMessage) showToast("Dados carregados do Supabase.");
+        if (showMessage) showToast("Dados carregados do banco de dados.");
         return true;
       } catch (error) {
         stage21TechnicalLog("error", "supabase.state.load", error);
-        if (showMessage) showToast("Nao foi possivel carregar os dados do Supabase.", "error");
+        if (showMessage) showToast("Nao foi possivel carregar os dados do banco de dados.", "error");
         return false;
       } finally {
         isLoadingRemote = false;
@@ -36248,18 +36248,18 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         await loadSupabaseState(false, true);
         setView("dashboard", { persist:false, silent:true });
         $("setupAdminPassword").value = "";
-        showToast("Empresa criada no Supabase. Ambiente limpo pronto para testes.");
+        showToast("Empresa criada no banco de dados. Ambiente limpo pronto para testes.");
         return true;
       } catch (error) {
         stage21TechnicalLog("error", "auth.bootstrap", error);
         const message = String(error?.message || "");
-        showToast(message.includes("duplicate") ? "Este dominio ja esta em uso." : "Nao foi possivel criar a empresa no Supabase.", "error");
+        showToast(message.includes("duplicate") ? "Este dominio ja esta em uso." : "Nao foi possivel criar a empresa no banco de dados.", "error");
         return false;
       }
     }
     async function logoutTenantUser(confirmed = false) {
       if (!confirmed) {
-        requestDestructiveConfirmation("Sair desta empresa?", "A sessao desta aba sera encerrada. Os dados permanecem no Supabase.", "Sair", () => logoutTenantUser(true));
+        requestDestructiveConfirmation("Sair desta empresa?", "A sessao desta aba sera encerrada. Os dados permanecem no banco de dados.", "Sair", () => logoutTenantUser(true));
         return;
       }
       try {
@@ -36314,7 +36314,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const root = $("stage21SecurityRoot");
       if (!root || !isAdminUser()) return;
       const counts = stage21CollectionCounts(state);
-      root.innerHTML = `<div class="stage21-center-head"><div><h3>Seguranca, auditoria e recuperacao</h3><p>Supabase e a fonte unica de verdade desta empresa.</p></div><span class="stage21-badge">● RLS ativo por empresa</span></div><div class="stage21-grid"><div class="stage21-card"><span>Persistencia operacional</span><strong>Supabase PostgreSQL</strong><small>${stage21TotalRecords(counts).toLocaleString("pt-BR")} registros remotos · versao ${gmRemoteStateVersion}</small></div><div class="stage21-card"><span>Autenticacao</span><strong>Supabase Auth</strong><small>Sessao protegida nesta aba; nenhuma credencial empresarial e salva localmente.</small></div><div class="stage21-card"><span>Arquivos</span><strong>Storage privado</strong><small>Bucket gestman-attachments protegido por empresa.</small></div></div><div class="stage21-note">Nenhum dado operacional utiliza localStorage. Alteracoes sao enviadas diretamente ao Supabase e validadas por versao.</div><details class="stage21-section" open><summary>Auditoria</summary><div class="stage21-section-body" id="stage21AuditRoot"></div></details>`;
+      root.innerHTML = `<div class="stage21-center-head"><div><h3>Seguranca, auditoria e recuperacao</h3><p>O banco de dados é a fonte unica de verdade desta empresa.</p></div><span class="stage21-badge">● RLS ativo por empresa</span></div><div class="stage21-grid"><div class="stage21-card"><span>Persistencia operacional</span><strong>Banco de dados PostgreSQL</strong><small>${stage21TotalRecords(counts).toLocaleString("pt-BR")} registros remotos · versao ${gmRemoteStateVersion}</small></div><div class="stage21-card"><span>Autenticacao</span><strong>Autenticação segura</strong><small>Sessao protegida nesta aba; nenhuma credencial empresarial e salva localmente.</small></div><div class="stage21-card"><span>Arquivos</span><strong>Storage privado</strong><small>Bucket gestman-attachments protegido por empresa.</small></div></div><div class="stage21-note">Nenhum dado operacional utiliza localStorage. Alteracoes sao enviadas diretamente ao banco de dados e validadas por versao.</div><details class="stage21-section" open><summary>Auditoria</summary><div class="stage21-section-body" id="stage21AuditRoot"></div></details>`;
       renderStage21Audit();
     }
     /* Cadastro publico e administracao SaaS */
@@ -36411,7 +36411,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const text = await response.text();
       const payload = text ? safeParseJson(text, {}) : {};
       if (!response.ok) {
-        const error = new Error(payload?.error || "Não foi possível concluir a operação no Supabase.");
+        const error = new Error(payload?.error || "Não foi possível concluir a operação no banco de dados.");
         error.code = payload?.code || String(response.status);
         throw error;
       }
@@ -36672,7 +36672,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           <label>Fim do per&iacute;odo de teste<input name="trial_ends_on" type="date"></label>
           <label>Status inicial<select name="initial_status"><option value="trial">Per&iacute;odo de teste</option><option value="active" selected>Ativa</option><option value="suspended">Suspensa</option></select></label>
           <label>Unidade principal<input name="main_unit_name" required value="Unidade Principal"></label>
-          <div class="platform-access-note is-ready"><strong>Acesso liberado imediatamente ap&oacute;s confirmar.</strong>A empresa, o plano, a unidade e o administrador ser&atilde;o salvos no Supabase. Em seguida, o dom&iacute;nio, o usu&aacute;rio e a senha j&aacute; poder&atilde;o entrar no CMMS.</div>
+          <div class="platform-access-note is-ready"><strong>Acesso liberado imediatamente ap&oacute;s confirmar.</strong>A empresa, o plano, a unidade e o administrador ser&atilde;o salvos no banco de dados. Em seguida, o dom&iacute;nio, o usu&aacute;rio e a senha j&aacute; poder&atilde;o entrar no CMMS.</div>
         </div>
         <div class="platform-dialog-actions"><button class="platform-btn primary" type="submit">Criar empresa e liberar acesso</button></div>
       </form>`;
@@ -36721,7 +36721,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function renderPlatformAccessCreated(result,password){
       const access=result?.access||{};
       $("platformRequestDialogTitle").textContent="Acesso criado com sucesso";
-      $("platformRequestDialogBody").innerHTML=`<div class="platform-access-result"><span class="platform-status converted">Empresa e acesso criados</span><h3>Dados de acesso inicial</h3><p>A empresa foi salva no Supabase e j&aacute; pode entrar no CMMS.</p><div class="platform-access-grid"><div class="platform-access-field"><small>Dom&iacute;nio</small><code id="platformCreatedDomain">${escapeHtml(access.domain||"")}</code></div><div class="platform-access-field"><small>Usu&aacute;rio</small><code id="platformCreatedUsername">${escapeHtml(access.username||"")}</code></div><div class="platform-access-field"><small>Senha inicial</small><code id="platformCreatedPassword">${escapeHtml(password||"")}</code></div></div><div class="platform-access-warning"><strong>Copie estes dados agora.</strong> Por seguran&ccedil;a, a senha n&atilde;o &eacute; salva no painel e deixar&aacute; de aparecer ao fechar esta janela.</div><div class="platform-dialog-actions"><button class="platform-btn primary" type="button" onclick="copyPlatformCreatedAccess(this)">Copiar dados de acesso</button><button class="platform-btn" type="button" onclick="closePlatformDialog('platformRequestDialog')">Concluir</button></div></div>`;
+      $("platformRequestDialogBody").innerHTML=`<div class="platform-access-result"><span class="platform-status converted">Empresa e acesso criados</span><h3>Dados de acesso inicial</h3><p>A empresa foi salva no banco de dados e j&aacute; pode entrar no CMMS.</p><div class="platform-access-grid"><div class="platform-access-field"><small>Dom&iacute;nio</small><code id="platformCreatedDomain">${escapeHtml(access.domain||"")}</code></div><div class="platform-access-field"><small>Usu&aacute;rio</small><code id="platformCreatedUsername">${escapeHtml(access.username||"")}</code></div><div class="platform-access-field"><small>Senha inicial</small><code id="platformCreatedPassword">${escapeHtml(password||"")}</code></div></div><div class="platform-access-warning"><strong>Copie estes dados agora.</strong> Por seguran&ccedil;a, a senha n&atilde;o &eacute; salva no painel e deixar&aacute; de aparecer ao fechar esta janela.</div><div class="platform-dialog-actions"><button class="platform-btn primary" type="button" onclick="copyPlatformCreatedAccess(this)">Copiar dados de acesso</button><button class="platform-btn" type="button" onclick="closePlatformDialog('platformRequestDialog')">Concluir</button></div></div>`;
     }
     async function copyPlatformCreatedAccess(button){
       const domain=$("platformCreatedDomain")?.textContent||"",username=$("platformCreatedUsername")?.textContent||"",password=$("platformCreatedPassword")?.textContent||"";
@@ -36988,7 +36988,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             <label>Status inicial<select name="initial_status"><option value="trial">Per&iacute;odo de teste</option><option value="active" selected>Ativa</option><option value="suspended">Suspensa</option></select></label>
             <label>Unidade principal<input name="main_unit_name" required value="Unidade Principal"></label>
           </section>
-          <div class="platform-access-note is-ready"><strong>Acesso liberado imediatamente ap&oacute;s confirmar.</strong>A empresa, o plano, a unidade e o administrador ser&atilde;o salvos no Supabase. Nenhum e-mail ser&aacute; enviado automaticamente nesta etapa.</div>
+          <div class="platform-access-note is-ready"><strong>Acesso liberado imediatamente ap&oacute;s confirmar.</strong>A empresa, o plano, a unidade e o administrador ser&atilde;o salvos no banco de dados. Nenhum e-mail ser&aacute; enviado automaticamente nesta etapa.</div>
         </div>
         <div class="platform-dialog-actions is-sticky"><button class="platform-btn primary" type="submit">Criar empresa e liberar acesso</button></div>
       </form>`;
@@ -37162,12 +37162,12 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     function platformCompanyAccessHtml(item) {
       const cached=gmPlatformCompanyAccess.get(item.id),users=cached?.users||[];
-      const content=cached?.loading?'<div class="platform-access-loading">Carregando usuários do Supabase...</div>':cached?.error?`<div class="platform-audit-empty">${escapeHtml(cached.error)}<br><button class="platform-btn" type="button" onclick="loadPlatformCompanyAccess('${item.id}')">Tentar novamente</button></div>`:users.length?`<div class="platform-access-users">${users.map(user=>`<div class="platform-access-user"><span><strong>${escapeHtml(user.display_name||user.username||user.email||"Usuário")}</strong><small>Usuário: ${escapeHtml(user.username||user.email||"—")} &middot; Perfil: ${escapeHtml(user.role||"member")} &middot; ${user.active?"Ativo":"Inativo"}</small><small>Último acesso: ${platformDate(user.last_sign_in_at,true)}</small></span><button class="platform-btn primary" type="button" onclick="openPlatformPasswordReset('${item.id}','${user.user_id}')">Alterar senha</button></div>`).join("")}</div>`:'<div class="platform-audit-empty">Nenhum usuário encontrado para esta empresa.</div>';
-      return `<section class="platform-company-section full"><h4>Usuários da empresa (${users.length})</h4><p>Consulte os acessos criados e defina uma nova senha quando o cliente solicitar.</p><div id="platformCompanyAccessUsers">${content}</div><div class="platform-reset-box" id="platformPasswordResetBox" hidden></div><div class="platform-access-note"><strong>Proteção de senha</strong>A senha atual não pode ser visualizada, nem mesmo pelo proprietário da plataforma. O Supabase guarda somente a versão criptografada. Você pode definir uma nova senha, que valerá imediatamente.</div></section>`;
+      const content=cached?.loading?'<div class="platform-access-loading">Carregando usuários do banco de dados...</div>':cached?.error?`<div class="platform-audit-empty">${escapeHtml(cached.error)}<br><button class="platform-btn" type="button" onclick="loadPlatformCompanyAccess('${item.id}')">Tentar novamente</button></div>`:users.length?`<div class="platform-access-users">${users.map(user=>`<div class="platform-access-user"><span><strong>${escapeHtml(user.display_name||user.username||user.email||"Usuário")}</strong><small>Usuário: ${escapeHtml(user.username||user.email||"—")} &middot; Perfil: ${escapeHtml(user.role||"member")} &middot; ${user.active?"Ativo":"Inativo"}</small><small>Último acesso: ${platformDate(user.last_sign_in_at,true)}</small></span><button class="platform-btn primary" type="button" onclick="openPlatformPasswordReset('${item.id}','${user.user_id}')">Alterar senha</button></div>`).join("")}</div>`:'<div class="platform-audit-empty">Nenhum usuário encontrado para esta empresa.</div>';
+      return `<section class="platform-company-section full"><h4>Usuários da empresa (${users.length})</h4><p>Consulte os acessos criados e defina uma nova senha quando o cliente solicitar.</p><div id="platformCompanyAccessUsers">${content}</div><div class="platform-reset-box" id="platformPasswordResetBox" hidden></div><div class="platform-access-note"><strong>Proteção de senha</strong>A senha atual não pode ser visualizada, nem mesmo pelo proprietário da plataforma. O banco de dados guarda somente a versão criptografada. Você pode definir uma nova senha, que valerá imediatamente.</div></section>`;
     }
     function platformCompanyDangerHtml(item) {
       const suspended=item.status==="suspended",archived=item.status==="archived";
-      return `<section class="platform-company-section full"><h4>Situação da empresa</h4><p>Suspender ou arquivar preserva os dados. A exclusão definitiva apaga todo o ambiente.</p><div class="platform-company-status-actions"><button class="platform-btn success" type="button" ${item.status==="active"?"disabled":""} onclick="managePlatformCompany('${item.id}','reactivate')">Reativar</button><button class="platform-btn danger" type="button" ${suspended||archived?"disabled":""} onclick="managePlatformCompany('${item.id}','suspend')">Suspender</button><button class="platform-btn" type="button" ${archived?"disabled":""} onclick="managePlatformCompany('${item.id}','archive')">Arquivar</button></div><div class="platform-company-danger-zone"><h5>Exclusão definitiva</h5><p>Apaga a empresa, seus dados operacionais e os usuários exclusivos no Supabase. Esta ação não pode ser desfeita.</p><button class="platform-btn danger" type="button" onclick="preparePlatformCompanyDeletion('${item.id}')">Excluir empresa e todos os dados</button><div class="platform-company-delete-confirm" id="platformCompanyDeleteConfirm" hidden></div></div></section>`;
+      return `<section class="platform-company-section full"><h4>Situação da empresa</h4><p>Suspender ou arquivar preserva os dados. A exclusão definitiva apaga todo o ambiente.</p><div class="platform-company-status-actions"><button class="platform-btn success" type="button" ${item.status==="active"?"disabled":""} onclick="managePlatformCompany('${item.id}','reactivate')">Reativar</button><button class="platform-btn danger" type="button" ${suspended||archived?"disabled":""} onclick="managePlatformCompany('${item.id}','suspend')">Suspender</button><button class="platform-btn" type="button" ${archived?"disabled":""} onclick="managePlatformCompany('${item.id}','archive')">Arquivar</button></div><div class="platform-company-danger-zone"><h5>Exclusão definitiva</h5><p>Apaga a empresa, seus dados operacionais e os usuários exclusivos no banco de dados. Esta ação não pode ser desfeita.</p><button class="platform-btn danger" type="button" onclick="preparePlatformCompanyDeletion('${item.id}')">Excluir empresa e todos os dados</button><div class="platform-company-delete-confirm" id="platformCompanyDeleteConfirm" hidden></div></div></section>`;
     }
     function renderPlatformCompanyDialog(id,tab=gmPlatformCompanyActiveTab) {
       const item=gmPlatformCompanies.find(row=>row.id===id);if(!item)return;
@@ -37216,7 +37216,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function closePlatformResetResult(){const box=$("platformPasswordResetBox");if(box){box.hidden=true;box.textContent="";}}
     function preparePlatformCompanyDeletion(id) {
       const item=gmPlatformCompanies.find(row=>row.id===id),box=$("platformCompanyDeleteConfirm");if(!item||!box)return;
-      box.hidden=false;box.innerHTML=`<strong>Excluir ${escapeHtml(item.trade_name||item.name||"esta empresa")} para sempre?</strong><p>Todos os cadastros, O.S., ativos, documentos e usuários vinculados serão apagados do Supabase.</p><form onsubmit="executePlatformCompanyDeletion(event,'${id}')"><label>Senha para autorizar a exclusão<input name="deletion_password" type="password" required autocomplete="off" placeholder="Digite a senha de exclusão"></label><div class="platform-company-status-actions" style="margin-top:12px"><button class="platform-btn" type="button" onclick="cancelPlatformCompanyDeletion()">Cancelar</button><button class="platform-btn danger" type="submit">Apagar empresa e todos os dados</button></div></form>`;
+      box.hidden=false;box.innerHTML=`<strong>Excluir ${escapeHtml(item.trade_name||item.name||"esta empresa")} para sempre?</strong><p>Todos os cadastros, O.S., ativos, documentos e usuários vinculados serão apagados do banco de dados.</p><form onsubmit="executePlatformCompanyDeletion(event,'${id}')"><label>Senha para autorizar a exclusão<input name="deletion_password" type="password" required autocomplete="off" placeholder="Digite a senha de exclusão"></label><div class="platform-company-status-actions" style="margin-top:12px"><button class="platform-btn" type="button" onclick="cancelPlatformCompanyDeletion()">Cancelar</button><button class="platform-btn danger" type="submit">Apagar empresa e todos os dados</button></div></form>`;
       requestAnimationFrame(()=>box.querySelector("input")?.focus());
     }
     function cancelPlatformCompanyDeletion(){const box=$("platformCompanyDeleteConfirm");if(box){box.hidden=true;box.textContent="";}}

@@ -6,7 +6,14 @@ const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
 const EMAIL_FROM = Deno.env.get("GESTMAN_EMAIL_FROM") ?? "";
 const NOTIFICATION_EMAIL = Deno.env.get("GESTMAN_REQUEST_EMAIL_TO") ?? "andsantos15@hotmail.com";
-const APP_ORIGIN = Deno.env.get("GESTMAN_APP_ORIGIN") ?? "https://gestman365.github.io";
+const DEFAULT_APP_ORIGIN = "https://app.gestman.com.br";
+const APP_ORIGIN = Deno.env.get("GESTMAN_APP_ORIGIN") ?? DEFAULT_APP_ORIGIN;
+const ALLOWED_APP_ORIGINS = new Set([APP_ORIGIN, DEFAULT_APP_ORIGIN, "https://gestman365.github.io"]);
+
+function isAllowedOrigin(origin: string) {
+  return ALLOWED_APP_ORIGINS.has(origin)
+    || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+}
 const RATE_LIMIT_ATTEMPTS = 6;
 const RATE_LIMIT_WINDOW_SECONDS = 60 * 60;
 
@@ -33,9 +40,9 @@ function requestId() {
 
 function cors(req: Request) {
   const origin = req.headers.get("origin") ?? "";
-  const allowed = origin === APP_ORIGIN || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+  const allowed = isAllowedOrigin(origin);
   return {
-    "Access-Control-Allow-Origin": allowed ? origin : APP_ORIGIN,
+    "Access-Control-Allow-Origin": allowed ? origin : DEFAULT_APP_ORIGIN,
     "Access-Control-Allow-Headers": "authorization, apikey, content-type, x-client-info",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Vary": "Origin",
@@ -206,7 +213,7 @@ Deno.serve(async (req) => {
   if (req.method !== "POST") return respond(405, { error: "Método não permitido." });
 
   const origin = req.headers.get("origin") ?? "";
-  if (origin && origin !== APP_ORIGIN && !/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+  if (origin && !isAllowedOrigin(origin)) {
     return respond(403, { error: "Origem não autorizada." });
   }
   if (!SUPABASE_URL || !ANON_KEY || !SERVICE_ROLE_KEY) {

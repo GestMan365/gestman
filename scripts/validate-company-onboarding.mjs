@@ -15,6 +15,8 @@ const edge = fs.readFileSync(path.join(root, "supabase/functions/convert-company
 const submitEdge = fs.readFileSync(path.join(root, "supabase/functions/submit-company-request/index.ts"), "utf8");
 const bootstrapEdge = fs.readFileSync(path.join(root, "supabase/functions/bootstrap-company/index.ts"), "utf8");
 const companyAccessEdge = fs.readFileSync(path.join(root, "supabase/functions/manage-company-access/index.ts"), "utf8");
+const companyUserEdge = fs.readFileSync(path.join(root, "supabase/functions/manage-company-user/index.ts"), "utf8");
+const aiEdge = fs.readFileSync(path.join(root, "supabase/functions/ai-gestman/index.ts"), "utf8");
 const accessFlow = html.slice(
   html.indexOf("/* Fluxo de aprovacao e criacao de acesso"),
   html.indexOf("async function loadPlatformCompanies", html.indexOf("/* Fluxo de aprovacao e criacao de acesso"))
@@ -117,7 +119,9 @@ test("redefinicao registra auditoria sem senha", has(companyAccessEdge, "company
 test("gestao reforca limites conforme uso real", has(companyManagementMigration, "v_member_count", "v_unit_count", "nao pode ser menor que o uso atual"));
 test("migration de gestao preserva dados", !/\b(truncate|drop\s+table|delete\s+from)\b/i.test(companyManagementMigration));
 test("compensacao se conversao falhar", edge.includes("auth.admin.deleteUser"));
-test("CORS sem wildcard", !edge.includes('Access-Control-Allow-Origin\": \"*'));
+const corsEdges = [edge, submitEdge, bootstrapEdge, companyAccessEdge, companyUserEdge, aiEdge];
+test("CORS sem wildcard", corsEdges.every(source => !source.includes('Access-Control-Allow-Origin\": \"*')));
+test("CORS inclui o dominio oficial", corsEdges.every(source => has(source, 'const DEFAULT_APP_ORIGIN = \"https://app.gestman.com.br\"', "isAllowedOrigin(origin)")));
 const edgeTranspile = ts.transpileModule(edge, { compilerOptions:{ target:ts.ScriptTarget.ES2022, module:ts.ModuleKind.ESNext }, reportDiagnostics:true });
 test("Edge Function sem erro de sintaxe TypeScript", !(edgeTranspile.diagnostics || []).some(item => item.category === ts.DiagnosticCategory.Error));
 const submitEdgeTranspile = ts.transpileModule(submitEdge, { compilerOptions:{ target:ts.ScriptTarget.ES2022, module:ts.ModuleKind.ESNext }, reportDiagnostics:true });

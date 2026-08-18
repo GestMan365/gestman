@@ -3,7 +3,14 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-const APP_ORIGIN = Deno.env.get("GESTMAN_APP_ORIGIN") ?? "https://gestman365.github.io";
+const DEFAULT_APP_ORIGIN = "https://app.gestman.com.br";
+const APP_ORIGIN = Deno.env.get("GESTMAN_APP_ORIGIN") ?? DEFAULT_APP_ORIGIN;
+const ALLOWED_APP_ORIGINS = new Set([APP_ORIGIN, DEFAULT_APP_ORIGIN, "https://gestman365.github.io"]);
+
+function isAllowedOrigin(origin: string) {
+  return ALLOWED_APP_ORIGINS.has(origin)
+    || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+}
 const MODULES = ["dashboard", "map", "assets", "tags", "locations", "documents", "orders", "preventivePlans", "checklists", "stock", "suppliers", "resources", "reports", "assistant"];
 const LEVELS = new Set(["none", "view", "operate", "manage"]);
 
@@ -23,9 +30,9 @@ const ROLES: Record<string, string> = {
 
 function cors(req: Request) {
   const origin = req.headers.get("origin") ?? "";
-  const allowed = origin === APP_ORIGIN || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+  const allowed = isAllowedOrigin(origin);
   return {
-    "Access-Control-Allow-Origin": allowed ? origin : APP_ORIGIN,
+    "Access-Control-Allow-Origin": allowed ? origin : DEFAULT_APP_ORIGIN,
     "Access-Control-Allow-Headers": "authorization, apikey, content-type, x-client-info",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Vary": "Origin",
@@ -73,7 +80,7 @@ function friendlyError(error: unknown) {
   if (/password/i.test(message)) return "A senha deve ter entre 8 e 128 caracteres.";
   if (/PRIMARY_ADMIN|SELF_DEACTIVATION/i.test(message)) return "O administrador principal não pode ser desativado, excluído ou rebaixado.";
   if (/ADMIN_REQUIRED/i.test(message)) return "Somente um administrador ativo pode gerenciar usuários.";
-  return "Não foi possível concluir a operação do usuário no Supabase.";
+  return "Não foi possível concluir a operação do usuário no banco de dados.";
 }
 
 Deno.serve(async (req) => {
@@ -82,7 +89,7 @@ Deno.serve(async (req) => {
   if (!SUPABASE_URL || !ANON_KEY || !SERVICE_ROLE_KEY) return json(req, 503, { error: "Serviço temporariamente indisponível." });
 
   const origin = req.headers.get("origin") ?? "";
-  if (origin && origin !== APP_ORIGIN && !/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+  if (origin && !isAllowedOrigin(origin)) {
     return json(req, 403, { error: "Origem não autorizada." });
   }
   const authorization = req.headers.get("authorization") ?? "";

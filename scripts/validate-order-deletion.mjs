@@ -45,7 +45,7 @@ function functionSource(source, name) {
 
 test("index e fallback permanecem sincronizados", indexHtml === fallbackHtml);
 test("botão de exclusão existe uma única vez", (indexHtml.match(/onclick="deleteOrder\('/g) || []).length === 1);
-test("botão de exclusão depende de administrador", indexHtml.includes('function orderAdminDeleteButton(order) {\n      if (!order || !isAdminUser()) return "";'));
+test("botão de exclusão depende de administrador", /function orderAdminDeleteButton\(order\) \{\r?\n\s+if \(!order \|\| !isAdminUser\(\)\) return "";/.test(indexHtml));
 test("ação padrão incorpora o botão administrativo", indexHtml.includes("${baseOrderActionButtons(order)}${orderAdminDeleteButton(order)}"));
 
 const deletionStart = indexHtml.indexOf("async function baseDeleteOrder(");
