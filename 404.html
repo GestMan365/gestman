@@ -20695,11 +20695,11 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         name: user?.name || "Administrador",
         role: isAdminUser(user) ? "Administrador" : "Usuário",
         email: user?.email || "",
-        photo: user?.photo || "",
-        companyLogo: "",
-        companyLogoName: "",
-        companyLogoUpdatedAt: ""
+        photo: user?.photo || ""
       };
+    }
+    function defaultCompanyBrand() {
+      return { companyLogo:"", companyLogoName:"", companyLogoUpdatedAt:"" };
     }
     const COMPANY_LOGO_INPUT_LIMIT = 3 * 1024 * 1024;
     const COMPANY_LOGO_STORED_LIMIT = 700 * 1024;
@@ -20710,7 +20710,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       return /^data:image\/(?:png|jpeg|webp);base64,[a-z0-9+/=\s]+$/i.test(String(value || ""));
     }
     function companyLogoData() {
-      const value = String(state?.profile?.companyLogo || "");
+      const value = String(state?.companyBrand?.companyLogo || state?.profile?.companyLogo || "");
       return isCompanyLogoDataUrl(value) && value.length <= COMPANY_LOGO_STORED_LIMIT * 1.4 ? value : "";
     }
     function systemDocumentLogoMarkup(alt = "Logo GestMan365") {
@@ -20819,8 +20819,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (!isAdminUser()) return denyProfileAccess();
       const submitButton = event.submitter;
       if (submitButton) submitButton.disabled = true;
-      state.profile = {
-        ...(state.profile || defaultProfileForAccount()),
+      state.companyBrand = {
+        ...defaultCompanyBrand(),
+        ...(state.companyBrand || {}),
         companyLogo:pendingCompanyLogoData,
         companyLogoName:pendingCompanyLogoName,
         companyLogoUpdatedAt:Date.now()
@@ -21187,6 +21188,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       operationalAreas: [],
       sectorsLocations: [],
       installationStructures: [],
+      companyBrand: defaultCompanyBrand(),
       profile: defaultProfileForAccount()
     });
     let state = loadState();
@@ -21577,14 +21579,22 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function normalizeState(raw) {
       const normalized = { ...emptyState(), ...raw };
       const rawProfile = normalized.profile && typeof normalized.profile === "object" ? normalized.profile : {};
-      const normalizedCompanyLogo = String(rawProfile.companyLogo || "");
+      const rawCompanyBrand = normalized.companyBrand && typeof normalized.companyBrand === "object" ? normalized.companyBrand : {};
+      const normalizedCompanyLogo = String(rawCompanyBrand.companyLogo || rawProfile.companyLogo || "");
+      normalized.companyBrand = {
+        ...defaultCompanyBrand(),
+        ...rawCompanyBrand,
+        companyLogo:isCompanyLogoDataUrl(normalizedCompanyLogo) && normalizedCompanyLogo.length <= COMPANY_LOGO_STORED_LIMIT * 1.4 ? normalizedCompanyLogo : "",
+        companyLogoName:String(rawCompanyBrand.companyLogoName || rawProfile.companyLogoName || "").slice(0, 180),
+        companyLogoUpdatedAt:Number(rawCompanyBrand.companyLogoUpdatedAt || rawProfile.companyLogoUpdatedAt || 0) || ""
+      };
       normalized.profile = {
         ...defaultProfileForAccount(),
-        ...rawProfile,
-        companyLogo:isCompanyLogoDataUrl(normalizedCompanyLogo) && normalizedCompanyLogo.length <= COMPANY_LOGO_STORED_LIMIT * 1.4 ? normalizedCompanyLogo : "",
-        companyLogoName:String(rawProfile.companyLogoName || "").slice(0, 180),
-        companyLogoUpdatedAt:Number(rawProfile.companyLogoUpdatedAt || 0) || ""
+        ...rawProfile
       };
+      delete normalized.profile.companyLogo;
+      delete normalized.profile.companyLogoName;
+      delete normalized.profile.companyLogoUpdatedAt;
       normalized.regions = Array.isArray(normalized.regions) ? normalized.regions : [];
       normalized.locations = Array.isArray(normalized.locations) ? normalized.locations : [];
       normalized.tags = Array.isArray(normalized.tags) ? normalized.tags : [];
@@ -23335,7 +23345,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           display_name:fullName,
           contact_email:normalizeEmail($("tenantUserContactEmail").value),
           job_title:$("tenantUserJobTitle").value.trim(),
-          avatar_url:existing?.photo || "",
           access_profile:accessProfile,
           permission_levels:selectedPermissionLevels(),
           region_id:$("tenantUserUnit")?.value || "",
@@ -24049,6 +24058,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (!preferLocal) return normalizeState({ ...remote, assets: preserveLocalAssetMetadata(remote.assets, local.assets), pendingActions: local.pendingActions, downtimes: local.downtimes, measurementPoints: local.measurementPoints, measurements: local.measurements, maintenanceJournal: local.maintenanceJournal, tools: local.tools, toolLoans: local.toolLoans, documents: local.documents, installationStructures: local.installationStructures });
       return normalizeState({
         ...remote,
+        companyBrand: { ...remote.companyBrand, ...local.companyBrand },
         profile: local.profile?.name ? { ...remote.profile, ...local.profile } : remote.profile,
         regions: mergeById(remote.regions, local.regions, true),
         locations: mergeById(remote.locations, local.locations, true),
@@ -31760,7 +31770,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const user = currentAccount?.user || {};
       const userPhoto = user.photo || "";
       pendingCompanyLogoData = companyLogoData();
-      pendingCompanyLogoName = String(state.profile?.companyLogoName || "");
+      pendingCompanyLogoName = String(state.companyBrand?.companyLogoName || "");
       openModal("Perfil do usuário", `
         <form class="form" id="profileForm">
           <label>Empresa <input class="field" value="${escapeHtml(currentAccount?.company?.name || "")}" disabled></label>
@@ -31770,6 +31780,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           <input type="hidden" id="profileEditPhoto" value="${escapeHtml(userPhoto)}">
           <label class="full">Enviar foto <input class="field" id="profilePhotoFile" type="file" accept="image/*"></label>
           <div class="full side-box"><strong>Prévia</strong><span id="profilePreview">${userPhoto ? `<img src="${userPhoto}" style="width:72px;height:72px;border-radius:999px;object-fit:cover">` : "Sem foto cadastrada"}</span></div>
+          <div class="full toolbar"><button class="btn" id="removeProfilePhoto" type="button">Remover minha foto</button></div>
           <div class="full toolbar profile-session-actions"><button class="btn primary" type="submit">Salvar perfil</button><button class="btn danger" type="button" onclick="logoutTenantUser()">Sair da conta</button></div>
         </form>
         ${isAdminUser() ? `
@@ -31868,6 +31879,11 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           $("profilePreview").innerHTML = `<img src="${reader.result}" style="width:72px;height:72px;border-radius:999px;object-fit:cover">`;
         };
         reader.readAsDataURL(file);
+      });
+      $("removeProfilePhoto")?.addEventListener("click", () => {
+        $("profileEditPhoto").value = "";
+        if ($("profilePhotoFile")) $("profilePhotoFile").value = "";
+        $("profilePreview").textContent = "Sem foto cadastrada";
       });
       $("profileForm").addEventListener("submit", async event => {
         event.preventDefault();

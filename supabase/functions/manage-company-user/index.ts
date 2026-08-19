@@ -158,12 +158,21 @@ Deno.serve(async (req) => {
   const metadata = { display_name: displayName, access_username: username, company_slug: context.company_slug, access_profile: accessProfile };
   let userId = cleanString(input.user_id, 64);
   let createdUser = false;
+  let preservedAvatarUrl: string | null = null;
   if (action === "create") {
     const { data, error } = await service.auth.admin.createUser({ email, password, email_confirm: true, user_metadata: metadata });
     if (error || !data.user?.id) return json(req, /already|registered|exists/i.test(String(error?.message ?? "")) ? 409 : 422, { error: friendlyError(error) });
     userId = data.user.id;
     createdUser = true;
   } else {
+    if (!userId) return json(req, 400, { error: "Usuário não informado." });
+    const { data: membership, error: membershipError } = await service.from("gm_company_members")
+      .select("user_id").eq("company_id", context.company_id).eq("user_id", userId).maybeSingle();
+    if (membershipError || !membership) return json(req, 404, { error: "Usuário não encontrado nesta empresa." });
+    const { data: existingProfile, error: profileError } = await service.from("gm_profiles")
+      .select("avatar_url").eq("user_id", userId).maybeSingle();
+    if (profileError) return json(req, 422, { error: friendlyError(profileError) });
+    preservedAvatarUrl = typeof existingProfile?.avatar_url === "string" ? existingProfile.avatar_url : null;
     const update: Record<string, unknown> = { email, email_confirm: true, user_metadata: metadata };
     if (password) update.password = password;
     const { error } = await service.auth.admin.updateUserById(userId, update);
@@ -178,7 +187,7 @@ Deno.serve(async (req) => {
     p_display_name: displayName,
     p_contact_email: cleanString(input.contact_email, 320) || null,
     p_job_title: cleanString(input.job_title, 160) || null,
-    p_avatar_url: cleanString(input.avatar_url, 2500000) || null,
+    p_avatar_url: preservedAvatarUrl,
     p_access_username: username,
     p_member_role: ROLES[accessProfile],
     p_access_profile: accessProfile,
@@ -198,7 +207,7 @@ Deno.serve(async (req) => {
     access_ready: input.active !== false,
     user: { user_id: userId, auth_email: email, access_username: username, display_name: displayName,
       contact_email: cleanString(input.contact_email, 320), job_title: cleanString(input.job_title, 160),
-      avatar_url: cleanString(input.avatar_url, 2500000), member_role: ROLES[accessProfile], access_profile: accessProfile,
+      avatar_url: preservedAvatarUrl || "", member_role: ROLES[accessProfile], access_profile: accessProfile,
       permission_levels: permissionLevels(accessProfile, input.permission_levels), region_id: cleanString(input.region_id, 160),
       executor: input.executor === true, active: input.active !== false, profile_details: details },
   });
