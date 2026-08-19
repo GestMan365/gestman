@@ -61,6 +61,26 @@ function validateExternalJavaScript() {
   return { file: path.relative(root, file).replaceAll("\\", "/"), bytes: Buffer.byteLength(source) };
 }
 
+function validateQuickAccessWithoutFavorites(file, html) {
+  if (/favorit/i.test(html)) {
+    throw new Error(`${file}: o módulo removido de Favoritos ainda possui referências.`);
+  }
+  const requiredMarkers = [
+    'data-view="quickAccess"',
+    '<h1>Acessos Rápidos</h1>',
+    'stage20OpenQuickCustomize()',
+    '<h2>Meus atalhos</h2>',
+  ];
+  const missing = requiredMarkers.filter((marker) => !html.includes(marker));
+  if (missing.length) {
+    throw new Error(`${file}: Acessos Rápidos perdeu marcadores obrigatórios: ${missing.join(", ")}`);
+  }
+  if (/renderStage20Quick\s*=/.test(html)) {
+    throw new Error(`${file}: renderStage20Quick não pode ser substituído por outro módulo.`);
+  }
+  return true;
+}
+
 if (!rawSources["index.html"].equals(rawSources["404.html"])) {
   throw new Error("index.html e 404.html não são binariamente idênticos.");
 }
@@ -76,6 +96,7 @@ for (const file of files) {
   if (duplicateIds.length) {
     throw new Error(`${file}: IDs HTML duplicados: ${duplicateIds.map(([id, count]) => `${id} (${count})`).join(", ")}`);
   }
+  validateQuickAccessWithoutFavorites(file, sources[file]);
 }
 
 const scriptCounts = Object.fromEntries(files.map((file) => [file, validateInlineJavaScript(file, sources[file])]));
@@ -88,6 +109,7 @@ console.log(
       binarySha256: sha256(rawSources["index.html"]),
       normalizedSha256: sha256(sources["index.html"]),
       duplicateIds: 0,
+      quickAccessWithoutFavorites: true,
       inlineScriptBlocks: scriptCounts,
       localUiAssetReferences: assetCounts,
       externalJavaScript,

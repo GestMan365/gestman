@@ -7938,8 +7938,6 @@
     .industrial-nav-section:has(.tab.active) > .nav-group-title { color:#63b3ff !important; }
     .industrial-nav-section .tab { min-height:35px !important; margin-top:3px !important; padding:7px 9px 7px 13px !important; font-size:var(--font-size-xs) !important; }
     .industrial-nav-section .tab .tab-icon { width:20px !important; height:20px !important; font-size:var(--font-size-sm) !important; }
-    .sidebar-favorites-home .tab-icon { color:#facc15 !important; text-shadow:0 0 10px rgba(250,204,21,.35); }
-    .industrial-sidebar-scroll > .tab:not(.sidebar-favorites-home) { flex:0 0 auto; }
     .industrial-sidebar-scroll > .tab > span:last-child { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     /* Etapa 2 — ações rápidas e alertas operacionais */
     .quick-actions-card,.dashboard-alerts-card { min-height:286px; }
@@ -10180,29 +10178,8 @@
       .profile-session-actions { grid-template-columns: 1fr !important; }
       .profile-session-actions .btn { width: 100% !important; }
     }
-    /* Favoritos: módulos escolhidos pelo usuário no menu lateral */
     .nav-pinned,.nav-group-items,.nav-quick-list{align-content:start!important;grid-auto-rows:max-content!important}
-    .nav-module-favorite-row,.nav-favorite-copy-row{display:grid;grid-template-columns:minmax(0,1fr) 32px;align-items:center;align-self:start!important;gap:3px;min-width:0;height:40px!important;min-height:40px!important;max-height:40px!important;overflow:hidden;flex:0 0 40px!important}
-    .nav-module-favorite-row>.tab,.nav-favorite-copy-row>.tab{min-width:0!important;width:100%!important;height:40px!important;min-height:40px!important;max-height:40px!important}
-    .favorite-module-icon{display:grid;place-items:center;width:24px;height:24px;color:#7fb8ed}.favorite-module-icon .gm-icon{width:18px!important;height:18px!important}
-    .nav-favorite-toggle{display:grid!important;place-items:center!important;align-self:center!important;justify-self:center!important;width:30px!important;min-width:30px!important;max-width:30px!important;height:30px!important;min-height:30px!important;max-height:30px!important;padding:0!important;margin:0!important;border:1px solid transparent;border-radius:8px;background:transparent;color:#647b96;cursor:pointer;overflow:hidden;flex:0 0 30px!important;line-height:0!important;transition:color .16s,background .16s,border-color .16s,transform .12s}
-    .nav-favorite-toggle:hover,.nav-favorite-toggle:focus-visible{color:#facc15;background:rgba(250,204,21,.1);border-color:rgba(250,204,21,.3);outline:none}
-    .nav-favorite-toggle:active{transform:scale(.9)}.nav-favorite-toggle.is-favorite{color:#facc15}.nav-favorite-toggle.is-favorite .gm-icon{fill:rgba(250,204,21,.3);filter:drop-shadow(0 0 4px rgba(250,204,21,.22))}
-    .sidebar-favorite-star-icon{display:grid!important;place-items:center!important;width:18px!important;height:18px!important;line-height:0!important}.sidebar-favorite-star-icon .gm-icon{display:block!important;width:17px!important;height:17px!important;margin:0!important;transform:none!important}.nav-favorite-toggle>.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
-    .nav-favorite-copy-row>.tab,.nav-favorite-copy-row>.nav-favorite-remove{position:relative!important;z-index:2!important;pointer-events:auto!important;touch-action:manipulation!important}.nav-favorite-remove,.nav-favorite-remove.is-favorite{color:#f87171!important;border-color:rgba(239,68,68,.2)!important;background:rgba(239,68,68,.06)!important}.nav-favorite-remove:hover,.nav-favorite-remove:focus-visible{color:#fff!important;border-color:rgba(239,68,68,.65)!important;background:rgba(239,68,68,.22)!important}.nav-favorite-remove .gm-icon{fill:none!important;filter:none!important}
-    .sidebar-favorites-empty{display:grid;grid-template-columns:24px minmax(0,1fr);align-items:center;gap:7px;padding:9px;color:#8295ad}.sidebar-favorites-empty small{font-size:var(--font-size-xs);line-height:1.35}.sidebar-favorites-empty .gm-icon{color:#facc15}
     .nav .tab>.gm-button-icon{display:none!important}
-    .sidebar-favorites-manage{margin-top:3px!important;border-top:1px solid #1f334a!important;border-radius:0 0 8px 8px!important}.sidebar-favorites-manage .tab-icon{color:#facc15!important}
-    .nav-module-favorite-row.is-permission-hidden,.nav-module-favorite-row:has(>.tab.is-permission-hidden){display:none!important}
-    body.sidebar-collapsed .nav-module-favorite-row{display:block;height:40px!important;min-height:40px!important;max-height:40px!important}body.sidebar-collapsed .nav-module-favorite-row>.nav-favorite-toggle{display:none!important}
-    .sidebar-favorites-page-head{align-items:center}.sidebar-favorites-total{padding:8px 12px;border:1px solid #2c425c;border-radius:999px;background:#0d1b2c;color:#9fc7ef;font-size:var(--font-size-xs);font-weight:800;white-space:nowrap}
-    .sidebar-favorites-page-section{padding:14px;display:grid;gap:12px}.sidebar-favorites-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.sidebar-favorites-section-head h2{margin:0 0 3px;font-size:var(--font-size-card)}.sidebar-favorites-section-head p{margin:0;color:#8ea2ba;font-size:var(--font-size-xs)}
-    .sidebar-favorites-page-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.sidebar-favorite-page-card{display:grid;grid-template-columns:minmax(0,1fr) 42px;align-items:center;min-width:0;border:1px solid #263b53;border-radius:11px;background:#0c1929;overflow:hidden;transition:border-color .16s,background .16s,transform .16s}.sidebar-favorite-page-card:hover{border-color:#35618d;background:#102238;transform:translateY(-1px)}.sidebar-favorite-page-card.is-favorite{border-color:rgba(250,204,21,.32)}
-    .sidebar-favorite-page-open{display:flex;align-items:center;gap:10px;min-width:0;min-height:66px;padding:10px;border:0;background:transparent;color:#e9f1fa;text-align:left;cursor:pointer}.sidebar-favorite-page-open i{display:grid;place-items:center;flex:0 0 36px;height:36px;border-radius:9px;background:#102d4e;color:#38a0ff}.sidebar-favorite-page-open>span{display:grid;min-width:0;gap:3px}.sidebar-favorite-page-open strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:var(--font-size-xs)}.sidebar-favorite-page-open small{color:#8095ad;font-size:var(--font-size-xs)}
-    .sidebar-favorite-page-toggle{display:grid;place-items:center;width:36px;height:36px;margin:auto;border:1px solid #2b435e;border-radius:9px;background:#0b1726;color:#6e829a;cursor:pointer}.sidebar-favorite-page-toggle:hover,.sidebar-favorite-page-toggle:focus-visible{color:#facc15;border-color:rgba(250,204,21,.45);background:rgba(250,204,21,.08);outline:none}.sidebar-favorite-page-toggle.is-remove{color:#f87171;border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.07)}.sidebar-favorite-page-toggle.is-remove:hover,.sidebar-favorite-page-toggle.is-remove:focus-visible{color:#fff;border-color:rgba(239,68,68,.68);background:rgba(239,68,68,.22)}.sidebar-favorite-page-toggle.is-remove .gm-icon{fill:none!important;filter:none!important}
-    .sidebar-favorites-page-empty{min-height:130px}.sidebar-favorites-page-empty>.gm-icon{color:#facc15}
-    @media(max-width:900px){.sidebar-favorites-page-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media(max-width:600px){.sidebar-favorites-page-head{align-items:flex-start}.sidebar-favorites-page-grid{grid-template-columns:1fr}.nav-favorite-toggle{width:38px!important;min-width:38px!important;max-width:38px!important;height:38px!important;min-height:38px!important;max-height:38px!important}.nav-module-favorite-row,.nav-favorite-copy-row{grid-template-columns:minmax(0,1fr) 40px;height:44px!important;min-height:44px!important;max-height:44px!important;flex-basis:44px!important}.nav-module-favorite-row>.tab,.nav-favorite-copy-row>.tab{height:44px!important;min-height:44px!important;max-height:44px!important}.sidebar-favorite-page-open{min-height:70px}.sidebar-favorite-page-toggle{width:42px;height:42px}}
     /* O.S. simplificada: seleção obrigatória e explícita de executantes */
     .os-simple-form{display:grid;gap:12px;max-width:920px;margin:auto;color:var(--text,#f8fafc)}
     .os-form-section,.os-quick-details{border:1px solid #263a52;border-radius:12px;background:#0b1726;overflow:hidden}
@@ -10245,13 +10222,13 @@
     body.theme-light :is(.reference-topbar-search,.topbar-search){background:#f5f8fb!important;border-color:#cbd8e5!important;color:#38536e!important}body.theme-light :is(.reference-topbar-search,.topbar-search) .searchbar{background:transparent!important;border:0!important;color:#15263a!important;box-shadow:none!important}body.theme-light :is(.reference-topbar-search,.topbar-search) .searchbar::placeholder{color:#71859a!important}
     body.theme-light .header-dashboard-filters{background:#fff!important;border-color:#c9d6e3!important;box-shadow:0 16px 34px rgba(31,55,81,.16)!important}body.theme-light .header-dashboard-filters label{background:#f5f8fb!important;border-color:#cbd8e5!important;color:#40566f!important}body.theme-light .header-dashboard-filters select{background:#f5f8fb!important;color:#15263a!important}
     body.theme-light :is(.nav,.industrial-sidebar-brand,.industrial-sidebar-scroll,.sidebar-mobile-head){background:#fff!important;border-color:#d6e1eb!important;color:#1a3048!important}body.theme-light .sidebar-logo-frame{background:transparent!important;border-color:transparent!important}body.theme-light .nav-toggle-btn{background:linear-gradient(180deg,#f8fbfe,#eaf2f9)!important;border-color:#bdccda!important;color:#28445f!important;box-shadow:0 3px 10px rgba(31,55,81,.1)!important}body.theme-light .nav-toggle-btn:hover,body.theme-light .nav-toggle-btn:focus-visible{background:#e5f1fc!important;border-color:#7baad5!important;color:#0d6fd1!important}
-    body.theme-light .nav :is(.tab,.nav-group>summary,.nav-quick-access>summary){color:#334b64!important}body.theme-light .nav :is(.tab,.nav-group>summary,.nav-quick-access>summary):hover{background:#edf5fc!important;color:#0f5fa8!important}body.theme-light .nav .tab.active{background:linear-gradient(135deg,#1684ea,#0d6fd1)!important;color:#fff!important;border-color:#0d6fd1!important}body.theme-light .nav :is(.nav-section-label,.nav-group>summary>span,.nav-quick-access>summary>span){color:#567089!important}body.theme-light :is(.nav-group-items,.nav-pinned,.nav-quick-list){border-color:#dce5ee!important}body.theme-light :is(.nav-favorite-copy-row,.nav-module-favorite-row){background:transparent!important}body.theme-light .nav-favorite-copy-row>.tab{color:#334b64!important}body.theme-light .sidebar-favorites-empty{color:#60758c!important}
+    body.theme-light .nav :is(.tab,.nav-group>summary,.nav-quick-access>summary){color:#334b64!important}body.theme-light .nav :is(.tab,.nav-group>summary,.nav-quick-access>summary):hover{background:#edf5fc!important;color:#0f5fa8!important}body.theme-light .nav .tab.active{background:linear-gradient(135deg,#1684ea,#0d6fd1)!important;color:#fff!important;border-color:#0d6fd1!important}body.theme-light .nav :is(.nav-section-label,.nav-group>summary>span,.nav-quick-access>summary>span){color:#567089!important}body.theme-light :is(.nav-group-items,.nav-pinned,.nav-quick-list){border-color:#dce5ee!important}
     body.theme-light :is(.panel,.form-panel,.dashboard-widget,.industrial-card,.professional-kpi-card,.os-table-panel,.os-detail-panel,.order-detail,.calendar-app,.map-shell,.map-side,.side-box,.tenant-user-editor,.dashboard-industrial-card,.dashboard-alert-panel,.industrial-agenda,.stage14-card,.stage14-panel,.stage15-card,.stage15-panel,.stage17-card,.stage17-panel,.stage18-card,.stage18-panel,.stage19-card,.stage19-panel,.stage20-card,.stage20-panel,.stage21-card,.stage21-panel,.s16-card,.materials-card,.materials-panel,.asset-card,.asset-panel,.checklist-card,.checklist-panel,.preventive-card,.preventive-panel,.os-form-section,.os-quick-details){background:#fff!important;border-color:#d2deea!important;color:#15263a!important;box-shadow:0 4px 16px rgba(31,55,81,.06)!important}
     body.theme-light :is(.panel-head,.industrial-card-head,.tenant-user-editor-head,.os-detail-head,.os-action-head,.api-folder-head,.os-form-section>header){background:#f7fafc!important;border-color:#d8e2ec!important;color:#15263a!important}
     body.theme-light :is(h1,h2,h3,h4,h5,h6,.panel-title,.section-title,.card-title,.metric-value,.kpi-value,.professional-kpi-value,strong,label,legend,th){color:#15263a!important}body.theme-light :is(p,small,.muted,.helper,.subtitle,.metric-label,.kpi-label,.card-subtitle,.panel-subtitle){color:#526981!important}
     body.theme-light :is(input,select,textarea,.field,.searchbar){background:#fff!important;border-color:#bfcddd!important;color:#15263a!important;box-shadow:none!important}body.theme-light :is(input,textarea,.searchbar)::placeholder{color:#7b8da1!important}body.theme-light :is(input,select,textarea,.field,.searchbar):focus{border-color:#2989e5!important;box-shadow:0 0 0 3px rgba(29,140,255,.13)!important;outline:none!important}body.theme-light :is(input,select,textarea):disabled{background:#eef2f6!important;color:#728296!important}
     body.theme-light :is(.table-wrap,.data-table-wrap,.os-table-wrap){background:#fff!important;border-color:#d4dfe9!important}body.theme-light table{background:#fff!important;color:#15263a!important}body.theme-light thead,body.theme-light th{background:#eef4f9!important;color:#334b64!important;border-color:#d3dee9!important}body.theme-light td{background:#fff!important;color:#273d54!important;border-color:#e0e7ef!important}body.theme-light tbody tr:hover td,body.theme-light .click-row:hover{background:#edf6ff!important}
-    body.theme-light :is(.tabs,.detail-tabs,.tenant-user-tabs,.toolbar,.actions,.form-actions){border-color:#d5e0ea!important}body.theme-light :is(.tab,.tenant-user-tab,[data-detail-tab]):not(.active){background:#f4f8fb!important;border-color:#cedae5!important;color:#3e5872!important}body.theme-light :is(.btn,.widget-btn,button):not(.primary):not(.danger):not(.tab.active):not(.reference-notification):not(.system-theme-toggle):not(.nav-favorite-remove){border-color:#c5d3e1;color:#29445e}
+    body.theme-light :is(.tabs,.detail-tabs,.tenant-user-tabs,.toolbar,.actions,.form-actions){border-color:#d5e0ea!important}body.theme-light :is(.tab,.tenant-user-tab,[data-detail-tab]):not(.active){background:#f4f8fb!important;border-color:#cedae5!important;color:#3e5872!important}body.theme-light :is(.btn,.widget-btn,button):not(.primary):not(.danger):not(.tab.active):not(.reference-notification):not(.system-theme-toggle){border-color:#c5d3e1;color:#29445e}
     body.theme-light :is(.modal,.context-menu,.tenant-row-actions>div,.asset-row-actions>div){background:#fff!important;border-color:#cbd8e5!important;color:#15263a!important;box-shadow:0 24px 60px rgba(31,55,81,.22)!important}body.theme-light .modal-head{background:#f6f9fc!important;border-color:#d6e1eb!important;color:#15263a!important}body.theme-light .modal-body{background:#fff!important;color:#15263a!important}body.theme-light .modal-backdrop{background:rgba(29,47,67,.46)!important}
     body.theme-light :is(.os-form-grid,.order-executor-field,.order-executor-option,.order-asset-context){background:#f8fafc!important;border-color:#ccd9e6!important;color:#344e68!important}body.theme-light .order-executor-option:hover,body.theme-light .order-executor-option.is-selected{background:#e7f3ff!important;border-color:#1d8cff!important}body.theme-light .os-create-actions{background:linear-gradient(180deg,transparent,#edf3f8 24%)!important}body.theme-light :is(.toast,.sidebar-tooltip){background:#18314b!important;color:#fff!important;border-color:#34536f!important}body.theme-light .reference-user-avatar{background:#dceafa!important;color:#0c5fac!important;border-color:#b9cee3!important}body.theme-light .reference-user-avatar i{border-color:#fff!important}
     body.theme-light .industrial-critical-alerts{background:#f5f8fb!important;border-color:#ccd9e5!important}body.theme-light .industrial-critical-alerts>div strong,body.theme-light .industrial-critical-alerts p b{color:#18314b!important}body.theme-light .industrial-critical-alerts p{color:#5d7288!important}
@@ -12617,9 +12594,6 @@
         .nav-quick-access > summary > i,
         .nav-group-items,
         .nav-quick-list,
-        .sidebar-favorites-empty,
-        .nav-favorite-remove,
-        .nav-module-favorite-toggle,
         .industrial-critical-alerts p,
         .industrial-critical-alerts > div > strong,
         .industrial-sidebar-footer small,
@@ -12652,13 +12626,6 @@
         width: 22px !important;
         height: 22px !important;
         margin: 0 !important;
-        display: grid !important;
-        place-items: center !important;
-      }
-      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) .nav-module-favorite-row {
-        width: 56px !important;
-        min-width: 56px !important;
-        margin: 0 auto !important;
         display: grid !important;
         place-items: center !important;
       }
@@ -14226,20 +14193,6 @@ body:not(.auth-required):not(.auth-loading) .nav {
   color: #9cafc1 !important;
 }
 @media (min-width: 901px) {
-  body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) :is(
-    .nav-module-favorite-row,
-    .nav-favorite-copy-row
-  ) {
-    height: auto !important;
-    min-height: 42px !important;
-    max-height: none !important;
-    overflow: visible !important;
-    flex: 0 0 auto !important;
-  }
-  body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) :is(
-    .nav-module-favorite-row,
-    .nav-favorite-copy-row
-  ) > .tab,
   body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) .nav-group-items .tab {
     height: auto !important;
     min-height: 42px !important;
@@ -16511,78 +16464,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       white-space: nowrap !important;
     }
 
-    /* Acessos Rápidos: superfície e controles coerentes com o modo claro. */
-    body.theme-light #quickAccess .sidebar-favorites-total {
-      border-color: #bfd3e5 !important;
-      background: #eaf4fc !important;
-      color: #24577f !important;
-    }
-    body.theme-light #quickAccess .sidebar-favorites-page-section {
-      border-color: #cbd9e6 !important;
-      background: #ffffff !important;
-      box-shadow: 0 5px 18px rgba(35, 70, 103, .07) !important;
-    }
-    body.theme-light #quickAccess .sidebar-favorites-section-head h2 {
-      color: #172f47 !important;
-    }
-    body.theme-light #quickAccess .sidebar-favorites-section-head p {
-      color: #60768b !important;
-    }
-    body.theme-light #quickAccess .sidebar-favorite-page-card {
-      border-color: #c8d6e3 !important;
-      background: #f7fafc !important;
-      box-shadow: 0 1px 2px rgba(35, 70, 103, .04) !important;
-    }
-    body.theme-light #quickAccess .sidebar-favorite-page-card:hover {
-      border-color: #79acd5 !important;
-      background: #edf6fd !important;
-      box-shadow: 0 6px 15px rgba(35, 91, 141, .1) !important;
-    }
-    body.theme-light #quickAccess .sidebar-favorite-page-card.is-favorite {
-      border-color: #e0c36d !important;
-      background: #fffaf0 !important;
-    }
-    body.theme-light #quickAccess .sidebar-favorite-page-open {
-      border: 0 !important;
-      background: transparent !important;
-      color: #18324b !important;
-    }
-    body.theme-light #quickAccess .sidebar-favorite-page-open i {
-      border: 1px solid #bfd8ee !important;
-      background: #e3f0fb !important;
-      color: #0b70c9 !important;
-    }
-    body.theme-light #quickAccess .sidebar-favorite-page-open strong {
-      color: #18324b !important;
-    }
-    body.theme-light #quickAccess .sidebar-favorite-page-open small {
-      color: #5f7489 !important;
-    }
-    body.theme-light #quickAccess .sidebar-favorite-page-toggle {
-      border-color: #bdcddb !important;
-      background: #ffffff !important;
-      color: #5f7489 !important;
-      box-shadow: none !important;
-    }
-    body.theme-light #quickAccess .sidebar-favorite-page-toggle:hover,
-    body.theme-light #quickAccess .sidebar-favorite-page-toggle:focus-visible {
-      border-color: #6da4d3 !important;
-      background: #eaf4fc !important;
-      color: #0b70c9 !important;
-      box-shadow: 0 0 0 3px rgba(29, 140, 255, .12) !important;
-    }
-    body.theme-light #quickAccess .sidebar-favorite-page-toggle.is-remove {
-      border-color: #e2c36e !important;
-      background: #fffaf0 !important;
-      color: #a66712 !important;
-    }
-    body.theme-light #quickAccess .sidebar-favorite-page-toggle.is-remove:hover,
-    body.theme-light #quickAccess .sidebar-favorite-page-toggle.is-remove:focus-visible {
-      border-color: #d89f28 !important;
-      background: #fff2cf !important;
-      color: #86500b !important;
-    }
-
     /* Visão Geral: elimina superfícies escuras fixas quando o tema claro está ativo. */
     body.theme-light #dashboard .industrial-dashboard-heading {
       color: #17344a !important;
@@ -17918,22 +17799,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       background: rgba(30, 159, 227, .12) !important;
       border-color: rgba(91, 190, 239, .30) !important;
     }
-    .nav-favorite-toggle,
-    .sidebar-favorite-page-toggle {
-      color: #7e9ab5 !important;
-      box-shadow: none !important;
-    }
-    .nav-favorite-toggle.is-favorite,
-    .sidebar-favorite-page-toggle:not(.is-remove)[aria-pressed="true"] {
-      color: #35b9ec !important;
-      border-color: rgba(53, 185, 236, .38) !important;
-      background: rgba(53, 185, 236, .09) !important;
-    }
-    .nav-favorite-toggle.is-favorite .gm-icon,
-    .sidebar-favorite-page-toggle .gm-icon {
-      fill: none !important;
-      filter: none !important;
-    }
     :is(
       .professional-kpi-icon,
       .stage20-shortcut-icon,
@@ -17951,7 +17816,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       .stage17-tree-icon,
       .subtag-tree-icon,
       .subtag-leaf-icon,
-      .favorite-module-icon,
       .industrial-quick-actions button > i,
       .mobile-tech-actions button > i
     ).gm-icon-surface {
@@ -18048,25 +17912,17 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       background: rgba(26, 164, 218, .18) !important;
       border-color: rgba(105, 208, 246, .52) !important;
     }
-    body.theme-light .nav .nav-favorite-toggle,
     body.theme-light .nav .nav-toggle-btn {
       color: #79cceb !important;
       background: #0a2234 !important;
       border-color: #28516b !important;
       box-shadow: none !important;
     }
-    body.theme-light .nav .nav-favorite-toggle:hover,
-    body.theme-light .nav .nav-favorite-toggle:focus-visible,
     body.theme-light .nav .nav-toggle-btn:hover,
     body.theme-light .nav .nav-toggle-btn:focus-visible {
       color: #b5efff !important;
       background: #103047 !important;
       border-color: #4382a5 !important;
-    }
-    body.theme-light .nav .nav-favorite-toggle.is-favorite {
-      color: #47c7ef !important;
-      background: rgba(28, 156, 207, .14) !important;
-      border-color: rgba(79, 194, 235, .42) !important;
     }
     body.theme-light .gm-icon-rendered {
       filter: none !important;
@@ -19063,12 +18919,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       <div class="nav-pinned">
         <button class="tab" data-view="quickAccess" title="Acessos Rápidos"><span class="tab-icon"></span><span>Acessos Rápidos</span></button>
         <button class="tab active" data-view="dashboard" title="Visão Geral"><span class="tab-icon"></span><span>Visão Geral</span></button>
-        <details class="nav-quick-access" data-nav-quick>
-          <summary title="Favoritos"><span class="tab-icon"></span><span>Favoritos</span><i></i></summary>
-          <div class="nav-quick-list">
-            <div class="sidebar-favorites-empty"><span></span><small>Clique na estrela de um módulo para adicioná-lo aqui.</small></div>
-          </div>
-        </details>
       </div>
       <details class="nav-group" data-nav-group="maintenance">
         <summary title="Manutenção"><span class="nav-group-icon"></span><span>Manutenção</span><i></i></summary>
@@ -20188,7 +20038,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     const STAGE21_APP_VERSION = "2026.07.21";
     const STAGE21_PASSWORD_ITERATIONS = 120000;
     const PERMISSION_MODULES = [
-      { key: "dashboard", label: "Dashboard e favoritos", views: ["dashboard", "quickAccess"] },
+      { key: "dashboard", label: "Dashboard e acessos rápidos", views: ["dashboard", "quickAccess"] },
       { key: "map", label: "Estrutura de instalação", views: ["map"] },
       { key: "assets", label: "Ativos e equipamentos", views: ["assets"] },
       { key: "tags", label: "Identificadores de ativos", views: ["tags"] },
@@ -23003,8 +22853,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         const visibleItems = Array.from(group.querySelectorAll(".tab")).filter(item => !item.classList.contains("is-permission-hidden"));
         group.classList.toggle("is-empty", visibleItems.length === 0);
       });
-      syncSidebarFavoritePermissionVisibility();
-      renderSidebarFavorites();
       applyActionPermissionVisibility();
     }
     function actionModuleForElement(element) {
@@ -23014,7 +22862,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function applyActionPermissionVisibility(root = document) {
       if (!currentAccount) return;
       root.querySelectorAll(".view button, .view [role='button'], #genericModal button").forEach(element => {
-        if (element.matches(".close,[data-close-modal],[data-view],[data-mobile-view],[data-view-button],[data-favorite-action]") || element.closest(".tenant-user-admin")) return;
+        if (element.matches(".close,[data-close-modal],[data-view],[data-mobile-view],[data-view-button]") || element.closest(".tenant-user-admin")) return;
         const actionText = element.dataset.permissionAction || element.textContent || element.title || element.getAttribute("aria-label") || "";
         const requiredLevel = element.dataset.requiredLevel || actionPermissionKeyFromText(actionText);
         const allowed = profileAllowsAction(actionModuleForElement(element), requiredLevel, actionText);
@@ -23577,7 +23425,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       scopedSetItem(NAV_GROUPS_KEY, groupKey, "user");
     }
     function openNavGroupForView(view) {
-      const button = document.querySelector(`.tab[data-view="${view}"]:not([data-favorite-copy])`);
+      const button = document.querySelector(`.tab[data-view="${view}"]`);
       const group = button?.closest("[data-nav-group]");
       const quick = button?.closest("[data-nav-quick]");
       document.querySelectorAll("[data-nav-group]").forEach(item => { item.open = item === group; });
@@ -24647,7 +24495,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       applyPlatformOwnerMode(nextView);
       const activeNavView = materialsRoute ? requestedNavView : nextView;
       document.querySelectorAll(".tab").forEach(tab => tab.classList.toggle("active", tab.dataset.view === activeNavView));
-      const activeTab = document.querySelector(`.tab[data-view="${activeNavView}"]:not([data-favorite-copy])`);
+      const activeTab = document.querySelector(`.tab[data-view="${activeNavView}"]`);
       updateHeaderContext(activeNavView, activeTab, nextView);
       openNavGroupForView(activeNavView);
       if (!options.keepCrudForm) hideCrudFormsInView(nextView);
@@ -30522,153 +30370,11 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     const STAGE20_SUPPLIER_EXTRAS_KEY="gestman365.suppliers.extras.v1";
     const STAGE20_QUICK_KEY="gestman365.quickAccess.v1";
     const STAGE20_QUICK_USAGE_KEY="gestman365.quickAccess.usage.v1";
-    const SIDEBAR_FAVORITES_KEY="gestman365.sidebarFavorites.v1";
     const STAGE20_NOTIFICATIONS_KEY="gestman365.notifications.v1";
     const STAGE20_NOTIFICATION_PREFS_KEY="gestman365.notificationPreferences.v1";
     const STAGE20_SUPPLIER_CATEGORIES=["Fornecedor de peças","Prestador de manutenção","Calibração","Locação","Ferramentas","Serviços técnicos","Engenharia","Inspeção","Transporte","Outro"];
     const STAGE20_NOTIFICATION_CATEGORIES=["Ordem de Serviço","Plano Preventivo","Checklist","Medição","Parada","Ação Pendente","Estoque","Ferramenta","Documento","Fornecedor","Equipe e Agenda","Sistema"];
     const stage20SupplierUi={search:"",category:"",status:"",document:"",page:1,selectedId:"",tab:"overview"};
-    function sidebarModuleCatalog() {
-      return [...document.querySelectorAll('.industrial-sidebar-scroll .tab[data-view]:not([data-favorite-copy])')]
-        .filter(button => !button.closest('[data-nav-quick]') && !["dashboard","quickAccess"].includes(button.dataset.view))
-        .map(button => ({
-          view:button.dataset.view,
-          name:button.querySelector('span:last-child')?.textContent?.trim() || button.textContent.trim(),
-          icon:window.GMIcons?.viewIcons?.[button.dataset.view] || "dashboard",
-          button
-        }))
-        .filter((item,index,rows) => rows.findIndex(row => row.view === item.view) === index);
-    }
-    function sidebarFavoriteViews() {
-      let parsed = null;
-      try { parsed = JSON.parse(scopedGetItem(SIDEBAR_FAVORITES_KEY, "user") || "null"); } catch (_) {}
-      const saved = Array.isArray(parsed?.ids) ? parsed.ids : [];
-      const allowed = new Set(sidebarModuleCatalog().filter(item => canAccessView(item.view)).map(item => item.view));
-      return [...new Set(saved)].filter(view => allowed.has(view));
-    }
-    function saveSidebarFavoriteViews(views) {
-      const valid = [...new Set(views)].filter(view => sidebarModuleCatalog().some(item => item.view === view) && canAccessView(view));
-      scopedSetItem(SIDEBAR_FAVORITES_KEY, JSON.stringify({ version:1, ids:valid }), "user");
-      return valid;
-    }
-    function syncSidebarFavoritePermissionVisibility() {
-      document.querySelectorAll('.nav-module-favorite-row').forEach(row => {
-        row.classList.toggle('is-permission-hidden', row.querySelector('.tab')?.classList.contains('is-permission-hidden'));
-      });
-    }
-    function sidebarFavoriteIcon(view, active, size = 17) {
-      return `<span class="sidebar-favorite-star-icon">${gmIcon("star", { size })}</span><span class="sr-only">${active ? "Remover dos favoritos" : "Adicionar aos favoritos"}</span>`;
-    }
-    function toggleSidebarFavorite(view, event) {
-      event?.preventDefault?.();
-      event?.stopPropagation?.();
-      const current = sidebarFavoriteViews();
-      const removing = current.includes(view);
-      const next = saveSidebarFavoriteViews(removing ? current.filter(item => item !== view) : [...current, view]);
-      renderSidebarFavorites();
-      if (document.querySelector('.view.active')?.id === "quickAccess") renderFavoritesPage();
-      const item = sidebarModuleCatalog().find(entry => entry.view === view);
-      showToast(`${item?.name || "Módulo"} ${removing ? "removido dos" : "adicionado aos"} favoritos.`);
-      return next;
-    }
-    function removeSidebarFavorite(view, event) {
-      event?.preventDefault?.();
-      event?.stopPropagation?.();
-      const current = sidebarFavoriteViews();
-      const item = sidebarModuleCatalog().find(entry => entry.view === view);
-      const next = saveSidebarFavoriteViews(current.filter(entry => entry !== view));
-      renderSidebarFavorites();
-      if (document.querySelector('.view.active')?.id === "quickAccess") renderFavoritesPage();
-      showToast(`${item?.name || "Módulo"} removido dos favoritos.`);
-      return next;
-    }
-    function handleSidebarFavoritesClick(event) {
-      const list = event.currentTarget;
-      const removeButton = event.target.closest('[data-favorite-remove-view]');
-      const openButton = event.target.closest('[data-favorite-open-view]');
-      const actionKey = removeButton ? `remove:${removeButton.dataset.favoriteRemoveView}` : openButton ? `open:${openButton.dataset.favoriteOpenView}` : "";
-      if (!actionKey || event.type === "pointerup" && event.button !== 0) return;
-      const now = Date.now();
-      if (list.dataset.favoriteLastAction === actionKey && now - Number(list.dataset.favoriteLastActionAt || 0) < 700) {
-        event.preventDefault();
-        event.stopPropagation();
-        return;
-      }
-      list.dataset.favoriteLastAction = actionKey;
-      list.dataset.favoriteLastActionAt = String(now);
-      if (removeButton && list.contains(removeButton)) {
-        removeSidebarFavorite(removeButton.dataset.favoriteRemoveView, event);
-        return;
-      }
-      if (openButton && list.contains(openButton)) {
-        event.preventDefault();
-        event.stopPropagation();
-        setView(openButton.dataset.favoriteOpenView);
-        if (window.matchMedia("(max-width:600px)").matches) closeMobileNavigation();
-      }
-    }
-    function ensureSidebarFavoritesEvents(list) {
-      if (!list || list.dataset.favoriteEventsReady === "1") return;
-      list.dataset.favoriteEventsReady = "1";
-      list.addEventListener('pointerup', handleSidebarFavoritesClick, true);
-      list.addEventListener('click', handleSidebarFavoritesClick);
-    }
-    function renderSidebarFavorites() {
-      const quick = document.querySelector('[data-nav-quick]');
-      const list = quick?.querySelector('.nav-quick-list');
-      if (!quick || !list) return;
-      const summary = quick.querySelector(':scope>summary');
-      if (summary) {
-        summary.title = "Favoritos";
-        const label = summary.querySelector('span:nth-child(2)');
-        if (label) label.textContent = "Favoritos";
-      }
-      list.id = "sidebarFavoritesList";
-      const catalog = sidebarModuleCatalog();
-      const favorites = sidebarFavoriteViews().map(view => catalog.find(item => item.view === view)).filter(Boolean);
-      ensureSidebarFavoritesEvents(list);
-      list.innerHTML = `${favorites.length ? favorites.map(item => `<div class="nav-favorite-copy-row"><button class="tab" type="button" data-view="${escapeHtml(item.view)}" data-favorite-copy="true" data-favorite-open-view="${escapeHtml(item.view)}" data-gm-skip-icon="true"><i class="favorite-module-icon">${gmIcon(item.icon,{size:18})}</i><span>${escapeHtml(item.name)}</span></button><button class="nav-favorite-toggle is-favorite" type="button" data-favorite-view="${escapeHtml(item.view)}" data-favorite-remove-view="${escapeHtml(item.view)}" data-gm-skip-icon="true" aria-pressed="true" aria-label="Excluir ${escapeHtml(item.name)} dos favoritos" title="Excluir dos favoritos">${sidebarFavoriteIcon(item.view,true)}</button></div>`).join("") : `<div class="sidebar-favorites-empty"><span>${gmIcon("star",{size:18})}</span><small>Clique na estrela de um módulo para adicioná-lo aqui.</small></div>`}<button class="tab sidebar-favorites-manage" type="button" data-view="quickAccess" data-favorite-copy="true" onclick="setView('quickAccess')"><span class="favorite-module-icon">${gmIcon("star",{size:18})}</span><span>Gerenciar favoritos</span></button>`;
-      list.querySelector('.sidebar-favorites-manage')?.remove();
-      list.querySelectorAll('.nav-favorite-copy-row>.nav-favorite-toggle').forEach(button => {
-        button.classList.add('nav-favorite-remove');
-        button.removeAttribute('onclick');
-        button.innerHTML = `<i class="sidebar-favorite-star-icon">${gmIcon("trash",{size:17})}</i><span class="sr-only">Excluir dos favoritos</span>`;
-      });
-      const active = document.querySelector('.view.active')?.id || "";
-      list.querySelectorAll('.tab[data-view]').forEach(button => button.classList.toggle('active', button.dataset.view === active));
-      const chosen = new Set(favorites.map(item => item.view));
-      document.querySelectorAll('.nav-favorite-toggle[data-favorite-view]').forEach(button => {
-        const selected = chosen.has(button.dataset.favoriteView);
-        button.classList.toggle('is-favorite', selected);
-        button.setAttribute('aria-pressed', String(selected));
-        const removeAction = button.classList.contains('nav-favorite-remove');
-        button.setAttribute('aria-label', removeAction ? `Excluir ${sidebarModuleCatalog().find(item => item.view === button.dataset.favoriteView)?.name || "módulo"} dos favoritos` : `${selected ? "Remover" : "Adicionar"} ${sidebarModuleCatalog().find(item => item.view === button.dataset.favoriteView)?.name || "módulo"} ${selected ? "dos" : "aos"} favoritos`);
-        button.title = removeAction ? "Excluir dos favoritos" : (selected ? "Remover dos favoritos" : "Adicionar aos favoritos");
-      });
-      initSidebarTooltips();
-    }
-    function initSidebarFavorites() {
-      const quickList = document.querySelector('[data-nav-quick] .nav-quick-list');
-      if (quickList) quickList.innerHTML = "";
-      sidebarModuleCatalog().forEach(item => {
-        const button = item.button;
-        if (button.closest('.nav-module-favorite-row')) return;
-        const row = document.createElement('div');
-        row.className = 'nav-module-favorite-row';
-        button.parentNode.insertBefore(row, button);
-        row.appendChild(button);
-        const star = document.createElement('button');
-        star.type = 'button';
-        star.className = 'nav-favorite-toggle';
-        star.dataset.gmSkipIcon = 'true';
-        star.dataset.favoriteView = item.view;
-        star.innerHTML = sidebarFavoriteIcon(item.view, false);
-        star.addEventListener('click', event => toggleSidebarFavorite(item.view, event));
-        row.appendChild(star);
-      });
-      syncSidebarFavoritePermissionVisibility();
-      renderSidebarFavorites();
-    }
     let stage20SupplierSaveLock=false;
     function stage20Json(key,fallback,scope="tenant"){try{const value=JSON.parse(scopedGetItem(key,scope)||"null");return value??fallback}catch{return fallback}}
     function stage20SupplierExtras(){const data=stage20Json(STAGE20_SUPPLIER_EXTRAS_KEY,{version:1,items:{}},"tenant");return data&&data.version===1&&data.items?data:{version:1,items:{}}}
@@ -30742,38 +30448,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function stage20CommitQuick(){stage20SaveQuick(stage20QuickDraft);closeModal();renderStage20Quick();showToast("Acessos rápidos salvos para este usuário.")}
     /* Etapa 20 — Central interna de notificações */
     const stage20NotificationUi={tab:"all",period:"all",category:"",level:"",status:"active"};
-    function sidebarFavoritePageCard(item, selected) {
-      const actionIcon = selected ? gmIcon("trash",{size:19}) : gmIcon("star",{size:20});
-      return `<article class="sidebar-favorite-page-card ${selected ? "is-favorite" : ""}"><button class="sidebar-favorite-page-open" type="button" data-favorite-action data-favorite-open-view="${escapeHtml(item.view)}" data-gm-skip-icon="true"><i>${gmIcon(item.icon,{size:22})}</i><span><strong>${escapeHtml(item.name)}</strong><small>Abrir módulo</small></span></button><button class="sidebar-favorite-page-toggle ${selected ? "is-remove" : ""}" type="button" data-favorite-toggle-view="${escapeHtml(item.view)}" data-favorite-remove="${selected}" data-gm-skip-icon="true" aria-pressed="${selected}" aria-label="${selected ? "Excluir" : "Adicionar"} ${escapeHtml(item.name)} ${selected ? "dos" : "aos"} favoritos" title="${selected ? "Excluir dos favoritos" : "Adicionar aos favoritos"}">${actionIcon}</button></article>`;
-    }
-    function ensureFavoritesPageEvents(root) {
-      if (!root || root.dataset.favoriteEventsReady === "1") return;
-      root.dataset.favoriteEventsReady = "1";
-      root.addEventListener('click', event => {
-        const toggleButton = event.target.closest('[data-favorite-toggle-view]');
-        if (toggleButton && root.contains(toggleButton)) {
-          const view = toggleButton.dataset.favoriteToggleView;
-          if (toggleButton.dataset.favoriteRemove === "true") removeSidebarFavorite(view, event);
-          else toggleSidebarFavorite(view, event);
-          return;
-        }
-        const openButton = event.target.closest('[data-favorite-open-view]');
-        if (openButton && root.contains(openButton)) {
-          event.preventDefault();
-          setView(openButton.dataset.favoriteOpenView);
-        }
-      });
-    }
-    function renderFavoritesPage() {
-      const root = $("stage20QuickRoot");
-      if (!root) return;
-      ensureFavoritesPageEvents(root);
-      const catalog = sidebarModuleCatalog().filter(item => canAccessView(item.view));
-      const favoriteViews = sidebarFavoriteViews();
-      const favorites = favoriteViews.map(view => catalog.find(item => item.view === view)).filter(Boolean);
-      root.innerHTML = `<header class="stage20-page-head sidebar-favorites-page-head"><div><span class="stage20-eyebrow">ATALHOS PESSOAIS</span><h1>Favoritos</h1><p>Clique na estrela ao lado de qualquer módulo para montar sua lista de acesso rápido.</p></div><div class="sidebar-favorites-total">${favorites.length} favorito${favorites.length === 1 ? "" : "s"}</div></header><section class="stage20-panel sidebar-favorites-page-section"><div class="sidebar-favorites-section-head"><div><h2>Meus favoritos</h2><p>Seus módulos preferidos, salvos somente para o seu usuário.</p></div></div>${favorites.length ? `<div class="sidebar-favorites-page-grid">${favorites.map(item => sidebarFavoritePageCard(item,true)).join("")}</div>` : `<div class="stage20-empty sidebar-favorites-page-empty">${gmIcon("star",{size:30})}<strong>Nenhum módulo favorito.</strong><span>Use as estrelas abaixo ou no menu lateral para adicionar.</span></div>`}</section><section class="stage20-panel sidebar-favorites-page-section"><div class="sidebar-favorites-section-head"><div><h2>Todos os módulos</h2><p>A lista respeita as permissões do seu perfil.</p></div></div><div class="sidebar-favorites-page-grid">${catalog.map(item => sidebarFavoritePageCard(item,favoriteViews.includes(item.view))).join("")}</div></section>`;
-    }
-    renderStage20Quick = renderFavoritesPage;
     function stage20Notifications(){const rows=stage20Json(STAGE20_NOTIFICATIONS_KEY,[],"user");return(Array.isArray(rows)?rows:[]).filter(n=>!n.recipientId||n.recipientId===currentAccount?.user?.id).sort((a,b)=>Number(b.createdAt)-Number(a.createdAt))}
     function stage20SaveNotifications(rows){scopedSetItem(STAGE20_NOTIFICATIONS_KEY,JSON.stringify(rows.slice(0,500)),"user")}
     function stage20NotificationPrefs(){const saved=stage20Json(STAGE20_NOTIFICATION_PREFS_KEY,{version:1,categories:{}},"user");return saved?.version===1?{version:1,categories:saved.categories||{}}:{version:1,categories:{}}}
@@ -37253,7 +36927,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     applyTheme(currentTheme, { silent:true });
     initNavCollapse();
     initNavGroups();
-    initSidebarFavorites();
     renderAuthScreen();
     if (currentAccount) {
       captureSyncBaseline();
