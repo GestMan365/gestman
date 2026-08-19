@@ -2044,6 +2044,111 @@
       gap: 10px;
       min-width: 0;
     }
+    .order-execution-cta {
+      position: sticky;
+      top: 0;
+      z-index: 6;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.18);
+      border-left: 5px solid #22c55e;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #10263a, #0a1726 72%);
+      box-shadow: 0 12px 28px rgba(0,0,0,.28);
+    }
+    .order-execution-cta.is-running { border-left-color: #2f8fff; }
+    .order-execution-cta.is-paused { border-left-color: #f59e0b; }
+    .order-execution-cta.is-closed {
+      position: static;
+      border-left-color: #64748b;
+      box-shadow: none;
+    }
+    .order-execution-copy {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .order-execution-icon {
+      width: 44px;
+      height: 44px;
+      flex: 0 0 44px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 12px;
+      background: rgba(255,255,255,.1);
+    }
+    .order-execution-copy small {
+      display: block;
+      margin-bottom: 3px;
+      color: #7dd3fc !important;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .12em;
+    }
+    .order-execution-copy strong {
+      display: block;
+      color: #fff !important;
+      font-size: 17px;
+      line-height: 1.2;
+    }
+    .order-execution-copy span {
+      display: block;
+      margin-top: 4px;
+      color: #cbd5e1 !important;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    .order-execution-actions {
+      display: flex;
+      align-items: stretch;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    .order-execution-actions .btn {
+      min-height: 48px !important;
+      font-size: 14px !important;
+      white-space: nowrap;
+    }
+    .order-execution-primary {
+      min-width: 190px;
+      color: #fff !important;
+      font-weight: 900 !important;
+      border-width: 0 !important;
+      box-shadow: 0 8px 20px rgba(0,0,0,.25) !important;
+    }
+    .order-execution-primary.is-start { background: #168a42 !important; }
+    .order-execution-primary.is-finish { background: #1675d1 !important; }
+    .order-execution-primary.is-resume { background: #c96d08 !important; }
+    .order-execution-cta.is-panel {
+      position: static;
+      grid-template-columns: 1fr;
+      margin: 12px;
+      padding: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,.2);
+    }
+    .order-execution-cta.is-panel .order-execution-icon {
+      width: 38px;
+      height: 38px;
+      flex-basis: 38px;
+    }
+    .order-execution-cta.is-panel .order-execution-actions,
+    .order-execution-cta.is-panel .order-execution-primary { width: 100%; }
+    .order-detail-savebar {
+      position: sticky;
+      bottom: 0;
+      z-index: 5;
+      padding: 10px;
+      border-top: 1px solid rgba(255,255,255,.16);
+      background: rgba(7,17,31,.96);
+      backdrop-filter: blur(8px);
+    }
     .icon-actions {
       display: flex;
       flex-wrap: wrap;
@@ -2521,6 +2626,28 @@
       .order-detail {
         grid-template-columns: 1fr;
       }
+      .order-execution-cta,
+      .order-execution-cta.is-panel {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 12px;
+      }
+      .order-execution-cta.is-panel { margin: 10px; }
+      .order-execution-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+      .order-execution-actions:has(.order-execution-secondary) {
+        grid-template-columns: minmax(104px, .65fr) minmax(0, 1.35fr);
+      }
+      .order-execution-primary {
+        width: 100%;
+        min-width: 0;
+        min-height: 52px !important;
+      }
+      .order-execution-secondary { min-height: 52px !important; }
+      .order-detail-savebar .btn { flex: 1 1 140px; min-height: 48px !important; }
       .detail-tabs {
         border-right: 0;
         border-bottom: 1px solid rgba(255,255,255,.16);
@@ -18320,6 +18447,63 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     body.theme-light:not(.auth-required):not(.auth-loading) .industrial-sidebar-footer :is(span, small, b) {
       color: #a8bdcf !important;
     }
+    /* Ações operacionais da O.S.: prioridade máxima de toque e contraste. */
+    #genericModal .order-execution-cta .order-execution-actions .btn,
+    #orders .order-execution-cta .order-execution-actions .btn {
+      min-height: 50px !important;
+      height: auto !important;
+      padding: 10px 16px !important;
+    }
+    #genericModal .order-execution-cta .order-execution-primary,
+    #orders .order-execution-cta .order-execution-primary {
+      min-width: 190px !important;
+      color: #fff !important;
+      font-weight: 900 !important;
+      border-width: 1px !important;
+      box-shadow: 0 8px 20px rgba(0,0,0,.25) !important;
+    }
+    #genericModal .order-execution-primary.is-start,
+    #orders .order-execution-primary.is-start { background: #168a42 !important; border-color: #168a42 !important; }
+    #genericModal .order-execution-primary.is-finish,
+    #orders .order-execution-primary.is-finish { background: #1675d1 !important; border-color: #1675d1 !important; }
+    #genericModal .order-execution-primary.is-resume,
+    #orders .order-execution-primary.is-resume { background: #c96d08 !important; border-color: #c96d08 !important; }
+    @media (max-width: 760px) {
+      #genericModal .order-execution-cta .order-execution-primary,
+      #orders .order-execution-cta .order-execution-primary {
+        width: 100% !important;
+        min-width: 0 !important;
+        min-height: 54px !important;
+      }
+    }
+    @media (max-width: 760px) {
+      #genericModal #orderDetailForm {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+      }
+      #genericModal #orderDetailForm .detail-tabs {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 6px !important;
+        width: 100% !important;
+        overflow-x: auto !important;
+        padding: 8px 2px !important;
+        border-right: 0 !important;
+        border-bottom: 1px solid rgba(255,255,255,.16) !important;
+        scrollbar-width: thin;
+        scroll-snap-type: x proximity;
+      }
+      #genericModal #orderDetailForm .detail-tab {
+        flex: 0 0 auto !important;
+        min-width: 118px !important;
+        min-height: 44px !important;
+        padding: 8px 12px !important;
+        scroll-snap-align: start;
+      }
+      #genericModal #orderDetailForm .detail-main { width: 100% !important; min-width: 0 !important; }
+    }
   </style></head>
 <body class="auth-loading auth-restoring">
   <script id="design-theme-bootstrap">
@@ -29254,6 +29438,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             <div class="wide"><span>Descrição</span><strong>${escapeHtml(order.description || "Sem descrição")}</strong></div>
           </div>
         </div>
+        ${orderExecutionCta(order, "panel")}
         <div class="mobile-execution-shortcuts"><button type="button" onclick="addOrderObservation('${order.id}')">Observação</button><button type="button" onclick="openMobileOrderAttachment('${order.id}',true)">Foto</button><button type="button" onclick="openMobileOrderAttachment('${order.id}',false)">Documento</button><button type="button" onclick="setView('measurements');openCrudFormForCreate('measurementForm')">Medição</button><button type="button" onclick="openMobilePartUsed('${order.id}')">Peça utilizada</button><button type="button" onclick="setOrderDetailTab('checklist')">Checklist</button></div>
         <div class="os-detail-tabs">
           ${[["general","Geral"],["checklist","Checklist"],["parts","Peças"],["notes","Apontamentos"],["history","Histórico"],["attachments","Anexos"]].map(([key,label]) => `<button class="${selectedOrderDetailTab === key ? "active" : ""}" type="button" onclick="setOrderDetailTab('${key}')">${label}</button>`).join("")}
@@ -31618,7 +31803,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (!value) return "-";
       return new Date(Number(value)).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
     }
-    function confirmStartOrder(id) {
+    function confirmStartOrder(id, reopenDetails = false) {
       const order = byId(state.orders, id);
       if (!order) return;
       openModal("Confirmar início", `
@@ -31643,6 +31828,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         $("confirmStartOrderBtn").disabled = true;
         closeModal();
         await startOrder(id, executor);
+        if (reopenDetails && isRunningOrder(byId(state.orders, id)?.status)) showOrderDetails(id);
       });
     }
     function detailTabText(tabName) {
@@ -32371,12 +32557,63 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function orderQrIconMarkup() {
       return `<svg class="ui-icon" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2.75" y="2.75" width="7.5" height="7.5" rx=".6"/><rect x="13.75" y="2.75" width="7.5" height="7.5" rx=".6"/><rect x="2.75" y="13.75" width="7.5" height="7.5" rx=".6"/></g><g fill="currentColor"><rect x="5" y="5" width="3" height="3" rx=".3"/><rect x="16" y="5" width="3" height="3" rx=".3"/><rect x="5" y="16" width="3" height="3" rx=".3"/><rect x="13.75" y="13.75" width="3" height="3"/><rect x="18.25" y="13.75" width="3" height="7.5"/><rect x="13.75" y="18.25" width="3" height="3"/></g></svg>`;
     }
+    function orderExecutionCta(order, placement = "modal") {
+      if (!order) return "";
+      const key = normalizeTextKey(order.status);
+      const closed = isClosedOrder(order.status) || key.includes("cancel");
+      const paused = key.includes("paus");
+      const running = isRunningOrder(order.status);
+      const panelClass = placement === "panel" ? " is-panel" : "";
+      const permission = `data-permission-module="orders" data-required-level="operate"`;
+      if (closed) {
+        return `<section class="order-execution-cta is-closed${panelClass}" data-order-execution-cta data-order-state="closed">
+          <div class="order-execution-copy">
+            <i class="order-execution-icon">${gmIcon("alertTriangle", { size:24 })}</i>
+            <div><small>O.S. ENCERRADA</small><strong>Disponível somente para consulta</strong><span>Esta ordem já foi concluída ou cancelada.</span></div>
+          </div>
+        </section>`;
+      }
+      if (running) {
+        return `<section class="order-execution-cta is-running${panelClass}" data-order-execution-cta data-order-state="running">
+          <div class="order-execution-copy">
+            <i class="order-execution-icon">${gmIcon("play", { size:24 })}</i>
+            <div><small>O.S. EM EXECUÇÃO</small><strong>Serviço em andamento</strong><span>Preencha os dados do atendimento e finalize quando o serviço terminar.</span></div>
+          </div>
+          <div class="order-execution-actions">
+            <button class="btn order-execution-secondary" type="button" ${permission} onclick="changeOrderOperationalStatus('${order.id}','Pausada')">Pausar</button>
+            <button class="btn primary order-execution-primary is-finish" type="button" data-order-primary-action="finish" ${permission} onclick="finishOrder('${order.id}')">${gmIcon("checkCircle", { size:20 })} Finalizar O.S.</button>
+          </div>
+        </section>`;
+      }
+      if (paused) {
+        return `<section class="order-execution-cta is-paused${panelClass}" data-order-execution-cta data-order-state="paused">
+          <div class="order-execution-copy">
+            <i class="order-execution-icon">${gmIcon("pause", { size:24 })}</i>
+            <div><small>O.S. PAUSADA</small><strong>Execução temporariamente interrompida</strong><span>Retome a ordem para continuar registrando o atendimento.</span></div>
+          </div>
+          <div class="order-execution-actions">
+            <button class="btn primary order-execution-primary is-resume" type="button" data-order-primary-action="resume" ${permission} onclick="changeOrderOperationalStatus('${order.id}','Em execucao')">${gmIcon("play", { size:20 })} Retomar O.S.</button>
+          </div>
+        </section>`;
+      }
+      const startAction = placement === "panel" ? `confirmStartOrder('${order.id}')` : `confirmStartOrder('${order.id}', true)`;
+      return `<section class="order-execution-cta is-ready${panelClass}" data-order-execution-cta data-order-state="ready">
+        <div class="order-execution-copy">
+          <i class="order-execution-icon">${gmIcon("workOrders", { size:24 })}</i>
+          <div><small>PRÓXIMA AÇÃO</small><strong>O.S. pronta para iniciar</strong><span>Confirme o executante para registrar automaticamente a data e a hora de início.</span></div>
+        </div>
+        <div class="order-execution-actions">
+          <button class="btn primary order-execution-primary is-start" type="button" data-order-primary-action="start" ${permission} onclick="${startAction}">${gmIcon("play", { size:20 })} Iniciar O.S. agora</button>
+        </div>
+      </section>`;
+    }
     function showOrderDetails(id, mode = "view") {
       const order = byId(state.orders, id);
       if (!order) return;
       const asset = byId(state.assets, order.assetId) || {};
       const plan = order.plan || "43";
-      openModal(mode === "edit" ? "Preencher O.S" : "Visualização de O.S", `
+      const detailTitle = isClosedOrder(order.status) ? "Consultar O.S." : "Preencher O.S.";
+      openModal(detailTitle, `
         <form class="order-detail" id="orderDetailForm">
           <div class="detail-tabs">
             ${["CheckLists", "Outros Custos", "Assinatura", "Detalhes", "Historico", "Geral", "Equipe", "Tarefas", "Seguranca", "Fotos", "Anexos", "Documentos", "Materiais", "Recursos"].map((tab, index) => `<button class="detail-tab ${index === 5 ? "active" : ""}" type="button" data-detail-tab="${tab}">${ptBrText(tab)}</button>`).join("")}
@@ -32389,13 +32626,12 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             </div>
             <div class="icon-actions">
               <button class="icon-btn gm-icon-only" type="button" title="Gerar PDF" aria-label="Gerar PDF" data-gm-skip-icon onclick="simpleOrderAction('${order.id}', 'PDF')">${orderPdfIconMarkup()}</button>
-              ${!isRunningOrder(order.status) && !isClosedOrder(order.status) ? `<button class="icon-btn gm-icon-only" type="button" title="Iniciar O.S." aria-label="Iniciar O.S." onclick="confirmStartOrder('${order.id}')">${gmIcon("play", { size:18 })}</button>` : ""}
-              ${isRunningOrder(order.status) ? `<button class="icon-btn gm-icon-only" type="button" title="Finalizar O.S." aria-label="Finalizar O.S." onclick="finishOrder('${order.id}')">${gmIcon("checkCircle", { size:18 })}</button>` : ""}
               <button class="icon-btn gm-icon-only" type="button" title="Copiar O.S." aria-label="Copiar O.S." onclick="simpleOrderAction('${order.id}', 'copy')">${gmIcon("copy", { size:18 })}</button>
               <button class="icon-btn gm-icon-only" type="button" title="Compartilhar O.S." aria-label="Compartilhar O.S." onclick="simpleOrderAction('${order.id}', 'Compartilhamento')">${gmIcon("send", { size:18 })}</button>
               <button class="icon-btn gm-icon-only" type="button" title="QR Code da O.S." aria-label="QR Code da O.S." data-gm-skip-icon onclick="openOrderQr('${order.id}')">${orderQrIconMarkup()}</button><button class="icon-btn gm-icon-only" type="button" title="Imprimir O.S." aria-label="Imprimir O.S." onclick="simpleOrderAction('${order.id}', 'Impressao')">${gmIcon("printer", { size:18 })}</button>
             </div>
           </div>
+          ${orderExecutionCta(order)}
           <div class="side-box" id="detailTabPanel">${detailTabContent("Geral", order)}</div>
           <div class="detail-grid">
             <label>Num. O.S</label><input class="field" id="detailNumber" value="${order.number}" readonly>
@@ -32421,7 +32657,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             <label class="switch-line"><input type="checkbox" id="detailPending" ${order.pendingExecution ? "checked" : ""}> O.S pendente de execução</label>
             <label class="switch-line"><input type="checkbox" id="detailStopped" ${order.machineStopped ? "checked" : ""}> Equipamento parado durante o serviço</label>
           </div>
-          <div class="toolbar">
+          <div class="toolbar order-detail-savebar">
             <button class="btn danger" type="button" onclick="closeModal()">Cancelar</button>
             <button class="btn primary" type="submit">Salvar detalhes</button>
           </div>

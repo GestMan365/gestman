@@ -81,6 +81,35 @@ function validateQuickAccessWithoutFavorites(file, html) {
   return true;
 }
 
+function validateOrderExecutionActions(file, html) {
+  const requiredMarkers = [
+    "function orderExecutionCta(order, placement",
+    'data-order-execution-cta',
+    'data-order-primary-action="start"',
+    'data-order-primary-action="finish"',
+    'data-order-primary-action="resume"',
+    "Iniciar O.S. agora",
+    "Finalizar O.S.",
+    "Retomar O.S.",
+    'class="toolbar order-detail-savebar"',
+    "function confirmStartOrder(id, reopenDetails = false)",
+    "#genericModal #orderDetailForm .detail-tabs",
+    "flex-direction: row !important;",
+  ];
+  const missing = requiredMarkers.filter((marker) => !html.includes(marker));
+  if (missing.length) {
+    throw new Error(`${file}: ações operacionais da O.S. perderam marcadores obrigatórios: ${missing.join(", ")}`);
+  }
+  const oldIconOnlyActions = [
+    'title="Iniciar O.S." aria-label="Iniciar O.S."',
+    'title="Finalizar O.S." aria-label="Finalizar O.S."',
+  ];
+  if (oldIconOnlyActions.some((marker) => html.includes(marker))) {
+    throw new Error(`${file}: uma ação operacional principal voltou a depender de um ícone sem texto.`);
+  }
+  return true;
+}
+
 if (!rawSources["index.html"].equals(rawSources["404.html"])) {
   throw new Error("index.html e 404.html não são binariamente idênticos.");
 }
@@ -97,6 +126,7 @@ for (const file of files) {
     throw new Error(`${file}: IDs HTML duplicados: ${duplicateIds.map(([id, count]) => `${id} (${count})`).join(", ")}`);
   }
   validateQuickAccessWithoutFavorites(file, sources[file]);
+  validateOrderExecutionActions(file, sources[file]);
 }
 
 const scriptCounts = Object.fromEntries(files.map((file) => [file, validateInlineJavaScript(file, sources[file])]));
@@ -110,6 +140,7 @@ console.log(
       normalizedSha256: sha256(sources["index.html"]),
       duplicateIds: 0,
       quickAccessWithoutFavorites: true,
+      visibleOrderExecutionActions: true,
       inlineScriptBlocks: scriptCounts,
       localUiAssetReferences: assetCounts,
       externalJavaScript,
