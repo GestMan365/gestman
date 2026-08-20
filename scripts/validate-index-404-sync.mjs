@@ -110,6 +110,31 @@ function validateOrderExecutionActions(file, html) {
   return true;
 }
 
+function validateMobileFieldMode(file, html) {
+  const requiredMarkers = [
+    "const MOBILE_OPERATIONAL_VIEWS = new Set",
+    "function mobileOperationalViewAllowed(view)",
+    "    function setView(view, options = {}) {",
+    "window.setView = setView;",
+    "Somente registros e documentos",
+    "Modo mobile de campo: somente execução, consulta e fechamento de documentos.",
+    'data-mobile-operational data-view="orders"',
+    'data-mobile-operational data-view="checklists"',
+    'data-mobile-operational data-view="measurements"',
+    'data-mobile-operational data-view="documentsCenter"',
+    '#mainNavigation .tab:not([data-mobile-operational])',
+    'body.dashboard-editing #dashboard .industrial-dashboard-shell { display:none !important; }',
+  ];
+  const missing = requiredMarkers.filter((marker) => !html.includes(marker));
+  if (missing.length) {
+    throw new Error(`${file}: modo mobile de campo perdeu marcadores obrigatórios: ${missing.join(", ")}`);
+  }
+  if (html.includes("+    function setView(view")) {
+    throw new Error(`${file}: declaração de setView contém prefixo inválido.`);
+  }
+  return true;
+}
+
 if (!rawSources["index.html"].equals(rawSources["404.html"])) {
   throw new Error("index.html e 404.html não são binariamente idênticos.");
 }
@@ -127,6 +152,7 @@ for (const file of files) {
   }
   validateQuickAccessWithoutFavorites(file, sources[file]);
   validateOrderExecutionActions(file, sources[file]);
+  validateMobileFieldMode(file, sources[file]);
 }
 
 const scriptCounts = Object.fromEntries(files.map((file) => [file, validateInlineJavaScript(file, sources[file])]));
@@ -141,6 +167,7 @@ console.log(
       duplicateIds: 0,
       quickAccessWithoutFavorites: true,
       visibleOrderExecutionActions: true,
+      mobileFieldMode: true,
       inlineScriptBlocks: scriptCounts,
       localUiAssetReferences: assetCounts,
       externalJavaScript,

@@ -18504,6 +18504,48 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       }
       #genericModal #orderDetailForm .detail-main { width: 100% !important; min-width: 0 !important; }
     }
+
+    /* Modo mobile de campo: somente execução, consulta e fechamento de documentos. */
+    @media (max-width: 600px) {
+      body:not(.platform-owner-mode) #mainNavigation .tab:not([data-mobile-operational]) { display:none !important; }
+      body:not(.platform-owner-mode) #mainNavigation :is([data-nav-group="planning"],[data-nav-group="analytics"],[data-nav-group="admin"]) { display:none !important; }
+      body:not(.platform-owner-mode) #mainNavigation .nav-section-label { display:none !important; }
+      body:not(.platform-owner-mode) #mainNavigation .industrial-sidebar-scroll { padding-top:8px !important; }
+      body:not(.platform-owner-mode) #mainNavigation .nav-pinned { margin-bottom:8px !important; }
+      #mainNavigation .sidebar-mobile-head { min-height:64px !important; padding:9px 12px !important; }
+      #mainNavigation .sidebar-mobile-head > div { display:grid; gap:3px; }
+      #mainNavigation .sidebar-mobile-head strong { display:block !important; color:#f8fafc !important; font-size:14px !important; }
+      #mainNavigation .sidebar-mobile-head small { color:#7f98af !important; font-size:11px !important; }
+      #dashboard .industrial-dashboard-shell,
+      body.dashboard-editing #dashboard .industrial-dashboard-shell { display:none !important; }
+      body.dashboard-editing #dashboard .mobile-technician-home { display:grid !important; }
+      .mobile-tech-actions button { min-height:72px !important; }
+      #assets :is(#printAssetTagsBtn,#createAssetBtn),
+      #checklists #createChecklistBtn,
+      #measurements .stage14-head-actions .btn:not(.primary) { display:none !important; }
+      #assets .assets-page-actions { grid-template-columns:1fr !important; }
+      #checklists .checklist-head-actions { grid-template-columns:1fr !important; }
+      #checklists #executeChecklistBtn { min-height:48px !important; }
+      #measurements .stage14-head-actions { display:grid !important; grid-template-columns:1fr !important; }
+      #measurements .stage14-head-actions .primary { width:100% !important; min-height:48px !important; }
+      :is(.stage14-metrics,.stage15-metrics,.materials-metrics) {
+        width:100% !important; max-width:100% !important; margin-right:0 !important;
+        padding:0 0 4px !important; overflow-x:auto !important; overscroll-behavior-inline:contain;
+      }
+      :is(.stage14-metrics,.stage15-metrics,.materials-metrics) > * { flex:0 0 min(72vw,250px) !important; min-width:0 !important; }
+      :is(.stage15-tabs,.materials-tabs) { width:100% !important; max-width:100% !important; overflow-x:auto !important; }
+      :is(.stage15-tabs,.materials-tabs) button { flex:0 0 auto !important; min-width:108px !important; }
+      #spares .materials-tabs button:not([data-materials-tab="requests"]),
+      #spares .materials-metrics,
+      #spares .materials-alert-panel,
+      #spares #materialsWarehouseFilter,
+      #spares #materialsReplenishmentBtn { display:none !important; }
+      #spares .materials-tabs { display:block !important; padding:0 !important; border:0 !important; background:transparent !important; }
+      #spares .materials-tabs button[data-materials-tab="requests"] { width:100% !important; min-height:44px !important; }
+      #spares .materials-toolbar { grid-template-columns:1fr auto !important; }
+      #spares .materials-search { grid-column:1 !important; }
+      #spares .materials-page-head p { max-width:34ch; }
+    }
   </style></head>
 <body class="auth-loading auth-restoring">
   <script id="design-theme-bootstrap">
@@ -19097,36 +19139,36 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       <img src="assets/ui/illustrations/gestman365-logo.png" class="brand-logo-img" data-theme-logo alt="GestMan365 - CMMS Industrial">
       <button class="nav-toggle-btn" id="navToggleBtn" type="button" title="Recolher menu" aria-label="Recolher menu"><i>‹</i><span>Recolher menu</span></button>
     </div>
-    <div class="sidebar-mobile-head"><strong>Menu</strong><button id="navMobileClose" type="button" aria-label="Fechar menu">×</button></div>
+    <div class="sidebar-mobile-head"><div><strong>Operação em campo</strong><small>Somente registros e documentos</small></div><button id="navMobileClose" type="button" aria-label="Fechar menu">×</button></div>
     <div class="industrial-sidebar-scroll tabs" aria-label="Módulos do GestMan365">
       <div class="nav-section-label">INÍCIO</div>
       <div class="nav-pinned">
         <button class="tab" data-view="quickAccess" title="Acessos Rápidos"><span class="tab-icon"></span><span>Acessos Rápidos</span></button>
-        <button class="tab active" data-view="dashboard" title="Visão Geral"><span class="tab-icon"></span><span>Visão Geral</span></button>
+        <button class="tab active" data-mobile-operational data-view="dashboard" title="Visão Geral"><span class="tab-icon"></span><span>Visão Geral</span></button>
       </div>
       <details class="nav-group" data-nav-group="maintenance">
         <summary title="Manutenção"><span class="nav-group-icon"></span><span>Manutenção</span><i></i></summary>
         <div class="nav-group-items">
-          <button class="tab" data-view="orders"><span class="tab-icon"></span><span>Ordens de Serviço</span></button>
+          <button class="tab" data-mobile-operational data-view="orders"><span class="tab-icon"></span><span>Ordens de Serviço</span></button>
           <button class="tab" data-view="activeOrders"><span class="tab-icon"></span><span>O.S. em Execução</span></button>
           <button class="tab" data-view="preventivePlans"><span class="tab-icon"></span><span>Planos de Manutenção</span></button>
-          <button class="tab" data-view="checklists"><span class="tab-icon"></span><span>Checklists</span></button>
-          <button class="tab" data-view="measurements"><span class="tab-icon"></span><span>Medições</span></button>
-          <button class="tab" data-view="pendingActions"><span class="tab-icon"></span><span>Ações Pendentes</span></button>
-          <button class="tab" data-view="downtime"><span class="tab-icon"></span><span>Paradas</span></button>
-          <button class="tab" data-view="operationalDiary"><span class="tab-icon"></span><span>Diário de Manutenção</span></button>
+          <button class="tab" data-mobile-operational data-view="checklists"><span class="tab-icon"></span><span>Checklists</span></button>
+          <button class="tab" data-mobile-operational data-view="measurements"><span class="tab-icon"></span><span>Medições</span></button>
+          <button class="tab" data-mobile-operational data-view="pendingActions"><span class="tab-icon"></span><span>Ações Pendentes</span></button>
+          <button class="tab" data-mobile-operational data-view="downtime"><span class="tab-icon"></span><span>Paradas</span></button>
+          <button class="tab" data-mobile-operational data-view="operationalDiary"><span class="tab-icon"></span><span>Diário de Manutenção</span></button>
         </div>
       </details>
       <details class="nav-group" data-nav-group="assets">
         <summary title="Ativos e Instalações"><span class="nav-group-icon"></span><span>Ativos e Instalações</span><i></i></summary>
         <div class="nav-group-items">
-          <button class="tab" data-view="assets"><span class="tab-icon"></span><span>Ativos e Equipamentos</span></button>
+          <button class="tab" data-mobile-operational data-view="assets"><span class="tab-icon"></span><span>Ativos e Equipamentos</span></button>
           <button class="tab" data-view="tags"><span class="tab-icon"></span><span>Identificadores de Ativos</span></button>
           <button class="tab" data-view="operationalAreas"><span class="tab-icon"></span><span>Áreas Operacionais</span></button>
           <button class="tab" data-view="regions"><span class="tab-icon"></span><span>Regiões</span></button>
           <button class="tab" data-view="locations"><span class="tab-icon"></span><span>Setores e Locais</span></button>
           <button class="tab" data-view="map"><span class="tab-icon"></span><span>Mapa Industrial</span></button>
-          <button class="tab" data-view="documentsCenter"><span class="tab-icon"></span><span>Documentos</span></button>
+          <button class="tab" data-mobile-operational data-view="documentsCenter"><span class="tab-icon"></span><span>Documentos</span></button>
         </div>
       </details>
       <details class="nav-group" data-nav-group="materials">
@@ -19136,7 +19178,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           <button class="tab" data-view="stock"><span class="tab-icon"></span><span>Almoxarifado de Peças</span></button>
           <button class="tab" data-view="stockMoves"><span class="tab-icon"></span><span>Movimentações de Estoque</span></button>
           <button class="tab" data-view="stockTransfers"><span class="tab-icon"></span><span>Transferências de Estoque</span></button>
-          <button class="tab" data-view="materialRequests"><span class="tab-icon"></span><span>Solicitações de Materiais</span></button>
+          <button class="tab" data-mobile-operational data-view="materialRequests"><span class="tab-icon"></span><span>Solicitações de Materiais</span></button>
           <button class="tab" data-view="suppliers"><span class="tab-icon"></span><span>Fornecedores e Parceiros</span></button>
           <button class="tab" data-view="toolsControl"><span class="tab-icon"></span><span>Ferramentas</span></button>
         </div>
@@ -19171,7 +19213,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       <div class="mobile-technician-home" id="mobileTechnicianHome">
         <div class="mobile-tech-greeting"><span>Olá, <strong id="mobileTechName">Técnico</strong></span><small>Estas são suas prioridades de hoje.</small></div>
         <div class="mobile-tech-summary" id="mobileTechSummary"></div>
-        <div class="mobile-tech-section"><h2>Ações rápidas</h2><div class="mobile-tech-actions"><button type="button" onclick="openOrderModal()"><i></i><span>Nova O.S.</span></button><button type="button" onclick="openQuickChecklist()"><i></i><span>Checklist</span></button><button type="button" onclick="openMobileDowntimeModal()"><i></i><span>Registrar parada</span></button><button type="button" onclick="setView('assets')"><i></i><span>Consultar ativo</span></button></div></div>
+        <div class="mobile-tech-section"><h2>Ações rápidas</h2><div class="mobile-tech-actions"><button type="button" onclick="openOrderModal()"><i></i><span>Nova O.S.</span></button><button type="button" onclick="openQuickChecklist()"><i></i><span>Executar checklist</span></button><button type="button" onclick="openMobileDowntimeModal()"><i></i><span>Registrar parada</span></button><button type="button" onclick="setView('measurements')"><i></i><span>Registrar medição</span></button><button type="button" onclick="setView('documentsCenter')"><i></i><span>Documentos</span></button><button type="button" onclick="setView('assets')"><i></i><span>Consultar ativo</span></button></div></div>
         <div class="mobile-tech-section"><div class="mobile-tech-section-head"><h2>Precisa de atenção</h2><button type="button" onclick="openMobileMyOrders()">Ver minhas O.S.</button></div><div class="mobile-tech-priorities" id="mobileTechPriorities"></div></div>
       </div>
       <div class="industrial-dashboard-shell">
@@ -24639,8 +24681,14 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       $("headerContextBtn")?.setAttribute("aria-expanded", String(willOpen));
       if (willOpen) $("dashboardPlantFilter")?.focus();
     }
+    const MOBILE_OPERATIONAL_VIEWS = new Set(["dashboard","orders","checklists","measurements","pendingActions","downtime","operationalDiary","assets","documentsCenter","materialRequests"]);
+    function mobileOperationalViewAllowed(view) { return !isMobileOperational() || MOBILE_OPERATIONAL_VIEWS.has(view); }
     function setView(view, options = {}) {
       if (!currentAccount) return;
+      if (!isPlatformAdmin() && !mobileOperationalViewAllowed(view)) {
+        view = "dashboard";
+        if (options.silent !== true) showToast("No celular, use apenas os fluxos de campo: O.S., checklists, medições e documentos.", "warning");
+      }
       if (isPlatformAdmin() && !["platformRequests", "platformCompanies"].includes(view)) {
         view = "platformRequests";
       }
@@ -24695,6 +24743,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       updateMobileBottomNav(nextView);
       if (window.matchMedia("(max-width:600px)").matches) closeMobileNavigation();
     }
+    window.setView = setView;
     function isPanelMode() {
       const params = new URLSearchParams(window.location.search);
       return params.get("panel") === "os";
@@ -30174,6 +30223,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if ($("topbarMenuBtn")) $("topbarMenuBtn").title = "Abrir menu";
     }
     function openMobileMoreMenu() { openMobileNavigation(); }
+    function openMobileMaterialRequests() { setView("materialRequests"); }
     function setMobileOrderFilter(filter,button) { mobileOrderFilter=filter; osCurrentPage=1; document.querySelectorAll("#mobileOsFilters button").forEach(item=>item.classList.toggle("active",item===button)); render(); }
     function renderMobileTechnicianHome() {
       if(!$("mobileTechSummary"))return;
