@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
@@ -10,7 +10,7 @@
   <meta name="theme-color" content="#06111f">
   <link rel="icon" sizes="any" href="assets/ui/illustrations/favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/ui/illustrations/favicon-32.png">
-  <link rel="apple-touch-icon" href="assets/ui/illustrations/apple-touch-icon.png" sizes="180x180">
+  <link rel="apple-touch-icon" href="assets/ui/illustrations/apple-touch-icon-v2.png" sizes="180x180">
   <link rel="preload" href="assets/fonts/inter/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
   <style>
     :root {
@@ -15561,13 +15561,38 @@ body.theme-light .gm-icon-surface {
     padding-bottom: calc(11px + env(safe-area-inset-bottom)) !important;
   }
   .auth-screen {
-    padding: 14px 10px 92px !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
   }
   .auth-screen .auth-shell {
     width: 100% !important;
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    margin: 0 !important;
+  }
+  .auth-screen .auth-card {
+    width: 100% !important;
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    border: 0 !important;
+    border-radius: 0 !important;
   }
   .auth-screen .auth-main {
-    padding: 28px 18px 25px !important;
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    justify-content: center !important;
+    padding: max(22px, env(safe-area-inset-top)) 20px max(22px, env(safe-area-inset-bottom)) !important;
+  }
+  .auth-screen #authLoginForm .auth-input-wrap .field,
+  .auth-screen #authSetupForm :is(input, select, textarea) {
+    font-size: 16px !important;
   }
   .auth-reference-footer {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
