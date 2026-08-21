@@ -135,6 +135,79 @@ function validateMobileFieldMode(file, html) {
   return true;
 }
 
+function validateTypographyAndText(file, html) {
+  const requiredMarkers = [
+    'href="assets/fonts/inter/InterVariable.woff2"',
+    'href="assets/ui/gestman-typography.css"',
+    '--gestman-font-family: var(--gm-font-sans)',
+    'ADMINISTRAÇÃO GESTMAN365',
+    'Últimos 90 dias',
+    'Último acesso',
+    'aria-label="Fechar">×</button>',
+  ];
+  const missing = requiredMarkers.filter((marker) => !html.includes(marker));
+  if (missing.length) {
+    throw new Error(`${file}: tipografia/textos perderam marcadores obrigatórios: ${missing.join(", ")}`);
+  }
+
+  const forbiddenMarkers = [
+    "fonts.googleapis.com",
+    "fonts.gstatic.com",
+    "ADMINISTRAÃ",
+    "Ãšlt",
+    ">Ã—</button>",
+    "â€”",
+    "â€¦",
+    "\uFFFD",
+    "--gestman-font-family: Consolas",
+    "font-family: Bahnschrift",
+    'font-family: "Arial Black"',
+    'font-family: Roboto, "Helvetica Neue"',
+  ];
+  const present = forbiddenMarkers.filter((marker) => html.includes(marker));
+  if (present.length) {
+    throw new Error(`${file}: resíduos tipográficos ou caracteres corrompidos: ${present.join(", ")}`);
+  }
+
+  return true;
+}
+
+function validateTypographyAssets() {
+  const cssFile = path.join(root, "assets", "ui", "gestman-typography.css");
+  const fontFiles = [
+    path.join(root, "assets", "fonts", "inter", "InterVariable.woff2"),
+    path.join(root, "assets", "fonts", "inter", "InterVariable-Italic.woff2"),
+    path.join(root, "assets", "fonts", "inter", "LICENSE.txt"),
+  ];
+  const missing = [cssFile, ...fontFiles].filter((file) => !fs.existsSync(file));
+  if (missing.length) {
+    throw new Error(`assets tipográficos ausentes: ${missing.map((file) => path.relative(root, file)).join(", ")}`);
+  }
+
+  const css = fs.readFileSync(cssFile, "utf8");
+  const requiredCss = [
+    '@font-face',
+    'font-family: "Inter"',
+    'InterVariable.woff2',
+    'InterVariable-Italic.woff2',
+    'font-variant-numeric: tabular-nums',
+    'overflow-wrap: break-word',
+    'word-break: normal',
+  ];
+  const missingCss = requiredCss.filter((marker) => !css.includes(marker));
+  if (missingCss.length) {
+    throw new Error(`gestman-typography.css incompleto: ${missingCss.join(", ")}`);
+  }
+  const undersized = fontFiles.slice(0, 2).filter((file) => fs.statSync(file).size < 100_000);
+  if (undersized.length) {
+    throw new Error(`fontes Inter inválidas: ${undersized.map((file) => path.basename(file)).join(", ")}`);
+  }
+  return fontFiles.map((file) => ({
+    file: path.relative(root, file).replaceAll("\\", "/"),
+    bytes: fs.statSync(file).size,
+  }));
+}
+
 if (!rawSources["index.html"].equals(rawSources["404.html"])) {
   throw new Error("index.html e 404.html não são binariamente idênticos.");
 }
@@ -153,11 +226,13 @@ for (const file of files) {
   validateQuickAccessWithoutFavorites(file, sources[file]);
   validateOrderExecutionActions(file, sources[file]);
   validateMobileFieldMode(file, sources[file]);
+  validateTypographyAndText(file, sources[file]);
 }
 
 const scriptCounts = Object.fromEntries(files.map((file) => [file, validateInlineJavaScript(file, sources[file])]));
 const assetCounts = Object.fromEntries(files.map((file) => [file, validateExternalAssets(file, sources[file])]));
 const externalJavaScript = validateExternalJavaScript();
+const typographyAssets = validateTypographyAssets();
 console.log(
   JSON.stringify(
     {
@@ -168,6 +243,9 @@ console.log(
       quickAccessWithoutFavorites: true,
       visibleOrderExecutionActions: true,
       mobileFieldMode: true,
+      typography: "Inter local",
+      textEncoding: "UTF-8 sem mojibake conhecido",
+      typographyAssets,
       inlineScriptBlocks: scriptCounts,
       localUiAssetReferences: assetCounts,
       externalJavaScript,

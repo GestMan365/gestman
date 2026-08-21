@@ -156,7 +156,7 @@ function emailHtml(data: CompanyRequest, requestId: string) {
       <td style="padding:8px 12px;color:#0f172a;font-weight:600;border-bottom:1px solid #e2e8f0">${escapeHtml(value || "Não informado")}</td>
     </tr>`;
   return `<!doctype html>
-  <html lang="pt-BR"><body style="margin:0;background:#eef4f9;font-family:Arial,sans-serif;color:#0f172a">
+  <html lang="pt-BR"><body style="margin:0;background:#eef4f9;font-family:Inter,Arial,sans-serif;color:#0f172a">
     <div style="max-width:720px;margin:24px auto;padding:0 14px">
       <div style="background:#07182b;color:#fff;padding:24px 28px;border-radius:14px 14px 0 0">
         <div style="font-size:12px;letter-spacing:.14em;color:#60a5fa">GESTMAN365</div>

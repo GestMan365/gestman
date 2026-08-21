@@ -1,0 +1,140 @@
+@font-face {
+  font-family: "Inter";
+  src: url("../fonts/inter/InterVariable.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("../fonts/inter/InterVariable-Italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+:root {
+  --gm-font-sans: "Inter", "Segoe UI", Arial, sans-serif;
+  --gm-font-ui: var(--gm-font-sans);
+  --gm-font-mono: "Cascadia Mono", Consolas, "Courier New", monospace;
+  --gestman-font-family: var(--gm-font-sans);
+  --gestman-font-mono: var(--gm-font-mono);
+}
+
+html,
+body,
+body *,
+body *::before,
+body *::after {
+  font-family: var(--gm-font-sans) !important;
+}
+
+body {
+  font-optical-sizing: auto;
+  font-kerning: normal;
+  font-variant-ligatures: contextual common-ligatures;
+  text-rendering: optimizeLegibility;
+}
+
+body :where(
+  code,
+  kbd,
+  samp,
+  pre,
+  .api-route,
+  .stage17-code,
+  .stage18-code,
+  .stage19-code,
+  .stage20-code,
+  .equipment-tag-code,
+  .order-qr-copy h3,
+  .platform-access-field code
+) {
+  font-family: var(--gm-font-mono) !important;
+  font-variant-ligatures: none;
+  font-variant-numeric: tabular-nums slashed-zero;
+}
+
+body :where(
+  h1,
+  h2,
+  h3,
+  h4,
+  p,
+  li,
+  label,
+  legend,
+  button,
+  .btn,
+  th,
+  td,
+  [role="button"],
+  [role="columnheader"],
+  [role="cell"],
+  [role="gridcell"]
+) {
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: none;
+}
+
+body :where(h1, h2, h3, h4, .page-title, .modal-title) {
+  text-wrap: balance;
+}
+
+body :where(p, li, figcaption, .muted, .helper-text, .hint) {
+  text-wrap: pretty;
+}
+
+body :where(.kpi-value, .metric-value, .stat-value, .os-number, time, [data-number]) {
+  font-variant-numeric: tabular-nums;
+}
+
+body .auth-footer-copy {
+  min-width: 0;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+}
+
+body .auth-footer-copy strong {
+  white-space: normal !important;
+  text-wrap: pretty;
+}
+
+@media (max-width: 900px) {
+  body :where(button, .btn, th, td, label, legend, [role="button"]) {
+    overflow-wrap: break-word !important;
+    word-break: normal !important;
+    hyphens: none !important;
+  }
+
+  body :where(.page-header, .modal-head, .card-head, .industrial-card-head) > * {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 430px) {
+  body .auth-reference-footer {
+    grid-template-columns: 1fr !important;
+  }
+
+  body .auth-footer-item,
+  body .auth-footer-item + .auth-footer-item {
+    height: 42px !important;
+    min-height: 42px !important;
+    border-left: 0 !important;
+    padding-inline: 12px !important;
+    padding-block: 2px !important;
+  }
+
+  body .auth-footer-copy,
+  body .auth-footer-copy strong {
+    line-height: 1.15 !important;
+  }
+
+  body .auth-footer-item:nth-child(n + 2) {
+    border-top: 1px solid rgba(209, 223, 243, .25) !important;
+  }
+}

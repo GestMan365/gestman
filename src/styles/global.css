@@ -1,3 +1,19 @@
+@font-face {
+  font-family: "Inter";
+  src: url("/assets/fonts/inter/InterVariable.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("/assets/fonts/inter/InterVariable-Italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
 :root {
   --bg: #eef3fb;
   --panel: #ffffff;
@@ -7,6 +23,8 @@
   --blue: #123f8d;
   --blue-dark: #08275b;
   --orange: #ff7a1a;
+  --gm-font-sans: "Inter", "Segoe UI", Arial, sans-serif;
+  --gm-font-mono: "Cascadia Mono", Consolas, "Courier New", monospace;
 }
 
 * {
@@ -19,7 +37,7 @@ body {
   min-height: 100vh;
   background: var(--bg);
   color: var(--ink);
-  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  font-family: var(--gm-font-sans);
 }
 
 button,
@@ -325,7 +343,7 @@ a.btn {
   background: linear-gradient(180deg, var(--gm-primary-light) 0%, var(--gm-primary) 100%);
   color: #fff;
   box-shadow: var(--gm-shadow);
-  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  font-family: var(--gm-font-sans);
   font-size: 13px;
   font-weight: 800;
   line-height: 1.15;

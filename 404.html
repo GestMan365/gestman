@@ -11,9 +11,7 @@
   <link rel="icon" sizes="any" href="assets/ui/illustrations/favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/ui/illustrations/favicon-32.png">
   <link rel="apple-touch-icon" href="assets/ui/illustrations/apple-touch-icon.png" sizes="180x180">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="preload" href="assets/fonts/inter/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
   <style>
     :root {
       --blue-900: #071a3e;
@@ -54,7 +52,7 @@
         radial-gradient(circle at 88% 0%, rgba(255, 255, 255, .12), transparent 26%),
         linear-gradient(135deg, var(--blue-900), var(--blue-800) 44%, var(--blue-700));
       color: var(--ink);
-      font-family: Bahnschrift, "Segoe UI Variable", "Segoe UI", Arial, Helvetica, sans-serif;
+      font-family: var(--gm-font-sans);
       font-size: var(--font-size-sm);
       text-transform: uppercase;
       overflow: hidden;
@@ -194,7 +192,7 @@
       min-width: 0;
     }
     .brand-name {
-      font-family: Bahnschrift, "Segoe UI Variable", "Segoe UI", Arial, Helvetica, sans-serif;
+      font-family: var(--gm-font-sans);
       font-size: var(--font-size-2xl);
       font-weight: 900;
       letter-spacing: 0;
@@ -417,7 +415,7 @@
         radial-gradient(circle at 14% 14%, rgba(255, 138, 76, .26), transparent 24%),
         radial-gradient(circle at 88% 8%, rgba(255, 255, 255, .10), transparent 26%),
         linear-gradient(135deg, var(--blue-900) 0%, var(--blue-800) 50%, var(--blue-700) 100%);
-      font-family: Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-family: var(--gm-font-sans);
       text-transform: none;
     }
     body.auth-required .auth-screen { display: flex; }
@@ -508,7 +506,7 @@
       border-bottom: 1px solid rgba(0, 0, 0, .35);
       background: rgba(7, 20, 48, .76);
       box-shadow: 0 2px 8px rgba(0, 0, 0, .18);
-      font-family: Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-family: var(--gm-font-sans);
       text-transform: none;
     }
     .auth-brand-logo {
@@ -548,7 +546,7 @@
       background: #fff;
       color: #263047;
       box-shadow: 0 16px 30px rgba(0, 0, 0, .28);
-      font-family: Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-family: var(--gm-font-sans);
       text-transform: none;
     }
     .auth-main {
@@ -1631,7 +1629,7 @@
     }
     .api-route {
       color: var(--muted);
-      font-family: Consolas, "Courier New", monospace;
+      font-family: var(--gm-font-mono);
       font-size: var(--font-size-xs);
       overflow-wrap: anywhere;
     }
@@ -3505,7 +3503,7 @@
     }
     body {
       overflow: auto;
-      font-family: Inter, Roboto, Arial, sans-serif;
+      font-family: var(--gm-font-sans);
       letter-spacing: 0;
     }
     body.theme-light {
@@ -3981,7 +3979,7 @@
     .auth-hero-panel h1 {
       max-width: 640px;
       margin: 0 0 20px;
-      font-family: "Arial Black", Impact, "Segoe UI Black", Roboto, Arial, sans-serif;
+      font-family: var(--gm-font-sans);
       font-size: clamp(34px, 4.6vw, 58px);
       line-height: .98;
       letter-spacing: -.06em;
@@ -4235,7 +4233,7 @@
     .auth-hero-panel h1 {
       max-width: 560px;
       margin: 0 0 18px;
-      font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-family: var(--gm-font-sans);
       font-size: clamp(36px, 4.1vw, 62px);
       line-height: .96;
       letter-spacing: -.07em;
@@ -4770,7 +4768,7 @@
     .auth-hero-panel h1 {
       max-width: 640px;
       margin: 0 0 20px;
-      font-family: "Arial Black", Impact, "Segoe UI Black", Roboto, Arial, sans-serif;
+      font-family: var(--gm-font-sans);
       font-size: clamp(34px, 4.6vw, 58px);
       line-height: .98;
       letter-spacing: -.06em;
@@ -5949,7 +5947,7 @@
       background: linear-gradient(180deg, var(--gm-primary-light) 0%, var(--gm-primary) 100%) !important;
       color: #fff !important;
       box-shadow: var(--gm-shadow) !important;
-      font-family: Inter, "Segoe UI", Arial, sans-serif !important;
+      font-family: var(--gm-font-sans) !important;
       font-size: clamp(11px, .78vw, 13px) !important;
       font-weight: 800 !important;
       line-height: 1.15 !important;
@@ -6219,7 +6217,7 @@
     body {
       background: var(--gm-shell-bg) !important;
       color: var(--gm-shell-text) !important;
-      font-family: Inter, Roboto, "Segoe UI", Arial, sans-serif !important;
+      font-family: var(--gm-font-sans) !important;
       font-size: var(--font-size-sm);
       text-transform: none !important;
     }
@@ -8896,7 +8894,8 @@
     /* Melhoria visual — Passo 1: base central do Design System GestMan365 */
     :root {
       color-scheme: dark;
-      --gm-font-sans: Inter, "Segoe UI Variable", "Segoe UI", Arial, sans-serif;
+      --gm-font-sans: "Inter", "Segoe UI", Arial, sans-serif;
+      --gm-font-mono: "Cascadia Mono", Consolas, "Courier New", monospace;
       --gm-bg-app: #06101d;
       --gm-bg-sidebar: #071424;
       --gm-bg-header: #081727;
@@ -10479,7 +10478,7 @@
         linear-gradient(90deg,rgba(1,12,29,.30),rgba(2,14,34,.08) 46%,rgba(1,11,28,.30)),
         linear-gradient(180deg,rgba(0,12,32,.18),rgba(0,10,27,.40)),
         url("assets/ui/illustrations/gestman365-logo.png") center center/cover no-repeat!important;
-      color:#f4f8ff!important;font-family:Inter,"Segoe UI",Arial,sans-serif!important;
+      color:#f4f8ff!important;font-family:var(--gm-font-sans)!important;
     }
     body.auth-required,body.auth-loading{overflow:hidden!important}
     body.auth-required .auth-screen,body.auth-loading .auth-screen{display:flex!important}
@@ -10633,7 +10632,7 @@
       .auth-screen .auth-submit{height:44px!important;min-height:44px!important}
     }
     /* Area publica e administracao SaaS GestMan365 */
-    .company-request-screen{display:none;position:fixed;inset:0;z-index:10020;overflow:auto;background:radial-gradient(circle at 15% 10%,rgba(29,140,255,.15),transparent 32%),linear-gradient(135deg,#06101d,#07182b 55%,#08111f);color:#f8fafc;font-family:Inter,system-ui,sans-serif}
+    .company-request-screen{display:none;position:fixed;inset:0;z-index:10020;overflow:auto;background:radial-gradient(circle at 15% 10%,rgba(29,140,255,.15),transparent 32%),linear-gradient(135deg,#06101d,#07182b 55%,#08111f);color:#f8fafc;font-family:var(--gm-font-sans)}
     body.company-request-route{overflow:hidden!important;background:#06101d!important}
     body.company-request-route .company-request-screen{display:block}
     body.company-request-route>.topbar,body.company-request-route>.sidebar,body.company-request-route>.workspace,body.company-request-route>.mobile-bottom-nav{display:none!important}
@@ -10819,7 +10818,7 @@
     body.platform-owner-mode select,
     body.platform-owner-mode textarea,
     body.platform-owner-mode table{
-      font-family:Consolas,"Cascadia Mono","Courier New",monospace!important;
+      font-family:var(--gm-font-sans)!important;
       font-variant-ligatures:none;
       text-rendering:optimizeLegibility;
     }
@@ -11116,7 +11115,7 @@
       background:var(--gm-surface-hover)!important;
       color:var(--gm-text-primary)!important;
       font-size:var(--font-size-title-sm)!important;
-      font-family:Arial,sans-serif!important;
+      font-family:var(--gm-font-sans)!important;
       font-weight:400!important;
       line-height:1!important;
       visibility:visible!important;
@@ -13920,7 +13919,7 @@
   --gm-sidebar-open: 256px;
   --gm-sidebar-compact: 72px;
   --gm-header-height: 66px;
-  --gm-font-ui: Roboto, "Segoe UI Variable", "Segoe UI", Arial, sans-serif;
+  --gm-font-ui: var(--gm-font-sans);
 }
 body.theme-light {
   color-scheme: light;
@@ -17008,7 +17007,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
   </style>
   <style id="gestman-global-typography">
-    :root { --gestman-font-family: Consolas, "Cascadia Mono", "Courier New", monospace; }
+    :root { --gestman-font-family: var(--gm-font-sans); --gestman-font-mono: var(--gm-font-mono); }
     body, body *, body *::before, body *::after { font-family: var(--gestman-font-family) !important; }
     body { font-variant-ligatures: none; text-rendering: optimizeLegibility; }
   </style>
@@ -18546,7 +18545,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       #spares .materials-search { grid-column:1 !important; }
       #spares .materials-page-head p { max-width:34ch; }
     }
-  </style></head>
+  </style>
+  <link rel="stylesheet" href="assets/ui/gestman-typography.css">
+</head>
 <body class="auth-loading auth-restoring">
   <script id="design-theme-bootstrap">
     (() => {
@@ -20108,23 +20109,23 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     </section>
     <section class="view" id="platformRequests">
       <div class="platform-page">
-        <header class="platform-page-head"><div><span class="platform-eyebrow">ADMINISTRAÃ‡ÃƒO GESTMAN365</span><h1>Solicitações de empresas</h1><p>Analise pedidos de acesso e converta somente os cadastros aprovados.</p></div><button class="platform-btn" id="platformRequestsRefresh" type="button" onclick="refreshPlatformRequests(event,this)">Atualizar</button></header>
+        <header class="platform-page-head"><div><span class="platform-eyebrow">ADMINISTRAÇÃO GESTMAN365</span><h1>Solicitações de empresas</h1><p>Analise pedidos de acesso e converta somente os cadastros aprovados.</p></div><button class="platform-btn" id="platformRequestsRefresh" type="button" onclick="refreshPlatformRequests(event,this)">Atualizar</button></header>
         <div class="platform-metrics" id="platformRequestMetrics"></div>
-        <div class="platform-panel platform-toolbar"><input id="platformRequestSearch" placeholder="Empresa, CNPJ, responsável ou e-mail"><select id="platformRequestStatus"><option value="">Todos os status</option><option value="pending">Pendente</option><option value="reviewing">Em análise</option><option value="approved">Aprovada</option><option value="rejected">Rejeitada</option><option value="converted">Convertida</option></select><select id="platformRequestPeriod"><option value="">Todo o período</option><option value="7">Ãšltimos 7 dias</option><option value="30">Ãšltimos 30 dias</option><option value="90">Ãšltimos 90 dias</option></select></div>
+        <div class="platform-panel platform-toolbar"><input id="platformRequestSearch" placeholder="Empresa, CNPJ, responsável ou e-mail"><select id="platformRequestStatus"><option value="">Todos os status</option><option value="pending">Pendente</option><option value="reviewing">Em análise</option><option value="approved">Aprovada</option><option value="rejected">Rejeitada</option><option value="converted">Convertida</option></select><select id="platformRequestPeriod"><option value="">Todo o período</option><option value="7">Últimos 7 dias</option><option value="30">Últimos 30 dias</option><option value="90">Últimos 90 dias</option></select></div>
         <div class="platform-panel"><div class="platform-table-wrap"><table class="platform-table"><thead><tr><th>Empresa</th><th>CNPJ</th><th>Responsável</th><th>Contato</th><th>Local</th><th>Estimativa</th><th>Solicitação</th><th>Status</th><th></th></tr></thead><tbody id="platformRequestRows"></tbody></table></div><div class="platform-empty" id="platformRequestEmpty" hidden>Nenhuma solicitação encontrada.</div></div>
       </div>
     </section>
     <section class="view" id="platformCompanies">
       <div class="platform-page">
-        <header class="platform-page-head"><div><span class="platform-eyebrow">ADMINISTRAÃ‡ÃƒO GESTMAN365</span><h1>Empresas clientes</h1><p>Planos, limites, situação e utilização de cada ambiente.</p></div><button class="platform-btn" type="button" onclick="loadPlatformCompanies(true)">Atualizar</button></header>
+        <header class="platform-page-head"><div><span class="platform-eyebrow">ADMINISTRAÇÃO GESTMAN365</span><h1>Empresas clientes</h1><p>Planos, limites, situação e utilização de cada ambiente.</p></div><button class="platform-btn" type="button" onclick="loadPlatformCompanies(true)">Atualizar</button></header>
         <div class="platform-metrics" id="platformCompanyMetrics"></div>
         <div class="platform-panel platform-toolbar"><input id="platformCompanySearch" placeholder="Nome ou CNPJ"><select id="platformCompanyPlan"><option value="">Todos os planos</option></select><select id="platformCompanyStatus"><option value="">Todos os status</option><option value="active">Ativa</option><option value="trial">Em teste</option><option value="suspended">Suspensa</option><option value="archived">Arquivada</option></select></div>
-        <div class="platform-panel"><div class="platform-table-wrap"><table class="platform-table"><thead><tr><th>Empresa</th><th>CNPJ</th><th>Plano</th><th>Usuários</th><th>Unidades</th><th>Status</th><th>Cadastro</th><th>Ãšltimo acesso</th><th></th></tr></thead><tbody id="platformCompanyRows"></tbody></table></div><div class="platform-empty" id="platformCompanyEmpty" hidden>Nenhuma empresa encontrada.</div></div>
+        <div class="platform-panel"><div class="platform-table-wrap"><table class="platform-table"><thead><tr><th>Empresa</th><th>CNPJ</th><th>Plano</th><th>Usuários</th><th>Unidades</th><th>Status</th><th>Cadastro</th><th>Último acesso</th><th></th></tr></thead><tbody id="platformCompanyRows"></tbody></table></div><div class="platform-empty" id="platformCompanyEmpty" hidden>Nenhuma empresa encontrada.</div></div>
       </div>
     </section>
 </main>
-  <div class="platform-dialog" id="platformRequestDialog" role="dialog" aria-modal="true" aria-labelledby="platformRequestDialogTitle"><div class="platform-dialog-card"><header class="platform-dialog-head"><h2 id="platformRequestDialogTitle">Analisar solicitação</h2><button class="platform-dialog-close" type="button" onclick="closePlatformDialog('platformRequestDialog')" aria-label="Fechar">Ã—</button></header><div class="platform-dialog-body" id="platformRequestDialogBody"></div></div></div>
-  <div class="platform-dialog" id="platformCompanyDialog" role="dialog" aria-modal="true" aria-labelledby="platformCompanyDialogTitle"><div class="platform-dialog-card"><header class="platform-dialog-head"><h2 id="platformCompanyDialogTitle">Gerenciar empresa</h2><button class="platform-dialog-close" type="button" onclick="closePlatformDialog('platformCompanyDialog')" aria-label="Fechar">Ã—</button></header><div class="platform-dialog-body" id="platformCompanyDialogBody"></div></div></div>
+  <div class="platform-dialog" id="platformRequestDialog" role="dialog" aria-modal="true" aria-labelledby="platformRequestDialogTitle"><div class="platform-dialog-card"><header class="platform-dialog-head"><h2 id="platformRequestDialogTitle">Analisar solicitação</h2><button class="platform-dialog-close" type="button" onclick="closePlatformDialog('platformRequestDialog')" aria-label="Fechar">×</button></header><div class="platform-dialog-body" id="platformRequestDialogBody"></div></div></div>
+  <div class="platform-dialog" id="platformCompanyDialog" role="dialog" aria-modal="true" aria-labelledby="platformCompanyDialogTitle"><div class="platform-dialog-card"><header class="platform-dialog-head"><h2 id="platformCompanyDialogTitle">Gerenciar empresa</h2><button class="platform-dialog-close" type="button" onclick="closePlatformDialog('platformCompanyDialog')" aria-label="Fechar">×</button></header><div class="platform-dialog-body" id="platformCompanyDialogBody"></div></div></div>
   <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Navegação do técnico">
     <button class="active" type="button" data-mobile-view="dashboard" onclick="setView('dashboard')"><i></i><span>Início</span></button>
     <button type="button" data-mobile-view="orders" onclick="openMobileMyOrders()"><i></i><span>Minhas O.S.</span></button>
@@ -32602,7 +32603,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       }
     }
     function orderPdfIconMarkup() {
-      return `<svg class="ui-icon" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2.75h9l5 5V21.25H5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 2.75v5h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><text x="4.6" y="17.4" fill="currentColor" font-size="7.2" font-weight="900" font-family="Arial, sans-serif">PDF</text></svg>`;
+      return `<svg class="ui-icon" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2.75h9l5 5V21.25H5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 2.75v5h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><text x="4.6" y="17.4" fill="currentColor" font-size="7.2" font-weight="900" font-family="Inter, sans-serif">PDF</text></svg>`;
     }
     function orderQrIconMarkup() {
       return `<svg class="ui-icon" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2.75" y="2.75" width="7.5" height="7.5" rx=".6"/><rect x="13.75" y="2.75" width="7.5" height="7.5" rx=".6"/><rect x="2.75" y="13.75" width="7.5" height="7.5" rx=".6"/></g><g fill="currentColor"><rect x="5" y="5" width="3" height="3" rx=".3"/><rect x="16" y="5" width="3" height="3" rx=".3"/><rect x="5" y="16" width="3" height="3" rx=".3"/><rect x="13.75" y="13.75" width="3" height="3"/><rect x="18.25" y="13.75" width="3" height="7.5"/><rect x="13.75" y="18.25" width="3" height="3"/></g></svg>`;
@@ -36543,9 +36544,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const accountUser={id:user?.id||"platform",companyId:company.id,name:user?.email||"Superadministrador",email:user?.email||"",username:user?.email||"",contactEmail:user?.email||"",role:"admin",accessProfile:"admin",executor:false,permissionLevels:profilePermissionTemplate("admin"),permissions:allPermissions(true),active:true,createdAt:Date.now()};
       authStore=normalizeAuthStore({companies:[company],users:[accountUser],session:{companyId:company.id,userId:accountUser.id,at:Date.now(),expiresAt:Date.now()+31536000000}}); currentAccount={company,user:accountUser}; return currentAccount;
     }
-    function platformDate(value, time=false) { if(!value) return "â€”"; const date=new Date(value); return Number.isNaN(date.getTime())?"â€”":date.toLocaleString("pt-BR",time?{dateStyle:"short",timeStyle:"short"}:{dateStyle:"short"}); }
-    function platformCnpj(value){ return formatCnpjInput(value||"") || "â€”"; }
-    function platformStatusLabel(status){ return ({pending:"Pendente",reviewing:"Em análise",approved:"Aprovada",rejected:"Rejeitada",converted:"Convertida",active:"Ativa",trial:"Em teste",suspended:"Suspensa",archived:"Arquivada"})[status]||status||"â€”"; }
+    function platformDate(value, time=false) { if(!value) return "—"; const date=new Date(value); return Number.isNaN(date.getTime())?"—":date.toLocaleString("pt-BR",time?{dateStyle:"short",timeStyle:"short"}:{dateStyle:"short"}); }
+    function platformCnpj(value){ return formatCnpjInput(value||"") || "—"; }
+    function platformStatusLabel(status){ return ({pending:"Pendente",reviewing:"Em análise",approved:"Aprovada",rejected:"Rejeitada",converted:"Convertida",active:"Ativa",trial:"Em teste",suspended:"Suspensa",archived:"Arquivada"})[status]||status||"—"; }
     function platformMetric(label,value){ return `<div class="platform-metric"><small>${escapeHtml(label)}</small><strong>${Number(value||0).toLocaleString("pt-BR")}</strong></div>`; }
     async function loadPlatformRequests(force=false) {
       if(!isPlatformAdmin()) return;
@@ -36741,11 +36742,11 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function renderPlatformCompanies(){
       const metrics=$("platformCompanyMetrics"); if(metrics)metrics.innerHTML=platformMetric("Empresas ativas",gmPlatformCompanies.filter(c=>c.status==='active').length)+platformMetric("Em período de teste",gmPlatformCompanies.filter(c=>c.status==='trial').length)+platformMetric("Empresas suspensas",gmPlatformCompanies.filter(c=>c.status==='suspended').length)+platformMetric("Usuários contratados",gmPlatformSubscriptions.reduce((sum,row)=>sum+Number(row.user_limit||0),0));
       const plans=[...new Set(gmPlatformSubscriptions.map(row=>row.plan_code).filter(Boolean))].sort(),select=$("platformCompanyPlan"); if(select){const selected=select.value;select.innerHTML='<option value="">Todos os planos</option>'+plans.map(p=>`<option ${p===selected?'selected':''}>${escapeHtml(p)}</option>`).join('');}
-      const items=filteredPlatformCompanies(),rows=$("platformCompanyRows"),empty=$("platformCompanyEmpty");if(!rows)return;empty.hidden=items.length>0;rows.innerHTML=items.map(item=>{const sub=companySubscription(item.id),members=companyMembers(item.id),units=companyUnits(item.id),name=escapeHtml(item.trade_name||item.name),logo=item.logo_url?`<img class="platform-company-logo" src="${escapeHtml(item.logo_url)}" alt="">`:`<span class="platform-company-logo">${name.slice(0,2).toUpperCase()}</span>`;return `<tr><td><div class="platform-company-name">${logo}<span><strong>${name}</strong><br><small>${escapeHtml(item.legal_name||"")}</small></span></div></td><td>${platformCnpj(item.cnpj)}</td><td>${escapeHtml(sub.plan_code||"â€”")}</td><td>${members.length} / ${Number(sub.user_limit||0)}</td><td>${units.length} / ${Number(sub.unit_limit||0)}</td><td><span class="platform-status ${escapeHtml(item.status)}">${platformStatusLabel(item.status)}</span></td><td>${platformDate(item.created_at)}</td><td>${platformDate(item.last_access_at,true)}</td><td><button class="platform-btn" onclick="openPlatformCompany('${item.id}')">Gerenciar</button></td></tr>`;}).join('');
+      const items=filteredPlatformCompanies(),rows=$("platformCompanyRows"),empty=$("platformCompanyEmpty");if(!rows)return;empty.hidden=items.length>0;rows.innerHTML=items.map(item=>{const sub=companySubscription(item.id),members=companyMembers(item.id),units=companyUnits(item.id),name=escapeHtml(item.trade_name||item.name),logo=item.logo_url?`<img class="platform-company-logo" src="${escapeHtml(item.logo_url)}" alt="">`:`<span class="platform-company-logo">${name.slice(0,2).toUpperCase()}</span>`;return `<tr><td><div class="platform-company-name">${logo}<span><strong>${name}</strong><br><small>${escapeHtml(item.legal_name||"")}</small></span></div></td><td>${platformCnpj(item.cnpj)}</td><td>${escapeHtml(sub.plan_code||"—")}</td><td>${members.length} / ${Number(sub.user_limit||0)}</td><td>${units.length} / ${Number(sub.unit_limit||0)}</td><td><span class="platform-status ${escapeHtml(item.status)}">${platformStatusLabel(item.status)}</span></td><td>${platformDate(item.created_at)}</td><td>${platformDate(item.last_access_at,true)}</td><td><button class="platform-btn" onclick="openPlatformCompany('${item.id}')">Gerenciar</button></td></tr>`;}).join('');
     }
     function openPlatformCompany(id){
       if(!isPlatformAdmin())return;const item=gmPlatformCompanies.find(row=>row.id===id);if(!item)return;const sub=companySubscription(id),members=companyMembers(id),units=companyUnits(id);
-      $("platformCompanyDialogBody").innerHTML=`<div class="platform-detail-grid"><div class="platform-detail"><small>Empresa</small><strong>${escapeHtml(item.trade_name||item.name)}</strong><br>${escapeHtml(item.legal_name||"")}</div><div class="platform-detail"><small>CNPJ / status</small>${platformCnpj(item.cnpj)}<br><span class="platform-status ${escapeHtml(item.status)}">${platformStatusLabel(item.status)}</span></div></div><form id="platformCompanyRegistration" onsubmit="savePlatformCompanyRegistration(event,'${id}')"><h3>Cadastro</h3><div class="platform-convert-grid"><label>Nome fantasia<input name="trade_name" value="${escapeHtml(item.trade_name||item.name||"")}"></label><label>Razão social<input name="legal_name" value="${escapeHtml(item.legal_name||"")}"></label><label>Responsável<input name="responsible_name" value="${escapeHtml(item.responsible_name||"")}"></label><label>E-mail<input name="responsible_email" type="email" value="${escapeHtml(item.responsible_email||"")}"></label><label>Telefone<input name="responsible_phone" value="${escapeHtml(item.responsible_phone||"")}"></label><label>Cidade / UF<div style="display:grid;grid-template-columns:1fr 75px;gap:7px"><input name="city" value="${escapeHtml(item.city||"")}"><input name="state" maxlength="2" value="${escapeHtml(item.state||"")}"></div></label></div><div class="platform-dialog-actions"><button class="platform-btn primary">Salvar cadastro</button></div></form><form id="platformCompanyPlan" onsubmit="savePlatformCompanyPlan(event,'${id}')"><h3>Plano e limites</h3><div class="platform-convert-grid"><label>Plano<input name="plan_code" value="${escapeHtml(sub.plan_code||"")}"></label><label>Usuários<input name="user_limit" type="number" min="1" value="${Number(sub.user_limit||1)}"></label><label>Unidades<input name="unit_limit" type="number" min="1" value="${Number(sub.unit_limit||1)}"></label><label>Armazenamento (MB)<input name="storage_limit_mb" type="number" min="1" value="${Number(sub.storage_limit_mb||1)}"></label></div><div class="platform-dialog-actions"><button class="platform-btn primary">Alterar plano e limites</button></div></form><h3>Usuários (${members.length})</h3><div class="platform-detail">${members.length?members.map(m=>`${escapeHtml(m.role)} · ${escapeHtml(m.user_id.slice(0,8))}â€¦`).join('<br>'):'Nenhum usuário ativo.'}</div><h3>Unidades (${units.length})</h3><div class="platform-detail">${units.length?units.map(u=>`${escapeHtml(u.name)}${u.is_main?' · principal':''}`).join('<br>'):'Nenhuma unidade cadastrada.'}</div><div class="platform-dialog-actions"><button class="platform-btn" onclick="managePlatformCompany('${id}','reactivate')">Reativar</button><button class="platform-btn danger" onclick="managePlatformCompany('${id}','suspend')">Suspender</button><button class="platform-btn" onclick="managePlatformCompany('${id}','archive')">Arquivar</button></div>`;
+      $("platformCompanyDialogBody").innerHTML=`<div class="platform-detail-grid"><div class="platform-detail"><small>Empresa</small><strong>${escapeHtml(item.trade_name||item.name)}</strong><br>${escapeHtml(item.legal_name||"")}</div><div class="platform-detail"><small>CNPJ / status</small>${platformCnpj(item.cnpj)}<br><span class="platform-status ${escapeHtml(item.status)}">${platformStatusLabel(item.status)}</span></div></div><form id="platformCompanyRegistration" onsubmit="savePlatformCompanyRegistration(event,'${id}')"><h3>Cadastro</h3><div class="platform-convert-grid"><label>Nome fantasia<input name="trade_name" value="${escapeHtml(item.trade_name||item.name||"")}"></label><label>Razão social<input name="legal_name" value="${escapeHtml(item.legal_name||"")}"></label><label>Responsável<input name="responsible_name" value="${escapeHtml(item.responsible_name||"")}"></label><label>E-mail<input name="responsible_email" type="email" value="${escapeHtml(item.responsible_email||"")}"></label><label>Telefone<input name="responsible_phone" value="${escapeHtml(item.responsible_phone||"")}"></label><label>Cidade / UF<div style="display:grid;grid-template-columns:1fr 75px;gap:7px"><input name="city" value="${escapeHtml(item.city||"")}"><input name="state" maxlength="2" value="${escapeHtml(item.state||"")}"></div></label></div><div class="platform-dialog-actions"><button class="platform-btn primary">Salvar cadastro</button></div></form><form id="platformCompanyPlan" onsubmit="savePlatformCompanyPlan(event,'${id}')"><h3>Plano e limites</h3><div class="platform-convert-grid"><label>Plano<input name="plan_code" value="${escapeHtml(sub.plan_code||"")}"></label><label>Usuários<input name="user_limit" type="number" min="1" value="${Number(sub.user_limit||1)}"></label><label>Unidades<input name="unit_limit" type="number" min="1" value="${Number(sub.unit_limit||1)}"></label><label>Armazenamento (MB)<input name="storage_limit_mb" type="number" min="1" value="${Number(sub.storage_limit_mb||1)}"></label></div><div class="platform-dialog-actions"><button class="platform-btn primary">Alterar plano e limites</button></div></form><h3>Usuários (${members.length})</h3><div class="platform-detail">${members.length?members.map(m=>`${escapeHtml(m.role)} · ${escapeHtml(m.user_id.slice(0,8))}…`).join('<br>'):'Nenhum usuário ativo.'}</div><h3>Unidades (${units.length})</h3><div class="platform-detail">${units.length?units.map(u=>`${escapeHtml(u.name)}${u.is_main?' · principal':''}`).join('<br>'):'Nenhuma unidade cadastrada.'}</div><div class="platform-dialog-actions"><button class="platform-btn" onclick="managePlatformCompany('${id}','reactivate')">Reativar</button><button class="platform-btn danger" onclick="managePlatformCompany('${id}','suspend')">Suspender</button><button class="platform-btn" onclick="managePlatformCompany('${id}','archive')">Arquivar</button></div>`;
       $("platformCompanyDialog").classList.add("open");
     }
     async function savePlatformCompanyRegistration(event,id){event.preventDefault();const payload=Object.fromEntries(new FormData(event.currentTarget).entries());await managePlatformCompany(id,"update_registration",payload);}

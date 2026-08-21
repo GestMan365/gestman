@@ -39,7 +39,7 @@
   --gm-sidebar-open: 256px;
   --gm-sidebar-compact: 72px;
   --gm-header-height: 66px;
-  --gm-font-ui: Roboto, "Segoe UI Variable", "Segoe UI", Arial, sans-serif;
+  --gm-font-ui: var(--gm-font-sans, "Inter", "Segoe UI", Arial, sans-serif);
 }
 
 body.theme-light {
