@@ -19565,6 +19565,12 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       transition:transform .18s ease !important;
     }
     body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group[open] > summary > i .gm-icon { transform:rotate(180deg) !important; }
+    html.gm-professional-3d body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group.contains-active:not([open]) > summary:not(:hover) {
+      color:#c7dcea !important;
+      background:transparent !important;
+      border-color:transparent !important;
+      box-shadow:none !important;
+    }
     body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group-items {
       position:absolute !important;
       z-index:96 !important;
