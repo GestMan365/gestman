@@ -15581,8 +15581,8 @@ body.theme-light .gm-icon-surface {
     width: 100% !important;
     min-height: 100vh !important;
     min-height: 100dvh !important;
-    border: 0 !important;
-    border-radius: 0 !important;
+    border: 1px solid rgba(255, 255, 255, .72) !important;
+    border-radius: 18px !important;
   }
   .auth-screen .auth-main {
     min-height: 100vh !important;
@@ -18572,6 +18572,551 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       #spares .materials-toolbar { grid-template-columns:1fr auto !important; }
       #spares .materials-search { grid-column:1 !important; }
       #spares .materials-page-head p { max-width:34ch; }
+    }
+
+    /* Sidebar premium industrial — apresentação isolada, sem alterar a navegação. */
+    body:not(.auth-required):not(.auth-loading):not(.panel-mode) {
+      --gm-sidebar-open: 282px !important;
+      --gm-sidebar-compact: 78px !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation {
+      color: #dbeaf7 !important;
+      background:
+        radial-gradient(circle at 48% 0, rgba(26, 151, 222, .14), transparent 23%),
+        linear-gradient(180deg, #071a2b 0%, #061522 48%, #04111d 100%) !important;
+      border-right: 1px solid #1b4059 !important;
+      box-shadow: 14px 0 36px rgba(0, 7, 16, .28) !important;
+      isolation: isolate;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation::before {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      inset: 0;
+      pointer-events: none;
+      opacity: .42;
+      background:
+        linear-gradient(rgba(64, 161, 211, .035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(64, 161, 211, .025) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-brand {
+      position: relative !important;
+      flex: 0 0 164px !important;
+      width: 100% !important;
+      height: 164px !important;
+      min-height: 164px !important;
+      padding: 16px 16px 76px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      background:
+        radial-gradient(circle at 50% 5%, rgba(37, 165, 226, .13), transparent 62%),
+        rgba(3, 14, 24, .5) !important;
+      border-bottom: 1px solid #1c4058 !important;
+      box-shadow: inset 0 -1px rgba(74, 177, 225, .035) !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .sidebar-logo-frame {
+      width: 226px !important;
+      min-width: 0 !important;
+      max-width: 226px !important;
+      height: 60px !important;
+      margin: 0 auto !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      overflow: hidden !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .sidebar-logo-frame .brand-logo-img {
+      width: 220px !important;
+      min-width: 220px !important;
+      max-width: 220px !important;
+      height: 58px !important;
+      object-fit: contain !important;
+      object-position: center !important;
+      filter: drop-shadow(0 7px 13px rgba(0, 0, 0, .3)) !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-toggle-btn {
+      position: absolute !important;
+      inset: auto 16px 14px !important;
+      width: auto !important;
+      min-width: 0 !important;
+      height: 50px !important;
+      min-height: 50px !important;
+      margin: 0 !important;
+      padding: 0 16px !important;
+      display: grid !important;
+      grid-template-columns: 24px minmax(0, 1fr) 24px !important;
+      align-items: center !important;
+      justify-items: center !important;
+      gap: 8px !important;
+      color: #57c9f5 !important;
+      background: linear-gradient(180deg, rgba(15, 47, 70, .88), rgba(7, 27, 43, .95)) !important;
+      border: 1px solid #27617f !important;
+      border-radius: 13px !important;
+      box-shadow: inset 0 1px rgba(255, 255, 255, .055), 0 8px 22px rgba(0, 0, 0, .2) !important;
+      font-size: 12px !important;
+      font-weight: 750 !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-toggle-btn::after {
+      content: "";
+      width: 24px;
+      height: 1px;
+    }
+    body:not(.sidebar-collapsed):not(.auth-required):not(.auth-loading) #mainNavigation .nav-toggle-btn > span {
+      display: block !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-toggle-btn > i {
+      width: 18px !important;
+      height: 18px !important;
+      display: grid !important;
+      place-items: center !important;
+      color: currentColor !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-toggle-btn > i .gm-icon { display: none !important; }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-toggle-btn > i::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-right: 2px solid currentColor;
+      border-bottom: 2px solid currentColor;
+      transform: rotate(135deg);
+    }
+    body.sidebar-collapsed:not(.auth-required):not(.auth-loading) #mainNavigation .nav-toggle-btn > i::before {
+      transform: rotate(-45deg);
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-toggle-btn:hover {
+      color: #ecfaff !important;
+      background: linear-gradient(180deg, rgba(20, 68, 96, .96), rgba(9, 35, 53, .98)) !important;
+      border-color: #36a7d9 !important;
+      box-shadow: inset 0 1px rgba(255, 255, 255, .08), 0 0 0 1px rgba(29, 194, 235, .1), 0 10px 26px rgba(0, 0, 0, .25) !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-scroll {
+      padding: 22px 15px 24px !important;
+      gap: 10px !important;
+      scrollbar-width: thin;
+      scrollbar-color: #285671 transparent;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-scroll::-webkit-scrollbar { width: 6px; }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-scroll::-webkit-scrollbar-thumb {
+      background: #285671;
+      border: 1px solid #071827;
+      border-radius: 999px;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-section-label {
+      margin: 0 12px 3px !important;
+      color: #7994aa !important;
+      font-size: 10px !important;
+      font-weight: 800 !important;
+      letter-spacing: .22em !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-pinned {
+      margin: 0 0 8px !important;
+      padding: 6px !important;
+      overflow: hidden;
+      background: linear-gradient(180deg, rgba(15, 43, 64, .64), rgba(7, 26, 41, .74)) !important;
+      border: 1px solid #193d56 !important;
+      border-radius: 16px !important;
+      box-shadow: inset 0 1px rgba(255, 255, 255, .035), 0 12px 25px rgba(0, 0, 0, .12) !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-pinned .tab {
+      position: relative !important;
+      min-height: 60px !important;
+      height: 60px !important;
+      padding: 0 11px !important;
+      grid-template-columns: 42px minmax(0, 1fr) 16px !important;
+      gap: 11px !important;
+      color: #d5e5f2 !important;
+      background: transparent !important;
+      border: 1px solid transparent !important;
+      border-radius: 12px !important;
+      font-size: 13px !important;
+      font-weight: 720 !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-pinned .tab + .tab {
+      border-top-color: rgba(85, 135, 168, .15) !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-pinned .tab::after {
+      content: "";
+      width: 8px;
+      height: 8px;
+      justify-self: end;
+      border-top: 2px solid #89aac2;
+      border-right: 2px solid #89aac2;
+      transform: rotate(45deg);
+      opacity: .85;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group {
+      --sidebar-group-accent: #26c3ea;
+      margin: 0 !important;
+      border-radius: 15px !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group > summary {
+      position: relative !important;
+      min-height: 68px !important;
+      height: auto !important;
+      padding: 9px 12px !important;
+      grid-template-columns: 44px minmax(0, 1fr) 18px !important;
+      gap: 12px !important;
+      color: #dceaf5 !important;
+      background: linear-gradient(180deg, rgba(15, 45, 67, .58), rgba(7, 27, 43, .76)) !important;
+      border: 1px solid #1c415a !important;
+      border-radius: 15px !important;
+      box-shadow: inset 0 1px rgba(255, 255, 255, .035), 0 10px 22px rgba(0, 0, 0, .13) !important;
+      font-size: 13px !important;
+      font-weight: 800 !important;
+      letter-spacing: .055em !important;
+      text-transform: uppercase !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group > summary > span:nth-child(2) {
+      grid-column: 2 !important;
+      min-width: 0 !important;
+      padding: 0 !important;
+      line-height: 1.2 !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group > summary > i {
+      grid-column: 3 !important;
+      width: 18px !important;
+      height: 18px !important;
+      margin: 0 !important;
+      display: grid !important;
+      place-items: center !important;
+      justify-self: end !important;
+      color: #9fc1d8 !important;
+      transition: transform .18s ease, color .18s ease !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group[open] > summary > i { transform: rotate(180deg) !important; }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group > summary:hover,
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group[open] > summary,
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group.contains-active > summary {
+      color: #ffffff !important;
+      background: linear-gradient(100deg, rgba(17, 90, 119, .7), rgba(8, 38, 57, .92)) !important;
+      border-color: rgba(43, 193, 230, .6) !important;
+      box-shadow: inset 4px 0 var(--sidebar-group-accent), inset 0 1px rgba(255, 255, 255, .06), 0 0 21px rgba(12, 184, 224, .1) !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group[open] > summary > i,
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group.contains-active > summary > i { color: #52dcff !important; }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation :is(.tab-icon, .nav-group-icon) {
+      flex: 0 0 auto !important;
+      display: grid !important;
+      place-items: center !important;
+      color: #a9e9ff !important;
+      background:
+        radial-gradient(circle at 32% 22%, rgba(255, 255, 255, .17), transparent 22%),
+        linear-gradient(145deg, #153c58, #081b2b 72%) !important;
+      border: 1px solid #2b6685 !important;
+      box-shadow: inset 0 1px rgba(255, 255, 255, .1), inset 0 -7px 12px rgba(0, 0, 0, .24), 0 7px 14px rgba(0, 0, 0, .22) !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-pinned .tab-icon,
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group-icon {
+      width: 42px !important;
+      min-width: 42px !important;
+      height: 42px !important;
+      border-radius: 12px !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation :is(.nav-pinned .tab-icon, .nav-group-icon) .gm-icon {
+      width: 25px !important;
+      height: 25px !important;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .3)) !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation [data-nav-group="materials"] > summary .gm-flaticon-icon {
+      -webkit-mask-image: url("assets/icons/flaticon/modules/stock.svg") !important;
+      mask-image: url("assets/icons/flaticon/modules/stock.svg") !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation [data-nav-group="planning"] > summary .gm-flaticon-icon {
+      -webkit-mask-image: url("assets/icons/flaticon/modules/calendar.svg") !important;
+      mask-image: url("assets/icons/flaticon/modules/calendar.svg") !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation [data-nav-group="admin"] > summary .gm-flaticon-icon {
+      -webkit-mask-image: url("assets/icons/flaticon/states/user-cog.svg") !important;
+      mask-image: url("assets/icons/flaticon/states/user-cog.svg") !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group-items {
+      margin: 7px 7px 10px !important;
+      padding: 7px !important;
+      gap: 3px !important;
+      background: rgba(3, 18, 30, .52) !important;
+      border: 1px solid rgba(35, 82, 111, .55) !important;
+      border-top: 0 !important;
+      border-radius: 0 0 13px 13px !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group-items .tab {
+      position: relative !important;
+      min-height: 44px !important;
+      height: auto !important;
+      padding: 6px 8px !important;
+      grid-template-columns: 31px minmax(0, 1fr) !important;
+      gap: 9px !important;
+      color: #aabfd0 !important;
+      background: transparent !important;
+      border: 1px solid transparent !important;
+      border-radius: 9px !important;
+      font-size: 11px !important;
+      font-weight: 650 !important;
+      line-height: 1.25 !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group-items .tab-icon {
+      width: 29px !important;
+      min-width: 29px !important;
+      height: 29px !important;
+      border-radius: 8px !important;
+      color: #84dff5 !important;
+      background: #0a263a !important;
+      border-color: #24546e !important;
+      box-shadow: inset 0 1px rgba(255, 255, 255, .055) !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group-items .tab-icon .gm-icon {
+      width: 17px !important;
+      height: 17px !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group-items .tab:hover {
+      color: #f2fbff !important;
+      background: rgba(37, 132, 180, .12) !important;
+      border-color: rgba(67, 158, 201, .2) !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .tab.active,
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .tab[aria-current="page"] {
+      color: #ffffff !important;
+      background: linear-gradient(90deg, rgba(15, 127, 155, .35), rgba(16, 62, 84, .22)) !important;
+      border-color: rgba(62, 201, 233, .5) !important;
+      box-shadow: inset 4px 0 #39d7ee, 0 0 18px rgba(15, 194, 225, .1) !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation :is(.tab, summary):focus-visible,
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-toggle-btn:focus-visible,
+    body:not(.auth-required):not(.auth-loading) #mainNavigation #navMobileClose:focus-visible {
+      outline: 2px solid #61ddf6 !important;
+      outline-offset: 2px !important;
+      box-shadow: 0 0 0 4px rgba(37, 203, 235, .18) !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-footer {
+      min-height: 48px !important;
+      padding: 9px 16px !important;
+      justify-content: center !important;
+      color: #87a3b7 !important;
+      background: rgba(2, 12, 20, .78) !important;
+      border-top-color: #19384f !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-footer small {
+      color: #87a3b7 !important;
+      font-size: 10px !important;
+      letter-spacing: .09em !important;
+    }
+    body:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-footer b { color: #b9d3e4 !important; }
+
+    @media (min-width: 901px) {
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-brand {
+        flex: 0 0 132px !important;
+        width: var(--gm-sidebar-compact) !important;
+        height: 132px !important;
+        min-height: 132px !important;
+        padding: 12px 10px 62px !important;
+      }
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) #mainNavigation .sidebar-logo-frame {
+        width: 54px !important;
+        min-width: 54px !important;
+        max-width: 54px !important;
+        height: 48px !important;
+        justify-content: flex-start !important;
+      }
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) #mainNavigation .sidebar-logo-frame .brand-logo-img {
+        width: 196px !important;
+        min-width: 196px !important;
+        max-width: none !important;
+        height: 48px !important;
+        object-position: left center !important;
+      }
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) #mainNavigation .nav-toggle-btn {
+        inset: auto 12px 12px !important;
+        width: 54px !important;
+        min-width: 54px !important;
+        height: 42px !important;
+        min-height: 42px !important;
+        padding: 0 !important;
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+      }
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) #mainNavigation .nav-toggle-btn span,
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) #mainNavigation .nav-toggle-btn::after { display: none !important; }
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-scroll {
+        width: var(--gm-sidebar-compact) !important;
+        padding: 17px 9px 20px !important;
+        gap: 8px !important;
+      }
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) #mainNavigation :is(.nav-section-label, .nav-group-items, .industrial-sidebar-footer) { display: none !important; }
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) #mainNavigation .nav-pinned {
+        width: 60px !important;
+        margin: 0 auto 4px !important;
+        padding: 0 !important;
+        background: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
+      }
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) #mainNavigation :is(.nav-pinned .tab, .nav-group > summary) {
+        width: 60px !important;
+        min-width: 60px !important;
+        max-width: 60px !important;
+        min-height: 58px !important;
+        height: 58px !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        place-items: center !important;
+        border-radius: 13px !important;
+      }
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) #mainNavigation .nav-pinned .tab + .tab { margin-top: 6px !important; }
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group {
+        width: 60px !important;
+        margin: 0 auto !important;
+      }
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) #mainNavigation :is(
+        .nav-pinned .tab > span:nth-child(2),
+        .nav-pinned .tab::after,
+        .nav-group > summary > span:nth-child(2),
+        .nav-group > summary > i
+      ) { display: none !important; }
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) #mainNavigation :is(.nav-pinned .tab-icon, .nav-group-icon) {
+        width: 44px !important;
+        min-width: 44px !important;
+        height: 44px !important;
+      }
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) #mainNavigation :is(.nav-pinned .tab-icon, .nav-group-icon) .gm-icon {
+        width: 26px !important;
+        height: 26px !important;
+      }
+    }
+
+    @media (max-width: 900px) {
+      body:not(.auth-required):not(.auth-loading) #mainNavigation,
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) #mainNavigation {
+        width: min(88vw, 326px) !important;
+        min-width: min(88vw, 326px) !important;
+        max-width: 326px !important;
+        transform: translateX(-105%) !important;
+      }
+      body.mobile-nav-open:not(.auth-required):not(.auth-loading) #mainNavigation,
+      body.mobile-nav-open.sidebar-collapsed:not(.auth-required):not(.auth-loading) #mainNavigation { transform: translateX(0) !important; }
+      body:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-brand,
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-brand {
+        flex: 0 0 78px !important;
+        width: 100% !important;
+        height: 78px !important;
+        min-height: 78px !important;
+        padding: 9px 64px 9px 16px !important;
+        justify-content: flex-start !important;
+      }
+      body:not(.auth-required):not(.auth-loading) #mainNavigation .sidebar-logo-frame,
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) #mainNavigation .sidebar-logo-frame {
+        width: 200px !important;
+        min-width: 0 !important;
+        max-width: 200px !important;
+        height: 52px !important;
+        margin: 0 !important;
+        justify-content: flex-start !important;
+      }
+      body:not(.auth-required):not(.auth-loading) #mainNavigation .sidebar-logo-frame .brand-logo-img,
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) #mainNavigation .sidebar-logo-frame .brand-logo-img {
+        width: 192px !important;
+        min-width: 192px !important;
+        max-width: 192px !important;
+        height: 50px !important;
+        object-position: left center !important;
+      }
+      body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-toggle-btn { display: none !important; }
+      body:not(.auth-required):not(.auth-loading) #mainNavigation .sidebar-mobile-head {
+        position: absolute !important;
+        z-index: 4 !important;
+        top: 17px !important;
+        right: 14px !important;
+        width: 44px !important;
+        height: 44px !important;
+        min-height: 44px !important;
+        padding: 0 !important;
+        display: block !important;
+        border: 0 !important;
+        background: transparent !important;
+      }
+      body:not(.auth-required):not(.auth-loading) #mainNavigation .sidebar-mobile-head > div { display: none !important; }
+      body:not(.auth-required):not(.auth-loading) #mainNavigation #navMobileClose {
+        width: 44px !important;
+        height: 44px !important;
+        min-height: 44px !important;
+        color: #bceeff !important;
+        background: #0d2a40 !important;
+        border: 1px solid #2a607d !important;
+        border-radius: 12px !important;
+      }
+      body:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-scroll {
+        width: 100% !important;
+        padding: 18px 14px 24px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+      }
+      body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-pinned .tab,
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) #mainNavigation .nav-pinned .tab {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        grid-template-columns: 42px minmax(0, 1fr) 16px !important;
+        place-items: initial !important;
+        align-items: center !important;
+      }
+      body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group,
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group { width: 100% !important; }
+      body:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group > summary,
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group > summary {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        grid-template-columns: 44px minmax(0, 1fr) 18px !important;
+        place-items: initial !important;
+        align-items: center !important;
+      }
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) #mainNavigation :is(
+        .nav-pinned .tab > span:nth-child(2),
+        .nav-pinned .tab::after,
+        .nav-group > summary > span:nth-child(2),
+        .nav-group > summary > i
+      ) { display: initial !important; }
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group > summary > i { display: grid !important; }
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group[open] > .nav-group-items { display: grid !important; }
+      body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace,
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace {
+        width: 100% !important;
+        margin-left: 0 !important;
+      }
+      body:not(.auth-required):not(.auth-loading) .reference-topbar,
+      body.sidebar-collapsed:not(.auth-required):not(.auth-loading) .reference-topbar { left: 0 !important; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      body:not(.auth-required):not(.auth-loading) #mainNavigation,
+      body:not(.auth-required):not(.auth-loading) #mainNavigation * { transition-duration: .01ms !important; }
+    }
+
+    /* Auditoria funcional: conteúdo extenso permanece rolável dentro do modal. */
+    #genericModalBox {
+      display: flex !important;
+      flex-direction: column !important;
+      max-height: calc(100dvh - 36px) !important;
+      overflow: hidden !important;
+    }
+    #genericModalBox > .modal-head {
+      flex: 0 0 auto !important;
+    }
+    #genericModalBox > .modal-body {
+      flex: 1 1 auto !important;
+      min-height: 0 !important;
+      max-width: 100% !important;
+      overflow-x: hidden !important;
+      overflow-y: auto !important;
+      overscroll-behavior: contain;
+      scrollbar-gutter: stable;
+    }
+    #genericModalBox > .modal-body > :last-child {
+      scroll-margin-bottom: 18px;
     }
   </style>
   <link rel="stylesheet" href="assets/ui/gestman-typography.css">
@@ -30433,8 +30978,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function stage19OrderLabel(order){return `${order.number||"O.S."} · ${order.description||order.title||order.maintenance||"Atividade"}`;}
     function stage19UserOptions(selected=""){const companyId=currentAccount?.company?.id,users=(authStore.users||[]).filter(user=>!companyId||user.companyId===companyId);return users.map(user=>`<option value="${user.id}" ${selected===user.id?"selected":""}>${escapeHtml(user.name||user.email||"Usuário")} · ${escapeHtml(user.email||"")}</option>`).join("");}
     function stage19SpecialtyOptions(selected=""){return STAGE19_SPECIALTIES.map(item=>`<option value="${item}" ${selected===item?"selected":""}>${item}</option>`).join("");}
-    function stage19TeamMenu(team){return `<details class="stage19-menu" onclick="event.stopPropagation()"><summary>⋮</summary><div><button onclick="stage19OpenTeam('${team.id}')">Ver detalhes</button>${stage19CanManage()?`<button onclick="stage19OpenTeamForm('${team.id}')">Editar</button><button onclick="stage19OpenMembers('${team.id}')">Gerenciar membros</button><button onclick="stage19OpenAssignment('', '${team.id}')">Atribuir O.S.</button><button onclick="stage19OpenTeam('${team.id}','agenda')">Ver agenda</button><button onclick="stage19ToggleTeam('${team.id}')">${team.status==="Inativa"?"Reativar":"Inativar"}</button>`:""}</div></details>`;}
-    function stage19ResourceMenu(resource){return `<details class="stage19-menu" onclick="event.stopPropagation()"><summary>⋮</summary><div><button onclick="stage19OpenResource('${resource.id}')">Ver detalhes</button>${stage19CanManage()?`<button onclick="stage19OpenResourceForm('${resource.id}')">Editar cadastro</button><button onclick="stage19OpenAvailability('${resource.id}')">Disponibilidade</button>`:""}${stage19CanEditResource(resource)?`<button onclick="stage19OpenUnavailability('${resource.id}')">Registrar indisponibilidade</button>`:""}${stage19CanManage()?`<button onclick="stage19ToggleResource('${resource.id}')">${resource.status==="Inativo"?"Reativar":"Inativar"}</button>`:""}</div></details>`;}
+    function stage19PositionMenu(details){const menu=details?.querySelector(":scope > div"),trigger=details?.querySelector("summary");if(!menu||!trigger)return;if(!details.open){["position","left","right","top","bottom","z-index","visibility","max-width","box-sizing"].forEach(property=>menu.style.removeProperty(property));return;}document.querySelectorAll(".stage19-menu[open]").forEach(other=>{if(other!==details)other.open=false;});menu.style.position="fixed";menu.style.left="0";menu.style.right="auto";menu.style.top="0";menu.style.bottom="auto";menu.style.zIndex="220";menu.style.maxWidth="calc(100vw - 16px)";menu.style.boxSizing="border-box";menu.style.visibility="hidden";requestAnimationFrame(()=>{if(!details.open)return;const anchor=trigger.getBoundingClientRect(),box=menu.getBoundingClientRect(),edge=8,gap=4;const left=Math.max(edge,Math.min(anchor.right-box.width,innerWidth-box.width-edge));let top=anchor.bottom+gap;if(top+box.height>innerHeight-edge)top=Math.max(edge,anchor.top-box.height-gap);menu.style.left=`${Math.round(left)}px`;menu.style.top=`${Math.round(top)}px`;menu.style.visibility="visible";});}
+    function stage19TeamMenu(team){return `<details class="stage19-menu" onclick="event.stopPropagation()" ontoggle="stage19PositionMenu(this)"><summary>⋮</summary><div><button onclick="stage19OpenTeam('${team.id}')">Ver detalhes</button>${stage19CanManage()?`<button onclick="stage19OpenTeamForm('${team.id}')">Editar</button><button onclick="stage19OpenMembers('${team.id}')">Gerenciar membros</button><button onclick="stage19OpenAssignment('', '${team.id}')">Atribuir O.S.</button><button onclick="stage19OpenTeam('${team.id}','agenda')">Ver agenda</button><button onclick="stage19ToggleTeam('${team.id}')">${team.status==="Inativa"?"Reativar":"Inativar"}</button>`:""}</div></details>`;}
+    function stage19ResourceMenu(resource){return `<details class="stage19-menu" onclick="event.stopPropagation()" ontoggle="stage19PositionMenu(this)"><summary>⋮</summary><div><button onclick="stage19OpenResource('${resource.id}')">Ver detalhes</button>${stage19CanManage()?`<button onclick="stage19OpenResourceForm('${resource.id}')">Editar cadastro</button><button onclick="stage19OpenAvailability('${resource.id}')">Disponibilidade</button>`:""}${stage19CanEditResource(resource)?`<button onclick="stage19OpenUnavailability('${resource.id}')">Registrar indisponibilidade</button>`:""}${stage19CanManage()?`<button onclick="stage19ToggleResource('${resource.id}')">${resource.status==="Inativo"?"Reativar":"Inativar"}</button>`:""}</div></details>`;}
     function stage19DirectoryFiltered(){const query=normalizeTextKey(stage19Ui.search);if(stage19Ui.tab==="teams")return state.teams.filter(team=>(!query||normalizeTextKey(`${team.code} ${team.name} ${team.specialty} ${stage19ResourceName(team.leaderId)}`).includes(query))&&(!stage19Ui.status||team.status===stage19Ui.status)&&(!stage19Ui.specialty||team.specialty===stage19Ui.specialty)&&(!stage19Ui.unit||team.unit===stage19Ui.unit)).sort((a,b)=>String(a.name).localeCompare(String(b.name),"pt-BR"));return state.resources.filter(resource=>{const status=stage19ResourceStatus(resource),teams=stage19ResourceTeams(resource.id).map(t=>t.name).join(" ");return(!query||normalizeTextKey(`${resource.code} ${resource.name} ${resource.specialty} ${teams}`).includes(query))&&(!stage19Ui.status||status===stage19Ui.status)&&(!stage19Ui.specialty||resource.specialty===stage19Ui.specialty)&&(!stage19Ui.unit||resource.unit===stage19Ui.unit)&&(!stage19Ui.type||resource.resourceType===stage19Ui.type);}).sort((a,b)=>String(a.name).localeCompare(String(b.name),"pt-BR"));}
     function stage19SetTab(tab){stage19Ui.tab=tab;stage19Ui.page=1;stage19Ui.status="";stage19Ui.type="";renderStage19Teams();}
     function stage19ClearDirectoryFilters(){Object.assign(stage19Ui,{search:"",status:"",specialty:"",unit:"",type:"",page:1});renderStage19Teams();}
@@ -33048,7 +33594,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const userTeamIds = Array.isArray(currentAccount?.user?.teamIds) ? currentAccount.user.teamIds : [];
       const currentResource = stage19CurrentResource();
       const currentTeamIds = currentResource ? stage19ResourceTeams(currentResource.id).map(team => team.id) : [];
-      const permittedTeamIds = userTeamIds.length ? userTeamIds : (profile === "technician" ? currentTeamIds : []);
+      const permittedTeamIds = profile === "technician" ? (userTeamIds.length ? userTeamIds : currentTeamIds) : [];
       return orderRawExecutorCandidates(false)
         .filter(candidate => candidate.selectable && orderCandidateUnitMatches(candidate, assetId))
         .filter(candidate => !permittedTeamIds.length || candidate.teamIds.some(id => permittedTeamIds.includes(id)) || candidate.id === currentResource?.id)
