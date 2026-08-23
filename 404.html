@@ -13581,6 +13581,65 @@
       padding: 16px;
       background: var(--im-surface-soft);
     }
+    .whatsapp-settings-form {
+      display: grid;
+      gap: 16px;
+    }
+    .whatsapp-settings-intro,
+    .whatsapp-integration-status {
+      display: grid;
+      gap: 6px;
+      border: 1px solid var(--im-border);
+      border-radius: var(--im-radius);
+      padding: 14px;
+      background: var(--im-surface-soft);
+    }
+    .whatsapp-settings-intro strong,
+    .whatsapp-integration-status strong {
+      color: var(--im-text);
+    }
+    .whatsapp-settings-intro span,
+    .whatsapp-integration-status span {
+      color: var(--im-muted);
+      line-height: 1.5;
+    }
+    .whatsapp-settings-options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+    }
+    .whatsapp-settings-options label,
+    .whatsapp-enabled-line {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 42px;
+      border: 1px solid var(--im-border);
+      border-radius: 9px;
+      padding: 9px 11px;
+      color: var(--im-text-soft);
+      background: var(--im-surface);
+    }
+    .whatsapp-settings-options input,
+    .whatsapp-enabled-line input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--im-accent);
+    }
+    .whatsapp-settings-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    .whatsapp-integration-status.is-ready {
+      border-color: color-mix(in srgb, var(--im-positive) 38%, var(--im-border));
+      background: color-mix(in srgb, var(--im-positive) 7%, var(--im-surface));
+    }
+    .whatsapp-integration-status.is-pending {
+      border-color: color-mix(in srgb, var(--im-warning) 38%, var(--im-border));
+      background: color-mix(in srgb, var(--im-warning) 7%, var(--im-surface));
+    }
     .tenant-company-access,
     .tenant-global-status {
       display: inline-flex;
@@ -13644,6 +13703,9 @@
       .gm-settings-nav button {
         flex: 0 0 auto;
         white-space: nowrap;
+      }
+      .whatsapp-settings-options {
+        grid-template-columns: 1fr;
       }
     }
     @media (max-width: 600px) {
@@ -22277,6 +22339,147 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function defaultCompanyBrand() {
       return { companyLogo:"", companyLogoName:"", companyLogoUpdatedAt:"" };
     }
+    function defaultWhatsAppNotifications() {
+      return {
+        enabled:false,
+        recipients:[],
+        notifyOnCreate:true,
+        notifyOnStatus:true,
+        notifyOnAssignment:true,
+        notifyOnPriority:false,
+        updatedAt:""
+      };
+    }
+    let whatsappRuntimeSettings = defaultWhatsAppNotifications();
+    function normalizeWhatsAppPhone(value) {
+      const digits = String(value || "").replace(/\D/g, "");
+      return /^\d{10,15}$/.test(digits) ? digits : "";
+    }
+    function normalizedWhatsAppRecipients(value) {
+      const source = Array.isArray(value) ? value : [];
+      const phones = source.map(item => normalizeWhatsAppPhone(typeof item === "string" ? item : item?.phone || item?.value)).filter(Boolean);
+      return [...new Set(phones)].slice(0, 5).map(phone => ({ phone }));
+    }
+    function whatsappSettings() {
+      const current = whatsappRuntimeSettings && typeof whatsappRuntimeSettings === "object" ? whatsappRuntimeSettings : {};
+      return { ...defaultWhatsAppNotifications(), ...current, recipients:normalizedWhatsAppRecipients(current.recipients) };
+    }
+    function whatsappRecipientsText(settings = whatsappSettings()) {
+      return normalizedWhatsAppRecipients(settings.recipients).map(item => `+${item.phone}`).join("\n");
+    }
+    function parseWhatsAppRecipients(value) {
+      const parts = String(value || "").split(/[\n,;]+/).map(item => item.trim()).filter(Boolean);
+      const invalid = parts.filter(item => !normalizeWhatsAppPhone(item));
+      return { recipients:normalizedWhatsAppRecipients(parts), invalid };
+    }
+    function whatsappOrderAssignmentKey(order = {}) {
+      return JSON.stringify({
+        executor:String(order.executor || "").trim(),
+        executorIds:[...(Array.isArray(order.executorIds) ? order.executorIds : [])].map(String).sort()
+      });
+    }
+    function whatsappOrderEvents(previousOrders = [], nextOrders = []) {
+      const before = new Map((Array.isArray(previousOrders) ? previousOrders : []).map(order => [order?.id, order]));
+      const events = [];
+      (Array.isArray(nextOrders) ? nextOrders : []).forEach(order => {
+        if (!order?.id || order.demo === true || order.demoBatchId === DEMO_BATCH_ID) return;
+        const previous = before.get(order.id);
+        if (!previous) {
+          events.push({ order_id:order.id, event_type:"created" });
+          return;
+        }
+        if (normalizeTextKey(previous.status) !== normalizeTextKey(order.status)) events.push({ order_id:order.id, event_type:"status_changed" });
+        if (whatsappOrderAssignmentKey(previous) !== whatsappOrderAssignmentKey(order)) events.push({ order_id:order.id, event_type:"assigned" });
+        if (normalizeTextKey(previous.priority) !== normalizeTextKey(order.priority)) events.push({ order_id:order.id, event_type:"priority_changed" });
+      });
+      return events.slice(0, 10);
+    }
+    function dispatchWhatsAppOrderEvents(previousOrders, nextOrders) {
+      if (!currentAccount) return;
+      const events = whatsappOrderEvents(previousOrders, nextOrders);
+      if (!events.length) return;
+      gmAuthenticatedFunction("whatsapp-work-order-alerts", { action:"send", events })
+        .then(result => {
+          if (Number(result?.failed || 0) > 0) showToast("A O.S. foi salva, mas um aviso do WhatsApp não pôde ser enviado.", "warning");
+        })
+        .catch(error => {
+          stage21TechnicalLog("warning", "whatsapp.order-alert", error);
+          if (String(error?.message || "").includes("Integração WhatsApp ainda não configurada no servidor.")) return;
+          showToast("A O.S. foi salva, mas o aviso do WhatsApp não foi enviado.", "warning");
+        });
+    }
+    async function saveWhatsAppNotificationsFromForm(event) {
+      event.preventDefault();
+      if (!isAdminUser()) return denyProfileAccess();
+      const parsed = parseWhatsAppRecipients(value("whatsappNotificationRecipients"));
+      const enabled = $("whatsappNotificationEnabled")?.checked === true;
+      if (parsed.invalid.length) return showToast("Revise os números. Use DDI + DDD + número, somente números ou com o sinal +.", "warning");
+      if (enabled && !parsed.recipients.length) return showToast("Informe ao menos um WhatsApp autorizado a receber avisos.", "warning");
+      const button = event.submitter;
+      if (button) button.disabled = true;
+      try {
+        const settings = {
+          ...defaultWhatsAppNotifications(),
+          enabled,
+          recipients:parsed.recipients,
+          notifyOnCreate:$("whatsappNotifyOnCreate")?.checked !== false,
+          notifyOnStatus:$("whatsappNotifyOnStatus")?.checked !== false,
+          notifyOnAssignment:$("whatsappNotifyOnAssignment")?.checked !== false,
+          notifyOnPriority:$("whatsappNotifyOnPriority")?.checked === true
+        };
+        const result = await gmAuthenticatedFunction("whatsapp-work-order-alerts", { action:"configure", settings });
+        whatsappRuntimeSettings = { ...settings, ...(result?.settings || {}) };
+        setWhatsAppIntegrationStatus("Configuração protegida salva no servidor.", true);
+        stage21WriteAudit({ module:"Configurações", action:"Avisos de O.S. por WhatsApp atualizados", record:currentAccount?.company?.name || "empresa", result:"Sucesso" });
+        showToast(enabled ? "Avisos de O.S. por WhatsApp ativados para esta empresa." : "Avisos de O.S. por WhatsApp desativados.");
+      } catch (error) {
+        showToast(error?.message || "Não foi possível salvar a configuração do WhatsApp.", "error");
+      } finally {
+        if (button) button.disabled = false;
+      }
+    }
+    function setWhatsAppIntegrationStatus(message, ready = false) {
+      const box = $("whatsappIntegrationStatus");
+      if (!box) return;
+      box.classList.toggle("is-ready", ready);
+      box.classList.toggle("is-pending", !ready);
+      const textNode = box.querySelector("span");
+      if (textNode) textNode.textContent = message;
+    }
+    function applyWhatsAppSettingsToForm(settings = whatsappSettings()) {
+      whatsappRuntimeSettings = { ...defaultWhatsAppNotifications(), ...settings, recipients:normalizedWhatsAppRecipients(settings.recipients) };
+      if ($("whatsappNotificationEnabled")) $("whatsappNotificationEnabled").checked = whatsappRuntimeSettings.enabled === true;
+      if ($("whatsappNotificationRecipients")) $("whatsappNotificationRecipients").value = whatsappRecipientsText(whatsappRuntimeSettings);
+      if ($("whatsappNotifyOnCreate")) $("whatsappNotifyOnCreate").checked = whatsappRuntimeSettings.notifyOnCreate !== false;
+      if ($("whatsappNotifyOnStatus")) $("whatsappNotifyOnStatus").checked = whatsappRuntimeSettings.notifyOnStatus !== false;
+      if ($("whatsappNotifyOnAssignment")) $("whatsappNotifyOnAssignment").checked = whatsappRuntimeSettings.notifyOnAssignment !== false;
+      if ($("whatsappNotifyOnPriority")) $("whatsappNotifyOnPriority").checked = whatsappRuntimeSettings.notifyOnPriority === true;
+    }
+    async function checkWhatsAppIntegrationStatus() {
+      if (!isAdminUser()) return denyProfileAccess();
+      setWhatsAppIntegrationStatus("Verificando a configuração segura do servidor...");
+      try {
+        const result = await gmAuthenticatedFunction("whatsapp-work-order-alerts", { action:"status" });
+        if (result?.settings) applyWhatsAppSettingsToForm(result.settings);
+        if (result?.configured) setWhatsAppIntegrationStatus("Canal oficial da Meta configurado no servidor. Nenhuma credencial fica no navegador.", true);
+        else setWhatsAppIntegrationStatus(`Configuração do servidor pendente: ${(result?.missing || []).join(", ") || "credenciais da Meta"}.`);
+      } catch (error) {
+        setWhatsAppIntegrationStatus(error?.message || "Não foi possível consultar o canal do WhatsApp.");
+      }
+    }
+    async function sendWhatsAppIntegrationTest() {
+      if (!isAdminUser()) return denyProfileAccess();
+      const button = $("whatsappSendTest");
+      if (button) button.disabled = true;
+      try {
+        const result = await gmAuthenticatedFunction("whatsapp-work-order-alerts", { action:"test" });
+        showToast(`${Number(result?.sent || 0)} aviso(s) de teste aceito(s) pelo WhatsApp.`);
+      } catch (error) {
+        showToast(error?.message || "Não foi possível enviar o teste pelo WhatsApp.", "error");
+      } finally {
+        if (button) button.disabled = false;
+      }
+    }
     const COMPANY_LOGO_INPUT_LIMIT = 3 * 1024 * 1024;
     const COMPANY_LOGO_STORED_LIMIT = 700 * 1024;
     const COMPANY_LOGO_FALLBACK = "assets/ui/illustrations/gestman365-logo.png";
@@ -23200,6 +23403,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       normalized.operationalAreas = Array.isArray(normalized.operationalAreas) ? normalized.operationalAreas.map(a => ({ ...a, status: a.status || "Ativa" })) : [];
       normalized.sectorsLocations = Array.isArray(normalized.sectorsLocations) ? normalized.sectorsLocations.map(sl => ({ ...sl, status: sl.status || "Ativo", type: sl.type || "Local" })) : [];
       normalized.installationStructures = Array.isArray(normalized.installationStructures) ? normalized.installationStructures.map(item => ({ ...item, status: item.status || "Ativa", type: item.type || "Sistema", sectorLocationId: item.sectorLocationId || "", parentId: item.parentId || "" })) : [];
+      delete normalized.whatsappNotifications;
       normalized.locations = normalized.locations.map((location, index) => ({
         ...location,
         regionId: location.regionId || "",
@@ -26723,19 +26927,10 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         const mttrData = stage16MetricData("mttr", filters);
         const mtbfData = stage16MetricData("mtbf", filters);
         const availabilityData = stage16MetricData("availability", filters);
-        return { mttr: Number(mttrData.value || 0), mtbf: Number(mtbfData.value || 0), availability: Number(availabilityData.value || 0) };
+        const valueOrNull = data => data?.value == null || !Number.isFinite(Number(data.value)) ? null : Number(data.value);
+        return { mttr: valueOrNull(mttrData), mtbf: valueOrNull(mtbfData), availability: valueOrNull(availabilityData) };
       }
-      const completed = state.orders.filter(order => isClosedOrder(order.status));
-      const active = state.orders.filter(order => !isClosedOrder(order.status));
-      const totalRepair = completed.reduce((sum, order) => sum + Number(order.mttr || 0), 0);
-      const mttr = completed.length ? totalRepair / completed.length : 0;
-      const totalFailures = state.orders.filter(order => statusKey(order.status) !== "cancelada").length;
-      const mtbf = totalFailures && state.assets.length ? (state.assets.length * 720) / totalFailures : (state.assets.length ? 720 : 0);
-      const activeMachineIds = new Set(active.map(order => order.assetId));
-      const operating = state.assets.filter(asset => statusKey(asset.status).startsWith("operando"));
-      const available = operating.filter(asset => !activeMachineIds.has(asset.id)).length;
-      const availability = state.assets.length ? (available / state.assets.length) * 100 : 0;
-      return { mttr, mtbf, availability };
+      return { mttr:null, mtbf:null, availability:null };
     }
     function dashboardItemPlant(item = {}) {
       const asset = item.assetId ? byId(state.assets, item.assetId) : item;
@@ -26760,25 +26955,13 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         downtimes: (state.downtimes || []).filter(item => inPlant(item) && inPeriod(item))
       };
     }
-    function dashboardMetricsFor(assets, orders, months = 6) {
-      const completed = orders.filter(order => isClosedOrder(order.status));
-      const totalRepair = completed.reduce((sum, order) => sum + Number(order.mttr || 0), 0);
-      const mttr = completed.length ? totalRepair / completed.length : 0;
-      const failures = orders.filter(order => statusKey(order.status) !== "cancelada").length;
-      const mtbf = failures && assets.length ? (assets.length * months * 720) / failures : (assets.length ? months * 720 : 0);
-      const activeAssetIds = new Set(orders.filter(order => !isClosedOrder(order.status)).map(order => order.assetId));
-      const operating = assets.filter(asset => statusKey(asset.status).includes("oper") || statusKey(asset.status).includes("ativ"));
-      const available = operating.filter(asset => !activeAssetIds.has(asset.id)).length;
-      const availability = assets.length ? available / assets.length * 100 : 0;
-      return { mttr, mtbf, availability, operating: operating.length };
-    }
     function drawDashboardSparkline(id, values, color = "#2387ff") {
       const canvas = $(id); if (!canvas) return;
       const ctx = canvas.getContext("2d");
       const width = canvas.width; const height = canvas.height;
       ctx.clearRect(0, 0, width, height);
       const safe = (values || []).map(Number).filter(Number.isFinite);
-      const points = safe.length > 1 ? safe : [0, 0, 0, 0, 0, 0];
+      const points = safe.length > 1 ? safe : safe.length ? [safe[0], safe[0]] : [0, 0, 0, 0, 0, 0];
       const min = Math.min(...points); const max = Math.max(...points); const range = max - min || 1;
       ctx.beginPath();
       points.forEach((value, index) => {
@@ -26798,24 +26981,25 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function renderProfessionalKpis() {
       if (!$("professionalMttr")) return;
       const filtered = dashboardFilteredData();
-      const metrics = dashboardMetricsFor(filtered.assets, filtered.orders, filtered.months);
       const running = filtered.orders.filter(order => isRunningOrder(order.status));
       const critical = running.filter(order => statusKey(order.priority).includes("alta") || orderIsLate(order));
       const activeStops = filtered.downtimes.filter(item => item?.status === "Ativa");
-      const previousCutoff = new Date(filtered.cutoff); previousCutoff.setMonth(previousCutoff.getMonth() - filtered.months);
-      const previousOrders = (state.orders || []).filter(item => dashboardItemPlant(item) === filtered.plant || filtered.plant === "Todas").filter(item => {
-        const date = new Date(item.finishedAt || item.createdAt || 0); return date >= previousCutoff && date < filtered.cutoff;
-      });
-      const previous = dashboardMetricsFor(filtered.assets, previousOrders, filtered.months);
-      $("professionalMttr").textContent = `${metrics.mttr.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}h`;
-      $("professionalMtbf").textContent = `${Math.round(metrics.mtbf).toLocaleString("pt-BR")}h`;
-      $("professionalAvailability").textContent = `${metrics.availability.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`;
+      const end = new Date(), start = new Date(end);
+      start.setMonth(start.getMonth() - filtered.months);
+      const filters = { ...stage16Filters, period:"custom", start:stage16DateInput(start), end:stage16DateInput(end), plant:filtered.plant === "Todas" ? "" : filtered.plant };
+      const previousFilters = stage16PreviousFilters(filters);
+      const metrics = { mttr:stage16MetricData("mttr", filters), mtbf:stage16MetricData("mtbf", filters), availability:stage16MetricData("availability", filters) };
+      const previous = { mttr:stage16MetricData("mttr", previousFilters), mtbf:stage16MetricData("mtbf", previousFilters), availability:stage16MetricData("availability", previousFilters) };
+      const formatted = (data, unit, digits = 1) => data.value == null ? "Sem dados" : `${Number(data.value).toLocaleString("pt-BR", { minimumFractionDigits:digits, maximumFractionDigits:digits })}${unit}`;
+      $("professionalMttr").textContent = formatted(metrics.mttr, "h");
+      $("professionalMtbf").textContent = formatted(metrics.mtbf, "h", 0);
+      $("professionalAvailability").textContent = formatted(metrics.availability, "%");
       $("professionalEquipment").textContent = filtered.assets.length.toLocaleString("pt-BR");
       $("professionalRunningOrders").textContent = running.length.toLocaleString("pt-BR");
-      $("professionalMttrDelta").textContent = professionalDelta(metrics.mttr, previous.mttr);
-      $("professionalMtbfDelta").textContent = professionalDelta(metrics.mtbf, previous.mtbf);
-      $("professionalAvailabilityDelta").textContent = previous.availability ? `${(metrics.availability - previous.availability >= 0 ? "+" : "")}${(metrics.availability - previous.availability).toFixed(1)} p.p. vs período anterior` : "Sem histórico anterior";
-      $("professionalEquipmentComplement").textContent = `${metrics.operating} operando`;
+      $("professionalMttrDelta").textContent = stage16Comparison("mttr", metrics.mttr.value, previous.mttr.value).text;
+      $("professionalMtbfDelta").textContent = stage16Comparison("mtbf", metrics.mtbf.value, previous.mtbf.value).text;
+      $("professionalAvailabilityDelta").textContent = stage16Comparison("availability", metrics.availability.value, previous.availability.value).text;
+      $("professionalEquipmentComplement").textContent = `${filtered.assets.filter(asset => statusKey(asset.status).includes("operando")).length} operando`;
       $("professionalCriticalOrders").textContent = `${critical.length} críticas`;
       $("professionalActiveStops").textContent = activeStops.length;
       const impact = activeStops.length >= 3 || critical.length >= 5 ? "Alto" : activeStops.length || critical.length ? "Médio" : "Baixo";
@@ -26823,21 +27007,13 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if ($("headerNotificationCount")) {
         $("headerNotificationCount").textContent = (critical.length + activeStops.length + lowStockItems().length).toLocaleString("pt-BR");
       }
-      const buckets = Array.from({ length: Math.min(12, filtered.months) }, (_, index) => {
-        const start = new Date(); start.setMonth(start.getMonth() - (Math.min(12, filtered.months) - 1 - index), 1); start.setHours(0,0,0,0);
-        const end = new Date(start); end.setMonth(end.getMonth() + 1, 0); end.setHours(23,59,59,999);
-        const orders = filtered.orders.filter(order => { const date = new Date(order.finishedAt || order.createdAt || 0); return date >= start && date <= end; });
-        const assets = filtered.assets.filter(asset => { const date = new Date(asset.createdAt || 0); return !asset.createdAt || date <= end; });
-        const stops = filtered.downtimes.filter(stop => { const date = new Date(stop.startAt || stop.createdAt || 0); return date >= start && date <= end; });
-        const monthMetrics = dashboardMetricsFor(assets, orders, 1);
-        return { mttr: monthMetrics.mttr, mtbf: monthMetrics.mtbf, availability: monthMetrics.availability, equipment: assets.length, running: orders.filter(order => isRunningOrder(order.status)).length, stops: stops.length };
-      });
-      drawDashboardSparkline("professionalMttrSpark", buckets.map(item => item.mttr));
-      drawDashboardSparkline("professionalMtbfSpark", buckets.map(item => item.mtbf));
-      drawDashboardSparkline("professionalAvailabilitySpark", buckets.map(item => item.availability));
-      drawDashboardSparkline("professionalEquipmentSpark", buckets.map(item => item.equipment));
-      drawDashboardSparkline("professionalOrdersSpark", buckets.map(item => item.running));
-      drawDashboardSparkline("professionalStopsSpark", buckets.map(item => item.stops), "#ef4444");
+      const bucketCount = Math.min(12, filtered.months);
+      drawDashboardSparkline("professionalMttrSpark", gmMaintenanceMetricSeries("mttr", filters, bucketCount).map(item => item.value));
+      drawDashboardSparkline("professionalMtbfSpark", gmMaintenanceMetricSeries("mtbf", filters, bucketCount).map(item => item.value));
+      drawDashboardSparkline("professionalAvailabilitySpark", gmMaintenanceMetricSeries("availability", filters, bucketCount).map(item => item.value));
+      drawDashboardSparkline("professionalEquipmentSpark", [filtered.assets.length]);
+      drawDashboardSparkline("professionalOrdersSpark", [running.length]);
+      drawDashboardSparkline("professionalStopsSpark", [activeStops.length], "#ef4444");
     }
     function changeDashboardFilters() {
       const layout = activeDashboardLayout();
@@ -27173,9 +27349,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function renderDashboard() {
       const { mttr, mtbf, availability } = calcMetrics();
       const counts = orderStatusCounts();
-      $("mttrMetric").textContent = `${mttr.toFixed(1)}h`;
-      $("mtbfMetric").textContent = `${mtbf.toFixed(0)}h`;
-      $("availabilityMetric").textContent = `${availability.toFixed(1)}%`;
+      $("mttrMetric").textContent = mttr == null ? "Sem dados" : `${mttr.toFixed(1)}h`;
+      $("mtbfMetric").textContent = mtbf == null ? "Sem dados" : `${mtbf.toFixed(0)}h`;
+      $("availabilityMetric").textContent = availability == null ? "Sem dados" : `${availability.toFixed(1)}%`;
       $("assetMetric").textContent = state.assets.length;
       if ($("locationMetric")) $("locationMetric").textContent = state.locations.length;
       if ($("openOsMetric")) $("openOsMetric").textContent = counts.abertas;
@@ -27476,98 +27652,35 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const numeric = typeof value === "number" || /^\d+$/.test(String(value)) ? new Date(Number(value)) : new Date(value);
       return Number.isNaN(numeric.getTime()) ? null : numeric;
     }
-    function trendIsCorrectiveOrder(order = {}) {
-      const type = statusKey(`${order.maintenanceType || order.maintenance || order.type || order.category || order.origin || ""}`);
-      return type.includes("corret") || type.includes("falha") || type.includes("emerg");
-    }
-    function trendOrderFinishedDate(order = {}) {
-      return validOperationalDate(order.realEndAt || order.finishedAt || order.completedAt || order.closedAt);
-    }
-    function trendOrderDurationHours(order = {}) {
-      for (const value of [order.actualHours, order.executionHours, order.mttr, order.actualDurationHours]) {
-        const hours = Number(value);
-        if (Number.isFinite(hours) && hours > 0) return hours;
-      }
-      const started = validOperationalDate(order.realStartAt || order.startedAt);
-      const finished = trendOrderFinishedDate(order);
-      if (!started || !finished || finished < started) return null;
-      const pause = Math.max(0, Number(order.pauseHours || 0));
-      return Math.max(0, (finished - started) / 3600000 - pause) || null;
-    }
-    function trendIsHourMeterPoint(point = {}) {
-      const key = statusKey([point.measurementType, point.type, point.name, point.unit].filter(Boolean).join(" "));
-      return key.includes("horimet") || key.includes("contador acumulativo");
-    }
-    function trendHourMeterHours(startDate, endDate, assetIds) {
-      const points = new Map((state.measurementPoints || []).filter(trendIsHourMeterPoint).map(point => [point.id, point]));
-      const groups = new Map();
-      (state.measurements || []).forEach(reading => {
-        const point = points.get(reading.pointId);
-        if (!point && !trendIsHourMeterPoint(reading)) return;
-        const assetId = reading.assetId || point?.assetId || "";
-        if (!assetIds.has(assetId) || reading.reductionJustification || reading.correctsMeasurementId) return;
-        const readAt = validOperationalDate(reading.readAt || reading.recordedAt || reading.createdAt);
-        const value = stage15Number(reading.value ?? reading.reading);
-        if (!readAt || readAt < startDate || readAt >= endDate || value === null) return;
-        const key = reading.pointId || point?.id || `asset-${assetId}`;
-        if (!groups.has(key)) groups.set(key, []);
-        groups.get(key).push({ readAt, value });
-      });
-      let hours = 0;
-      let intervals = 0;
-      groups.forEach(readings => {
-        readings.sort((a, b) => a.readAt - b.readAt);
-        for (let index = 1; index < readings.length; index += 1) {
-          const delta = readings[index].value - readings[index - 1].value;
-          if (Number.isFinite(delta) && delta > 0) { hours += delta; intervals += 1; }
-        }
-      });
-      return { hours, intervals, points:groups.size };
-    }
-    function trendDowntimeHours(startDate, endDate, assetIds) {
-      return (state.downtimes || []).reduce((sum, downtime) => {
-        if (!assetIds.has(downtime.assetId) || statusKey(downtime.status) === "cancelada") return sum;
-        const started = validOperationalDate(downtime.startAt || downtime.createdAt);
-        let finished = validOperationalDate(downtime.endAt || downtime.finishedAt);
-        const registeredHours = Number(downtime.durationHours);
-        if (!finished && started && Number.isFinite(registeredHours) && registeredHours >= 0) finished = new Date(started.getTime() + registeredHours * 3600000);
-        if (!finished && statusKey(downtime.status).startsWith("ativ")) finished = new Date();
-        if (!started || !finished || finished <= started) return sum;
-        const overlapStart = new Date(Math.max(started, startDate));
-        const overlapEnd = new Date(Math.min(finished, endDate));
-        return overlapEnd > overlapStart ? sum + (overlapEnd - overlapStart) / 3600000 : sum;
-      }, 0);
-    }
     function trendMonthlyData(months) {
       const layout = activeDashboardLayout();
       const plant = layout.filters?.plant || "Unidade Industrial 01";
-      const inPlant = item => plant === "Todas" || dashboardItemPlant(item) === plant;
-      const trendAssets = (state.assets || []).filter(asset => inPlant(asset) && !statusKey(asset.status).includes("inativ"));
-      const uniqueOrders = [...new Map((state.orders || []).map((order, index) => [order.id || order.number || `order-${index}`, order])).values()];
       const now = new Date();
-      const correctiveFailures = uniqueOrders.filter(order => inPlant(order) && isClosedOrder(order.status) && statusKey(order.status) !== "cancelada" && trendIsCorrectiveOrder(order)).map(order => ({ order, finished:trendOrderFinishedDate(order), duration:trendOrderDurationHours(order) })).filter(item => item.finished);
+      const firstMonth = new Date(now.getFullYear(), now.getMonth() - (months - 1), 1);
+      const filters = {
+        ...stage16Filters,
+        period:"custom",
+        start:stage16DateInput(firstMonth),
+        end:stage16DateInput(now),
+        plant:plant === "Todas" ? "" : plant
+      };
+      const mttrSeries = gmMaintenanceMetricSeries("mttr", filters, months);
+      const mtbfSeries = gmMaintenanceMetricSeries("mtbf", filters, months);
       return Array.from({ length:months }, (_, index) => {
-        const startDate = new Date(now.getFullYear(), now.getMonth() - (months - 1 - index), 1);
-        const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 1);
-        const effectiveEnd = endDate > now ? now : endDate;
-        const failures = correctiveFailures.filter(item => item.finished >= startDate && item.finished < effectiveEnd);
-        const repairs = failures.filter(item => item.duration !== null);
-        const mttr = repairs.length ? repairs.reduce((sum, item) => sum + item.duration, 0) / repairs.length : null;
-        const assets = trendAssets.filter(asset => {
-          const created = validOperationalDate(asset.createdAt);
-          return !created || created < effectiveEnd;
-        });
-        const assetIds = new Set(assets.map(asset => asset.id));
-        const meter = trendHourMeterHours(startDate, effectiveEnd, assetIds);
-        const calendarHours = Math.max(0, (effectiveEnd - startDate) / 3600000) * assets.length;
-        const downtimeHours = trendDowntimeHours(startDate, effectiveEnd, assetIds);
-        const calendarOperatingHours = Math.max(0, calendarHours - downtimeHours);
-        const operatingHours = meter.hours > 0 ? meter.hours : calendarOperatingHours;
-        const source = meter.hours > 0 ? "Horímetros registrados" : calendarOperatingHours > 0 ? "Calendário líquido de paradas" : "Base operacional indisponível";
-        const mtbf = failures.length && operatingHours > 0 ? operatingHours / failures.length : null;
+        const fallbackDate = new Date(now.getFullYear(), now.getMonth() - (months - 1 - index), 1);
+        const mttr = mttrSeries[index] || {};
+        const mtbf = mtbfSeries[index] || {};
         return {
-          label:startDate.toLocaleDateString("pt-BR", { month:"short", year:"2-digit" }).replace(".", "").toUpperCase(),
-          mttr, mtbf, completed:failures.length, repairs:repairs.length, operatingHours, downtimeHours, source, metered:meter.hours > 0
+          label:mttr.label || mtbf.label || fallbackDate.toLocaleDateString("pt-BR", { month:"short", year:"2-digit" }).replace(".", "").toUpperCase(),
+          mttr:mttr.value ?? null,
+          mtbf:mtbf.value ?? null,
+          mttrCount:Number(mttr.recordCount || 0),
+          mtbfCount:Number(mtbf.recordCount || 0),
+          mttrQuality:mttr.quality || "insufficient",
+          mtbfQuality:mtbf.quality || "insufficient",
+          mttrDetail:mttr.detail || "Sem reparos corretivos válidos no período.",
+          mtbfDetail:mtbf.detail || "Sem base operacional válida no período.",
+          source:mttr.source || mtbf.source || "gm_tenant_state (Supabase/PostgreSQL)"
         };
       });
     }
@@ -27583,10 +27696,10 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       }
       const current = valid[valid.length - 1];
       const formatHours = value => value === null ? "Sem dados" : `${value.toLocaleString("pt-BR", { maximumFractionDigits:1 })}h`;
-      const totalFailures = buckets.reduce((sum, item) => sum + item.completed, 0);
-      const meteredMonths = buckets.filter(item => item.metered).length;
-      const sourceLabel = meteredMonths ? `${meteredMonths} mês(es) com horímetro` : "Calendário líquido de paradas";
-      target.innerHTML = `<div class="trend-chart-shell"><div class="trend-chart-legend"><span><i style="background:#1d8cff"></i>MTBF real</span><span><i style="background:#f97316"></i>MTTR real</span></div><canvas id="maintenanceTrendCanvas" role="img" aria-label="Tendência mensal real de MTBF e MTTR"></canvas><div class="trend-chart-tooltip" id="maintenanceTrendTooltip"></div></div><div class="trend-summary"><div><span>MTBF · ${current.label}</span><strong>${formatHours(current.mtbf)}</strong></div><div><span>MTTR · ${current.label}</span><strong>${formatHours(current.mttr)}</strong></div><div><span>Falhas corretivas</span><strong>${totalFailures.toLocaleString("pt-BR")} no período</strong></div><div><span>Base operacional</span><strong title="${sourceLabel}">${sourceLabel}</strong></div></div><p class="trend-method-note"><strong>Origem:</strong> MTTR calculado com a duração registrada das O.S. corretivas concluídas. MTBF calculado com horímetros acumulados; sem leitura suficiente, usa horas-calendário dos ativos menos paradas registradas. Meses sem falha ou duração válida permanecem como lacuna.</p>`;
+      const validPeriods = buckets.filter(item => item.mttrQuality !== "insufficient" || item.mtbfQuality !== "insufficient").length;
+      const partialPeriods = buckets.filter(item => item.mttrQuality === "partial" || item.mtbfQuality === "partial").length;
+      const qualityLabel = `${validPeriods} de ${buckets.length} período(s) com evidência${partialPeriods ? ` · ${partialPeriods} parcial(is)` : ""}`;
+      target.innerHTML = `<div class="trend-chart-shell"><div class="trend-chart-legend"><span><i style="background:#1d8cff"></i>MTBF real</span><span><i style="background:#f97316"></i>MTTR real</span></div><canvas id="maintenanceTrendCanvas" role="img" aria-label="Tendência mensal real de MTBF e MTTR"></canvas><div class="trend-chart-tooltip" id="maintenanceTrendTooltip"></div></div><div class="trend-summary"><div><span>MTBF · ${current.label}</span><strong>${formatHours(current.mtbf)}</strong></div><div><span>MTTR · ${current.label}</span><strong>${formatHours(current.mttr)}</strong></div><div><span>Qualidade da série</span><strong>${qualityLabel}</strong></div><div><span>Fonte oficial</span><strong title="${escapeHtml(current.source)}">Supabase / estado da empresa</strong></div></div><p class="trend-method-note"><strong>Origem:</strong> contrato oficial de indicadores. MTTR usa apenas reparos corretivos concluídos com duração válida. MTBF usa horímetros válidos ou calendário operacional vinculado, descontadas as paradas. Períodos sem evidência permanecem como lacuna.</p>`;
       drawMaintenanceTrendCanvas(buckets);
     }
     function drawMaintenanceTrendCanvas(buckets) {
@@ -27644,7 +27757,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         const localX=Math.max(0,Math.min(bounds.width,event.clientX-bounds.left));
         const index=Math.max(0,Math.min(buckets.length-1,Math.round((localX/bounds.width)*(buckets.length-1))));
         const item=buckets[index];
-        tooltip.innerHTML=`<strong>${item.label}</strong><span style="color:#63b3ff">MTBF: ${item.mtbf === null ? "Sem dados" : `${item.mtbf.toLocaleString("pt-BR", { maximumFractionDigits:1 })}h`}</span><br><span style="color:#fb923c">MTTR: ${item.mttr === null ? "Sem dados" : `${item.mttr.toLocaleString("pt-BR", { maximumFractionDigits:1 })}h`}</span><br>${item.completed} falha(s) corretiva(s)<br>${item.repairs} reparo(s) com duração<br>${item.operatingHours.toLocaleString("pt-BR", { maximumFractionDigits:1 })}h · ${item.source}`;
+        tooltip.innerHTML=`<strong>${item.label}</strong><span style="color:#63b3ff">MTBF: ${item.mtbf === null ? "Sem dados" : `${item.mtbf.toLocaleString("pt-BR", { maximumFractionDigits:1 })}h`}</span><br><span style="color:#fb923c">MTTR: ${item.mttr === null ? "Sem dados" : `${item.mttr.toLocaleString("pt-BR", { maximumFractionDigits:1 })}h`}</span><br>${escapeHtml(item.mtbfDetail)}<br>${escapeHtml(item.mttrDetail)}`;
         tooltip.style.left=`${x(index)/width*100}%`; tooltip.style.top=`${Math.min(y(item.mtbf ?? 0,mtbfMax),y(item.mttr ?? 0,mttrMax))}px`; tooltip.classList.add("visible");
       };
       canvas.addEventListener("pointermove",showTooltip);
@@ -27736,9 +27849,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         ["O.S EM EXECUÇÃO", counts.execucao],
         ["O.S CONCLUÍDAS", counts.concluidas],
         ["EQUIPAMENTOS", state.assets.length],
-        ["MTTR MÉDIO", `${metrics.mttr.toFixed(1)}H`],
-        ["MTBF MÉDIO", `${metrics.mtbf.toFixed(0)}H`],
-        ["DISPONIBILIDADE", `${metrics.availability.toFixed(1)}%`],
+        ["MTTR MÉDIO", metrics.mttr == null ? "SEM DADOS" : `${metrics.mttr.toFixed(1)}H`],
+        ["MTBF MÉDIO", metrics.mtbf == null ? "SEM DADOS" : `${metrics.mtbf.toFixed(0)}H`],
+        ["DISPONIBILIDADE", metrics.availability == null ? "SEM DADOS" : `${metrics.availability.toFixed(1)}%`],
         ["REGIÕES", state.regions.length],
         ["LOCAIS DE INSTALAÇÃO", state.locations.length],
         ["PEÇAS ABAIXO DO MÍNIMO", lowStockItems().length]
@@ -28177,7 +28290,10 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const critical = state.assets.filter(asset => asset.criticality === "Alta");
       if (!question.trim()) return "DIGITE UMA PERGUNTA SOBRE OS DADOS DO SISTEMA.";
       if (q.includes("internet") || q.includes("fora")) return "ESTA IA ESTÁ RESTRITA AOS DADOS CADASTRADOS NO GESTMAN365. NÃO CONSULTO INTERNET NEM FONTES EXTERNAS.";
-      if (q.includes("mttr") || q.includes("mtbf") || q.includes("dispon")) return `MTTR MÉDIO: ${metrics.mttr.toFixed(1)}H.\nMTBF MÉDIO: ${metrics.mtbf.toFixed(0)}H.\nDISPONIBILIDADE: ${metrics.availability.toFixed(1)}%.`;
+      if (q.includes("mttr") || q.includes("mtbf") || q.includes("dispon")) {
+        const metricText = (value, unit, digits) => value == null ? "SEM DADOS SUFICIENTES" : `${value.toFixed(digits)}${unit}`;
+        return `MTTR MÉDIO: ${metricText(metrics.mttr,"H",1)}.\nMTBF MÉDIO: ${metricText(metrics.mtbf,"H",0)}.\nDISPONIBILIDADE: ${metricText(metrics.availability,"%",1)}.`;
+      }
       if (q.includes("execu")) return running.length ? running.map(order => `${order.number} | ${machineName(order.assetId)} | EXECUTANTE: ${order.executor || "SEM EXECUTANTE"}`).join("\n") : "NÃO HÁ O.S EM EXECUÇÃO.";
       if (q.includes("abert")) return open.length ? open.map(order => `${order.number} | ${machineName(order.assetId)} | PRIORIDADE: ${order.priority} | EXECUTANTE: ${order.executor || "SEM EXECUTANTE"}`).join("\n") : "NÃO HÁ O.S ABERTA.";
       if (q.includes("execut")) {
@@ -33026,6 +33142,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const body = $("genericBody");
       const profile = $("profileForm");
       const companyBrand = $("companyBrandForm");
+      const whatsapp = $("whatsappNotificationForm");
       if (!body || !profile || $("gmSettingsShell")) return;
       const users = body.querySelector(".tenant-user-admin");
       const shell = document.createElement("div");
@@ -33035,16 +33152,19 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         <nav class="gm-settings-nav" aria-label="Categorias de configurações" role="tablist" aria-orientation="vertical">
           <strong>Configurações</strong>
           <button type="button" role="tab" data-settings-target="company" onclick="switchPhase3SettingsPanel('company')">Empresa e perfil</button>
+          ${whatsapp ? `<button type="button" role="tab" data-settings-target="whatsapp" onclick="switchPhase3SettingsPanel('whatsapp')">WhatsApp</button>` : ""}
           ${users ? `<button type="button" role="tab" data-settings-target="users" onclick="switchPhase3SettingsPanel('users')">Usuários e acessos</button>` : ""}
         </nav>
         <div class="gm-settings-content">
           <section class="gm-settings-panel" data-settings-panel="company" role="tabpanel"><header class="gm-settings-panel-head"><h2>Empresa e perfil</h2><p>Dados do usuário atual e identidade documental da empresa.</p></header><div data-settings-host="company"></div></section>
+          ${whatsapp ? `<section class="gm-settings-panel" data-settings-panel="whatsapp" role="tabpanel" hidden><header class="gm-settings-panel-head"><h2>Avisos de O.S. por WhatsApp</h2><p>Defina quem recebe os eventos operacionais da empresa pelo canal oficial da Meta.</p></header><div data-settings-host="whatsapp"></div></section>` : ""}
           ${users ? `<section class="gm-settings-panel" data-settings-panel="users" role="tabpanel" hidden><header class="gm-settings-panel-head"><h2>Usuários e acessos</h2><p>Gerencie o vínculo com esta empresa sem confundir o acesso empresarial com o status global.</p></header><div data-settings-host="users"></div></section>` : ""}
         </div>
       `;
       body.append(shell);
       shell.querySelector('[data-settings-host="company"]')?.append(profile);
       if (companyBrand) shell.querySelector('[data-settings-host="company"]')?.append(companyBrand);
+      if (whatsapp) shell.querySelector('[data-settings-host="whatsapp"]')?.append(whatsapp);
       if (users) shell.querySelector('[data-settings-host="users"]')?.append(users);
       $("genericTitle").textContent = "Configurações e acessos";
       switchPhase3SettingsPanel(initialPanel === "users" && users ? "users" : initialPanel);
@@ -33102,6 +33222,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       removeAutomaticPermissionTestUsers();
       const user = currentAccount?.user || {};
       const userPhoto = user.photo || "";
+      const whatsapp = whatsappSettings();
       pendingCompanyLogoData = companyLogoData();
       pendingCompanyLogoName = String(state.companyBrand?.companyLogoName || "");
       openModal("Perfil do usuário", `
@@ -33127,6 +33248,34 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
               </div>
             </div>
             <div class="company-brand-actions"><button class="btn" id="removeCompanyLogo" type="button">Remover logo cadastrada</button><button class="btn primary" type="submit">Salvar logo da empresa</button></div>
+          </form>
+        ` : ""}
+        ${isAdminUser() ? `
+          <form class="whatsapp-settings-form" id="whatsappNotificationForm">
+            <div class="whatsapp-settings-intro">
+              <strong>WhatsApp Business Platform</strong>
+              <span>O GestMan365 usa a API oficial da Meta por uma função segura no servidor. Tokens, chaves e identificadores técnicos nunca são salvos no navegador.</span>
+            </div>
+            <label class="whatsapp-enabled-line"><input type="checkbox" id="whatsappNotificationEnabled" ${whatsapp.enabled ? "checked" : ""}><span>Ativar avisos de Ordens de Serviço para esta empresa</span></label>
+            <label>Destinatários autorizados
+              <textarea class="field" id="whatsappNotificationRecipients" rows="5" placeholder="5511999999999&#10;5511888888888">${escapeHtml(whatsappRecipientsText(whatsapp))}</textarea>
+              <small class="muted">Um número por linha, com DDI + DDD + número. Máximo de 5 destinatários que autorizaram o recebimento.</small>
+            </label>
+            <div class="whatsapp-settings-options">
+              <label><input type="checkbox" id="whatsappNotifyOnCreate" ${whatsapp.notifyOnCreate ? "checked" : ""}><span>Nova O.S.</span></label>
+              <label><input type="checkbox" id="whatsappNotifyOnStatus" ${whatsapp.notifyOnStatus ? "checked" : ""}><span>Mudança de status</span></label>
+              <label><input type="checkbox" id="whatsappNotifyOnAssignment" ${whatsapp.notifyOnAssignment ? "checked" : ""}><span>Atribuição de responsável</span></label>
+              <label><input type="checkbox" id="whatsappNotifyOnPriority" ${whatsapp.notifyOnPriority ? "checked" : ""}><span>Mudança de prioridade</span></label>
+            </div>
+            <div class="whatsapp-integration-status is-pending" id="whatsappIntegrationStatus" role="status" aria-live="polite">
+              <strong>Configuração do canal</strong>
+              <span>Clique em Verificar integração para consultar somente o estado seguro do servidor.</span>
+            </div>
+            <div class="whatsapp-settings-actions">
+              <button class="btn" id="whatsappCheckStatus" type="button">Verificar integração</button>
+              <button class="btn" id="whatsappSendTest" type="button">Enviar teste</button>
+              <button class="btn primary" type="submit">Salvar avisos</button>
+            </div>
           </form>
         ` : ""}
         ${isAdminUser() ? `
@@ -33201,6 +33350,10 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       $("companyLogoFile")?.addEventListener("change", handleCompanyLogoFile);
       $("removeCompanyLogo")?.addEventListener("click", clearPendingCompanyLogo);
       $("companyBrandForm")?.addEventListener("submit", saveCompanyBrandFromForm);
+      $("whatsappNotificationForm")?.addEventListener("submit", saveWhatsAppNotificationsFromForm);
+      $("whatsappCheckStatus")?.addEventListener("click", checkWhatsAppIntegrationStatus);
+      $("whatsappSendTest")?.addEventListener("click", sendWhatsAppIntegrationTest);
+      if ($("whatsappNotificationForm")) checkWhatsAppIntegrationStatus();
       if ($("profilePhotoFile")) $("profilePhotoFile").addEventListener("change", event => {
         const file = event.target.files?.[0];
         if (!file) return;
@@ -36142,9 +36295,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     let stage16ManagerialTab="indicators",stage16UpdatedAt=Date.now(),stage16ReportType="orders",stage16ReportPage=1;
     let stage16Filters={period:"30",start:"",end:"",plant:"",area:"",location:"",asset:"",maintenanceType:"",criticality:"",orderStatus:"",priority:"",responsible:"",team:"",assetCategory:"",downtimeType:"",plan:""};
     const STAGE16_METRICS={
-      mttr:{name:"MTTR",description:"Tempo médio de reparo das intervenções corretivas concluídas.",method:"Soma das durações válidas de reparo ÷ quantidade de O.S. corretivas concluídas. Usa duração real registrada; na ausência, início e término da execução.",source:"Ordens de Serviço",unit:"h",direction:"lower",icon:"timer"},
-      mtbf:{name:"MTBF",description:"Tempo médio de operação registrado entre falhas corretivas.",method:"Variação positiva de horímetros válidos ÷ falhas corretivas no período. Correções e reduções de contador não são estimadas.",source:"Medições e Ordens de Serviço",unit:"h",direction:"higher",icon:"activity"},
-      availability:{name:"Disponibilidade",description:"Percentual do tempo calendário sem paradas válidas no período.",method:"(Horas calendário dos ativos − horas de parada válidas) ÷ horas calendário dos ativos × 100. Não substitui um calendário produtivo específico.",source:"Ativos e Paradas",unit:"%",direction:"higher",icon:"availability"},
+      mttr:{name:"MTTR",description:"Tempo médio de reparo das intervenções corretivas concluídas.",method:"Soma das durações válidas de reparos corretivos ÷ quantidade de reparos. Usa duração explícita ou início e término reais.",source:"Serviço oficial de indicadores · O.S.",unit:"h",direction:"lower",icon:"timer"},
+      mtbf:{name:"MTBF",description:"Tempo médio de operação válido entre falhas corretivas.",method:"Horas de horímetro válidas ÷ falhas corretivas concluídas; sem horímetro, usa calendário operacional líquido de paradas.",source:"Serviço oficial de indicadores · Medições, O.S. e calendários",unit:"h",direction:"higher",icon:"activity"},
+      availability:{name:"Disponibilidade",description:"Percentual do tempo operacional programado sem paradas válidas.",method:"(Horas programadas − paradas dentro do calendário operacional) ÷ horas programadas × 100. Sem calendário vinculável, permanece sem dados.",source:"Serviço oficial de indicadores · Calendários e Paradas",unit:"%",direction:"higher",icon:"availability"},
       openOrders:{name:"O.S. abertas",description:"Ordens ainda não encerradas no período.",method:"Contagem única de O.S. não concluídas e não canceladas que atendem aos filtros.",source:"Ordens de Serviço",unit:"",direction:"lower",icon:"workOrders"},
       runningOrders:{name:"O.S. em execução",description:"Ordens atualmente em execução.",method:"Contagem única de O.S. com status Em execução no período aplicado.",source:"Ordens de Serviço",unit:"",direction:"neutral",icon:"activeOrders"},
       lateOrders:{name:"O.S. atrasadas",description:"Ordens abertas cujo prazo já venceu.",method:"O.S. não encerradas com prazo anterior à data atual ou status Atrasada.",source:"Ordens de Serviço",unit:"",direction:"lower",icon:"clockAlert"},
@@ -36173,18 +36326,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function stage16OrderDuration(order){for(const value of[order.actualHours,order.executionHours,order.mttr,order.actualDurationHours]){const explicit=Number(value);if(Number.isFinite(explicit)&&explicit>0)return explicit}const start=stage16Date(order.realStartAt||order.startedAt),end=stage16Date(order.realEndAt||order.finishedAt||order.completedAt);return start&&end&&end>=start?Math.max(0,(end-start)/36e5-Math.max(0,Number(order.pauseHours||0)))||null:null}
     function stage16DowntimeDuration(item,filters=stage16Filters){const {start:rangeStart,end:rangeEnd}=stage16Range(filters),start=stage16Date(item.startAt),rawEnd=stage16Date(item.endAt)||(item.status==="Ativa"?new Date():null);if(!start||!rawEnd||rawEnd<start)return null;const from=new Date(Math.max(start,rangeStart)),to=new Date(Math.min(rawEnd,rangeEnd));return to>from?(to-from)/36e5:0}
     function stage16Unique(rows){return[...new Map(rows.map((item,index)=>[item.id||item.number||`row-${index}`,item])).values()]}
-    function stage16MetricData(key,filters=stage16Filters){const orders=stage16Unique(stage16Rows("orders",filters)),assets=stage16Rows("assets",filters),now=new Date();if(key==="mttr"){let ignored=0;const records=orders.filter(order=>{if(stage16Text(order.status)==="cancelada"||!isClosedOrder(order.status)||!stage16Corrective(order))return false;const valid=stage16OrderDuration(order)!=null;if(!valid)ignored++;return valid}),total=records.reduce((sum,item)=>sum+stage16OrderDuration(item),0);return{value:records.length?total/records.length:null,records,kind:"orders",ignored,complement:records.length?`${records.length} O.S. considerada(s) · ${total.toLocaleString("pt-BR",{maximumFractionDigits:1})}h totais`:"Sem O.S. corretiva concluída com duração válida"}}
-      if(key==="mtbf"){const points=(state.measurementPoints||[]).filter(point=>trendIsHourMeterPoint(point)&&assets.some(asset=>asset.id===point.assetId)),failures=orders.filter(order=>stage16Corrective(order)&&stage16Text(order.status)!=="cancelada"),records=[];let hours=0;points.forEach(point=>{const readings=stage16Rows("measurements",filters).filter(item=>item.pointId===point.id&&!item.reductionJustification&&!item.correctsMeasurementId&&stage15Number(item.value)!=null).sort((a,b)=>stage15ReadTime(a)-stage15ReadTime(b));for(let i=1;i<readings.length;i++){const delta=stage15Number(readings[i].value)-stage15Number(readings[i-1].value);if(delta>0){hours+=delta;records.push(readings[i-1],readings[i])}}});return{value:hours>0&&failures.length?hours/failures.length:null,records:stage16Unique([...failures,...records]),kind:"mixed",ignored:0,complement:hours>0&&failures.length?`${failures.length} falha(s) · ${hours.toLocaleString("pt-BR",{maximumFractionDigits:1})}h registradas`:"MTBF indisponível: faltam horímetros válidos ou falhas identificáveis"}}
-      if(key==="availability"){const stops=stage16Unique(stage16Rows("downtimes",filters)).filter(item=>stage16Text(item.status)!=="cancelada"),valid=stops.map(item=>({item,hours:stage16DowntimeDuration(item,filters)})).filter(row=>row.hours!=null),period=stage16Range(filters),totalHours=assets.length*Math.max(0,(period.end-period.start)/36e5),stopped=valid.reduce((sum,row)=>sum+row.hours,0);return{value:totalHours>0?Math.max(0,(totalHours-stopped)/totalHours*100):null,records:valid.map(row=>row.item),kind:"downtimes",ignored:stops.length-valid.length,complement:totalHours?`${stopped.toLocaleString("pt-BR",{maximumFractionDigits:1})}h paradas de ${totalHours.toLocaleString("pt-BR",{maximumFractionDigits:0})}h calendário`:"Disponibilidade indisponível: nenhum ativo no filtro"}}
-      if(key==="openOrders"){const records=orders.filter(item=>!isClosedOrder(item.status)&&stage16Text(item.status)!=="cancelada");return{value:records.length,records,kind:"orders",ignored:0,complement:`${records.length} O.S. pendente(s)`}}
-      if(key==="runningOrders"){const records=orders.filter(item=>isRunningOrder(item.status));return{value:records.length,records,kind:"orders",ignored:0,complement:`${records.length} O.S. em execução`}}
-      if(key==="lateOrders"){const records=orders.filter(orderIsLate);return{value:records.length,records,kind:"orders",ignored:0,complement:`${records.length} O.S. fora do prazo`}}
-      if(key==="preventiveCompliance"){const scheduled=orders.filter(item=>stage16Preventive(item)&&stage16Text(item.status)!=="cancelada"),records=scheduled.filter(item=>{if(!isClosedOrder(item.status))return false;const done=stage16Date(item.finishedAt),due=stage16Date(item.scheduledAt||item.dueAt);return done&&due&&done<=due}),ignored=scheduled.filter(item=>isClosedOrder(item.status)&&(!stage16Date(item.finishedAt)||!stage16Date(item.scheduledAt||item.dueAt))).length;return{value:scheduled.length?records.length/scheduled.length*100:null,records:scheduled,kind:"orders",ignored,complement:scheduled.length?`${records.length} no prazo de ${scheduled.length} programada(s)`:"Sem execuções preventivas programadas no período"}}
-      if(key==="stops"){const records=stage16Unique(stage16Rows("downtimes",filters)).filter(item=>stage16Text(item.status)!=="cancelada");return{value:records.length,records,kind:"downtimes",ignored:0,complement:`${records.length} ocorrência(s)`}}
-      if(key==="stopHours"){const stops=stage16Unique(stage16Rows("downtimes",filters)).filter(item=>stage16Text(item.status)!=="cancelada"),valid=stops.map(item=>({item,hours:stage16DowntimeDuration(item,filters)})).filter(row=>row.hours!=null);return{value:valid.length?valid.reduce((sum,row)=>sum+row.hours,0):null,records:valid.map(row=>row.item),kind:"downtimes",ignored:stops.length-valid.length,complement:valid.length?`${valid.length} parada(s) com duração válida`:"Sem paradas com duração válida"}}
-      if(key==="criticalAssets"){const records=assets.filter(asset=>assetHealthCategory(asset).key==="critical");return{value:records.length,records,kind:"assets",ignored:0,complement:`${records.length} ativo(s) com saúde crítica`}}
-      if(key==="overdueActions"){const records=stage16Rows("pendingActions",filters).filter(item=>{if(["concluida","cancelada"].includes(stage16Text(item.status)))return false;const due=stage16Date(item.dueAt||item.scheduledAt);return stage16Text(item.status).includes("atras")||(due&&due<now)});return{value:records.length,records,kind:"pendingActions",ignored:0,complement:`${records.length} ação(ões) vencida(s)`}}
-      if(key==="lowStock"){const records=stage16CanSource("spareParts")?lowStockItems():[];return{value:records.length,records,kind:"spareParts",ignored:0,complement:`${records.length} item(ns) requerendo reposição`}}return{value:null,records:[],kind:"",ignored:0,complement:"Dados insuficientes"}}
+    function stage16MetricData(key,filters=stage16Filters){return gmMaintenanceMetricData(key,filters)}
     function stage16MetricAllowed(key){const source={mttr:"orders",mtbf:"measurements",availability:"downtimes",openOrders:"orders",runningOrders:"orders",lateOrders:"orders",preventiveCompliance:"preventivePlans",stops:"downtimes",stopHours:"downtimes",criticalAssets:"assets",overdueActions:"pendingActions",lowStock:"spareParts"}[key];return stage16CanSource(source)}
     function stage16FormatMetric(value,unit){if(value==null||!Number.isFinite(Number(value)))return"Sem dados";const digits=unit==="%"||unit==="h"?1:0;return Number(value).toLocaleString("pt-BR",{minimumFractionDigits:digits,maximumFractionDigits:digits})}
     function stage16Comparison(key,current,previous){if(current==null||previous==null||!Number.isFinite(current)||!Number.isFinite(previous)||previous===0)return{class:"na",icon:"—",text:"Comparação indisponível"};const change=current-previous,tolerance=Math.max(Math.abs(previous)*.01,.01);if(Math.abs(change)<=tolerance)return{class:"stable",icon:"→",text:"Permaneceu estável"};const direction=STAGE16_METRICS[key].direction,improved=direction==="higher"?change>0:direction==="lower"?change<0:null;return{class:improved===null?"stable":improved?"good":"bad",icon:change>0?"↑":"↓",text:`${improved===null?"Variou":improved?"Melhorou":"Piorou"} ${Math.abs(change).toLocaleString("pt-BR",{maximumFractionDigits:1})}${STAGE16_METRICS[key].unit?` ${STAGE16_METRICS[key].unit}`:""}`}}
@@ -36197,7 +36339,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function stage16PeriodChanged(prefix){$(prefix+"Custom")?.classList.toggle("open",$(prefix+"Period")?.value==="custom")}
     function stage16ApplyFilters(prefix){const get=id=>$(prefix+id)?.value||"",next={period:get("Period")||"30",start:get("Start"),end:get("End"),plant:get("Plant"),area:get("Area"),location:get("Location"),asset:get("Asset"),maintenanceType:get("Maintenance"),criticality:get("Criticality"),orderStatus:get("Status"),priority:get("Priority"),responsible:get("Responsible"),team:get("Team"),assetCategory:get("Category"),downtimeType:get("Downtime"),plan:get("Plan")};if(next.period==="custom"){const start=stage16Date(next.start),end=stage16Date(next.end);if(!start||!end)return showToast("Informe as datas inicial e final.");if(end<start)return showToast("A data final não pode ser anterior à inicial.")}stage16Filters=next;stage16UpdatedAt=Date.now();stage16ReportPage=1;renderStage16Managerial();renderStage16Reports();showToast("Filtros gerenciais aplicados.")}
     function stage16ClearFilters(){stage16Filters={period:"30",start:"",end:"",plant:"",area:"",location:"",asset:"",maintenanceType:"",criticality:"",orderStatus:"",priority:"",responsible:"",team:"",assetCategory:"",downtimeType:"",plan:""};stage16ReportPage=1;renderStage16Managerial();renderStage16Reports();showToast("Filtros gerenciais limpos.")}
-    function stage16Refresh(){stage16UpdatedAt=Date.now();renderStage16Managerial();renderStage16Reports();showToast("Dados atualizados a partir dos registros atuais.")}
+    function stage16Refresh(){gmInvalidateMaintenanceMetrics();stage16UpdatedAt=Date.now();renderStage16Managerial();renderStage16Reports();showToast("Atualizando indicadores a partir do banco de dados.")}
     function stage16Quality(){let ignored=0,missingAsset=0;const orderNumbers=new Set(),duplicates=new Set();(state.orders||[]).forEach(item=>{if(item.number&&orderNumbers.has(item.number))duplicates.add(item.number);orderNumbers.add(item.number);if(item.assetId&&!byId(state.assets,item.assetId))missingAsset++;const start=stage16Date(item.startedAt),end=stage16Date(item.finishedAt);if(start&&end&&end<start)ignored++});(state.downtimes||[]).forEach(item=>{const start=stage16Date(item.startAt),end=stage16Date(item.endAt);if(!start||(end&&end<start))ignored++;if(item.assetId&&!byId(state.assets,item.assetId))missingAsset++});return{ignored:ignored+duplicates.size+missingAsset,duplicates:duplicates.size,missingAsset}}
     function stage16MetricCard(key){const meta=STAGE16_METRICS[key],data=stage16MetricData(key),previous=stage16MetricData(key,stage16PreviousFilters()),comparison=stage16Comparison(key,data.value,previous.value),available=data.value!=null;return`<article class="s16-kpi" onclick="openStage16Metric('${key}')"><div class="s16-kpi-top"><i class="s16-kpi-icon">${gmIcon(GMIcons.metricIcons[key]||"indicators",{size:20})}</i><span class="s16-kpi-status">${available?"Calculado com dados reais":"Indisponível"}</span></div><div class="s16-kpi-value"><strong>${stage16FormatMetric(data.value,meta.unit)}</strong>${available&&meta.unit?`<span>${meta.unit}</span>`:""}</div><small>${escapeHtml(data.complement)}</small><div class="s16-compare ${comparison.class}"><span>${comparison.icon}</span>${escapeHtml(comparison.text)}</div><button class="s16-link">Ver detalhes</button></article>`}
     function stage16UpdateDashboardMetrics(){if(!$("professionalMttr"))return;const layout=activeDashboardLayout(),months=Math.max(1,Math.min(12,Number(layout.filters?.period||6))),end=new Date(),start=new Date();start.setMonth(start.getMonth()-months);const filters={...stage16Filters,period:"custom",start:stage16DateInput(start),end:stage16DateInput(end),plant:layout.filters?.plant==="Todas"?"":layout.filters?.plant||""},previousFilters=stage16PreviousFilters(filters);[["mttr","professionalMttr","professionalMttrDelta"],["mtbf","professionalMtbf","professionalMtbfDelta"],["availability","professionalAvailability","professionalAvailabilityDelta"]].forEach(([key,valueId,deltaId])=>{const meta=STAGE16_METRICS[key],current=stage16MetricData(key,filters),previous=stage16MetricData(key,previousFilters),comparison=stage16Comparison(key,current.value,previous.value);$(valueId).textContent=current.value==null?"Sem dados":`${stage16FormatMetric(current.value,meta.unit)}${meta.unit}`;if($(deltaId))$(deltaId).textContent=comparison.text})}
@@ -36205,7 +36347,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function stage16SetManagerialTab(tab){stage16ManagerialTab=tab;setHeaderContext("Gestão",tab==="analytics"?"Análises":"Indicadores");renderStage16Managerial()}
     function stage16Group(rows,labelFn){const map={};rows.forEach(item=>{const label=labelFn(item)||"Não informado";map[label]=(map[label]||0)+1});return Object.entries(map).map(([label,value])=>({label,value})).sort((a,b)=>b.value-a.value).slice(0,8)}
     function stage16BarsHtml(rows,unit="registros"){if(!rows.length)return`<div class="s16-empty"><div><strong>Nenhum dado disponível para o período selecionado.</strong><span>Altere o período ou limpe os filtros.</span></div></div>`;const max=Math.max(...rows.map(item=>item.value),1);return`<div class="s16-bars">${rows.map(item=>`<div class="s16-bar-row" title="${escapeHtml(item.label)}: ${item.value} ${unit}"><span>${escapeHtml(item.label)}</span><div class="s16-bar-track"><div class="s16-bar" style="width:${item.value/max*100}%"></div></div><strong>${Number(item.value).toLocaleString("pt-BR",{maximumFractionDigits:1})}</strong></div>`).join("")}</div>`}
-    function stage16TrendData(key,buckets=6){const range=stage16Range(),duration=(range.end-range.start+1)/buckets;return Array.from({length:buckets},(_,index)=>{const start=new Date(range.start.getTime()+duration*index),end=new Date(Math.min(range.end.getTime(),start.getTime()+duration-1)),filters={...stage16Filters,period:"custom",start:stage16DateInput(start),end:stage16DateInput(end)},data=stage16MetricData(key,filters);return{label:start.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"}),value:data.value}})}
+    function stage16TrendData(key,buckets=6){return gmMaintenanceMetricSeries(key,stage16Filters,buckets)}
     function stage16LineHtml(series){const valid=series.filter(item=>item.value!=null);if(valid.length<2)return`<div class="s16-empty"><div><strong>Não existem informações suficientes para calcular esta tendência.</strong><span>Os períodos sem dados não são preenchidos artificialmente.</span></div></div>`;const width=650,height=180,pad=25,min=Math.min(...valid.map(item=>item.value)),max=Math.max(...valid.map(item=>item.value)),range=max-min||1,x=i=>pad+i*(width-pad*2)/Math.max(1,series.length-1),y=v=>height-pad-(v-min)*(height-pad*2)/range,points=series.map((item,i)=>item.value==null?null:`${x(i)},${y(item.value)}`).filter(Boolean).join(" ");return`<div class="s16-chart-scroll"><svg class="s16-line-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="Gráfico de tendência">${[0,.25,.5,.75,1].map(part=>`<line x1="${pad}" y1="${pad+part*(height-pad*2)}" x2="${width-pad}" y2="${pad+part*(height-pad*2)}" stroke="#1f334a"/>`).join("")}<polyline fill="none" stroke="#1d8cff" stroke-width="3" points="${points}"/>${series.map((item,i)=>item.value==null?"":`<circle cx="${x(i)}" cy="${y(item.value)}" r="5" fill="#1d8cff"><title>${item.label}: ${item.value.toLocaleString("pt-BR",{maximumFractionDigits:1})}</title></circle><text x="${x(i)}" y="${height-5}" fill="#8197ad" text-anchor="middle" font-size="12">${item.label}</text>`).join("")}</svg></div>`}
     function stage16AnalyticsHtml(){const orders=stage16Rows("orders"),stops=stage16Rows("downtimes"),actions=stage16Rows("pendingActions"),measurements=stage16Rows("measurements"),moves=stage16Rows("inventoryMovements"),checks=stage16Rows("checklistExecutions"),analyses=[];if(stage16CanSource("orders"))analyses.push(["Tendência de MTTR","Evolução por subperíodo · horas",stage16LineHtml(stage16TrendData("mttr"))],["Backlog por status","O.S. pendentes por situação",stage16BarsHtml(stage16Group(orders.filter(item=>!isClosedOrder(item.status)),item=>ptBrText(item.status)))],["O.S. por tipo de manutenção","Distribuição dos registros filtrados",stage16BarsHtml(stage16Group(orders,item=>item.maintenanceType||item.type||item.category))],["O.S. por prioridade","Distribuição dos registros filtrados",stage16BarsHtml(stage16Group(orders,item=>ptBrText(item.priority)))],["O.S. por equipamento","Equipamentos com mais ordens",stage16BarsHtml(stage16Group(orders,item=>machineName(item.assetId)))]);if(stage16CanSource("downtimes"))analyses.push(["Paradas por equipamento","Quantidade de ocorrências",stage16BarsHtml(stage16Group(stops,item=>machineName(item.assetId)))],["Motivos de parada","Motivos mais frequentes",stage16BarsHtml(stage16Group(stops,item=>item.reason||item.cause||item.type))]);if(stage16CanSource("preventivePlans"))analyses.push(["Cumprimento preventivo","Evolução do percentual no período",stage16LineHtml(stage16TrendData("preventiveCompliance"))]);if(stage16CanSource("checklistExecutions"))analyses.push(["Não conformidades de checklist","Execuções por situação",stage16BarsHtml(stage16Group(checks,item=>item.status||item.result||item.classification))]);if(stage16CanSource("measurements"))analyses.push(["Medições críticas","Leituras por situação",stage16BarsHtml(stage16Group(measurements,item=>stage15SituationFromReading(item).label))]);if(stage16CanSource("inventoryMovements"))analyses.push(["Consumo de peças","Movimentações por tipo",stage16BarsHtml(stage16Group(moves,item=>item.type||item.movementType))]);if(stage16CanSource("pendingActions"))analyses.push(["Ações pendentes por situação","Distribuição operacional",stage16BarsHtml(stage16Group(actions,item=>ptBrText(item.status)))]);return analyses.length?`<section class="s16-analysis-grid">${analyses.map(([title,subtitle,content])=>`<article class="s16-analysis"><h3>${title}</h3><p>${stage16PeriodLabel()} · ${subtitle}</p>${content}</article>`).join("")}</section>`:`<div class="s16-empty"><div><strong>Nenhum dado disponível para o período selecionado.</strong><span>Os módulos permitidos não possuem registros suficientes.</span></div></div>`}
     function stage16RecordTitle(item,kind){if(kind==="orders")return item.number||"O.S.";if(kind==="assets")return`${item.code||"SEM TAG"} - ${item.name||"Ativo"}`;if(kind==="downtimes")return item.title||item.reason||machineName(item.assetId);if(kind==="measurements")return stage15ReadingPointLabel(item);if(kind==="pendingActions")return item.title||item.description||"Ação pendente";if(kind==="spareParts")return`${item.code||""} ${item.name||"Peça"}`.trim();return item.name||item.code||item.status||"Registro"}
@@ -37244,6 +37386,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     async function confirmRemoteDelete() { return true; }
     function saveState() {
       gmStateDirty = true;
+      gmInvalidateMaintenanceMetrics();
       hasPendingLocalSync = true;
       hasSessionLocalChange = true;
       clearTimeout(gmRemoteSaveTimer);
@@ -37368,6 +37511,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       clearTimeout(gmRemoteSaveTimer);
       gmRemoteSaveTimer = null;
       const snapshot = JSON.parse(JSON.stringify(state));
+      const previousOrdersForWhatsApp = Array.isArray(gmRemoteLastSavedState?.orders) ? gmRemoteLastSavedState.orders : [];
       try {
         const rows = await gmRpc("gm_save_tenant_state", {
           p_expected_version:gmRemoteStateVersion,
@@ -37381,7 +37525,10 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         gmStateDirty = false;
         hasPendingLocalSync = false;
         hasSessionLocalChange = false;
+        gmInvalidateMaintenanceMetrics();
+        gmScheduleMaintenanceMetricsRender();
         notifyOsPanelUpdate();
+        dispatchWhatsAppOrderEvents(previousOrdersForWhatsApp, snapshot.orders);
         if (showMessage) showToast("Dados salvos no banco de dados.");
         return true;
       } catch (error) {
@@ -37423,6 +37570,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         gmStateDirty = false;
         hasPendingLocalSync = false;
         hasSessionLocalChange = false;
+        gmInvalidateMaintenanceMetrics();
         captureSyncBaseline();
         render();
         if (showMessage) showToast("Dados carregados do banco de dados.");
@@ -37816,6 +37964,114 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         throw error;
       }
       return payload;
+    }
+    var gmMaintenanceMetricsCache = new Map();
+    var gmMaintenanceMetricsPending = new Map();
+    var gmMaintenanceMetricsErrors = new Map();
+    var gmMaintenanceMetricsEpoch = 0;
+    var gmMaintenanceMetricsRenderTimer = null;
+    const GM_MAINTENANCE_METRIC_KINDS = {
+      mttr:"orders", mtbf:"mixed", availability:"downtimes", openOrders:"orders",
+      runningOrders:"orders", lateOrders:"orders", preventiveCompliance:"orders",
+      stops:"downtimes", stopHours:"downtimes", criticalAssets:"assets",
+      overdueActions:"pendingActions", lowStock:"spareParts"
+    };
+    function gmMaintenanceMetricFilters(filters = {}, seriesBuckets = 0) {
+      const keys = ["period","start","end","rangeStart","rangeEnd","asset","plant","area","location","maintenanceType","criticality","orderStatus","priority","responsible","team","assetCategory","downtimeType","plan"];
+      const normalized = {};
+      keys.forEach(key => { if (filters?.[key] !== undefined && filters[key] !== "") normalized[key] = filters[key]; });
+      if (seriesBuckets > 0) normalized.seriesBuckets = Math.max(1, Math.min(24, Math.trunc(Number(seriesBuckets) || 0)));
+      return normalized;
+    }
+    function gmMaintenanceMetricsKey(filters = {}, seriesBuckets = 0) {
+      return JSON.stringify({ company:currentAccount?.company?.id || "", version:Number(gmRemoteStateVersion || 0), filters:gmMaintenanceMetricFilters(filters, seriesBuckets) });
+    }
+    function gmInvalidateMaintenanceMetrics() {
+      gmMaintenanceMetricsEpoch += 1;
+      gmMaintenanceMetricsCache.clear();
+      gmMaintenanceMetricsErrors.clear();
+    }
+    function gmScheduleMaintenanceMetricsRender() {
+      clearTimeout(gmMaintenanceMetricsRenderTimer);
+      gmMaintenanceMetricsRenderTimer = setTimeout(() => {
+        const view = document.querySelector(".view.active")?.id || "";
+        if (["dashboard","maintenanceIndicators","reports","assistant"].includes(view)) render();
+      }, 80);
+    }
+    async function gmLoadMaintenanceMetrics(filters = {}, seriesBuckets = 0) {
+      const key = gmMaintenanceMetricsKey(filters, seriesBuckets);
+      if (gmMaintenanceMetricsPending.has(key)) return gmMaintenanceMetricsPending.get(key);
+      if (!currentAccount || gmStateDirty || gmSyncConflict) return null;
+      const requestedVersion = Number(gmRemoteStateVersion || 0);
+      const requestedEpoch = gmMaintenanceMetricsEpoch;
+      const request = gmAuthenticatedFunction("maintenance-metrics", { filters:gmMaintenanceMetricFilters(filters, seriesBuckets) })
+        .then(result => {
+          const contract = result?.contract;
+          const responseVersion = Number(result?.tenant_state_version || 0);
+          if (!contract || contract.version !== 1) throw new Error("METRICS_CONTRACT_INVALID");
+          if (requestedEpoch !== gmMaintenanceMetricsEpoch || gmStateDirty || responseVersion !== Number(gmRemoteStateVersion || 0) || requestedVersion !== Number(gmRemoteStateVersion || 0)) return null;
+          gmMaintenanceMetricsCache.set(key, contract);
+          gmMaintenanceMetricsErrors.delete(key);
+          stage16UpdatedAt = Date.parse(contract.updatedAt) || Date.now();
+          gmScheduleMaintenanceMetricsRender();
+          return contract;
+        })
+        .catch(error => {
+          gmMaintenanceMetricsErrors.set(key, { at:Date.now(), message:String(error?.message || "Indicadores indisponíveis") });
+          stage21TechnicalLog("warning", "maintenance.metrics", error);
+          gmScheduleMaintenanceMetricsRender();
+          return null;
+        })
+        .finally(() => gmMaintenanceMetricsPending.delete(key));
+      gmMaintenanceMetricsPending.set(key, request);
+      return request;
+    }
+    function gmMaintenanceMetricsContract(filters = {}, seriesBuckets = 0) {
+      const key = gmMaintenanceMetricsKey(filters, seriesBuckets);
+      const cached = gmMaintenanceMetricsCache.get(key);
+      if (cached) return cached;
+      const failed = gmMaintenanceMetricsErrors.get(key);
+      if ((!failed || Date.now() - failed.at > 60000) && !gmMaintenanceMetricsPending.has(key) && currentAccount && !gmStateDirty && !gmSyncConflict) {
+        queueMicrotask(() => gmLoadMaintenanceMetrics(filters, seriesBuckets));
+      }
+      return null;
+    }
+    function gmMaintenanceMetricRecords(kind, recordIds = []) {
+      const collections = kind === "mixed"
+        ? [state.orders, state.measurements]
+        : [{ orders:state.orders, downtimes:state.downtimes, assets:state.assets, pendingActions:state.pendingActions, spareParts:state.spareParts }[kind] || []];
+      const records = new Map(collections.flat().map(item => [String(item?.id || item?.number || ""), item]));
+      return recordIds.map(id => records.get(String(id))).filter(Boolean);
+    }
+    function gmMaintenanceMetricData(key, filters = stage16Filters) {
+      const kind = GM_MAINTENANCE_METRIC_KINDS[key] || "";
+      const contract = gmMaintenanceMetricsContract(filters, 0);
+      const metric = contract?.metrics?.[key];
+      if (!metric) {
+        const cacheKey = gmMaintenanceMetricsKey(filters, 0);
+        const failed = gmMaintenanceMetricsErrors.get(cacheKey);
+        return { value:null, records:[], kind, ignored:0, quality:"insufficient", source:"Supabase/PostgreSQL", complement:gmStateDirty ? "Aguardando o salvamento dos dados para recalcular." : failed ? "Indicadores temporariamente indisponíveis." : "Carregando indicador oficial..." };
+      }
+      return {
+        value:metric.value,
+        records:gmMaintenanceMetricRecords(kind, metric.recordIds || []),
+        kind,
+        ignored:Number(metric.quality?.ignoredRecords || 0),
+        quality:metric.quality?.state || "insufficient",
+        source:metric.source,
+        formula:metric.formula,
+        complement:metric.detail || metric.quality?.reason || "Dados insuficientes"
+      };
+    }
+    function gmMaintenanceMetricSeries(key, filters = stage16Filters, buckets = 6) {
+      const contract = gmMaintenanceMetricsContract(filters, buckets);
+      const series = contract?.series?.[key];
+      if (Array.isArray(series) && series.length) return series.map(item => ({ ...item, value:item.value == null ? null : Number(item.value) }));
+      const range = stage16Range(filters), duration = (range.end - range.start + 1) / Math.max(1, buckets);
+      return Array.from({ length:buckets }, (_, index) => {
+        const start = new Date(range.start.getTime() + duration * index);
+        return { start:start.toISOString(), end:new Date(Math.min(range.end.getTime(), start.getTime() + duration - 1)).toISOString(), label:start.toLocaleDateString("pt-BR", { day:"2-digit", month:"2-digit" }), value:null, quality:"insufficient", recordCount:0, recordIds:[], source:"Supabase/PostgreSQL", detail:"Aguardando cálculo oficial." };
+      });
     }
     function clearCompanyRequestErrors(form) {
       form.querySelectorAll("[aria-invalid=true]").forEach(field => field.removeAttribute("aria-invalid"));

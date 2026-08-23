@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import { calculateMaintenanceMetrics } from "../_shared/maintenance-metrics.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
@@ -125,6 +126,11 @@ function buildInternalContext(rawState: unknown, companyName: string, question: 
   const measurements = records(state.measurements);
   const resources = records(state.resources);
   const teams = records(state.teams);
+  const maintenanceMetrics = calculateMaintenanceMetrics(
+    state,
+    { period: "all" },
+    new Date(),
+  );
 
   const assetById = (id: unknown) => assets.find((item) => text(item.id, 160) === text(id, 160));
   const locationById = (id: unknown) => locations.find((item) => text(item.id, 160) === text(id, 160));
@@ -145,17 +151,6 @@ function buildInternalContext(rawState: unknown, companyName: string, question: 
   const isClosed = (status: unknown) => /conclu|finaliz|cancelad/.test(key(status));
   const isRunning = (status: unknown) => key(status).startsWith("em exec");
   const lowStock = parts.filter((item) => number(item.minimum) > 0 && number(item.balance) < number(item.minimum));
-  const completedWithMttr = orders.filter((item) => isClosed(item.status) && number(item.mttr) > 0);
-  const mttr = completedWithMttr.length
-    ? completedWithMttr.reduce((sum, item) => sum + number(item.mttr), 0) / completedWithMttr.length
-    : 0;
-  const failures = orders.filter((item) => key(item.status) !== "cancelada").length;
-  const mtbf = failures && assets.length ? (assets.length * 720) / failures : (assets.length ? 720 : 0);
-  const activeOrderAssets = new Set(orders.filter((item) => !isClosed(item.status)).map((item) => text(item.assetId, 160)));
-  const operatingAssets = assets.filter((item) => key(item.status).includes("operando"));
-  const availability = assets.length
-    ? (operatingAssets.filter((item) => !activeOrderAssets.has(text(item.id, 160))).length / assets.length) * 100
-    : 0;
 
   const domains = {
     orders: asks(question, ["o.s", "ordem", "servico", "execu", "abert", "atras", "solicitante", "executante", "prioridade"]),
@@ -210,9 +205,16 @@ function buildInternalContext(rawState: unknown, companyName: string, question: 
       resources: resources.length,
       teams: teams.length,
       maintenance_metrics_all_registered_history: {
-        mttr_hours: Number(mttr.toFixed(2)),
-        mtbf_hours: Number(mtbf.toFixed(2)),
-        availability_percent: Number(availability.toFixed(2)),
+        mttr_hours: maintenanceMetrics.metrics.mttr.value,
+        mtbf_hours: maintenanceMetrics.metrics.mtbf.value,
+        availability_percent: maintenanceMetrics.metrics.availability.value,
+        quality: maintenanceMetrics.quality,
+        source: maintenanceMetrics.source,
+        formulas: {
+          mttr: maintenanceMetrics.metrics.mttr.formula,
+          mtbf: maintenanceMetrics.metrics.mtbf.formula,
+          availability: maintenanceMetrics.metrics.availability.formula,
+        },
       },
     },
     work_orders: domains.orders ? selectedOrders.map((item) => ({
