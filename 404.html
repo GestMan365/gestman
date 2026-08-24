@@ -20269,10 +20269,19 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     });
     state23.downtimes = Array.from({ length: 42 }, (_, index) => {
       const active = index >= 36;
-      const order = state23.orders[(index * 3) % 110];
+      const order = active ? state23.orders[index] : state23.orders[(index * 3) % 110];
       const start = active ? stage23AddHours(nowMs, -(2 + (index - 36) * 3)) : at(index, 44, 3);
       const hours = 1 + (index % 9) * 0.75;
-      return { id: stage23Uuid("downtime", index), assetId: order.assetId, orderId: order.id, areaId: state23.assets.find(asset => asset.id === order.assetId).areaId, reason: stage23Pick(["Falha de acionamento", "Intervenção preventiva", "Ajuste operacional", "Inspeção de segurança", "Falta de energia", "Vazamento no processo"], index), cause: stage23Pick(["Desgaste", "Programação preventiva", "Desvio operacional", "Proteção acionada"], index), description: `Indisponibilidade registrada e vinculada à ${order.number}.`, type: stage23Pick(["Não planejada", "Planejada", "Falha", "Operacional", "Segurança"], index), impact: index % 7 === 0 ? "Crítico" : index % 4 === 0 ? "Alto" : "Médio", startAt: stage23DateTime(start), endAt: active ? "" : stage23DateTime(stage23AddHours(start, hours)), durationHours: active ? null : Number(hours.toFixed(2)), status: active ? "Ativa" : "Encerrada", owner: stage23Pick(state23.resources.slice(2, 22), index).name, actionTaken: active ? "Equipe acionada e equipamento isolado." : "Causa tratada, testes concluídos e equipamento liberado.", note: "Registro preservado para análise de disponibilidade.", history: [{ at: start, action: "Parada registrada" }, ...(!active ? [{ at: stage23AddHours(start, hours), action: "Parada encerrada" }] : [])], createdAt: start, updatedAt: active ? nowMs : stage23AddHours(start, hours), ...stage23Origin };
+      const asset = state23.assets.find(item => item.id === order.assetId);
+      return { id: stage23Uuid("downtime", index), assetId: order.assetId, orderId: order.id, areaId: asset.areaId, reason: stage23Pick(["Falha de acionamento", "Intervenção preventiva", "Ajuste operacional", "Inspeção de segurança", "Falta de energia", "Vazamento no processo"], index), cause: stage23Pick(["Desgaste", "Programação preventiva", "Desvio operacional", "Proteção acionada"], index), description: `Indisponibilidade registrada e vinculada à ${order.number}.`, type: stage23Pick(["Não planejada", "Planejada", "Falha", "Operacional", "Segurança"], index), impact: index % 7 === 0 ? "Crítico" : index % 4 === 0 ? "Alto" : "Médio", startAt: stage23DateTime(start), endAt: active ? "" : stage23DateTime(stage23AddHours(start, hours)), durationMs: active ? null : Math.round(hours * 3600000), durationHours: active ? null : Number(hours.toFixed(2)), previousAssetStatus: active ? asset.status || "Operando" : "", status: active ? "Ativa" : "Encerrada", owner: stage23Pick(state23.resources.slice(2, 22), index).name, actionTaken: active ? "Equipe acionada e equipamento isolado." : "Causa tratada, testes concluídos e equipamento liberado.", note: "Registro preservado para análise de disponibilidade.", history: [{ at: start, action: "Parada registrada" }, ...(!active ? [{ at: stage23AddHours(start, hours), action: "Parada encerrada" }] : [])], createdAt: start, updatedAt: active ? nowMs : stage23AddHours(start, hours), ...stage23Origin };
+    });
+    state23.downtimes.filter(item => item.status === "Ativa").forEach(item => {
+      const asset = state23.assets.find(candidate => candidate.id === item.assetId);
+      if (!asset) return;
+      asset.status = "Parado";
+      asset.activeDowntimeId = item.id;
+      asset.updatedAt = nowMs;
+      asset.statusHistory = [...(asset.statusHistory || []), { date:item.startAt, action:"OPENED", downtimeId:item.id, orderId:item.orderId, fromStatus:item.previousAssetStatus, toStatus:"Parado", owner:item.owner }];
     });
     const pointTypes = [["Temperatura do mancal", "Temperatura", "°C", 40, 75, 90], ["Vibração global", "Vibração", "mm/s", 2.2, 5.5, 7.1], ["Pressão de descarga", "Pressão", "bar", 5.8, 4.5, 3.8], ["Corrente do motor", "Corrente", "A", 18, 28, 34], ["Horímetro acumulado", "Horímetro", "h", 12000, 999999, 999999]];
     state23.measurementPoints = Array.from({ length: 24 }, (_, index) => {
@@ -20384,6 +20393,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     const assets = new Set(data.assets.map(item => item.id)), orders = new Set(data.orders.map(item => item.id)), parts = new Set(data.spareParts.map(item => item.id));
     if (data.orders.some(item => !assets.has(item.assetId))) errors.push("Existe O.S. sem equipamento válido.");
     if (data.downtimes.some(item => !assets.has(item.assetId) || item.endAt && new Date(item.endAt) < new Date(item.startAt))) errors.push("Existe parada com vínculo ou duração inválida.");
+    const activeDowntimes = data.downtimes.filter(item => item.status === "Ativa");
+    if (new Set(activeDowntimes.map(item => item.assetId)).size !== activeDowntimes.length) errors.push("Existe equipamento com mais de uma parada ativa.");
+    if (activeDowntimes.some(item => data.assets.find(asset => asset.id === item.assetId)?.status !== "Parado")) errors.push("Existe parada ativa sem equipamento sincronizado como Parado.");
     if (data.inventoryMovements.some(item => !parts.has(item.spareId) || Number(item.quantity) <= 0)) errors.push("Existe movimentação de estoque inválida.");
     const inconsistentBalances = data.spareParts.filter(part => {
       const net = data.inventoryMovements.filter(item => item.spareId === part.id).reduce((sum, item) => sum + (item.type === "Entrada" ? 1 : -1) * Number(item.quantity), 0);
@@ -23416,7 +23428,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         installationStructureId: asset.installationStructureId || asset.structureId || asset.installationId || "",
         identifiers: Array.isArray(asset.identifiers) ? asset.identifiers : [],
         identifierHistory: Array.isArray(asset.identifierHistory) ? asset.identifierHistory : [],
-        locationHistory: Array.isArray(asset.locationHistory) ? asset.locationHistory : []
+        locationHistory: Array.isArray(asset.locationHistory) ? asset.locationHistory : [],
+        statusHistory: Array.isArray(asset.statusHistory) ? asset.statusHistory : [],
+        activeDowntimeId: asset.activeDowntimeId || ""
       }));
       const data = dedupeStateCollections(migrateIdsToUuid(normalized));
       data.spareParts = data.spareParts.map(spare => ({
@@ -23458,6 +23472,10 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         endAt: String(item.endAt || item.end || "").slice(0, 16),
         status: DOWNTIME_STATUSES.includes(item.status) ? item.status : "Ativa",
         owner: String(item.owner || item.responsible || "").trim(),
+        previousAssetStatus: String(item.previousAssetStatus || "").trim(),
+        durationMs: Number.isFinite(Number(item.durationMs)) ? Math.max(0, Number(item.durationMs)) : null,
+        durationHours: Number.isFinite(Number(item.durationHours)) ? Math.max(0, Number(item.durationHours)) : null,
+        history: Array.isArray(item.history) ? item.history : [],
         createdAt: Number(item.createdAt || Date.now()),
         updatedAt: Number(item.updatedAt || item.createdAt || Date.now())
       }));
@@ -31842,7 +31860,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function openMobileDowntimeModal() {
       const assets=state.assets.map(item=>`<option value="${item.id}">${escapeHtml(item.code)} - ${escapeHtml(item.name)}</option>`).join("");const orders=state.orders.filter(item=>!isClosedOrder(item.status)).map(item=>`<option value="${item.id}">${escapeHtml(item.number)}</option>`).join("");
       openModal("Registrar parada",`<form class="form" id="mobileDowntimeForm"><label class="full">Equipamento * <select class="field" id="mobileDowntimeAsset" required><option value="">Selecione</option>${assets}</select></label><label>Início * <input class="field" id="mobileDowntimeStart" type="datetime-local" required value="${localDateTimeValue()}"></label><label class="full">Motivo resumido * <input class="field" id="mobileDowntimeReason" required></label><details class="os-quick-details"><summary>Mais detalhes</summary><div><label>Área afetada <input class="field" id="mobileDowntimeArea"></label><label>Impacto <select class="field" id="mobileDowntimeImpact"><option>Baixo</option><option>Médio</option><option>Alto</option></select></label><label>O.S. vinculada <select class="field" id="mobileDowntimeOrder"><option value="">Nenhuma</option>${orders}</select></label><label class="full">Observação <textarea class="field" id="mobileDowntimeNote"></textarea></label><label class="full">Foto <input class="field" type="file" accept="image/*" capture="environment"></label></div></details><div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Registrar parada</button></div></form>`,true);
-      $("mobileDowntimeForm").addEventListener("submit",event=>{event.preventDefault();if(downtimeSaveLock)return;const assetId=$("mobileDowntimeAsset").value,reason=value("mobileDowntimeReason"),startAt=$("mobileDowntimeStart").value;if(!assetId||!reason||!startAt){showToast("Informe equipamento, início e motivo.");return;}downtimeSaveLock=true;state.downtimes.unshift({id:uid("downtime"),assetId,orderId:$("mobileDowntimeOrder").value,reason,description:value("mobileDowntimeNote")||reason,type:DOWNTIME_TYPES[0],startAt,endAt:"",status:"Ativa",owner:currentTechnicianName(),area:value("mobileDowntimeArea"),impact:$("mobileDowntimeImpact").value,createdAt:Date.now(),updatedAt:Date.now()});saveState();closeModal();render();showToast("Parada registrada.");setTimeout(()=>downtimeSaveLock=false,800);});
+      $("mobileDowntimeForm").addEventListener("submit",async event=>{event.preventDefault();if(downtimeSaveLock)return;const assetId=$("mobileDowntimeAsset").value,reason=value("mobileDowntimeReason"),startAt=$("mobileDowntimeStart").value;if(!assetId||!reason||!startAt){showToast("Informe equipamento, início e motivo.");return;}downtimeSaveLock=true;try{await gmTransitionAssetDowntime("OPENED",uid("downtime"),{assetId,orderId:$("mobileDowntimeOrder").value,reason,description:value("mobileDowntimeNote")||reason,type:DOWNTIME_TYPES[0],startAt,owner:currentTechnicianName(),area:value("mobileDowntimeArea"),impact:$("mobileDowntimeImpact").value});closeModal();render();showToast("Parada registrada e equipamento atualizado.")}catch(error){stage21TechnicalLog("error","downtime.mobile.open",error);showToast(gmDowntimeTransitionErrorMessage(error),"error")}finally{setTimeout(()=>downtimeSaveLock=false,800)}});
     }
     // Etapa 17 — estrutura física, áreas, locais e identificadores
     const stage17Ui = { areaSearch:"", sectorSearch:"", installationSearch:"", identifierSearch:"", identifierPrintIds:new Set(), selectedInstallation:"", installationTab:"overview", expanded:new Set() };
@@ -32561,6 +32579,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function resetAssetForm() {
       $("assetForm").reset();
       $("assetId").value = "";
+      $("assetStatus").disabled = false;
+      $("assetStatus").removeAttribute("title");
       if($("assetPhoto"))$("assetPhoto").value="";
       if($("assetDocumentsData"))$("assetDocumentsData").value="[]";
       if($("assetPhotoFile"))$("assetPhotoFile").value="";
@@ -32745,6 +32765,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function resetDowntimeForm() {
       $("downtimeForm").reset();
       $("downtimeId").value = "";
+      ["downtimeAsset","downtimeStart","downtimeEnd","downtimeStatus"].forEach(id => { $(id).disabled = false; $(id).removeAttribute("title"); });
       $("downtimeType").value = "Falha";
       $("downtimeStatus").value = "Ativa";
       $("downtimeFormTitle").textContent = "Registrar parada";
@@ -32764,11 +32785,12 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       $("downtimeEnd").value = item.endAt || "";
       $("downtimeStatus").value = item.status || "Ativa";
       $("downtimeOwner").value = item.owner || "";
+      ["downtimeAsset","downtimeStart","downtimeEnd","downtimeStatus"].forEach(fieldId => { $(fieldId).disabled = true; $(fieldId).title = "Campo controlado pelo fluxo operacional da parada"; });
       $("downtimeFormTitle").textContent = "Editar parada";
       setView("downtime", { keepCrudForm: true });
       showCrudForm("downtimeForm");
     }
-    function closeDowntime(id) {
+    async function closeDowntime(id) {
       if (!namedOperationAllowed("closeDowntime", "orders", "operate", [id])) return denyProfileAccess();
       if(isMobileOperational()) return openMobileCloseDowntime(id);
       const lockKey = `${id}:Encerrada`;
@@ -32782,19 +32804,24 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         const defaultEnd = item.endAt || downtimeInputFromDate(new Date());
         const endAt = prompt("Informe a data e hora de término da parada:", defaultEnd);
         if (endAt === null) return;
+        const cause = prompt("Informe a causa confirmada da parada:", item.cause || item.reason || "");
+        if (cause === null) return;
         const start = downtimeDateFromInput(item.startAt);
         const end = downtimeDateFromInput(endAt);
         if (!start || !end) { showToast("Informe uma data de término válida."); return; }
         if (end < start) { showToast("Término não pode ser anterior ao início."); return; }
-        state.downtimes = state.downtimes.map(candidate => candidate.id === id ? { ...candidate, endAt, status: "Encerrada", updatedAt: Date.now() } : candidate);
-        saveState();
+        if (!String(cause).trim()) { showToast("Informe a causa confirmada da parada."); return; }
+        await gmTransitionAssetDowntime("CLOSED", id, { endAt, cause:String(cause).trim(), closingOwner:stage14Owner() });
         render();
         showToast("Parada encerrada.");
+      } catch (error) {
+        stage21TechnicalLog("error", "downtime.close", error);
+        showToast(gmDowntimeTransitionErrorMessage(error), "error");
       } finally {
         setTimeout(() => downtimeMutationLocks.delete(lockKey), 300);
       }
     }
-    function cancelDowntime(id) {
+    async function cancelDowntime(id) {
       if (!namedOperationAllowed("cancelDowntime", "orders", "manage", [id])) return denyProfileAccess();
       const lockKey = `${id}:Cancelada`;
       if (downtimeMutationLocks.has(lockKey)) return;
@@ -32802,10 +32829,16 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       try {
         const item = byId(state.downtimes, id);
         if (!item || item.status === "Cancelada") return;
-        state.downtimes = state.downtimes.map(candidate => candidate.id === id ? { ...candidate, status: "Cancelada", updatedAt: Date.now() } : candidate);
-        saveState();
+        if (item.status !== "Ativa") { showToast("Somente uma parada ativa pode ser cancelada."); return; }
+        const reason = prompt("Informe o motivo do cancelamento da parada:", "");
+        if (reason === null) return;
+        if (!String(reason).trim()) { showToast("Informe o motivo do cancelamento da parada."); return; }
+        await gmTransitionAssetDowntime("CANCELLED", id, { cancelReason:String(reason).trim(), closingOwner:stage14Owner() });
         render();
         showToast("Parada cancelada.");
+      } catch (error) {
+        stage21TechnicalLog("error", "downtime.cancel", error);
+        showToast(gmDowntimeTransitionErrorMessage(error), "error");
       } finally {
         setTimeout(() => downtimeMutationLocks.delete(lockKey), 300);
       }
@@ -32814,11 +32847,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (!namedOperationAllowed("deleteDowntime", "orders", "manage", [id, confirmed])) return denyProfileAccess();
       const item = byId(state.downtimes, id);
       if (!item) return;
-      if (!confirmed) { requestDestructiveConfirmation("Excluir esta parada?", `${item.reason || downtimeShortId(item)} será removida do histórico de indisponibilidade.`, "Excluir parada", () => deleteDowntime(id, true)); return; }
-      state.downtimes = state.downtimes.filter(candidate => candidate.id !== id);
-      saveState();
-      render();
-      showToast("Parada excluída.");
+      showToast(item.status === "Ativa" ? "Paradas ativas não podem ser excluídas. Cancele o registro informando o motivo." : "O histórico de paradas é permanente e não pode ser excluído.", "warning");
     }
     function resetMeasurementForm() {
       $("measurementForm").reset();
@@ -34882,8 +34911,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     openOrderModal = openOrderModalV2;
     function openMobileCloseDowntime(id) {
       const item=byId(state.downtimes,id);if(!item||item.status!=="Ativa")return;
-      openModal("Encerrar parada",`<form class="form" id="mobileCloseDowntimeForm"><label>Data e hora de término * <input class="field" id="mobileDowntimeEnd" type="datetime-local" required value="${localDateTimeValue()}"></label><label class="full">Observação final <textarea class="field" id="mobileDowntimeFinalNote"></textarea></label><div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Encerrar parada</button></div></form>`);
-      $("mobileCloseDowntimeForm").addEventListener("submit",event=>{event.preventDefault();const endAt=$("mobileDowntimeEnd").value,start=downtimeDateFromInput(item.startAt),end=downtimeDateFromInput(endAt);if(!end||!start||end<start){showToast("Informe um término válido.");return;}state.downtimes=state.downtimes.map(entry=>entry.id===id?{...entry,endAt,status:"Encerrada",finalNote:value("mobileDowntimeFinalNote"),updatedAt:Date.now()}:entry);saveState();closeModal();render();showToast("Parada encerrada.");});
+      openModal("Encerrar parada",`<form class="form" id="mobileCloseDowntimeForm"><label>Data e hora de término * <input class="field" id="mobileDowntimeEnd" type="datetime-local" required value="${localDateTimeValue()}"></label><label class="full">Causa confirmada * <input class="field" id="mobileDowntimeCause" required value="${escapeHtml(item.cause||item.reason||"")}"></label><label class="full">Observação final <textarea class="field" id="mobileDowntimeFinalNote"></textarea></label><div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Encerrar parada</button></div></form>`);
+      $("mobileCloseDowntimeForm").addEventListener("submit",async event=>{event.preventDefault();const endAt=$("mobileDowntimeEnd").value,cause=value("mobileDowntimeCause"),start=downtimeDateFromInput(item.startAt),end=downtimeDateFromInput(endAt);if(!end||!start||end<start){showToast("Informe um término válido.");return;}if(!cause){showToast("Informe a causa confirmada.");return;}try{await gmTransitionAssetDowntime("CLOSED",id,{endAt,cause,finalNote:value("mobileDowntimeFinalNote"),closingOwner:currentTechnicianName()});closeModal();render();showToast("Parada encerrada e equipamento atualizado.")}catch(error){stage21TechnicalLog("error","downtime.mobile.close",error);showToast(gmDowntimeTransitionErrorMessage(error),"error")}});
     }
     function openPreventivePlanModal(planId = "") {
       if (!namedOperationAllowed("openPreventivePlanModal", "preventivePlans", "manage", [planId])) return denyProfileAccess();
@@ -35405,6 +35434,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       setView("assets");
       refreshAssetParentOptions(item.id);
       $("assetId").value=item.id;$("assetCode").value=item.code;$("assetName").value=item.name;$("assetCategory").value=assetCategoryLabel(item);$("assetLocation").value=item.locationId||"";$("stage17AssetInstallation").value=item.installationStructureId||item.structureId||item.installationId||"";$("assetTag").value=item.tagId||"";$("assetSubtag").value=item.subtagId||"";$("assetCriticality").value=item.criticality||"Baixa";$("assetStatus").value=item.status||"Operando";$("assetBrand").value=item.brand||"";$("assetModel").value=item.model||"";$("assetSerial").value=item.serial||"";$("assetYear").value=item.year||"";$("assetCostCenter").value=item.costCenter||"";$("assetPower").value=item.power||"";$("assetVoltage").value=item.voltage||"";$("assetCapacity").value=item.capacity||"";$("assetResponsible").value=item.responsible||"";$("assetParent").value=item.parentId||"";$("assetInstallationPoint").value=item.installationPoint||"";$("assetIcon").value=normalizeIconValue(item.icon);$("assetComponents").value=item.components||"";$("assetDescription").value=item.description||"";$("assetPhoto").value=item.photo||"";$("assetDocumentsData").value=JSON.stringify(Array.isArray(item.documents)?item.documents:[]);
+      const hasActiveDowntime = state.downtimes.some(row => row.assetId === item.id && row.status === "Ativa");
+      $("assetStatus").disabled = hasActiveDowntime;
+      if (hasActiveDowntime) $("assetStatus").title = "Status controlado pela parada ativa"; else $("assetStatus").removeAttribute("title");
       $("assetFormTitle").textContent = "Editar Ativo";
       showCrudForm("assetForm");
     }
@@ -35413,6 +35445,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const item = byId(state.assets, id); if (!item) return;
       setView("assets");
       $("assetId").value = "";
+      $("assetStatus").disabled = false;
+      $("assetStatus").removeAttribute("title");
       $("assetCode").value = `${item.code}-COPIA`;
       $("assetName").value = item.name;
       $("assetCategory").value = assetCategoryLabel(item);
@@ -36162,9 +36196,53 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function renderStage14Downtimes(){const root=$("downtimeStage14");if(!root)return;const rows=stage14DowntimeRows(),active=state.downtimes.filter(item=>item.status==="Ativa"),periodRows=state.downtimes.filter(item=>stage14InPeriod(item.startAt||item.createdAt,stage14DowntimeFilters.period)),areas=Array.from(new Set(state.downtimes.map(stage14Area).filter(Boolean))).sort(),start=(stage14DowntimePage-1)*STAGE14_PAGE_SIZE,pageRows=rows.slice(start,start+STAGE14_PAGE_SIZE),totalMs=periodRows.reduce((sum,item)=>sum+stage14DurationMs(item),0);root.innerHTML=`<header class="stage14-head"><div><span class="stage14-eyebrow">CONTROLE DE INDISPONIBILIDADE</span><h1>Paradas</h1><p>Registre, acompanhe e encerre indisponibilidades com rastreabilidade.</p></div><div class="stage14-head-actions"><button class="btn" onclick="stage14ToggleFilters('dt14More')">☷ Filtros</button>${stage14CanOperate()?`<button class="btn primary" onclick="openStage14DowntimeForm()">＋ Registrar Parada</button>`:""}</div></header>${active.length?`<div class="stage14-active-banner"><div><strong>${active.length} equipamento(s) parado(s) neste momento</strong><span>A duração é atualizada automaticamente sem criar novos registros.</span></div><button class="btn" onclick="stage14UpdateFilter('downtime','status','Ativa')">Ver paradas ativas</button></div>`:""}<section class="stage14-metrics">${[["✋",active.length,"Paradas ativas","#ef4444"],["⚙",new Set(active.map(item=>item.assetId)).size,"Equipamentos parados","#f97316"],["◷",stage14Duration(totalMs),"Tempo parado no período","#1d8cff"],["✓",periodRows.filter(item=>item.status==="Encerrada").length,"Paradas encerradas","#22c55e"],["!",state.downtimes.filter(item=>!item.orderId&&item.status!=="Cancelada").length,"Paradas sem O.S.","#facc15"]].map(([icon,value,label,color])=>`<article class="stage14-metric" style="--metric:${color}"><i>${icon}</i><div><strong>${value}</strong><span>${label}</span></div></article>`).join("")}</section><div class="stage14-toolbar"><div class="stage14-search"><span>⌕</span><input class="field" value="${escapeHtml(stage14DowntimeFilters.search)}" placeholder="Buscar equipamento, TAG, motivo ou O.S..." oninput="stage14UpdateFilter('downtime','search',this.value)"></div><select class="field" onchange="stage14UpdateFilter('downtime','period',this.value)"><option value="">Todo o período</option><option value="7">7 dias</option><option value="30">30 dias</option><option value="90">90 dias</option></select><select class="field" onchange="stage14UpdateFilter('downtime','status',this.value)"><option value="">Todos os status</option><option>Ativa</option><option>Encerrada</option><option>Cancelada</option></select><select class="field" onchange="stage14UpdateFilter('downtime','asset',this.value)">${stage14SelectOptions(state.assets,stage14DowntimeFilters.asset,"Todos os equipamentos",item=>`${item.code} - ${item.name}`)}</select><select class="field" onchange="stage14UpdateFilter('downtime','impact',this.value)"><option value="">Todos os impactos</option>${STAGE14_IMPACTS.map(v=>`<option ${v===stage14DowntimeFilters.impact?"selected":""}>${v}</option>`).join("")}</select><button class="btn" onclick="stage14ClearFilters('downtime')">Limpar</button></div><div class="stage14-more-filters is-hidden" id="dt14More"><label>Área<select class="field" onchange="stage14UpdateFilter('downtime','area',this.value)"><option value="">Todas</option>${areas.map(v=>`<option ${v===stage14DowntimeFilters.area?"selected":""}>${escapeHtml(v)}</option>`).join("")}</select></label><label>Local<select class="field" onchange="stage14UpdateFilter('downtime','location',this.value)">${stage14SelectOptions(state.locations,stage14DowntimeFilters.location,"Todos os locais")}</select></label><label>Vínculo O.S.<select class="field" onchange="stage14UpdateFilter('downtime','order',this.value)"><option value="">Todos</option><option value="linked">Com O.S.</option><option value="unlinked">Sem O.S.</option></select></label><label>Ordenar<select class="field" onchange="stage14UpdateFilter('downtime','sort',this.value)"><option value="recent">Mais recentes</option><option value="duration">Maior duração</option><option value="impact">Maior impacto</option></select></label><button class="btn" onclick="stage14ClearFilters('downtime')">Limpar filtros</button></div><section class="stage14-list"><div class="stage14-list-head"><div><strong>Histórico de Paradas</strong><span>${rows.length} registro(s) encontrado(s)</span></div></div>${rows.length?`<div class="table-wrap stage14-table-wrap"><table class="stage14-table"><thead><tr><th>Equipamento</th><th>Início</th><th>Duração</th><th>Motivo</th><th>Impacto</th><th>O.S.</th><th>Responsável</th><th>Status</th><th></th></tr></thead><tbody>${pageRows.map(stage14DowntimeRow).join("")}</tbody></table></div><div class="stage14-mobile-list">${pageRows.map(stage14DowntimeCard).join("")}</div>${stage14Pager(rows.length,stage14DowntimePage,"stage14DowntimePageGo")}`:stage14Empty("Nenhuma parada encontrada.",stage14CanOperate()?"Registrar Parada":"",stage14CanOperate()?"openStage14DowntimeForm()":"")}</section>`;applyPermissionVisibility()}
     function stage14DowntimePageGo(page){stage14ChangePage("downtime",page)}
     function openStage14DowntimeForm(assetId=""){if(!stage14CanOperate())return denyProfileAccess();openModal("Registrar Parada",`<form class="stage14-form" id="dt14Form"><div id="dt14Duplicate"></div><div class="stage14-form-grid"><label>Equipamento *<select class="field" id="dt14Asset" required>${stage14SelectOptions(state.assets,assetId,"Selecione o equipamento",item=>`${item.code} - ${item.name}`)}</select></label><label>Data e hora de início *<input class="field" id="dt14Start" type="datetime-local" required value="${localDateTimeValue()}"></label><label class="full">Motivo resumido *<input class="field" id="dt14Reason" required></label></div><details><summary>Mais detalhes<small>Tipo, impacto, responsável, vínculos e evidências</small></summary><div class="stage14-form-details"><label>Tipo<select class="field" id="dt14Type">${STAGE14_DOWNTIME_TYPES.map(v=>`<option>${v}</option>`).join("")}</select></label><label>Impacto<select class="field" id="dt14Impact">${STAGE14_IMPACTS.map(v=>`<option ${v==="Médio"?"selected":""}>${v}</option>`).join("")}</select></label><label>Área afetada<input class="field" id="dt14Area"></label><label>Responsável<input class="field" id="dt14Owner" value="${escapeHtml(stage14Owner())}"></label><label>O.S. vinculada<select class="field" id="dt14Order">${stage14SelectOptions(state.orders.filter(item=>!isClosedOrder(item.status)),"","Sem O.S.",item=>item.number)}</select></label><label>Produção afetada<input class="field" id="dt14Production"></label><label class="full">Descrição<textarea class="field" id="dt14Description"></textarea></label><label class="full">Observação<textarea class="field" id="dt14Note"></textarea></label><label class="full">Foto ou documento<input class="field" id="dt14Evidence" type="file" multiple accept="image/*,.pdf,.doc,.docx" capture="environment"></label></div></details><div class="stage14-form-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Registrar Parada</button></div></form>`,true);$("dt14Form").addEventListener("submit",saveStage14Downtime)}
-    async function saveStage14Downtime(event){event.preventDefault();if(!stage14CanOperate())return denyProfileAccess();if(stage14Locks.has("downtime:create"))return;const assetId=$("dt14Asset").value,startAt=$("dt14Start").value,reason=value("dt14Reason");if(!assetId||!byId(state.assets,assetId))return showToast("Selecione um equipamento válido.");if(!stage14Time(startAt))return showToast("Informe uma data e hora de início válida.");if(!reason)return showToast("Informe o motivo resumido da parada.");const duplicate=state.downtimes.find(item=>item.assetId===assetId&&item.status==="Ativa");if(duplicate){$("dt14Duplicate").innerHTML=`<div class="stage14-active-banner"><div><strong>Este equipamento já possui uma parada ativa.</strong><span>${escapeHtml(duplicate.reason||"")} · ${stage14Duration(stage14DurationMs(duplicate))}</span></div><div class="toolbar"><button class="btn" type="button" onclick="openStage14DowntimeDetail('${duplicate.id}')">Visualizar Parada</button><button class="btn danger" type="button" onclick="openStage14DowntimeClose('${duplicate.id}')">Encerrar Parada</button></div></div>`;return showToast("Este equipamento já possui uma parada ativa.")}const newEvidence=await stage14ReadEvidence("dt14Evidence");if(newEvidence===null)return;stage14Locks.add("downtime:create");setTimeout(()=>stage14Locks.delete("downtime:create"),1000);const now=Date.now(),payload={id:uid("downtime"),assetId,startAt,reason,type:$("dt14Type").value||"Não planejada",area:value("dt14Area"),impact:$("dt14Impact").value||"Médio",owner:value("dt14Owner")||stage14Owner(),description:value("dt14Description")||reason,orderId:$("dt14Order").value,productionAffected:value("dt14Production"),note:value("dt14Note"),evidence:newEvidence,endAt:"",status:"Ativa",createdBy:stage14Owner(),createdAt:now,updatedAt:now,history:[{date:now,label:"Parada registrada",owner:stage14Owner()}]};state.downtimes.unshift(payload);saveState();closeModal();render();showToast("Parada registrada com sucesso.")}
+    async function saveStage14Downtime(event){
+      event.preventDefault();
+      if(!stage14CanOperate())return denyProfileAccess();
+      if(stage14Locks.has("downtime:create"))return;
+      const assetId=$("dt14Asset").value,startAt=$("dt14Start").value,reason=value("dt14Reason");
+      if(!assetId||!byId(state.assets,assetId))return showToast("Selecione um equipamento válido.");
+      if(!stage14Time(startAt))return showToast("Informe uma data e hora de início válida.");
+      if(!reason)return showToast("Informe o motivo resumido da parada.");
+      const duplicate=state.downtimes.find(item=>item.assetId===assetId&&item.status==="Ativa");
+      if(duplicate){
+        $("dt14Duplicate").innerHTML=`<div class="stage14-active-banner"><div><strong>Este equipamento já possui uma parada ativa.</strong><span>${escapeHtml(duplicate.reason||"")} · ${stage14Duration(stage14DurationMs(duplicate))}</span></div><div class="toolbar"><button class="btn" type="button" onclick="openStage14DowntimeDetail('${duplicate.id}')">Visualizar Parada</button><button class="btn danger" type="button" onclick="openStage14DowntimeClose('${duplicate.id}')">Encerrar Parada</button></div></div>`;
+        return showToast("Este equipamento já possui uma parada ativa.");
+      }
+      const newEvidence=await stage14ReadEvidence("dt14Evidence");
+      if(newEvidence===null)return;
+      const id=uid("downtime");
+      stage14Locks.add("downtime:create");
+      try{
+        await gmTransitionAssetDowntime("OPENED",id,{assetId,startAt,reason,type:$("dt14Type").value||"Não planejada",area:value("dt14Area"),impact:$("dt14Impact").value||"Médio",owner:value("dt14Owner")||stage14Owner(),description:value("dt14Description")||reason,orderId:$("dt14Order").value,productionAffected:value("dt14Production"),note:value("dt14Note"),evidence:newEvidence});
+        closeModal();render();showToast("Parada registrada e equipamento atualizado.");
+      }catch(error){
+        stage21TechnicalLog("error","downtime.stage14.open",error);
+        showToast(gmDowntimeTransitionErrorMessage(error),"error");
+      }finally{setTimeout(()=>stage14Locks.delete("downtime:create"),1000)}
+    }
     function openStage14DowntimeClose(id){if(!stage14CanOperate())return denyProfileAccess();const item=byId(state.downtimes,id);if(!item||item.status!=="Ativa")return showToast("Esta parada já foi encerrada ou cancelada.");const end=localDateTimeValue();openModal("Encerrar Parada",`<form class="stage14-form" id="dt14CloseForm"><div class="stage14-info-grid"><div class="stage14-info"><span>Equipamento</span><strong>${escapeHtml(machineName(item.assetId))}</strong></div><div class="stage14-info"><span>Início</span><strong>${stage14DateTime(item.startAt)}</strong></div><div class="stage14-info"><span>Término</span><strong id="dt14CloseEndPreview">${stage14DateTime(end)}</strong></div><div class="stage14-info"><span>Duração</span><strong id="dt14CloseDuration">${stage14Duration(Math.max(0,stage14Time(end)-stage14Time(item.startAt)))}</strong></div></div><div class="stage14-form-grid"><label>Data e hora de término *<input class="field" id="dt14CloseEnd" type="datetime-local" required value="${end}"></label><label>Motivo ou causa confirmada *<input class="field" id="dt14CloseCause" required value="${escapeHtml(item.cause||item.reason||"")}"></label></div><details><summary>Mais detalhes<small>Ação, responsável, produção e evidência</small></summary><div class="stage14-form-details"><label>Ação realizada<input class="field" id="dt14CloseAction"></label><label>Responsável pelo encerramento<input class="field" id="dt14CloseOwner" value="${escapeHtml(stage14Owner())}"></label><label>Produção impactada<input class="field" id="dt14CloseProduction"></label><label>Evidência<input class="field" id="dt14CloseEvidence" type="file" multiple accept="image/*,.pdf" capture="environment"></label><label class="full">Observação final<textarea class="field" id="dt14CloseNote"></textarea></label></div></details><div class="stage14-form-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Encerrar Parada</button></div></form>`,true);$("dt14CloseEnd").addEventListener("input",()=>{const value=$("dt14CloseEnd").value;$("dt14CloseEndPreview").textContent=stage14DateTime(value);$("dt14CloseDuration").textContent=stage14Duration(Math.max(0,stage14Time(value)-stage14Time(item.startAt)))});$("dt14CloseForm").addEventListener("submit",event=>{event.preventDefault();confirmStage14DowntimeClose(id)})}
-    async function confirmStage14DowntimeClose(id){if(!stage14CanOperate())return denyProfileAccess();const key=`downtime:close:${id}`;if(stage14Locks.has(key))return;const item=byId(state.downtimes,id),endAt=$("dt14CloseEnd").value,cause=value("dt14CloseCause"),start=stage14Time(item?.startAt),end=stage14Time(endAt);if(!item||item.status!=="Ativa")return showToast("Esta parada já foi encerrada.");if(!end)return showToast("Informe uma data e hora de término válida.");if(end<start)return showToast("O término não pode ser anterior ao início.");if(!cause)return showToast("Informe o motivo ou causa confirmada.");const addedEvidence=await stage14ReadEvidence("dt14CloseEvidence");if(addedEvidence===null)return;stage14Locks.add(key);setTimeout(()=>stage14Locks.delete(key),1000);const now=Date.now(),evidence=[...stage14Evidence(item),...addedEvidence];state.downtimes=state.downtimes.map(row=>row.id===id?{...row,endAt,cause,actionTaken:value("dt14CloseAction"),finalNote:value("dt14CloseNote"),closingOwner:value("dt14CloseOwner")||stage14Owner(),productionImpact:value("dt14CloseProduction"),evidence,status:"Encerrada",durationMs:end-start,closedAt:now,updatedAt:now,history:[...(row.history||[]),{date:now,label:`Parada encerrada · ${stage14Duration(end-start)}`,owner:stage14Owner()}]}:row);saveState();closeModal();render();showToast("Parada encerrada e histórico preservado.")}
+    async function confirmStage14DowntimeClose(id){
+      if(!stage14CanOperate())return denyProfileAccess();
+      const key=`downtime:close:${id}`;
+      if(stage14Locks.has(key))return;
+      const item=byId(state.downtimes,id),endAt=$("dt14CloseEnd").value,cause=value("dt14CloseCause"),start=stage14Time(item?.startAt),end=stage14Time(endAt);
+      if(!item||item.status!=="Ativa")return showToast("Esta parada já foi encerrada.");
+      if(!end)return showToast("Informe uma data e hora de término válida.");
+      if(end<start)return showToast("O término não pode ser anterior ao início.");
+      if(!cause)return showToast("Informe o motivo ou causa confirmada.");
+      const addedEvidence=await stage14ReadEvidence("dt14CloseEvidence");
+      if(addedEvidence===null)return;
+      const evidence=[...stage14Evidence(item),...addedEvidence];
+      stage14Locks.add(key);
+      try{
+        await gmTransitionAssetDowntime("CLOSED",id,{endAt,cause,actionTaken:value("dt14CloseAction"),finalNote:value("dt14CloseNote"),closingOwner:value("dt14CloseOwner")||stage14Owner(),productionImpact:value("dt14CloseProduction"),evidence});
+        closeModal();render();showToast("Parada encerrada, duração calculada e equipamento atualizado.");
+      }catch(error){
+        stage21TechnicalLog("error","downtime.stage14.close",error);
+        showToast(gmDowntimeTransitionErrorMessage(error),"error");
+      }finally{setTimeout(()=>stage14Locks.delete(key),1000)}
+    }
     function stage14DowntimeDetailContent(item){if(stage14DowntimeTab==="order"){const order=stage14Order(item);return order?`<div class="side-box"><strong>${escapeHtml(order.number)}</strong><span>${escapeHtml(order.description||"Sem descrição")}</span>${tag(order.status)}</div><div class="toolbar"><button class="btn primary" onclick="closeModal();showOrderDetails('${order.id}')">Visualizar O.S.</button></div>`:stage14Empty("Nenhuma O.S. vinculada.","Criar O.S.",`openOrderFromStage14Downtime('${item.id}')`)}if(stage14DowntimeTab==="pending"){const rows=state.pendingActions.filter(row=>row.downtimeId===item.id||(stage14PendingOrigin(row)==="Parada"&&stage14PendingOriginId(row)===item.id));return rows.map(row=>`<div class="side-box"><strong>${escapeHtml(row.title)}</strong><span>${escapeHtml(row.description||"")}</span>${tag(row.status)}</div>`).join("")||stage14Empty("Nenhuma ação pendente vinculada.","Criar Ação",`openStage14PendingFromDowntime('${item.id}')`)}if(stage14DowntimeTab==="evidence"){const files=stage14Evidence(item);return files.length?files.map(file=>`<div class="side-box"><strong>${escapeHtml(file.name||"Evidência")}</strong><span>${escapeHtml(file.type||"Arquivo")}</span></div>`).join(""):stage14Empty("Nenhuma evidência anexada.","","")}if(stage14DowntimeTab==="history")return stage14HistoryHtml(item,"Parada registrada");return`<div class="stage14-info-grid">${[["Início",stage14DateTime(item.startAt)],["Término",stage14DateTime(item.endAt)],["Duração",stage14Duration(stage14DurationMs(item))],["Motivo",item.reason||"-"],["Causa",item.cause||"Não confirmada"],["Impacto",item.impact||"Médio"],["Área",stage14Area(item)],["Responsável",item.owner||"-"],["Descrição",item.description||"-"],["Observação final",item.finalNote||"-"]].map(([l,v])=>`<div class="stage14-info"><span>${l}</span><strong>${escapeHtml(v)}</strong></div>`).join("")}</div>`}
     function openStage14DowntimeDetail(id,tab="general"){const item=byId(state.downtimes,id);if(!item)return;stage14DowntimeTab=tab;const active=item.status==="Ativa",tabs=[["general","Geral"],["order","Ordem de Serviço"],["pending","Ações Pendentes"],["evidence","Evidências"],["history","Histórico"]];openModal("Detalhes da Parada",`<div class="stage14-detail-head"><div><span class="stage14-eyebrow">${escapeHtml(stage14Asset(item)?.code||"PARADA")}</span><h2>${escapeHtml(machineName(item.assetId))}</h2><p>${tag(item.status||"Ativa")} · ${tag(item.impact||"Médio")} · <strong class="${active?"stage14-live":""}" data-downtime-live="${item.id}">${stage14Duration(stage14DurationMs(item))}</strong></p></div><div class="stage14-detail-actions">${active&&stage14CanOperate()?`<button class="btn danger" onclick="openStage14DowntimeClose('${item.id}')">Encerrar Parada</button>`:item.orderId?`<button class="btn primary" onclick="closeModal();showOrderDetails('${item.orderId}')">Visualizar O.S.</button>`:""}</div></div><nav class="stage14-tabs">${tabs.map(([key,label])=>`<button class="${key===stage14DowntimeTab?"active":""}" onclick="openStage14DowntimeDetail('${item.id}','${key}')">${label}</button>`).join("")}</nav><div>${stage14DowntimeDetailContent(item)}</div>`,true)}
     function linkStage14DowntimeOrder(id){if(!stage14CanOperate())return denyProfileAccess();const item=byId(state.downtimes,id);if(!item)return;openModal("Vincular Ordem de Serviço",`<form class="stage14-form" id="dt14LinkOrderForm"><label>Ordem de Serviço<select class="field" id="dt14LinkOrder" required>${stage14SelectOptions(state.orders,item.orderId,"Selecione a O.S.",row=>`${row.number} - ${machineName(row.assetId)}`)}</select></label><div class="stage14-form-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Vincular O.S.</button></div></form>`);$("dt14LinkOrderForm").addEventListener("submit",event=>{event.preventDefault();const orderId=$("dt14LinkOrder").value;if(!byId(state.orders,orderId))return showToast("Selecione uma O.S. válida.");const now=Date.now();state.downtimes=state.downtimes.map(row=>row.id===id?{...row,orderId,updatedAt:now,history:[...(row.history||[]),{date:now,label:`O.S. ${byId(state.orders,orderId).number} vinculada`,owner:stage14Owner()}]}:row);saveState();closeModal();render();showToast("O.S. vinculada à parada.")})}
@@ -36956,7 +37034,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (saved) await saveSingleSupabase("transferencias_estoque_itens", stockTransferItemDbRow(payload));
       resetStockTransferForm(); render(); showToast(saved ? "Transferência salva. O saldo total não muda." : "Transferência salva localmente. Sincronização pendente.");
     });
-    $("downtimeForm").addEventListener("submit", event => {
+    $("downtimeForm").addEventListener("submit", async event => {
       event.preventDefault();
       if (downtimeSaveLock) return;
       downtimeSaveLock = true;
@@ -36985,6 +37063,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         if (end && end < start) { showToast("Término não pode ser anterior ao início."); return; }
         if (!DOWNTIME_STATUSES.includes(status)) { showToast("Selecione um status válido."); return; }
         if (status === "Encerrada" && !end) { showToast("Parada encerrada precisa de data e hora de término."); return; }
+        if (existing && (assetId !== existing.assetId || startAt !== existing.startAt || endAt !== (existing.endAt || "") || status !== existing.status)) { showToast("Equipamento, início, término e status devem ser alterados pelos controles operacionais.", "warning"); return; }
+        if (!existing && status !== "Ativa") { showToast("Uma nova parada deve ser registrada como Ativa.", "warning"); return; }
         const now = Date.now();
         const payload = {
           id,
@@ -37000,11 +37080,18 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           createdAt: existing?.createdAt || now,
           updatedAt: now
         };
-        state.downtimes = state.downtimes.filter(item => item.id !== id).concat(payload);
-        saveState();
+        if (existing) {
+          state.downtimes = state.downtimes.map(item => item.id === id ? { ...item, orderId, reason, description, type, owner, updatedAt:now, history:[...(item.history || []), { date:now, label:"Dados da parada atualizados", owner:stage14Owner() }] } : item);
+          saveState();
+        } else {
+          await gmTransitionAssetDowntime("OPENED", id, { assetId, orderId, reason, description, type, startAt, owner });
+        }
         resetDowntimeForm();
         render();
-        showToast(existing ? "Parada atualizada." : "Parada registrada.");
+        showToast(existing ? "Parada atualizada." : "Parada registrada e equipamento atualizado.");
+      } catch (error) {
+        stage21TechnicalLog("error", "downtime.legacy.save", error);
+        showToast(gmDowntimeTransitionErrorMessage(error), "error");
       } finally {
         setTimeout(() => { downtimeSaveLock = false; }, 300);
       }
@@ -37144,6 +37231,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if(assetSaveLock)return;if(!canManageAssets())return denyProfileAccess();
       const id=$("assetId").value||uid("asset"),existing=byId(state.assets,id),code=value("assetCode"),name=value("assetName"),category=$("assetCategory").value,locationId=$("assetLocation").value,status=$("assetStatus").value;
       if(!name||!code||!category||!locationId||!status){showToast("Preencha nome, código, categoria, local e status.","warning");return;}
+      if(existing&&state.downtimes.some(item=>item.assetId===existing.id&&item.status==="Ativa")&&status!=="Parado"){showToast("O status deste equipamento é controlado pela parada ativa.","warning");return;}
       const duplicate=state.assets.find(item=>item.id!==id&&normalizeTextKey(item.code)===normalizeTextKey(code));if(duplicate){showToast(`Já existe um ativo com o código ou TAG ${code}.`,"warning");$("assetCode").focus();return;}
       const photoFile=$("assetPhotoFile")?.files?.[0],documentFiles=Array.from($("assetDocumentFiles")?.files||[]);
       if(photoFile){const issue=stage21AllowedFile(photoFile,{maxBytes:2*1024*1024,types:["image/png","image/jpeg","image/webp"],extensions:["png","jpg","jpeg","webp"]});if(issue)return showToast(issue,"warning")}
@@ -37445,6 +37533,53 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (key.startsWith("conclu") || key.startsWith("finaliz")) return "Concluída";
       if (key.startsWith("cancel")) return "Cancelada";
       return "";
+    }
+    function gmDowntimeTransitionErrorMessage(error) {
+      const message = String(error?.message || error || "");
+      if (message.includes("GM_ASSET_ACTIVE_DOWNTIME_EXISTS")) return "Este equipamento já possui uma parada ativa.";
+      if (message.includes("GM_DOWNTIME_NOT_ACTIVE")) return "Esta parada já foi encerrada ou cancelada.";
+      if (message.includes("GM_DOWNTIME_ASSET_INACTIVE")) return "Não é possível registrar parada em equipamento inativo.";
+      if (message.includes("GM_DOWNTIME_ORDER_ASSET_MISMATCH")) return "A O.S. selecionada pertence a outro equipamento.";
+      if (message.includes("GM_DOWNTIME_CLOSE_REASON_REQUIRED")) return "Informe a causa confirmada antes de encerrar a parada.";
+      if (message.includes("GM_DOWNTIME_CANCEL_REASON_REQUIRED")) return "Informe o motivo do cancelamento da parada.";
+      if (message.includes("GM_DOWNTIME_INTERVAL_INVALID")) return "O término não pode ser anterior ao início da parada.";
+      if (message.includes("GM_DOWNTIME_HISTORY_IMMUTABLE")) return "O histórico da parada não pode ser excluído. Cancele o registro ativo, se necessário.";
+      if (message.includes("GM_DOWNTIME_TRANSITION_RPC_REQUIRED")) return "Abra, encerre ou cancele a parada pelos controles operacionais.";
+      if (message.includes("GM_ASSET_ACTIVE_DOWNTIME_STATUS") || message.includes("GM_ASSET_DOWNTIME_STATUS_MISMATCH")) return "O status do equipamento é controlado pela parada ativa.";
+      if (message.includes("GM_STATE_CONFLICT")) return "A parada foi alterada em outro dispositivo. Reabra e tente novamente.";
+      if (message.includes("GM_PERMISSION_DENIED")) return "Seu perfil não pode executar esta operação de parada.";
+      return "Não foi possível atualizar a parada. Os dados anteriores foram preservados.";
+    }
+    async function gmTransitionAssetDowntime(action, downtimeId, payload = {}) {
+      clearTimeout(gmRemoteSaveTimer);
+      gmRemoteSaveTimer = null;
+      await gmRemoteSavePromise;
+      if (gmStateDirty && !await gmPersistState(false)) throw new Error("GM_STATE_CONFLICT");
+      const rows = await gmRpc("gm_transition_asset_downtime", {
+        p_expected_version:gmRemoteStateVersion,
+        p_action:String(action || "").toUpperCase(),
+        p_downtime_id:downtimeId,
+        p_payload:payload && typeof payload === "object" ? payload : {},
+        p_request_id:uid("downtime-transition")
+      });
+      const result = Array.isArray(rows) ? rows[0] : rows;
+      if (!result?.downtime_data || !result?.asset_data) throw new Error("GM_DOWNTIME_TRANSITION_EMPTY");
+      const existing = byId(state.downtimes, downtimeId);
+      state.downtimes = existing
+        ? state.downtimes.map(item => item.id === downtimeId ? result.downtime_data : item)
+        : [result.downtime_data, ...state.downtimes];
+      state.assets = state.assets.map(item => item.id === result.asset_data.id ? result.asset_data : item);
+      gmRemoteStateVersion = Number(result.version ?? gmRemoteStateVersion + 1);
+      gmRemoteStateUpdatedAt = result.updated_at || new Date().toISOString();
+      gmRemoteLastSavedState = normalizeState(JSON.parse(JSON.stringify(state)));
+      gmSyncConflict = null;
+      gmStateDirty = false;
+      hasPendingLocalSync = false;
+      hasSessionLocalChange = false;
+      gmInvalidateMaintenanceMetrics();
+      gmScheduleMaintenanceMetricsRender();
+      notifyOsPanelUpdate();
+      return result;
     }
     function gmOrderTransitionErrorMessage(error) {
       const message = String(error?.message || error || "");
@@ -37774,6 +37909,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             gmStateDirty = true;
             showToast("Conflito detectado. Seus dados continuam nesta tela; tente novamente antes de sair.", "warning");
           }
+        } else if (/GM_(DOWNTIME|ASSET_ACTIVE_DOWNTIME|ASSET_DOWNTIME)/.test(String(error?.message || ""))) {
+          gmStateDirty = true;
+          showToast(gmDowntimeTransitionErrorMessage(error), "error");
         } else if (/GM_(DELETE_)?PERMISSION_DENIED/.test(String(error?.message || ""))) {
           gmStateDirty = true;
           showToast("Seu perfil n\u00e3o possui permiss\u00e3o para concluir esta altera\u00e7\u00e3o.", "error");
