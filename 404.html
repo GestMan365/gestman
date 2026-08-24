@@ -31102,20 +31102,61 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       return `${baseOrderActionButtons(order)}${orderAdminDeleteButton(order)}`;
     }
     const mobileOrderActionLocks = new Set();
-    async function changeOrderOperationalStatus(id, status) {
-      if(mobileOrderActionLocks.has(id))return;
-      const order = byId(state.orders,id); if(!order || isClosedOrder(order.status)) return;mobileOrderActionLocks.add(id);
-      const updated={...order,status,startedAt:status==="Em execucao"?(order.startedAt||Date.now()):order.startedAt};
-      state.orders=state.orders.map(item=>item.id===id?updated:item); saveState(); await saveOrderSupabaseNow(updated); render(); showToast(`O.S ${ptBrText(status).toLowerCase()}.`);setTimeout(()=>mobileOrderActionLocks.delete(id),800);
+    function openOrderTransitionReasonModal(id, status, title, description) {
+      const order = byId(state.orders, id);
+      if (!order || isClosedOrder(order.status)) return;
+      openModal(title, `<form class="form" id="orderTransitionReasonForm"><div class="full side-box"><strong>${escapeHtml(order.number || "O.S.")}</strong><span>${escapeHtml(description)}</span></div><label class="full">Motivo *<textarea class="field" id="orderTransitionReason" required placeholder="Registre o motivo operacional desta alteração"></textarea></label><div class="full toolbar"><button class="btn" type="button" onclick="closeModal()">Voltar</button><button class="btn primary" type="submit">Confirmar</button></div></form>`);
+      $("orderTransitionReasonForm").addEventListener("submit", async event => {
+        event.preventDefault();
+        const reason = value("orderTransitionReason");
+        if (!reason) return showToast("Informe o motivo da alteração.", "warning");
+        if (event.submitter) event.submitter.disabled = true;
+        closeModal();
+        if (gmCanonicalOrderStatus(status) === "Cancelada") await cancelOrder(id, reason);
+        else await changeOrderOperationalStatus(id, status, reason);
+      });
     }
-    async function cancelOrder(id, confirmed = false) {
-      if (!namedOperationAllowed("cancelOrder", "orders", "manage", [id, confirmed])) return denyProfileAccess();
-      if(!confirmed){
-        requestDestructiveConfirmation("Cancelar esta Ordem de Serviço?", "A O.S. será marcada como cancelada, mas continuará disponível no histórico.", "Cancelar O.S.", () => cancelOrder(id, true));
+    async function changeOrderOperationalStatus(id, status, reason = "") {
+      if (mobileOrderActionLocks.has(id)) return;
+      const order = byId(state.orders, id);
+      if (!order || isClosedOrder(order.status)) return;
+      const target = gmCanonicalOrderStatus(status);
+      if (["Pausada", "Aguardando material"].includes(target) && !String(reason).trim()) {
+        openOrderTransitionReasonModal(id, target, target === "Pausada" ? "Pausar O.S." : "Aguardar material", target === "Pausada" ? "A execução ficará pausada até uma retomada registrada." : "A O.S. ficará aguardando o material necessário para prosseguir.");
         return;
       }
-      const order=byId(state.orders,id); if(!order || isClosedOrder(order.status)) return;
-      const updated={...order,status:"Cancelada",finishedAt:Date.now()}; state.orders=state.orders.map(item=>item.id===id?updated:item); saveState(); await saveOrderSupabaseNow(updated); render(); showToast("O.S cancelada.");
+      mobileOrderActionLocks.add(id);
+      try {
+        await gmTransitionWorkOrder(id, target, {}, reason);
+        render();
+        showToast(`O.S. alterada para ${target.toLowerCase()}.`);
+      } catch (error) {
+        stage21TechnicalLog("error", "orders.transition", error);
+        showToast(gmOrderTransitionErrorMessage(error), "error");
+      } finally {
+        setTimeout(() => mobileOrderActionLocks.delete(id), 800);
+      }
+    }
+    async function cancelOrder(id, reason = "") {
+      if (!namedOperationAllowed("cancelOrder", "orders", "manage", [id, reason])) return denyProfileAccess();
+      const order = byId(state.orders, id);
+      if (!order || isClosedOrder(order.status)) return;
+      if (!String(reason).trim()) {
+        openOrderTransitionReasonModal(id, "Cancelada", "Cancelar O.S.", "A ordem permanecerá no histórico e não poderá ser retomada.");
+        return;
+      }
+      if (mobileOrderActionLocks.has(id)) return;
+      mobileOrderActionLocks.add(id);
+      try {
+        await gmTransitionWorkOrder(id, "Cancelada", { finishedAt:Date.now() }, reason);
+        render();
+        showToast("O.S. cancelada e preservada no histórico.");
+      } catch (error) {
+        stage21TechnicalLog("error", "orders.cancel", error);
+        showToast(gmOrderTransitionErrorMessage(error), "error");
+      } finally {
+        setTimeout(() => mobileOrderActionLocks.delete(id), 800);
+      }
     }
     function addOrderObservation(id) {
       const order=byId(state.orders,id); if(!order) return;
@@ -33610,7 +33651,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
               <label>Tipo de serviço <select class="field" id="tabDetailType"><option>Corretiva</option><option>Preventiva</option><option value="Inspecao">Inspeção</option><option value="Eletrica">Elétrica</option><option value="Mecanica">Mecânica</option></select></label>
               <label>Tipo de manutenção <select class="field" id="tabDetailMaintenance"><option>Preventiva</option><option>Corretiva</option><option>Preditiva</option><option>Melhoria</option></select></label>
               <label>Prioridade <select class="field" id="tabDetailPriority"><option>Baixa</option><option value="Media">Média</option><option>Alta</option></select></label>
-              <label>Status <select class="field" id="tabDetailStatus"><option>Aberta</option><option>Planejada</option><option value="Em execucao">Em execução</option><option value="Concluida">Concluída</option></select></label>
+              <label>Status <select class="field" id="tabDetailStatus" disabled><option>Aberta</option><option>Planejada</option><option value="Em execucao">Em execução</option><option value="Aguardando material">Aguardando material</option><option value="Pausada">Pausada</option><option value="Concluida">Concluída</option><option value="Cancelada">Cancelada</option></select><small class="muted">Use as ações Iniciar, Pausar, Retomar, Concluir ou Cancelar.</small></label>
               <label>Data/Hora Programada <input class="field" id="tabDetailScheduled" value="${escapeHtml(order.scheduledAt || "")}" placeholder="dd/mm/aaaa --:--"></label>
               <label>Duração estimada <input class="field" id="tabDetailHours" value="${escapeHtml(order.durationHours || "01:00")}" placeholder="01:00 hrs"></label>
               <label><span class="switch-line"><input type="checkbox" id="tabDetailPending" ${order.pendingExecution ? "checked" : ""}> Pendente de execução</span></label>
@@ -33789,10 +33830,12 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       return `<strong>${ptBrText(tabName.toUpperCase())}</strong><span>${detailTabText(tabName)}</span>`;
     }
     function updateOrderExtras(id, patch) {
+      const safePatch = { ...(patch || {}) };
+      ["status", "startedAt", "finishedAt", "pausedAt", "pauseReason", "waitingReason"].forEach(key => delete safePatch[key]);
       let updatedOrder = null;
       state.orders = state.orders.map(order => {
         if (order.id !== id) return order;
-        updatedOrder = { ...order, ...patch };
+        updatedOrder = { ...order, ...safePatch };
         return updatedOrder;
       });
       saveState();
@@ -33979,29 +34022,22 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         if ($("tabDetailStatus")) $("tabDetailStatus").value = isRunningOrder(order.status) ? "Em execucao" : isClosedOrder(order.status) ? "Concluida" : order.status || "Aberta";
         const save = $("saveDetailsTab");
         if (save) save.addEventListener("click", () => {
-          const current = byId(state.orders, orderId) || {};
-          const now = Date.now();
-          const status = $("tabDetailStatus").value;
           const patch = {
             plan: value("tabDetailPlan"),
             category: value("tabDetailCategory"),
             type: $("tabDetailType").value,
             maintenance: $("tabDetailMaintenance").value,
             priority: $("tabDetailPriority").value,
-            status,
             scheduledAt: $("tabDetailScheduled").value,
             durationHours: $("tabDetailHours").value,
             pendingExecution: $("tabDetailPending").checked,
-            machineStopped: $("tabDetailStopped").checked,
-            startedAt: isRunningOrder(status) ? (current.startedAt || now) : current.startedAt || null,
-            finishedAt: isClosedOrder(status) ? (current.finishedAt || now) : current.finishedAt || null
+            machineStopped: $("tabDetailStopped").checked
           };
           updateOrderExtras(orderId, patch);
           if ($("detailPlan")) $("detailPlan").value = patch.plan;
           if ($("detailType")) $("detailType").value = patch.type;
           if ($("detailMaintenance")) $("detailMaintenance").value = patch.maintenance;
           if ($("detailPriority")) $("detailPriority").value = patch.priority;
-          if ($("detailStatus")) $("detailStatus").value = patch.status;
           if ($("detailScheduled")) $("detailScheduled").value = patch.scheduledAt;
           if ($("detailHours")) $("detailHours").value = patch.durationHours;
           if ($("detailPending")) $("detailPending").checked = patch.pendingExecution;
@@ -34272,7 +34308,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             <label>Tipo de Serviço</label><select class="field detail-span" id="detailType"><option>Corretiva</option><option>Preventiva</option><option value="Inspecao">Inspeção</option><option value="Eletrica">Elétrica</option><option value="Mecanica">Mecânica</option></select>
             <label>Tipo de Manutenção</label><select class="field detail-span" id="detailMaintenance"><option>Preventiva</option><option>Corretiva</option><option>Preditiva</option><option>Melhoria</option></select>
             <label>Prioridade</label><select class="field detail-span" id="detailPriority"><option>Baixa</option><option value="Media">Média</option><option>Alta</option></select>
-            <label>Status</label><select class="field detail-span" id="detailStatus"><option>Aberta</option><option>Planejada</option><option value="Em execucao">Em execução</option><option value="Concluida">Concluída</option></select>
+            <label>Status</label><select class="field detail-span" id="detailStatus" disabled><option>Aberta</option><option>Planejada</option><option value="Em execucao">Em execução</option><option value="Aguardando material">Aguardando material</option><option value="Pausada">Pausada</option><option value="Concluida">Concluída</option><option value="Cancelada">Cancelada</option></select>
             <label>Data/Hora Programada</label><input class="field detail-span" id="detailScheduled" value="${order.scheduledAt || ""}" placeholder="dd/mm/aaaa --:--">
             <label>Duração estimada</label><div class="detail-span detail-two"><input class="field" id="detailDays" type="number" min="0" value="${order.durationDays || 0}"><input class="field" id="detailHours" value="${order.durationHours || "01:00"}" placeholder="01:00 hrs"></div>
             <label>Executante</label><input class="field detail-span" id="detailExecutor" value="${order.executor || ""}" placeholder="Nome do executante">
@@ -34311,7 +34347,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         event.preventDefault();
         if (event.submitter) event.submitter.disabled = true;
         const now = Date.now();
-        const status = $("detailStatus").value;
         let updatedOrder = null;
         const previousStatus = order.status || "Aberta";
         state.orders = state.orders.map(item => {
@@ -34322,7 +34357,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             type: $("detailType").value,
             maintenance: $("detailMaintenance").value,
             priority: $("detailPriority").value,
-            status,
+            status: item.status || "Aberta",
             scheduledAt: $("detailScheduled").value,
             durationDays: $("detailDays").value,
             durationHours: $("detailHours").value,
@@ -34333,8 +34368,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             description: item.description || "",
             pendingExecution: $("detailPending").checked,
             machineStopped: $("detailStopped").checked,
-            startedAt: isRunningOrder(status) ? (item.startedAt || now) : item.startedAt || null,
-            finishedAt: isClosedOrder(status) ? (item.finishedAt || now) : item.finishedAt || null
+            startedAt: item.startedAt || null,
+            finishedAt: item.finishedAt || null
           };
           return updatedOrder;
         });
@@ -35640,24 +35675,21 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         showToast("O.S concluída não pode ser iniciada novamente.");
         return;
       }
-      let updatedOrder = null;
-      state.orders = state.orders.map(order => order.id === id ? {
-        ...order,
-        executor: executorName || order.executor || "",
-        status: "Em execucao",
-        startedAt: order.startedAt || now
-      } : order);
-      updatedOrder = byId(state.orders, id);
-      saveState();
-      const remoteSaved = await saveOrderSupabaseNow(updatedOrder);
-      if (remoteSaved) {
-        await saveOrderEventSupabase(updatedOrder, "INICIADA", { data_inicio: new Date(updatedOrder.startedAt).toISOString() });
+      if (mobileOrderActionLocks.has(id)) return;
+      mobileOrderActionLocks.add(id);
+      try {
+        await gmTransitionWorkOrder(id, "Em execução", {
+          executor:executorName || current.executor || "",
+          startedAt:gmOrderTimeMs(current.startedAt, now)
+        });
+        render();
+        showToast("O.S. iniciada e registrada no histórico.");
+      } catch (error) {
+        stage21TechnicalLog("error", "orders.start", error);
+        showToast(gmOrderTransitionErrorMessage(error), "error");
+      } finally {
+        setTimeout(() => mobileOrderActionLocks.delete(id), 800);
       }
-      render();
-      showToast(remoteSaved
-        ? "O.S iniciada e salva no banco de dados."
-        : "O.S iniciada localmente. Sincronização pendente."
-      );
     }
     function finishOrder(id) {
       if (!namedOperationAllowed("finishOrder", "orders", "operate", [id])) return denyProfileAccess();
@@ -35670,10 +35702,52 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       openSimpleFinishOrderModal(id);
     }
     function localDateTimeValue(value=Date.now()) { const date=new Date(value); const pad=n=>String(n).padStart(2,"0"); return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`; }
+    function gmOrderTimeMs(value, fallback = 0) {
+      const numeric = Number(value);
+      if (Number.isFinite(numeric) && numeric > 0) return numeric;
+      if (value !== null && value !== undefined && String(value).trim()) {
+        const parsed = new Date(value).getTime();
+        if (Number.isFinite(parsed) && parsed > 0) return parsed;
+      }
+      return fallback;
+    }
     function openSimpleFinishOrderModal(id) {
       const order=byId(state.orders,id); if(!order||isClosedOrder(order.status))return;
       openModal("Concluir O.S.",`<form class="form" id="simpleFinishForm"><div class="full side-box"><strong>${escapeHtml(order.number||"O.S.")}</strong><span>${escapeHtml(machineName(order.assetId))}</span></div><label class="full">Solução ou serviço realizado * <textarea class="field" id="simpleFinishSolution" required placeholder="Descreva objetivamente o serviço executado">${escapeHtml(order.comment||"")}</textarea></label><label>Data e hora da conclusão * <input class="field" id="simpleFinishAt" type="datetime-local" required value="${localDateTimeValue()}"></label><label>Responsável pela execução * <input class="field" id="simpleFinishExecutor" required value="${escapeHtml(order.executor||"")}"></label><details class="os-quick-details"><summary>Adicionar mais informações</summary><div><label>Tempo trabalhado (h) <input class="field" id="simpleFinishHours" type="number" min="0" step="0.1"></label><label>Anexos <input class="field" id="simpleFinishFiles" type="file" multiple accept=".png,.jpg,.jpeg,.webp,.pdf,.txt,.csv,.doc,.docx,.xls,.xlsx"></label><label class="full"><input type="checkbox" id="simpleFinishPending" ${order.pendingExecution?"checked":""}> Manter pendência de execução</label></div></details><div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Concluir serviço</button></div></form>`,true);
-      $("simpleFinishForm").addEventListener("submit",async event=>{event.preventDefault();const solution=value("simpleFinishSolution"),executor=value("simpleFinishExecutor"),finishedAt=new Date($("simpleFinishAt").value).getTime(),started=Number(order.startedAt||order.createdAt||finishedAt);if(!solution||!executor||!Number.isFinite(finishedAt)){showToast("Informe o serviço realizado, a conclusão e o responsável.");return;}if(finishedAt<started){showToast("A conclusão não pode ser anterior ao início da O.S.","warning");return;}const selectedFiles=Array.from($("simpleFinishFiles").files||[]),attachmentRules={maxBytes:4*1024*1024,types:["image/png","image/jpeg","image/webp","application/pdf","text/plain","text/csv","application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/vnd.ms-excel","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],extensions:["png","jpg","jpeg","webp","pdf","txt","csv","doc","docx","xls","xlsx"]},invalid=selectedFiles.map(file=>({file,issue:stage21AllowedFile(file,attachmentRules)})).find(item=>item.issue);if(invalid)return showToast(`${invalid.file.name}: ${invalid.issue}`,"warning");const button=event.submitter,previousOrders=state.orders;if(button)button.disabled=true;try{const files=await Promise.all(selectedFiles.map(async file=>({id:uid("file"),name:file.name,type:file.type||"",size:file.size,createdAt:Date.now(),dataUrl:await readAssetFile(file)}))),updated={...order,comment:solution,executor,finishedAt,status:"Concluida",mttr:Number(((finishedAt-started)/36e5).toFixed(1)),workedHours:Number($("simpleFinishHours").value||0),pendingExecution:$("simpleFinishPending").checked,attachments:(order.attachments||[]).concat(files)};state.orders=state.orders.map(item=>item.id===id?updated:item);saveState();const remoteSaved=await saveOrderSupabaseNow(updated);if(remoteSaved)await saveOrderEventSupabase(updated,"FINALIZADA",{data_finalizacao:new Date(finishedAt).toISOString()});closeModal();render();showToast("O.S. concluída com sucesso.");}catch(error){state.orders=previousOrders;if(button)button.disabled=false;showToast("Não foi possível concluir a O.S. Os dados anteriores foram preservados.","error");}});
+      $("simpleFinishForm").addEventListener("submit", async event => {
+        event.preventDefault();
+        const solution = value("simpleFinishSolution");
+        const executor = value("simpleFinishExecutor");
+        const finishedAt = new Date($("simpleFinishAt").value).getTime();
+        const started = gmOrderTimeMs(order.startedAt, gmOrderTimeMs(order.createdAt, finishedAt));
+        if (!solution || !executor || !Number.isFinite(finishedAt)) return showToast("Informe o serviço realizado, a conclusão e o responsável.");
+        if (finishedAt < started) return showToast("A conclusão não pode ser anterior ao início da O.S.", "warning");
+        const selectedFiles = Array.from($("simpleFinishFiles").files || []);
+        const attachmentRules = { maxBytes:4*1024*1024, types:["image/png","image/jpeg","image/webp","application/pdf","text/plain","text/csv","application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/vnd.ms-excel","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"], extensions:["png","jpg","jpeg","webp","pdf","txt","csv","doc","docx","xls","xlsx"] };
+        const invalid = selectedFiles.map(file => ({ file, issue:stage21AllowedFile(file, attachmentRules) })).find(item => item.issue);
+        if (invalid) return showToast(`${invalid.file.name}: ${invalid.issue}`, "warning");
+        const button = event.submitter;
+        if (button) button.disabled = true;
+        try {
+          const files = await Promise.all(selectedFiles.map(async file => ({ id:uid("file"), name:file.name, type:file.type || "", size:file.size, createdAt:Date.now(), dataUrl:await readAssetFile(file) })));
+          await gmTransitionWorkOrder(id, "Concluída", {
+            comment:solution,
+            executor,
+            finishedAt,
+            mttr:Number(((finishedAt - started) / 36e5).toFixed(1)),
+            workedHours:Number($("simpleFinishHours").value || 0),
+            pendingExecution:$("simpleFinishPending").checked,
+            attachments:(order.attachments || []).concat(files)
+          });
+          closeModal();
+          render();
+          showToast("O.S. concluída com sucesso e registrada no histórico.");
+        } catch (error) {
+          if (button) button.disabled = false;
+          stage21TechnicalLog("error", "orders.finish", error);
+          showToast(gmOrderTransitionErrorMessage(error), "error");
+        }
+      });
     }
     function openFinishOrderModal(id) {
       const order = byId(state.orders, id);
@@ -35748,43 +35822,40 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     async function confirmFinishOrder(id) {
       if (!namedOperationAllowed("confirmFinishOrder", "orders", "operate", [id])) return denyProfileAccess();
       const now = Date.now();
-      let updatedOrder = null;
-      state.orders = state.orders.map(order => {
-        if (order.id !== id) return order;
-        const startedAt = Number(order.startedAt || order.createdAt || now);
-        const calculatedMttr = Math.max(0.1, (now - startedAt) / 36e5);
-        updatedOrder = {
-          ...order,
-          plan: $("finishPlan").value,
-          type: $("finishType").value,
-          maintenance: $("finishMaintenance").value,
-          priority: $("finishPriority").value,
-          scheduledAt: $("finishScheduled").value,
-          durationDays: $("finishDays").value,
-          durationHours: $("finishHours").value,
-          executor: $("finishExecutor").value,
-          executors: $("finishExecutors").value,
-          comment: $("finishComment").value,
-          description: order.description || "",
-          pendingExecution: $("finishPending").checked,
-          machineStopped: $("finishStopped").checked,
-          status: "Concluida",
-          finishedAt: now,
-          mttr: Number(calculatedMttr.toFixed(1))
-        };
-        return updatedOrder;
-      });
-      saveState();
-      const remoteSaved = await saveOrderSupabaseNow(updatedOrder);
-      if (remoteSaved) {
-        await saveOrderEventSupabase(updatedOrder, "FINALIZADA", { data_finalizacao: new Date(updatedOrder.finishedAt).toISOString() });
+      const order = byId(state.orders, id);
+      if (!order) return;
+      const startedAt = gmOrderTimeMs(order.startedAt, gmOrderTimeMs(order.createdAt, now));
+      const comment = $("finishComment").value.trim();
+      const executor = $("finishExecutor").value.trim();
+      if (!comment || !executor) {
+        showToast("Informe o serviço realizado e o executante.", "warning");
+        return;
       }
-      closeModal();
-      render();
-      showToast(remoteSaved
-        ? "O.S finalizada e salva no banco de dados."
-        : "O.S finalizada localmente. Sincronização pendente."
-      );
+      try {
+        await gmTransitionWorkOrder(id, "Concluída", {
+          plan:$("finishPlan").value,
+          type:$("finishType").value,
+          maintenance:$("finishMaintenance").value,
+          priority:$("finishPriority").value,
+          scheduledAt:$("finishScheduled").value,
+          durationDays:$("finishDays").value,
+          durationHours:$("finishHours").value,
+          executor,
+          executors:$("finishExecutors").value,
+          comment,
+          description:order.description || "",
+          pendingExecution:$("finishPending").checked,
+          machineStopped:$("finishStopped").checked,
+          finishedAt:now,
+          mttr:Number(Math.max(0.1, (now - startedAt) / 36e5).toFixed(1))
+        });
+        closeModal();
+        render();
+        showToast("O.S. finalizada e registrada no histórico.");
+      } catch (error) {
+        stage21TechnicalLog("error", "orders.finish.detail", error);
+        showToast(gmOrderTransitionErrorMessage(error), "error");
+      }
     }
     function editChecklist(id) {
       if (!namedOperationAllowed("editChecklist", "checklists", "manage", [id])) return denyProfileAccess();
@@ -37363,6 +37434,62 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       await gmLoadOperationalUsers(false);
       notifyOsPanelUpdate();
       return true;
+    }
+    function gmCanonicalOrderStatus(status = "") {
+      const key = statusKey(status);
+      if (key === "planejada" || key === "planejado") return "Planejada";
+      if (key === "aberta" || key === "aberto") return "Aberta";
+      if (key.startsWith("em exec") || key === "em andamento") return "Em execução";
+      if (key === "aguardando material") return "Aguardando material";
+      if (key.startsWith("paus")) return "Pausada";
+      if (key.startsWith("conclu") || key.startsWith("finaliz")) return "Concluída";
+      if (key.startsWith("cancel")) return "Cancelada";
+      return "";
+    }
+    function gmOrderTransitionErrorMessage(error) {
+      const message = String(error?.message || error || "");
+      if (message.includes("GM_ORDER_TRANSITION_INVALID")) return "Esta mudança de status não é permitida para a etapa atual da O.S.";
+      if (message.includes("GM_ORDER_TRANSITION_REASON_REQUIRED")) return "Informe o motivo desta mudança de status.";
+      if (message.includes("GM_ORDER_EXECUTOR_REQUIRED")) return "Informe o executante responsável pela O.S.";
+      if (message.includes("GM_ORDER_COMPLETION_REQUIRED")) return "Descreva o serviço realizado antes de concluir a O.S.";
+      if (message.includes("GM_ORDER_INTERVAL_INVALID")) return "A conclusão não pode ser anterior ao início da O.S.";
+      if (message.includes("GM_ORDER_START_REQUIRED")) return "A O.S. precisa ser iniciada antes da conclusão.";
+      if (message.includes("GM_ORDER_TRANSITION_RPC_REQUIRED")) return "O status da O.S. deve ser alterado pelos botões operacionais.";
+      if (message.includes("GM_STATE_CONFLICT")) return "A O.S. foi alterada em outro dispositivo. Reabra e tente novamente.";
+      if (message.includes("GM_PERMISSION_DENIED")) return "Seu perfil não pode executar esta mudança na O.S.";
+      return "Não foi possível alterar o status da O.S. Os dados anteriores foram preservados.";
+    }
+    async function gmTransitionWorkOrder(orderId, toStatus, patch = {}, reason = "") {
+      const current = byId(state.orders, orderId);
+      if (!current) throw new Error("GM_ORDER_NOT_FOUND");
+      clearTimeout(gmRemoteSaveTimer);
+      gmRemoteSaveTimer = null;
+      await gmRemoteSavePromise;
+      if (gmStateDirty && !await gmPersistState(false)) throw new Error("GM_STATE_CONFLICT");
+      const previousOrders = JSON.parse(JSON.stringify(state.orders || []));
+      const rows = await gmRpc("gm_transition_work_order", {
+        p_expected_version:gmRemoteStateVersion,
+        p_order_id:orderId,
+        p_to_status:gmCanonicalOrderStatus(toStatus) || toStatus,
+        p_patch:patch && typeof patch === "object" ? patch : {},
+        p_reason:String(reason || "").trim() || null,
+        p_request_id:uid("order-transition")
+      });
+      const result = Array.isArray(rows) ? rows[0] : rows;
+      if (!result?.order_data) throw new Error("GM_ORDER_TRANSITION_EMPTY");
+      state.orders = state.orders.map(order => order.id === orderId ? result.order_data : order);
+      gmRemoteStateVersion = Number(result.version ?? gmRemoteStateVersion + 1);
+      gmRemoteStateUpdatedAt = result.updated_at || new Date().toISOString();
+      gmRemoteLastSavedState = normalizeState(JSON.parse(JSON.stringify(state)));
+      gmSyncConflict = null;
+      gmStateDirty = false;
+      hasPendingLocalSync = false;
+      hasSessionLocalChange = false;
+      gmInvalidateMaintenanceMetrics();
+      gmScheduleMaintenanceMetricsRender();
+      notifyOsPanelUpdate();
+      dispatchWhatsAppOrderEvents(previousOrders, state.orders);
+      return result.order_data;
     }
     async function gmLoadContext() {
       const rows = await gmRpc("gm_current_context", {});
