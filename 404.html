@@ -24981,6 +24981,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       authStore.users = authStore.users.filter(user => user.companyId !== companyId).concat(users);
       saveAuthStore(authStore);
       currentAccount = resolveCurrentAccount(authStore);
+      await gmLoadOperationalUsers(false);
       return users;
     }
     function renderUsers() {
@@ -25024,6 +25025,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         await gmAuthenticatedFunction("manage-company-user", { action:"set_active", user_id:id, active:nextActive });
         authStore.users = authStore.users.map(item => item.id === id ? { ...item, active:nextActive } : item);
         saveAuthStore(authStore);
+        await gmLoadOperationalUsers(false);
         stage21WriteAudit({ module:"Usuários e Permissões", action:nextActive ? "Acesso empresarial restaurado" : "Acesso empresarial removido", record:user.username || user.email, before, after:{ ...before, active:nextActive }, result:"Sucesso", origin:"Administração" });
         await openProfileModal("users");
         showToast(nextActive ? "Acesso a esta empresa restaurado." : "Acesso removido somente desta empresa. O perfil global e o histórico foram preservados.");
@@ -31915,7 +31917,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function stage19Profile(){return accessProfileForUser(currentAccount?.user||{});}
     function stage19CanManage(){return isAdminUser()||stage19Profile()==="supervisor";}
     function stage19CurrentUserName(){return currentAccount?.user?.name||state.profile?.name||"Usuário";}
-    function stage19CurrentResource(){const user=currentAccount?.user||{};return state.resources.find(r=>r.userId&&r.userId===user.id)||state.resources.find(r=>normalizeTextKey(r.email)===normalizeTextKey(user.email)||normalizeTextKey(r.name)===normalizeTextKey(user.name));}
+    function stage19CurrentResource(){const userId=currentAccount?.user?.id||"";return state.resources.find(resource=>gmResourceUserId(resource)===userId);}
     function stage19CanEditResource(resource){return stage19CanManage()||Boolean(resource&&stage19Profile()==="technician"&&stage19CurrentResource()?.id===resource.id);}
     function stage19History(record,action,detail=""){return [...(Array.isArray(record?.history)?record.history:[]),{id:uid("stage19_history"),at:Date.now(),user:stage19CurrentUserName(),action,detail}];}
     function stage19Date(value){if(!value)return null;const raw=String(value),date=new Date(raw.length===10?`${raw}T08:00:00`:raw);return Number.isNaN(date.getTime())?null:date;}
@@ -31941,7 +31943,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function stage19Tone(value){const key=normalizeTextKey(value);if(key.includes("disponivel")||key.includes("conclu")||key==="ativa"||key==="ativo")return"green";if(key.includes("alocado")||key.includes("planej")||key.includes("aberta"))return"blue";if(key.includes("exec")||key.includes("atenc")||key.includes("proxima"))return"orange";if(key.includes("atras")||key.includes("inativo")||key.includes("indispon")||key.includes("ausente")||key.includes("cancel"))return key.includes("inativo")?"gray":"red";if(key.includes("prevent"))return"purple";return"gray";}
     function stage19Chip(label,tone=stage19Tone(label)){return `<span class="stage19-chip ${tone}">${escapeHtml(label||"—")}</span>`;}
     function stage19OrderLabel(order){return `${order.number||"O.S."} · ${order.description||order.title||order.maintenance||"Atividade"}`;}
-    function stage19UserOptions(selected=""){const companyId=currentAccount?.company?.id,users=(authStore.users||[]).filter(user=>!companyId||user.companyId===companyId);return users.map(user=>`<option value="${user.id}" ${selected===user.id?"selected":""}>${escapeHtml(user.name||user.email||"Usuário")} · ${escapeHtml(user.email||"")}</option>`).join("");}
+    function stage19UserOptions(selected=""){return gmOperationalDirectoryUsers().filter(user=>user.active||selected===user.userId).map(user=>`<option value="${user.userId}" ${selected===user.userId?"selected":""}>${escapeHtml(user.name||user.username||"Usuário")} · ${escapeHtml(user.username||user.email||"")}${user.active?"":" · acesso inativo"}</option>`).join("");}
     function stage19SpecialtyOptions(selected=""){return STAGE19_SPECIALTIES.map(item=>`<option value="${item}" ${selected===item?"selected":""}>${item}</option>`).join("");}
     function stage19PositionMenu(details){const menu=details?.querySelector(":scope > div"),trigger=details?.querySelector("summary");if(!menu||!trigger)return;if(!details.open){["position","left","right","top","bottom","z-index","visibility","max-width","box-sizing"].forEach(property=>menu.style.removeProperty(property));return;}document.querySelectorAll(".stage19-menu[open]").forEach(other=>{if(other!==details)other.open=false;});menu.style.position="fixed";menu.style.left="0";menu.style.right="auto";menu.style.top="0";menu.style.bottom="auto";menu.style.zIndex="220";menu.style.maxWidth="calc(100vw - 16px)";menu.style.boxSizing="border-box";menu.style.visibility="hidden";requestAnimationFrame(()=>{if(!details.open)return;const anchor=trigger.getBoundingClientRect(),box=menu.getBoundingClientRect(),edge=8,gap=4;const left=Math.max(edge,Math.min(anchor.right-box.width,innerWidth-box.width-edge));let top=anchor.bottom+gap;if(top+box.height>innerHeight-edge)top=Math.max(edge,anchor.top-box.height-gap);menu.style.left=`${Math.round(left)}px`;menu.style.top=`${Math.round(top)}px`;menu.style.visibility="visible";});}
     function stage19TeamMenu(team){return `<details class="stage19-menu" onclick="event.stopPropagation()" ontoggle="stage19PositionMenu(this)"><summary>⋮</summary><div><button onclick="stage19OpenTeam('${team.id}')">Ver detalhes</button>${stage19CanManage()?`<button onclick="stage19OpenTeamForm('${team.id}')">Editar</button><button onclick="stage19OpenMembers('${team.id}')">Gerenciar membros</button><button onclick="stage19OpenAssignment('', '${team.id}')">Atribuir O.S.</button><button onclick="stage19OpenTeam('${team.id}','agenda')">Ver agenda</button><button onclick="stage19ToggleTeam('${team.id}')">${team.status==="Inativa"?"Reativar":"Inativar"}</button>`:""}</div></details>`;}
@@ -31963,9 +31965,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       $("stage19TeamForm").addEventListener("submit",event=>{event.preventDefault();const key=`team:${id||"new"}`;if(stage19Locks.has(key))return;const name=value("stage19TeamName"),code=value("stage19TeamCode")||`EQ-${String(state.teams.length+1).padStart(3,"0")}`;if(!name)return showToast("Informe o nome da equipe.","warning");if(state.teams.some(t=>t.id!==id&&normalizeTextKey(t.code)===normalizeTextKey(code)))return showToast("Já existe equipe com este código.","warning");stage19Locks.add(key);try{const now=Date.now(),record={...team,id:id||uid("team"),name,code,specialty:value("stage19TeamSpecialty")||"Multidisciplinar",leaderId:$("stage19TeamLeader").value,unit:value("stage19TeamUnit"),areaId:$("stage19TeamArea").value,schedule:value("stage19TeamSchedule"),status:$("stage19TeamStatus").value,description:value("stage19TeamDescription"),note:value("stage19TeamNote"),memberIds:team.memberIds||[],members:team.members||[],createdAt:team.createdAt||now,updatedAt:now,history:stage19History(team,id?"Equipe atualizada":"Equipe criada",`${code} · ${name}`)};state.teams=state.teams.filter(t=>t.id!==record.id).concat(record);saveState();closeModal();render();stage19OpenTeam(record.id);showToast(id?"Equipe atualizada.":"Equipe cadastrada.");}finally{setTimeout(()=>stage19Locks.delete(key),500);}});
     }
     function stage19OpenResourceForm(id=""){
-      if(!stage19CanManage())return denyProfileAccess();const resource=byId(state.resources,id)||{},resourceType=resource.resourceType||(resource.userId?"Usuário interno":normalizeTextKey(resource.type).includes("terce")?"Prestador externo":"Recurso genérico"),primaryTeam=stage19ResourcePrimaryTeam(resource);openModal(id?"Editar recurso":"Adicionar Recurso",`<form id="stage19ResourceForm" class="stage19-form"><label>Tipo *<select class="field" id="stage19ResourceType"><option ${resourceType==="Usuário interno"?"selected":""}>Usuário interno</option><option ${resourceType==="Prestador externo"?"selected":""}>Prestador externo</option><option ${resourceType==="Recurso genérico"?"selected":""}>Recurso genérico</option></select></label><label>Usuário existente<select class="field" id="stage19ResourceUser"><option value="">Selecione quando interno</option>${stage19UserOptions(resource.userId)}</select></label><label class="full">Nome *<input class="field" id="stage19ResourceName" value="${escapeHtml(resource.name||"")}" placeholder="Obrigatório para prestador ou recurso genérico"></label><label>Equipe principal<select class="field" id="stage19ResourceTeam"><option value="">Sem equipe principal</option>${state.teams.filter(t=>t.status!=="Inativa"||t.id===primaryTeam?.id).map(t=>`<option value="${t.id}" ${primaryTeam?.id===t.id?"selected":""}>${escapeHtml(t.name)}</option>`).join("")}</select></label><label>Especialidade<input class="field" id="stage19ResourceSpecialty" list="stage19ResourceSpecialties" value="${escapeHtml(resource.specialty||"")}"><datalist id="stage19ResourceSpecialties">${stage19SpecialtyOptions()}</datalist></label><label>Capacidade diária estimada<input class="field" id="stage19ResourceCapacity" type="number" min="0" step="0.5" value="${Number(resource.availability?.dailyCapacity||resource.dailyCapacity||0)||""}" placeholder="Horas"></label><label>Status<select class="field" id="stage19ResourceStatus">${STAGE19_RESOURCE_STATUSES.map(s=>`<option ${stage19ResourceStatus(resource||{})===s?"selected":""}>${s}</option>`).join("")}</select></label><details><summary>Mais detalhes</summary><div><label>Código<input class="field" id="stage19ResourceCode" value="${escapeHtml(resource.code||"")}" placeholder="Gerado automaticamente"></label><label>Unidade<input class="field" id="stage19ResourceUnit" value="${escapeHtml(resource.unit||"Unidade Industrial 01")}"></label><label>Empresa<input class="field" id="stage19ResourceCompany" value="${escapeHtml(resource.company||"")}"></label><label>Telefone<input class="field" id="stage19ResourcePhone" value="${escapeHtml(resource.phone||"")}"></label><label>E-mail<input class="field" id="stage19ResourceEmail" type="email" value="${escapeHtml(resource.email||"")}"></label><label>Disponível desde<input class="field" id="stage19ResourceAvailableFrom" type="date" value="${escapeHtml(resource.availableFrom||"")}"></label><label>Disponível até<input class="field" id="stage19ResourceAvailableUntil" type="date" value="${escapeHtml(resource.availableUntil||"")}"></label><label class="full">Observação<textarea class="field" id="stage19ResourceNote">${escapeHtml(resource.notes||resource.note||"")}</textarea></label></div></details><div class="full stage19-note">Usuários internos são vinculados ao cadastro existente. Nenhuma conta ou permissão é criada para prestadores externos.</div><div class="full toolbar"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Salvar Recurso</button></div></form>`,true);
-      const syncUser=()=>{const user=byId(authStore.users,$("stage19ResourceUser").value);if(user&&$("stage19ResourceType").value==="Usuário interno"){$("stage19ResourceName").value=user.name||"";$("stage19ResourceEmail").value=user.email||"";}};$("stage19ResourceUser").addEventListener("change",syncUser);$("stage19ResourceType").addEventListener("change",syncUser);
-      $("stage19ResourceForm").addEventListener("submit",event=>{event.preventDefault();const key=`resource:${id||"new"}`;if(stage19Locks.has(key))return;const type=$("stage19ResourceType").value,userId=$("stage19ResourceUser").value,user=byId(authStore.users,userId),name=type==="Usuário interno"?String(user?.name||"").trim():value("stage19ResourceName"),email=type==="Usuário interno"?String(user?.email||"").trim():value("stage19ResourceEmail");if(type==="Usuário interno"&&!user)return showToast("Selecione um usuário existente.","warning");if(!name)return showToast("Informe o nome do recurso.","warning");if(userId&&state.resources.some(r=>r.id!==id&&r.userId===userId))return showToast("Este usuário já está vinculado a um recurso.","warning");const from=$("stage19ResourceAvailableFrom").value,until=$("stage19ResourceAvailableUntil").value;if(from&&until&&until<from)return showToast("O período de disponibilidade é inválido.","warning");stage19Locks.add(key);try{const now=Date.now(),teamId=$("stage19ResourceTeam").value,code=value("stage19ResourceCode")||`REC-${String(state.resources.length+1).padStart(3,"0")}`,availability={...(resource.availability||{}),dailyCapacity:Number($("stage19ResourceCapacity").value||0)},record={...resource,id:id||uid("resource"),code,name,resourceType:type,type:type==="Prestador externo"?"Terceirizado":type==="Usuário interno"?"Técnico":"Outro",userId:type==="Usuário interno"?userId:"",teamId,specialty:value("stage19ResourceSpecialty"),unit:value("stage19ResourceUnit"),company:value("stage19ResourceCompany"),phone:value("stage19ResourcePhone"),email,availableFrom:from,availableUntil:until,status:$("stage19ResourceStatus").value,availability,unavailabilities:resource.unavailabilities||[],notes:value("stage19ResourceNote"),createdAt:resource.createdAt||now,updatedAt:now,history:stage19History(resource,id?"Recurso atualizado":"Recurso vinculado",`${code} · ${name}`)};state.resources=state.resources.filter(r=>r.id!==record.id).concat(record);if(teamId){state.teams=state.teams.map(team=>{if(team.id!==teamId)return team;const members=stage19TeamMembers(team);if(members.some(m=>m.resourceId===record.id&&m.status!=="Inativo"))return team;const member={id:uid("team_member"),resourceId:record.id,role:"Técnico",startAt:new Date().toISOString().slice(0,10),endAt:"",status:"Ativo",primary:false,note:"Incluído pelo vínculo do recurso"};return {...team,members:members.concat(member),memberIds:[...new Set([...(team.memberIds||[]),record.id])],updatedAt:now,history:stage19History(team,"Membro adicionado",record.name)};});}saveState();closeModal();render();stage19OpenResource(record.id);showToast(id?"Recurso atualizado.":"Recurso vinculado.");}finally{setTimeout(()=>stage19Locks.delete(key),500);}});
+      if(!stage19CanManage())return denyProfileAccess();const resource=byId(state.resources,id)||{},linkedUserId=gmResourceUserId(resource),resourceType=resource.resourceType||(linkedUserId?"Usuário interno":normalizeTextKey(resource.type).includes("terce")?"Prestador externo":"Recurso genérico"),primaryTeam=stage19ResourcePrimaryTeam(resource);openModal(id?"Editar recurso":"Adicionar Recurso",`<form id="stage19ResourceForm" class="stage19-form"><label>Tipo *<select class="field" id="stage19ResourceType"><option ${resourceType==="Usuário interno"?"selected":""}>Usuário interno</option><option ${resourceType==="Prestador externo"?"selected":""}>Prestador externo</option><option ${resourceType==="Recurso genérico"?"selected":""}>Recurso genérico</option></select></label><label>Usuário existente<select class="field" id="stage19ResourceUser"><option value="">Selecione quando interno</option>${stage19UserOptions(linkedUserId)}</select></label><label class="full">Nome *<input class="field" id="stage19ResourceName" value="${escapeHtml(resource.name||"")}" placeholder="Obrigatório para prestador ou recurso genérico"></label><label>Equipe principal<select class="field" id="stage19ResourceTeam"><option value="">Sem equipe principal</option>${state.teams.filter(t=>t.status!=="Inativa"||t.id===primaryTeam?.id).map(t=>`<option value="${t.id}" ${primaryTeam?.id===t.id?"selected":""}>${escapeHtml(t.name)}</option>`).join("")}</select></label><label>Especialidade<input class="field" id="stage19ResourceSpecialty" list="stage19ResourceSpecialties" value="${escapeHtml(resource.specialty||"")}"><datalist id="stage19ResourceSpecialties">${stage19SpecialtyOptions()}</datalist></label><label>Capacidade diária estimada<input class="field" id="stage19ResourceCapacity" type="number" min="0" step="0.5" value="${Number(resource.availability?.dailyCapacity||resource.dailyCapacity||0)||""}" placeholder="Horas"></label><label>Status<select class="field" id="stage19ResourceStatus">${STAGE19_RESOURCE_STATUSES.map(s=>`<option ${stage19ResourceStatus(resource||{})===s?"selected":""}>${s}</option>`).join("")}</select></label><details><summary>Mais detalhes</summary><div><label>Código<input class="field" id="stage19ResourceCode" value="${escapeHtml(resource.code||"")}" placeholder="Gerado automaticamente"></label><label>Unidade<input class="field" id="stage19ResourceUnit" value="${escapeHtml(resource.unit||"Unidade Industrial 01")}"></label><label>Empresa<input class="field" id="stage19ResourceCompany" value="${escapeHtml(resource.company||"")}"></label><label>Telefone<input class="field" id="stage19ResourcePhone" value="${escapeHtml(resource.phone||"")}"></label><label>E-mail<input class="field" id="stage19ResourceEmail" type="email" value="${escapeHtml(resource.email||"")}"></label><label>Disponível desde<input class="field" id="stage19ResourceAvailableFrom" type="date" value="${escapeHtml(resource.availableFrom||"")}"></label><label>Disponível até<input class="field" id="stage19ResourceAvailableUntil" type="date" value="${escapeHtml(resource.availableUntil||"")}"></label><label class="full">Observação<textarea class="field" id="stage19ResourceNote">${escapeHtml(resource.notes||resource.note||"")}</textarea></label></div></details><div class="full stage19-note">Usuários internos são vinculados ao cadastro existente. Nenhuma conta ou permissão é criada para prestadores externos.</div><div class="full toolbar"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Salvar Recurso</button></div></form>`,true);
+      const syncUser=()=>{const user=gmOperationalUserById($("stage19ResourceUser").value);if(user&&$("stage19ResourceType").value==="Usuário interno"){$("stage19ResourceName").value=user.name||"";$("stage19ResourceEmail").value=user.email||"";}};$("stage19ResourceUser").addEventListener("change",syncUser);$("stage19ResourceType").addEventListener("change",syncUser);
+      $("stage19ResourceForm").addEventListener("submit",async event=>{event.preventDefault();const key=`resource:${id||"new"}`;if(stage19Locks.has(key))return;const type=$("stage19ResourceType").value,userId=$("stage19ResourceUser").value,user=gmOperationalUserById(userId),name=type==="Usuário interno"?String(user?.name||"").trim():value("stage19ResourceName"),email=type==="Usuário interno"?String(user?.email||"").trim():value("stage19ResourceEmail");if(type==="Usuário interno"&&!user)return showToast("Selecione um usuário existente.","warning");if(!name)return showToast("Informe o nome do recurso.","warning");if(userId&&state.resources.some(r=>r.id!==id&&gmResourceUserId(r)===userId))return showToast("Este usuário já está vinculado a um recurso.","warning");const from=$("stage19ResourceAvailableFrom").value,until=$("stage19ResourceAvailableUntil").value;if(from&&until&&until<from)return showToast("O período de disponibilidade é inválido.","warning");const previousState=JSON.parse(JSON.stringify(state)),previousDirty=gmStateDirty,previousPending=hasPendingLocalSync,previousSessionChange=hasSessionLocalChange;stage19Locks.add(key);try{const now=Date.now(),teamId=$("stage19ResourceTeam").value,code=value("stage19ResourceCode")||`REC-${String(state.resources.length+1).padStart(3,"0")}`,availability={...(resource.availability||{}),dailyCapacity:Number($("stage19ResourceCapacity").value||0)},record={...resource,id:id||uid("resource"),code,name,resourceType:type,type:type==="Prestador externo"?"Terceirizado":type==="Usuário interno"?"Técnico":"Outro",userId:type==="Usuário interno"?userId:"",teamId,specialty:value("stage19ResourceSpecialty"),unit:value("stage19ResourceUnit"),company:value("stage19ResourceCompany"),phone:value("stage19ResourcePhone"),email,availableFrom:from,availableUntil:until,status:$("stage19ResourceStatus").value,availability,unavailabilities:resource.unavailabilities||[],notes:value("stage19ResourceNote"),createdAt:resource.createdAt||now,updatedAt:now,history:stage19History(resource,id?"Recurso atualizado":"Recurso vinculado",`${code} · ${name}`)};state.resources=state.resources.filter(r=>r.id!==record.id).concat(record);if(teamId){state.teams=state.teams.map(team=>{if(team.id!==teamId)return team;const members=stage19TeamMembers(team);if(members.some(m=>m.resourceId===record.id&&m.status!=="Inativo"))return team;const member={id:uid("team_member"),resourceId:record.id,role:"Técnico",startAt:new Date().toISOString().slice(0,10),endAt:"",status:"Ativo",primary:false,note:"Incluído pelo vínculo do recurso"};return {...team,members:members.concat(member),memberIds:[...new Set([...(team.memberIds||[]),record.id])],updatedAt:now,history:stage19History(team,"Membro adicionado",record.name)};});}if(currentAccount?.company?.remoteSync)await gmPersistResourceUserLink(record.id,record.userId);else saveState();closeModal();render();stage19OpenResource(record.id);showToast(id?"Recurso atualizado.":"Recurso vinculado.");}catch(error){state=normalizeState(previousState);gmStateDirty=previousDirty;hasPendingLocalSync=previousPending;hasSessionLocalChange=previousSessionChange;render();showToast(gmResourceLinkErrorMessage(error),"error");}finally{setTimeout(()=>stage19Locks.delete(key),500);}});
     }
     function stage19ToggleTeam(id){if(!stage19CanManage())return denyProfileAccess();const team=byId(state.teams,id);if(!team)return;const next=team.status==="Inativa"?"Ativa":"Inativa",open=stage19TeamOrders(team).filter(o=>!isClosedOrder(o.status)).length;stage17ConfirmAction(`${next} equipe`,next==="Inativa"?`A equipe possui ${open} O.S. aberta(s). Nenhuma atribuição ou histórico será apagado.`:"A equipe voltará a aceitar atribuições.",next,()=>{state.teams=state.teams.map(t=>t.id===id?{...t,status:next,updatedAt:Date.now(),history:stage19History(t,next==="Inativa"?"Equipe inativada":"Equipe reativada",`${open} O.S. preservada(s)`)}:t);saveState();render();});}
     function stage19ToggleResource(id){if(!stage19CanManage())return denyProfileAccess();const resource=byId(state.resources,id);if(!resource)return;const active=stage19ResourceOrders(resource).filter(o=>!isClosedOrder(o.status)),next=resource.status==="Inativo"?"Disponível":"Inativo";stage17ConfirmAction(`${next} recurso`,next==="Inativo"?`Há ${active.length} atividade(s) aberta(s). As atribuições serão preservadas e novas atribuições ficarão bloqueadas.`:"O recurso voltará a aceitar atribuições.",next,()=>{state.resources=state.resources.map(r=>r.id===id?{...r,status:next,updatedAt:Date.now(),history:stage19History(r,next==="Inativo"?"Recurso inativado":"Recurso reativado",`${active.length} atividade(s) preservada(s)`)}:r);saveState();render();});}
@@ -34542,51 +34544,48 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       return unitAllowed && assetAllowed;
     }
     function orderRawExecutorCandidates(includeInactive = false) {
-      const companyId = currentAccount?.company?.id || "";
       const teams = (state.teams || []).filter(team => normalizeTextKey(team.status) !== "inativa");
       const teamIdsFor = resourceId => teams.filter(team => stage19TeamResourceIds(team, true).includes(resourceId)).map(team => team.id);
       const map = new Map();
       (state.resources || []).forEach(resource => {
-        const inactive = normalizeTextKey(resource.status).includes("inativ");
+        const resourceInactive = normalizeTextKey(resource.status).includes("inativ");
+        const linkedUserId = gmResourceUserId(resource);
+        const linkedUser = linkedUserId ? gmOperationalUserById(linkedUserId) : null;
+        const accessInactive = Boolean(linkedUserId && linkedUser && !linkedUser.active);
+        const inactive = resourceInactive || accessInactive;
         if (inactive && !includeInactive) return;
         const teamIds = teamIdsFor(resource.id);
         map.set(resource.id, {
-          id: resource.id,
-          kind: "resource",
-          name: resource.name || resource.code || "Recurso operacional",
-          code: resource.code || "",
-          specialty: resource.specialty || resource.type || "Recurso operacional",
-          unit: resource.unit || "",
-          status: inactive ? "Inativo" : stage19ResourceStatus(resource),
+          id:resource.id,
+          kind:"resource",
+          userId:linkedUserId,
+          name:resource.name || resource.code || "Recurso operacional",
+          code:resource.code || "",
+          specialty:resource.specialty || resource.type || "Recurso operacional",
+          unit:resource.unit || "",
+          status:resourceInactive ? "Inativo" : accessInactive ? "Acesso inativo" : stage19ResourceStatus(resource),
           teamIds,
-          teamNames: teamIds.map(id => byId(teams, id)?.name).filter(Boolean),
-          selectable: !inactive
+          teamNames:teamIds.map(id => byId(teams, id)?.name).filter(Boolean),
+          selectable:!inactive
         });
       });
-      (authStore.users || []).filter(user => (!companyId || user.companyId === companyId) && user.active !== false).forEach(user => {
-        const profile = accessProfileForUser(user);
-        const technicalText = normalizeTextKey(`${user.jobTitle || ""} ${user.specialties || ""}`);
-        const technical = profile === "technician" || user.executor === true || /(tecnic|mecanic|eletric|instrument|automac|manutenc|lubrific|inspec)/.test(technicalText);
-        if (!technical) return;
-        const linked = [...map.values()].find(candidate => {
-          const resource = byId(state.resources, candidate.id) || {};
-          return resource.userId === user.id || (resource.email && normalizeTextKey(resource.email) === normalizeTextKey(user.email)) || normalizeTextKey(candidate.name) === normalizeTextKey(tenantUserDisplayName(user));
-        });
-        if (linked) return;
-        const id = `user:${user.id}`;
-        const teamIds = Array.isArray(user.teamIds) ? user.teamIds.filter(teamId => byId(teams, teamId)) : [];
+      gmOperationalDirectoryUsers().filter(user => user.active).forEach(user => {
+        const technicalText = normalizeTextKey(`${user.jobTitle || ""}`);
+        const technical = user.accessProfile === "technician" || user.executor === true || /(tecnic|mecanic|eletric|instrument|automac|manutenc|lubrific|inspec)/.test(technicalText);
+        if (!technical || (state.resources || []).some(resource => gmResourceUserId(resource) === user.userId)) return;
+        const id = `user:${user.userId}`;
         map.set(id, {
           id,
-          kind: "user",
-          userId: user.id,
-          name: tenantUserDisplayName(user),
-          code: user.registration || user.employeeCode || user.username || "",
-          specialty: user.specialties || user.jobTitle || "Técnico de manutenção",
-          unit: user.unit || "",
-          status: "Disponível",
-          teamIds,
-          teamNames: teamIds.map(teamId => byId(teams, teamId)?.name).filter(Boolean),
-          selectable: true
+          kind:"user",
+          userId:user.userId,
+          name:user.name || user.username || "Usuário",
+          code:user.username || "",
+          specialty:user.jobTitle || "Técnico de manutenção",
+          unit:"",
+          status:"Disponível",
+          teamIds:[],
+          teamNames:[],
+          selectable:true
         });
       });
       return [...map.values()];
@@ -37181,6 +37180,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     var gmPreferences = {};
     var gmPreferencesReady = false;
     var gmPreferencesTimer = null;
+    var gmOperationalUsers = [];
+    var gmOperationalUsersReady = false;
     function gmReadSession() {
       try { return safeParseJson(sessionStorage.getItem(GM_SUPABASE_SESSION_KEY), null); }
       catch { return null; }
@@ -37258,6 +37259,110 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         headers:{ "Content-Type":"application/json" },
         body:JSON.stringify(body)
       });
+    }
+    function gmOperationalUserById(userId = "") {
+      const remote = gmOperationalUsers.find(user => user.userId === userId);
+      if (remote) return remote;
+      const local = (authStore.users || []).find(user => user.id === userId);
+      return local ? {
+        userId:local.id,
+        resourceId:"",
+        name:tenantUserDisplayName(local),
+        username:local.username || "",
+        email:local.contactEmail || local.email || "",
+        jobTitle:local.jobTitle || "",
+        accessProfile:accessProfileForUser(local),
+        executor:local.executor === true,
+        active:local.active !== false
+      } : null;
+    }
+    function gmOperationalDirectoryUsers() {
+      if (gmOperationalUsersReady) return gmOperationalUsers;
+      const companyId = currentAccount?.company?.id || "";
+      return (authStore.users || []).filter(user => !companyId || user.companyId === companyId).map(user => ({
+        userId:user.id,
+        resourceId:"",
+        name:tenantUserDisplayName(user),
+        username:user.username || "",
+        email:user.contactEmail || user.email || "",
+        jobTitle:user.jobTitle || "",
+        accessProfile:accessProfileForUser(user),
+        executor:user.executor === true,
+        active:user.active !== false
+      }));
+    }
+    function gmCanonicalResourceUserId(resource = {}) {
+      return gmOperationalUsers.find(user => user.resourceId === resource.id)?.userId || "";
+    }
+    function gmResourceUserId(resource = {}) {
+      return gmCanonicalResourceUserId(resource) || String(resource.userId || "");
+    }
+    function gmResourceLinkMode(resource = {}) {
+      if (gmCanonicalResourceUserId(resource)) return "canonical";
+      if (resource.userId) return "legacy";
+      return "none";
+    }
+    async function gmLoadOperationalUsers(logFailure = true) {
+      if (!currentAccount || !SUPABASE_READY || isPlatformAdmin()) {
+        gmOperationalUsers = [];
+        gmOperationalUsersReady = false;
+        return [];
+      }
+      try {
+        const rows = await gmRpc("gm_list_operational_users", {});
+        gmOperationalUsers = (Array.isArray(rows) ? rows : []).map(row => ({
+          userId:String(row.user_id || ""),
+          resourceId:String(row.resource_id || ""),
+          name:String(row.display_name || row.access_username || "Usuário"),
+          username:String(row.access_username || ""),
+          email:String(row.contact_email || ""),
+          jobTitle:String(row.job_title || ""),
+          accessProfile:String(row.access_profile || "viewer"),
+          executor:row.executor === true,
+          active:row.active !== false
+        })).filter(user => user.userId);
+        gmOperationalUsersReady = true;
+        return gmOperationalUsers;
+      } catch (error) {
+        gmOperationalUsers = [];
+        gmOperationalUsersReady = false;
+        if (logFailure) stage21TechnicalLog("warning", "supabase.operational_users.load", error);
+        return [];
+      }
+    }
+    function gmResourceLinkErrorMessage(error) {
+      const message = String(error?.message || error || "");
+      if (message.includes("GM_RESOURCE_USER_ALREADY_LINKED")) return "Este usuário já está vinculado a outro recurso operacional.";
+      if (message.includes("GM_RESOURCE_USER_NOT_ACTIVE")) return "O usuário selecionado não possui acesso ativo nesta empresa.";
+      if (message.includes("GM_STATE_CONFLICT")) return "Os dados foram alterados em outro dispositivo. Reabra o recurso e tente novamente.";
+      if (message.includes("GM_PERMISSION_DENIED")) return "Seu perfil não pode gerenciar vínculos entre usuários e recursos.";
+      if (message.includes("GM_RESOURCE_LINK_STATE_MISMATCH")) return "O vínculo do recurso está inconsistente. Reabra o cadastro antes de salvar.";
+      return "Não foi possível salvar o vínculo entre o usuário e o recurso.";
+    }
+    async function gmPersistResourceUserLink(resourceId, userId = "") {
+      clearTimeout(gmRemoteSaveTimer);
+      gmRemoteSaveTimer = null;
+      await gmRemoteSavePromise;
+      const snapshot = JSON.parse(JSON.stringify(state));
+      gmStateDirty = true;
+      const rows = await gmRpc("gm_save_resource_user_link", {
+        p_expected_version:gmRemoteStateVersion,
+        p_state:snapshot,
+        p_resource_id:resourceId,
+        p_user_id:userId || null
+      });
+      const result = Array.isArray(rows) ? rows[0] : rows;
+      gmRemoteStateVersion = Number(result?.version ?? gmRemoteStateVersion + 1);
+      gmRemoteStateUpdatedAt = result?.updated_at || new Date().toISOString();
+      gmRemoteLastSavedState = normalizeState(snapshot);
+      gmSyncConflict = null;
+      gmStateDirty = false;
+      hasPendingLocalSync = false;
+      hasSessionLocalChange = false;
+      gmInvalidateMaintenanceMetrics();
+      await gmLoadOperationalUsers(false);
+      notifyOsPanelUpdate();
+      return true;
     }
     async function gmLoadContext() {
       const rows = await gmRpc("gm_current_context", {});
@@ -37571,6 +37676,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         hasPendingLocalSync = false;
         hasSessionLocalChange = false;
         gmInvalidateMaintenanceMetrics();
+        await gmLoadOperationalUsers(false);
         captureSyncBaseline();
         render();
         if (showMessage) showToast("Dados carregados do banco de dados.");

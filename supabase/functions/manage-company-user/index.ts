@@ -139,6 +139,17 @@ Deno.serve(async (req) => {
     if (membersError || !members?.some((item) => item.user_id === userId)) return json(req, 404, { error: "Usuário não encontrado nesta empresa." });
     const primaryAdmin = members.find((item) => item.role === "administrator")?.user_id;
     if (userId === primaryAdmin) return json(req, 422, { error: "O administrador principal não pode ser excluído." });
+    const [{ count: canonicalLinks, error: linkError }, { data: tenantState, error: stateError }] = await Promise.all([
+      service.from("gm_resource_user_links").select("resource_id", { count: "exact", head: true })
+        .eq("company_id", context.company_id).eq("user_id", userId),
+      service.from("gm_tenant_state").select("state").eq("company_id", context.company_id).maybeSingle(),
+    ]);
+    if (linkError || stateError) return json(req, 422, { error: "Não foi possível validar os vínculos operacionais do usuário." });
+    const resources = Array.isArray(tenantState?.state?.resources) ? tenantState.state.resources : [];
+    const legacyLinks = resources.filter((resource: Record<string, unknown>) => String(resource?.userId || "") === userId).length;
+    if (Number(canonicalLinks || 0) + legacyLinks > 0) {
+      return json(req, 409, { error: "Este usuário está vinculado a recurso operacional. Desvincule o recurso antes de excluir o usuário." });
+    }
     await service.from("gm_audit_log").insert({ company_id: context.company_id, user_id: actorData.user.id, action: "user.delete", entity: "company_user", entity_id: userId, metadata: {} });
     const { error } = await service.auth.admin.deleteUser(userId);
     if (error) return json(req, 422, { error: friendlyError(error) });

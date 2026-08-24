@@ -11,6 +11,8 @@
     "test:profile-images": "node scripts/validate-profile-image-persistence.mjs",
     "test:metrics": "node --experimental-strip-types --test tests/maintenance-metrics.test.mjs",
     "test:metrics:static": "node scripts/validate-maintenance-metrics.mjs",
+    "test:resource-users": "node --test tests/resource-user-source.test.mjs",
+    "test:resource-users:static": "node scripts/validate-resource-user-source.mjs",
     "test:audit:local": "playwright test -c playwright.audit.config.ts",
     "test:e2e:official": "playwright test -c playwright.official.config.ts",
     "test:e2e:official:headed": "playwright test -c playwright.official.config.ts --headed"
