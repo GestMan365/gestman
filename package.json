@@ -18,6 +18,7 @@
     "test:downtime-sync": "node --test tests/asset-downtime-sync.test.mjs",
     "test:downtime-sync:static": "node scripts/validate-asset-downtime-sync.mjs",
     "test:routes:static": "node scripts/validate-application-routes.mjs",
+    "test:session-security": "node scripts/validate-session-security.mjs",
     "test:audit:local": "playwright test -c playwright.audit.config.ts",
     "test:e2e:official": "playwright test -c playwright.official.config.ts",
     "test:e2e:official:headed": "playwright test -c playwright.official.config.ts --headed"

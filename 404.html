@@ -20584,11 +20584,11 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           <label>Senha
             <span class="auth-input-wrap">
               <span class="auth-field-icon" data-auth-icon="lock" aria-hidden="true"></span>
-              <input class="field" id="authPassword" name="gestman-password-entry" type="password" autocomplete="new-password" autocapitalize="none" spellcheck="false" data-lpignore="true" data-1p-ignore="true" readonly placeholder="Digite sua senha">
+              <input class="field" id="authPassword" name="gestman-password-entry" type="password" autocomplete="current-password" autocapitalize="none" spellcheck="false" data-lpignore="true" data-1p-ignore="true" readonly placeholder="Digite sua senha">
               <button class="auth-password-toggle" id="authPasswordToggle" type="button" aria-label="Mostrar senha" aria-pressed="false"><span data-auth-icon="eye" aria-hidden="true"></span></button>
             </span>
           </label>
-          <label class="auth-remember"><input id="rememberLogin" type="checkbox" checked><span class="auth-switch" aria-hidden="true"></span><span>Continuar conectado</span></label>
+          <label class="auth-remember"><input id="rememberLogin" type="checkbox"><span class="auth-switch" aria-hidden="true"></span><span>Continuar conectado</span></label>
           <div class="auth-login-status" id="authLoginStatus" role="alert" aria-live="polite" hidden></div>
           <div class="auth-actions"><button class="btn primary auth-submit" type="submit"><span class="auth-submit-text">Entrar</span><span class="auth-submit-arrow" data-auth-icon="arrowRight" aria-hidden="true"></span></button></div>
           <a class="auth-forgot" id="forgotPasswordLink" href="#">Esqueci minha senha</a>
@@ -37501,16 +37501,35 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     var gmOperationalUsers = [];
     var gmOperationalUsersReady = false;
     function gmReadSession() {
-      try { return safeParseJson(sessionStorage.getItem(GM_SUPABASE_SESSION_KEY), null); }
-      catch { return null; }
+      try {
+        const session = safeParseJson(sessionStorage.getItem(GM_SUPABASE_SESSION_KEY), null);
+        if (!session?.access_token) return null;
+        const nowSeconds = Math.floor(Date.now() / 1000);
+        if (!Number(session.session_started_at || 0)) session.session_started_at = nowSeconds;
+        if (!Number(session.session_expires_at || 0)) session.session_expires_at = Number(session.session_started_at) + Math.floor(SESSION_DURATION_MS / 1000);
+        if (Number(session.session_expires_at) <= nowSeconds) {
+          sessionStorage.removeItem(GM_SUPABASE_SESSION_KEY);
+          sessionStorage.setItem(SESSION_EXPIRED_NOTICE_KEY, "1");
+          return null;
+        }
+        sessionStorage.setItem(GM_SUPABASE_SESSION_KEY, JSON.stringify(session));
+        return session;
+      } catch { return null; }
     }
-    function gmWriteSession(payload) {
+    function gmWriteSession(payload, options = {}) {
       if (!payload?.access_token) return null;
       const previous = gmReadSession() || {};
+      const nowSeconds = Math.floor(Date.now() / 1000);
+      const resetLifetime = options.resetLifetime === true;
+      const sessionStartedAt = resetLifetime ? nowSeconds : Number(previous.session_started_at || nowSeconds);
       const next = {
         access_token: payload.access_token,
         refresh_token: payload.refresh_token || previous.refresh_token || "",
-        expires_at: Number(payload.expires_at || (Math.floor(Date.now() / 1000) + Number(payload.expires_in || 3600))),
+        expires_at: Number(payload.expires_at || (nowSeconds + Number(payload.expires_in || 3600))),
+        session_started_at: sessionStartedAt,
+        session_expires_at: resetLifetime
+          ? sessionStartedAt + Math.floor(SESSION_DURATION_MS / 1000)
+          : Number(previous.session_expires_at || (sessionStartedAt + Math.floor(SESSION_DURATION_MS / 1000))),
         token_type: payload.token_type || "bearer",
         user: payload.user ? {
           id: payload.user.id,
@@ -37835,7 +37854,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       authStore = normalizeAuthStore({
         companies:[company],
         users:[user],
-        session:{ companyId:company.id, userId:user.id, at:Date.now(), expiresAt:Date.now() + 31536000000 }
+        session:{ companyId:company.id, userId:user.id, at:Date.now(), expiresAt:Date.now() + SESSION_DURATION_MS }
       });
       saveAuthStore(authStore);
       currentAccount = resolveCurrentAccount(authStore);
@@ -38154,7 +38173,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           method:"POST",
           body:JSON.stringify({ email:normalizedEmail, password:rawPassword })
         });
-        gmWriteSession(session);
+        gmWriteSession(session, { resetLifetime:true });
+        if ($("authPassword")) $("authPassword").value = "";
         const context = await gmLoadContext();
         await gmLoadPlatformAccess();
         if (!context && !isPlatformAdmin()) {
@@ -38187,6 +38207,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       } catch (error) {
         stage21TechnicalLog("warning", "auth.login", error);
         gmClearSession();
+        if ($("authPassword")) $("authPassword").value = "";
         const reason = String(error?.message || "").toLowerCase();
         let message = "Não foi possível entrar. Verifique os dados e tente novamente.";
         if (reason.includes("invalid login credentials")) {
@@ -38234,7 +38255,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           method:"POST",
           body:JSON.stringify({ email:authEmail, password:rawPassword })
         });
-        gmWriteSession(session);
+        gmWriteSession(session, { resetLifetime:true });
+        if ($("authPassword")) $("authPassword").value = "";
         const context = await gmLoadContext();
         await gmLoadPlatformAccess();
         if (!context && !isPlatformAdmin()) {
@@ -38270,6 +38292,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       } catch (error) {
         stage21TechnicalLog("warning", "auth.login", error);
         gmClearSession();
+        if ($("authPassword")) $("authPassword").value = "";
         const reason = String(error?.message || "").toLowerCase();
         let message = "N\u00e3o foi poss\u00edvel entrar. Verifique os dados e tente novamente.";
         if (reason.includes("invalid login credentials")) {
@@ -38308,7 +38331,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             showToast("Confirme o email recebido e depois entre para concluir a empresa.", "warning");
             return true;
           }
-          session = gmWriteSession(signup);
+          session = gmWriteSession(signup, { resetLifetime:true });
         }
         const bootstrapIdempotencyKey = `gm-${Date.now()}-${crypto.randomUUID()}`;
         await gmAuthenticatedFunction("bootstrap-company", {
@@ -38345,6 +38368,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         if (session?.access_token) await fetch(`${SUPABASE_URL}/auth/v1/logout`, { method:"POST", headers:supabaseHeaders() });
       } catch {}
       gmClearSession();
+      sessionStorage.removeItem(SESSION_EXPIRED_NOTICE_KEY);
       gmPlatformRole = "";
       browserMemoryStore.clear();
       gmPreferences = {};
@@ -38358,7 +38382,10 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       renderAuthScreen();
     }
     async function gmRestoreSupabaseSession() {
-      if (!gmReadSession()?.access_token) return false;
+      if (!gmReadSession()?.access_token) {
+        if (sessionStorage.getItem(SESSION_EXPIRED_NOTICE_KEY) === "1") renderAuthScreen();
+        return false;
+      }
       try {
         await gmEnsureSession(false);
         const context = await gmLoadContext();
@@ -39455,6 +39482,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       stage21WriteAudit({ module:"Autenticação", action:"Sessão expirada", record:currentAccount.user.email, result:"Encerrada", origin:"Controle de sessão" });
       authStore.session = null;
       saveAuthStore(authStore);
+      gmClearSession();
       sessionStorage.setItem(SESSION_EXPIRED_NOTICE_KEY, "1");
       currentAccount = null;
       state = normalizeState(emptyState());
