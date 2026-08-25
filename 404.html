@@ -22060,6 +22060,100 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (queryCompany && !isReservedCompanyLogin(queryCompany)) return normalizeCompanyLogin(queryCompany);
       return "";
     }
+    const APPLICATION_ROUTE_SLUGS = Object.freeze({
+      quickAccess:"acessos-rapidos", dashboard:"visao-geral",
+      orders:"ordens-de-servico", activeOrders:"os-em-execucao", preventivePlans:"planos-de-manutencao",
+      checklists:"checklists", measurements:"medicoes", pendingActions:"acoes-pendentes", downtime:"paradas",
+      operationalDiary:"diario-de-manutencao", assets:"ativos-e-equipamentos", tags:"identificadores-de-ativos",
+      operationalAreas:"areas-operacionais", regions:"regioes", locations:"setores-e-locais", map:"mapa-industrial",
+      documentsCenter:"documentos", spares:"catalogo-de-pecas", stock:"almoxarifado-de-pecas",
+      stockMoves:"movimentacoes-de-estoque", stockTransfers:"transferencias-de-estoque",
+      materialRequests:"solicitacoes-de-materiais", suppliers:"fornecedores-e-parceiros", toolsControl:"ferramentas",
+      teamsResources:"recursos-e-equipes", calendar:"calendario-operacional",
+      productiveCalendars:"calendarios-produtivos", maintenanceIndicators:"indicadores", reports:"relatorios",
+      assistant:"ia-gestman365"
+    });
+    const APPLICATION_ROUTE_VIEWS = Object.freeze(Object.fromEntries(
+      Object.entries(APPLICATION_ROUTE_SLUGS).map(([view, slug]) => [slug, view])
+    ));
+    const APPLICATION_ROUTE_FILTERS = Object.freeze({
+      orders:{ q:"osSearch", status:"osStatusFilter", prioridade:"osPriorityFilter", equipamento:"osAssetFilter", responsavel:"osExecutorFilter", inicio:"osPeriodStart", fim:"osPeriodEnd" },
+      assets:{ q:"assetWorkspaceSearch", status:"assetStatusFilter", criticidade:"assetCriticalityFilter", categoria:"assetCategoryFilter", local:"assetLocationFilter", saude:"assetHealthFilter" },
+      map:{ q:"imSearch", regiao:"imRegionFilter", local:"imLocationFilter", condicao:"imOperationalFilter" },
+      pendingActions:{ status:"pendingActionStatusFilter", prioridade:"pendingActionPriorityFilter" },
+      downtime:{ status:"downtimeStatusFilter", tipo:"downtimeTypeFilter" },
+      measurements:{ equipamento:"measurementAssetFilter", tipo:"measurementTypeFilter", origem:"measurementOriginFilter" },
+      operationalDiary:{ turno:"operationalDiaryShiftFilter", categoria:"operationalDiaryCategoryFilter", atencao:"operationalDiaryAttentionFilter", equipamento:"operationalDiaryAssetFilter" },
+      calendar:{ equipe:"calendarAssetFilter", responsavel:"calendarResponsibleFilter", status:"calendarStatusFilter", tipo:"calendarTypeFilter" },
+      operationalAreas:{ q:"oaAreaSearch", status:"oaAreaStatusFilter" },
+      locations:{ q:"slLocationSearch", area:"slAreaFilter", tipo:"slTypeFilter", status:"slStatusFilter" }
+    });
+    const APPLICATION_ROUTE_QUERY_KEYS = new Set([
+      "modulo", "os", "ativo",
+      ...Object.values(APPLICATION_ROUTE_FILTERS).flatMap(filters => Object.keys(filters))
+    ]);
+    const APPLICATION_ROUTE_FILTER_ELEMENT_IDS = new Set(Object.values(APPLICATION_ROUTE_FILTERS).flatMap(filters => Object.values(filters)));
+    let applicationRouteRestoreInProgress = false;
+    function applicationRouteView() {
+      const value = String(new URLSearchParams(window.location.search || "").get("modulo") || "").trim();
+      return APPLICATION_ROUTE_VIEWS[value] || (APPLICATION_ROUTE_SLUGS[value] ? value : "");
+    }
+    function applicationRouteTenantAllowed() {
+      const requestedCompany = companyLoginFromRoute();
+      const accountCompany = normalizeCompanyLogin(currentAccount?.company?.login || "");
+      return !requestedCompany || (Boolean(accountCompany) && requestedCompany === accountCompany);
+    }
+    function applicationRouteFilterValues(view) {
+      const values = {};
+      Object.entries(APPLICATION_ROUTE_FILTERS[view] || {}).forEach(([queryKey, elementId]) => {
+        const value = String($(elementId)?.value || "").trim();
+        if (value) values[queryKey] = value;
+      });
+      return values;
+    }
+    function applicationRouteUrl(view, options = {}) {
+      const slug = APPLICATION_ROUTE_SLUGS[view] || APPLICATION_ROUTE_SLUGS.dashboard;
+      const url = new URL(window.location.href);
+      APPLICATION_ROUTE_QUERY_KEYS.forEach(key => url.searchParams.delete(key));
+      url.searchParams.set("modulo", slug);
+      if (options.includeFilters !== false) {
+        Object.entries(applicationRouteFilterValues(view)).forEach(([key, value]) => url.searchParams.set(key, value));
+      }
+      if (options.entityKey && options.entityId) url.searchParams.set(options.entityKey, String(options.entityId));
+      url.hash = "";
+      return url;
+    }
+    function writeApplicationRoute(view, options = {}) {
+      if (!currentAccount || isPlatformAdmin() || isPanelMode() || applicationRouteRestoreInProgress) return;
+      const url = applicationRouteUrl(view, options);
+      const next = `${url.pathname}${url.search}${url.hash}`;
+      const current = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+      const stateValue = { gestmanView:view, ...(options.entityKey ? { gestmanEntity:options.entityKey, gestmanEntityId:String(options.entityId || "") } : {}) };
+      if (next === current) return;
+      if (options.replace === true) window.history.replaceState(stateValue, "", next);
+      else window.history.pushState(stateValue, "", next);
+    }
+    function applyApplicationRouteFilters(view) {
+      const params = new URLSearchParams(window.location.search || "");
+      Object.entries(APPLICATION_ROUTE_FILTERS[view] || {}).forEach(([queryKey, elementId]) => {
+        const element = $(elementId);
+        if (element) element.value = params.get(queryKey) || "";
+      });
+    }
+    function syncActiveApplicationRouteFilters() {
+      if (!currentAccount || isPlatformAdmin() || isPanelMode() || applicationRouteRestoreInProgress) return;
+      const activeView = document.querySelector(".tab.active[data-view]")?.dataset.view || document.querySelector(".view.active")?.id || "dashboard";
+      const routedView = applicationRouteView();
+      if (routedView !== activeView) return;
+      const entityKey = activeView === "orders" && orderIdFromRoute() ? "os" : activeView === "assets" && assetIdFromRoute() ? "ativo" : "";
+      const entityId = entityKey === "os" ? orderIdFromRoute() : entityKey === "ativo" ? assetIdFromRoute() : "";
+      writeApplicationRoute(activeView, { replace:true, entityKey, entityId });
+    }
+    function scheduleApplicationRouteFilterSync(event) {
+      if (!APPLICATION_ROUTE_FILTER_ELEMENT_IDS.has(event?.target?.id || "")) return;
+      clearTimeout(window.gestmanRouteFilterTimer);
+      window.gestmanRouteFilterTimer = setTimeout(syncActiveApplicationRouteFilters, 80);
+    }
     function assetIdFromRoute() {
       return String(new URLSearchParams(window.location.search || "").get("ativo") || "").trim();
     }
@@ -22068,7 +22162,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     function openRoutedOrderIfAvailable() {
       const orderId = orderIdFromRoute();
-      if (!orderId || !currentAccount || !byId(state.orders, orderId) || !canAccessView("orders")) return false;
+      if (!orderId || !currentAccount || !applicationRouteTenantAllowed() || !byId(state.orders, orderId) || !canAccessView("orders")) return false;
       selectedOrderId = orderId;
       selectedOrderDetailTab = "general";
       setView("orders", { persist: false, silent: true });
@@ -22076,13 +22170,59 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     function openRoutedAssetIfAvailable() {
       const assetId = assetIdFromRoute();
-      if (!assetId || !currentAccount || !byId(state.assets, assetId) || !canAccessView("assets")) return false;
+      if (!assetId || !currentAccount || !applicationRouteTenantAllowed() || !byId(state.assets, assetId) || !canAccessView("assets")) return false;
       setView("assets", { persist: false, silent: true });
       openAssetDetail(assetId);
       return true;
     }
     function openRoutedEntityIfAvailable() {
       return openRoutedOrderIfAvailable() || openRoutedAssetIfAvailable();
+    }
+    function rejectApplicationRoute(message = "Este link não está disponível para seu usuário ou empresa.") {
+      const fallback = firstAllowedView();
+      const tenantMismatch = !applicationRouteTenantAllowed();
+      applicationRouteRestoreInProgress = true;
+      try {
+        setView(fallback, { persist:false, silent:true, route:false });
+      } finally {
+        applicationRouteRestoreInProgress = false;
+      }
+      const url = applicationRouteUrl(fallback, { includeFilters:false });
+      if (tenantMismatch) ["empresa", "dominio", "company"].forEach(key => url.searchParams.delete(key));
+      window.history.replaceState({ gestmanView:fallback }, "", `${url.pathname}${url.search}`);
+      showToast(message, "warning");
+      return true;
+    }
+    function restoreApplicationRoute(options = {}) {
+      const requestedOrderId = orderIdFromRoute();
+      const requestedAssetId = assetIdFromRoute();
+      const requestedView = requestedOrderId ? "orders" : requestedAssetId ? "assets" : applicationRouteView();
+      if (!requestedView) return false;
+      if (!currentAccount || !applicationRouteTenantAllowed()) return rejectApplicationRoute();
+      if (!document.getElementById(requestedView) || !canAccessView(requestedView) || !mobileOperationalViewAllowed(requestedView)) {
+        return rejectApplicationRoute("Você não tem permissão para abrir este módulo pelo link informado.");
+      }
+      if (requestedOrderId && !byId(state.orders, requestedOrderId)) return rejectApplicationRoute("A O.S. deste link não existe nesta empresa ou não está disponível.");
+      if (requestedAssetId && !byId(state.assets, requestedAssetId)) return rejectApplicationRoute("O ativo deste link não existe nesta empresa ou não está disponível.");
+      applicationRouteRestoreInProgress = true;
+      try {
+        if (requestedOrderId) {
+          selectedOrderId = requestedOrderId;
+          selectedOrderDetailTab = "general";
+        }
+        setView(requestedView, { persist:false, silent:true, route:false });
+        applyApplicationRouteFilters(requestedView);
+        if (requestedAssetId) openAssetDetail(requestedAssetId);
+        render();
+      } finally {
+        applicationRouteRestoreInProgress = false;
+      }
+      writeApplicationRoute(requestedView, {
+        replace:true,
+        entityKey:requestedOrderId ? "os" : requestedAssetId ? "ativo" : "",
+        entityId:requestedOrderId || requestedAssetId
+      });
+      return true;
     }
     function companyDisplayNameFromLogin(login) {
       const suffix = normalizeCompanyLogin(login).slice(GESTMAN_LOGIN_PREFIX.length);
@@ -24698,7 +24838,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       currentAccount = resolveCurrentAccount(authStore);
       reloadTenantData();
       applyAuthState();
-      if (!openRoutedEntityIfAvailable()) setView(savedActiveView(), { persist: false, silent: true });
+      if (!restoreApplicationRoute()) setView(savedActiveView(), { persist: false, silent: true, replaceRoute:true });
       loadSupabaseState(false);
       stage21WriteAudit({ module:"Autenticação", action:"Login realizado", record:user.email, result:"Sucesso", origin:"Interface web" });
       showToast(`Bem-vindo, ${user.name}.`);
@@ -26359,6 +26499,12 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         nextView = firstAllowedView();
         if (options.silent !== true) denyProfileAccess();
       }
+      if (nextView === "assets" && options.preserveAssetDetail !== true) {
+        selectedAssetDetailId = null;
+        selectedAssetTab = "overview";
+        $("assetDetailPanel")?.classList.add("is-hidden");
+        $("assetListPanel")?.classList.remove("is-hidden");
+      }
       stage19Ui.calendarPreventiveOnly = nextView === "calendar" && options.preventiveCalendar === true;
       if (nextView !== "orders" || options.preserveStage20OrderScope !== true) window.stage20OrderScope = "";
       if (nextView !== "orders" || options.dashboardFilter !== "backlog") dashboardBacklogView = false;
@@ -26390,6 +26536,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (["platformRequests", "platformCompanies"].includes(nextView) && options.route !== false) {
         const target = nextView === "platformRequests" ? "admin/solicitacoes" : "admin/empresas";
         window.history.replaceState({ gestmanView:nextView }, "", gestmanBasePath() + target);
+      }
+      if (!["platformRequests", "platformCompanies"].includes(nextView) && options.route !== false) {
+        writeApplicationRoute(activeNavView, { replace:options.replaceRoute === true });
       }
       render();
       updateMobileBottomNav(nextView);
@@ -28506,6 +28655,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       ["imSearch", "imRegionFilter", "imLocationFilter", "imOperationalFilter"].forEach(id => { if ($(id)) $(id).value = ""; });
       refreshIndustrialMapFilters();
       renderMap();
+      syncActiveApplicationRouteFilters();
     }
     function industrialMapAssetMatchesOperationalFilter(asset, filter) {
       if (!filter) return true;
@@ -31087,7 +31237,12 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if ($("osPaginationButtons")) $("osPaginationButtons").innerHTML = `<button type="button" onclick="changeOrderPage(${osCurrentPage-1})" ${osCurrentPage===1?"disabled":""}>‹</button>${Array.from({length:pages},(_,i)=>i+1).slice(Math.max(0,osCurrentPage-3),Math.max(5,osCurrentPage+2)).map(page=>`<button type="button" class="${page===osCurrentPage?"active":""}" onclick="changeOrderPage(${page})">${page}</button>`).join("")}<button type="button" onclick="changeOrderPage(${osCurrentPage+1})" ${osCurrentPage===pages?"disabled":""}>›</button>`;
       renderOrderDetail(byId(state.orders, selectedOrderId));
     }
-    function selectOrder(id) { selectedOrderId = id; render(); }
+    function selectOrder(id) {
+      if (!byId(state.orders, id)) return;
+      selectedOrderId = id;
+      writeApplicationRoute("orders", { entityKey:"os", entityId:id });
+      render();
+    }
     function setOrderDetailTab(tabName) { selectedOrderDetailTab = tabName; renderOrderDetail(byId(state.orders, selectedOrderId)); }
     function resetOrderFilters() {
       ["osPeriodStart", "osPeriodEnd", "osStatusFilter", "osPriorityFilter", "osAssetFilter", "osExecutorFilter"].forEach(id => { if ($(id)) $(id).value = ""; });
@@ -31248,11 +31403,11 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     function resetAssetWorkspacePage(){ assetWorkspacePage=1; }
     function toggleAssetFilters(){ const panel=$("assetFilterPanel"); if(!panel)return; if(window.matchMedia("(max-width:760px)").matches)panel.classList.toggle("mobile-open"); else panel.classList.toggle("is-hidden"); }
-    function clearAssetFilters(){ ["assetWorkspaceSearch","assetStatusFilter","assetCriticalityFilter","assetCategoryFilter","assetLocationFilter","assetHealthFilter"].forEach(id=>{if($(id))$(id).value="";}); assetWorkspacePage=1; $("assetFilterPanel")?.classList.remove("mobile-open"); renderAssetsWorkspace(); }
+    function clearAssetFilters(){ ["assetWorkspaceSearch","assetStatusFilter","assetCriticalityFilter","assetCategoryFilter","assetLocationFilter","assetHealthFilter"].forEach(id=>{if($(id))$(id).value="";}); assetWorkspacePage=1; $("assetFilterPanel")?.classList.remove("mobile-open"); renderAssetsWorkspace(); syncActiveApplicationRouteFilters(); }
     function sortAssetsWorkspace(key){ assetWorkspaceSortDirection=assetWorkspaceSort===key?assetWorkspaceSortDirection*-1:1;assetWorkspaceSort=key;assetWorkspacePage=1;renderAssetsWorkspace(); }
     function changeAssetWorkspacePage(page){assetWorkspacePage=Math.max(1,Number(page||1));renderAssetsWorkspace();}
-    function closeAssetDetail(){selectedAssetDetailId=null;selectedAssetTab="overview";$("assetDetailPanel")?.classList.add("is-hidden");$("assetListPanel")?.classList.remove("is-hidden");}
-    function openAssetDetail(id, tab="overview") { const asset=byId(state.assets,id);if(!asset)return;selectedAssetDetailId=id;selectedAssetTab=tab;$("assetListPanel")?.classList.add("is-hidden");$("assetDetailPanel")?.classList.remove("is-hidden");renderAssetDetail();$("assetDetailPanel")?.scrollIntoView({behavior:"smooth",block:"start"}); }
+    function closeAssetDetail(){selectedAssetDetailId=null;selectedAssetTab="overview";$("assetDetailPanel")?.classList.add("is-hidden");$("assetListPanel")?.classList.remove("is-hidden");writeApplicationRoute("assets");}
+    function openAssetDetail(id, tab="overview") { const asset=byId(state.assets,id);if(!asset)return;selectedAssetDetailId=id;selectedAssetTab=tab;writeApplicationRoute("assets",{entityKey:"ativo",entityId:id});$("assetListPanel")?.classList.add("is-hidden");$("assetDetailPanel")?.classList.remove("is-hidden");renderAssetDetail();$("assetDetailPanel")?.scrollIntoView({behavior:"smooth",block:"start"}); }
     function selectAssetTab(tab){selectedAssetTab=tab;renderAssetDetail();}
     function refreshAssetParentOptions(excludeId="") { const select=$("assetParent");if(!select)return;const current=select.value;select.innerHTML=`<option value="">Nenhum</option>`+state.assets.filter(item=>item.id!==excludeId).map(item=>`<option value="${item.id}">${escapeHtml(item.code||"-")} · ${escapeHtml(item.name||"Equipamento")}</option>`).join("");select.value=current; }
     function openAssetCreate(){if(!canManageAssets())return denyProfileAccess();resetAssetForm();refreshAssetParentOptions();$("assetFormTitle").textContent="Novo Ativo";showCrudForm("assetForm");}
@@ -31328,6 +31483,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const companyLogin = currentAccount?.company?.login || companyLoginFromRoute();
       const companySlug = companyLoginDisplay(companyLogin);
       if (companySlug) route.searchParams.set("empresa", companySlug);
+      route.searchParams.set("modulo", APPLICATION_ROUTE_SLUGS[param === "os" ? "orders" : "assets"]);
       route.searchParams.set(param, id);
       return route.toString();
     }
@@ -31584,7 +31740,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function renderPreventiveCalendarList(items){const filtered=items.filter(item=>item.date.getMonth()===calendarViewDate.getMonth()&&item.date.getFullYear()===calendarViewDate.getFullYear());return`<div class="calendar-list-view">${filtered.map(item=>`<button class="calendar-list-row" onclick="openPreventiveCalendarEvent('${item.id}')"><strong>${formatPlanDate(calendarDateKey(item.date))}</strong><span>${escapeHtml(item.kind==="plan"?item.plan.name:item.order.number)}</span><span>${escapeHtml(machineName(item.assetId))}</span><span>${escapeHtml(item.responsible)}</span><span>${tag(item.status)}</span></button>`).join("")||`<div class="empty">Nenhuma manutenção programada neste período.</div>`}</div>`;}
     function populatePreventiveCalendarFilters(){const preserve=(id,rows,label)=>{const target=$(id);if(!target)return;const current=target.value;target.innerHTML=`<option value="">${label}</option>`+rows.map(([value,text])=>`<option value="${escapeHtml(value)}">${escapeHtml(text)}</option>`).join("");target.value=current;};preserve("calendarAssetFilter",state.assets.map(item=>[item.id,`${item.code} - ${item.name}`]),"Todos os equipamentos");const people=Array.from(new Set([...state.preventivePlans.map(planResponsible),...state.orders.map(item=>item.executor)].filter(Boolean).filter(value=>value!=="Sem responsável")));preserve("calendarResponsibleFilter",people.map(value=>[value,value]),"Todos os responsáveis");}
     function togglePreventiveCalendarFilters(){const panel=$("calendarFilterPanel");if(!panel)return;if(window.matchMedia("(max-width:900px)").matches)panel.classList.toggle("mobile-open");else panel.classList.toggle("is-hidden");}
-    function clearPreventiveCalendarFilters(){["calendarAssetFilter","calendarResponsibleFilter","calendarStatusFilter","calendarTypeFilter"].forEach(id=>{if($(id))$(id).value="";});$("calendarFilterPanel")?.classList.remove("mobile-open");renderCalendar();}
+    function clearPreventiveCalendarFilters(){["calendarAssetFilter","calendarResponsibleFilter","calendarStatusFilter","calendarTypeFilter"].forEach(id=>{if($(id))$(id).value="";});$("calendarFilterPanel")?.classList.remove("mobile-open");renderCalendar();syncActiveApplicationRouteFilters();}
     function renderCalendar(){const grid=$("calendarGrid");if(!grid)return;populatePreventiveCalendarFilters();const items=calendarOperationalItems();$("calendarMonthTitle").textContent=calendarTitle();$("calendarDate").value=calendarDateKey(calendarViewDate);document.querySelectorAll("[data-calendar-mode]").forEach(button=>button.classList.toggle("active",button.dataset.calendarMode===calendarMode));document.querySelector(".calendar-weekdays").style.display=calendarMode==="list"?"none":"grid";if(calendarMode==="list"){grid.className="calendar-grid calendar-list-mode";grid.innerHTML=renderPreventiveCalendarList(items);return;}const year=calendarViewDate.getFullYear(),month=calendarViewDate.getMonth();if(calendarMode==="week"){grid.className="calendar-grid calendar-week-mode";const start=new Date(calendarViewDate);start.setDate(start.getDate()-start.getDay());grid.innerHTML=Array.from({length:7},(_,index)=>{const day=new Date(start);day.setDate(start.getDate()+index);return renderPreventiveCalendarCell(day,items,month);}).join("");return;}grid.className="calendar-grid";const first=new Date(year,month,1,12),start=new Date(first);start.setDate(first.getDate()-first.getDay());grid.innerHTML=Array.from({length:42},(_,index)=>{const day=new Date(start);day.setDate(start.getDate()+index);return renderPreventiveCalendarCell(day,items,month);}).join("");}
     function openPreventiveCalendarEvent(id){const item=calendarOperationalItems().find(row=>row.id===id);if(!item)return;const plan=item.kind==="plan"?item.plan:byId(state.preventivePlans,item.order.preventivePlanId),order=item.kind==="order"?item.order:state.orders.find(row=>row.preventivePlanId===item.plan.id&&String(row.scheduledAt||"").slice(0,10)===calendarDateKey(item.date));openModal("Detalhes da manutenção",`<div class="calendar-event-detail"><div class="side-box"><strong>${escapeHtml(item.kind==="plan"?item.plan.name:item.order.number)}</strong><span>${escapeHtml(machineName(item.assetId))}</span><span>${formatPlanDate(calendarDateKey(item.date))} · ${escapeHtml(item.responsible)}</span>${tag(item.status)}</div><div class="toolbar">${plan?`<button class="btn" onclick="closeModal();setView('preventivePlans');openPreventivePlanDetail('${plan.id}')">Abrir plano</button>`:""}${order?`<button class="btn primary" onclick="closeModal();showOrderDetails('${order.id}')">Visualizar O.S.</button>`:plan&&preventiveCanManage()?`<button class="btn primary" onclick="closeModal();generatePreventivePlanOrder('${plan.id}')">Gerar O.S.</button>`:""}</div></div>`);}
     function renderTables() {
@@ -32456,6 +32612,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       stage21RenderFor(["dashboard"], renderMobileTechnicianHome, "mobile-home");
       standardizeUiComponents();
       normalizeModuleLabels();
+      syncActiveApplicationRouteFilters();
     }
     const CRUD_FORM_CONFIG = {
       assetForm: { panelId: "assetFormPanel", tableBodyId: "assetRows", createLabel: "Criar equipamento", firstField: "assetCode", reset: resetAssetForm },
@@ -36772,6 +36929,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       clearTimeout(window.stage21GlobalSearchTimer);
       window.stage21GlobalSearchTimer = setTimeout(() => render(), 250);
     });
+    document.addEventListener("input", scheduleApplicationRouteFilterSync);
+    document.addEventListener("change", scheduleApplicationRouteFilterSync);
     $("topbarMenuBtn").addEventListener("click", () => {
       if (window.matchMedia("(max-width:600px)").matches) openMobileNavigation();
       else setNavCollapsed(!document.body.classList.contains("sidebar-collapsed"));
@@ -38021,7 +38180,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         if (!isPlatformAdmin() && context) await loadSupabaseState(false, true);
         const routedPlatformView = platformRouteView() || "platformRequests";
         if (isPlatformAdmin()) setView(routedPlatformView, { persist:false, silent:true, route:false });
-        else if (!openRoutedEntityIfAvailable()) setView(savedActiveView(), { persist:false, silent:true });
+        else if (!restoreApplicationRoute()) setView(savedActiveView(), { persist:false, silent:true, replaceRoute:true });
         setAuthLoginStatus();
         showToast(`Bem-vindo, ${currentAccount.user.name}.`);
         return true;
@@ -38104,7 +38263,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         if (!isPlatformAdmin() && context) await loadSupabaseState(false, true);
         const routedPlatformView = platformRouteView() || "platformRequests";
         if (isPlatformAdmin()) setView(routedPlatformView, { persist:false, silent:true, route:false });
-        else if (!openRoutedEntityIfAvailable()) setView(savedActiveView(), { persist:false, silent:true });
+        else if (!restoreApplicationRoute()) setView(savedActiveView(), { persist:false, silent:true, replaceRoute:true });
         setAuthLoginStatus();
         showToast(`Bem-vindo, ${currentAccount.user.name}.`);
         return true;
@@ -38216,7 +38375,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         if (!isPlatformAdmin() && context) await loadSupabaseState(false, true);
         const routedPlatformView = platformRouteView() || "platformRequests";
         if (isPlatformAdmin()) setView(routedPlatformView, { persist:false, silent:true, route:false });
-        else if (!openRoutedEntityIfAvailable()) setView(savedActiveView(), { persist:false, silent:true });
+        else if (!restoreApplicationRoute()) setView(savedActiveView(), { persist:false, silent:true, replaceRoute:true });
         applyPanelMode();
         return true;
       } catch (error) {
@@ -38541,7 +38700,22 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           const button=$("companyRequestSubmit"); if(button&&!gmCompanyRequestSubmitting){button.classList.remove("has-validation-error");button.textContent="Enviar para an\u00e1lise";}
         });
       }
-      window.addEventListener("popstate", () => { renderAuthScreen(); const routed=platformRouteView(); if(routed && currentAccount && isPlatformAdmin()) setView(routed,{route:false}); });
+      window.addEventListener("popstate", () => {
+        renderAuthScreen();
+        const routed = platformRouteView();
+        if (routed && currentAccount && isPlatformAdmin()) {
+          setView(routed, { route:false });
+          return;
+        }
+        if (!currentAccount || isPlatformAdmin() || isCompanyRequestRoute()) return;
+        if (restoreApplicationRoute({ fromHistory:true })) return;
+        applicationRouteRestoreInProgress = true;
+        try {
+          setView("dashboard", { persist:false, silent:true, route:false });
+        } finally {
+          applicationRouteRestoreInProgress = false;
+        }
+      });
     }
     function isPlatformAdmin() { return ["owner", "superadmin"].includes(gmPlatformRole); }
     function applyPlatformOwnerMode(activeView = "") {
@@ -39268,7 +39442,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     if (currentAccount) {
       captureSyncBaseline();
       applyAuthState();
-      if (!openRoutedEntityIfAvailable()) setView(savedActiveView(), { persist: false, silent: true });
+      if (!restoreApplicationRoute()) setView(savedActiveView(), { persist: false, silent: true, replaceRoute:true });
       applyPanelMode();
       loadSupabaseState(false);
     } else {
