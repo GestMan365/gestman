@@ -4077,7 +4077,7 @@
       width: 82px;
       height: 82px;
       padding: 0;
-      background: #fff url("assets/ui/illustrations/gestman365-logo.png") left center / 270px auto no-repeat;
+      background: #fff url("assets/ui/illustrations/gestman365-logo-light.png") left center / 270px auto no-repeat;
       border: 5px solid rgba(255,255,255,.96);
       border-bottom-color: var(--orange);
       border-radius: 50%;
@@ -6182,7 +6182,7 @@
       content: url("assets/ui/illustrations/gestman365-logo.png");
     }
     body.theme-light [data-theme-logo] {
-      content: url("assets/ui/illustrations/gestman365-logo.png");
+      content: url("assets/ui/illustrations/gestman365-logo-light.png");
     }
     body:not(.theme-light) .topbar {
       background: linear-gradient(135deg, #071a3e, #0d2f73 58%, #123f8d);
@@ -19810,10 +19810,10 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       box-shadow:0 8px 22px rgba(35,57,79,.11) !important;
     }
     body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-brand {
-      color:#dbeaf7 !important;
-      background:#071a2b !important;
+      color:#29445e !important;
+      background:#ffffff !important;
       background-image:none !important;
-      border-right-color:#21445d !important;
+      border-right-color:#cbd8e5 !important;
     }
     body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-scroll {
       color:#29445e !important;
@@ -20102,6 +20102,46 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     body:not(.theme-light) *::-webkit-scrollbar-track { background:#071522; }
     body:not(.theme-light) *::-webkit-scrollbar-thumb { background:#315878; border:2px solid #071522; border-radius:999px; }
     body:not(.theme-light) *::-webkit-scrollbar-thumb:hover { background:#41749b; }
+
+    /* Identidade oficial e alinhamento horizontal uniforme em todos os módulos desktop. */
+    @media (min-width:901px) {
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace {
+        padding-left:24px !important;
+        padding-right:24px !important;
+      }
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace > .view {
+        width:100% !important;
+        max-width:none !important;
+        margin-left:0 !important;
+        margin-right:0 !important;
+      }
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace > .view > :is(
+        .panel,
+        .grid,
+        .industrial-dashboard-shell,
+        .industrial-map-workspace,
+        .assets-workspace,
+        .os-page,
+        .materials-workspace,
+        .preventive-workspace,
+        .preventive-calendar-shell,
+        .checklist-workspace,
+        .stage14-workspace,
+        .stage15-workspace,
+        .stage16-workspace,
+        .stage17-workspace,
+        .stage18-workspace,
+        .stage19-workspace,
+        .stage20-workspace,
+        .stage21-workspace
+      ) {
+        width:100% !important;
+        max-width:none !important;
+        margin-left:0 !important;
+        margin-right:0 !important;
+        box-sizing:border-box !important;
+      }
+    }
 
     /* Mapa Industrial: regiões sem sombra projetada entre os blocos. */
     #map .map-region { box-shadow:none !important; }
@@ -21623,7 +21663,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       </header>
       <div class="panel">
         <header class="os-broadcast-head">
-          <div class="os-broadcast-brand"><img src="assets/ui/illustrations/gestman365-logo.png" alt="GestMan365"><div><span>ACOMPANHAMENTO OPERACIONAL</span><h2>Painel de Ordens de Serviço</h2><p>Atualização automática ao vivo</p></div></div>
+          <div class="os-broadcast-brand"><img src="assets/ui/illustrations/gestman365-logo.png" data-theme-logo alt="GestMan365"><div><span>ACOMPANHAMENTO OPERACIONAL</span><h2>Painel de Ordens de Serviço</h2><p>Atualização automática ao vivo</p></div></div>
           <div class="os-broadcast-clock"><time id="osPanelClock">--:--</time><span id="osPanelDate">--/--/----</span></div>
           <div class="os-broadcast-actions"><button class="btn" type="button" onclick="copyOsPanelLink()">Copiar link</button><button class="btn" type="button" onclick="toggleOsPanelFullscreen()">Tela cheia</button><button class="btn" type="button" onclick="closeOsPanelMode()">Voltar ao sistema</button></div>
           <div class="os-broadcast-filters">
