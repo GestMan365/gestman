@@ -1,0 +1,843 @@
+/* GestMan365 — Etapa 01: padronização visual do conteúdo.
+   O cabeçalho e o menu principal são deliberadamente excluídos deste arquivo. */
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace,
+#genericModal,
+.platform-dialog {
+  --gm01-primary: #0b6fce;
+  --gm01-primary-hover: #095dad;
+  --gm01-primary-soft: rgba(11, 111, 206, .13);
+  --gm01-accent-text: #61b7ff;
+  --gm01-success: #18a66a;
+  --gm01-warning: #d99216;
+  --gm01-danger: #dc4455;
+  --gm01-info: #1683e8;
+  --gm01-radius-control: 8px;
+  --gm01-radius-card: 12px;
+  --gm01-radius-modal: 16px;
+  --gm01-radius-pill: 999px;
+  --gm01-space-1: 4px;
+  --gm01-space-2: 8px;
+  --gm01-space-3: 12px;
+  --gm01-space-4: 16px;
+  --gm01-space-5: 24px;
+  --gm01-space-6: 32px;
+  --gm01-space-7: 40px;
+  --gm01-bg: #07131f;
+  --gm01-surface: #0b1a2a;
+  --gm01-surface-raised: #102238;
+  --gm01-surface-soft: #0d1e30;
+  --gm01-text: #eef6ff;
+  --gm01-text-secondary: #b5c5d6;
+  --gm01-muted: #8298ae;
+  --gm01-border: #243b53;
+  --gm01-border-strong: #34516d;
+  --gm01-shadow-card: 0 8px 22px rgba(0, 0, 0, .18);
+  --gm01-shadow-modal: 0 28px 80px rgba(0, 0, 0, .45);
+  --gm01-focus: 0 0 0 3px rgba(11, 111, 206, .28);
+}
+
+body.theme-light:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace,
+body.theme-light #genericModal,
+body.theme-light .platform-dialog {
+  --gm01-accent-text: #0b6fce;
+  --gm01-bg: #edf3f8;
+  --gm01-surface: #ffffff;
+  --gm01-surface-raised: #f8fbfd;
+  --gm01-surface-soft: #f1f6fa;
+  --gm01-text: #10263d;
+  --gm01-text-secondary: #405a73;
+  --gm01-muted: #637b91;
+  --gm01-border: #cad8e5;
+  --gm01-border-strong: #abc0d3;
+  --gm01-shadow-card: 0 7px 20px rgba(24, 51, 77, .08);
+  --gm01-shadow-modal: 0 28px 80px rgba(24, 51, 77, .22);
+  --gm01-focus: 0 0 0 3px rgba(11, 111, 206, .22);
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace {
+  color: var(--gm01-text) !important;
+  background: var(--gm01-bg) !important;
+  padding: var(--gm01-space-5) var(--gm01-space-5) var(--gm01-space-6) !important;
+  overflow-x: clip !important;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace > .view.active {
+  width: 100%;
+  max-width: 1920px;
+  min-width: 0;
+  margin-inline: auto;
+  color: var(--gm01-text);
+}
+
+/* Cabeçalhos estruturais das páginas */
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace .gm01-page-header,
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is(
+  .assets-page-head,
+  .orders-page-head,
+  .preventive-page-head,
+  .checklist-page-head,
+  .materials-page-head,
+  .stage14-page-head,
+  .stage15-page-head,
+  .stage16-page-head,
+  .stage17-page-head,
+  .stage18-page-head,
+  .stage19-page-head,
+  .stage20-page-head,
+  .industrial-dashboard-heading
+) {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: var(--gm01-space-5) !important;
+  min-width: 0;
+  margin: 0 0 var(--gm01-space-4) !important;
+  padding: var(--gm01-space-5) !important;
+  color: var(--gm01-text) !important;
+  background: var(--gm01-surface) !important;
+  border: 1px solid var(--gm01-border) !important;
+  border-radius: var(--gm01-radius-card) !important;
+  box-shadow: var(--gm01-shadow-card) !important;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace .gm01-page-header > div:first-child,
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace [class$="-page-head"] > div:first-child {
+  min-width: 0;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is(.gm01-page-header,[class$="-page-head"],.industrial-dashboard-heading) h1 {
+  margin: var(--gm01-space-1) 0 !important;
+  color: var(--gm01-text) !important;
+  font-size: clamp(1.55rem, 2vw, 2rem) !important;
+  line-height: 1.18 !important;
+  letter-spacing: -.025em !important;
+  text-wrap: balance;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is(.gm01-page-header,[class$="-page-head"],.industrial-dashboard-heading) p {
+  max-width: 76ch;
+  margin: 0 !important;
+  color: var(--gm01-text-secondary) !important;
+  line-height: 1.55 !important;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is(
+  .gm01-eyebrow,
+  [class$="-eyebrow"],
+  .d2-dashboard-welcome > span:first-child
+) {
+  color: var(--gm01-accent-text) !important;
+  font-size: .72rem !important;
+  font-weight: 800 !important;
+  letter-spacing: .14em !important;
+  text-transform: uppercase !important;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace .gm01-page-actions,
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace [class$="-head-actions"],
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace [class$="-page-actions"] {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--gm01-space-2);
+}
+
+/* Controles e ações */
+body:not(.auth-required):not(.auth-loading) .workspace :is(.btn,button,[role="button"]):not(.tab):not(.calendar-event),
+#genericModal :is(.btn,button,[role="button"]),
+.platform-dialog :is(.platform-btn,button,[role="button"]) {
+  min-height: 44px;
+  border-radius: var(--gm01-radius-control) !important;
+}
+
+body:not(.auth-required):not(.auth-loading) .workspace .btn,
+#genericModal .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gm01-space-2);
+  padding: 9px 14px !important;
+  color: var(--gm01-text) !important;
+  background: var(--gm01-surface-raised) !important;
+  border: 1px solid var(--gm01-border-strong) !important;
+  box-shadow: none !important;
+  font-weight: 700 !important;
+  line-height: 1.2;
+}
+
+body:not(.auth-required):not(.auth-loading) .workspace .btn:hover:not(:disabled),
+#genericModal .btn:hover:not(:disabled) {
+  color: var(--gm01-text) !important;
+  background: color-mix(in srgb, var(--gm01-primary) 10%, var(--gm01-surface-raised)) !important;
+  border-color: color-mix(in srgb, var(--gm01-primary) 58%, var(--gm01-border-strong)) !important;
+}
+
+body:not(.auth-required):not(.auth-loading) .workspace .btn.primary,
+body:not(.auth-required):not(.auth-loading) .workspace #orders #createOrderBtn.btn.primary,
+#genericModal .btn.primary,
+.platform-dialog .platform-btn.primary {
+  color: #fff !important;
+  background: var(--gm01-primary) !important;
+  border-color: var(--gm01-primary) !important;
+  box-shadow: 0 5px 14px rgba(11, 111, 206, .22) !important;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) #assistant #aiRefreshBtn.btn {
+  color: var(--gm01-text) !important;
+  background: var(--gm01-surface-raised) !important;
+  border-color: var(--gm01-border-strong) !important;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) #calendar .stage19-filter-count {
+  color: #fff !important;
+  background: var(--gm01-primary) !important;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) #calendar .stage19-calendar-empty {
+  color: var(--gm01-muted) !important;
+}
+
+body:not(.auth-required):not(.auth-loading) .workspace .btn.primary:hover:not(:disabled),
+#genericModal .btn.primary:hover:not(:disabled) {
+  background: var(--gm01-primary-hover) !important;
+  border-color: var(--gm01-primary-hover) !important;
+}
+
+body:not(.auth-required):not(.auth-loading) .workspace :is(.btn.danger,.danger.btn),
+#genericModal :is(.btn.danger,.danger.btn) {
+  color: #fff !important;
+  background: var(--gm01-danger) !important;
+  border-color: var(--gm01-danger) !important;
+}
+
+body:not(.auth-required):not(.auth-loading) .workspace :is(.btn,button,[role="button"]):focus-visible,
+body:not(.auth-required):not(.auth-loading) .workspace :is(input,select,textarea,summary,[tabindex]):focus-visible,
+#genericModal :is(.btn,button,input,select,textarea,summary,[tabindex]):focus-visible,
+.platform-dialog :is(button,input,select,textarea,[tabindex]):focus-visible {
+  outline: 2px solid var(--gm01-primary) !important;
+  outline-offset: 2px !important;
+  box-shadow: var(--gm01-focus) !important;
+}
+
+body:not(.auth-required):not(.auth-loading) .workspace :is(input,select,textarea,.field),
+#genericModal :is(input,select,textarea,.field),
+.platform-dialog :is(input,select,textarea) {
+  width: 100%;
+  min-height: 44px;
+  min-width: 0;
+  padding: 10px 12px !important;
+  color: var(--gm01-text) !important;
+  background: var(--gm01-surface-raised) !important;
+  border: 1px solid var(--gm01-border-strong) !important;
+  border-radius: var(--gm01-radius-control) !important;
+  box-shadow: none !important;
+}
+
+body:not(.auth-required):not(.auth-loading) .workspace textarea,
+#genericModal textarea,
+.platform-dialog textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+body:not(.auth-required):not(.auth-loading) .workspace :is(input,textarea)::placeholder,
+#genericModal :is(input,textarea)::placeholder {
+  color: var(--gm01-muted) !important;
+  opacity: 1;
+}
+
+body:not(.auth-required):not(.auth-loading) .workspace form label,
+#genericModal form label,
+.platform-dialog form label {
+  color: var(--gm01-text-secondary) !important;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+/* Painéis, cards e indicadores */
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is(
+  .panel,
+  .industrial-card,
+  .side-box,
+  .materials-list-panel,
+  .materials-alert-panel,
+  .asset-list-panel,
+  .preventive-list-panel,
+  .checklist-list-panel,
+  .stage14-panel,
+  .stage15-panel,
+  .stage16-panel,
+  .stage17-panel,
+  .stage18-panel,
+  .stage19-panel,
+  .stage20-panel
+) {
+  min-width: 0;
+  color: var(--gm01-text) !important;
+  background: var(--gm01-surface) !important;
+  border: 1px solid var(--gm01-border) !important;
+  border-radius: var(--gm01-radius-card) !important;
+  box-shadow: var(--gm01-shadow-card) !important;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is(.panel-head,.industrial-card-head,[class$="-list-head"]) {
+  min-height: 58px;
+  padding: var(--gm01-space-3) var(--gm01-space-4) !important;
+  color: var(--gm01-text) !important;
+  background: var(--gm01-surface) !important;
+  border-bottom: 1px solid var(--gm01-border) !important;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is(.panel-title,[class$="-list-title"]) {
+  color: var(--gm01-text) !important;
+  font-size: 1rem !important;
+  font-weight: 800 !important;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is(
+  .asset-metric,
+  .materials-metric,
+  .preventive-metric,
+  .checklist-metric,
+  .stage14-metric,
+  .stage15-metric,
+  .stage16-metric,
+  .stage17-metric,
+  .stage18-metric,
+  .stage19-metric,
+  .stage20-metric,
+  .professional-kpi-card
+) {
+  min-height: 86px;
+  padding: var(--gm01-space-3) var(--gm01-space-4) !important;
+  color: var(--gm01-text) !important;
+  background: var(--gm01-surface) !important;
+  border: 1px solid var(--gm01-border) !important;
+  border-radius: var(--gm01-radius-card) !important;
+  box-shadow: var(--gm01-shadow-card) !important;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is(
+  .asset-metric,.materials-metric,.preventive-metric,.checklist-metric,
+  .stage14-metric,.stage15-metric,.stage16-metric,.stage17-metric,
+  .stage18-metric,.stage19-metric,.stage20-metric,.professional-kpi-card
+) :is(strong,h2,h3) {
+  color: var(--gm01-text) !important;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is(
+  .asset-metric,.materials-metric,.preventive-metric,.checklist-metric,
+  .stage14-metric,.stage15-metric,.stage16-metric,.stage17-metric,
+  .stage18-metric,.stage19-metric,.stage20-metric,.professional-kpi-card
+) :is(span,small,p) {
+  color: var(--gm01-muted) !important;
+}
+
+/* Barras de busca, filtros e abas */
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is(
+  .toolbar,
+  [class$="-toolbar"],
+  [class$="-filter-panel"],
+  .materials-tabs,
+  .checklist-tabs,
+  .stage15-tabs,
+  .calendar-mode-group,
+  .detail-tabs
+) {
+  min-width: 0;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is(
+  [class$="-filter-panel"],
+  .materials-toolbar,
+  .stage14-toolbar,
+  .stage15-toolbar,
+  .stage16-toolbar,
+  .stage17-toolbar,
+  .stage18-toolbar,
+  .stage19-toolbar,
+  .stage20-toolbar
+) {
+  gap: var(--gm01-space-2) !important;
+  padding: var(--gm01-space-3) !important;
+  background: var(--gm01-surface) !important;
+  border: 1px solid var(--gm01-border) !important;
+  border-radius: var(--gm01-radius-card) !important;
+  box-shadow: var(--gm01-shadow-card) !important;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is(
+  .materials-tabs,.checklist-tabs,.stage15-tabs,.calendar-mode-group,.detail-tabs,
+  .asset-tabs,.preventive-tabs,.stage14-tabs,.stage17-tabs,.stage18-tabs,.stage19-tabs
+) {
+  gap: var(--gm01-space-1) !important;
+  padding: var(--gm01-space-1) !important;
+  background: var(--gm01-surface-soft) !important;
+  border: 1px solid var(--gm01-border) !important;
+  border-radius: var(--gm01-radius-control) !important;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is(
+  .materials-tabs,.checklist-tabs,.stage15-tabs,.calendar-mode-group,.detail-tabs,
+  .asset-tabs,.preventive-tabs,.stage14-tabs,.stage17-tabs,.stage18-tabs,.stage19-tabs
+) button {
+  min-height: 38px !important;
+  padding: 8px 12px !important;
+  color: var(--gm01-text-secondary) !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is(
+  .materials-tabs,.checklist-tabs,.stage15-tabs,.calendar-mode-group,.detail-tabs,
+  .asset-tabs,.preventive-tabs,.stage14-tabs,.stage17-tabs,.stage18-tabs,.stage19-tabs
+) button:is(.active,[aria-selected="true"]) {
+  color: #fff !important;
+  background: var(--gm01-primary) !important;
+  border-color: var(--gm01-primary) !important;
+}
+
+/* Tabelas */
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is(.table-wrap,[class$="-table-wrap"]) {
+  max-width: 100%;
+  overflow: auto !important;
+  overscroll-behavior-inline: contain;
+  scrollbar-gutter: stable;
+  border-radius: 0 0 var(--gm01-radius-card) var(--gm01-radius-card);
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace table {
+  width: 100%;
+  color: var(--gm01-text-secondary) !important;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 12px 14px !important;
+  color: var(--gm01-text-secondary) !important;
+  background: var(--gm01-surface-soft) !important;
+  border-bottom: 1px solid var(--gm01-border-strong) !important;
+  font-size: .72rem !important;
+  font-weight: 800 !important;
+  letter-spacing: .055em !important;
+  text-transform: uppercase !important;
+  white-space: nowrap;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace tbody td {
+  padding: 12px 14px !important;
+  color: var(--gm01-text-secondary) !important;
+  background: var(--gm01-surface) !important;
+  border-bottom: 1px solid var(--gm01-border) !important;
+  vertical-align: middle;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace tbody tr:hover td {
+  background: color-mix(in srgb, var(--gm01-primary) 6%, var(--gm01-surface)) !important;
+}
+
+/* Estados, badges e paginação */
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is(
+  .tag,.badge,[class$="-status"],[class$="-badge"],[class$="-chip"]
+) {
+  border-radius: var(--gm01-radius-pill) !important;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is(
+  .materials-pagination,.asset-pagination,.preventive-pagination,.checklist-pagination,
+  .stage14-pagination,.stage15-pagination,.stage16-pagination,.stage17-pagination,
+  .stage18-pagination,.stage19-pagination,.stage20-pagination,.pagination
+) {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--gm01-space-1) !important;
+  padding: var(--gm01-space-3) var(--gm01-space-4) !important;
+  background: var(--gm01-surface) !important;
+  border-top: 1px solid var(--gm01-border) !important;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is(
+  .materials-pagination,.asset-pagination,.preventive-pagination,.checklist-pagination,
+  .stage14-pagination,.stage15-pagination,.stage16-pagination,.stage17-pagination,
+  .stage18-pagination,.stage19-pagination,.stage20-pagination,.pagination
+) button {
+  min-width: 38px;
+  min-height: 38px;
+  color: var(--gm01-text-secondary) !important;
+  background: var(--gm01-surface-raised) !important;
+  border: 1px solid var(--gm01-border-strong) !important;
+  border-radius: var(--gm01-radius-control) !important;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is(
+  .materials-pagination,.asset-pagination,.preventive-pagination,.checklist-pagination,
+  .stage14-pagination,.stage15-pagination,.stage16-pagination,.stage17-pagination,
+  .stage18-pagination,.stage19-pagination,.stage20-pagination,.pagination
+) button:is(.active,[aria-current="page"]) {
+  color: #fff !important;
+  background: var(--gm01-primary) !important;
+  border-color: var(--gm01-primary) !important;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is(
+  .empty,.asset-empty,.materials-empty,.preventive-empty,.checklist-empty,
+  .stage14-empty,.stage15-empty,.stage16-empty,.stage17-empty,.stage18-empty,
+  .stage19-empty,.stage20-empty,.gm-system-state
+) {
+  min-height: 150px;
+  padding: var(--gm01-space-6) !important;
+  color: var(--gm01-muted) !important;
+  background: var(--gm01-surface-soft) !important;
+  border: 1px dashed var(--gm01-border-strong) !important;
+  border-radius: var(--gm01-radius-card) !important;
+  text-align: center;
+}
+
+/* Dashboard */
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) #dashboard .industrial-dashboard-widget-grid {
+  align-items: start !important;
+  gap: var(--gm01-space-3) !important;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) #dashboard .dashboard-widget {
+  align-self: start !important;
+  height: auto !important;
+  min-height: 0;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) #dashboard .dashboard-visible-body {
+  max-height: 520px;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) #dashboard :is(.industrial-quick-actions,.professional-kpi-strip) {
+  gap: var(--gm01-space-3) !important;
+}
+
+/* Mapa industrial: menos ruído visual, sem alterar posições ou arraste */
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) #map :is(.map-shell,.map-canvas,.map-region,.map-location,.machine-card) {
+  box-shadow: none !important;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) #map .map-shell {
+  border-radius: var(--gm01-radius-card) !important;
+}
+
+/* IA */
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) #assistant .ai-layout {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.6fr) minmax(300px, .7fr) !important;
+  gap: var(--gm01-space-4) !important;
+  padding: var(--gm01-space-4) !important;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) #assistant .ai-answer {
+  min-height: 260px;
+  padding: var(--gm01-space-4) !important;
+  color: var(--gm01-text-secondary) !important;
+  background: var(--gm01-surface-soft) !important;
+  border: 1px solid var(--gm01-border) !important;
+  border-radius: var(--gm01-radius-card) !important;
+  line-height: 1.65;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) #assistant .ai-form {
+  align-content: start;
+  padding: var(--gm01-space-4) !important;
+  background: var(--gm01-surface-soft) !important;
+  border: 1px solid var(--gm01-border) !important;
+  border-radius: var(--gm01-radius-card) !important;
+}
+
+/* Modal único e drawers sem conteúdo coberto */
+#genericModal,
+.platform-dialog {
+  padding: var(--gm01-space-4) !important;
+  background: rgba(2, 9, 17, .72) !important;
+  backdrop-filter: blur(5px);
+}
+
+#genericModalBox,
+.platform-dialog-card {
+  display: flex !important;
+  flex-direction: column !important;
+  width: min(920px, calc(100vw - 32px)) !important;
+  max-height: calc(100dvh - 32px) !important;
+  overflow: hidden !important;
+  color: var(--gm01-text) !important;
+  background: var(--gm01-surface) !important;
+  border: 1px solid var(--gm01-border-strong) !important;
+  border-radius: var(--gm01-radius-modal) !important;
+  box-shadow: var(--gm01-shadow-modal) !important;
+}
+
+#genericModalBox.large {
+  width: min(1180px, calc(100vw - 32px)) !important;
+}
+
+#genericModalBox > .modal-head,
+.platform-dialog-head {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  min-height: 62px;
+  padding: var(--gm01-space-3) var(--gm01-space-4) !important;
+  color: var(--gm01-text) !important;
+  background: var(--gm01-surface) !important;
+  border-bottom: 1px solid var(--gm01-border) !important;
+}
+
+#genericModalBox > .modal-body,
+.platform-dialog-body {
+  min-height: 0;
+  padding: var(--gm01-space-4) !important;
+  overflow: auto !important;
+  overscroll-behavior: contain;
+}
+
+#genericModal :is(.os-create-actions,.order-execution-actions,.modal-actions,.modal-foot,.materials-form-actions,.stage14-form-actions,.stage15-form-actions,.tenant-user-editor-foot),
+.platform-dialog-actions.is-sticky {
+  position: sticky !important;
+  bottom: 0 !important;
+  z-index: 6 !important;
+  margin: var(--gm01-space-4) calc(var(--gm01-space-4) * -1) calc(var(--gm01-space-4) * -1) !important;
+  padding: var(--gm01-space-3) var(--gm01-space-4) !important;
+  background: var(--gm01-surface) !important;
+  border-top: 1px solid var(--gm01-border) !important;
+  box-shadow: 0 -10px 24px color-mix(in srgb, var(--gm01-bg) 72%, transparent) !important;
+}
+
+body:not(.auth-required):not(.auth-loading) #assets .asset-form-panel {
+  top: var(--gm-app-top-offset, 136px) !important;
+  bottom: 0 !important;
+  width: min(760px, 96vw) !important;
+  max-height: calc(100dvh - var(--gm-app-top-offset, 136px)) !important;
+  color: var(--gm01-text) !important;
+  background: var(--gm01-surface) !important;
+  border: 1px solid var(--gm01-border-strong) !important;
+  border-radius: var(--gm01-radius-modal) 0 0 0 !important;
+  box-shadow: var(--gm01-shadow-modal) !important;
+  overscroll-behavior: contain;
+}
+
+body:not(.auth-required):not(.auth-loading) #assets .asset-form-head,
+body:not(.auth-required):not(.auth-loading) #assets .asset-form-actions {
+  color: var(--gm01-text) !important;
+  background: var(--gm01-surface) !important;
+  border-color: var(--gm01-border) !important;
+}
+
+#genericModal .tenant-user-editor {
+  max-width: none !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+#genericModal .tenant-user-editor-head {
+  padding: 0 0 var(--gm01-space-3) !important;
+  background: transparent !important;
+  border-bottom: 1px solid var(--gm01-border) !important;
+}
+
+#genericModal .tenant-user-body {
+  padding: var(--gm01-space-4) 0 0 !important;
+}
+
+#genericModal .stage20-custom-row {
+  grid-template-columns: 44px minmax(0, 1fr) auto !important;
+  gap: var(--gm01-space-3) !important;
+  padding: var(--gm01-space-3) !important;
+  color: var(--gm01-text) !important;
+  background: var(--gm01-surface-soft) !important;
+  border-color: var(--gm01-border) !important;
+  border-radius: var(--gm01-radius-control) !important;
+}
+
+#genericModal .stage20-custom-row > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Correções de tema claro em componentes legados com cores fixas */
+body.theme-light:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is(
+  .asset-detail-head,.asset-info-card,.asset-content-card,.asset-mini-kpi,.asset-section-row,
+  .preventive-detail-head,.checklist-detail-head,.stage14-card,.stage15-card,
+  .stage16-card,.stage17-card,.stage18-card,.stage19-card,.stage20-shortcut,
+  .tenant-user-editor,.tenant-access-details,.tenant-more-details,.permission-item,
+  .calendar-app,.calendar-main,.calendar-grid,.calendar-day,.map-side
+) {
+  color: var(--gm01-text) !important;
+  background: var(--gm01-surface) !important;
+  border-color: var(--gm01-border) !important;
+  box-shadow: var(--gm01-shadow-card) !important;
+}
+
+body.theme-light:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is(
+  .asset-detail-head,.asset-info-card,.asset-content-card,.asset-mini-kpi,.asset-section-row,
+  .preventive-detail-head,.checklist-detail-head,.stage14-card,.stage15-card,
+  .stage16-card,.stage17-card,.stage18-card,.stage19-card,.stage20-shortcut,
+  .tenant-user-editor,.tenant-access-details,.tenant-more-details,.permission-item,
+  .calendar-app,.calendar-main,.calendar-grid,.calendar-day,.map-side
+) :is(h1,h2,h3,h4,strong) {
+  color: var(--gm01-text) !important;
+}
+
+body.theme-light:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is(
+  .asset-detail-head,.asset-info-card,.asset-content-card,.asset-mini-kpi,.asset-section-row,
+  .preventive-detail-head,.checklist-detail-head,.stage14-card,.stage15-card,
+  .stage16-card,.stage17-card,.stage18-card,.stage19-card,.stage20-shortcut,
+  .tenant-user-editor,.tenant-access-details,.tenant-more-details,.permission-item,
+  .calendar-app,.calendar-main,.calendar-grid,.calendar-day,.map-side
+) :is(p,span,small,label) {
+  color: var(--gm01-text-secondary) !important;
+}
+
+/* Indicadores de carregamento e erro */
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) #maintenanceIndicators :is(.gm-loading-skeleton,[aria-busy="true"]) {
+  border-radius: var(--gm01-radius-card) !important;
+}
+
+/* Responsividade: conteúdo apenas; navegação permanece intocada */
+@media (max-width: 1280px) {
+  body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is(
+    .asset-metric-strip,.materials-metrics,.preventive-metrics,.checklist-metrics,
+    .stage14-metrics,.stage15-metrics,.stage16-metrics,.stage17-metrics,
+    .stage18-metrics,.stage19-metrics,.stage20-metrics,.professional-kpi-strip
+  ) {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace .gm01-page-header,
+  body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is([class$="-page-head"],.industrial-dashboard-heading) {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+  }
+
+  body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace .gm01-page-actions,
+  body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace [class$="-head-actions"],
+  body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace [class$="-page-actions"] {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  body:not(.auth-required):not(.auth-loading):not(.panel-mode) #assistant .ai-layout {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 768px) {
+  body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace {
+    padding: var(--gm01-space-3) !important;
+  }
+
+  body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is(
+    .asset-metric-strip,.materials-metrics,.preventive-metrics,.checklist-metrics,
+    .stage14-metrics,.stage15-metrics,.stage16-metrics,.stage17-metrics,
+    .stage18-metrics,.stage19-metrics,.stage20-metrics,.professional-kpi-strip
+  ) {
+    display: flex !important;
+    grid-template-columns: none !important;
+    max-width: 100%;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+  }
+
+  body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is(
+    .asset-metric,.materials-metric,.preventive-metric,.checklist-metric,
+    .stage14-metric,.stage15-metric,.stage16-metric,.stage17-metric,
+    .stage18-metric,.stage19-metric,.stage20-metric,.professional-kpi-card
+  ) {
+    flex: 0 0 min(78vw, 260px);
+    scroll-snap-align: start;
+  }
+
+  body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is(
+    .gm01-page-header,[class$="-page-head"],.industrial-dashboard-heading
+  ) {
+    padding: var(--gm01-space-4) !important;
+  }
+
+  #genericModalBox,
+  #genericModalBox.large,
+  .platform-dialog-card {
+    width: min(100%, calc(100vw - 16px)) !important;
+    max-height: calc(100dvh - 16px) !important;
+  }
+
+  #genericModal,
+  .platform-dialog {
+    padding: var(--gm01-space-2) !important;
+  }
+
+  #genericModal .stage20-custom-row {
+    grid-template-columns: 44px minmax(0, 1fr) !important;
+  }
+
+  #genericModal .stage20-custom-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 390px) {
+  body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace {
+    padding: var(--gm01-space-2) !important;
+  }
+
+  body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace {
+    padding-inline: var(--gm01-space-2) !important;
+  }
+
+  body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace .gm01-page-actions > *,
+  body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace [class$="-head-actions"] > *,
+  body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace [class$="-page-actions"] > * {
+    flex: 1 1 100%;
+  }
+
+  body:not(.auth-required):not(.auth-loading) #assets .asset-form-panel {
+    inset: var(--gm-app-top-offset, 116px) 0 0 !important;
+    width: 100vw !important;
+    max-height: calc(100dvh - var(--gm-app-top-offset, 116px)) !important;
+    border-radius: 0 !important;
+  }
+
+  #genericModalBox > .modal-body,
+  .platform-dialog-body {
+    padding: var(--gm01-space-3) !important;
+  }
+
+  #genericModal :is(.os-create-actions,.order-execution-actions,.modal-actions,.modal-foot,.materials-form-actions,.stage14-form-actions,.stage15-form-actions,.tenant-user-editor-foot) {
+    margin: var(--gm01-space-3) calc(var(--gm01-space-3) * -1) calc(var(--gm01-space-3) * -1) !important;
+    padding: var(--gm01-space-3) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace *,
+  #genericModal *,
+  .platform-dialog * {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

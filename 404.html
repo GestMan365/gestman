@@ -20107,6 +20107,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     #map .map-region { box-shadow:none !important; }
   </style>
   <link rel="stylesheet" href="assets/ui/gestman-typography.css">
+  <link rel="stylesheet" href="assets/ui/gestman-stage01-standard.css">
 </head>
 <body class="auth-loading auth-restoring">
   <script id="design-theme-bootstrap">
@@ -20828,14 +20829,20 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       </div>
     </section>
     <section class="view" id="regions">
+      <header class="gm01-page-header">
+        <div><span class="gm01-eyebrow">ESTRUTURA FÍSICA</span><h1>Regiões</h1><p>Organize as unidades geográficas e operacionais que agrupam os locais de instalação.</p></div>
+        <div class="gm01-page-actions"><button class="btn primary" type="button" onclick="setView('locations');openCrudFormForCreate('regionForm')">Nova região</button></div>
+      </header>
       <div class="panel">
-        <div class="panel-head"><div><div class="panel-title">Regiões</div><small class="muted">Organização geográfica e operacional dos locais de instalação.</small></div><button class="btn primary" type="button" onclick="setView('locations');openCrudFormForCreate('regionForm')">Nova região</button></div>
         <div class="table-wrap"><table><thead><tr><th>Região</th><th>Locais vinculados</th><th>Equipamentos</th><th>Ações</th></tr></thead><tbody id="regionsModuleRows"></tbody></table></div>
       </div>
     </section>
     <section class="view" id="productiveCalendars">
+      <header class="gm01-page-header">
+        <div><span class="gm01-eyebrow">PLANEJAMENTO DE EQUIPES</span><h1>Calendários Produtivos</h1><p>Consulte as jornadas e os turnos utilizados no planejamento da manutenção.</p></div>
+        <div class="gm01-page-actions"><button class="btn primary" type="button" onclick="openProfileModal('users')">Gerenciar usuários</button></div>
+      </header>
       <div class="panel">
-        <div class="panel-head"><div><div class="panel-title">Calendários Produtivos</div><small class="muted">Jornadas e turnos utilizados no planejamento da manutenção.</small></div><button class="btn primary" type="button" onclick="openProfileModal('users')">Gerenciar usuários</button></div>
         <div class="table-wrap"><table><thead><tr><th>Calendário</th><th>Usuários vinculados</th><th>Aplicação</th><th>Status</th></tr></thead><tbody id="productiveCalendarRows"></tbody></table></div>
       </div>
     </section>
@@ -21269,6 +21276,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       </div>
     </section>
     <section class="view" id="stock">
+      <header class="gm01-page-header">
+        <div><span class="gm01-eyebrow">CONTROLE DE MATERIAIS</span><h1>Almoxarifado de Peças</h1><p>Administre almoxarifados, responsáveis e a disponibilidade dos estoques de manutenção.</p></div>
+      </header>
       <div class="grid admin-grid">
         <div class="panel form-panel is-hidden">
           <div class="panel-head"><div class="panel-title" id="stockFormTitle">Novo almoxarifado</div></div>
@@ -21301,6 +21311,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           <button type="button" data-materials-tab="parts" class="active" role="tab">Peças <span id="materialsPartsCount">0</span></button>
           <button type="button" data-materials-tab="stock" role="tab">Estoque <span id="materialsStockCount">0</span></button>
           <button type="button" data-materials-tab="moves" role="tab">Movimentações <span id="materialsMovesCount">0</span></button>
+          <button type="button" data-materials-tab="transfers" role="tab">Transferências <span id="materialsTransfersCount">0</span></button>
           <button type="button" data-materials-tab="requests" role="tab">Solicitações <span id="materialsRequestsCount">0</span></button>
         </div>
         <div class="materials-metrics" id="materialsMetrics"></div>
@@ -21606,13 +21617,13 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       </div>
     </section>
     <section class="view" id="activeOrders">
+      <header class="gm01-page-header">
+        <div><span class="gm01-eyebrow">ACOMPANHAMENTO OPERACIONAL</span><h1>Painel de O.S.</h1><p>Visualize ordens abertas e em execução em cartões operacionais atualizados automaticamente.</p></div>
+        <div class="gm01-page-actions"><button class="btn primary" type="button" onclick="openOsPanelWindow()">Abrir em nova tela</button></div>
+      </header>
       <div class="panel">
-        <div class="panel-head">
-          <div><div class="panel-title">Painel de O.S.</div><p class="muted">Ordens abertas e em execução em formato de cartões operacionais.</p></div>
-          <div class="toolbar"><button class="btn primary" type="button" onclick="openOsPanelWindow()">Abrir em nova tela</button></div>
-        </div>
         <header class="os-broadcast-head">
-          <div class="os-broadcast-brand"><img src="assets/ui/illustrations/gestman365-logo.png" alt="GestMan365"><div><span>ACOMPANHAMENTO OPERACIONAL</span><h1>Painel de Ordens de Serviço</h1><p>Atualização automática ao vivo</p></div></div>
+          <div class="os-broadcast-brand"><img src="assets/ui/illustrations/gestman365-logo.png" alt="GestMan365"><div><span>ACOMPANHAMENTO OPERACIONAL</span><h2>Painel de Ordens de Serviço</h2><p>Atualização automática ao vivo</p></div></div>
           <div class="os-broadcast-clock"><time id="osPanelClock">--:--</time><span id="osPanelDate">--/--/----</span></div>
           <div class="os-broadcast-actions"><button class="btn" type="button" onclick="copyOsPanelLink()">Copiar link</button><button class="btn" type="button" onclick="toggleOsPanelFullscreen()">Tela cheia</button><button class="btn" type="button" onclick="closeOsPanelMode()">Voltar ao sistema</button></div>
           <div class="os-broadcast-filters">
@@ -21630,11 +21641,11 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       <div id="stage16ReportsRoot" class="stage16-workspace"></div>
     </section>
     <section class="view" id="assistant">
+      <header class="gm01-page-header">
+        <div><span class="gm01-eyebrow">ANÁLISE OPERACIONAL</span><h1>IA GestMan365</h1><p>Consulte somente os dados internos autorizados da operação, sem pesquisas externas.</p></div>
+        <div class="gm01-page-actions"><button class="btn" id="aiRefreshBtn" type="button">Atualizar dados</button></div>
+      </header>
       <div class="panel">
-        <div class="panel-head">
-          <div class="panel-title">IA GestMan365</div>
-          <button class="btn" id="aiRefreshBtn" type="button">Atualizar dados</button>
-        </div>
         <div class="ai-layout">
           <div>
             <div id="aiSystemSummary" class="report-grid"></div>
@@ -26489,7 +26500,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         view = firstAllowedView();
       }
       const requestedNavView = view;
-      const materialsRoute = { spares: "parts", stockMoves: "moves", stockTransfers: "moves", materialRequests: "requests" }[view];
+      const materialsRoute = { spares: "parts", stockMoves: "moves", stockTransfers: "transfers", materialRequests: "requests" }[view];
       if (materialsRoute) {
         materialsWorkspaceTab = materialsRoute;
         view = "spares";
@@ -36224,25 +36235,25 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function materialMobileCard(item,tab){
       if(tab==="parts"){const status=materialPartStatus(item),reserved=materialReservedQuantity(item.id),available=materialAvailableQuantity(item.id);return`<article class="materials-mobile-card" onclick="openMaterialPartDetail('${item.id}')"><div class="materials-mobile-card-head"><div><code>${escapeHtml(item.code)}</code><h3>${escapeHtml(item.name)}</h3></div>${tag(status.label)}</div><div class="materials-mobile-meta"><span>Disponível <strong>${formatQuantityForUnit(available,item.unit)} ${escapeHtml(item.unit||"UN")}</strong></span><span>Reservado <strong>${formatQuantityForUnit(reserved,item.unit)}</strong></span><span>Localização <strong>${escapeHtml(item.place||"-")}</strong></span><span>Estoque mínimo <strong>${formatQuantityForUnit(item.minimum,item.unit)}</strong></span></div></article>`}
       if(tab==="stock")return`<article class="materials-mobile-card" onclick="openMaterialPartDetail('${item.part.id}','stock')"><div class="materials-mobile-card-head"><div><code>${escapeHtml(item.part.code)}</code><h3>${escapeHtml(item.part.name)}</h3></div>${tag(item.available<=0?"Sem estoque":item.available<=Number(item.part.minimum||0)?"Estoque baixo":"Disponível")}</div><p>${escapeHtml(item.stock.name)} · ${escapeHtml(item.part.place||item.stock.place||"-")}</p><div class="materials-mobile-meta"><span>Total <strong>${formatQuantityForUnit(item.total,item.part.unit)}</strong></span><span>Reservado <strong>${formatQuantityForUnit(item.reserved,item.part.unit)}</strong></span><span>Disponível <strong>${formatQuantityForUnit(item.available,item.part.unit)}</strong></span></div></article>`;
-      if(tab==="moves")return`<article class="materials-mobile-card" onclick="showMaterialMovementDetails('${item.kind}','${item.id}')"><div class="materials-mobile-card-head"><div><code>${escapeHtml(item.number||"-")}</code><h3>${escapeHtml(spareName(item.spareId))}</h3></div>${tag(item.displayType)}</div><p>${escapeHtml(item.originLabel||"-")}${item.destinyLabel&&item.destinyLabel!=="-"?` → ${escapeHtml(item.destinyLabel)}`:""}</p><div class="materials-mobile-meta"><span>Quantidade <strong>${formatQuantityForUnit(Math.abs(item.quantity||0),byId(state.spareParts,item.spareId)?.unit)}</strong></span><span>Data <strong>${checklistExecutionDateLabel(item.createdAt)}</strong></span></div></article>`;
+      if(tab==="moves"||tab==="transfers")return`<article class="materials-mobile-card" onclick="showMaterialMovementDetails('${item.kind}','${item.id}')"><div class="materials-mobile-card-head"><div><code>${escapeHtml(item.number||"-")}</code><h3>${escapeHtml(spareName(item.spareId))}</h3></div>${tag(item.displayType)}</div><p>${escapeHtml(item.originLabel||"-")}${item.destinyLabel&&item.destinyLabel!=="-"?` → ${escapeHtml(item.destinyLabel)}`:""}</p><div class="materials-mobile-meta"><span>Quantidade <strong>${formatQuantityForUnit(Math.abs(item.quantity||0),byId(state.spareParts,item.spareId)?.unit)}</strong></span><span>Data <strong>${checklistExecutionDateLabel(item.createdAt)}</strong></span></div></article>`;
       const items=materialRequestItems(item);return`<article class="materials-mobile-card" onclick="openMaterialRequestDetail('${item.id}')"><div class="materials-mobile-card-head"><div><code>${escapeHtml(item.number||"-")}</code><h3>${escapeHtml(byId(state.orders,item.orderId)?.number||machineName(item.assetId)||"Sem O.S.")}</h3></div>${tag(item.status||"Rascunho")}</div><p>${items.length} item(ns) · ${escapeHtml(item.requester||"-")}</p><div class="materials-mobile-meta"><span>Prioridade <strong>${escapeHtml(item.priority||"Média")}</strong></span><span>Data <strong>${checklistExecutionDateLabel(item.createdAt)}</strong></span></div></article>`;
     }
     function renderMaterialsWorkspace(){
       if(!$("materialsMetrics"))return;populateMaterialsFilters();
-      const tab=materialsWorkspaceTab,config={parts:{title:"Catálogo de Peças",action:"＋ Nova Peça"},stock:{title:"Estoque por Almoxarifado",action:"Registrar Movimentação"},moves:{title:"Histórico de Movimentações",action:"Nova Movimentação"},requests:{title:"Solicitações de Materiais",action:"＋ Solicitar Material"}}[tab];
-      const allRows=tab==="parts"?materialFilteredParts():tab==="stock"?materialStockRows():tab==="moves"?materialFilteredMoves():materialFilteredRequests();const pages=Math.max(1,Math.ceil(allRows.length/MATERIALS_PAGE_SIZE));materialsWorkspacePage=Math.min(materialsWorkspacePage,pages);const rows=allRows.slice((materialsWorkspacePage-1)*MATERIALS_PAGE_SIZE,materialsWorkspacePage*MATERIALS_PAGE_SIZE);
+      const tab=materialsWorkspaceTab,config={parts:{title:"Catálogo de Peças",action:"＋ Nova Peça"},stock:{title:"Estoque por Almoxarifado",action:"Registrar Movimentação"},moves:{title:"Histórico de Movimentações",action:"Nova Movimentação"},transfers:{title:"Transferências de Estoque",action:"Nova Transferência"},requests:{title:"Solicitações de Materiais",action:"＋ Solicitar Material"}}[tab]||{title:"Catálogo de Peças",action:"＋ Nova Peça"};
+      const allRows=tab==="parts"?materialFilteredParts():tab==="stock"?materialStockRows():tab==="moves"?materialFilteredMoves().filter(item=>item.kind!=="transfer"):tab==="transfers"?materialFilteredMoves().filter(item=>item.kind==="transfer"):materialFilteredRequests();const pages=Math.max(1,Math.ceil(allRows.length/MATERIALS_PAGE_SIZE));materialsWorkspacePage=Math.min(materialsWorkspacePage,pages);const rows=allRows.slice((materialsWorkspacePage-1)*MATERIALS_PAGE_SIZE,materialsWorkspacePage*MATERIALS_PAGE_SIZE);
       $("materialsMetrics").innerHTML=materialsMetricHtml();$("materialsPrimaryAction").textContent=config.action;$("materialsListTitle").textContent=config.title;$("materialsListMeta").textContent=`${allRows.length} registro(s)`;$("materialsReplenishmentBtn").style.display=["parts","stock"].includes(tab)?"inline-flex":"none";
-      document.querySelectorAll("[data-materials-tab]").forEach(button=>button.classList.toggle("active",button.dataset.materialsTab===tab));$("materialsPartsCount").textContent=state.spareParts.length;$("materialsStockCount").textContent=materialStockRows().length;$("materialsMovesCount").textContent=materialMovementRows().length;$("materialsRequestsCount").textContent=state.materialRequests.length;
-      const heads={parts:"<tr><th>Código</th><th>Descrição / fabricante</th><th>Categoria</th><th>Un.</th><th>Estoque total</th><th>Mínimo</th><th>Situação</th><th>Localização</th><th>Ações</th></tr>",stock:"<tr><th>Peça</th><th>Almoxarifado</th><th>Localização</th><th>Disponível</th><th>Reservado</th><th>Total</th><th>Mínimo</th><th>Situação</th><th>Ação</th></tr>",moves:"<tr><th>Número</th><th>Tipo</th><th>Peça / origem</th><th>Quantidade</th><th>Saldo anterior</th><th>Saldo posterior</th><th>Usuário</th><th>Data</th><th>Status</th></tr>",requests:"<tr><th>Número</th><th>Solicitante</th><th>O.S. / equipamento</th><th>Itens</th><th>Prioridade</th><th>Status</th><th>Data</th><th>Atendimento</th><th></th></tr>"};$("materialsTableHead").innerHTML=heads[tab];
-      $("materialsTableRows").innerHTML=rows.map(item=>tab==="parts"?materialPartRow(item):tab==="stock"?materialStockRowHtml(item):tab==="moves"?materialMoveRowHtml(item):materialRequestRowHtml(item)).join("")||`<tr><td colspan="9"><div class="materials-empty"><strong>Nenhum registro encontrado.</strong><span>Ajuste os filtros ou use a ação principal desta aba.</span></div></td></tr>`;
+      document.querySelectorAll("[data-materials-tab]").forEach(button=>button.classList.toggle("active",button.dataset.materialsTab===tab));$("materialsPartsCount").textContent=state.spareParts.length;$("materialsStockCount").textContent=materialStockRows().length;$("materialsMovesCount").textContent=materialMovementRows().filter(item=>item.kind!=="transfer").length;$("materialsTransfersCount").textContent=state.stockTransfers.length;$("materialsRequestsCount").textContent=state.materialRequests.length;
+      const movementHead="<tr><th>Número</th><th>Tipo</th><th>Peça / origem</th><th>Quantidade</th><th>Saldo anterior</th><th>Saldo posterior</th><th>Usuário</th><th>Data</th><th>Status</th></tr>",heads={parts:"<tr><th>Código</th><th>Descrição / fabricante</th><th>Categoria</th><th>Un.</th><th>Estoque total</th><th>Mínimo</th><th>Situação</th><th>Localização</th><th>Ações</th></tr>",stock:"<tr><th>Peça</th><th>Almoxarifado</th><th>Localização</th><th>Disponível</th><th>Reservado</th><th>Total</th><th>Mínimo</th><th>Situação</th><th>Ação</th></tr>",moves:movementHead,transfers:movementHead,requests:"<tr><th>Número</th><th>Solicitante</th><th>O.S. / equipamento</th><th>Itens</th><th>Prioridade</th><th>Status</th><th>Data</th><th>Atendimento</th><th></th></tr>"};$("materialsTableHead").innerHTML=heads[tab];
+      $("materialsTableRows").innerHTML=rows.map(item=>tab==="parts"?materialPartRow(item):tab==="stock"?materialStockRowHtml(item):["moves","transfers"].includes(tab)?materialMoveRowHtml(item):materialRequestRowHtml(item)).join("")||`<tr><td colspan="9"><div class="materials-empty"><strong>Nenhum registro encontrado.</strong><span>Ajuste os filtros ou use a ação principal desta aba.</span></div></td></tr>`;
       $("materialsMobileList").innerHTML=rows.map(item=>materialMobileCard(item,tab)).join("")||`<div class="materials-empty"><strong>Nenhum registro encontrado.</strong><span>Ajuste os filtros ou crie um novo registro.</span></div>`;
       $("materialsPagination").innerHTML=`<span>Página ${materialsWorkspacePage} de ${pages}</span>${Array.from({length:pages},(_,index)=>`<button class="${index+1===materialsWorkspacePage?"active":""}" onclick="changeMaterialsPage(${index+1})">${index+1}</button>`).join("")}`;renderMaterialsAlerts();
     }
     function changeMaterialsPage(page){materialsWorkspacePage=Math.max(1,Number(page)||1);renderMaterialsWorkspace()}
-    function selectMaterialsTab(tab){materialsWorkspaceTab=tab;materialsWorkspacePage=1;$("materialsFilterPanel")?.classList.remove("mobile-open");const labels={parts:"Catálogo de Peças",stock:"Almoxarifado de Peças",moves:"Movimentações de Estoque",requests:"Solicitações de Materiais"};setHeaderContext("Materiais",labels[tab]||"Materiais e Estoque");renderMaterialsWorkspace()}
+    function selectMaterialsTab(tab){materialsWorkspaceTab=tab;materialsWorkspacePage=1;$("materialsFilterPanel")?.classList.remove("mobile-open");const labels={parts:"Catálogo de Peças",stock:"Almoxarifado de Peças",moves:"Movimentações de Estoque",transfers:"Transferências de Estoque",requests:"Solicitações de Materiais"};setHeaderContext("Materiais",labels[tab]||"Materiais e Estoque");renderMaterialsWorkspace()}
     function toggleMaterialsFilters(){const panel=$("materialsFilterPanel");if(!panel)return;if(window.matchMedia("(max-width:900px)").matches)panel.classList.toggle("mobile-open");else panel.classList.toggle("is-hidden")}
     function clearMaterialsFilters(){["materialsSearch","materialsWarehouseFilter","materialsCategoryFilter","materialsStatusFilter","materialsAssetFilter","materialsTypeFilter","materialsPeriodFilter","materialsPriorityFilter","materialsRequesterFilter","materialsOrderFilter"].forEach(id=>{if($(id))$(id).value=""});materialsWorkspacePage=1;$("materialsFilterPanel")?.classList.remove("mobile-open");renderMaterialsWorkspace()}
-    function runMaterialsPrimaryAction(){if(materialsWorkspaceTab==="parts")openMaterialPartForm();else if(materialsWorkspaceTab==="requests")openMaterialRequestForm();else openMaterialMovementForm(materialsWorkspaceTab==="stock"?"Entrada":"")}
+    function runMaterialsPrimaryAction(){if(materialsWorkspaceTab==="parts")openMaterialPartForm();else if(materialsWorkspaceTab==="requests")openMaterialRequestForm();else openMaterialMovementForm(materialsWorkspaceTab==="stock"?"Entrada":materialsWorkspaceTab==="transfers"?"Transferência":"")}
     function showCriticalMaterialItems(){$("materialsStatusFilter").value="Crítico";materialsWorkspaceTab="parts";materialsWorkspacePage=1;renderMaterialsWorkspace()}
     function showMaterialReplenishmentList(){const rows=state.spareParts.map(part=>({part,quantity:materialReplenishmentQuantity(part),pending:materialRequestPendingDemand(part.id)})).filter(item=>item.quantity>0);openModal("Lista sugerida de reposição",`<div class="side-box"><strong>Apoio para reposição</strong><span>Quantidade sugerida = estoque mínimo + demanda pendente − saldo disponível. Revise antes de qualquer ação; nenhuma compra será criada automaticamente.</span></div><div class="table-wrap"><table><thead><tr><th>Peça</th><th>Disponível</th><th>Mínimo</th><th>Demanda pendente</th><th>Sugestão</th></tr></thead><tbody>${rows.map(row=>`<tr><td>${escapeHtml(row.part.code)} - ${escapeHtml(row.part.name)}</td><td>${formatQuantityForUnit(materialAvailableQuantity(row.part.id),row.part.unit)}</td><td>${formatQuantityForUnit(row.part.minimum,row.part.unit)}</td><td>${formatQuantityForUnit(row.pending,row.part.unit)}</td><td><strong>${formatQuantityForUnit(row.quantity,row.part.unit)} ${escapeHtml(row.part.unit||"UN")}</strong></td></tr>`).join("")||`<tr><td colspan="5" class="empty">Nenhum item requer reposição no momento.</td></tr>`}</tbody></table></div>`,true)}
     function materialNowInput(){const date=new Date(),offset=date.getTimezoneOffset();return new Date(date.getTime()-offset*60000).toISOString().slice(0,16)}
