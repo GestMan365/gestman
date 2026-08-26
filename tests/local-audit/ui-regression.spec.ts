@@ -114,7 +114,7 @@ test("navegação superior mantém nomes visíveis e não oferece recolhimento",
   });
   expect(desktop.nav.x).toBe(0);
   expect(desktop.nav.width).toBeCloseTo(1366, 0);
-  expect(desktop.nav.height).toBeCloseTo(70, 0);
+  expect(desktop.nav.height).toBeCloseTo(58, 0);
   expect(desktop.nav.y).toBeCloseTo(desktop.topbarBottom, 0);
   expect(desktop.workspace.x).toBe(0);
   expect(desktop.workspace.width).toBeCloseTo(1366, 0);

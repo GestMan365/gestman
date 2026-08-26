@@ -20143,6 +20143,46 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       }
     }
 
+    /* Cabeçalho desktop compacto e transição reta entre a marca e os módulos. */
+    @media (min-width:901px) {
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading):not(.panel-mode) {
+        --gm-header-height:56px;
+        --gm-module-nav-height:58px;
+      }
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading) .reference-topbar {
+        height:var(--gm-header-height) !important;
+        min-height:var(--gm-header-height) !important;
+        padding-block:0 !important;
+      }
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation {
+        height:var(--gm-module-nav-height) !important;
+        min-height:var(--gm-module-nav-height) !important;
+        max-height:var(--gm-module-nav-height) !important;
+        border-radius:0 !important;
+      }
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-brand {
+        height:var(--gm-module-nav-height) !important;
+        min-height:var(--gm-module-nav-height) !important;
+        padding-block:5px !important;
+        border-radius:0 !important;
+      }
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .sidebar-logo-frame {
+        height:44px !important;
+        border-radius:0 !important;
+      }
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .sidebar-logo-frame .brand-logo-img {
+        height:40px !important;
+      }
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-scroll {
+        height:var(--gm-module-nav-height) !important;
+        padding-block:7px !important;
+        background-clip:border-box !important;
+        border:0 !important;
+        border-radius:0 !important;
+        box-shadow:none !important;
+      }
+    }
+
     /* Mapa Industrial: regiões sem sombra projetada entre os blocos. */
     #map .map-region { box-shadow:none !important; }
   </style>
