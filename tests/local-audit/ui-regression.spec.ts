@@ -204,6 +204,28 @@ test("navegação superior mantém nomes visíveis e não oferece recolhimento",
   expect(dimensions.documentWidth).toBeLessThanOrEqual(dimensions.innerWidth + 1);
 });
 
+test("acabamento profissional usa ícones corretos e não reserva painel vazio", async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await page.goto("./");
+  await page.evaluate(() => document.body.classList.remove("auth-required", "auth-loading"));
+
+  await expect(page.locator('#preventivePlans button[onclick="openPreventiveMaintenanceCalendar()"] .gm-icon')).toHaveAttribute("data-gm-icon-name", "calendar");
+  await expect(page.locator('#preventivePlans button[onclick="togglePreventiveFilters()"] .gm-icon')).toHaveAttribute("data-gm-icon-name", "filter");
+  await expect(page.locator("#createPreventivePlanBtn .gm-icon")).toHaveAttribute("data-gm-icon-name", "plus");
+
+  await page.evaluate(() => window.eval("standardizeUiComponents(document)"));
+  await expect(page.locator('#orders thead th button[onclick*="sort"] .gm-sort-icon .gm-icon').first()).toHaveAttribute("data-gm-icon-name", "chevronDown");
+
+  const visualState = await page.evaluate(() => ({
+    detailDisplay: getComputedStyle(document.querySelector<HTMLElement>("#osDetailPanel")!).display,
+    orderColumns: getComputedStyle(document.querySelector<HTMLElement>("#orders .os-content-grid")!).gridTemplateColumns,
+    iconFilter: getComputedStyle(document.querySelector<HTMLElement>("#mainNavigation .gm-icon-rendered")!).filter,
+  }));
+  expect(visualState.detailDisplay).toBe("none");
+  expect(visualState.orderColumns).toBe("minmax(0px, 1fr)");
+  expect(visualState.iconFilter).toBe("none");
+});
+
 test("index e fallback preservam as três correções da auditoria", () => {
   const index = readFileSync(resolve("index.html"), "utf8");
   const fallback = readFileSync(resolve("404.html"), "utf8");

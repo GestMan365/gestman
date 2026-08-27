@@ -20313,8 +20313,13 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       }
       body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .nav-pinned .tab.active,
       body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group[open] > summary {
+        color:#173b52 !important;
         background:#e8f1f6 !important;
         border-color:#9dbaca !important;
+      }
+      body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .nav-pinned .tab.active :is(span,.gm-icon),
+      body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group[open] > summary :is(span,.gm-icon) {
+        color:#176994 !important;
       }
       body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation :is(.tab-icon,.nav-group-icon) {
         background:#f3f7f9 !important;
@@ -33573,7 +33578,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           icon.setAttribute("aria-hidden", "true");
           button.append(icon);
         }
-        icon.innerHTML = gmIcon(active ? (osSortDirection > 0 ? "chevronUp" : "chevronDown") : "move", { size:14 });
+        icon.innerHTML = gmIcon(active ? (osSortDirection > 0 ? "chevronUp" : "chevronDown") : "chevronDown", { size:14 });
       });
       root.querySelectorAll("label").forEach(label => {
         const required = label.querySelector("input[required],select[required],textarea[required]");

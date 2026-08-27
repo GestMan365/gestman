@@ -1041,3 +1041,84 @@ body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace #dashboa
   color: var(--gm01-muted) !important;
   letter-spacing: .055em !important;
 }
+
+/* Ícones 2D e superfícies neutras: sem relevo, brilho ou gradiente. */
+body:not(.auth-required):not(.auth-loading) {
+  background: #09121b !important;
+  background-image: none !important;
+}
+
+body.theme-light:not(.auth-required):not(.auth-loading) {
+  background: #f3f6f8 !important;
+  background-image: none !important;
+}
+
+html.gm-professional-3d .gm-icon-rendered {
+  filter: none !important;
+}
+
+html.gm-professional-3d .gm-icon-surface {
+  color: color-mix(in srgb, var(--gm-icon-accent, #4a9bd1) 76%, #dcebf5) !important;
+  background: color-mix(in srgb, var(--gm-icon-accent, #4a9bd1) 10%, #12212d) !important;
+  background-image: none !important;
+  border-color: color-mix(in srgb, var(--gm-icon-accent, #4a9bd1) 28%, #344b5e) !important;
+  box-shadow: none !important;
+}
+
+html.gm-professional-3d .gm-icon-surface::before {
+  display: none !important;
+  content: none !important;
+}
+
+html.gm-professional-3d body.theme-light .gm-icon-surface {
+  color: color-mix(in srgb, var(--gm-icon-accent, #1769aa) 82%, #17314b) !important;
+  background: color-mix(in srgb, var(--gm-icon-accent, #1769aa) 8%, #ffffff) !important;
+  border-color: color-mix(in srgb, var(--gm-icon-accent, #1769aa) 24%, #c6d3dd) !important;
+}
+
+/* Estados vazios não devem reservar áreas que parecem componentes quebrados. */
+body:not(.auth-required):not(.auth-loading) #orders .os-detail-panel:not(.has-order) {
+  display: none !important;
+}
+
+body:not(.auth-required):not(.auth-loading) #orders .os-content-grid:has(.os-detail-panel:not(.has-order)) {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+body:not(.auth-required):not(.auth-loading) :is(
+  #assetMetricStrip,#osMetricGrid,#preventiveMetricStrip,#preventiveAlertList,
+  #materialsMetrics,#materialsAlertPanel
+):empty {
+  display: none !important;
+}
+
+/* Títulos e ordenação de tabelas seguem uma única linguagem visual. */
+body:not(.auth-required):not(.auth-loading) #orders .os-title-icon {
+  display: none !important;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace thead th button {
+  min-height: auto !important;
+  padding: 0 !important;
+  color: inherit !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace thead th button .gm-button-icon {
+  display: none !important;
+}
+
+body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace thead th button[onclick*="sort"]::after {
+  display: none !important;
+  content: none !important;
+}
+
+body:not(.auth-required):not(.auth-loading) .workspace #createPreventivePlanBtn.btn.primary {
+  color: #fff !important;
+  background: var(--gm01-primary) !important;
+  border-color: var(--gm01-primary) !important;
+  box-shadow: none !important;
+}
