@@ -150,6 +150,26 @@ test("navegação superior mantém nomes visíveis e não oferece recolhimento",
   await page.locator('#mainNavigation [data-nav-group="maintenance"] > summary').click();
   await expect(page.locator('#mainNavigation [data-nav-group="maintenance"] .nav-group-items')).toBeVisible();
   await expect(page.locator('#mainNavigation [data-view="orders"]')).toContainText("Ordens de Serviço");
+  const submenu = await page.locator('#mainNavigation [data-nav-group="maintenance"] .nav-group-items').boundingBox();
+  expect(submenu).not.toBeNull();
+  expect(submenu!.y).toBeGreaterThanOrEqual(desktop.topbar.bottom);
+
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  const wideHeader = await page.evaluate(() => {
+    const actions = document.querySelector<HTMLElement>(".reference-topbar-actions")!.getBoundingClientRect();
+    const profile = document.querySelector<HTMLElement>(".reference-header-user")!.getBoundingClientRect();
+    const nav = document.querySelector<HTMLElement>("#mainNavigation")!.getBoundingClientRect();
+    return {
+      actions: { x: actions.x, y: actions.y, height: actions.height },
+      profileWidth: profile.width,
+      navBottom: nav.bottom,
+      separator: getComputedStyle(document.querySelector<HTMLElement>(".reference-topbar-actions")!).borderLeftWidth,
+    };
+  });
+  expect(wideHeader.actions.y).toBeGreaterThanOrEqual(0);
+  expect(wideHeader.actions.y + wideHeader.actions.height).toBeLessThanOrEqual(wideHeader.navBottom);
+  expect(wideHeader.profileWidth).toBeCloseTo(186, 0);
+  expect(wideHeader.separator).toBe("1px");
 
   await page.evaluate(() => window.eval("setNavCollapsed(true)"));
   expect(await page.evaluate(() => document.body.classList.contains("sidebar-collapsed"))).toBe(false);

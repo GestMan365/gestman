@@ -20234,8 +20234,38 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         height:42px !important;
         min-height:42px !important;
       }
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group-items {
+        top:calc(100% + var(--gm-header-height) + 6px) !important;
+      }
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading) .reference-header-user {
+        width:186px !important;
+        min-width:186px !important;
+        max-width:186px !important;
+        height:42px !important;
+        min-height:42px !important;
+      }
       body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-brand {
         background:#f8fbfe !important;
+      }
+    }
+    @media (min-width:1700px) {
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-scroll {
+        padding-right:420px !important;
+      }
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading) .reference-topbar-actions {
+        position:fixed !important;
+        z-index:110 !important;
+        top:3px !important;
+        right:10px !important;
+        width:auto !important;
+        height:44px !important;
+        padding:0 0 0 12px !important;
+        gap:6px !important;
+        background:transparent !important;
+        border-left:1px solid var(--gm-border) !important;
+      }
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading) .reference-topbar-actions .reference-header-separator {
+        height:28px !important;
       }
     }
   </style>
