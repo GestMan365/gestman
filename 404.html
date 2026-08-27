@@ -20188,6 +20188,55 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   </style>
   <link rel="stylesheet" href="assets/ui/gestman-typography.css">
   <link rel="stylesheet" href="assets/ui/gestman-stage01-standard.css">
+  <style id="gm-compact-header-v2">
+    /* Correção final: o cabeçalho deve permanecer realmente compacto após os estilos externos. */
+    @media (min-width:901px) {
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading):not(.panel-mode) {
+        --gm-header-height:48px;
+        --gm-module-nav-height:50px;
+      }
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading) .reference-topbar {
+        height:var(--gm-header-height) !important;
+        min-height:var(--gm-header-height) !important;
+        padding-block:0 !important;
+      }
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation {
+        height:var(--gm-module-nav-height) !important;
+        min-height:var(--gm-module-nav-height) !important;
+        max-height:var(--gm-module-nav-height) !important;
+        border-radius:0 !important;
+      }
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-brand {
+        height:var(--gm-module-nav-height) !important;
+        min-height:var(--gm-module-nav-height) !important;
+        padding:4px 13px !important;
+        border-radius:0 !important;
+        box-shadow:none !important;
+      }
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .sidebar-logo-frame {
+        height:40px !important;
+        border-radius:0 !important;
+        box-shadow:none !important;
+        clip-path:none !important;
+      }
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .sidebar-logo-frame .brand-logo-img {
+        height:38px !important;
+      }
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-scroll {
+        height:var(--gm-module-nav-height) !important;
+        padding-block:3px !important;
+        border-radius:0 !important;
+        box-shadow:none !important;
+      }
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation :is(.nav-pinned .tab,.nav-group > summary) {
+        height:42px !important;
+        min-height:42px !important;
+      }
+      body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-brand {
+        background:#f8fbfe !important;
+      }
+    }
+  </style>
 </head>
 <body class="auth-loading auth-restoring">
   <script id="design-theme-bootstrap">
