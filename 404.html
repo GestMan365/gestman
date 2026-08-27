@@ -21908,10 +21908,20 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       </header>
       <div class="panel">
         <header class="os-broadcast-head">
-          <div class="os-broadcast-brand"><img src="assets/ui/illustrations/gestman365-logo.png" data-theme-logo alt="GestMan365"><div><span>ACOMPANHAMENTO OPERACIONAL</span><h2>Painel de Ordens de Serviço</h2><p>Atualização automática ao vivo</p></div></div>
+          <div class="os-broadcast-brand">
+            <div class="os-broadcast-brands" aria-label="GestMan365 e empresa contratante">
+              <span class="os-broadcast-system-logo"><img src="assets/ui/illustrations/gestman365-logo.png" alt="GestMan365 — CMMS Industrial"></span>
+              <i class="os-broadcast-brand-divider" aria-hidden="true"></i>
+              <span class="os-broadcast-company-brand" id="osPanelCompanyBrand">
+                <span class="os-broadcast-company-mark"><img id="osPanelCompanyLogo" alt="" hidden><strong id="osPanelCompanyLogoFallback" aria-hidden="true">GM</strong></span>
+                <span><small>EMPRESA CONTRATANTE</small><strong id="osPanelCompanyName">Empresa</strong></span>
+              </span>
+            </div>
+            <div class="os-broadcast-title"><span>ACOMPANHAMENTO OPERACIONAL</span><h2>Painel de Ordens de Serviço</h2><p>Atendimentos atribuídos aos executantes · atualização automática ao vivo</p></div>
+          </div>
           <div class="os-broadcast-clock"><time id="osPanelClock">--:--</time><span id="osPanelDate">--/--/----</span></div>
-          <div class="os-broadcast-actions"><button class="btn" type="button" onclick="copyOsPanelLink()">Copiar link</button><button class="btn" type="button" onclick="toggleOsPanelFullscreen()">Tela cheia</button><button class="btn" type="button" onclick="closeOsPanelMode()">Voltar ao sistema</button></div>
-          <div class="os-broadcast-filters">
+          <div class="os-broadcast-actions"><button class="btn os-panel-filter-toggle" id="osPanelFilterToggle" type="button" aria-controls="osPanelFilters" aria-expanded="true" onclick="toggleOsPanelFilters()"><i aria-hidden="true"></i><span id="osPanelFilterToggleLabel">Ocultar filtros</span></button><button class="btn" type="button" onclick="toggleOsPanelFullscreen()">Tela cheia</button></div>
+          <div class="os-broadcast-filters" id="osPanelFilters" aria-label="Filtros operacionais">
             <label><span>Pesquisar</span><input class="field" id="osPanelSearch" placeholder="O.S., máquina ou responsável" oninput="renderActiveOrdersPanel('activeOrdersPanel')"></label>
             <label><span>Região</span><select class="field" id="osPanelRegionFilter" onchange="refreshOsPanelFilters();renderActiveOrdersPanel('activeOrdersPanel')"><option value="">Todas</option></select></label>
             <label><span>Local / linha</span><select class="field" id="osPanelLocationFilter" onchange="renderActiveOrdersPanel('activeOrdersPanel')"><option value="">Todos</option></select></label>
@@ -22964,6 +22974,33 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function companyLogoData() {
       const value = String(state?.companyBrand?.companyLogo || state?.profile?.companyLogo || "");
       return isCompanyLogoDataUrl(value) && value.length <= COMPANY_LOGO_STORED_LIMIT * 1.4 ? value : "";
+    }
+    function osPanelBrandInitials(value = "") {
+      const words = String(value || "").trim().split(/\s+/).filter(Boolean);
+      return (words.length > 1 ? `${words[0][0]}${words.at(-1)[0]}` : words[0]?.slice(0, 2) || "EC").toUpperCase();
+    }
+    function renderOsPanelBrand() {
+      const companyName = String(currentAccount?.company?.name || state?.profile?.company || "Empresa contratante").trim();
+      const nameTarget = $("osPanelCompanyName");
+      const logoTarget = $("osPanelCompanyLogo");
+      const fallbackTarget = $("osPanelCompanyLogoFallback");
+      if (nameTarget) nameTarget.textContent = companyName;
+      if (fallbackTarget) fallbackTarget.textContent = osPanelBrandInitials(companyName);
+      if (!logoTarget || !fallbackTarget) return;
+      const logo = companyLogoData();
+      logoTarget.hidden = !logo;
+      fallbackTarget.hidden = Boolean(logo);
+      if (!logo) {
+        logoTarget.removeAttribute("src");
+        logoTarget.alt = "";
+        return;
+      }
+      logoTarget.src = logo;
+      logoTarget.alt = `Logo de ${companyName}`;
+      logoTarget.onerror = () => {
+        logoTarget.hidden = true;
+        fallbackTarget.hidden = false;
+      };
     }
     function systemDocumentLogoMarkup(alt = "Logo GestMan365") {
       return `<img class="company-document-logo is-system-logo" src="${COMPANY_LOGO_FALLBACK}" alt="${escapeHtml(alt)}">`;
@@ -26986,16 +27023,32 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         <div class="stage17-info"><span>Dados de demonstração</span><strong>Acesse Acessos Rápidos. A carga demo é identificada e pode ser removida sem apagar cadastros manuais.</strong></div>
       </div>`);
     }
-    async function copyOsPanelLink() {
-      const url = new URL(window.location.href);
-      url.searchParams.set("panel", "os");
-      url.hash = "";
-      try {
-        await navigator.clipboard.writeText(url.toString());
-        showToast("Link do Painel de O.S. copiado.", "success");
-      } catch {
-        window.prompt("Copie o link do Painel de O.S.", url.toString());
+    const OS_PANEL_FILTERS_COLLAPSED_KEY = "gestman365-os-panel-filters-collapsed-v1";
+    function setOsPanelFiltersCollapsed(collapsed, persist = true) {
+      const filters = $("osPanelFilters");
+      const button = $("osPanelFilterToggle");
+      const label = $("osPanelFilterToggleLabel");
+      if (!filters || !button) return;
+      const isCollapsed = Boolean(collapsed);
+      filters.hidden = isCollapsed;
+      button.setAttribute("aria-expanded", String(!isCollapsed));
+      if (label) label.textContent = isCollapsed ? "Mostrar filtros" : "Ocultar filtros";
+      document.body.classList.toggle("os-panel-filters-collapsed", isCollapsed);
+      if (persist) {
+        try {
+          localStorage.setItem(OS_PANEL_FILTERS_COLLAPSED_KEY, isCollapsed ? "1" : "0");
+        } catch {}
       }
+    }
+    function toggleOsPanelFilters() {
+      setOsPanelFiltersCollapsed(!$("osPanelFilters")?.hidden);
+    }
+    function restoreOsPanelFilterState() {
+      let isCollapsed = false;
+      try {
+        isCollapsed = localStorage.getItem(OS_PANEL_FILTERS_COLLAPSED_KEY) === "1";
+      } catch {}
+      setOsPanelFiltersCollapsed(isCollapsed, false);
     }
     function toggleOsPanelFullscreen() {
       if (document.fullscreenElement) {
@@ -27004,21 +27057,12 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       }
       document.documentElement.requestFullscreen?.().catch(() => showToast("O navegador não permitiu abrir em tela cheia.", "warning"));
     }
-    function closeOsPanelMode() {
-      const url = new URL(window.location.href);
-      url.searchParams.delete("panel");
-      url.hash = "";
-      if (window.opener && !window.opener.closed) {
-        window.close();
-        setTimeout(() => window.location.assign(url.toString()), 100);
-        return;
-      }
-      window.location.assign(url.toString());
-    }
     function applyPanelMode() {
       if (!isPanelMode()) return;
       document.body.classList.add("panel-mode");
       document.title = "Painel O.S - GestMan365";
+      renderOsPanelBrand();
+      restoreOsPanelFilterState();
       setView("activeOrders");
       updateIndustrialClock();
       setupOsPanelLiveSync();
@@ -32237,19 +32281,21 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (!target) return;
       const previousScrollTop = target.scrollTop;
       const panelFiltersEnabled = targetId === "activeOrdersPanel" && isPanelMode();
-      if (targetId === "activeOrdersPanel") refreshOsPanelFilters();
+      if (targetId === "activeOrdersPanel") {
+        refreshOsPanelFilters();
+        if (panelFiltersEnabled) renderOsPanelBrand();
+      }
       const q = panelFiltersEnabled ? normalizeTextKey($("osPanelSearch")?.value || "") : "";
       const regionFilter = panelFiltersEnabled ? $("osPanelRegionFilter")?.value || "" : "";
       const locationFilter = panelFiltersEnabled ? $("osPanelLocationFilter")?.value || "" : "";
       const statusFilter = panelFiltersEnabled ? $("osPanelStatusFilter")?.value || "" : "";
       const allRows = state.orders.filter(order => !isClosedOrder(order.status));
-      if (targetId === "activeOrdersPanel") renderOsPanelMetrics(allRows);
       const rows = allRows.filter(order => {
         const asset = byId(state.assets, order.assetId) || {};
         const location = byId(state.locations, asset.locationId) || {};
         if (regionFilter && location.regionId !== regionFilter) return false;
         if (locationFilter && location.id !== locationFilter) return false;
-        if (q && !normalizeTextKey(`${order.number} ${orderTitle(order)} ${order.executor || ""} ${order.requester || ""} ${asset.code || ""} ${asset.name || ""} ${location.name || ""} ${regionName(location.regionId)}`).includes(q)) return false;
+        if (q && !normalizeTextKey(`${order.number} ${orderTitle(order)} ${osPanelExecutorNames(order)} ${order.requester || ""} ${asset.code || ""} ${asset.name || ""} ${location.name || ""} ${regionName(location.regionId)}`).includes(q)) return false;
         if (statusFilter === "running" && !isRunningOrder(order.status)) return false;
         if (statusFilter === "open" && isRunningOrder(order.status)) return false;
         if (statusFilter === "late" && !orderIsLate(order)) return false;
@@ -32258,9 +32304,11 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         const score = order => (orderIsLate(order) ? 100 : 0) + (isRunningOrder(order.status) ? 50 : 0) + (normalizeTextKey(order.priority || "").includes("alta") || normalizeTextKey(order.priority || "").includes("urgent") ? 20 : 0);
         return score(b) - score(a) || Number(a.startedAt || a.createdAt || 0) - Number(b.startedAt || b.createdAt || 0);
       });
+      if (targetId === "activeOrdersPanel") renderOsPanelMetrics(rows);
       const visible = limit ? rows.slice(0, limit) : rows;
       if (!visible.length) {
-        target.innerHTML = `<div class="os-panel-empty"><strong>Nada por aqui</strong><span>Nenhuma ordem de serviço corresponde aos filtros atuais.</span></div>`;
+        const hasFilters = Boolean(q || regionFilter || locationFilter || statusFilter);
+        target.innerHTML = `<div class="os-panel-empty"><strong>${hasFilters ? "Nenhuma O.S. corresponde aos filtros" : "Nenhuma O.S. ativa para atendimento"}</strong><span>${hasFilters ? "Ajuste ou oculte os filtros para consultar outros atendimentos." : "Os cards aparecerão aqui quando uma ordem aberta for atribuída aos executantes."}</span></div>`;
         if (targetId === "activeOrdersPanel") stopPanelAutoScroll();
         return;
       }
@@ -32269,7 +32317,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           ${visible.map(order => {
             const running = isRunningOrder(order.status);
             const overdue = orderIsLate(order);
-            const executor = order.executor || "Sem executante";
+            const executor = osPanelExecutorNames(order);
             const asset = byId(state.assets, order.assetId) || {};
             const location = byId(state.locations, asset.locationId) || {};
             const ageMs = Date.now() - Number(order.createdAt || Date.now());
@@ -35158,6 +35206,27 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const explicit = Array.isArray(order.executorIds) ? order.executorIds : [];
       const snapshot = Array.isArray(order.executorSnapshot) ? order.executorSnapshot.map(item => item.id) : [];
       return [...new Set([...explicit, order.resourceId, ...(order.participantIds || []), ...snapshot].filter(Boolean))];
+    }
+    function osPanelExecutorNames(order = {}) {
+      const names = [];
+      const appendName = value => {
+        const name = String(value || "").trim();
+        if (name && !names.some(item => normalizeTextKey(item) === normalizeTextKey(name))) names.push(name);
+      };
+      const snapshots = Array.isArray(order.executorSnapshot) ? order.executorSnapshot : [];
+      snapshots.forEach(item => appendName(item?.name));
+      orderRecordExecutorIds(order).forEach(id => {
+        const snapshot = snapshots.find(item => item?.id === id);
+        if (snapshot?.name) return appendName(snapshot.name);
+        const resource = byId(state.resources || [], id);
+        if (resource) return appendName(resource.name || resource.code);
+        if (String(id).startsWith("user:")) {
+          const user = gmOperationalUserById(String(id).slice(5));
+          appendName(user?.name || user?.username);
+        }
+      });
+      appendName(order.executor);
+      return names.length ? names.join(" · ") : "Aguardando atribuição";
     }
     function orderPersistenceIssue(order = {}, enforceExecutors = true) {
       if (!order.assetId || !byId(state.assets, order.assetId)) return "Selecione um equipamento.";
