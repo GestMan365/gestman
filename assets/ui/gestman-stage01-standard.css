@@ -1122,3 +1122,135 @@ body:not(.auth-required):not(.auth-loading) .workspace #createPreventivePlanBtn.
   border-color: var(--gm01-primary) !important;
   box-shadow: none !important;
 }
+
+/* Login por endereço exclusivo da empresa: /nome-da-empresa. */
+.auth-company-brand[hidden] {
+  display: none !important;
+}
+
+html body.auth-link-company form#authLoginForm label.auth-domain-field {
+  display: none !important;
+}
+
+body.auth-link-company .auth-card-logo-wrap {
+  display: none !important;
+}
+
+body.auth-link-company .auth-company-brand:not([hidden]) {
+  width: 100% !important;
+  margin: 2px auto 18px !important;
+  display: grid !important;
+  justify-items: center !important;
+  gap: 7px !important;
+  text-align: center !important;
+}
+
+.auth-company-logo-frame {
+  width: min(190px, 74vw) !important;
+  height: 86px !important;
+  padding: 10px 14px !important;
+  display: grid !important;
+  place-items: center !important;
+  overflow: hidden !important;
+  background: #fff !important;
+  border: 1px solid rgba(148, 163, 184, .38) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 8px 20px rgba(2, 12, 27, .18) !important;
+}
+
+.auth-company-logo {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+}
+
+.auth-company-logo[hidden],
+.auth-company-logo-fallback[hidden] {
+  display: none !important;
+}
+
+.auth-company-logo-fallback {
+  width: 54px !important;
+  height: 54px !important;
+  display: grid !important;
+  place-items: center !important;
+  color: #fff !important;
+  background: #0d7f8f !important;
+  border-radius: 8px !important;
+  font-size: 1.05rem !important;
+  font-weight: 800 !important;
+  letter-spacing: .04em !important;
+}
+
+.auth-company-name {
+  max-width: 100% !important;
+  color: #f8fafc !important;
+  font-size: .9rem !important;
+  font-weight: 750 !important;
+  line-height: 1.25 !important;
+  overflow-wrap: anywhere !important;
+}
+
+.auth-company-access-label {
+  color: #9fb0c5 !important;
+  font-size: .72rem !important;
+  font-weight: 550 !important;
+  line-height: 1.3 !important;
+}
+
+.auth-company-brand.is-unavailable .auth-company-logo-frame {
+  background: #fff7ed !important;
+  border-color: #fdba74 !important;
+}
+
+.auth-company-brand.is-unavailable .auth-company-logo-fallback {
+  background: #c2410c !important;
+}
+
+body.auth-link-company .auth-main {
+  min-height: 510px !important;
+  padding-top: 24px !important;
+}
+
+body.auth-link-company .auth-main h2 {
+  margin: 0 0 5px !important;
+  color: #f8fafc !important;
+  font-size: 1.35rem !important;
+  font-weight: 750 !important;
+}
+
+body.auth-link-company #authSubtitle {
+  display: block !important;
+  margin: 0 0 24px !important;
+  color: #9fb0c5 !important;
+  font-size: .82rem !important;
+  line-height: 1.45 !important;
+  text-align: center !important;
+  white-space: pre-line !important;
+}
+
+body.auth-link-company .auth-login-form {
+  flex: 0 0 auto !important;
+}
+
+@media (max-width: 600px) {
+  body.auth-link-company .auth-main {
+    min-height: 0 !important;
+    padding: 22px 20px 24px !important;
+  }
+
+  .auth-company-logo-frame {
+    height: 78px !important;
+  }
+}
+
+.platform-access-field #platformCreatedAccessUrl {
+  display: block !important;
+  margin-top: 5px !important;
+  color: var(--gm01-primary, #1689c9) !important;
+  font: 700 var(--font-size-sm, .82rem)/1.45 ui-monospace, SFMono-Regular, Consolas, monospace !important;
+  overflow-wrap: anywhere !important;
+  text-decoration: underline !important;
+  text-underline-offset: 3px !important;
+}

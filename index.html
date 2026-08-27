@@ -7,6 +7,16 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>GestMan365</title>
+  <script>
+    (() => {
+      const firstSegment = (window.location.pathname || "/").split("/").filter(Boolean)[0] || "";
+      const deploymentBase = firstSegment.toLowerCase() === "nadirteste" ? "/nadirteste/" : "/";
+      const base = document.createElement("base");
+      base.href = deploymentBase;
+      document.head.appendChild(base);
+      window.__gestmanDeploymentBasePath = deploymentBase;
+    })();
+  </script>
   <meta name="theme-color" content="#06111f">
   <link rel="icon" sizes="any" href="assets/ui/illustrations/favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/ui/illustrations/favicon-32.png">
@@ -20834,6 +20844,14 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       <div class="auth-card">
       <div class="auth-main">
         <div class="auth-card-logo-wrap"><img src="assets/ui/illustrations/gestman365-logo.png" class="auth-logo-img" data-theme-logo alt="GestMan365 - CMMS Industrial"></div>
+        <div class="auth-company-brand" id="authCompanyBrand" hidden aria-live="polite">
+          <div class="auth-company-logo-frame">
+            <img class="auth-company-logo" id="authCompanyLogo" alt="" hidden>
+            <span class="auth-company-logo-fallback" id="authCompanyLogoFallback" aria-hidden="true"></span>
+          </div>
+          <strong class="auth-company-name" id="authCompanyName"></strong>
+          <span class="auth-company-access-label" id="authCompanyAccessLabel">Acesso exclusivo da empresa</span>
+        </div>
         <h2 id="authTitle">Acesse sua conta</h2>
         <p class="muted" id="authSubtitle"></p>
         <form class="auth-form auth-login-form" id="authLoginForm" autocomplete="off">
@@ -22086,7 +22104,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     const RESERVED_COMPANY_SLUGS = new Set([
       "recursos", "recurso", "solucoes", "solucao", "planos", "plano", "entrar",
       "dashboard", "estoque", "os", "ordens", "ordemdeservico", "ordensdeservico",
-      "pecas", "pecas-sobressalentes", "api", "index", "404", "work",
+      "pecas", "pecas-sobressalentes", "api", "index", "404", "work", "admin", "cadastrar-empresa",
       "h28parts", "gestman365-sync", "gestman365sync"
     ]);
     const GESTMAN_COMPANIES_TABLE = "gestman_empresas";
@@ -22332,11 +22350,36 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const suffix = slugText(name);
       return suffix ? `${GESTMAN_LOGIN_PREFIX}${suffix}` : "";
     }
-    function companyLoginFromRoute() {
+    function normalizeCompanyRouteSlug(value, stripLoginPrefix = false) {
+      let slug = String(value || "").trim().toLowerCase();
+      try { slug = decodeURIComponent(slug); } catch {}
+      slug = slug.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      slug = slug.replace(/^@+/, "");
+      if (stripLoginPrefix) slug = slug.replace(/^gestman[.-]?/, "");
+      slug = slug.replace(/[^a-z0-9-]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+      return /^[a-z0-9][a-z0-9-]{1,62}$/.test(slug) ? slug : "";
+    }
+    function companySlugFromPath() {
+      const segments = (window.location.pathname || "/").split("/").filter(Boolean);
+      const deploymentSegments = String(window.__gestmanDeploymentBasePath || "/").split("/").filter(Boolean);
+      if (deploymentSegments.length && deploymentSegments.every((segment, index) => segments[index]?.toLowerCase() === segment.toLowerCase())) {
+        segments.splice(0, deploymentSegments.length);
+      }
+      const candidate = normalizeCompanyRouteSlug(segments[0] || "");
+      return candidate && !isReservedCompanyLogin(candidate) ? candidate : "";
+    }
+    function companySlugFromRoute() {
+      const pathCompany = companySlugFromPath();
+      if (pathCompany) return pathCompany;
       const params = new URLSearchParams(window.location.search || "");
       const queryCompany = params.get("empresa") || params.get("dominio") || params.get("company") || "";
-      if (queryCompany && !isReservedCompanyLogin(queryCompany)) return normalizeCompanyLogin(queryCompany);
+      const querySlug = normalizeCompanyRouteSlug(queryCompany, true);
+      if (querySlug && !isReservedCompanyLogin(querySlug)) return querySlug;
       return "";
+    }
+    function companyLoginFromRoute() {
+      const slug = companySlugFromRoute();
+      return slug ? normalizeCompanyLogin(slug) : "";
     }
     const APPLICATION_ROUTE_SLUGS = Object.freeze({
       quickAccess:"acessos-rapidos", dashboard:"visao-geral",
@@ -24979,6 +25022,97 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (toastTimer) clearTimeout(toastTimer);
       toastTimer = setTimeout(() => toast.classList.remove("open"), 3400);
     }
+    const authCompanyBrandCache = new Map();
+    let authCompanyBrandRequest = 0;
+    function authCompanyBrandLogo(value) {
+      const logo = String(value || "").trim();
+      if (/^data:image\/(?:png|jpeg|webp);base64,[a-z0-9+/=\s]+$/i.test(logo) && logo.length <= 1024 * 1024) return logo;
+      try {
+        const url = new URL(logo);
+        return url.protocol === "https:" && url.href.length <= 2048 ? url.href : "";
+      } catch {
+        return "";
+      }
+    }
+    function authCompanyInitials(name) {
+      const words = String(name || "").trim().split(/\s+/).filter(Boolean);
+      return (words.length > 1 ? `${words[0][0]}${words[words.length - 1][0]}` : words[0]?.slice(0, 2) || "GM").toUpperCase();
+    }
+    function applyAuthCompanyBrand(brand = {}, routeSlug = "") {
+      const root = $("authCompanyBrand");
+      if (!root) return;
+      const fallbackName = companyDisplayNameFromLogin(normalizeCompanyLogin(routeSlug));
+      const companyName = String(brand.name || fallbackName || "Empresa").trim();
+      const logoUrl = authCompanyBrandLogo(brand.logoUrl);
+      const logo = $("authCompanyLogo");
+      const fallback = $("authCompanyLogoFallback");
+      root.hidden = false;
+      if ($("authCompanyName")) $("authCompanyName").textContent = companyName;
+      if (fallback) {
+        fallback.textContent = authCompanyInitials(companyName);
+        fallback.hidden = Boolean(logoUrl);
+      }
+      if (logo) {
+        logo.hidden = !logoUrl;
+        logo.alt = logoUrl ? `Logo de ${companyName}` : "";
+        logo.onerror = () => {
+          logo.hidden = true;
+          if (fallback) fallback.hidden = false;
+        };
+        if (logoUrl) logo.src = logoUrl;
+        else logo.removeAttribute("src");
+      }
+      const unavailable = brand.found === false;
+      root.classList.toggle("is-unavailable", unavailable);
+      const label = $("authCompanyAccessLabel");
+      if (label) label.textContent = unavailable
+        ? "Endereço da empresa não localizado"
+        : brand.loading
+          ? "Carregando a identificação da empresa..."
+          : `Ambiente exclusivo de ${companyName}`;
+      if (!unavailable) document.title = `${companyName} | GestMan365`;
+    }
+    function resetAuthCompanyBrand() {
+      authCompanyBrandRequest += 1;
+      const root = $("authCompanyBrand");
+      if (root) {
+        root.hidden = true;
+        root.classList.remove("is-unavailable");
+      }
+      const logo = $("authCompanyLogo");
+      if (logo) {
+        logo.hidden = true;
+        logo.removeAttribute("src");
+      }
+      document.title = "GestMan365";
+    }
+    async function loadAuthCompanyBrand(routeSlug) {
+      const slug = normalizeCompanyRouteSlug(routeSlug);
+      if (!slug) return resetAuthCompanyBrand();
+      const requestId = ++authCompanyBrandRequest;
+      const cached = authCompanyBrandCache.get(slug);
+      if (cached) return applyAuthCompanyBrand(cached, slug);
+      applyAuthCompanyBrand({ loading:true }, slug);
+      try {
+        const result = await gmPublicFunction("company-brand", { slug });
+        if (requestId !== authCompanyBrandRequest || companySlugFromRoute() !== slug) return;
+        const brand = {
+          found:result?.found === true,
+          name:String(result?.company?.name || ""),
+          logoUrl:String(result?.company?.logo_url || "")
+        };
+        authCompanyBrandCache.set(slug, brand);
+        applyAuthCompanyBrand(brand, slug);
+      } catch (error) {
+        if (requestId !== authCompanyBrandRequest || companySlugFromRoute() !== slug) return;
+        if (String(error?.code || "") === "COMPANY_NOT_FOUND") {
+          applyAuthCompanyBrand({ found:false }, slug);
+          setAuthLoginStatus("Este endereço de acesso não pertence a uma empresa ativa. Confira o link recebido.", "warning");
+          return;
+        }
+        applyAuthCompanyBrand({}, slug);
+      }
+    }
     function renderAuthScreen() {
       const restoringSavedSession = document.body.classList.contains("auth-restoring")
         && typeof window.__gestmanHasSavedSession === "function"
@@ -25012,18 +25146,23 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         }
         browserMemoryStore.delete(REMEMBER_LOGIN_KEY);
       }
-      $("authTitle").textContent = "Acesse sua conta";
-        $("authSubtitle").textContent = sessionStorage.getItem(SESSION_EXPIRED_NOTICE_KEY) === "1"
-          ? "Sua sessão expirou. Entre novamente para continuar."
-          : "Entre com suas credenciais para continuar gerenciando\nsuas operações com segurança e eficiência.";
-        sessionStorage.removeItem(SESSION_EXPIRED_NOTICE_KEY);
+      const sessionExpired = sessionStorage.getItem(SESSION_EXPIRED_NOTICE_KEY) === "1";
+      sessionStorage.removeItem(SESSION_EXPIRED_NOTICE_KEY);
+      const routeSlug = companySlugFromRoute();
       const routeLogin = companyLoginFromRoute();
       document.body.classList.toggle("auth-link-company", Boolean(routeLogin));
-      if ($("authCompanyBadge")) $("authCompanyBadge").textContent = routeLogin ? companyDisplayNameFromLogin(routeLogin) : "";
+      $("authTitle").textContent = routeLogin ? "Bem-vindo" : "Acesse sua conta";
+      $("authSubtitle").textContent = sessionExpired
+        ? "Sua sessão expirou. Entre novamente para continuar."
+        : routeLogin
+          ? "Entre com seus dados para continuar."
+          : "Entre com suas credenciais para continuar gerenciando\nsuas operações com segurança e eficiência.";
       if (routeLogin && $("authCompanyLogin")) {
-        $("authCompanyLogin").value = companyLoginDisplay(routeLogin);
+        $("authCompanyLogin").value = routeSlug || companyLoginDisplay(routeLogin);
         $("authCompanyLogin").dataset.routeLogin = "1";
+        loadAuthCompanyBrand(routeSlug);
       } else {
+        resetAuthCompanyBrand();
         delete $("authCompanyLogin")?.dataset.routeLogin;
         applyRememberedLogin();
       }
@@ -33746,7 +33885,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         </form>
         ${isAdminUser() ? `
           <form class="form company-brand-form" id="companyBrandForm">
-            <div class="company-brand-intro"><strong>Logo da empresa nos documentos</strong><span>Esta marca será usada nas fichas de O.S., etiquetas de ativos e relatórios impressos. O logo do sistema e a tela de login não serão alterados.</span></div>
+          <div class="company-brand-intro"><strong>Logo da empresa no sistema</strong><span>Esta marca será usada na tela de login exclusiva da empresa, nas fichas de O.S., etiquetas de ativos e relatórios impressos. A marca GestMan365 continuará identificando o sistema.</span></div>
             <div class="company-logo-manager">
               <div class="company-logo-preview" id="companyLogoPreview">${companyLogoPreviewMarkup(pendingCompanyLogoData)}</div>
               <div class="company-logo-controls">
@@ -38702,13 +38841,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     /* Cadastro publico e administracao SaaS */
     function gestmanBasePath() {
-      const path = window.location.pathname || "/";
-      const markers = ["cadastrar-empresa", "admin/solicitacoes", "admin/empresas"];
-      for (const marker of markers) {
-        const index = path.indexOf(marker);
-        if (index >= 0) return path.slice(0, index).replace(/\/?$/, "/");
-      }
-      return path.endsWith("/") ? path : path.replace(/[^/]*$/, "");
+      const base = String(window.__gestmanDeploymentBasePath || "/");
+      return base.startsWith("/") && base.endsWith("/") ? base : "/";
     }
     function isCompanyRequestRoute() {
       return /\/(cadastrar-empresa)\/?$/.test(window.location.pathname) || window.location.hash === "#cadastrar-empresa";
@@ -38766,7 +38900,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (!SUPABASE_READY) throw new Error("Serviço temporariamente indisponível.");
       const response = await fetch(`${SUPABASE_URL}/functions/v1/${name}`, {
         method:"POST",
-        headers:{ apikey:SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}`, "Content-Type":"application/json" },
+        headers:{ apikey:SUPABASE_KEY, "Content-Type":"application/json" },
         body:JSON.stringify(body)
       });
       const text = await response.text();
@@ -39123,13 +39257,17 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const today=new Date().toISOString().slice(0,10),domain=platformDomainSuggestion(item.trade_name);
       return `<form id="platformConversionForm" onsubmit="convertPlatformRequest(event,'${item.id}')"><h3>Criar empresa e acesso inicial</h3><div class="platform-convert-grid"><label>Domínio de acesso<input name="company_slug" required minlength="3" maxlength="48" pattern="[a-z0-9][a-z0-9-]{2,47}" value="${escapeHtml(domain)}" autocomplete="off"><small>Ex.: ${escapeHtml(domain)}</small></label><label>Usuário de acesso (e-mail)<input name="admin_email" type="email" required value="${escapeHtml(item.responsible_email)}" autocomplete="off"></label><label>Senha inicial<input name="admin_password" type="password" required minlength="8" maxlength="128" autocomplete="new-password" placeholder="Mínimo de 8 caracteres"></label><label>Administrador<input name="admin_name" required value="${escapeHtml(item.responsible_name)}"></label><label>Plano contratado<input name="plan_code" required value="Profissional"></label><label>Limite de usuários<input name="user_limit" type="number" min="1" required value="${Math.max(1,Number(item.estimated_users||10))}"></label><label>Limite de unidades<input name="unit_limit" type="number" min="1" required value="${Math.max(1,Number(item.estimated_units||1))}"></label><label>Armazenamento (MB)<input name="storage_limit_mb" type="number" min="1" required value="10240"></label><label>Data de início<input name="starts_on" type="date" required value="${today}"></label><label>Fim do período de teste<input name="trial_ends_on" type="date"></label><label>Status inicial<select name="initial_status"><option value="trial">Período de teste</option><option value="active">Ativa</option><option value="suspended">Suspensa</option></select></label><label>Unidade principal<input name="main_unit_name" required value="Unidade Principal"></label><div class="platform-access-note"><strong>Envio ao cliente ficará para uma etapa futura.</strong>O domínio, o usuário e a senha serão criados agora, mas nenhum e-mail será enviado automaticamente.</div></div><div class="platform-dialog-actions"><button class="platform-btn primary" type="submit">Criar empresa e acesso</button></div></form>`;
     }
+    function platformCompanyAccessUrl(value){
+      const slug=normalizeCompanyRouteSlug(value);
+      return slug?`https://app.gestman.com.br/${encodeURIComponent(slug)}/`:"https://app.gestman.com.br/";
+    }
     function renderPlatformAccessCreated(result,password){
-      const access=result?.access||{};
-      $("platformRequestDialogBody").innerHTML=`<div class="platform-access-result"><span class="platform-status converted">Empresa e acesso criados</span><h3>Dados de acesso inicial</h3><p>A empresa foi criada do zero e já pode acessar o CMMS. Nenhum e-mail foi enviado ao cliente.</p><div class="platform-access-grid"><div class="platform-access-field"><small>Domínio</small><code id="platformCreatedDomain">${escapeHtml(access.domain||"")}</code></div><div class="platform-access-field"><small>Usuário</small><code id="platformCreatedUsername">${escapeHtml(access.username||"")}</code></div><div class="platform-access-field"><small>Senha inicial</small><code id="platformCreatedPassword">${escapeHtml(password||"")}</code></div></div><div class="platform-access-warning"><strong>Copie estes dados agora.</strong> Por segurança, a senha não é salva no painel e deixará de aparecer ao fechar esta janela.</div><div class="platform-dialog-actions"><button class="platform-btn primary" type="button" onclick="copyPlatformCreatedAccess(this)">Copiar dados de acesso</button><button class="platform-btn" type="button" onclick="closePlatformDialog('platformRequestDialog')">Concluir</button></div></div>`;
+      const access=result?.access||{},accessUrl=platformCompanyAccessUrl(access.domain);
+      $("platformRequestDialogBody").innerHTML=`<div class="platform-access-result"><span class="platform-status converted">Empresa e acesso criados</span><h3>Dados de acesso inicial</h3><p>A empresa foi criada do zero e já pode acessar o CMMS pelo seu link exclusivo. Nenhum e-mail foi enviado ao cliente.</p><div class="platform-access-grid"><div class="platform-access-field"><small>Link exclusivo</small><a id="platformCreatedAccessUrl" href="${escapeHtml(accessUrl)}" target="_blank" rel="noopener">${escapeHtml(accessUrl)}</a></div><div class="platform-access-field"><small>Usuário</small><code id="platformCreatedUsername">${escapeHtml(access.username||"")}</code></div><div class="platform-access-field"><small>Senha inicial</small><code id="platformCreatedPassword">${escapeHtml(password||"")}</code></div></div><div class="platform-access-warning"><strong>Copie estes dados agora.</strong> Por segurança, a senha não é salva no painel e deixará de aparecer ao fechar esta janela.</div><div class="platform-dialog-actions"><button class="platform-btn primary" type="button" onclick="copyPlatformCreatedAccess(this)">Copiar dados de acesso</button><button class="platform-btn" type="button" onclick="closePlatformDialog('platformRequestDialog')">Concluir</button></div></div>`;
     }
     async function copyPlatformCreatedAccess(button){
-      const domain=$("platformCreatedDomain")?.textContent||"",username=$("platformCreatedUsername")?.textContent||"",password=$("platformCreatedPassword")?.textContent||"";
-      const text=`GestMan365\nDomínio: ${domain}\nUsuário: ${username}\nSenha: ${password}\nAcesso: https://gestman365.github.io/gestman/`;
+      const accessUrl=$("platformCreatedAccessUrl")?.textContent||"https://app.gestman.com.br/",username=$("platformCreatedUsername")?.textContent||"",password=$("platformCreatedPassword")?.textContent||"";
+      const text=`GestMan365\nLink exclusivo: ${accessUrl}\nUsuário: ${username}\nSenha: ${password}`;
       try{await navigator.clipboard.writeText(text);button.textContent="Dados copiados";showToast("Dados de acesso copiados.");}
       catch(error){stage21TechnicalLog("error","platform.access.copy",error);showToast("Não foi possível copiar automaticamente.","error");}
     }
@@ -39225,13 +39363,13 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       }
     }
     function renderPlatformAccessCreated(result,password){
-      const access=result?.access||{};
+      const access=result?.access||{},accessUrl=platformCompanyAccessUrl(access.domain);
       $("platformRequestDialogTitle").textContent="Acesso criado com sucesso";
-      $("platformRequestDialogBody").innerHTML=`<div class="platform-access-result"><span class="platform-status converted">Empresa e acesso criados</span><h3>Dados de acesso inicial</h3><p>A empresa foi salva no banco de dados e j&aacute; pode entrar no CMMS.</p><div class="platform-access-grid"><div class="platform-access-field"><small>Dom&iacute;nio</small><code id="platformCreatedDomain">${escapeHtml(access.domain||"")}</code></div><div class="platform-access-field"><small>Usu&aacute;rio</small><code id="platformCreatedUsername">${escapeHtml(access.username||"")}</code></div><div class="platform-access-field"><small>Senha inicial</small><code id="platformCreatedPassword">${escapeHtml(password||"")}</code></div></div><div class="platform-access-warning"><strong>Copie estes dados agora.</strong> Por seguran&ccedil;a, a senha n&atilde;o &eacute; salva no painel e deixar&aacute; de aparecer ao fechar esta janela.</div><div class="platform-dialog-actions"><button class="platform-btn primary" type="button" onclick="copyPlatformCreatedAccess(this)">Copiar dados de acesso</button><button class="platform-btn" type="button" onclick="closePlatformDialog('platformRequestDialog')">Concluir</button></div></div>`;
+      $("platformRequestDialogBody").innerHTML=`<div class="platform-access-result"><span class="platform-status converted">Empresa e acesso criados</span><h3>Dados de acesso inicial</h3><p>A empresa foi salva no banco de dados e j&aacute; pode entrar no CMMS pelo seu link exclusivo.</p><div class="platform-access-grid"><div class="platform-access-field"><small>Link exclusivo</small><a id="platformCreatedAccessUrl" href="${escapeHtml(accessUrl)}" target="_blank" rel="noopener">${escapeHtml(accessUrl)}</a></div><div class="platform-access-field"><small>Usu&aacute;rio</small><code id="platformCreatedUsername">${escapeHtml(access.username||"")}</code></div><div class="platform-access-field"><small>Senha inicial</small><code id="platformCreatedPassword">${escapeHtml(password||"")}</code></div></div><div class="platform-access-warning"><strong>Copie estes dados agora.</strong> Por seguran&ccedil;a, a senha n&atilde;o &eacute; salva no painel e deixar&aacute; de aparecer ao fechar esta janela.</div><div class="platform-dialog-actions"><button class="platform-btn primary" type="button" onclick="copyPlatformCreatedAccess(this)">Copiar dados de acesso</button><button class="platform-btn" type="button" onclick="closePlatformDialog('platformRequestDialog')">Concluir</button></div></div>`;
     }
     async function copyPlatformCreatedAccess(button){
-      const domain=$("platformCreatedDomain")?.textContent||"",username=$("platformCreatedUsername")?.textContent||"",password=$("platformCreatedPassword")?.textContent||"";
-      const text=`GestMan365\nDom\u00ednio: ${domain}\nUsu\u00e1rio: ${username}\nSenha: ${password}\nAcesso: https://gestman365.github.io/gestman/`;
+      const accessUrl=$("platformCreatedAccessUrl")?.textContent||"https://app.gestman.com.br/",username=$("platformCreatedUsername")?.textContent||"",password=$("platformCreatedPassword")?.textContent||"";
+      const text=`GestMan365\nLink exclusivo: ${accessUrl}\nUsu\u00e1rio: ${username}\nSenha: ${password}`;
       try{await navigator.clipboard.writeText(text);button.textContent="Dados copiados";showToast("Dados de acesso copiados.");}
       catch(error){stage21TechnicalLog("error","platform.access.copy",error);showToast("N\u00e3o foi poss\u00edvel copiar automaticamente.","error");}
     }
