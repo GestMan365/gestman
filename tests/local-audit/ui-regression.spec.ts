@@ -106,19 +106,21 @@ test("navegação superior mantém nomes visíveis e não oferece recolhimento",
     const workspaceRect = workspace.getBoundingClientRect();
     return {
       nav: { x: navRect.x, y: navRect.y, width: navRect.width, height: navRect.height },
-      topbarBottom: topbarRect.bottom,
+      topbar: { y: topbarRect.y, height: topbarRect.height, bottom: topbarRect.bottom },
       workspace: { x: workspaceRect.x, y: workspaceRect.y, width: workspaceRect.width },
       collapseVisible: Array.from(document.querySelectorAll<HTMLElement>("#navToggleBtn,#topbarMenuBtn"))
         .some((button) => getComputedStyle(button).display !== "none"),
     };
   });
   expect(desktop.nav.x).toBe(0);
+  expect(desktop.nav.y).toBe(0);
   expect(desktop.nav.width).toBeCloseTo(1366, 0);
   expect(desktop.nav.height).toBeCloseTo(50, 0);
-  expect(desktop.nav.y).toBeCloseTo(desktop.topbarBottom, 0);
+  expect(desktop.topbar.y).toBeCloseTo(desktop.nav.height, 0);
+  expect(desktop.topbar.height).toBeCloseTo(48, 0);
   expect(desktop.workspace.x).toBe(0);
   expect(desktop.workspace.width).toBeCloseTo(1366, 0);
-  expect(desktop.workspace.y).toBeCloseTo(desktop.nav.y + desktop.nav.height, 0);
+  expect(desktop.workspace.y).toBeCloseTo(desktop.topbar.bottom, 0);
   expect(desktop.collapseVisible).toBe(false);
 
   for (const label of ["Acessos Rápidos", "Visão Geral", "Manutenção", "Ativos e Instalações", "Materiais", "Planejamento", "Gestão", "Administração"]) {

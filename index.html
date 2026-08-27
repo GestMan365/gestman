@@ -20150,11 +20150,13 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         --gm-module-nav-height:58px;
       }
       body.gm-top-navigation:not(.auth-required):not(.auth-loading) .reference-topbar {
+        top:var(--gm-module-nav-height) !important;
         height:var(--gm-header-height) !important;
         min-height:var(--gm-header-height) !important;
         padding-block:0 !important;
       }
       body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation {
+        inset:0 0 auto 0 !important;
         height:var(--gm-module-nav-height) !important;
         min-height:var(--gm-module-nav-height) !important;
         max-height:var(--gm-module-nav-height) !important;
