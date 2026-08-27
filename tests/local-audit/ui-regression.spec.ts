@@ -159,16 +159,25 @@ test("navegação superior mantém nomes visíveis e não oferece recolhimento",
     const actions = document.querySelector<HTMLElement>(".reference-topbar-actions")!.getBoundingClientRect();
     const profile = document.querySelector<HTMLElement>(".reference-header-user")!.getBoundingClientRect();
     const nav = document.querySelector<HTMLElement>("#mainNavigation")!.getBoundingClientRect();
+    const topbar = document.querySelector<HTMLElement>(".reference-topbar")!.getBoundingClientRect();
+    const heading = document.querySelector<HTMLElement>(".reference-topbar-left")!;
+    const workspace = document.querySelector<HTMLElement>(".workspace")!.getBoundingClientRect();
     return {
       actions: { x: actions.x, y: actions.y, height: actions.height },
       profileWidth: profile.width,
       navBottom: nav.bottom,
+      topbarHeight: topbar.height,
+      headingDisplay: getComputedStyle(heading).display,
+      workspaceY: workspace.y,
       separator: getComputedStyle(document.querySelector<HTMLElement>(".reference-topbar-actions")!).borderLeftWidth,
     };
   });
   expect(wideHeader.actions.y).toBeGreaterThanOrEqual(0);
   expect(wideHeader.actions.y + wideHeader.actions.height).toBeLessThanOrEqual(wideHeader.navBottom);
   expect(wideHeader.profileWidth).toBeCloseTo(186, 0);
+  expect(wideHeader.topbarHeight).toBe(0);
+  expect(wideHeader.headingDisplay).toBe("none");
+  expect(wideHeader.workspaceY).toBeCloseTo(wideHeader.navBottom, 0);
   expect(wideHeader.separator).toBe("1px");
 
   await page.evaluate(() => window.eval("setNavCollapsed(true)"));
