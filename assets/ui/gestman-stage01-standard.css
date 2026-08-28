@@ -1753,3 +1753,92 @@ html body.theme-light.panel-mode #activeOrdersPanel .os-panel-empty strong {
     display: none !important;
   }
 }
+
+/* Cenário administrativo e removível para auditoria dos indicadores */
+#demoMetricsAuditPanel[hidden] {
+  display: none !important;
+}
+
+.demo-metrics-audit-panel {
+  display: grid;
+  gap: 16px;
+  margin: 14px auto 0;
+  max-width: 1480px;
+  padding: 18px;
+  border: 1px solid var(--line, #cbd8e6);
+  border-radius: 12px;
+  background: var(--panel, #fff);
+}
+
+.demo-metrics-audit-copy h2 {
+  margin: 4px 0 5px;
+  font-size: 18px;
+}
+
+.demo-metrics-audit-copy p {
+  margin: 0;
+  max-width: 820px;
+  color: var(--muted, #60748a);
+}
+
+.demo-metrics-audit-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.demo-metrics-audit-grid article {
+  display: grid;
+  gap: 5px;
+  min-height: 76px;
+  padding: 13px 14px;
+  border: 1px solid var(--line, #cbd8e6);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--panel, #fff) 88%, var(--accent, #2387ff) 12%);
+}
+
+.demo-metrics-audit-grid span,
+.demo-metrics-audit-actions small {
+  color: var(--muted, #60748a);
+  font-size: 12px;
+}
+
+.demo-metrics-audit-grid strong {
+  align-self: end;
+  font-size: 20px;
+}
+
+.demo-metrics-audit-actions,
+.demo-metrics-audit-actions > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+@media (max-width: 900px) {
+  .demo-metrics-audit-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .demo-metrics-audit-panel {
+    margin-top: 10px;
+    padding: 14px;
+  }
+
+  .demo-metrics-audit-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .demo-metrics-audit-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .demo-metrics-audit-actions > div,
+  .demo-metrics-audit-actions .btn {
+    width: 100%;
+  }
+}

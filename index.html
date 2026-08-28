@@ -21133,6 +21133,23 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     </section>
     <section class="view" id="quickAccess">
       <div id="stage20QuickRoot" class="stage20-workspace"></div>
+      <section class="stage20-panel demo-metrics-audit-panel" id="demoMetricsAuditPanel" hidden aria-labelledby="demoMetricsAuditTitle">
+        <div class="demo-metrics-audit-copy">
+          <span class="stage20-eyebrow">AUDITORIA CONTROLADA</span>
+          <h2 id="demoMetricsAuditTitle">Cenário de MTTR e MTBF</h2>
+          <p>Cria 25 O.S. fictícias identificadas e removíveis, com histórico conhecido para conferir indicadores e gráficos sem substituir dados reais.</p>
+        </div>
+        <div class="demo-metrics-audit-grid" aria-live="polite">
+          <article><span>Status</span><strong id="demoDataStatus">Não carregado</strong></article>
+          <article><span>O.S. de auditoria</span><strong id="demoMetricOrderCount">0</strong></article>
+          <article><span>MTTR esperado · 30 dias</span><strong>2,0h</strong></article>
+          <article><span>MTBF esperado · 30 dias</span><strong>85h</strong></article>
+        </div>
+        <div class="demo-metrics-audit-actions">
+          <small><strong id="demoDataCount">0</strong> registro(s) de demonstração no conjunto.</small>
+          <div><button class="btn" id="removeDemoDataBtn" type="button">Remover cenário</button><button class="btn primary" id="loadDemoDataBtn" type="button">Carregar cenário</button></div>
+        </div>
+      </section>
     </section>
     <section class="view" id="operationalAreas">
       <div id="stage17AreasRoot" class="stage17-workspace"></div>
@@ -23380,6 +23397,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     let oAAreaSaveLock = false;
     const TOOL_LOAN_STATUSES = ["Ativo", "Devolvido", "Cancelado"];
     const DEMO_BATCH_ID = "gestman365-demo-v1";
+    const DEMO_METRIC_ORDER_TOTAL = 24;
     const DEMO_IDS = Object.freeze({
       stockLocation: "10000000-0000-4000-8000-000000001001",
       sparePart: "10000000-0000-4000-8000-000000001101",
@@ -24155,13 +24173,20 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         return summary;
       }, { total: 0 });
     }
+    function demoMetricOrderCount() {
+      return (state.orders || []).filter(item => item?.demoBatchId === DEMO_BATCH_ID && /^OS-AUD-/.test(String(item?.number || ""))).length;
+    }
     function renderDemoEnvironment() {
+      const panel = $("demoMetricsAuditPanel");
       const status = $("demoDataStatus");
       const count = $("demoDataCount");
+      const orderCount = $("demoMetricOrderCount");
+      if (panel) panel.hidden = !isAdminUser();
       if (!status || !count) return;
       const total = demoCounts().total;
       status.textContent = total ? "Carregado" : "Não carregado";
       count.textContent = String(total);
+      if (orderCount) orderCount.textContent = String(demoMetricOrderCount());
     }
     function demoMatcherByText(fields, expectedValues) {
       const expected = expectedValues.map(normalizeTextKey).filter(Boolean);
@@ -24185,6 +24210,97 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       state[collection] = list.concat(payload);
       stats.created += 1;
       return payload;
+    }
+    function demoMetricUuid(sequence) {
+      return `20000000-0000-4000-8000-${String(sequence).padStart(12, "0")}`;
+    }
+    function demoMetricTimestamp(now, daysAgo, offsetHours = 0) {
+      return now - Number(daysAgo) * 86400000 + Number(offsetHours) * 3600000;
+    }
+    function createDemoMaintenanceMetricsScenario(asset, stats, now) {
+      const cohortMeans = [3, 2.8, 2.6, 2.4, 2.2, 2];
+      const cohortDays = [[170, 160, 152], [140, 130, 122], [110, 100, 92], [80, 70, 62], [50, 40, 32], [20, 10, 2]];
+      const durationsFor = mean => [mean - .5, mean, mean + .5];
+      let sequence = 1;
+      const addAuditOrder = payload => {
+        const number = `OS-AUD-${String(sequence).padStart(3, "0")}`;
+        const id = demoMetricUuid(3100 + sequence);
+        const order = addDemoRecord("orders", {
+          id,
+          number,
+          assetId: asset.id,
+          requester: "Auditoria GestMan365",
+          executor: sequence % 2 ? "Técnico Mecânico Codex" : "Técnico Eletricista Codex",
+          responsible: sequence % 2 ? "Técnico Mecânico Codex" : "Técnico Eletricista Codex",
+          priority: sequence % 4 === 0 ? "Alta" : sequence % 3 === 0 ? "Baixa" : "Média",
+          description: `AUDITORIA CONTROLADA ${number}`,
+          comment: "Registro fictício removível para validação de MTTR, MTBF e gráficos.",
+          history: [], linkedChecklists: [], costs: [], tasks: [], photos: [], attachments: [], documents: [], resources: [],
+          team: ["Técnico Mecânico Codex", "Técnico Eletricista Codex"],
+          teamName: "Equipe de Manutenção Codex",
+          demoBatchId: DEMO_BATCH_ID,
+          ...payload
+        }, [demoMatcherByText(["number"], [number])], stats);
+        sequence += 1;
+        return order;
+      };
+      cohortMeans.forEach((mean, cohortIndex) => {
+        durationsFor(mean).forEach((duration, itemIndex) => {
+          const daysAgo = cohortDays[cohortIndex][itemIndex];
+          const finishedAt = demoMetricTimestamp(now, daysAgo, -2);
+          addAuditOrder({
+            type: "Corretiva", maintenance: "Corretiva", maintenanceType: "Corretiva",
+            status: "Concluída", actualHours: duration, mttr: duration,
+            createdAt: finishedAt - (duration + 1) * 3600000,
+            startedAt: finishedAt - duration * 3600000,
+            realStartAt: finishedAt - duration * 3600000,
+            finishedAt, realEndAt: finishedAt, completedAt: finishedAt,
+            scheduledAt: finishedAt - 2 * 3600000,
+            dueAt: finishedAt + 3600000,
+            preventivePlanId: ""
+          });
+        });
+      });
+      [26, 16, 6].forEach((daysAgo, index) => {
+        const finishedAt = demoMetricTimestamp(now, daysAgo, -3);
+        addAuditOrder({
+          type: "Preventiva", maintenance: "Preventiva", maintenanceType: "Preventiva",
+          status: "Concluída", actualHours: 1.25 + index * .25,
+          createdAt: finishedAt - 3 * 3600000,
+          startedAt: finishedAt - (1.25 + index * .25) * 3600000,
+          finishedAt, completedAt: finishedAt,
+          scheduledAt: finishedAt - 3600000,
+          dueAt: finishedAt + 3600000,
+          preventivePlanId: DEMO_IDS.preventivePlan
+        });
+      });
+      [
+        { status: "Aberta", hoursAgo: 18, priority: "Alta" },
+        { status: "Em execução", hoursAgo: 9, priority: "Média" },
+        { status: "Aguardando", hoursAgo: 4, priority: "Baixa" }
+      ].forEach((item, index) => {
+        const createdAt = now - item.hoursAgo * 3600000;
+        addAuditOrder({
+          type: "Corretiva", maintenance: "Corretiva", maintenanceType: "Corretiva",
+          status: item.status, priority: item.priority, createdAt,
+          startedAt: index === 1 ? createdAt + 3600000 : null,
+          finishedAt: null, scheduledAt: now + (index + 1) * 86400000,
+          dueAt: now + (index + 1) * 86400000,
+          preventivePlanId: ""
+        });
+      });
+      const hourmeterDays = [180, 150, 120, 90, 60, 30, 0];
+      const hourmeterValues = [1000, 1180, 1375, 1585, 1810, 2050, 2305];
+      hourmeterDays.forEach((daysAgo, index) => {
+        const readAt = demoMetricTimestamp(now, daysAgo, -1);
+        addDemoRecord("measurements", {
+          id: demoMetricUuid(3820 + index), assetId: asset.id, type: "Horímetro", measurementType: "Horímetro",
+          value: hourmeterValues[index], unit: "h", readAt, recordedAt: readAt,
+          owner: "Auditoria GestMan365", note: `AUDITORIA HORÍMETRO ${String(index + 1).padStart(2, "0")}`,
+          origin: "Cenário controlado", createdAt: readAt, updatedAt: now, demoBatchId: DEMO_BATCH_ID
+        }, [demoMatcherByText(["note"], [`AUDITORIA HORÍMETRO ${String(index + 1).padStart(2, "0")}`])], stats);
+      });
+      return { orderCount: DEMO_METRIC_ORDER_TOTAL, expected30Days: { mttr: 2, mtbf: 85 }, expectedHistory: { mttr: 2.5, mtbf: 72.5 } };
     }
     const AREA_STATUSES = ["Ativa", "Inativa"];
     const SECTOR_LOCATION_TYPES = ["Setor", "Local"];
@@ -24234,6 +24350,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         y: 35,
         criticality: "Média",
         status: "Operando",
+        unit: "Unidade Industrial 01",
         brand: "TESTE CODEX",
         model: "Modelo demonstração",
         icon: "geral",
@@ -24276,6 +24393,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         demoMatcherByText(["number"], ["OS-CODEX-BASE-001"]),
         demoMatcherByText(["description"], ["TESTE CODEX OS BASE 001"])
       ], stats);
+      createDemoMaintenanceMetricsScenario(asset, stats, now);
       const checklistItems = [
         { id: DEMO_IDS.checklistItem1, description: "Verificar condição geral", order: 1 },
         { id: DEMO_IDS.checklistItem2, description: "Verificar ruído anormal", order: 2 },
@@ -24383,7 +24501,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       ], stats);
       [
         [DEMO_IDS.measurementTemperature, "Temperatura", 35.5, "°C", "Manual", demoDateTime(0, 8, 0), "TESTE CODEX medição de temperatura."],
-        [DEMO_IDS.measurementHourmeter, "Horímetro", 1250, "h", "Inspeção", demoDateTime(0, 9, 0), "TESTE CODEX medição de horímetro."],
+        [DEMO_IDS.measurementHourmeter, "Horímetro", 2305, "h", "Inspeção", demoDateTime(0, 9, 0), "TESTE CODEX medição de horímetro."],
         [DEMO_IDS.measurementVibration, "Vibração", 4.2, "mm/s", "Inspeção", demoDateTime(0, 10, 0), "TESTE CODEX medição de vibração."]
       ].forEach(([id, type, valueNumber, unit, origin, readAt, note]) => addDemoRecord("measurements", {
         id,
@@ -24836,7 +24954,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       return removed;
     }
     function loadDemoData(confirmed = false) {
-      if (!confirmed) { requestDestructiveConfirmation("Carregar dados de demonstração?", "Serão criados somente registros fictícios locais. Nenhum dado real será substituído.", "Carregar dados", () => loadDemoData(true)); return; }
+      if (!confirmed) { requestDestructiveConfirmation("Carregar cenário de auditoria?", "Serão criadas 25 O.S. fictícias identificadas nesta empresa para validar MTTR, MTBF e gráficos. Nenhum dado real será substituído e todo o cenário poderá ser removido.", "Carregar cenário", () => loadDemoData(true)); return; }
       const before = demoCounts().total;
       const stats = createDemoDataSet();
       persistDemoStateLocalOnly();
@@ -24845,7 +24963,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (before && !stats.created) {
         showToast("Dados de demonstração já estavam carregados. Registros ausentes foram conferidos.");
       } else {
-        showToast(`Dados de demonstração carregados: ${after} registro(s) no conjunto.`);
+        showToast(`Cenário carregado: ${demoMetricOrderCount()} O.S. de auditoria e ${after} registro(s) identificados.`);
       }
     }
     function removeDemoData(confirmed = false) {
@@ -24854,7 +24972,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         showToast("Nenhum dado de demonstração carregado.");
         return;
       }
-      if (!confirmed) { requestDestructiveConfirmation("Remover dados de demonstração?", `Serão removidos somente ${counts.total} registro(s) do conjunto de testes. Dados reais serão preservados.`, "Remover testes", () => removeDemoData(true)); return; }
+      if (!confirmed) { requestDestructiveConfirmation("Remover cenário de auditoria?", `Serão removidos somente ${counts.total} registro(s) identificados como teste. Ordens e dados reais serão preservados.`, "Remover cenário", () => removeDemoData(true)); return; }
       const removed = removeDemoDataSet();
       persistDemoStateLocalOnly();
       render();
