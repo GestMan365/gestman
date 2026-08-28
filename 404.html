@@ -31738,8 +31738,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         return rows.length || planned ? `<div class="os-detail-list">${planned ? `<div class="os-detail-list-item"><span><strong>${escapeHtml(planned.code)} - ${escapeHtml(planned.name)}</strong><br><small>Peça prevista</small></span></div>` : ""}${rows.slice(0, 8).map(item => { const unit = byId(state.spareParts, item.spareId)?.unit || "UN"; return `<div class="os-detail-list-item"><span><strong>${escapeHtml(spareName(item.spareId))}</strong><br><small>${formatQuantityForUnit(item.quantity, unit)} ${escapeHtml(unit)}</small></span>${orderStatusChip({ status: item.status || "Solicitada" })}</div>`; }).join("")}</div>` : `<div class="os-detail-empty">Nenhuma peça vinculada a esta O.S.</div>`;
       }
       if (selectedOrderDetailTab === "history") {
-        const rows = state.maintenanceJournal.filter(item => item.orderId === order.id);
-        return rows.length ? `<div class="os-detail-list">${rows.slice(0, 8).map(item => `<div class="os-detail-list-item"><span><strong>${escapeHtml(item.title || item.description || "Registro de manutenção")}</strong><br><small>${formatDateTime(item.createdAt || item.date)}</small></span></div>`).join("")}</div>` : `<div class="os-detail-list"><div class="os-detail-list-item"><span><strong>O.S criada</strong><br><small>${formatDateTime(order.createdAt)}</small></span></div>${order.startedAt ? `<div class="os-detail-list-item"><span><strong>Execução iniciada</strong><br><small>${formatDateTime(order.startedAt)}</small></span></div>` : ""}${order.finishedAt ? `<div class="os-detail-list-item"><span><strong>O.S concluída</strong><br><small>${formatDateTime(order.finishedAt)}</small></span></div>` : ""}</div>`;
+        const rows = orderAuditEvents(order);
+        return rows.length ? `<div class="os-detail-list">${rows.map(item => `<div class="os-detail-list-item" data-event-type="${escapeHtml(item.type)}"><span><strong>${escapeHtml(item.type)}</strong><br><small>${formatDateTime(item.date)} · ${escapeHtml(orderAuditEventDescription(item))}</small></span></div>`).join("")}</div>` : `<div class="os-detail-empty">Nenhum histórico registrado para esta O.S.</div>`;
       }
       if (selectedOrderDetailTab === "attachments") {
         const files=Array.isArray(order.attachments)?order.attachments:[];
@@ -34370,19 +34370,103 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           <span class="muted">O arquivo fica registrado na O.S pelo nome e dados do arquivo. Para anexar conteúdo online, envie o arquivo ao seu repositório/armazenamento e registre a referência aqui.</span>
         </div>`;
     }
+    function orderAuditTime(value) {
+      const numeric = Number(value);
+      if (Number.isFinite(numeric) && numeric > 0) return numeric;
+      const parsed = value ? new Date(value).getTime() : 0;
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+    function orderAuditStatusDetails(item = {}) {
+      const text = String(item.text || item.note || item.label || "").trim();
+      const match = text.match(/^(.+?)\s*→\s*([^·]+?)(?:\s*·\s*(.+))?$/);
+      return {
+        previousStatus:String(item.previousStatus || item.fromStatus || match?.[1] || "").trim(),
+        newStatus:String(item.newStatus || item.toStatus || match?.[2] || "").trim(),
+        reason:String(item.reason || match?.[3] || "").trim()
+      };
+    }
+    function orderAuditEventType(item = {}) {
+      const action = String(item.action || item.type || "").trim().toUpperCase();
+      const label = normalizeTextKey(`${item.action || ""} ${item.label || ""} ${item.text || ""}`);
+      const status = orderAuditStatusDetails(item);
+      const previousStatus = normalizeTextKey(status.previousStatus);
+      const newStatus = normalizeTextKey(status.newStatus);
+      if (["RESUMED", "RETOMADA", "OS_RETOMADA"].includes(action) || label.includes("retomad") || (previousStatus.includes("paus") && newStatus.includes("execucao"))) return "OS_RETOMADA";
+      if (["PAUSED", "PAUSA", "OS_PAUSADA"].includes(action) || newStatus.includes("paus") || label.includes("pausad")) return "OS_PAUSADA";
+      if (["STARTED", "INICIADA", "EXECUCAO_INICIADA"].includes(action) || label.includes("execucao iniciad")) return "EXECUCAO_INICIADA";
+      if (["COMPLETED", "FINALIZADA", "CONCLUSAO"].includes(action) || label.includes("conclu") || label.includes("finaliz")) return "CONCLUSAO";
+      if (["CANCELLED", "CANCELADA", "CANCELAMENTO"].includes(action) || label.includes("cancel")) return "CANCELAMENTO";
+      if (["REOPENED", "REABERTA", "REABERTURA"].includes(action) || label.includes("reabert")) return "REABERTURA";
+      if (["OPENED", "CRIACAO", "ABERTURA"].includes(action) || label.includes("ordem aberta") || label.includes("o.s criada")) return "CRIACAO";
+      if (action.includes("ATRIBUI") || label.includes("atribui")) return "ATRIBUICAO";
+      return String(item.type || item.action || "REGISTRO").trim().toUpperCase() || "REGISTRO";
+    }
+    function orderAuditEventDescription(item = {}) {
+      const status = orderAuditStatusDetails(item);
+      const parts = [];
+      if (status.previousStatus && status.newStatus) parts.push(`${status.previousStatus} → ${status.newStatus}`);
+      else if (item.text || item.note || item.label) parts.push(String(item.text || item.note || item.label));
+      if (status.reason && !parts.some(part => part.includes(status.reason))) parts.push(`Motivo: ${status.reason}`);
+      if (item.user) parts.push(`Usuário: ${item.user}`);
+      if (item.type === "OS_RETOMADA" && item.pauseStartedAt) parts.push(`Pausa iniciada em ${formatDateTime(item.pauseStartedAt)}`);
+      return parts.filter(Boolean).join(" · ") || "Registro operacional";
+    }
+    function orderAuditEvents(order = {}) {
+      const history = orderTabArray(order, "history").map((item, index) => {
+        const status = orderAuditStatusDetails(item);
+        return {
+          ...item,
+          id:item.id || item.eventId || `history-${order.id || "order"}-${index}`,
+          date:orderAuditTime(item.date || item.at || item.createdAt),
+          type:orderAuditEventType(item),
+          user:item.user || item.owner || item.actor || "",
+          previousStatus:status.previousStatus,
+          newStatus:status.newStatus,
+          reason:status.reason,
+          immutable:item.immutable !== false
+        };
+      });
+      const presentTypes = new Set(history.map(item => item.type));
+      const synthetic = [
+        order.createdAt && !presentTypes.has("CRIACAO") ? { id:`created-${order.id}`, date:orderAuditTime(order.createdAt), type:"CRIACAO", text:`O.S criada por ${order.requester || "solicitante não informado"}`, user:order.requester || "", immutable:true } : null,
+        order.startedAt && !presentTypes.has("EXECUCAO_INICIADA") ? { id:`started-${order.id}`, date:orderAuditTime(order.startedAt), type:"EXECUCAO_INICIADA", text:`Atendimento iniciado por ${order.executor || "executante não informado"}`, user:order.executor || "", immutable:true } : null,
+        order.finishedAt && !presentTypes.has("CONCLUSAO") && !presentTypes.has("CANCELAMENTO") ? { id:`finished-${order.id}`, date:orderAuditTime(order.finishedAt), type:normalizeTextKey(order.status).includes("cancel") ? "CANCELAMENTO" : "CONCLUSAO", text:`O.S finalizada. MTTR efetivo: ${Number(order.mttr || 0)}h`, user:order.executor || "", immutable:true } : null
+      ].filter(Boolean);
+      const assignments = (Array.isArray(order.assignmentHistory) ? order.assignmentHistory : []).map((item, index) => ({
+        id:item.id || `assignment-${order.id}-${index}`,
+        date:orderAuditTime(item.at || item.date || item.createdAt),
+        type:"ATRIBUICAO",
+        text:item.text || item.label || item.reason || "Responsáveis da O.S. alterados",
+        reason:item.reason || "",
+        user:item.user || item.owner || "",
+        immutable:true
+      }));
+      const notes = state.maintenanceJournal.filter(item => item.orderId === order.id).map(item => ({ id:item.id, date:orderAuditTime(item.createdAt || item.date), type:"APONTAMENTO", text:item.description || item.title || "Apontamento registrado", user:item.user || item.owner || "", immutable:true }));
+      const materials = state.materialRequests.filter(item => item.orderId === order.id).map(item => ({ id:item.id, date:orderAuditTime(item.createdAt), type:"PECA_UTILIZADA", text:`${spareName(item.spareId)} - ${formatQuantityForUnit(item.quantity, byId(state.spareParts, item.spareId)?.unit)} baixado de ${stockName(item.stockId)}`, user:item.user || item.owner || "", immutable:true }));
+      const rows = [...history, ...synthetic, ...assignments, ...notes, ...materials]
+        .filter(item => item.date > 0)
+        .sort((a, b) => a.date - b.date || String(a.id).localeCompare(String(b.id)));
+      let openPause = null;
+      return rows.map(item => {
+        if (item.type === "OS_PAUSADA") {
+          openPause = { id:item.pausePeriodId || item.eventId || item.id, startedAt:item.date };
+          return { ...item, pausePeriodId:openPause.id, pauseStartedAt:openPause.startedAt };
+        }
+        if (item.type === "OS_RETOMADA" && openPause) {
+          const resumed = { ...item, pausePeriodId:item.pausePeriodId || openPause.id, pauseStartedAt:openPause.startedAt, pauseEndedAt:item.date };
+          openPause = null;
+          return resumed;
+        }
+        return item;
+      });
+    }
     function orderHistoryRows(order) {
-      const rows = [
-        order.createdAt ? { date: order.createdAt, type: "Abertura", text: `O.S criada por ${order.requester || "solicitante não informado"}` } : null,
-        order.startedAt ? { date: order.startedAt, type: "Início", text: `Atendimento iniciado por ${order.executor || "executante não informado"}` } : null,
-        order.finishedAt ? { date: order.finishedAt, type: "Finalização", text: `O.S finalizada. MTTR: ${Number(order.mttr || 0)}h` } : null,
-        ...state.materialRequests.filter(item => item.orderId === order.id).map(item => ({ date: item.createdAt, type: "Material", text: `${spareName(item.spareId)} - ${formatQuantityForUnit(item.quantity, byId(state.spareParts, item.spareId)?.unit)} baixado de ${stockName(item.stockId)}` })),
-        ...orderTabArray(order, "history").map(item => ({ date: item.date || item.createdAt, type: item.type || "Registro", text: item.text || item.note || "" }))
-      ].filter(Boolean).sort((a, b) => Number(b.date || 0) - Number(a.date || 0));
+      const rows = orderAuditEvents(order);
       return rows.map(item => `
-        <tr>
+        <tr data-event-type="${escapeHtml(item.type)}">
           <td>${formatDateTime(item.date)}</td>
           <td>${escapeHtml(item.type || "Registro")}</td>
-          <td>${escapeHtml(item.text || item.note || "-")}</td>
+          <td>${escapeHtml(orderAuditEventDescription(item))}</td>
         </tr>
       `).join("") || orderRowsEmpty("Nenhum histórico registrado para esta O.S.", 3);
     }
@@ -36506,6 +36590,15 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       }
       return fallback;
     }
+    function gmEffectiveOrderHours(order = {}, endedAt = Date.now()) {
+      const startedAt = gmOrderTimeMs(order.startedAt || order.realStartAt, 0);
+      const finishedAt = gmOrderTimeMs(endedAt, 0);
+      if (!startedAt || !finishedAt || finishedAt < startedAt) return 0;
+      let pausedHours = Math.max(0, Number(order.pauseHours || 0));
+      const openPauseAt = gmOrderTimeMs(order.pausedAt, 0);
+      if (openPauseAt && finishedAt > openPauseAt) pausedHours += (finishedAt - openPauseAt) / 36e5;
+      return Number(Math.max(0, (finishedAt - startedAt) / 36e5 - pausedHours).toFixed(4));
+    }
     function openSimpleFinishOrderModal(id) {
       const order=byId(state.orders,id); if(!order||isClosedOrder(order.status))return;
       openModal("Concluir O.S.",`<form class="form" id="simpleFinishForm"><div class="full side-box"><strong>${escapeHtml(order.number||"O.S.")}</strong><span>${escapeHtml(machineName(order.assetId))}</span></div><label class="full">Solução ou serviço realizado * <textarea class="field" id="simpleFinishSolution" required placeholder="Descreva objetivamente o serviço executado">${escapeHtml(order.comment||"")}</textarea></label><label>Data e hora da conclusão * <input class="field" id="simpleFinishAt" type="datetime-local" required value="${localDateTimeValue()}"></label><label>Responsável pela execução * <input class="field" id="simpleFinishExecutor" required value="${escapeHtml(order.executor||"")}"></label><details class="os-quick-details"><summary>Adicionar mais informações</summary><div><label>Tempo trabalhado (h) <input class="field" id="simpleFinishHours" type="number" min="0" step="0.1"></label><label>Anexos <input class="field" id="simpleFinishFiles" type="file" multiple accept=".png,.jpg,.jpeg,.webp,.pdf,.txt,.csv,.doc,.docx,.xls,.xlsx"></label><label class="full"><input type="checkbox" id="simpleFinishPending" ${order.pendingExecution?"checked":""}> Manter pendência de execução</label></div></details><div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Concluir serviço</button></div></form>`,true);
@@ -36529,7 +36622,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             comment:solution,
             executor,
             finishedAt,
-            mttr:Number(((finishedAt - started) / 36e5).toFixed(1)),
+            mttr:gmEffectiveOrderHours(order, finishedAt),
             workedHours:Number($("simpleFinishHours").value || 0),
             pendingExecution:$("simpleFinishPending").checked,
             attachments:(order.attachments || []).concat(files)
@@ -36642,7 +36735,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           pendingExecution:$("finishPending").checked,
           machineStopped:$("finishStopped").checked,
           finishedAt:now,
-          mttr:Number(Math.max(0.1, (now - startedAt) / 36e5).toFixed(1))
+          mttr:gmEffectiveOrderHours(order, now)
         });
         closeModal();
         render();
