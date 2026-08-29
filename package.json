@@ -25,6 +25,8 @@
     "test:work-order-immutability:static": "node scripts/validate-work-order-immutability.mjs",
     "test:preventive-plan-order": "node --test tests/preventive-plan-order-generation.test.mjs",
     "test:preventive-plan-order:static": "node scripts/validate-preventive-plan-order-generation.mjs",
+    "test:checklist-order-context": "node --test tests/checklist-order-context.test.mjs",
+    "test:checklist-order-context:static": "node scripts/validate-checklist-order-context.mjs",
     "test:downtime-sync": "node --test tests/asset-downtime-sync.test.mjs",
     "test:downtime-sync:static": "node scripts/validate-asset-downtime-sync.mjs",
     "test:routes:static": "node scripts/validate-application-routes.mjs",
