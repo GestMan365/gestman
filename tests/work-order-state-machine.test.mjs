@@ -11,13 +11,14 @@ const functionBody = name => {
   return html.slice(start, next < 0 ? html.length : next);
 };
 const auditContext = {
-  state:{ maintenanceJournal:[], materialRequests:[], spareParts:[] },
+  state:{ maintenanceJournal:[], materialRequests:[], inventoryMovements:[], spareParts:[], stockLocations:[], orders:[] },
   currentAccount:{ company:{ id:"tenant-a" } },
   normalizeTextKey:value => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(),
+  statusKey:value => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(),
   orderTabArray:(order, key) => Array.isArray(order?.[key]) ? order[key] : [],
   spareName:id => `Peça ${id}`,
   stockName:id => `Estoque ${id}`,
-  byId:(rows, id) => rows.find(item => item.id === id),
+  byId:(rows, id) => (Array.isArray(rows) ? rows : []).find(item => item.id === id),
   formatQuantityForUnit:value => String(value),
   formatDateTime:value => String(value),
 };
@@ -36,6 +37,14 @@ vm.runInContext([
   functionBody("orderAuditStatusDetails"),
   functionBody("orderAuditEventType"),
   functionBody("orderAuditEventDescription"),
+  functionBody("currentMaterialAuditTenantId"),
+  functionBody("materialUsageTenantId"),
+  functionBody("materialUsageBelongsToTenant"),
+  functionBody("materialUsageMovementKey"),
+  functionBody("isCompletedStockExit"),
+  functionBody("isCompletedMaterialUsageMovement"),
+  functionBody("materialUsageEventFromMovement"),
+  functionBody("orderMaterialUsageEvents"),
   functionBody("orderAuditEvents"),
   functionBody("gmOrderTimeMs"),
   functionBody("gmEffectiveOrderHours"),

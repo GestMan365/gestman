@@ -11,7 +11,7 @@ const functionBody = name => {
   return html.slice(start, next < 0 ? html.length : next);
 };
 const context = {
-  state:{ maintenanceJournal:[], materialRequests:[], spareParts:[], profile:{ name:"Técnico A" } },
+  state:{ maintenanceJournal:[], materialRequests:[], inventoryMovements:[], spareParts:[], stockLocations:[], orders:[], profile:{ name:"Técnico A" } },
   currentAccount:{ company:{ id:"tenant-a" }, user:{ id:"user-a", name:"Técnico A" } },
   normalizeTextKey:value => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(),
   orderTabArray:(order, key) => Array.isArray(order?.[key]) ? order[key] : [],
@@ -42,6 +42,14 @@ vm.runInContext([
   functionBody("orderAuditStatusDetails"),
   functionBody("orderAuditEventType"),
   functionBody("orderAuditEventDescription"),
+  functionBody("currentMaterialAuditTenantId"),
+  functionBody("materialUsageTenantId"),
+  functionBody("materialUsageBelongsToTenant"),
+  functionBody("materialUsageMovementKey"),
+  functionBody("isCompletedStockExit"),
+  functionBody("isCompletedMaterialUsageMovement"),
+  functionBody("materialUsageEventFromMovement"),
+  functionBody("orderMaterialUsageEvents"),
   functionBody("orderAuditEvents"),
   functionBody("gmOrderTimeMs"),
   functionBody("gmEffectiveOrderHours"),
