@@ -15,6 +15,8 @@
     "test:resource-users:static": "node scripts/validate-resource-user-source.mjs",
     "test:order-state": "node --test tests/work-order-state-machine.test.mjs",
     "test:order-state:static": "node scripts/validate-work-order-state-machine.mjs",
+    "test:work-order-hours": "node --test tests/work-order-hours.test.mjs",
+    "test:work-order-hours:static": "node scripts/validate-work-order-hours.mjs",
     "test:downtime-sync": "node --test tests/asset-downtime-sync.test.mjs",
     "test:downtime-sync:static": "node scripts/validate-asset-downtime-sync.mjs",
     "test:routes:static": "node scripts/validate-application-routes.mjs",

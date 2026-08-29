@@ -24029,6 +24029,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         const category = OPERATIONAL_DIARY_CATEGORIES.includes(item.category) ? item.category : String(item.category || "").trim();
         const attentionLevel = OPERATIONAL_DIARY_ATTENTION_LEVELS.includes(item.attentionLevel) ? item.attentionLevel : "Informativo";
         const createdAt = Number(item.createdAt || Date.now());
+        const normalizedWorkedHours = workedHoursValue(item.workedHours ?? item.hours);
         return {
           ...item,
           id: item.id || uid("journal"),
@@ -24040,6 +24041,14 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           assetId: item.assetId || "",
           orderId: item.orderId || "",
           owner: String(item.owner || item.responsible || "").trim(),
+          user: String(item.user || item.owner || item.responsible || "").trim(),
+          userId: String(item.userId || item.createdBy || "").trim(),
+          companyId: String(item.companyId || item.empresaId || item.tenantId || "").trim(),
+          workedHours: normalizedWorkedHours,
+          hours: normalizedWorkedHours,
+          source: String(item.source || "").trim(),
+          auditEvent: item.auditEvent === true,
+          immutable: item.immutable === true,
           attentionLevel,
           createdAt: Number.isFinite(createdAt) ? createdAt : Date.now(),
           updatedAt: Number(item.updatedAt || createdAt || Date.now())
@@ -30322,6 +30331,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       return [item.id, operationalDiaryShortId(item), item.occurredAt, formatOperationalDiaryDateTime(item.occurredAt), item.shift, item.category, item.title, item.description, operationalDiaryAssetLabel(item), operationalDiaryOrderLabel(item), item.owner, item.attentionLevel].filter(Boolean).join(" ");
     }
     function operationalDiaryButtons(item = {}) {
+      if (isImmutableOrderWorkLog(item)) return `<button class="btn" onclick="showOperationalDiaryDetails('${item.id}')">Ver detalhes</button>`;
       return `<button class="btn" onclick="editOperationalDiary('${item.id}')">Editar</button><button class="btn" onclick="showOperationalDiaryDetails('${item.id}')">Ver detalhes</button><button class="btn danger" onclick="deleteOperationalDiary('${item.id}')">Excluir</button>`;
     }
     function renderOperationalDiary() {
@@ -31746,8 +31756,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         return files.length?`<div class="os-detail-list">${files.map(file=>`<div class="os-detail-list-item"><span><strong>${escapeHtml(file.name||"Anexo")}</strong><br><small>${file.size?`${Math.ceil(file.size/1024)} KB`:"Arquivo vinculado"}</small></span></div>`).join("")}</div>`:`<div class="os-detail-empty">Nenhum anexo vinculado a esta O.S.</div>`;
       }
       if (selectedOrderDetailTab === "notes") {
-        const rows = state.maintenanceJournal.filter(item => item.orderId === order.id);
-        return `<div class="os-detail-list"><button class="os-detail-list-item" type="button" onclick="addOrderObservation('${order.id}')"><strong>＋ Adicionar apontamento</strong><span>›</span></button>${rows.map(item => `<div class="os-detail-list-item"><span><strong>${escapeHtml(item.title || "Apontamento")}</strong><br><small>${escapeHtml(item.description || "")} · ${formatDateTime(item.createdAt)}</small></span></div>`).join("")}</div>`;
+        const rows = orderWorkLogs(order.id).sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+        const totalHours = orderLoggedHours(order.id, rows);
+        return `<div class="os-detail-list"><button class="os-detail-list-item" type="button" onclick="addOrderObservation('${order.id}')"><strong>＋ Adicionar apontamento</strong><span>›</span></button><div class="side-box"><strong>${formatWorkedHours(totalHours, "0 h")}</strong><span>Total de horas apontadas pelos técnicos. Este total é separado da duração cronológica e do tempo efetivo da O.S.</span></div>${rows.map(item => `<div class="os-detail-list-item" data-work-log-id="${escapeHtml(item.id || "")}"><span><strong>${escapeHtml(item.title || "Apontamento")}</strong><br><small>${escapeHtml(item.description || "")}</small><br><small>Tempo trabalhado: ${escapeHtml(formatWorkedHours(workLogHours(item)))} · Usuário: ${escapeHtml(item.user || item.owner || "Não informado")} · ${formatDateTime(item.createdAt)}</small></span></div>`).join("") || `<div class="os-detail-empty">Nenhum apontamento registrado nesta O.S.</div>`}</div>`;
       }
       const linked = Array.isArray(order.linkedChecklists) ? order.linkedChecklists.map(id=>byId(state.checklists,id)).filter(Boolean) : [];
       const checklists = linked.length ? linked : state.checklists.filter(item => item.assetId === order.assetId);
@@ -31773,6 +31784,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             <div class="wide"><span>Local</span><strong>${escapeHtml(location || "Não informado")}</strong></div>
             <div><span>Prioridade</span><strong>${orderPriorityChip(order.priority)}</strong></div>
             <div><span>Responsável</span><strong>${escapeHtml(order.executor || "Sem responsável")}</strong></div>
+            <div><span>Horas apontadas</span><strong>${escapeHtml(formatWorkedHours(orderLoggedHours(order.id), "0 h"))}</strong></div>
             <div><span>Abertura</span><strong>${formatDateTime(order.createdAt)}</strong></div>
             <div><span>Prazo</span><strong>${order.scheduledAt ? (validOperationalDate(order.scheduledAt)?.toLocaleDateString("pt-BR") || "Não definido") : "Não definido"}</strong></div>
             <div><span>Tipo</span><strong>${escapeHtml(ptBrText(order.type || "Manutenção"))}</strong></div>
@@ -31832,7 +31844,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function exportOrdersCsv() {
       const q = $("globalSearch")?.value.toLowerCase() || "";
       const rows = filteredOrdersForWorkspace(text => !q || text.toLowerCase().includes(q));
-      const csv = ["O.S;Título;Equipamento;Prioridade;Status;Responsável;Abertura;Prazo", ...rows.map(order => [order.number, orderTitle(order), machineName(order.assetId), ptBrText(order.priority), ptBrText(order.status), order.executor, formatDateTime(order.createdAt), order.scheduledAt || ""].map(csvCell).join(";"))].join("\n");
+      const csv = ["O.S;Título;Equipamento;Prioridade;Status;Responsável;Abertura;Prazo;Duração cronológica (h);Tempo efetivo (h);Horas apontadas", ...rows.map(order => { const time = workOrderTimeSummary(order); return [order.number, orderTitle(order), machineName(order.assetId), ptBrText(order.priority), ptBrText(order.status), order.executor, formatDateTime(order.createdAt), order.scheduledAt || "", time.chronologicalHours ?? "", time.effectiveHours ?? "", time.loggedHours].map(csvCell).join(";"); })].join("\n");
       const url = URL.createObjectURL(new Blob([`\ufeff${csv}`], { type: "text/csv;charset=utf-8" }));
       const link = document.createElement("a"); link.href = url; link.download = "gestman365-ordens-servico.csv"; link.click(); URL.revokeObjectURL(url);
     }
@@ -31910,10 +31922,48 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         setTimeout(() => mobileOrderActionLocks.delete(id), 800);
       }
     }
+    const workLogSaveLocks = new Set();
     function addOrderObservation(id) {
       const order=byId(state.orders,id); if(!order) return;
-      openModal("Adicionar apontamento",`<form class="form" id="orderObservationForm"><label class="full">Observação <textarea class="field" id="orderObservationText" required placeholder="Informe o serviço, ocorrência ou orientação"></textarea></label><label>Tempo trabalhado (h) <input class="field" id="orderObservationHours" type="number" min="0" step="0.1"></label><div class="full toolbar"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Salvar apontamento</button></div></form>`);
-      $("orderObservationForm").addEventListener("submit",event=>{event.preventDefault();const description=value("orderObservationText");if(!description)return;state.maintenanceJournal.unshift({id:uid("journal"),orderId:id,assetId:order.assetId,title:"Apontamento da O.S.",description,hours:Number($("orderObservationHours").value||0),createdAt:Date.now()});saveState();closeModal();render();showToast("Apontamento salvo.");});
+      const requestId = uid("work_log");
+      openModal("Adicionar apontamento",`<form class="form" id="orderObservationForm"><label class="full">Observação <textarea class="field" id="orderObservationText" required placeholder="Informe o serviço, ocorrência ou orientação"></textarea></label><label>Tempo trabalhado (h) <input class="field" id="orderObservationHours" type="text" inputmode="decimal" maxlength="5" autocomplete="off" placeholder="Ex.: 1,5"></label><div class="full side-box"><span>Use horas decimais, por exemplo: 0,5; 1; 1,5 ou 2,25. O limite por apontamento é 24 horas.</span></div><div class="full toolbar"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Salvar apontamento</button></div></form>`);
+      $("orderObservationForm").addEventListener("submit", event => {
+        event.preventDefault();
+        const description = value("orderObservationText");
+        if (!description) return showToast("Informe a observação do apontamento.", "warning");
+        const parsedHours = parseWorkedHoursInput($("orderObservationHours").value);
+        if (parsedHours.error) return showToast(parsedHours.error, "warning");
+        const lockKey = `${currentWorkLogTenantId()}:${id}:${requestId}`;
+        if (workLogSaveLocks.has(lockKey) || state.maintenanceJournal.some(item => item.id === requestId)) return;
+        workLogSaveLocks.add(lockKey);
+        if (event.submitter) event.submitter.disabled = true;
+        const now = Date.now();
+        const actor = currentWorkLogActor();
+        state.maintenanceJournal.unshift({
+          id:requestId,
+          orderId:id,
+          assetId:order.assetId,
+          title:"Apontamento da O.S.",
+          description,
+          workedHours:parsedHours.value,
+          hours:parsedHours.value,
+          user:actor,
+          owner:actor,
+          userId:String(currentAccount?.user?.id || ""),
+          companyId:currentWorkLogTenantId(),
+          source:"order_work_log",
+          auditEvent:true,
+          immutable:true,
+          occurredAt:localDateTimeValue(now),
+          createdAt:now,
+          updatedAt:now
+        });
+        saveState();
+        closeModal();
+        render();
+        showToast("Apontamento salvo com horas e responsável.");
+        setTimeout(() => workLogSaveLocks.delete(lockKey), 1000);
+      });
     }
     function showOrderActions(id) {
       const order = byId(state.orders, id); if (!order) return;
@@ -33655,6 +33705,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function editOperationalDiary(id) {
       const item = byId(state.maintenanceJournal, id);
       if (!item) return;
+      if (isImmutableOrderWorkLog(item)) return showToast("Apontamentos de O.S. são registros de auditoria e não podem ser alterados.", "warning");
       $("operationalDiaryId").value = item.id;
       $("operationalDiaryOccurredAt").value = item.occurredAt || "";
       $("operationalDiaryShift").value = OPERATIONAL_DIARY_SHIFTS.includes(item.shift) ? item.shift : "";
@@ -33684,6 +33735,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           <span><strong>Equipamento:</strong> ${escapeHtml(operationalDiaryAssetLabel(item))}</span>
           <span><strong>O.S vinculada:</strong> ${escapeHtml(operationalDiaryOrderLabel(item))}</span>
           <span><strong>Responsável:</strong> ${escapeHtml(item.owner || "-")}</span>
+          <span><strong>Tempo trabalhado:</strong> ${escapeHtml(formatWorkedHours(workLogHours(item)))}</span>
           <span><strong>Nível de atenção:</strong> ${escapeHtml(item.attentionLevel || "Informativo")}</span>
           <span><strong>Criado em:</strong> ${formatDateTime(item.createdAt)}</span>
           <span><strong>Atualizado em:</strong> ${formatDateTime(item.updatedAt)}</span>
@@ -33693,6 +33745,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function deleteOperationalDiary(id, confirmed = false) {
       const item = byId(state.maintenanceJournal, id);
       if (!item) return;
+      if (isImmutableOrderWorkLog(item)) return showToast("Apontamentos de O.S. são registros de auditoria e não podem ser excluídos.", "warning");
       if (!confirmed) { requestDestructiveConfirmation("Excluir este registro do diário?", `${item.title || operationalDiaryShortId(item)} será removido do histórico operacional.`, "Excluir registro", () => deleteOperationalDiary(id, true)); return; }
       state.maintenanceJournal = state.maintenanceJournal.filter(candidate => candidate.id !== id);
       saveState();
@@ -34344,6 +34397,88 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function orderTabArray(order, key) {
       return Array.isArray(order?.[key]) ? order[key] : [];
     }
+    function parseWorkedHoursInput(rawValue, maxHours = 24) {
+      const text = String(rawValue ?? "").trim();
+      if (!text) return { value:null, error:"" };
+      if (!/^\d+(?:[.,]\d{1,2})?$/.test(text)) return { value:null, error:"Informe as horas usando somente números, vírgula ou ponto." };
+      const numeric = Number(text.replace(",", "."));
+      if (!Number.isFinite(numeric)) return { value:null, error:"Informe um valor numérico válido para as horas." };
+      if (numeric <= 0) return { value:null, error:"O tempo trabalhado deve ser maior que zero." };
+      if (numeric > maxHours) return { value:null, error:`O tempo de um apontamento não pode ultrapassar ${maxHours} horas.` };
+      return { value:Number(numeric.toFixed(2)), error:"" };
+    }
+    function workedHoursValue(rawValue, maxHours = 24) {
+      return parseWorkedHoursInput(rawValue, maxHours).value;
+    }
+    function workLogHours(item = {}) {
+      return workedHoursValue(item.workedHours ?? item.hours);
+    }
+    function formatWorkedHours(value, emptyLabel = "Não informado") {
+      if (value === null || value === undefined || String(value).trim() === "") return emptyLabel;
+      const numeric = Number(value);
+      if (!Number.isFinite(numeric) || numeric < 0) return emptyLabel;
+      return `${numeric.toLocaleString("pt-BR", { minimumFractionDigits:0, maximumFractionDigits:2 })} h`;
+    }
+    function currentWorkLogTenantId() {
+      return typeof currentAccount === "undefined" ? "" : String(currentAccount?.company?.id || "");
+    }
+    function workLogTenantId(item = {}) {
+      return String(item.companyId || item.empresaId || item.tenantId || "");
+    }
+    function workLogBelongsToTenant(item = {}, tenantId = currentWorkLogTenantId()) {
+      const recordTenantId = workLogTenantId(item);
+      return !tenantId || !recordTenantId || recordTenantId === tenantId;
+    }
+    function isOrderWorkLog(item = {}) {
+      const source = String(item.source || "").toLowerCase();
+      const title = String(item.title || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+      return source === "order_work_log" || Boolean(item.orderId && title.includes("apontamento da o.s"));
+    }
+    function isImmutableOrderWorkLog(item = {}) {
+      return item.immutable === true || item.auditEvent === true || isOrderWorkLog(item);
+    }
+    function orderWorkLogs(orderId, entries, tenantId = currentWorkLogTenantId()) {
+      const rows = Array.isArray(entries) ? entries : (typeof state === "undefined" ? [] : state.maintenanceJournal || []);
+      const seen = new Set();
+      return rows.filter(item => {
+        if (!item || item.orderId !== orderId || !workLogBelongsToTenant(item, tenantId)) return false;
+        const key = String(item.id || "");
+        if (key && seen.has(key)) return false;
+        if (key) seen.add(key);
+        return true;
+      });
+    }
+    function orderLoggedHours(orderId, entries, tenantId = currentWorkLogTenantId()) {
+      const total = orderWorkLogs(orderId, entries, tenantId).reduce((sum, item) => sum + (workLogHours(item) || 0), 0);
+      return Number(total.toFixed(2));
+    }
+    function currentWorkLogActor() {
+      if (typeof currentAccount === "undefined") return "Usuário não identificado";
+      return String(currentAccount?.user?.name || state?.profile?.name || currentAccount?.user?.email || "Usuário não identificado").trim();
+    }
+    function workOrderChronologicalHours(order = {}, endedAt) {
+      const startedAt = gmOrderTimeMs(order.realStartAt || order.startedAt, 0);
+      const finishedAt = gmOrderTimeMs(endedAt ?? order.realEndAt ?? order.finishedAt ?? order.completedAt, 0);
+      if (!startedAt || !finishedAt || finishedAt < startedAt) return null;
+      return Number(((finishedAt - startedAt) / 36e5).toFixed(4));
+    }
+    function workOrderEffectiveHours(order = {}, endedAt) {
+      const finishedAt = gmOrderTimeMs(endedAt ?? order.realEndAt ?? order.finishedAt ?? order.completedAt, 0);
+      if (finishedAt && gmOrderTimeMs(order.realStartAt || order.startedAt, 0)) return gmEffectiveOrderHours(order, finishedAt);
+      const legacy = [order.mttr, order.executionHours, order.actualDurationHours, order.actualHours]
+        .map(Number).find(value => Number.isFinite(value) && value >= 0);
+      return Number.isFinite(legacy) ? legacy : null;
+    }
+    function workOrderTimeSummary(order = {}) {
+      const chronologicalHours = workOrderChronologicalHours(order);
+      const effectiveHours = workOrderEffectiveHours(order);
+      return {
+        chronologicalHours,
+        effectiveHours,
+        pausedHours:chronologicalHours !== null && effectiveHours !== null ? Number(Math.max(0, chronologicalHours - effectiveHours).toFixed(4)) : Math.max(0, Number(order.pauseHours || 0)),
+        loggedHours:orderLoggedHours(order.id)
+      };
+    }
     function orderRowsEmpty(label, colspan = 4) {
       return `<tr><td colspan="${colspan}" class="empty">${label}</td></tr>`;
     }
@@ -34407,6 +34542,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (status.previousStatus && status.newStatus) parts.push(`${status.previousStatus} → ${status.newStatus}`);
       else if (item.text || item.note || item.label) parts.push(String(item.text || item.note || item.label));
       if (status.reason && !parts.some(part => part.includes(status.reason))) parts.push(`Motivo: ${status.reason}`);
+      if (item.type === "APONTAMENTO" && workLogHours(item) !== null) parts.push(`Horas: ${formatWorkedHours(workLogHours(item))}`);
       if (item.user) parts.push(`Usuário: ${item.user}`);
       if (item.type === "OS_RETOMADA" && item.pauseStartedAt) parts.push(`Pausa iniciada em ${formatDateTime(item.pauseStartedAt)}`);
       return parts.filter(Boolean).join(" · ") || "Registro operacional";
@@ -34441,7 +34577,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         user:item.user || item.owner || "",
         immutable:true
       }));
-      const notes = state.maintenanceJournal.filter(item => item.orderId === order.id).map(item => ({ id:item.id, date:orderAuditTime(item.createdAt || item.date), type:"APONTAMENTO", text:item.description || item.title || "Apontamento registrado", user:item.user || item.owner || "", immutable:true }));
+      const notes = orderWorkLogs(order.id).map(item => ({ id:item.id, date:orderAuditTime(item.createdAt || item.date), type:"APONTAMENTO", text:item.description || item.title || "Apontamento registrado", workedHours:workLogHours(item), hours:workLogHours(item), user:item.user || item.owner || "", userId:item.userId || "", companyId:workLogTenantId(item), immutable:true }));
       const materials = state.materialRequests.filter(item => item.orderId === order.id).map(item => ({ id:item.id, date:orderAuditTime(item.createdAt), type:"PECA_UTILIZADA", text:`${spareName(item.spareId)} - ${formatQuantityForUnit(item.quantity, byId(state.spareParts, item.spareId)?.unit)} baixado de ${stockName(item.stockId)}`, user:item.user || item.owner || "", immutable:true }));
       const rows = [...history, ...synthetic, ...assignments, ...notes, ...materials]
         .filter(item => item.date > 0)
@@ -34584,6 +34720,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (tabKey === "outros custos") {
         const costs = orderTabArray(order, "costs");
         const total = costs.reduce((sum, item) => sum + Number(item.value || 0), 0);
+        const time = workOrderTimeSummary(order);
         const rows = costs.map(item => `
           <tr>
             <td>${escapeHtml(item.description || "-")}</td>
@@ -34597,6 +34734,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           <div class="tab-workspace">
             <strong>OUTROS CUSTOS</strong>
             <div class="side-box"><strong>${formatCurrency(total)}</strong><span>Total de custos adicionais desta O.S.</span></div>
+            <div class="side-box"><strong>${escapeHtml(formatWorkedHours(time.loggedHours, "0 h"))} apontadas</strong><span>Duração cronológica: ${escapeHtml(formatWorkedHours(time.chronologicalHours))} · Tempo efetivo sem pausas: ${escapeHtml(formatWorkedHours(time.effectiveHours))}. As horas não são convertidas em custo sem uma tarifa de mão de obra cadastrada.</span></div>
             <div class="form">
               <label>Descrição <input class="field" id="costDescription" placeholder="Serviço, terceiro ou despesa"></label>
               <label>Fornecedor / responsável <input class="field" id="costSupplier" placeholder="Fornecedor ou responsável"></label>
@@ -36601,7 +36739,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     function openSimpleFinishOrderModal(id) {
       const order=byId(state.orders,id); if(!order||isClosedOrder(order.status))return;
-      openModal("Concluir O.S.",`<form class="form" id="simpleFinishForm"><div class="full side-box"><strong>${escapeHtml(order.number||"O.S.")}</strong><span>${escapeHtml(machineName(order.assetId))}</span></div><label class="full">Solução ou serviço realizado * <textarea class="field" id="simpleFinishSolution" required placeholder="Descreva objetivamente o serviço executado">${escapeHtml(order.comment||"")}</textarea></label><label>Data e hora da conclusão * <input class="field" id="simpleFinishAt" type="datetime-local" required value="${localDateTimeValue()}"></label><label>Responsável pela execução * <input class="field" id="simpleFinishExecutor" required value="${escapeHtml(order.executor||"")}"></label><details class="os-quick-details"><summary>Adicionar mais informações</summary><div><label>Tempo trabalhado (h) <input class="field" id="simpleFinishHours" type="number" min="0" step="0.1"></label><label>Anexos <input class="field" id="simpleFinishFiles" type="file" multiple accept=".png,.jpg,.jpeg,.webp,.pdf,.txt,.csv,.doc,.docx,.xls,.xlsx"></label><label class="full"><input type="checkbox" id="simpleFinishPending" ${order.pendingExecution?"checked":""}> Manter pendência de execução</label></div></details><div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Concluir serviço</button></div></form>`,true);
+      openModal("Concluir O.S.",`<form class="form" id="simpleFinishForm"><div class="full side-box"><strong>${escapeHtml(order.number||"O.S.")}</strong><span>${escapeHtml(machineName(order.assetId))}</span></div><label class="full">Solução ou serviço realizado * <textarea class="field" id="simpleFinishSolution" required placeholder="Descreva objetivamente o serviço executado">${escapeHtml(order.comment||"")}</textarea></label><label>Data e hora da conclusão * <input class="field" id="simpleFinishAt" type="datetime-local" required value="${localDateTimeValue()}"></label><label>Responsável pela execução * <input class="field" id="simpleFinishExecutor" required value="${escapeHtml(order.executor||"")}"></label><details class="os-quick-details"><summary>Adicionar mais informações</summary><div><label>Tempo trabalhado (h) <input class="field" id="simpleFinishHours" type="text" inputmode="decimal" maxlength="5" autocomplete="off" placeholder="Ex.: 1,5"></label><label>Anexos <input class="field" id="simpleFinishFiles" type="file" multiple accept=".png,.jpg,.jpeg,.webp,.pdf,.txt,.csv,.doc,.docx,.xls,.xlsx"></label><label class="full"><input type="checkbox" id="simpleFinishPending" ${order.pendingExecution?"checked":""}> Manter pendência de execução</label></div></details><div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Concluir serviço</button></div></form>`,true);
       $("simpleFinishForm").addEventListener("submit", async event => {
         event.preventDefault();
         const solution = value("simpleFinishSolution");
@@ -36610,6 +36748,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         const started = gmOrderTimeMs(order.startedAt, gmOrderTimeMs(order.createdAt, finishedAt));
         if (!solution || !executor || !Number.isFinite(finishedAt)) return showToast("Informe o serviço realizado, a conclusão e o responsável.");
         if (finishedAt < started) return showToast("A conclusão não pode ser anterior ao início da O.S.", "warning");
+        const parsedWorkedHours = parseWorkedHoursInput($("simpleFinishHours").value);
+        if (parsedWorkedHours.error) return showToast(parsedWorkedHours.error, "warning");
         const selectedFiles = Array.from($("simpleFinishFiles").files || []);
         const attachmentRules = { maxBytes:4*1024*1024, types:["image/png","image/jpeg","image/webp","application/pdf","text/plain","text/csv","application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/vnd.ms-excel","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"], extensions:["png","jpg","jpeg","webp","pdf","txt","csv","doc","docx","xls","xlsx"] };
         const invalid = selectedFiles.map(file => ({ file, issue:stage21AllowedFile(file, attachmentRules) })).find(item => item.issue);
@@ -36623,7 +36763,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             executor,
             finishedAt,
             mttr:gmEffectiveOrderHours(order, finishedAt),
-            workedHours:Number($("simpleFinishHours").value || 0),
+            workedHours:parsedWorkedHours.value,
             pendingExecution:$("simpleFinishPending").checked,
             attachments:(order.attachments || []).concat(files)
           });
@@ -37136,17 +37276,17 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     function stage14DiaryPageGo(page){stage14ChangePage("diary",page)}
     function openStage14DiaryForm(id="",source={}){
-      if(!stage14CanOperate())return denyProfileAccess();const item=byId(state.maintenanceJournal,id)||source||{},editing=!!item.id,shiftOptions=Array.from(new Set(["Turno A","Turno B","Turno C","Administrativo",item.shift].filter(Boolean)));
+      if(!stage14CanOperate())return denyProfileAccess();const item=byId(state.maintenanceJournal,id)||source||{};if(item.id&&isImmutableOrderWorkLog(item))return showToast("Apontamentos de O.S. são registros de auditoria e não podem ser alterados.","warning");const editing=!!item.id,shiftOptions=Array.from(new Set(["Turno A","Turno B","Turno C","Administrativo",item.shift].filter(Boolean)));
       openModal(editing?"Editar Registro":"Novo Registro",`<form class="stage14-form" id="diary14Form"><input type="hidden" id="diary14Id" value="${escapeHtml(item.id||"")}"><div class="stage14-form-grid"><label>Título *<input class="field" id="diary14Title" required value="${escapeHtml(item.title||"")}" placeholder="Resumo do fato operacional"></label><label class="full">Descrição *<textarea class="field" id="diary14Description" required>${escapeHtml(item.description||"")}</textarea></label></div><details><summary>Mais detalhes<small>Data, turno, categoria, vínculos e evidências</small></summary><div class="stage14-form-details"><label>Data e hora<input class="field" id="diary14Occurred" type="datetime-local" value="${escapeHtml(item.occurredAt||localDateTimeValue())}"></label><label>Turno<select class="field" id="diary14Shift"><option value="">Não informado</option>${shiftOptions.map(v=>`<option ${v===item.shift?"selected":""}>${escapeHtml(v)}</option>`).join("")}</select></label><label>Categoria<select class="field" id="diary14Category">${STAGE14_DIARY_CATEGORIES.map(v=>`<option ${v===(item.category||STAGE14_DIARY_CATEGORIES[0])?"selected":""}>${v}</option>`).join("")}</select></label><label>Área<input class="field" id="diary14Area" value="${escapeHtml(item.area||"")}"></label><label>Equipamento<select class="field" id="diary14Asset">${stage14SelectOptions(state.assets,item.assetId||"","Sem equipamento",row=>`${row.code} - ${row.name}`)}</select></label><label>O.S.<select class="field" id="diary14Order">${stage14SelectOptions(state.orders,item.orderId||"","Sem O.S.",row=>row.number)}</select></label><label>Checklist<select class="field" id="diary14Checklist">${stage14SelectOptions(state.checklistExecutions||[],item.checklistExecutionId||"","Sem checklist",row=>row.checklistName||row.number||row.id)}</select></label><label>Medição<select class="field" id="diary14Measurement">${stage14SelectOptions(state.measurements,item.measurementId||"","Sem medição",row=>`${machineName(row.assetId)} - ${row.type}`)}</select></label><label>Parada<select class="field" id="diary14Downtime">${stage14SelectOptions(state.downtimes,item.downtimeId||"","Sem parada",row=>`${machineName(row.assetId)} - ${row.reason}`)}</select></label><label>Ação pendente<select class="field" id="diary14Pending">${stage14SelectOptions(state.pendingActions,item.pendingActionId||"","Sem ação",row=>row.title)}</select></label><label class="full">Evidências<input class="field" id="diary14Evidence" type="file" multiple accept="image/*,.pdf" capture="environment"></label></div></details><div class="stage14-form-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Salvar Registro</button></div></form>`,true);$("diary14Form").addEventListener("submit",saveStage14Diary);
     }
     async function saveStage14Diary(event){
-      event.preventDefault();if(!stage14CanOperate())return denyProfileAccess();const id=$("diary14Id").value||uid("journal"),key=`diary:save:${id}`;if(stage14Locks.has(key))return;const existing=byId(state.maintenanceJournal,id),title=value("diary14Title"),description=value("diary14Description");if(!title||!description)return showToast("Informe título e descrição.");const addedEvidence=await stage14ReadEvidence("diary14Evidence");if(addedEvidence===null)return;stage14Locks.add(key);const now=Date.now(),occurredAt=$("diary14Occurred").value||localDateTimeValue(),payload={...existing,id,title,description,occurredAt,shift:$("diary14Shift").value,category:$("diary14Category").value||STAGE14_DIARY_CATEGORIES[0],area:value("diary14Area"),assetId:$("diary14Asset").value,orderId:$("diary14Order").value,checklistExecutionId:$("diary14Checklist").value,measurementId:$("diary14Measurement").value,downtimeId:$("diary14Downtime").value,pendingActionId:$("diary14Pending").value,owner:existing?.owner||stage14Owner(),evidence:[...stage14Evidence(existing||{}),...addedEvidence],createdAt:existing?.createdAt||now,updatedAt:now,history:[...(existing?.history||[]),{date:now,label:existing?"Registro editado":"Registro criado",owner:stage14Owner()}]};state.maintenanceJournal=state.maintenanceJournal.filter(row=>row.id!==id);state.maintenanceJournal.unshift(payload);saveState();closeModal();render();showToast(existing?"Registro atualizado com histórico.":"Registro criado no Diário Operacional.");setTimeout(()=>stage14Locks.delete(key),1000);
+      event.preventDefault();if(!stage14CanOperate())return denyProfileAccess();const id=$("diary14Id").value||uid("journal"),key=`diary:save:${id}`;if(stage14Locks.has(key))return;const existing=byId(state.maintenanceJournal,id);if(existing&&isImmutableOrderWorkLog(existing))return showToast("Apontamentos de O.S. são registros de auditoria e não podem ser alterados.","warning");const title=value("diary14Title"),description=value("diary14Description");if(!title||!description)return showToast("Informe título e descrição.");const addedEvidence=await stage14ReadEvidence("diary14Evidence");if(addedEvidence===null)return;stage14Locks.add(key);const now=Date.now(),occurredAt=$("diary14Occurred").value||localDateTimeValue(),payload={...existing,id,title,description,occurredAt,shift:$("diary14Shift").value,category:$("diary14Category").value||STAGE14_DIARY_CATEGORIES[0],area:value("diary14Area"),assetId:$("diary14Asset").value,orderId:$("diary14Order").value,checklistExecutionId:$("diary14Checklist").value,measurementId:$("diary14Measurement").value,downtimeId:$("diary14Downtime").value,pendingActionId:$("diary14Pending").value,owner:existing?.owner||stage14Owner(),evidence:[...stage14Evidence(existing||{}),...addedEvidence],createdAt:existing?.createdAt||now,updatedAt:now,history:[...(existing?.history||[]),{date:now,label:existing?"Registro editado":"Registro criado",owner:stage14Owner()}]};state.maintenanceJournal=state.maintenanceJournal.filter(row=>row.id!==id);state.maintenanceJournal.unshift(payload);saveState();closeModal();render();showToast(existing?"Registro atualizado com histórico.":"Registro criado no Diário Operacional.");setTimeout(()=>stage14Locks.delete(key),1000);
     }
     function openStage14DiaryDetail(id){
       const item=byId(state.maintenanceJournal,id);if(!item)return;
       const linked=[["Equipamento",machineName(item.assetId)||"-"],["O.S.",byId(state.orders,item.orderId)?.number||"-"],["Checklist",byId(state.checklistExecutions||[],item.checklistExecutionId)?.checklistName||"-"],["Medição",byId(state.measurements,item.measurementId)?.type||"-"],["Parada",byId(state.downtimes,item.downtimeId)?.reason||"-"],["Ação",byId(state.pendingActions,item.pendingActionId)?.title||"-"]];
       const actions=[[item.assetId,"Abrir Equipamento",`closeModal();setView('assets');openAssetDetail('${item.assetId}')`],[item.orderId,"Abrir O.S.",`closeModal();showOrderDetails('${item.orderId}')`],[item.checklistExecutionId,"Abrir Checklist",`closeModal();showChecklistExecutionDetails('${item.checklistExecutionId}')`],[item.measurementId,"Abrir Medição",`closeModal();showMeasurementDetails('${item.measurementId}')`],[item.downtimeId,"Abrir Parada",`openStage14DowntimeDetail('${item.downtimeId}')`],[item.pendingActionId,"Abrir Ação",`openStage14PendingDetail('${item.pendingActionId}')`]].filter(([recordId])=>recordId);
-      openModal("Registro do Diário",`<div class="stage14-detail-head"><div><span class="stage14-eyebrow">${escapeHtml(item.category||"REGISTRO")}</span><h2>${escapeHtml(item.title||"Registro operacional")}</h2><p>${formatDateTime(stage14Time(item.occurredAt||item.createdAt))} · ${escapeHtml(item.shift||"Turno não informado")}</p></div>${stage14CanOperate()?`<div class="stage14-detail-actions"><button class="btn primary" onclick="openStage14DiaryForm('${item.id}')">Editar</button></div>`:""}</div><div class="stage14-info stage14-detail-description"><span>Descrição</span><strong>${escapeHtml(item.description||"-")}</strong></div><div class="stage14-info-grid">${[["Área",item.area||"-"],["Responsável",item.owner||"-"],...linked,["Evidências",String(stage14Evidence(item).length)]].map(([l,v])=>`<div class="stage14-info"><span>${l}</span><strong>${escapeHtml(v)}</strong></div>`).join("")}</div>${actions.length?`<div class="toolbar">${actions.map(([,label,handler])=>`<button class="btn" onclick="${handler}">${label}</button>`).join("")}</div>`:""}<h3>Histórico de alterações</h3>${stage14HistoryHtml(item,"Registro criado")}`,true);
+      openModal("Registro do Diário",`<div class="stage14-detail-head"><div><span class="stage14-eyebrow">${escapeHtml(item.category||"REGISTRO")}</span><h2>${escapeHtml(item.title||"Registro operacional")}</h2><p>${formatDateTime(stage14Time(item.occurredAt||item.createdAt))} · ${escapeHtml(item.shift||"Turno não informado")}</p></div>${stage14CanOperate()&&!isImmutableOrderWorkLog(item)?`<div class="stage14-detail-actions"><button class="btn primary" onclick="openStage14DiaryForm('${item.id}')">Editar</button></div>`:""}</div><div class="stage14-info stage14-detail-description"><span>Descrição</span><strong>${escapeHtml(item.description||"-")}</strong></div><div class="stage14-info-grid">${[["Área",item.area||"-"],["Responsável",item.owner||"-"],["Tempo trabalhado",formatWorkedHours(workLogHours(item))],...linked,["Evidências",String(stage14Evidence(item).length)]].map(([l,v])=>`<div class="stage14-info"><span>${l}</span><strong>${escapeHtml(v)}</strong></div>`).join("")}</div>${actions.length?`<div class="toolbar">${actions.map(([,label,handler])=>`<button class="btn" onclick="${handler}">${label}</button>`).join("")}</div>`:""}<h3>Histórico de alterações</h3>${stage14HistoryHtml(item,"Registro criado")}`,true);
     }
     function renderStage14(){renderStage14Downtimes();renderStage14Pending();renderStage14Diary();refreshStage14Timers()}
     function refreshStage14Timers(){document.querySelectorAll("[data-downtime-live]").forEach(target=>{const item=byId(state.downtimes,target.dataset.downtimeLive);if(item&&!item.endAt)target.textContent=stage14Duration(stage14DurationMs(item))})}
@@ -37325,7 +37465,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function stage16Rows(kind,filters=stage16Filters){if(!stage16CanSource(kind))return[];const source=Array.isArray(state[kind])?state[kind]:[],{start,end}=stage16Range(filters),timed=!['assets','spareParts'].includes(kind);return stage16ScopedRows(kind,source).filter(item=>{if(!stage16Matches(item,kind,filters))return false;if(!timed)return true;const date=stage16ItemDate(item,kind);return!!date&&date>=start&&date<=end})}
     function stage16Corrective(order){const key=stage16Text(`${order.maintenanceType||order.type||order.category||order.origin||""}`);return key.includes("corret")||key.includes("falha")||key.includes("emerg")}
     function stage16Preventive(order){return!!order.planId||stage16Text(`${order.maintenanceType||order.type||order.category||""}`).includes("prevent")}
-    function stage16OrderDuration(order){for(const value of[order.actualHours,order.executionHours,order.mttr,order.actualDurationHours]){const explicit=Number(value);if(Number.isFinite(explicit)&&explicit>0)return explicit}const start=stage16Date(order.realStartAt||order.startedAt),end=stage16Date(order.realEndAt||order.finishedAt||order.completedAt);return start&&end&&end>=start?Math.max(0,(end-start)/36e5-Math.max(0,Number(order.pauseHours||0)))||null:null}
+    function stage16OrderDuration(order){return workOrderEffectiveHours(order)}
     function stage16DowntimeDuration(item,filters=stage16Filters){const {start:rangeStart,end:rangeEnd}=stage16Range(filters),start=stage16Date(item.startAt),rawEnd=stage16Date(item.endAt)||(item.status==="Ativa"?new Date():null);if(!start||!rawEnd||rawEnd<start)return null;const from=new Date(Math.max(start,rangeStart)),to=new Date(Math.min(rawEnd,rangeEnd));return to>from?(to-from)/36e5:0}
     function stage16Unique(rows){return[...new Map(rows.map((item,index)=>[item.id||item.number||`row-${index}`,item])).values()]}
     function stage16MetricData(key,filters=stage16Filters){return gmMaintenanceMetricData(key,filters)}
@@ -37360,7 +37500,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function openStage16Quality(){const quality=stage16Quality();openModal("Qualidade dos dados",`<div class="s16-detail"><p>Os registros operacionais não foram modificados. Apenas registros inválidos foram excluídos dos cálculos que dependem deles.</p><div class="s16-detail-grid"><div class="s16-detail-box"><span>Total sinalizado</span><strong>${quality.ignored}</strong></div><div class="s16-detail-box"><span>Duplicidades de O.S.</span><strong>${quality.duplicates}</strong></div><div class="s16-detail-box"><span>Vínculos de ativo ausentes</span><strong>${quality.missingAsset}</strong></div></div></div>`)}
     function stockLocationName(id){return byId(state.stockLocations,id)?.name||""}
     const STAGE16_REPORTS={
-      orders:{category:"Manutenção",name:"Ordens de Serviço",kind:"orders",columns:[["Número","number"],["Descrição","description"],["Equipamento","asset"],["Tipo","type"],["Prioridade","priority"],["Status","status"],["Responsável","responsible"],["Abertura","opened"],["Prazo","due"],["Conclusão","closed"],["Duração","duration"]]},
+      orders:{category:"Manutenção",name:"Ordens de Serviço",kind:"orders",columns:[["Número","number"],["Descrição","description"],["Equipamento","asset"],["Tipo","type"],["Prioridade","priority"],["Status","status"],["Responsável","responsible"],["Abertura","opened"],["Prazo","due"],["Conclusão","closed"],["Duração cronológica","chronologicalHours"],["Tempo efetivo","effectiveHours"],["Horas apontadas","workedHours"]]},
       preventive:{category:"Manutenção",name:"Planos Preventivos",kind:"preventivePlans",columns:[["Plano","name"],["Equipamento","asset"],["Frequência","frequency"],["Próxima execução","next"],["Status","status"]]},
       compliance:{category:"Manutenção",name:"Cumprimento Preventivo",kind:"orders",preventive:true,columns:[["O.S.","number"],["Equipamento","asset"],["Prazo","due"],["Conclusão","closed"],["Situação","compliance"]]},
       backlog:{category:"Manutenção",name:"Backlog",kind:"orders",backlog:true,columns:[["O.S.","number"],["Equipamento","asset"],["Status","status"],["Prioridade","priority"],["Prazo","due"],["Faixa de atraso","delay"]]},
@@ -37378,7 +37518,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     };
     function stage16ReportAllowed(def){return stage16CanSource(def.kind)}
     function stage16DelayBand(order){if(!orderIsLate(order))return"No prazo";const due=stage16Date(order.scheduledAt||order.dueAt),days=due?Math.floor((Date.now()-due)/864e5):0;return days<=7?"Até 7 dias":days<=30?"De 8 a 30 dias":"Mais de 30 dias"}
-    function stage16ReportRows(type=stage16ReportType){const def=STAGE16_REPORTS[type];if(!def||!stage16ReportAllowed(def))return[];if(def.kind==="indicators")return Object.keys(STAGE16_METRICS).filter(stage16MetricAllowed).map(key=>{const meta=STAGE16_METRICS[key],data=stage16MetricData(key);return{_id:key,_kind:"indicators",name:meta.name,value:stage16FormatMetric(data.value,meta.unit),unit:data.value==null?"-":meta.unit,method:meta.method,source:meta.source}});let rows=stage16Rows(def.kind);if(def.preventive)rows=rows.filter(stage16Preventive);if(def.backlog)rows=rows.filter(item=>!isClosedOrder(item.status)&&stage16Text(item.status)!=="cancelada");return rows.map(item=>stage16ReportRow(item,def.kind,type))}
+    function stage16ReportRows(type=stage16ReportType){const def=STAGE16_REPORTS[type];if(!def||!stage16ReportAllowed(def))return[];if(def.kind==="indicators")return Object.keys(STAGE16_METRICS).filter(stage16MetricAllowed).map(key=>{const meta=STAGE16_METRICS[key],data=stage16MetricData(key);return{_id:key,_kind:"indicators",name:meta.name,value:stage16FormatMetric(data.value,meta.unit),unit:data.value==null?"-":meta.unit,method:meta.method,source:meta.source}});let rows=stage16Rows(def.kind);if(def.preventive)rows=rows.filter(stage16Preventive);if(def.backlog)rows=rows.filter(item=>!isClosedOrder(item.status)&&stage16Text(item.status)!=="cancelada");return rows.map(item=>{const row=stage16ReportRow(item,def.kind,type);if(def.kind!=="orders")return row;const time=workOrderTimeSummary(item);return{...row,chronologicalHours:formatWorkedHours(time.chronologicalHours),effectiveHours:formatWorkedHours(time.effectiveHours),workedHours:formatWorkedHours(time.loggedHours,"0 h")}})}
     function stage16ReportRow(item,kind,type){if(kind==="orders"){const duration=stage16OrderDuration(item),done=stage16Date(item.finishedAt),due=stage16Date(item.scheduledAt||item.dueAt);return{_id:item.id,_kind:"orders",number:item.number||"-",description:item.description||item.maintenance||"-",asset:machineName(item.assetId),type:item.maintenanceType||item.type||item.category||"-",priority:ptBrText(item.priority||"-"),status:ptBrText(item.status||"-"),responsible:stage16Responsible(item)||"-",opened:stage16Date(item.createdAt)?.toLocaleString("pt-BR")||"-",due:due?.toLocaleString("pt-BR")||"-",closed:done?.toLocaleString("pt-BR")||"-",duration:duration==null?"Sem dados":`${duration.toLocaleString("pt-BR",{maximumFractionDigits:1})} h`,delay:stage16DelayBand(item),compliance:isClosedOrder(item.status)&&done&&due?(done<=due?"Concluída no prazo":"Concluída com atraso"):orderIsLate(item)?"Vencida":ptBrText(item.status)}}if(kind==="downtimes"){const duration=stage16DowntimeDuration(item);return{_id:item.id,_kind:kind,asset:machineName(item.assetId),start:stage16Date(item.startAt)?.toLocaleString("pt-BR")||"-",end:stage16Date(item.endAt)?.toLocaleString("pt-BR")||"Ativa",duration:duration==null?"Sem dados":`${duration.toLocaleString("pt-BR",{maximumFractionDigits:1})} h`,reason:item.reason||item.cause||"-",impact:item.impact||"-",type:item.type||"-",status:item.status||"-"}}if(kind==="assets")return{_id:item.id,_kind:kind,code:item.code||"-",name:item.name||"-",category:item.category||item.type||"-",criticality:item.criticality||"-",status:item.status||"-",location:locationName(item.locationId),health:assetHealthCategory(item).label};if(kind==="measurements")return{_id:item.id,_kind:kind,date:stage16Date(item.readAt||item.createdAt)?.toLocaleString("pt-BR")||"-",point:stage15ReadingPointLabel(item),asset:machineName(item.assetId),value:stage15FormatValue(item.value,item.unit),situation:stage15SituationFromReading(item).label,responsible:item.owner||"-",origin:item.origin||"Manual"};if(kind==="preventivePlans")return{_id:item.id,_kind:kind,name:item.name||item.code||"Plano",asset:machineName(item.assetId),frequency:item.frequency||item.interval||"-",next:stage16Date(item.nextExecutionAt||item.nextDate)?.toLocaleDateString("pt-BR")||"-",status:item.status||"-"};if(kind==="pendingActions")return{_id:item.id,_kind:kind,title:item.title||item.description||"Ação",asset:machineName(item.assetId),priority:item.priority||"-",status:item.status||"-",due:stage16Date(item.dueAt||item.scheduledAt)?.toLocaleDateString("pt-BR")||"-",responsible:stage16Responsible(item)||"-"};if(kind==="checklistExecutions")return{_id:item.id,_kind:kind,name:item.checklistName||byId(state.checklists,item.checklistId)?.name||"Checklist",asset:machineName(item.assetId),date:stage16Date(item.finishedAt||item.executedAt||item.createdAt)?.toLocaleString("pt-BR")||"-",result:item.result||item.classification||"-",status:item.status||"-",responsible:stage16Responsible(item)||"-"};if(kind==="spareParts"){const alert=stockAlertStatus(item),balance=Number(item.balance||0),reserved=Number(item.reserved||0);return{_id:item.id,_kind:kind,code:item.code||"-",name:item.name||"-",balance, reserved,available:Math.max(0,balance-reserved),minimum:Number(item.minimum||0),situation:alert.shortage>0?"Abaixo do mínimo":"Normal",location:item.location||stockLocationName(item.stockId)||"-"}}if(kind==="inventoryMovements")return{_id:item.id,_kind:kind,date:stage16Date(item.movedAt||item.date||item.createdAt)?.toLocaleString("pt-BR")||"-",part:spareName(item.spareId),type:item.type||item.movementType||"-",quantity:item.quantity??"-",origin:stockLocationName(item.originStockId)||item.origin||"-",destination:stockLocationName(item.destinationStockId)||item.destination||"-",order:byId(state.orders,item.orderId)?.number||"-",user:item.user||item.owner||item.createdBy||"-"};if(kind==="materialRequests")return{_id:item.id,_kind:kind,number:item.number||item.code||"-",date:stage16Date(item.createdAt)?.toLocaleString("pt-BR")||"-",status:item.status||"-",requester:item.requester||item.createdBy||"-",priority:item.priority||"-",items:Array.isArray(item.items)?item.items.length:1};return{_id:item.id,_kind:kind}}
     function stage16ReportCatalogHtml(){const categories=[...new Set(Object.values(STAGE16_REPORTS).map(item=>item.category))];return categories.map(category=>{const reports=Object.entries(STAGE16_REPORTS).filter(([,def])=>def.category===category&&stage16ReportAllowed(def));return reports.length?`<div class="s16-report-category"><h3>${category}</h3>${reports.map(([key,def])=>`<button class="${stage16ReportType===key?"active":""}" onclick="stage16SelectReport('${key}')">${escapeHtml(def.name)}</button>`).join("")}</div>`:""}).join("")}
     function renderStage16Reports(){const root=$("stage16ReportsRoot");if(!root||!hasPermission("reports"))return;if(!STAGE16_REPORTS[stage16ReportType]||!stage16ReportAllowed(STAGE16_REPORTS[stage16ReportType]))stage16ReportType=Object.keys(STAGE16_REPORTS).find(key=>stage16ReportAllowed(STAGE16_REPORTS[key]))||"";const def=STAGE16_REPORTS[stage16ReportType],rows=def?stage16ReportRows():[],start=(stage16ReportPage-1)*STAGE16_REPORT_PAGE_SIZE,page=rows.slice(start,start+STAGE16_REPORT_PAGE_SIZE);root.innerHTML=`<header class="s16-head"><div><span class="s16-eyebrow">CENTRAL GERENCIAL</span><h1>Relatórios</h1><p>Listagens operacionais filtradas, impressão limpa e exportação CSV.</p><span class="s16-updated">Atualizado em: ${new Date(stage16UpdatedAt).toLocaleString("pt-BR")}</span></div><div class="s16-head-actions"><button class="btn" onclick="stage16Refresh()">↻ Atualizar dados</button>${def?`<button class="btn" onclick="stage16PrintReport()">Imprimir</button><button class="btn primary" onclick="stage16ExportCsv()">Exportar CSV</button>`:""}</div></header>${stage16FilterHtml("s16r")}<div class="s16-report-layout"><aside class="s16-report-catalog">${stage16ReportCatalogHtml()}</aside><section class="s16-report-result">${def?stage16ReportResultHtml(def,rows,page):`<div class="s16-empty"><div><strong>Nenhum relatório permitido para este perfil.</strong></div></div>`}</section></div>`;stage16SyncFilterInputs("s16r")}
@@ -38006,6 +38146,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       try {
         const id = $("operationalDiaryId").value || uid("journal");
         const existing = byId(state.maintenanceJournal, id);
+        if (existing && isImmutableOrderWorkLog(existing)) { showToast("Apontamentos de O.S. são registros de auditoria e não podem ser alterados.", "warning"); return; }
         const occurredAt = $("operationalDiaryOccurredAt").value;
         const shift = $("operationalDiaryShift").value;
         const category = $("operationalDiaryCategory").value;

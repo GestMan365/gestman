@@ -12,6 +12,7 @@ const functionBody = name => {
 };
 const auditContext = {
   state:{ maintenanceJournal:[], materialRequests:[], spareParts:[] },
+  currentAccount:{ company:{ id:"tenant-a" } },
   normalizeTextKey:value => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(),
   orderTabArray:(order, key) => Array.isArray(order?.[key]) ? order[key] : [],
   spareName:id => `Peça ${id}`,
@@ -22,6 +23,15 @@ const auditContext = {
 };
 vm.createContext(auditContext);
 vm.runInContext([
+  functionBody("parseWorkedHoursInput"),
+  functionBody("workedHoursValue"),
+  functionBody("workLogHours"),
+  functionBody("formatWorkedHours"),
+  functionBody("currentWorkLogTenantId"),
+  functionBody("workLogTenantId"),
+  functionBody("workLogBelongsToTenant"),
+  functionBody("orderWorkLogs"),
+  functionBody("orderLoggedHours"),
   functionBody("orderAuditTime"),
   functionBody("orderAuditStatusDetails"),
   functionBody("orderAuditEventType"),
