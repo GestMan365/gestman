@@ -47,6 +47,7 @@ vm.runInContext([
   functionBody("checklistExecutionStartIssue"),
   functionBody("buildChecklistExecution"),
   functionBody("createChecklistExecution"),
+  functionBody("checklistExecutionMetrics"),
   functionBody("checklistExecutionCompletionIssue"),
   functionBody("checklistCompletionAuditEvent"),
   functionBody("completeChecklistExecution"),
