@@ -18,9 +18,9 @@ expect(functionBody("orderLoggedHours").includes("orderWorkLogs"), "Total de hor
 expect(functionBody("orderWorkLogs").includes("seen.has"), "Total de horas não evita duplicidade de apontamentos.");
 expect(functionBody("orderWorkLogs").includes("workLogBelongsToTenant"), "Apontamentos não são filtrados por tenant.");
 expect(functionBody("addOrderObservation").includes("workedHours:parsedHours.value"), "Horas não são persistidas como número decimal.");
-expect(functionBody("addOrderObservation").includes('source:"order_work_log"'), "Origem auditável do apontamento ausente.");
-expect(functionBody("addOrderObservation").includes("companyId:currentWorkLogTenantId()"), "Tenant não é registrado no apontamento.");
-expect(functionBody("addOrderObservation").includes("user:actor"), "Usuário não é registrado no apontamento.");
+expect(functionBody("addOrderWorkLogService").includes('source:"order_work_log"'), "Origem auditável do apontamento ausente.");
+expect(functionBody("addOrderWorkLogService").includes("companyId:tenantId"), "Tenant não é registrado no apontamento.");
+expect(functionBody("addOrderWorkLogService").includes("user:actor"), "Usuário não é registrado no apontamento.");
 expect(functionBody("addOrderObservation").includes("workLogSaveLocks"), "Proteção contra apontamento duplicado ausente.");
 expect(functionBody("orderDetailTabContent").includes("Total de horas apontadas"), "Total de horas não é exibido na O.S.");
 expect(functionBody("orderDetailTabContent").includes("Tempo trabalhado:"), "Tempo individual não é exibido no apontamento.");

@@ -21,6 +21,8 @@
     "test:work-order-material-audit:static": "node scripts/validate-work-order-material-audit.mjs",
     "test:order-deletion": "node --test tests/work-order-deletion.test.mjs",
     "test:order-deletion:static": "node scripts/validate-order-deletion.mjs",
+    "test:work-order-immutability": "node --test tests/work-order-immutability.test.mjs",
+    "test:work-order-immutability:static": "node scripts/validate-work-order-immutability.mjs",
     "test:downtime-sync": "node --test tests/asset-downtime-sync.test.mjs",
     "test:downtime-sync:static": "node scripts/validate-asset-downtime-sync.mjs",
     "test:routes:static": "node scripts/validate-application-routes.mjs",

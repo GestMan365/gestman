@@ -29151,6 +29151,36 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       }
       return { ok:true, code:"WORK_ORDER_DELETED", orderId:order.id };
     }
+    const WORK_ORDER_MUTATION_ERRORS = Object.freeze({
+      IMMUTABLE_STATUS:WORK_ORDER_DELETION_ERRORS.IMMUTABLE_STATUS,
+      TENANT_SCOPE:WORK_ORDER_DELETION_ERRORS.TENANT_SCOPE,
+      NOT_FOUND:WORK_ORDER_DELETION_ERRORS.NOT_FOUND
+    });
+    function workOrderMutationDecision(order, tenantId = currentWorkOrderDeletionTenantId()) {
+      const decision = workOrderDeletionDecision(order, tenantId);
+      return decision.allowed
+        ? { allowed:true, code:"WORK_ORDER_MUTATION_ALLOWED", status:String(order?.status || "") }
+        : { ...decision };
+    }
+    function createWorkOrderMutationError(decision = {}) {
+      const error = new Error(decision.message || "A Ordem de Serviço não pode ser alterada.");
+      error.name = "WorkOrderMutationError";
+      error.code = decision.code || "WORK_ORDER_MUTATION_BLOCKED";
+      error.status = decision.status || "";
+      error.immutable = error.code === WORK_ORDER_MUTATION_ERRORS.IMMUTABLE_STATUS;
+      return error;
+    }
+    function assertWorkOrderMutable(order, tenantId = currentWorkOrderDeletionTenantId()) {
+      const decision = workOrderMutationDecision(order, tenantId);
+      if (!decision.allowed) throw createWorkOrderMutationError(decision);
+      return decision;
+    }
+    function blockWorkOrderMutation(order, tenantId = currentWorkOrderDeletionTenantId()) {
+      const decision = workOrderMutationDecision(order, tenantId);
+      if (decision.allowed) return null;
+      showBlockingMessage(decision.code === WORK_ORDER_MUTATION_ERRORS.IMMUTABLE_STATUS ? "O.S. encerrada e imutável" : "Alteração bloqueada", decision.message);
+      return decision;
+    }
     function activeOrdersForAsset(assetId) {
       return state.orders.filter(order =>
         order.assetId === assetId &&
@@ -31812,7 +31842,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (selectedOrderDetailTab === "notes") {
         const rows = orderWorkLogs(order.id).sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
         const totalHours = orderLoggedHours(order.id, rows);
-        return `<div class="os-detail-list"><button class="os-detail-list-item" type="button" onclick="addOrderObservation('${order.id}')"><strong>＋ Adicionar apontamento</strong><span>›</span></button><div class="side-box"><strong>${formatWorkedHours(totalHours, "0 h")}</strong><span>Total de horas apontadas pelos técnicos. Este total é separado da duração cronológica e do tempo efetivo da O.S.</span></div>${rows.map(item => `<div class="os-detail-list-item" data-work-log-id="${escapeHtml(item.id || "")}"><span><strong>${escapeHtml(item.title || "Apontamento")}</strong><br><small>${escapeHtml(item.description || "")}</small><br><small>Tempo trabalhado: ${escapeHtml(formatWorkedHours(workLogHours(item)))} · Usuário: ${escapeHtml(item.user || item.owner || "Não informado")} · ${formatDateTime(item.createdAt)}</small></span></div>`).join("") || `<div class="os-detail-empty">Nenhum apontamento registrado nesta O.S.</div>`}</div>`;
+        return `<div class="os-detail-list">${orderWorkLogActionButton(order)}<div class="side-box"><strong>${formatWorkedHours(totalHours, "0 h")}</strong><span>Total de horas apontadas pelos técnicos. Este total é separado da duração cronológica e do tempo efetivo da O.S.</span></div>${rows.map(item => `<div class="os-detail-list-item" data-work-log-id="${escapeHtml(item.id || "")}"><span><strong>${escapeHtml(item.title || "Apontamento")}</strong><br><small>${escapeHtml(item.description || "")}</small><br><small>Tempo trabalhado: ${escapeHtml(formatWorkedHours(workLogHours(item)))} · Usuário: ${escapeHtml(item.user || item.owner || "Não informado")} · ${formatDateTime(item.createdAt)}</small></span></div>`).join("") || `<div class="os-detail-empty">Nenhum apontamento registrado nesta O.S.</div>`}</div>`;
       }
       const linked = Array.isArray(order.linkedChecklists) ? order.linkedChecklists.map(id=>byId(state.checklists,id)).filter(Boolean) : [];
       const checklists = linked.length ? linked : state.checklists.filter(item => item.assetId === order.assetId);
@@ -31847,7 +31877,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           </div>
         </div>
         ${orderExecutionCta(order, "panel")}
-        <div class="mobile-execution-shortcuts"><button type="button" onclick="addOrderObservation('${order.id}')">Observação</button><button type="button" onclick="openMobileOrderAttachment('${order.id}',true)">Foto</button><button type="button" onclick="openMobileOrderAttachment('${order.id}',false)">Documento</button><button type="button" onclick="setView('measurements');openCrudFormForCreate('measurementForm')">Medição</button><button type="button" onclick="openMobilePartUsed('${order.id}')">Peça utilizada</button><button type="button" onclick="setOrderDetailTab('checklist')">Checklist</button></div>
+        ${isClosedOrder(order.status) ? "" : `<div class="mobile-execution-shortcuts"><button type="button" onclick="addOrderObservation('${order.id}')">Observação</button><button type="button" onclick="openMobileOrderAttachment('${order.id}',true)">Foto</button><button type="button" onclick="openMobileOrderAttachment('${order.id}',false)">Documento</button><button type="button" onclick="setView('measurements');openCrudFormForCreate('measurementForm')">Medição</button><button type="button" onclick="openMobilePartUsed('${order.id}')">Peça utilizada</button><button type="button" onclick="setOrderDetailTab('checklist')">Checklist</button></div>`}
         <div class="os-detail-tabs">
           ${[["general","Geral"],["checklist","Checklist"],["parts","Peças"],["notes","Apontamentos"],["history","Histórico"],["attachments","Anexos"]].map(([key,label]) => `<button class="${selectedOrderDetailTab === key ? "active" : ""}" type="button" onclick="setOrderDetailTab('${key}')">${label}</button>`).join("")}
         </div>
@@ -31977,8 +32007,67 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       }
     }
     const workLogSaveLocks = new Set();
+    function orderWorkLogActionButton(order = {}) {
+      if (!order.id || isClosedOrder(order.status)) return "";
+      return `<button class="os-detail-list-item" type="button" onclick="addOrderObservation('${order.id}')"><strong>＋ Adicionar apontamento</strong><span>›</span></button>`;
+    }
+    function addOrderWorkLogService(order, payload, options) {
+      payload = payload || {};
+      options = options || {};
+      const tenantId = options.tenantId === undefined ? currentWorkLogTenantId() : String(options.tenantId || "");
+      assertWorkOrderMutable(order, tenantId);
+      const entries = options.entries;
+      if (!Array.isArray(entries)) {
+        const error = new Error("A coleção de apontamentos não está disponível.");
+        error.name = "WorkOrderMutationError";
+        error.code = "WORK_ORDER_WORK_LOG_STORAGE_UNAVAILABLE";
+        throw error;
+      }
+      const description = String(payload.description || "").trim();
+      if (!description) {
+        const error = new Error("Informe a observação do apontamento.");
+        error.name = "WorkOrderMutationError";
+        error.code = "WORK_ORDER_WORK_LOG_DESCRIPTION_REQUIRED";
+        throw error;
+      }
+      const parsedHours = parseWorkedHoursInput(payload.workedHours ?? payload.hours);
+      if (parsedHours.error) {
+        const error = new Error(parsedHours.error);
+        error.name = "WorkOrderMutationError";
+        error.code = "WORK_ORDER_WORK_LOG_HOURS_INVALID";
+        throw error;
+      }
+      const id = String(payload.id || uid("work_log"));
+      if (entries.some(item => String(item?.id || "") === id)) return { ok:false, code:"WORK_ORDER_WORK_LOG_DUPLICATE", entry:null };
+      const now = Number(options.now || Date.now());
+      const actor = String(options.actor || currentWorkLogActor());
+      const entry = {
+        id,
+        orderId:order.id,
+        assetId:order.assetId,
+        title:"Apontamento da O.S.",
+        description,
+        workedHours:parsedHours.value,
+        hours:parsedHours.value,
+        user:actor,
+        owner:actor,
+        userId:String(options.userId ?? currentAccount?.user?.id ?? ""),
+        companyId:tenantId,
+        source:"order_work_log",
+        auditEvent:true,
+        immutable:true,
+        occurredAt:options.occurredAt || localDateTimeValue(now),
+        createdAt:now,
+        updatedAt:now
+      };
+      assertWorkOrderMutable(order, tenantId);
+      entries.unshift(entry);
+      return { ok:true, code:"WORK_ORDER_WORK_LOG_CREATED", entry };
+    }
     function addOrderObservation(id) {
       const order=byId(state.orders,id); if(!order) return;
+      const blocked = blockWorkOrderMutation(order, currentWorkLogTenantId());
+      if (blocked) return { ok:false, code:blocked.code };
       const requestId = uid("work_log");
       openModal("Adicionar apontamento",`<form class="form" id="orderObservationForm"><label class="full">Observação <textarea class="field" id="orderObservationText" required placeholder="Informe o serviço, ocorrência ou orientação"></textarea></label><label>Tempo trabalhado (h) <input class="field" id="orderObservationHours" type="text" inputmode="decimal" maxlength="5" autocomplete="off" placeholder="Ex.: 1,5"></label><div class="full side-box"><span>Use horas decimais, por exemplo: 0,5; 1; 1,5 ou 2,25. O limite por apontamento é 24 horas.</span></div><div class="full toolbar"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Salvar apontamento</button></div></form>`);
       $("orderObservationForm").addEventListener("submit", event => {
@@ -31991,27 +32080,30 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         if (workLogSaveLocks.has(lockKey) || state.maintenanceJournal.some(item => item.id === requestId)) return;
         workLogSaveLocks.add(lockKey);
         if (event.submitter) event.submitter.disabled = true;
-        const now = Date.now();
-        const actor = currentWorkLogActor();
-        state.maintenanceJournal.unshift({
-          id:requestId,
-          orderId:id,
-          assetId:order.assetId,
-          title:"Apontamento da O.S.",
-          description,
-          workedHours:parsedHours.value,
-          hours:parsedHours.value,
-          user:actor,
-          owner:actor,
-          userId:String(currentAccount?.user?.id || ""),
-          companyId:currentWorkLogTenantId(),
-          source:"order_work_log",
-          auditEvent:true,
-          immutable:true,
-          occurredAt:localDateTimeValue(now),
-          createdAt:now,
-          updatedAt:now
-        });
+        let result;
+        try {
+          result = addOrderWorkLogService(byId(state.orders, id), {
+            id:requestId,
+            description,
+            workedHours:parsedHours.value
+          }, {
+            entries:state.maintenanceJournal,
+            tenantId:currentWorkLogTenantId(),
+            actor:currentWorkLogActor(),
+            userId:String(currentAccount?.user?.id || "")
+          });
+        } catch (error) {
+          workLogSaveLocks.delete(lockKey);
+          if (event.submitter) event.submitter.disabled = false;
+          const code = String(error?.code || "WORK_ORDER_MUTATION_BLOCKED");
+          if (code === WORK_ORDER_MUTATION_ERRORS.IMMUTABLE_STATUS) showBlockingMessage("O.S. encerrada e imutável", error.message);
+          else showToast(error?.message || "Não foi possível salvar o apontamento.", "warning");
+          return { ok:false, code };
+        }
+        if (!result.ok) {
+          workLogSaveLocks.delete(lockKey);
+          return result;
+        }
         saveState();
         closeModal();
         render();
@@ -32688,17 +32780,20 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     function openMobileOrderAttachment(orderId,photo=false) {
       const order=byId(state.orders,orderId);if(!order)return;
+      const blocked=blockWorkOrderMutation(order);if(blocked)return {ok:false,code:blocked.code};
       openModal(photo?"Adicionar foto":"Adicionar documento",`<form class="form" id="mobileAttachmentForm"><label class="full">Arquivo <input class="field" id="mobileAttachmentFile" type="file" ${photo?'accept="image/*" capture="environment"':''} required></label><div class="full" id="mobileAttachmentPreview"></div><label class="full">Descrição <input class="field" id="mobileAttachmentNote"></label><div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Salvar</button></div></form>`);
       const attachmentRules=photo
         ? {maxBytes:8*1024*1024,types:["image/png","image/jpeg","image/webp"],extensions:["png","jpg","jpeg","webp"]}
         : {maxBytes:8*1024*1024,types:["application/pdf","image/png","image/jpeg","image/webp","text/plain","text/csv","application/vnd.ms-excel","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet","application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document"],extensions:["pdf","png","jpg","jpeg","webp","txt","csv","xls","xlsx","doc","docx"]};
       $("mobileAttachmentFile").addEventListener("change",async()=>{const input=$("mobileAttachmentFile"),file=input.files[0],preview=$("mobileAttachmentPreview");preview.innerHTML="";if(!file)return;const issue=stage21AllowedFile(file,attachmentRules);if(issue){input.value="";return showToast(issue,"warning")}if(file.type.startsWith("image/")){try{const source=await readAssetFile(file);preview.innerHTML=`<img src="${source}" alt="Prévia" style="max-width:100%;max-height:220px;border-radius:8px">`}catch{showToast("Não foi possível preparar a prévia.","warning")}}else preview.innerHTML=`<div class="side-box">${escapeHtml(file.name)}</div>`;});
-      $("mobileAttachmentForm").addEventListener("submit",async event=>{event.preventDefault();const form=event.currentTarget,file=$("mobileAttachmentFile").files[0],submit=event.submitter;if(!file||form.dataset.saving==="1")return;const issue=stage21AllowedFile(file,attachmentRules);if(issue)return showToast(issue,"warning");form.dataset.saving="1";if(submit)submit.disabled=true;const previousOrders=state.orders;try{const attachment={id:uid("file"),name:file.name,type:file.type,size:file.size,note:value("mobileAttachmentNote"),createdAt:Date.now(),dataUrl:await readAssetFile(file)};state.orders=state.orders.map(item=>item.id===orderId?{...item,attachments:(item.attachments||[]).concat(attachment)}:item);saveState();closeModal();render();showToast("Anexo salvo localmente na O.S.")}catch(error){state.orders=previousOrders;stage21HandleError(error,"orders.mobileAttachment","Não foi possível salvar o anexo. O arquivo e a descrição foram preservados.")}finally{form.dataset.saving="0";if(submit&&submit.isConnected)submit.disabled=false}});
+      $("mobileAttachmentForm").addEventListener("submit",async event=>{event.preventDefault();const form=event.currentTarget,file=$("mobileAttachmentFile").files[0],submit=event.submitter;if(!file||form.dataset.saving==="1")return;const currentOrder=byId(state.orders,orderId),writeBlock=blockWorkOrderMutation(currentOrder);if(writeBlock)return {ok:false,code:writeBlock.code};const issue=stage21AllowedFile(file,attachmentRules);if(issue)return showToast(issue,"warning");form.dataset.saving="1";if(submit)submit.disabled=true;const previousOrders=state.orders;try{assertWorkOrderMutable(currentOrder);const attachment={id:uid("file"),name:file.name,type:file.type,size:file.size,note:value("mobileAttachmentNote"),createdAt:Date.now(),dataUrl:await readAssetFile(file)};assertWorkOrderMutable(byId(state.orders,orderId));state.orders=state.orders.map(item=>item.id===orderId?{...item,attachments:(item.attachments||[]).concat(attachment)}:item);saveState();closeModal();render();showToast("Anexo salvo localmente na O.S.")}catch(error){state.orders=previousOrders;stage21HandleError(error,"orders.mobileAttachment","Não foi possível salvar o anexo. O arquivo e a descrição foram preservados.")}finally{form.dataset.saving="0";if(submit&&submit.isConnected)submit.disabled=false}});
     }
     function openMobilePartUsed(orderId) {
+      const order=byId(state.orders,orderId);if(!order)return;
+      const blocked=blockWorkOrderMutation(order);if(blocked)return {ok:false,code:blocked.code};
       const options=state.spareParts.map(item=>`<option value="${item.id}">${escapeHtml(item.code)} - ${escapeHtml(item.name)}</option>`).join("");
       openModal("Registrar peça utilizada",`<form class="form" id="mobilePartForm"><label class="full">Peça <select class="field" id="mobilePartSpare" required><option value="">Selecione</option>${options}</select></label><label>Quantidade <input class="field" id="mobilePartQty" type="number" min="0.01" step="0.01" value="1" required></label><div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Registrar</button></div></form>`);
-      $("mobilePartForm").addEventListener("submit",event=>{event.preventDefault();const spareId=$("mobilePartSpare").value,quantity=Number($("mobilePartQty").value);if(!spareId||!quantity)return;state.materialRequests.unshift({id:uid("material"),number:nextCode(state.materialRequests,"RM"),orderId,spareId,quantity,requester:currentTechnicianName(),status:"Atendida",createdAt:Date.now()});saveState();closeModal();render();showToast("Peça registrada na O.S.");});
+      $("mobilePartForm").addEventListener("submit",event=>{event.preventDefault();const currentOrder=byId(state.orders,orderId),writeBlock=blockWorkOrderMutation(currentOrder);if(writeBlock)return {ok:false,code:writeBlock.code};const spareId=$("mobilePartSpare").value,quantity=Number($("mobilePartQty").value);if(!spareId||!quantity)return;assertWorkOrderMutable(currentOrder);state.materialRequests.unshift({id:uid("material"),number:nextCode(state.materialRequests,"RM"),orderId,spareId,quantity,requester:currentTechnicianName(),status:"Atendida",createdAt:Date.now()});saveState();closeModal();render();showToast("Peça registrada na O.S.");});
     }
     function openMobileDowntimeModal() {
       const assets=state.assets.map(item=>`<option value="${item.id}">${escapeHtml(item.code)} - ${escapeHtml(item.name)}</option>`).join("");const orders=state.orders.filter(item=>!isClosedOrder(item.status)).map(item=>`<option value="${item.id}">${escapeHtml(item.number)}</option>`).join("");
@@ -34905,6 +35000,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       return `<strong>${ptBrText(tabName.toUpperCase())}</strong><span>${detailTabText(tabName)}</span>`;
     }
     function updateOrderExtras(id, patch) {
+      const existingOrder = byId(state.orders, id);
+      assertWorkOrderMutable(existingOrder);
       const safePatch = { ...(patch || {}) };
       ["status", "startedAt", "finishedAt", "pausedAt", "pauseReason", "waitingReason"].forEach(key => delete safePatch[key]);
       let updatedOrder = null;
@@ -34946,6 +35043,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     async function addOrderMaterialConsumption(orderId) {
       const order = byId(state.orders, orderId);
       if (!order) return;
+      const blocked = blockWorkOrderMutation(order);
+      if (blocked) return { ok:false, code:blocked.code };
       const stockId = $("orderMaterialStock")?.value || "";
       const spare = findSpareForOrderMaterial(value("orderMaterialSpareInput"));
       const quantity = parseNumber($("orderMaterialQty")?.value, 0);
@@ -34977,6 +35076,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       showToast(saved ? "Material lançado e estoque baixado." : "Material lançado localmente. Sincronização pendente.");
     }
     async function removeOrderMaterialConsumption(requestId, orderId, confirmed = false) {
+      const order = byId(state.orders, orderId);
+      const blocked = blockWorkOrderMutation(order);
+      if (blocked) return { ok:false, code:blocked.code };
       if (!confirmed) { requestDestructiveConfirmation("Remover este material da O.S.?", "O lançamento será removido e a quantidade utilizada retornará ao saldo do estoque.", "Remover material", () => removeOrderMaterialConsumption(requestId, orderId, true)); return; }
       const existing = byId(state.materialRequests, requestId);
       if (!existing || !applyStockBalanceChange(existing, null, materialRequestBalanceEffect)) return;
@@ -35070,6 +35172,13 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const tabKey = statusKey(tabName);
       const panel = $("detailTabPanel");
       if (!panel) return;
+      const currentOrder = byId(state.orders, orderId);
+      if (!currentOrder) return;
+      if (isClosedOrder(currentOrder.status)) {
+        panel.classList.add("is-readonly");
+        panel.querySelectorAll("input, textarea, select, button").forEach(control => { control.disabled = true; });
+        return;
+      }
       panel.querySelectorAll("[data-remove-list]").forEach(button => {
         button.addEventListener("click", () => removeOrderListItem(orderId, button.dataset.removeList, button.dataset.itemId, tabName));
       });
@@ -35350,6 +35459,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function showOrderDetails(id, mode = "view") {
       const order = byId(state.orders, id);
       if (!order) return;
+      const orderReadOnly = isClosedOrder(order.status);
       const asset = byId(state.assets, order.assetId) || {};
       const plan = order.plan || "43";
       const detailTitle = isClosedOrder(order.status) ? "Consultar O.S." : "Preencher O.S.";
@@ -35398,8 +35508,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             <label class="switch-line"><input type="checkbox" id="detailStopped" ${order.machineStopped ? "checked" : ""}> Equipamento parado durante o serviço</label>
           </div>
           <div class="toolbar order-detail-savebar">
-            <button class="btn danger" type="button" onclick="closeModal()">Cancelar</button>
-            <button class="btn primary" type="submit">Salvar detalhes</button>
+            <button class="btn ${orderReadOnly ? "" : "danger"}" type="button" onclick="closeModal()">${orderReadOnly ? "Fechar" : "Cancelar"}</button>
+            ${orderReadOnly ? `<span class="muted">O.S. encerrada — alterações bloqueadas.</span>` : `<button class="btn primary" type="submit">Salvar detalhes</button>`}
           </div>
           </div>
         </form>
@@ -35409,6 +35519,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       $("detailPriority").value = order.priority || "Baixa";
       $("detailStatus").value = isRunningOrder(order.status) ? "Em execucao" : isClosedOrder(order.status) ? "Concluida" : order.status || "Aberta";
       wireDetailTab("Geral", id);
+      if (orderReadOnly) {
+        document.querySelectorAll("#orderDetailForm .detail-grid input:not([readonly]), #orderDetailForm .detail-grid textarea:not([readonly]), #orderDetailForm .detail-grid select, #detailPending, #detailStopped").forEach(control => { control.disabled = true; });
+      }
       document.querySelectorAll("[data-detail-tab]").forEach(button => {
         button.addEventListener("click", () => {
           document.querySelectorAll("[data-detail-tab]").forEach(tab => tab.classList.toggle("active", tab === button));
@@ -35420,6 +35533,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       });
       $("orderDetailForm").addEventListener("submit", async event => {
         event.preventDefault();
+        const currentOrder = byId(state.orders, id);
+        const blocked = blockWorkOrderMutation(currentOrder);
+        if (blocked) return { ok:false, code:blocked.code };
         if (event.submitter) event.submitter.disabled = true;
         const now = Date.now();
         let updatedOrder = null;
@@ -35566,6 +35682,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function openOrderModal(assetId = "", editId = "") {
       if (!namedOperationAllowed("openOrderModal", "orders", editId ? "manage" : "operate", [assetId, editId])) return denyProfileAccess();
       const editing = byId(state.orders, editId);
+      if (editing) { const blocked = blockWorkOrderMutation(editing); if (blocked) return { ok:false, code:blocked.code }; }
       const selectedAssetId = editing?.assetId || assetId;
       const machines = state.assets.map(asset => `<option value="${asset.id}" ${asset.id === selectedAssetId ? "selected" : ""}>${escapeHtml(asset.code)} - ${escapeHtml(asset.name)}</option>`).join("");
       const checklists = state.checklists.map(item => `<option value="${item.id}">${escapeHtml(item.name || item.code)}</option>`).join("");
@@ -35658,6 +35775,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       return "";
     }
     function persistValidatedOrderRecord(order) {
+      const existingOrder = byId(state.orders, order.id);
+      if (existingOrder) assertWorkOrderMutable(existingOrder);
       const issue = orderPersistenceIssue(order, true);
       if (issue) throw new Error(`ORDER_VALIDATION: ${issue}`);
       state.orders = state.orders.filter(item => item.id !== order.id).concat(order);
@@ -35863,6 +35982,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function openOrderModalV2(assetId = "", editId = "") {
       if (!namedOperationAllowed("openOrderModal", "orders", editId ? "manage" : "operate", [assetId, editId])) return denyProfileAccess();
       const editing = byId(state.orders, editId);
+      if (editing) { const blocked = blockWorkOrderMutation(editing); if (blocked) return { ok:false, code:blocked.code }; }
       const selectedAssetId = editing?.assetId || assetId;
       const activeAssets = orderActiveAssets(selectedAssetId);
       const teams = (state.teams || []).filter(team => normalizeTextKey(team.status) !== "inativa").filter(team => {
