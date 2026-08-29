@@ -29097,6 +29097,60 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const key = statusKey(status);
       return key.startsWith("conclu") || key === "finalizada" || key === "cancelada";
     }
+    const WORK_ORDER_DELETION_ERRORS = Object.freeze({
+      IMMUTABLE_STATUS:"WORK_ORDER_IMMUTABLE_BY_STATUS",
+      TENANT_SCOPE:"WORK_ORDER_TENANT_SCOPE_VIOLATION",
+      NOT_FOUND:"WORK_ORDER_NOT_FOUND"
+    });
+    function currentWorkOrderDeletionTenantId() {
+      return String(currentAccount?.company?.id || "").trim();
+    }
+    function workOrderDeletionTenantId(order = {}) {
+      return String(order.companyId || order.empresaId || order.empresa_id || order.tenantId || order.tenant_id || "").trim();
+    }
+    function workOrderDeletionBelongsToTenant(order = {}, tenantId = currentWorkOrderDeletionTenantId()) {
+      const orderTenantId = workOrderDeletionTenantId(order);
+      return !tenantId || !orderTenantId || orderTenantId === tenantId;
+    }
+    function workOrderDeletionDecision(order, tenantId = currentWorkOrderDeletionTenantId()) {
+      if (!order) return { allowed:false, code:WORK_ORDER_DELETION_ERRORS.NOT_FOUND, message:"Ordem de Serviço não encontrada." };
+      if (!workOrderDeletionBelongsToTenant(order, tenantId)) {
+        return { allowed:false, code:WORK_ORDER_DELETION_ERRORS.TENANT_SCOPE, message:"A Ordem de Serviço não pertence à empresa ativa." };
+      }
+      if (isClosedOrder(order.status)) {
+        return {
+          allowed:false,
+          code:WORK_ORDER_DELETION_ERRORS.IMMUTABLE_STATUS,
+          status:String(order.status || ""),
+          message:`A O.S. ${order.number || "selecionada"} está ${order.status || "encerrada"} e é imutável. Ordens concluídas ou canceladas permanecem disponíveis somente para consulta.`
+        };
+      }
+      return { allowed:true, code:"WORK_ORDER_DELETION_ALLOWED", status:String(order.status || "") };
+    }
+    function createWorkOrderDeletionError(decision = {}) {
+      const error = new Error(decision.message || "A Ordem de Serviço não pode ser excluída.");
+      error.name = "WorkOrderDeletionError";
+      error.code = decision.code || "WORK_ORDER_DELETION_BLOCKED";
+      error.status = decision.status || "";
+      error.immutable = error.code === WORK_ORDER_DELETION_ERRORS.IMMUTABLE_STATUS;
+      return error;
+    }
+    function assertWorkOrderCanBeDeleted(order, tenantId = currentWorkOrderDeletionTenantId()) {
+      const decision = workOrderDeletionDecision(order, tenantId);
+      if (!decision.allowed) throw createWorkOrderDeletionError(decision);
+      return decision;
+    }
+    async function deleteWorkOrderService(order, options) {
+      options = options || {};
+      const tenantId = options.tenantId === undefined ? currentWorkOrderDeletionTenantId() : String(options.tenantId || "");
+      assertWorkOrderCanBeDeleted(order, tenantId);
+      if (typeof options.deleteAuditEvents === "function") await options.deleteAuditEvents(order.id);
+      if (typeof options.deleteOrderRecord === "function") {
+        const deleted = await options.deleteOrderRecord(order.id);
+        if (!deleted) return { ok:false, code:"WORK_ORDER_REMOTE_DELETE_NOT_CONFIRMED", orderId:order.id };
+      }
+      return { ok:true, code:"WORK_ORDER_DELETED", orderId:order.id };
+    }
     function activeOrdersForAsset(assetId) {
       return state.orders.filter(order =>
         order.assetId === assetId &&
@@ -31859,7 +31913,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       return `${!closed && !running && !paused ? `<button class="btn primary mobile-primary" type="button" onclick="confirmStartOrder('${order.id}')">Iniciar serviço</button>` : ""}${running ? `<button class="btn mobile-primary" type="button" onclick="changeOrderOperationalStatus('${order.id}','Pausada')">Pausar</button><button class="btn primary mobile-primary" type="button" onclick="finishOrder('${order.id}')">Concluir</button>` : ""}${paused ? `<button class="btn primary mobile-primary" type="button" onclick="changeOrderOperationalStatus('${order.id}','Em execucao')">Retomar</button>` : ""}${!closed ? `<button class="btn" type="button" onclick="editOrder('${order.id}')">Editar</button><button class="btn danger" type="button" onclick="cancelOrder('${order.id}')">Cancelar</button>` : `<span class="muted">O.S encerrada — disponível somente para consulta.</span>`}<button class="btn mobile-qr" type="button" onclick="openOrderQr('${order.id}')">QR Code</button><button class="btn mobile-close" type="button" onclick="selectedOrderId=null;render()">Fechar</button>`;
     }
     function orderAdminDeleteButton(order) {
-      if (!order || !isAdminUser()) return "";
+      if (!order || !isAdminUser() || isClosedOrder(order.status)) return "";
       return `<button class="btn danger" type="button" onclick="deleteOrder('${order.id}')">Excluir O.S.</button>`;
     }
     function orderActionButtons(order) {
@@ -36695,6 +36749,11 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (!namedOperationAllowed("deleteOrder", "orders", "manage", [id, ask])) return denyProfileAccess();
       const order = byId(state.orders, id);
       if (!order) return;
+      const deletionDecision = workOrderDeletionDecision(order);
+      if (!deletionDecision.allowed) {
+        showBlockingMessage(deletionDecision.code === WORK_ORDER_DELETION_ERRORS.IMMUTABLE_STATUS ? "O.S. encerrada e imutável" : "Exclusão bloqueada", deletionDecision.message);
+        return { ok:false, code:deletionDecision.code };
+      }
       const links = orderDeletionLinks(id);
       if (links.length) {
         const total = links.reduce((sum, link) => sum + link.count, 0);
@@ -36705,11 +36764,23 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         requestDestructiveConfirmation("Excluir esta Ordem de Serviço?", "A O.S. será removida do cadastro e deixará de aparecer no histórico operacional.", "Excluir O.S.", () => deleteOrder(id, false));
         return;
       }
-      await deleteSupabaseWhere("eventos_ordem_servico", `ordem_servico_id=eq.${encodeURIComponent(id)}`);
-      if (!await confirmRemoteDelete("ordens_servico", id, "O.S")) return;
-      state.orders = state.orders.filter(item => item.id !== id);
+      let deletionResult;
+      try {
+        deletionResult = await deleteWorkOrderService(order, {
+          deleteAuditEvents:orderId => deleteSupabaseWhere("eventos_ordem_servico", `ordem_servico_id=eq.${encodeURIComponent(orderId)}`),
+          deleteOrderRecord:orderId => confirmRemoteDelete("ordens_servico", orderId, "O.S")
+        });
+      } catch (error) {
+        const code = String(error?.code || "WORK_ORDER_DELETION_BLOCKED");
+        showBlockingMessage(code === WORK_ORDER_DELETION_ERRORS.IMMUTABLE_STATUS ? "O.S. encerrada e imutável" : "Exclusão bloqueada", error?.message || "A Ordem de Serviço não pode ser excluída.");
+        return { ok:false, code };
+      }
+      if (!deletionResult.ok) return deletionResult;
+      const tenantId = currentWorkOrderDeletionTenantId();
+      state.orders = state.orders.filter(item => item.id !== id || !workOrderDeletionBelongsToTenant(item, tenantId));
       saveState(); render();
       showToast("O.S excluída.");
+      return deletionResult;
     }
     async function deleteOrder(id, ask = true) {
       return baseDeleteOrder(id, ask);

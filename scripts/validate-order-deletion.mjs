@@ -45,16 +45,25 @@ function functionSource(source, name) {
 
 test("index e fallback permanecem sincronizados", indexHtml === fallbackHtml);
 test("botão de exclusão existe uma única vez", (indexHtml.match(/onclick="deleteOrder\('/g) || []).length === 1);
-test("botão de exclusão depende de administrador", /function orderAdminDeleteButton\(order\) \{\r?\n\s+if \(!order \|\| !isAdminUser\(\)\) return "";/.test(indexHtml));
+const adminButtonSource = functionSource(indexHtml, "orderAdminDeleteButton");
+test("botão de exclusão depende de administrador", adminButtonSource.includes("!isAdminUser()"));
+test("botão de exclusão é ocultado para O.S. encerrada", adminButtonSource.includes("isClosedOrder(order.status)"));
 test("ação padrão incorpora o botão administrativo", indexHtml.includes("${baseOrderActionButtons(order)}${orderAdminDeleteButton(order)}"));
 
 const deletionStart = indexHtml.indexOf("async function baseDeleteOrder(");
 const deletionEnd = indexHtml.indexOf("async function deleteOrder(", deletionStart);
 const deletionBlock = indexHtml.slice(deletionStart, deletionEnd);
 test("execução da exclusão também exige administrador", deletionBlock.includes("if (!isAdminUser())"));
+test("status e tenant são validados antes dos vínculos", deletionBlock.indexOf("workOrderDeletionDecision(order)") < deletionBlock.indexOf("orderDeletionLinks(id)"));
 test("vínculos são verificados antes da remoção", deletionBlock.indexOf("orderDeletionLinks(id)") < deletionBlock.indexOf("state.orders = state.orders.filter"));
 test("bloqueio não remove vínculos em cascata", !/state\.(?:checklistExecutions|downtimes|pendingActions|maintenanceJournal|materialRequests|inventoryMovements|toolLoans|measurements|documents|suppliers)\s*=/.test(deletionBlock));
 test("confirmação destrutiva continua obrigatória", deletionBlock.includes("requestDestructiveConfirmation"));
+test("mutação remota passa pelo serviço protegido", deletionBlock.includes("deleteWorkOrderService(order"));
+test("erro específico de imutabilidade está definido", indexHtml.includes('IMMUTABLE_STATUS:"WORK_ORDER_IMMUTABLE_BY_STATUS"'));
+
+const serviceSource = functionSource(indexHtml, "deleteWorkOrderService");
+test("serviço valida antes de remover auditoria", serviceSource.indexOf("assertWorkOrderCanBeDeleted") < serviceSource.indexOf("deleteAuditEvents"));
+test("serviço valida antes de remover a O.S.", serviceSource.indexOf("assertWorkOrderCanBeDeleted") < serviceSource.indexOf("deleteOrderRecord"));
 
 const normalizeTextKey = value => String(value || "")
   .normalize("NFD")
