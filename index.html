@@ -36976,6 +36976,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       openSimpleFinishOrderModal(id);
     }
     function localDateTimeValue(value=Date.now()) { const date=new Date(value); const pad=n=>String(n).padStart(2,"0"); return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`; }
+    function localDateTimeSecondsValue(value=Date.now()) { const date=new Date(gmOrderTimeMs(value,Date.now())); const pad=n=>String(n).padStart(2,"0"); return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`; }
     function gmOrderTimeMs(value, fallback = 0) {
       const numeric = Number(value);
       if (Number.isFinite(numeric) && numeric > 0) return numeric;
@@ -36984,6 +36985,35 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         if (Number.isFinite(parsed) && parsed > 0) return parsed;
       }
       return fallback;
+    }
+    function gmLocalDateTimeMs(value, fallback = 0) {
+      const text = String(value ?? "").trim();
+      const match = text.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?$/);
+      if (!match) return gmOrderTimeMs(value, fallback);
+      const [,year,month,day,hour,minute,second="0",fraction="0"] = match;
+      const milliseconds = Number(fraction.padEnd(3,"0"));
+      const date = new Date(Number(year),Number(month)-1,Number(day),Number(hour),Number(minute),Number(second),milliseconds);
+      const valid = date.getFullYear()===Number(year) && date.getMonth()===Number(month)-1 && date.getDate()===Number(day)
+        && date.getHours()===Number(hour) && date.getMinutes()===Number(minute) && date.getSeconds()===Number(second)
+        && date.getMilliseconds()===milliseconds;
+      return valid ? date.getTime() : fallback;
+    }
+    function gmNormalizeOrderCompletionTime(order = {}, rawValue = Date.now(), now = Date.now()) {
+      const nowMs = gmOrderTimeMs(now, 0);
+      const startedAt = gmOrderTimeMs(order.startedAt || order.realStartAt, 0);
+      if (!startedAt) throw new Error("GM_ORDER_START_REQUIRED");
+      let finishedAt = typeof rawValue === "string" ? gmLocalDateTimeMs(rawValue, 0) : gmOrderTimeMs(rawValue, 0);
+      if (!finishedAt) throw new Error("GM_ORDER_COMPLETION_TIME_INVALID");
+      if (finishedAt < startedAt && Math.floor(finishedAt/1000) === Math.floor(startedAt/1000)) finishedAt = startedAt;
+      if (finishedAt < startedAt) throw new Error("GM_ORDER_INTERVAL_INVALID");
+      if (!nowMs || finishedAt > nowMs) throw new Error("GM_ORDER_COMPLETION_FUTURE");
+      return finishedAt;
+    }
+    function gmPrepareWorkOrderTransitionPatch(order = {}, toStatus = "", patch = {}, now = Date.now()) {
+      const nextPatch = patch && typeof patch === "object" ? { ...patch } : {};
+      if (gmCanonicalOrderStatus(toStatus) !== "Concluída") return nextPatch;
+      const finishedAt = gmNormalizeOrderCompletionTime(order, nextPatch.finishedAt ?? now, now);
+      return { ...nextPatch, finishedAt, mttr:gmEffectiveOrderHours(order, finishedAt) };
     }
     function gmEffectiveOrderHours(order = {}, endedAt = Date.now()) {
       const startedAt = gmOrderTimeMs(order.startedAt || order.realStartAt, 0);
@@ -36996,15 +37026,18 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     function openSimpleFinishOrderModal(id) {
       const order=byId(state.orders,id); if(!order||isClosedOrder(order.status))return;
-      openModal("Concluir O.S.",`<form class="form" id="simpleFinishForm"><div class="full side-box"><strong>${escapeHtml(order.number||"O.S.")}</strong><span>${escapeHtml(machineName(order.assetId))}</span></div><label class="full">Solução ou serviço realizado * <textarea class="field" id="simpleFinishSolution" required placeholder="Descreva objetivamente o serviço executado">${escapeHtml(order.comment||"")}</textarea></label><label>Data e hora da conclusão * <input class="field" id="simpleFinishAt" type="datetime-local" required value="${localDateTimeValue()}"></label><label>Responsável pela execução * <input class="field" id="simpleFinishExecutor" required value="${escapeHtml(order.executor||"")}"></label><details class="os-quick-details"><summary>Adicionar mais informações</summary><div><label>Tempo trabalhado (h) <input class="field" id="simpleFinishHours" type="text" inputmode="decimal" maxlength="5" autocomplete="off" placeholder="Ex.: 1,5"></label><label>Anexos <input class="field" id="simpleFinishFiles" type="file" multiple accept=".png,.jpg,.jpeg,.webp,.pdf,.txt,.csv,.doc,.docx,.xls,.xlsx"></label><label class="full"><input type="checkbox" id="simpleFinishPending" ${order.pendingExecution?"checked":""}> Manter pendência de execução</label></div></details><div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Concluir serviço</button></div></form>`,true);
+      openModal("Concluir O.S.",`<form class="form" id="simpleFinishForm"><div class="full side-box"><strong>${escapeHtml(order.number||"O.S.")}</strong><span>${escapeHtml(machineName(order.assetId))}</span></div><label class="full">Solução ou serviço realizado * <textarea class="field" id="simpleFinishSolution" required placeholder="Descreva objetivamente o serviço executado">${escapeHtml(order.comment||"")}</textarea></label><label>Data e hora da conclusão * <input class="field" id="simpleFinishAt" type="datetime-local" step="1" required value="${localDateTimeSecondsValue()}"></label><label>Responsável pela execução * <input class="field" id="simpleFinishExecutor" required value="${escapeHtml(order.executor||"")}"></label><details class="os-quick-details"><summary>Adicionar mais informações</summary><div><label>Tempo trabalhado (h) <input class="field" id="simpleFinishHours" type="text" inputmode="decimal" maxlength="5" autocomplete="off" placeholder="Ex.: 1,5"></label><label>Anexos <input class="field" id="simpleFinishFiles" type="file" multiple accept=".png,.jpg,.jpeg,.webp,.pdf,.txt,.csv,.doc,.docx,.xls,.xlsx"></label><label class="full"><input type="checkbox" id="simpleFinishPending" ${order.pendingExecution?"checked":""}> Manter pendência de execução</label></div></details><div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Concluir serviço</button></div></form>`,true);
       $("simpleFinishForm").addEventListener("submit", async event => {
         event.preventDefault();
         const solution = value("simpleFinishSolution");
         const executor = value("simpleFinishExecutor");
-        const finishedAt = new Date($("simpleFinishAt").value).getTime();
-        const started = gmOrderTimeMs(order.startedAt, gmOrderTimeMs(order.createdAt, finishedAt));
-        if (!solution || !executor || !Number.isFinite(finishedAt)) return showToast("Informe o serviço realizado, a conclusão e o responsável.");
-        if (finishedAt < started) return showToast("A conclusão não pode ser anterior ao início da O.S.", "warning");
+        if (!solution || !executor) return showToast("Informe o serviço realizado, a conclusão e o responsável.");
+        let finishedAt;
+        try {
+          finishedAt = gmNormalizeOrderCompletionTime(order, $("simpleFinishAt").value);
+        } catch (error) {
+          return showToast(gmOrderTransitionErrorMessage(error), "warning");
+        }
         const parsedWorkedHours = parseWorkedHoursInput($("simpleFinishHours").value);
         if (parsedWorkedHours.error) return showToast(parsedWorkedHours.error, "warning");
         const selectedFiles = Array.from($("simpleFinishFiles").files || []);
@@ -37019,7 +37052,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             comment:solution,
             executor,
             finishedAt,
-            mttr:gmEffectiveOrderHours(order, finishedAt),
             workedHours:parsedWorkedHours.value,
             pendingExecution:$("simpleFinishPending").checked,
             attachments:(order.attachments || []).concat(files)
@@ -37100,8 +37132,10 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       });
       $("finishOrderForm").addEventListener("submit", async event => {
         event.preventDefault();
-        if (event.submitter) event.submitter.disabled = true;
-        await confirmFinishOrder(id);
+        const button = event.submitter;
+        if (button) button.disabled = true;
+        try { await confirmFinishOrder(id); }
+        finally { if (button) button.disabled = false; }
       });
     }
     async function confirmFinishOrder(id) {
@@ -37131,8 +37165,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           description:order.description || "",
           pendingExecution:$("finishPending").checked,
           machineStopped:$("finishStopped").checked,
-          finishedAt:now,
-          mttr:gmEffectiveOrderHours(order, now)
+          finishedAt:now
         });
         closeModal();
         render();
@@ -39065,6 +39098,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (message.includes("GM_ORDER_TRANSITION_REASON_REQUIRED")) return "Informe o motivo desta mudança de status.";
       if (message.includes("GM_ORDER_EXECUTOR_REQUIRED")) return "Informe o executante responsável pela O.S.";
       if (message.includes("GM_ORDER_COMPLETION_REQUIRED")) return "Descreva o serviço realizado antes de concluir a O.S.";
+      if (message.includes("GM_ORDER_COMPLETION_TIME_INVALID")) return "Informe uma data e hora de conclusão válidas.";
+      if (message.includes("GM_ORDER_COMPLETION_FUTURE")) return "A conclusão não pode estar no futuro.";
       if (message.includes("GM_ORDER_INTERVAL_INVALID")) return "A conclusão não pode ser anterior ao início da O.S.";
       if (message.includes("GM_ORDER_START_REQUIRED")) return "A O.S. precisa ser iniciada antes da conclusão.";
       if (message.includes("GM_ORDER_TRANSITION_RPC_REQUIRED")) return "O status da O.S. deve ser alterado pelos botões operacionais.";
@@ -39075,6 +39110,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     async function gmTransitionWorkOrder(orderId, toStatus, patch = {}, reason = "") {
       const current = byId(state.orders, orderId);
       if (!current) throw new Error("GM_ORDER_NOT_FOUND");
+      const targetStatus = gmCanonicalOrderStatus(toStatus) || toStatus;
+      if (["Concluída","Cancelada"].includes(targetStatus) && gmCanonicalOrderStatus(current.status) === targetStatus) return current;
+      const transitionPatch = gmPrepareWorkOrderTransitionPatch(current, targetStatus, patch, Date.now());
       clearTimeout(gmRemoteSaveTimer);
       gmRemoteSaveTimer = null;
       await gmRemoteSavePromise;
@@ -39083,8 +39121,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const rows = await gmRpc("gm_transition_work_order", {
         p_expected_version:gmRemoteStateVersion,
         p_order_id:orderId,
-        p_to_status:gmCanonicalOrderStatus(toStatus) || toStatus,
-        p_patch:patch && typeof patch === "object" ? patch : {},
+        p_to_status:targetStatus,
+        p_patch:transitionPatch,
         p_reason:String(reason || "").trim() || null,
         p_request_id:uid("order-transition")
       });

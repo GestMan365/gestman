@@ -27,7 +27,8 @@ expect(functionBody("orderAuditEventType").includes('return "OS_PAUSADA"'), "Eve
 expect(functionBody("orderAuditEventType").includes('return "OS_RETOMADA"'), "Evento OS_RETOMADA não é apresentado no histórico.");
 expect(functionBody("orderAuditEvents").includes("pausePeriodId"), "Retomada não referencia o período de pausa encerrado.");
 expect(functionBody("gmEffectiveOrderHours").includes("pauseHours"), "Tempo efetivo não desconta pausas acumuladas.");
-expect(html.match(/mttr:gmEffectiveOrderHours\(/g)?.length === 2, "Todos os fluxos de conclusão devem calcular MTTR sem pausas.");
+expect(functionBody("gmPrepareWorkOrderTransitionPatch").includes("mttr:gmEffectiveOrderHours"), "O gateway de conclusão deve calcular MTTR sem pausas.");
+expect(!functionBody("openSimpleFinishOrderModal").includes("mttr:gmEffectiveOrderHours") && !functionBody("confirmFinishOrder").includes("mttr:gmEffectiveOrderHours"), "Formulários não devem divergir do cálculo central de MTTR.");
 expect(migration.includes("create table if not exists public.gm_work_order_events"), "Tabela imutável de eventos ausente.");
 expect(migration.includes("gm_tenant_state_enforce_work_order_transition"), "Proteção contra gravação direta de status ausente.");
 expect(migration.includes("GM_ORDER_TRANSITION_RPC_REQUIRED"), "Gravação genérica não é bloqueada.");

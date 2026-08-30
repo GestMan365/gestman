@@ -29,6 +29,8 @@
     "test:checklist-order-context:static": "node scripts/validate-checklist-order-context.mjs",
     "test:checklist-observation-audit": "node --test tests/checklist-observation-audit.test.mjs",
     "test:checklist-observation-audit:static": "node scripts/validate-checklist-observation-audit.mjs",
+    "test:order-completion-time": "node --test tests/work-order-completion-time.test.mjs",
+    "test:order-completion-time:static": "node scripts/validate-work-order-completion-time.mjs",
     "test:downtime-sync": "node --test tests/asset-downtime-sync.test.mjs",
     "test:downtime-sync:static": "node scripts/validate-asset-downtime-sync.mjs",
     "test:routes:static": "node scripts/validate-application-routes.mjs",
