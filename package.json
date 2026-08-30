@@ -20,6 +20,8 @@
     "test:work-order-hours:static": "node scripts/validate-work-order-hours.mjs",
     "test:work-order-material-audit": "node --test tests/work-order-material-audit.test.mjs",
     "test:work-order-material-audit:static": "node scripts/validate-work-order-material-audit.mjs",
+    "test:phase03-material-reports": "node --test tests/phase03-material-reports.test.mjs",
+    "test:phase03-material-reports:static": "node scripts/validate-phase03-material-reports.mjs",
     "test:order-deletion": "node --test tests/work-order-deletion.test.mjs",
     "test:order-deletion:static": "node scripts/validate-order-deletion.mjs",
     "test:work-order-immutability": "node --test tests/work-order-immutability.test.mjs",
