@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "test:ai:static": "node scripts/validate-ai-gestman.mjs",
     "test:profile-images": "node scripts/validate-profile-image-persistence.mjs",
+    "test:whatsapp:static": "node scripts/validate-whatsapp-integration.mjs",
     "test:metrics": "node --experimental-strip-types --test tests/maintenance-metrics.test.mjs",
     "test:metrics:static": "node scripts/validate-maintenance-metrics.mjs",
     "test:resource-users": "node --test tests/resource-user-source.test.mjs",

@@ -33,6 +33,11 @@ const requirePattern = (source, pattern, label) => {
   "notifyOnStatus",
   "notifyOnAssignment",
   "notifyOnPriority",
+  "whatsappTestChannelReady",
+  "whatsappOperationalChannelReady",
+  "Canal de teste da Meta pronto",
+  'id="whatsappSendTest" type="button" disabled',
+  "if (!whatsappTestChannelReady)",
 ].forEach((marker) => requireText(index, marker));
 
 if (index.includes("WHATSAPP_ACCESS_TOKEN") || index.includes("WHATSAPP_PHONE_NUMBER_ID") || index.includes("WHATSAPP_SETTINGS_ENCRYPTION_KEY")) {
@@ -47,6 +52,7 @@ if (index.includes("state.whatsappNotifications") || /normalized\.whatsappNotifi
   'Deno.env.get("WHATSAPP_PHONE_NUMBER_ID")',
   'Deno.env.get("WHATSAPP_GRAPH_API_VERSION")',
   'Deno.env.get("WHATSAPP_TEMPLATE_WORK_ORDER")',
+  'Deno.env.get("WHATSAPP_TEMPLATE_TEST")',
   'Deno.env.get("WHATSAPP_SETTINGS_ENCRYPTION_KEY")',
   'service.from("gm_whatsapp_settings")',
   "encryptRecipients",
@@ -55,7 +61,42 @@ if (index.includes("state.whatsappNotifications") || /normalized\.whatsappNotifi
   "recipientHash",
   "eventKey",
   "MAX_RECIPIENTS = 5",
+  '"hello_world"',
+  'function testConfigured()',
+  'function missingTestConfiguration()',
+  'function testTemplatePayload(recipient: string)',
+  'event.eventType === "test"',
 ].forEach((marker) => requireText(edge, marker));
+
+requirePattern(
+  edge,
+  /if \(action === "test" && !testConfigured\(\)\)[\s\S]*missing: missingTestConfiguration\(\)/,
+  "teste usa configuração independente do modelo operacional",
+);
+requirePattern(
+  edge,
+  /if \(action === "send" && !configured\(\)\)[\s\S]*missing: missingConfiguration\(\)/,
+  "envio automático exige configuração operacional completa",
+);
+requirePattern(
+  edge,
+  /record\(input\.settings\)\.enabled === true && !configured\(\)/,
+  "ativação automática bloqueada sem modelo operacional",
+);
+requirePattern(
+  edge,
+  /function testTemplatePayload[\s\S]*name: WHATSAPP_TEMPLATE_TEST[\s\S]*language: \{ code: WHATSAPP_TEMPLATE_TEST_LANGUAGE \}[\s\S]*?\n\s*};\n}/,
+  "payload de teste usa template pré-aprovado sem parâmetros de O.S.",
+);
+
+const testConfigurationSource = edge.match(/function testConfigured\(\)[\s\S]*?\n}/)?.[0] || "";
+if (testConfigurationSource.includes("WHATSAPP_TEMPLATE_WORK_ORDER")) {
+  failures.push("O teste não pode depender do modelo operacional de O.S.");
+}
+const testPayloadSource = edge.match(/function testTemplatePayload\([\s\S]*?\n}/)?.[0] || "";
+if (/components|parameters/.test(testPayloadSource)) {
+  failures.push("O template hello_world não pode receber parâmetros operacionais.");
+}
 
 [
   [/userClient\.auth\.getUser\(\s*token\s*,?\s*\)/s, 'userClient.auth.getUser(token)'],

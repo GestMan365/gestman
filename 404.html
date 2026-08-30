@@ -22851,6 +22851,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       };
     }
     let whatsappRuntimeSettings = defaultWhatsAppNotifications();
+    let whatsappTestChannelReady = false;
+    let whatsappOperationalChannelReady = false;
     function normalizeWhatsAppPhone(value) {
       const digits = String(value || "").replace(/\D/g, "");
       return /^\d{10,15}$/.test(digits) ? digits : "";
@@ -22913,6 +22915,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (!isAdminUser()) return denyProfileAccess();
       const parsed = parseWhatsAppRecipients(value("whatsappNotificationRecipients"));
       const enabled = $("whatsappNotificationEnabled")?.checked === true;
+      if (enabled && !whatsappOperationalChannelReady) return showToast("O modo automático só pode ser ativado após a aprovação do modelo operacional de O.S.", "warning");
       if (parsed.invalid.length) return showToast("Revise os números. Use DDI + DDD + número, somente números ou com o sinal +.", "warning");
       if (enabled && !parsed.recipients.length) return showToast("Informe ao menos um WhatsApp autorizado a receber avisos.", "warning");
       const button = event.submitter;
@@ -22955,20 +22958,36 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if ($("whatsappNotifyOnAssignment")) $("whatsappNotifyOnAssignment").checked = whatsappRuntimeSettings.notifyOnAssignment !== false;
       if ($("whatsappNotifyOnPriority")) $("whatsappNotifyOnPriority").checked = whatsappRuntimeSettings.notifyOnPriority === true;
     }
+    function applyWhatsAppChannelAvailability(result = {}) {
+      whatsappTestChannelReady = result?.testConfigured === true;
+      whatsappOperationalChannelReady = result?.configured === true;
+      const enabledControl = $("whatsappNotificationEnabled");
+      if (enabledControl) {
+        enabledControl.disabled = !whatsappOperationalChannelReady;
+        if (!whatsappOperationalChannelReady) enabledControl.checked = false;
+        enabledControl.title = whatsappOperationalChannelReady ? "" : "Disponível após a aprovação do modelo operacional de O.S.";
+      }
+      const testButton = $("whatsappSendTest");
+      if (testButton) testButton.disabled = !whatsappTestChannelReady;
+    }
     async function checkWhatsAppIntegrationStatus() {
       if (!isAdminUser()) return denyProfileAccess();
       setWhatsAppIntegrationStatus("Verificando a configuração segura do servidor...");
       try {
         const result = await gmAuthenticatedFunction("whatsapp-work-order-alerts", { action:"status" });
         if (result?.settings) applyWhatsAppSettingsToForm(result.settings);
+        applyWhatsAppChannelAvailability(result);
         if (result?.configured) setWhatsAppIntegrationStatus("Canal oficial da Meta configurado no servidor. Nenhuma credencial fica no navegador.", true);
-        else setWhatsAppIntegrationStatus(`Configuração do servidor pendente: ${(result?.missing || []).join(", ") || "credenciais da Meta"}.`);
+        else if (result?.testConfigured) setWhatsAppIntegrationStatus("Canal de teste da Meta pronto. Os avisos automáticos continuam bloqueados até a aprovação do modelo operacional de O.S.", true);
+        else setWhatsAppIntegrationStatus(`Ambiente de teste pendente: ${Number(result?.testMissing?.length || 0)} configuração(ões) segura(s) no servidor.`);
       } catch (error) {
+        applyWhatsAppChannelAvailability({});
         setWhatsAppIntegrationStatus(error?.message || "Não foi possível consultar o canal do WhatsApp.");
       }
     }
     async function sendWhatsAppIntegrationTest() {
       if (!isAdminUser()) return denyProfileAccess();
+      if (!whatsappTestChannelReady) return showToast("Conclua a configuração segura do ambiente de teste antes do envio.", "warning");
       const button = $("whatsappSendTest");
       if (button) button.disabled = true;
       try {
@@ -22977,7 +22996,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       } catch (error) {
         showToast(error?.message || "Não foi possível enviar o teste pelo WhatsApp.", "error");
       } finally {
-        if (button) button.disabled = false;
+        if (button) button.disabled = !whatsappTestChannelReady;
       }
     }
     const COMPANY_LOGO_INPUT_LIMIT = 3 * 1024 * 1024;
@@ -34320,7 +34339,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             </div>
             <div class="whatsapp-settings-actions">
               <button class="btn" id="whatsappCheckStatus" type="button">Verificar integração</button>
-              <button class="btn" id="whatsappSendTest" type="button">Enviar teste</button>
+              <button class="btn" id="whatsappSendTest" type="button" disabled>Enviar teste</button>
               <button class="btn primary" type="submit">Salvar avisos</button>
             </div>
           </form>

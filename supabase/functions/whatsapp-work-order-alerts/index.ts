@@ -12,6 +12,10 @@ const WHATSAPP_TEMPLATE_WORK_ORDER =
   Deno.env.get("WHATSAPP_TEMPLATE_WORK_ORDER") ?? "";
 const WHATSAPP_TEMPLATE_LANGUAGE = Deno.env.get("WHATSAPP_TEMPLATE_LANGUAGE") ??
   "pt_BR";
+const WHATSAPP_TEMPLATE_TEST = Deno.env.get("WHATSAPP_TEMPLATE_TEST") ??
+  "hello_world";
+const WHATSAPP_TEMPLATE_TEST_LANGUAGE =
+  Deno.env.get("WHATSAPP_TEMPLATE_TEST_LANGUAGE") ?? "en_US";
 const WHATSAPP_SETTINGS_ENCRYPTION_KEY =
   Deno.env.get("WHATSAPP_SETTINGS_ENCRYPTION_KEY") ?? "";
 const DEFAULT_APP_ORIGIN = "https://app.gestman.com.br";
@@ -106,6 +110,17 @@ function configured() {
   );
 }
 
+function testConfigured() {
+  return Boolean(
+    SUPABASE_URL && ANON_KEY && SERVICE_ROLE_KEY && WHATSAPP_ACCESS_TOKEN &&
+      /^\d+$/.test(WHATSAPP_PHONE_NUMBER_ID) &&
+      /^v\d+\.\d+$/.test(WHATSAPP_GRAPH_API_VERSION) &&
+      /^[a-z0-9_]{3,512}$/.test(WHATSAPP_TEMPLATE_TEST) &&
+      /^[a-z]{2,3}(?:_[A-Z]{2})?$/.test(WHATSAPP_TEMPLATE_TEST_LANGUAGE) &&
+      encryptionKeyBytes() !== null,
+  );
+}
+
 function missingConfiguration() {
   const missing: string[] = [];
   if (!WHATSAPP_ACCESS_TOKEN) missing.push("WHATSAPP_ACCESS_TOKEN");
@@ -120,6 +135,25 @@ function missingConfiguration() {
   }
   if (!/^[a-z]{2,3}(?:_[A-Z]{2})?$/.test(WHATSAPP_TEMPLATE_LANGUAGE)) {
     missing.push("WHATSAPP_TEMPLATE_LANGUAGE");
+  }
+  if (!encryptionKeyBytes()) missing.push("WHATSAPP_SETTINGS_ENCRYPTION_KEY");
+  return missing;
+}
+
+function missingTestConfiguration() {
+  const missing: string[] = [];
+  if (!WHATSAPP_ACCESS_TOKEN) missing.push("WHATSAPP_ACCESS_TOKEN");
+  if (!/^\d+$/.test(WHATSAPP_PHONE_NUMBER_ID)) {
+    missing.push("WHATSAPP_PHONE_NUMBER_ID");
+  }
+  if (!/^v\d+\.\d+$/.test(WHATSAPP_GRAPH_API_VERSION)) {
+    missing.push("WHATSAPP_GRAPH_API_VERSION");
+  }
+  if (!/^[a-z0-9_]{3,512}$/.test(WHATSAPP_TEMPLATE_TEST)) {
+    missing.push("WHATSAPP_TEMPLATE_TEST");
+  }
+  if (!/^[a-z]{2,3}(?:_[A-Z]{2})?$/.test(WHATSAPP_TEMPLATE_TEST_LANGUAGE)) {
+    missing.push("WHATSAPP_TEMPLATE_TEST_LANGUAGE");
   }
   if (!encryptionKeyBytes()) missing.push("WHATSAPP_SETTINGS_ENCRYPTION_KEY");
   return missing;
@@ -404,6 +438,19 @@ function templatePayload(
   };
 }
 
+function testTemplatePayload(recipient: string) {
+  return {
+    messaging_product: "whatsapp",
+    recipient_type: "individual",
+    to: recipient,
+    type: "template",
+    template: {
+      name: WHATSAPP_TEMPLATE_TEST,
+      language: { code: WHATSAPP_TEMPLATE_TEST_LANGUAGE },
+    },
+  };
+}
+
 async function reserveDelivery(
   service: ReturnType<typeof createServiceClient>,
   companyId: string,
@@ -562,6 +609,8 @@ Deno.serve(async (req) => {
       ok: true,
       configured: configured(),
       missing: missingConfiguration(),
+      testConfigured: testConfigured(),
+      testMissing: missingTestConfiguration(),
       settings,
     });
   }
@@ -575,6 +624,13 @@ Deno.serve(async (req) => {
       return json(req, 503, {
         error:
           "A chave de proteção dos destinatários ainda não foi configurada.",
+      });
+    }
+    if (record(input.settings).enabled === true && !configured()) {
+      return json(req, 409, {
+        error:
+          "O modo automático permanece bloqueado até o modelo operacional de O.S. ser configurado.",
+        missing: missingConfiguration(),
       });
     }
     try {
@@ -615,7 +671,13 @@ Deno.serve(async (req) => {
       error: "Somente o administrador pode enviar um teste.",
     });
   }
-  if (!configured()) {
+  if (action === "test" && !testConfigured()) {
+    return json(req, 503, {
+      error: "Ambiente de teste do WhatsApp ainda não configurado no servidor.",
+      missing: missingTestConfiguration(),
+    });
+  }
+  if (action === "send" && !configured()) {
     return json(req, 503, {
       error: "Integração WhatsApp ainda não configurada no servidor.",
       missing: missingConfiguration(),
@@ -712,13 +774,15 @@ Deno.serve(async (req) => {
           continue;
         }
         const providerMessageId = await sendMetaMessage(
-          templatePayload(
-            text(context.company_name, 160),
-            state,
-            order,
-            event.eventType,
-            recipient,
-          ),
+          event.eventType === "test"
+            ? testTemplatePayload(recipient)
+            : templatePayload(
+              text(context.company_name, 160),
+              state,
+              order,
+              event.eventType,
+              recipient,
+            ),
         );
         await service.from("gm_whatsapp_delivery_log").update({
           status: "accepted",
