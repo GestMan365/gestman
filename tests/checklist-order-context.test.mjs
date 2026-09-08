@@ -35,6 +35,7 @@ const context = {
 };
 vm.createContext(context);
 vm.runInContext([
+  functionBody("checklistTimestampValue"),
   html.slice(constantStart,constantEnd),
   functionBody("checklistExecutionCurrentTenantId"),
   functionBody("checklistExecutionRecordTenantId"),
@@ -157,7 +158,7 @@ test("falha ao concluir não deixa execução, O.S. ou indicador parcialmente at
 test("normalização preserva registros antigos e cria aliases de leitura",()=>{
   const normalizeContext={uid:prefix=>`${prefix}-legacy`};
   vm.createContext(normalizeContext);
-  vm.runInContext(functionBody("normalizeChecklistExecution"),normalizeContext);
+  vm.runInContext([functionBody("checklistTimestampValue"),functionBody("normalizeChecklistExecution")].join("\n"),normalizeContext);
   const legacy=clone(normalizeContext.normalizeChecklistExecution({id:"legacy",checklistId:"check-1",orderId:"order-2",responsible:"Técnico legado",startedAt:1000,responses:[]}));
   assert.equal(legacy.checklistTemplateId,"check-1");
   assert.equal(legacy.workOrderId,"order-2");

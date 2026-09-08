@@ -30,6 +30,7 @@ const context={
 };
 vm.createContext(context);
 vm.runInContext([
+  functionBody("checklistTimestampValue"),
   html.slice(constantStart,constantEnd),
   functionBody("orderAuditStatusDetails"),
   functionBody("orderAuditEventType"),

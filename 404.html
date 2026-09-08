@@ -27481,6 +27481,13 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         };
       }).sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
     }
+    function checklistTimestampValue(value) {
+      if (value === null || value === undefined || String(value).trim() === "") return 0;
+      const numeric = Number(value);
+      if (Number.isFinite(numeric) && numeric > 0) return numeric;
+      const parsed = new Date(value).getTime();
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+    }
     function normalizeChecklistExecution(execution = {}) {
       const responses = (Array.isArray(execution.responses) ? execution.responses : []).map((response, index) => ({
         itemId: response.itemId || response.id || uid("chkresp"),
@@ -27505,11 +27512,12 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         id: execution.id || uid("chkexec"),
         checklistId: execution.checklistId || execution.checklistTemplateId || "",
         checklistTemplateId: execution.checklistTemplateId || execution.checklistId || "",
-        assetId: execution.assetId || "",
+        assetId: execution.assetId || execution.equipmentId || "",
+        equipmentId: execution.equipmentId || execution.assetId || "",
         checklistName: String(execution.checklistName || "").trim(),
-        executedAt: Number(execution.executedAt || execution.startedAt || Date.now()),
-        startedAt: Number(execution.startedAt || execution.executedAt || Date.now()),
-        completedAt: Number(execution.completedAt || 0),
+        executedAt: checklistTimestampValue(execution.executedAt || execution.startedAt),
+        startedAt: checklistTimestampValue(execution.startedAt || execution.executedAt),
+        completedAt: checklistTimestampValue(execution.completedAt || execution.finishedAt),
         status: execution.status || (execution.completedAt || execution.result ? "Concluído" : "Rascunho"),
         progress: Math.max(0, Math.min(100, Number(execution.progress || (responses.length ? Math.round(responses.filter(item => item.answer).length / responses.length * 100) : 0)))),
         orderId: execution.orderId || execution.workOrderId || "",
@@ -27545,7 +27553,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       return total ? `${total} item(ns)` : "Sem itens cadastrados";
     }
     function checklistExecutionDateLabel(value) {
-      return value ? formatDateTime(value) : "-";
+      const timestamp = checklistTimestampValue(value);
+      return timestamp ? formatDateTime(timestamp) : "Data não informada";
     }
     function planDateFromInput(value) {
       const text = String(value || "").slice(0, 10);
@@ -32182,11 +32191,62 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (key.includes("painel")) return "painel"; if (key.includes("reator") || key.includes("tanque")) return "tanque"; if (key.includes("esteira")) return "esteira";
       return "geral";
     }
-    function assetOrders(assetId) { return state.orders.filter(item => item.assetId === assetId); }
-    function assetPlans(assetId) { return state.preventivePlans.filter(item => item.assetId === assetId); }
-    function assetChecklists(assetId) { return state.checklists.filter(item => item.assetId === assetId); }
-    function assetMeasurements(assetId) { return state.measurements.filter(item => item.assetId === assetId); }
-    function assetDowntimes(assetId) { return state.downtimes.filter(item => item.assetId === assetId); }
+    function assetLifecycleCurrentTenantId() { return String(currentAccount?.company?.id || "").trim(); }
+    function assetOrders(assetId) { const tenantId=assetLifecycleCurrentTenantId(); return state.orders.filter(item => item.assetId === assetId && assetLifecycleBelongsToTenant(item,tenantId)); }
+    function assetPlans(assetId) { const tenantId=assetLifecycleCurrentTenantId(); return state.preventivePlans.filter(item => item.assetId === assetId && assetLifecycleBelongsToTenant(item,tenantId)); }
+    function assetChecklists(assetId) { const tenantId=assetLifecycleCurrentTenantId(); return state.checklists.filter(item => item.assetId === assetId && assetLifecycleBelongsToTenant(item,tenantId)); }
+    function assetMeasurements(assetId) { const tenantId=assetLifecycleCurrentTenantId(); return state.measurements.filter(item => item.assetId === assetId && assetLifecycleBelongsToTenant(item,tenantId)); }
+    function assetDowntimes(assetId) { const tenantId=assetLifecycleCurrentTenantId(); return state.downtimes.filter(item => item.assetId === assetId && assetLifecycleBelongsToTenant(item,tenantId)); }
+    function assetChecklistExecutionId(execution = {}) { return String(execution.id || execution.executionId || execution.checklistExecutionId || "").trim(); }
+    function assetChecklistEquipmentId(execution = {}) { return String(execution.equipmentId || execution.assetId || "").trim(); }
+    function assetChecklistTemplateId(execution = {}) { return String(execution.checklistTemplateId || execution.checklistId || "").trim(); }
+    function assetChecklistCompletionEvent(execution = {}, tenantId = assetLifecycleCurrentTenantId()) {
+      const executionId=assetChecklistExecutionId(execution),orderId=String(execution.workOrderId||execution.orderId||"");
+      if(!executionId)return null;
+      const orders=state.orders.filter(order=>(!orderId||String(order.id)===orderId)&&assetLifecycleBelongsToTenant(order,tenantId));
+      for(const order of orders){const event=(Array.isArray(order.history)?order.history:[]).find(item=>String(item.checklistExecutionId||"")===executionId&&orderAuditEventType(item)==="CHECKLIST_CONCLUIDO"&&assetLifecycleBelongsToTenant(item,tenantId));if(event)return event;}
+      return null;
+    }
+    function assetChecklistTimestampInfo(execution = {}, tenantId = assetLifecycleCurrentTenantId()) {
+      for(const key of ["completedAt","finishedAt"]){const value=checklistTimestampValue(execution[key]);if(value)return{value,source:key};}
+      const event=assetChecklistCompletionEvent(execution,tenantId);
+      if(event){for(const key of ["completedAt","occurredAt","at","date","createdAt"]){const value=checklistTimestampValue(event[key]);if(value)return{value,source:"CHECKLIST_CONCLUIDO",event};}}
+      for(const key of ["updatedAt","startedAt"]){const value=checklistTimestampValue(execution[key]);if(value)return{value,source:key};}
+      return{value:0,source:"missing"};
+    }
+    function assetChecklistExecutionCompleted(execution = {}, tenantId = assetLifecycleCurrentTenantId()) {
+      const status=normalizeTextKey(execution.status);
+      return status.includes("conclu")||status.includes("finaliz")||checklistTimestampValue(execution.completedAt||execution.finishedAt)>0||Boolean(assetChecklistCompletionEvent(execution,tenantId));
+    }
+    function assetChecklistExecutions(assetId, tenantId = assetLifecycleCurrentTenantId()) {
+      const deduplicated=new Map();
+      (state.checklistExecutions||[]).filter(item=>assetChecklistEquipmentId(item)===String(assetId)&&assetLifecycleBelongsToTenant(item,tenantId)&&assetChecklistExecutionCompleted(item,tenantId)).forEach(item=>{
+        const id=assetChecklistExecutionId(item);if(!id)return;
+        const current=deduplicated.get(id),nextTime=assetChecklistTimestampInfo(item,tenantId).value,currentTime=current?assetChecklistTimestampInfo(current,tenantId).value:0;
+        if(!current||nextTime>=currentTime)deduplicated.set(id,item);
+      });
+      return [...deduplicated.values()].sort((a,b)=>assetChecklistTimestampInfo(b,tenantId).value-assetChecklistTimestampInfo(a,tenantId).value||assetChecklistExecutionId(a).localeCompare(assetChecklistExecutionId(b)));
+    }
+    function assetChecklistLatestExecution(assetId, checklistId, tenantId = assetLifecycleCurrentTenantId()) {
+      return assetChecklistExecutions(assetId,tenantId).find(item=>assetChecklistTemplateId(item)===String(checklistId))||null;
+    }
+    function assetChecklistDateTimeLabel(execution = {}, tenantId = assetLifecycleCurrentTenantId()) {
+      const timestamp=assetChecklistTimestampInfo(execution,tenantId).value;
+      return timestamp?formatDateTime(timestamp):"Data não informada";
+    }
+    function assetChecklistPendingCount(execution = {}) {
+      if(Number.isFinite(Number(execution.pendingCount)))return Math.max(0,Number(execution.pendingCount));
+      return (execution.responses||[]).filter(item=>item.pendingId||item.classification==="Crítico").length;
+    }
+    function assetChecklistHistoryEvents(asset = {}) {
+      const tenantId=assetLifecycleCurrentTenantId();
+      return assetChecklistExecutions(asset.id,tenantId).map(execution=>({
+        id:`checklist:${assetChecklistExecutionId(execution)}`,
+        date:assetChecklistTimestampInfo(execution,tenantId).value,
+        label:`CHECKLIST CONCLUÍDO · ${execution.checklistName||byId(state.checklists,assetChecklistTemplateId(execution))?.name||"Checklist"}${execution.result?` · ${execution.result}`:""} · ${assetChecklistExecutionId(execution)}`,
+        execution
+      }));
+    }
     function assetLastMaintenance(assetId) {
       return assetOrders(assetId).filter(item => isClosedOrder(item.status)).sort((a,b) => Number(b.finishedAt || b.createdAt || 0) - Number(a.finishedAt || a.createdAt || 0))[0] || null;
     }
@@ -32198,6 +32258,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     function assetHealth(asset = {}) {
       const orders = assetOrders(asset.id), late = orders.filter(orderIsLate), open = orders.filter(item => !isClosedOrder(item.status));
+      const activeOrders = orders.filter(assetLifecycleOrderIsActive);
       const stops = assetDowntimes(asset.id).filter(item => item.status === "Ativa");
       const today = new Date(); today.setHours(0,0,0,0);
       const overduePlans = assetPlans(asset.id).filter(item => item.status !== "Pausado" && item.nextExecution && new Date(`${item.nextExecution}T00:00:00`) < today);
@@ -32207,12 +32268,17 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         label = "Crítico"; color = "#ef4444";
         const parts=[]; if(stops.length)parts.push(`${stops.length} parada${stops.length>1?"s":""} ativa${stops.length>1?"s":""}`); if(late.length)parts.push(`${late.length} O.S. atrasada${late.length>1?"s":""}`); if(overduePlans.length)parts.push(`${overduePlans.length} preventiva${overduePlans.length>1?"s":""} vencida${overduePlans.length>1?"s":""}`);
         reason = parts.length ? parts.join(" e ") + "." : "status atual ou criticidade exige atenção imediata.";
-      } else if (status.includes("manut") || overduePlans.length || open.length > 1) {
-        label = "Regular"; color = "#f59e0b"; reason = overduePlans.length ? `${overduePlans.length} preventiva${overduePlans.length>1?"s":""} vencida${overduePlans.length>1?"s":""}.` : "há atividades de manutenção em andamento.";
+      } else if (overduePlans.length || activeOrders.length || status.includes("manut")) {
+        label = "Regular"; color = "#f59e0b";
+        if(overduePlans.length)reason=`${overduePlans.length} preventiva${overduePlans.length>1?"s":""} vencida${overduePlans.length>1?"s":""}.`;
+        else if(activeOrders.length)reason=`${activeOrders.length} atividade${activeOrders.length>1?"s":""} de manutenção em andamento.`;
+        else if(normalizeTextKey(asset.statusOrigin||asset.statusSource)==="manual"||asset.statusSetManually===true)reason="o status Em manutenção foi definido manualmente; não há atividade operacional ativa.";
+        else if(assetWorkOrderStatusControl(asset))reason="o status automático de manutenção está sem atividade ativa e requer normalização controlada.";
+        else reason="o status de manutenção está cadastrado sem vínculo operacional ativo.";
       } else if (criticality.includes("media") || open.length === 1 || status.includes("inspec")) {
         label = "Bom"; color = "#38bdf8"; reason = open.length ? "existe uma atividade aberta para acompanhamento." : "condição estável, com acompanhamento preventivo recomendado.";
       }
-      return { label, color, reason:`Saúde ${label.toLowerCase()}: ${reason}`, open:open.length, late:late.length, stops:stops.length, overduePlans:overduePlans.length };
+      return { label, color, reason:`Saúde ${label.toLowerCase()}: ${reason}`, open:open.length, active:activeOrders.length, late:late.length, stops:stops.length, overduePlans:overduePlans.length };
     }
     function assetReliability(assetId) {
       const orders = assetOrders(assetId).filter(item => statusKey(item.status) !== "cancelada").sort((a,b)=>Number(a.createdAt||0)-Number(b.createdAt||0));
@@ -32278,12 +32344,12 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if(tab==="overview")return assetOverviewContent(asset);
       if(tab==="orders"){const rows=assetOrders(asset.id).sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));return`<div class="asset-tab-toolbar"><h3>Ordens de Serviço</h3><button class="btn primary" type="button" data-permission-module="orders" data-required-level="operate" data-permission-action="Abrir O.S." onclick="openAssetOrder('${asset.id}')">＋ Abrir O.S. para este ativo</button></div><div class="table-wrap"><table class="asset-detail-table"><thead><tr><th>Número</th><th>Descrição</th><th>Tipo</th><th>Prioridade</th><th>Status</th><th>Responsável</th><th>Data</th><th>Prazo</th></tr></thead><tbody>${rows.map(item=>`<tr onclick="showOrderDetails('${item.id}')"><td>${escapeHtml(item.number||"-")}</td><td>${escapeHtml(orderTitle(item))}</td><td>${escapeHtml(ptBrText(item.type||"-"))}</td><td>${orderPriorityChip(item.priority)}</td><td>${orderStatusChip(item)}</td><td>${escapeHtml(item.executor||"-")}</td><td>${assetDateLabel(item.createdAt)}</td><td>${assetDateLabel(item.scheduledAt)}</td></tr>`).join("")||assetTableEmpty("Nenhuma Ordem de Serviço vinculada a este ativo.")}</tbody></table></div>`;}
       if(tab==="plans"){const rows=assetPlans(asset.id);return`<div class="asset-tab-toolbar"><h3>Planos de manutenção</h3></div><div class="table-wrap"><table class="asset-detail-table"><thead><tr><th>Plano</th><th>Periodicidade</th><th>Próxima execução</th><th>Status</th><th>Última O.S. gerada</th></tr></thead><tbody>${rows.map(item=>{const last=assetOrders(asset.id).filter(order=>order.preventivePlanId===item.id).sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0))[0];return`<tr><td>${escapeHtml(item.name||"Plano preventivo")}</td><td>${Number(item.intervalDays||0)?`${Number(item.intervalDays)} dias`:"Sem dados"}</td><td>${assetDateLabel(item.nextExecution)}</td><td>${tag(item.status||"Ativo")}</td><td>${escapeHtml(last?.number||"Sem dados")}</td></tr>`;}).join("")||assetTableEmpty("Nenhum plano vinculado a este ativo.",5)}</tbody></table></div>`;}
-      if(tab==="checklists"){const rows=assetChecklists(asset.id);return`<div class="asset-tab-toolbar"><h3>Checklists vinculados</h3>${rows.length?`<button class="btn primary" type="button" data-permission-module="checklists" data-required-level="operate" data-permission-action="Executar checklist" onclick="openChecklistExecution('${rows[0].id}')">Executar Checklist</button>`:""}</div><div class="table-wrap"><table class="asset-detail-table"><thead><tr><th>Checklist</th><th>Última execução</th><th>Resultado</th><th>Pendências</th><th>Ação</th></tr></thead><tbody>${rows.map(item=>{const execution=state.checklistExecutions.filter(row=>row.checklistId===item.id).sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0))[0];return`<tr><td>${escapeHtml(item.name||item.code||"Checklist")}</td><td>${assetDateLabel(execution?.createdAt)}</td><td>${escapeHtml(execution?.status||execution?.result||"Sem dados")}</td><td>${Number(execution?.pendingCount||0)||0}</td><td><button class="btn" type="button" data-permission-module="checklists" data-required-level="operate" data-permission-action="Executar checklist" onclick="openChecklistExecution('${item.id}')">Executar</button></td></tr>`;}).join("")||assetTableEmpty("Nenhum checklist vinculado a este ativo.",5)}</tbody></table></div>`;}
+      if(tab==="checklists"){const rows=assetChecklists(asset.id),tenantId=assetLifecycleCurrentTenantId();return`<div class="asset-tab-toolbar"><h3>Checklists vinculados</h3>${rows.length?`<button class="btn primary" type="button" data-permission-module="checklists" data-required-level="operate" data-permission-action="Executar checklist" onclick="openChecklistExecution('${rows[0].id}')">Executar Checklist</button>`:""}</div><div class="table-wrap"><table class="asset-detail-table"><thead><tr><th>Checklist</th><th>Última execução</th><th>Resultado</th><th>Pendências</th><th>Responsável / iniciador</th><th>O.S. / execução</th><th>Ação</th></tr></thead><tbody>${rows.map(item=>{const execution=assetChecklistLatestExecution(asset.id,item.id,tenantId),order=execution?byId(state.orders,execution.workOrderId||execution.orderId):null;return`<tr><td>${escapeHtml(item.name||item.code||"Checklist")}</td><td>${execution?escapeHtml(assetChecklistDateTimeLabel(execution,tenantId)):"Sem execução concluída"}</td><td>${escapeHtml(execution?.result||execution?.status||"Sem dados")}</td><td>${execution?assetChecklistPendingCount(execution):0}</td><td>${escapeHtml(execution?.responsibleName||execution?.responsible||"Sem dados")}<small>Iniciado por: ${escapeHtml(execution?.startedBy||execution?.openedBy||"Sem dados")}</small></td><td>${escapeHtml(order?.number||execution?.workOrderNumber||"Sem O.S.")}<small>${escapeHtml(execution?assetChecklistExecutionId(execution):"Sem execução")}</small></td><td>${execution?`<button class="btn" type="button" onclick="showChecklistExecutionDetails('${assetChecklistExecutionId(execution)}')">Detalhes</button>`:""}<button class="btn" type="button" data-permission-module="checklists" data-required-level="operate" data-permission-action="Executar checklist" onclick="openChecklistExecution('${item.id}')">Executar</button></td></tr>`;}).join("")||assetTableEmpty("Nenhum checklist vinculado a este ativo.",7)}</tbody></table></div>`;}
       if(tab==="measurements"){const rows=assetMeasurements(asset.id).sort((a,b)=>String(b.readAt).localeCompare(String(a.readAt)));return`<div class="asset-tab-toolbar"><h3>Medições</h3><button class="btn primary" type="button" data-permission-module="orders" data-required-level="operate" data-permission-action="Registrar medição" onclick="openAssetMeasurement('${asset.id}')">Registrar Medição</button></div><div class="table-wrap"><table class="asset-detail-table"><thead><tr><th>Tipo</th><th>Último valor</th><th>Unidade</th><th>Limite mínimo</th><th>Limite máximo</th><th>Situação</th><th>Data</th><th>Responsável</th></tr></thead><tbody>${rows.map(item=>`<tr><td>${escapeHtml(item.type)}</td><td>${escapeHtml(formatMeasurementValue(item.value,""))}</td><td>${escapeHtml(item.unit||"-")}</td><td>Sem dados</td><td>Sem dados</td><td>${tag("Sem limite")}</td><td>${assetDateLabel(item.readAt)}</td><td>${escapeHtml(item.owner||"-")}</td></tr>`).join("")||assetTableEmpty("Nenhuma medição registrada.")}</tbody></table></div>`;}
       if(tab==="downtimes"){const rows=assetDowntimes(asset.id).sort((a,b)=>String(b.startAt).localeCompare(String(a.startAt)));return`<div class="asset-tab-toolbar"><h3>Paradas</h3><button class="btn primary" type="button" data-permission-module="orders" data-required-level="operate" data-permission-action="Registrar parada" onclick="openAssetDowntime('${asset.id}')">Registrar Parada</button></div><div class="table-wrap"><table class="asset-detail-table"><thead><tr><th>Início</th><th>Término</th><th>Duração</th><th>Motivo</th><th>Impacto</th><th>O.S.</th><th>Status</th></tr></thead><tbody>${rows.map(item=>`<tr><td>${formatDateTime(downtimeDateFromInput(item.startAt)?.getTime())}</td><td>${item.endAt?formatDateTime(downtimeDateFromInput(item.endAt)?.getTime()):"Em andamento"}</td><td>${escapeHtml(downtimeDurationLabel(item))}</td><td>${escapeHtml(item.reason||item.type||"-")}</td><td>${item.status==="Ativa"?tag("Alto"):tag("Normal")}</td><td>${escapeHtml(byId(state.orders,item.orderId)?.number||"-")}</td><td>${tag(item.status||"Ativa")}</td></tr>`).join("")||assetTableEmpty("Nenhuma parada registrada para este ativo.",7)}</tbody></table></div>`;}
       if(tab==="parts"){const rows=assetLinkedParts(asset.id);return`<div class="asset-tab-toolbar"><h3>Peças e componentes</h3><button class="btn primary" type="button" data-permission-module="stock" data-required-level="operate" data-permission-action="Solicitar material" onclick="openAssetMaterialRequest('${asset.id}')">Solicitar Material</button></div><div class="table-wrap"><table class="asset-detail-table"><thead><tr><th>Código</th><th>Descrição</th><th>Quantidade prevista</th><th>Estoque disponível</th><th>Estoque mínimo</th><th>Última utilização</th></tr></thead><tbody>${rows.map(item=>{const movements=state.inventoryMovements.filter(move=>move.spareId===item.id&&normalizeTextKey(move.type).includes("saida")).sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));return`<tr><td>${escapeHtml(item.code||"-")}</td><td>${escapeHtml(item.name||"-")}</td><td>${escapeHtml(item.plannedQuantity||"Sem dados")}</td><td>${formatQuantityForUnit(item.balance,item.unit)} ${escapeHtml(item.unit||"UN")}</td><td>${formatQuantityForUnit(item.minimum,item.unit)} ${escapeHtml(item.unit||"UN")}</td><td>${assetDateLabel(movements[0]?.createdAt)}</td></tr>`;}).join("")||assetTableEmpty("Nenhuma peça vinculada a este ativo.",6)}</tbody></table></div>`;}
       if(tab==="documents"){const rows=Array.isArray(asset.documents)?asset.documents:[];return`<div class="asset-tab-toolbar"><h3>Documentos</h3>${canManageAssets()?`<button class="btn primary" type="button" onclick="editAsset('${asset.id}')">Adicionar documento</button>`:""}</div><div class="asset-section-list">${rows.length?rows.map(item=>`<div class="asset-section-row"><span><strong>${escapeHtml(item.name||"Documento")}</strong><small>${escapeHtml(item.type||"Arquivo")} · ${assetDateLabel(item.createdAt)}</small></span><span>${item.dataUrl?`<a class="btn" href="${item.dataUrl}" target="_blank" rel="noopener">Visualizar</a> <a class="btn" href="${item.dataUrl}" download="${escapeHtml(item.name||"documento")}">Baixar</a>`:"Arquivo registrado"}</span></div>`).join(""):`<div class="asset-empty">Nenhum documento disponível.</div>`}</div>`;}
-      const events=[...(asset.createdAt?[{date:asset.createdAt,label:"Ativo cadastrado"}]:[]),...assetOrders(asset.id).map(item=>({date:item.createdAt,label:`O.S. ${item.number||""} · ${orderTitle(item)}`})),...assetMeasurements(asset.id).map(item=>({date:item.readAt,label:`Medição · ${item.type}`})),...assetDowntimes(asset.id).map(item=>({date:item.startAt,label:`Parada · ${item.reason||item.type}`})),...state.checklistExecutions.filter(item=>item.assetId===asset.id||assetChecklists(asset.id).some(c=>c.id===item.checklistId)).map(item=>({date:item.createdAt,label:"Checklist executado"})),...(Array.isArray(asset.documents)?asset.documents.map(item=>({date:item.createdAt,label:`Documento · ${item.name}`})):[])].sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));return`<div class="asset-tab-toolbar"><h3>Histórico do ativo</h3></div><div class="asset-history-timeline">${events.length?events.map(item=>`<div class="asset-history-event"><strong>${escapeHtml(item.label)}</strong><span>${formatDateTime(new Date(item.date).getTime())}</span></div>`).join(""):`<div class="asset-empty">Nenhum evento registrado.</div>`}</div>`;
+      const events=[...(asset.createdAt?[{id:`asset:${asset.id}`,date:asset.createdAt,label:"Ativo cadastrado"}]:[]),...assetOrders(asset.id).map(item=>({id:`order:${item.id}`,date:item.createdAt,label:`O.S. ${item.number||""} · ${orderTitle(item)}`})),...assetMeasurements(asset.id).map(item=>({id:`measurement:${item.id}`,date:item.readAt,label:`Medição · ${item.type}`})),...assetDowntimes(asset.id).map(item=>({id:`downtime:${item.id}`,date:item.startAt,label:`Parada · ${item.reason||item.type}`})),...assetChecklistHistoryEvents(asset),...(Array.isArray(asset.documents)?asset.documents.map(item=>({id:`document:${item.id||item.name}`,date:item.createdAt,label:`Documento · ${item.name}`})):[])].sort((a,b)=>checklistTimestampValue(b.date)-checklistTimestampValue(a.date)||String(a.id||"").localeCompare(String(b.id||"")));return`<div class="asset-tab-toolbar"><h3>Histórico do ativo</h3></div><div class="asset-history-timeline">${events.length?events.map(item=>`<div class="asset-history-event"><strong>${escapeHtml(item.label)}</strong><span>${checklistTimestampValue(item.date)?formatDateTime(checklistTimestampValue(item.date)):"Data não informada"}</span></div>`).join(""):`<div class="asset-empty">Nenhum evento registrado.</div>`}</div>`;
     }
     function renderAssetDetail() {
       const target = $("assetDetailPanel");
@@ -32304,7 +32370,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function openAssetDowntime(assetId){if(!permissionAtLeast("orders","operate"))return denyProfileAccess();setView("downtime");openStage14DowntimeForm(assetId);}
     function openAssetChecklist(assetId){const item=assetChecklists(assetId)[0];if(!item){showToast("Nenhum checklist vinculado a este ativo.");return;}openChecklistExecution(item.id);}
     function openAssetMaterialRequest(assetId){if(!permissionAtLeast("stock","operate"))return denyProfileAccess();const order=assetOrders(assetId).find(item=>!isClosedOrder(item.status));setView("materialRequests");openMaterialRequestForm("","",order?.id||"");if(!order&&$("materialsRequestAsset"))$("materialsRequestAsset").value=assetId;}
-    function inactivateAsset(id,confirmed=false){if(!canManageAssets())return denyProfileAccess();const asset=byId(state.assets,id);if(!asset)return;if(!confirmed){requestDestructiveConfirmation("Inativar este ativo?","O ativo continuará no histórico e seus vínculos serão preservados.","Inativar ativo",()=>inactivateAsset(id,true));return;}state.assets=state.assets.map(item=>item.id===id?{...item,status:"Inativo",updatedAt:Date.now()}:item);saveState();render();showToast("Ativo inativado. O histórico foi preservado.");}
+    function inactivateAsset(id,confirmed=false){if(!canManageAssets())return denyProfileAccess();const asset=byId(state.assets,id);if(!asset)return;if(!confirmed){requestDestructiveConfirmation("Inativar este ativo?","O ativo continuará no histórico e seus vínculos serão preservados.","Inativar ativo",()=>inactivateAsset(id,true));return;}const changedAt=Date.now();state.assets=state.assets.map(item=>{if(item.id!==id)return item;const next={...item,status:"Inativo",statusOrigin:"manual",statusSetManually:true,statusSetManuallyAt:changedAt,updatedAt:changedAt};delete next.workOrderStatusControl;return next});saveState();render();showToast("Ativo inativado. O histórico foi preservado.");}
     function qrEntityUrl(param, id) {
       const currentUrl = new URL(window.location.href);
       const route = new URL(currentUrl.pathname, currentUrl.origin);
@@ -37330,7 +37396,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const initiator=currentAccount?.user||{},initiatorName=tenantUserDisplayName(initiator)||state.profile?.name||"Usuário";
       const snapshot={id:model.id,name:model.name,items:checklistItems(model).map(item=>({...item})),sections:(model.sections||[]).map(section=>({...section}))};
       const planId=String(order?.preventivePlanId||model.planId||"");
-      return{id:uid("chkexec"),code:`EX-${String(Date.now()).slice(-6)}`,companyId:tenantId,tenantId,checklistId:model.id,checklistTemplateId:model.id,checklistName:model.name,assetId:order?.assetId||assetId||model.assetId||"",orderId:order?.id||"",workOrderId:order?.id||"",workOrderNumber:order?.number||"",responsibleId:assignment.responsibleId,responsibleName:assignment.responsibleName,responsible:assignment.responsibleName,executorIds:assignment.executorIds,executorSnapshot:assignment.executorSnapshot,maintenancePlanId:planId,originPlanId:planId,startedById:String(initiator.id||""),startedBy:initiatorName,openedById:String(initiator.id||""),openedBy:initiatorName,startedAt,executedAt:startedAt,status:"Em andamento",progress:0,responses:snapshot.items.map(item=>({itemId:item.id,description:item.description,order:item.order,answer:"",note:"",evidence:[]})),templateSnapshot:snapshot,conformCount:0,nonConformCount:0,result:""};
+      const equipmentId=order?.assetId||assetId||model.assetId||"";
+      return{id:uid("chkexec"),code:`EX-${String(Date.now()).slice(-6)}`,companyId:tenantId,tenantId,checklistId:model.id,checklistTemplateId:model.id,checklistName:model.name,assetId:equipmentId,equipmentId,orderId:order?.id||"",workOrderId:order?.id||"",workOrderNumber:order?.number||"",responsibleId:assignment.responsibleId,responsibleName:assignment.responsibleName,responsible:assignment.responsibleName,executorIds:assignment.executorIds,executorSnapshot:assignment.executorSnapshot,maintenancePlanId:planId,originPlanId:planId,startedById:String(initiator.id||""),startedBy:initiatorName,openedById:String(initiator.id||""),openedBy:initiatorName,startedAt,executedAt:startedAt,status:"Em andamento",progress:0,responses:snapshot.items.map(item=>({itemId:item.id,description:item.description,order:item.order,answer:"",note:"",evidence:[]})),templateSnapshot:snapshot,conformCount:0,nonConformCount:0,result:""};
     }
     async function createChecklistExecution(modelId,options={}){
       const model=byId(state.checklists,modelId),order=options.orderId?byId(state.orders,options.orderId):null,assetId=options.assetId||order?.assetId||model?.assetId||"";
@@ -38787,8 +38854,10 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       try{autoResizeLocations();const selectedLocation=byId(state.locations,locationId);let x=existing?.x||50,y=existing?.y||50;if(selectedLocation&&(existing?.locationId!==locationId||!pointInsideLocation(selectedLocation,Number(x),Number(y)))){const pos=nextMachinePosition(locationId,id);x=pos.x;y=pos.y;}
         let photo=$("assetPhoto").value||existing?.photo||"";if(photoFile)photo=await readAssetFile(photoFile);
         let documents=safeParseJson($("assetDocumentsData").value,Array.isArray(existing?.documents)?existing.documents:[]);if(!Array.isArray(documents))documents=[];const newDocuments=await Promise.all(documentFiles.map(async file=>({id:uid("asset_document"),name:file.name,type:file.type||"Arquivo",size:file.size,createdAt:Date.now(),dataUrl:await readAssetFile(file)})));documents=documents.concat(newDocuments);
-        const installationStructureId=$("stage17AssetInstallation")?.value||"",installationChanged=Boolean(existing&&installationStructureId!==(existing.installationStructureId||existing.structureId||existing.installationId||""));
+        const installationStructureId=$("stage17AssetInstallation")?.value||"",installationChanged=Boolean(existing&&installationStructureId!==(existing.installationStructureId||existing.structureId||existing.installationId||"")),manualStatusChange=Boolean(existing&&String(existing.status||"")!==String(status));
         const payload={...existing,id,code,name,category,locationId,installationStructureId,tagId:$("assetTag").value,subtagId:$("assetSubtag").value,criticality:$("assetCriticality").value||"Baixa",status,brand:value("assetBrand"),model:value("assetModel"),serial:value("assetSerial"),year:value("assetYear"),costCenter:value("assetCostCenter"),power:value("assetPower"),voltage:value("assetVoltage"),capacity:value("assetCapacity"),responsible:value("assetResponsible"),parentId:$("assetParent").value,installationPoint:value("assetInstallationPoint"),icon:assetIconValueFromCategory(category),components:value("assetComponents"),x,y,description:value("assetDescription"),photo,documents,createdAt:existing?.createdAt||Date.now(),updatedAt:Date.now(),locationHistory:installationChanged?stage17History({history:existing?.locationHistory},"Vínculo físico alterado",`${stage17InstallationPath(stage17AssetInstallation(existing))} → ${stage17InstallationPath(installationStructureId)}`):(existing?.locationHistory||[])};
+        if(!existing)payload.statusOrigin="initial";
+        if(manualStatusChange){const changedAt=Date.now(),eventId=`asset-manual:${id}:${changedAt}`;payload.statusOrigin="manual";payload.statusSetManually=true;payload.statusSetManuallyAt=changedAt;delete payload.workOrderStatusControl;payload.statusHistory=[...(existing.statusHistory||[]),{id:eventId,eventId,date:changedAt,at:changedAt,action:"MANUAL_STATUS_CHANGED",source:"manual",fromStatus:existing.status||"",toStatus:status,actorUserId:String(currentAccount?.user?.id||""),immutable:true}];}
         state.assets=state.assets.filter(item=>item.id!==id).concat(payload);saveState();selectedAssetDetailId=id;selectedAssetTab="overview";resetAssetForm();render();openAssetDetail(id);showToast(existing?"Ativo atualizado com sucesso.":"Ativo salvo com sucesso.");
       }catch(error){state.assets=previousAssets;stage21HandleError(error,"assets.save","Não foi possível salvar o ativo. Os dados preenchidos foram mantidos.");}finally{setTimeout(()=>{assetSaveLock=false;if(submit&&submit.isConnected)submit.disabled=false;},800);}
     });
@@ -39100,6 +39169,131 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (key.startsWith("cancel")) return "Cancelada";
       return "";
     }
+    const ASSET_WORK_ORDER_ACTIVE_STATUSES = new Set(["Em execução", "Pausada", "Aguardando material"]);
+    function assetLifecycleRecordTenantId(record = {}) {
+      return String(record.companyId || record.empresaId || record.empresa_id || record.tenantId || record.tenant_id || "").trim();
+    }
+    function assetLifecycleBelongsToTenant(record = {}, tenantId = "") {
+      const recordTenant = assetLifecycleRecordTenantId(record);
+      return !recordTenant || !tenantId || recordTenant === tenantId;
+    }
+    function assetLifecycleOrderIsActive(order = {}) {
+      return ASSET_WORK_ORDER_ACTIVE_STATUSES.has(gmCanonicalOrderStatus(order.status))
+        && gmOrderTimeMs(order.startedAt || order.realStartAt, 0) > 0;
+    }
+    function assetWorkOrderStatusControl(asset = {}) {
+      const control = asset.workOrderStatusControl;
+      return control && typeof control === "object" && control.source === "work_order" ? control : null;
+    }
+    function assetLifecycleActiveDowntime(snapshot = {}, assetId = "", tenantId = "") {
+      return (snapshot.downtimes || []).find(item => String(item.assetId || "") === String(assetId)
+        && normalizeTextKey(item.status) === "ativa" && assetLifecycleBelongsToTenant(item, tenantId)) || null;
+    }
+    function assetLifecycleStatusEvent(asset = {}, details = {}) {
+      const eventId = `asset-work-order:${details.orderId}:${details.at}:${details.action}`;
+      const history = Array.isArray(asset.statusHistory) ? asset.statusHistory : [];
+      if (history.some(item => String(item.id || item.eventId || "") === eventId)) return history;
+      return [...history, {
+        id:eventId,
+        eventId,
+        date:details.at,
+        at:details.at,
+        action:details.action,
+        source:"work_order",
+        orderId:details.orderId,
+        fromStatus:details.fromStatus,
+        toStatus:details.toStatus,
+        previousStatus:details.previousStatus || "",
+        actorUserId:details.actorUserId || "",
+        immutable:true
+      }];
+    }
+    function reconcileAssetWorkOrderLifecycleState(snapshot = {}, orderId = "", options = {}) {
+      const tenantId = String(options.tenantId || "").trim();
+      const orders = Array.isArray(snapshot.orders) ? snapshot.orders : [];
+      const assets = Array.isArray(snapshot.assets) ? snapshot.assets : [];
+      const downtimes = Array.isArray(snapshot.downtimes) ? snapshot.downtimes : [];
+      const order = orders.find(item => String(item.id || "") === String(orderId));
+      if (!order) throw new Error("GM_ORDER_NOT_FOUND");
+      if (!assetLifecycleBelongsToTenant(order, tenantId)) throw new Error("GM_ORDER_TENANT_MISMATCH");
+      const assetId = String(order.assetId || "");
+      if (!assetId) return { ...snapshot, orders, assets, downtimes };
+      const asset = assets.find(item => String(item.id || "") === assetId);
+      if (!asset) return { ...snapshot, orders, assets, downtimes };
+      if (!assetLifecycleBelongsToTenant(asset, tenantId)) throw new Error("GM_ASSET_TENANT_MISMATCH");
+      const at = gmOrderTimeMs(order.updatedAt, gmOrderTimeMs(options.at, Date.now()));
+      const actorUserId = String(options.actorUserId || "");
+      const activeOrders = orders.filter(item => String(item.assetId || "") === assetId
+        && assetLifecycleBelongsToTenant(item, tenantId) && assetLifecycleOrderIsActive(item))
+        .sort((a,b)=>gmOrderTimeMs(a.startedAt||a.realStartAt,0)-gmOrderTimeMs(b.startedAt||b.realStartAt,0)||String(a.id||"").localeCompare(String(b.id||"")));
+      const activeDowntime = assetLifecycleActiveDowntime({ downtimes }, assetId, tenantId);
+      let nextAsset = { ...asset };
+      let nextDowntimes = downtimes;
+      let control = assetWorkOrderStatusControl(nextAsset);
+      const manualOrigin = normalizeTextKey(nextAsset.statusOrigin || nextAsset.statusSource) === "manual" || nextAsset.statusSetManually === true;
+      const status = normalizeTextKey(nextAsset.status);
+
+      if (activeOrders.length) {
+        if (control && manualOrigin) {
+          delete nextAsset.workOrderStatusControl;
+          control = null;
+        }
+        const legacyManualStatus = !control && !activeDowntime && (manualOrigin || status.includes("manut") || status.includes("parad") || status.includes("inativ"));
+        if (!control && !legacyManualStatus) {
+          const previousStatus = String(activeDowntime?.previousAssetStatus || nextAsset.status || "Operando");
+          control = {
+            source:"work_order",
+            previousStatus,
+            previousStatusOrigin:String(nextAsset.statusOrigin || ""),
+            activatedAt:at,
+            activatedByOrderId:String(activeOrders[0].id || orderId)
+          };
+          nextAsset.workOrderStatusControl = control;
+          nextAsset.statusHistory = assetLifecycleStatusEvent(nextAsset, {
+            orderId:String(activeOrders[0].id || orderId), at,
+            action:activeDowntime ? "WORK_ORDER_MAINTENANCE_LINKED" : "WORK_ORDER_MAINTENANCE_STARTED",
+            fromStatus:String(nextAsset.status || "Operando"),
+            toStatus:activeDowntime ? String(nextAsset.status || "Parado") : "Em manutenção",
+            previousStatus, actorUserId
+          });
+        }
+        if (control && !activeDowntime && !manualOrigin) {
+          nextAsset.status = "Em manutenção";
+          nextAsset.statusOrigin = "work_order";
+          nextAsset.updatedAt = at;
+        }
+      } else if (control) {
+        const previousStatus = String(control.previousStatus || "Operando");
+        if (activeDowntime) {
+          nextDowntimes = downtimes.map(item => item.id === activeDowntime.id ? { ...item, previousAssetStatus:previousStatus } : item);
+          delete nextAsset.workOrderStatusControl;
+          nextAsset.statusHistory = assetLifecycleStatusEvent(nextAsset, {
+            orderId, at, action:"WORK_ORDER_MAINTENANCE_RELEASED_DURING_DOWNTIME",
+            fromStatus:String(nextAsset.status || "Parado"), toStatus:String(nextAsset.status || "Parado"),
+            previousStatus, actorUserId
+          });
+          nextAsset.updatedAt = at;
+        } else if (!manualOrigin) {
+          const fromStatus = String(nextAsset.status || "Em manutenção");
+          nextAsset.status = previousStatus;
+          if (control.previousStatusOrigin) nextAsset.statusOrigin = control.previousStatusOrigin;
+          else delete nextAsset.statusOrigin;
+          delete nextAsset.workOrderStatusControl;
+          nextAsset.updatedAt = at;
+          nextAsset.statusHistory = assetLifecycleStatusEvent(nextAsset, {
+            orderId, at, action:"WORK_ORDER_MAINTENANCE_RESTORED",
+            fromStatus, toStatus:previousStatus, previousStatus, actorUserId
+          });
+        }
+      }
+
+      return {
+        ...snapshot,
+        orders,
+        assets:assets.map(item => item.id === assetId ? nextAsset : item),
+        downtimes:nextDowntimes
+      };
+    }
     function gmDowntimeTransitionErrorMessage(error) {
       const message = String(error?.message || error || "");
       if (message.includes("GM_ASSET_ACTIVE_DOWNTIME_EXISTS")) return "Este equipamento já possui uma parada ativa.";
@@ -39184,6 +39378,13 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const result = Array.isArray(rows) ? rows[0] : rows;
       if (!result?.order_data) throw new Error("GM_ORDER_TRANSITION_EMPTY");
       state.orders = state.orders.map(order => order.id === orderId ? result.order_data : order);
+      const lifecycleState = reconcileAssetWorkOrderLifecycleState(state, orderId, {
+        tenantId:String(currentAccount?.company?.id || ""),
+        actorUserId:String(currentAccount?.user?.id || ""),
+        at:gmOrderTimeMs(result.order_data.updatedAt, Date.now())
+      });
+      state.assets = lifecycleState.assets;
+      state.downtimes = lifecycleState.downtimes;
       gmRemoteStateVersion = Number(result.version ?? gmRemoteStateVersion + 1);
       gmRemoteStateUpdatedAt = result.updated_at || new Date().toISOString();
       gmRemoteLastSavedState = normalizeState(JSON.parse(JSON.stringify(state)));

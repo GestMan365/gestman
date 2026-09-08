@@ -22,7 +22,8 @@ class FixedDate extends Date {
 }
 const context = {
   Date:FixedDate,
-  state:{ orders:[] },
+  state:{ orders:[],assets:[],downtimes:[] },
+  currentAccount:{company:{id:"tenant-a"},user:{id:"user-a"}},
   gmRemoteSaveTimer:null,
   gmRemoteSavePromise:Promise.resolve(),
   gmStateDirty:false,
@@ -42,6 +43,7 @@ const context = {
   gmScheduleMaintenanceMetricsRender:()=>{},
   notifyOsPanelUpdate:()=>{},
   dispatchWhatsAppOrderEvents:()=>{},
+  reconcileAssetWorkOrderLifecycleState:snapshot=>({...snapshot,assets:snapshot.assets||[],downtimes:snapshot.downtimes||[]}),
   uid:prefix=>`${prefix}-${++context.uidSequence}`,
 };
 context.gmRpc = async (name, body) => {
@@ -72,7 +74,7 @@ const order = startedAt => ({
   executor:"Anderson Vieira",comment:"Serviço concluído",pauseHours:0,history:[],
 });
 const reset = startedAt => {
-  context.state={orders:[order(startedAt)]};
+  context.state={orders:[order(startedAt)],assets:[],downtimes:[]};
   context.gmRemoteStateVersion=10;
   context.gmRemoteStateUpdatedAt="";
   context.gmRemoteLastSavedState=null;
