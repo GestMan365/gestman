@@ -1,0 +1,79 @@
+[
+  {
+    "name": "JWT_1_RLS_positive_control",
+    "passed": true,
+    "ownRows": 1,
+    "foreignRows": 0
+  },
+  {
+    "name": "JWT_1_view_PostgREST",
+    "passed": true,
+    "http": 403,
+    "sqlstate": "42501",
+    "exposedRows": 0
+  },
+  {
+    "name": "JWT_1_view_direct_role",
+    "passed": true,
+    "allowed": false,
+    "sqlstate": "42501"
+  },
+  {
+    "name": "JWT_2_RLS_positive_control",
+    "passed": true,
+    "ownRows": 1,
+    "foreignRows": 0
+  },
+  {
+    "name": "JWT_2_view_PostgREST",
+    "passed": true,
+    "http": 403,
+    "sqlstate": "42501",
+    "exposedRows": 0
+  },
+  {
+    "name": "JWT_2_view_direct_role",
+    "passed": true,
+    "allowed": false,
+    "sqlstate": "42501"
+  },
+  {
+    "name": "TRUNCATE_direct_restrict",
+    "passed": true,
+    "allowed": false,
+    "sqlstate": "0A000",
+    "critical": false
+  },
+  {
+    "name": "TRUNCATE_direct_cascade",
+    "passed": true,
+    "allowed": false,
+    "sqlstate": "42501",
+    "critical": false
+  },
+  {
+    "name": "event_trigger_not_general_SQL_RPC",
+    "passed": true,
+    "http": 400,
+    "sqlstate": "0A000"
+  },
+  {
+    "name": "PostgREST_no_TRUNCATE_method",
+    "passed": true,
+    "http": 405
+  },
+  {
+    "name": "public_functions_no_TRUNCATE",
+    "passed": true,
+    "inspected": 55,
+    "matches": 0
+  },
+  {
+    "name": "dynamic_SQL_inventory",
+    "passed": true,
+    "functions": [
+      "rls_auto_enable"
+    ],
+    "note": "event-trigger-only; no user SQL argument"
+  }
+]

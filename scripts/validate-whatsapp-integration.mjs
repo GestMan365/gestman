@@ -6,9 +6,10 @@ const index = fs.readFileSync(path.join(root, "index.html"), "utf8");
 const fallback = fs.readFileSync(path.join(root, "404.html"), "utf8");
 const edge = fs.readFileSync(path.join(root, "supabase/functions/whatsapp-work-order-alerts/index.ts"), "utf8");
 const migrations = fs.readdirSync(path.join(root, "supabase/migrations"));
-const migrationName = migrations.find((name) => name.endsWith("_whatsapp_work_order_notifications.sql"));
+const deferredMigrations = fs.readdirSync(path.join(root, "supabase/deferred"));
+const migrationName = deferredMigrations.find((name) => name.endsWith("_whatsapp_work_order_notifications.sql"));
 if (!migrationName) throw new Error("Migration da integração WhatsApp não encontrada.");
-const migration = fs.readFileSync(path.join(root, "supabase/migrations", migrationName), "utf8");
+const migration = fs.readFileSync(path.join(root, "supabase/deferred", migrationName), "utf8");
 const previousMigrations = migrations
   .filter((name) => name.endsWith(".sql") && name !== migrationName)
   .map((name) => fs.readFileSync(path.join(root, "supabase/migrations", name), "utf8"))
@@ -85,7 +86,7 @@ requirePattern(
 );
 requirePattern(
   edge,
-  /function testTemplatePayload[\s\S]*name: WHATSAPP_TEMPLATE_TEST[\s\S]*language: \{ code: WHATSAPP_TEMPLATE_TEST_LANGUAGE \}[\s\S]*?\n\s*};\n}/,
+  /function testTemplatePayload[\s\S]*name: WHATSAPP_TEMPLATE_TEST[\s\S]*language: \{ code: WHATSAPP_TEMPLATE_TEST_LANGUAGE \}[\s\S]*?\r?\n\s*};\r?\n}/,
   "payload de teste usa template pré-aprovado sem parâmetros de O.S.",
 );
 
