@@ -20446,6 +20446,70 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     @media (max-width:520px) {
       body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-footer { flex-basis:82px !important; width:82px !important; }
     }
+    /* Phase 05 — final contract for compact controls outside the sidebar. */
+    body:not(.auth-required):not(.auth-loading) .workspace {
+      --gm-hit-target-compact:36px;
+      --gm-menu-layer:80;
+    }
+    body:not(.auth-required):not(.auth-loading) .workspace :is(
+      .chart-link-button,
+      .maintenance-agenda-navigation button,
+      .maintenance-agenda-mode,
+      .maintenance-agenda-footer button,
+      .mobile-tech-section-head > button,
+      button.gm-icon-only,
+      .os-row-menu,
+      .stage14-row-actions > button,
+      details[class*="row-actions"] > summary,
+      details[class$="-menu"] > summary
+    ) {
+      min-width:var(--gm-hit-target-compact) !important;
+      min-height:var(--gm-hit-target-compact) !important;
+      border-radius:var(--gm-radius-sm) !important;
+    }
+    body:not(.auth-required):not(.auth-loading) .workspace :is(
+      details[class*="row-actions"],
+      details[class$="-menu"],
+      .stage14-row-actions
+    ) > div {
+      z-index:var(--gm-menu-layer);
+    }
+    body:not(.auth-required):not(.auth-loading) .workspace :is(
+      details[class*="row-actions"],
+      details[class$="-menu"],
+      .stage14-row-actions
+    ) > div > button {
+      min-height:var(--gm-hit-target-compact);
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    body:not(.auth-required):not(.auth-loading) .workspace .stage18-more-filters:not([open]) > div {
+      display:none !important;
+    }
+    @media (min-width:651px) {
+      body:not(.auth-required):not(.auth-loading) .workspace .stage18-more-filters > div {
+        right:auto;
+        left:0;
+      }
+    }
+    body:not(.auth-required):not(.auth-loading) .workspace :is(
+      button,
+      summary,
+      input,
+      select,
+      textarea,
+      [tabindex]:not([tabindex="-1"])
+    ):focus-visible {
+      outline:2px solid var(--gm-info) !important;
+      outline-offset:2px !important;
+      box-shadow:var(--gm-focus-ring) !important;
+    }
+    @media (max-width:600px) {
+      body:not(.auth-required):not(.auth-loading) .workspace {
+        --gm-hit-target-compact:40px;
+      }
+    }
   </style>
 </head>
 <body class="auth-loading auth-restoring">

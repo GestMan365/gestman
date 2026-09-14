@@ -7,15 +7,17 @@ import { fileURLToPath } from "node:url";
 const root = fileURLToPath(new URL("../", import.meta.url));
 const host = "127.0.0.1", port = 4186;
 const fixture = fs.readFileSync(new URL("../tests/fixtures/preventive-local-qa.js", import.meta.url), "utf8");
+const phase05Fixture = fs.readFileSync(new URL("../tests/fixtures/phase05-ui-audit.js", import.meta.url), "utf8");
 const types = { ".js":"text/javascript", ".css":"text/css", ".svg":"image/svg+xml", ".png":"image/png", ".ico":"image/x-icon", ".woff2":"font/woff2" };
 const server = http.createServer((request, response) => {
   try {
     if (request.method !== "GET") { response.writeHead(405).end(); return; }
     const url = new URL(request.url, `http://${host}:${port}`);
     let body, type;
-    if (url.pathname === "/" || url.pathname === "/login") {
+    if (url.pathname === "/" || url.pathname === "/login" || url.pathname === "/ui-audit") {
       body = fs.readFileSync(path.join(root, "index.html"), "utf8");
       if (url.pathname === "/") body = body.replace("</body>", `<script>${fixture}</script></body>`);
+      if (url.pathname === "/ui-audit") body = body.replace("</body>", `<script>${phase05Fixture}</script></body>`);
       type = "text/html; charset=utf-8";
     } else {
       const file = path.resolve(root, "." + decodeURIComponent(url.pathname));
