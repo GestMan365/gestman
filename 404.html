@@ -20384,6 +20384,68 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         height:28px !important;
       }
     }
+    /* Keep compact menu text/chevrons in the two tracks left after hiding icons. */
+    @media (min-width:901px) and (max-width:1180px) {
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .nav-pinned .tab { grid-template-columns:max-content !important; }
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .nav-pinned .tab .tab-icon { display:none !important; }
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .nav-pinned .tab > span:nth-child(2) { grid-column:1 !important; }
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group > summary { padding-inline:5px !important; }
+    }
+    @media (min-width:901px) and (max-width:1180px), (max-width:520px) {
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group > summary > span:nth-child(2) { grid-column:1 !important; }
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group > summary > i { grid-column:2 !important; }
+    }
+    @media (max-width:900px) {
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading):not(.panel-mode) { --gm-header-height:64px; }
+    }
+    /* Only the module list scrolls; brand and version keep their allotted space. */
+    body.gm-top-navigation:not(.auth-required):not(.auth-loading):not(.panel-mode) { --gm-module-nav-height:64px; }
+    body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation { gap:0 !important; }
+    body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-brand { flex-shrink:0 !important; }
+    body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-footer {
+      display:flex !important;
+      flex:0 0 100px !important;
+      align-items:center !important;
+      justify-content:center !important;
+      position:static !important;
+      width:100px !important;
+      min-height:0 !important;
+      height:var(--gm-module-nav-height) !important;
+      padding:4px !important;
+      margin:0 !important;
+    }
+    body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-scroll {
+      flex:1 1 0 !important;
+      width:0 !important;
+      min-width:0 !important;
+      min-height:0 !important;
+      height:var(--gm-module-nav-height) !important;
+      margin:0 !important;
+      padding:4px 8px 12px !important;
+      flex-wrap:wrap !important;
+      align-content:flex-start !important;
+      align-items:flex-start !important;
+      gap:4px !important;
+      overflow-x:hidden !important;
+      overflow-y:auto !important;
+      overscroll-behavior:contain;
+      scroll-padding-block:4px 12px;
+    }
+    body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .nav-pinned { display:contents !important; }
+    body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation :is(.nav-pinned .tab,.nav-group) { flex-shrink:0 !important; }
+    body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation :is(.nav-pinned .tab,.nav-group > summary) { font-size:12px !important; }
+    /* Dropdowns live outside the clipped scrolling strip. */
+    body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group-items {
+      position:fixed !important;
+      top:calc(var(--gm-app-top-offset) + 4px) !important;
+      left:8px !important;
+      right:auto !important;
+      width:292px !important;
+      max-width:calc(100vw - 16px) !important;
+    }
+    @media (max-width:520px) {
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-footer { flex-basis:82px !important; width:82px !important; }
+    }
   </style>
 </head>
 <body class="auth-loading auth-restoring">
@@ -23567,6 +23629,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     let osPanelRemoteTimer = null;
     let osPanelLiveChannel = null;
     const preventivePlanGenerationLocks = new Set();
+    const preventivePlanOrderTransactions = new Set();
     const checklistExecutionLocks = new Set();
     let pendingActionSaveLock = false;
     const pendingActionMutationLocks = new Set();
@@ -32623,7 +32686,11 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function closePreventivePlanDetail(){selectedPreventivePlanId=null;selectedPreventiveTab="overview";$("preventiveDetailPanel")?.classList.add("is-hidden");$("preventiveListPanel")?.classList.remove("is-hidden");}
     function openPreventivePlanDetail(id,tab="overview"){if(!byId(state.preventivePlans,id))return;selectedPreventivePlanId=id;selectedPreventiveTab=tab;$("preventiveListPanel")?.classList.add("is-hidden");$("preventiveDetailPanel")?.classList.remove("is-hidden");renderPreventivePlanDetail();}
     function selectPreventiveTab(tab){selectedPreventiveTab=tab;renderPreventivePlanDetail();}
-    function preventiveOverview(plan){const orders=planOrders(plan.id),completed=orders.filter(item=>isClosedOrder(item.status)),late=orders.filter(item=>!isClosedOrder(item.status)&&orderDueState(item).key==="overdue"),open=orders.filter(item=>!isClosedOrder(item.status)),dates=planNextDates(plan),compliance=orders.length?Math.round(completed.length/orders.length*100):0;return`<div class="preventive-overview"><article class="preventive-info-card"><h3>Informações do plano</h3><div class="preventive-info-grid"><div><span>Equipamento</span><strong>${escapeHtml(machineName(plan.assetId))}</strong></div><div><span>Local</span><strong>${escapeHtml(locationName(byId(state.assets,plan.assetId)?.locationId)||"Sem dados")}</strong></div><div><span>Frequência</span><strong>${escapeHtml(planFrequencyLabel(plan))}</strong></div><div><span>Próxima execução</span><strong>${formatPlanDate(plan.nextExecution)}</strong></div><div><span>Última execução</span><strong>${formatPlanDate(plan.lastExecution)}</strong></div><div><span>Responsável</span><strong>${escapeHtml(planResponsible(plan))}</strong></div><div><span>Duração prevista</span><strong>${escapeHtml(plan.duration||"Sem dados")}</strong></div><div><span>Prioridade</span><strong>${escapeHtml(plan.priority||"Baixa")}</strong></div></div></article><article class="preventive-info-card"><h3>Próximas execuções</h3><div class="preventive-date-list">${dates.length?dates.map((date,index)=>`<div class="preventive-date-row"><span>${index+1}ª execução prevista</span><strong>${formatPlanDate(date)}</strong></div>`).join(""):`<div class="empty">Nenhuma execução programada.</div>`}</div></article></div><div class="preventive-kpis"><article class="preventive-mini-kpi"><span>Execuções concluídas</span><strong>${completed.length}</strong></article><article class="preventive-mini-kpi"><span>Execuções atrasadas</span><strong>${late.length}</strong></article><article class="preventive-mini-kpi"><span>O.S. abertas</span><strong>${open.length}</strong></article><article class="preventive-mini-kpi"><span>Cumprimento do plano</span><strong>${compliance}%</strong></article></div>`;}
+    function preventiveOverview(plan){const orders=planOrders(plan.id),completed=orders.filter(item=>isClosedOrder(item.status)),late=orders.filter(item=>!isClosedOrder(item.status)&&orderDueState(item).key==="overdue"),open=orders.filter(item=>!isClosedOrder(item.status)),dates=planNextDates(plan),compliance=orders.length?Math.round(completed.length/orders.length*100):0;return`<div class="preventive-overview"><article class="preventive-info-card"><h3>Informações do plano</h3><div class="preventive-info-grid"><div><span>Equipamento</span><strong>${escapeHtml(machineName(plan.assetId))}</strong></div><div><span>Local</span><strong>${escapeHtml(locationName(byId(state.assets,plan.assetId)?.locationId)||"Sem dados")}</strong></div><div><span>Frequência</span><strong>${escapeHtml(planFrequencyLabel(plan))}</strong></div><div><span>Próxima execução</span><strong>${formatPlanDate(plan.nextExecution)}</strong></div><div><span>Última execução</span><strong>${formatPlanDate(plan.lastExecution)}</strong></div><div><span>Responsável</span><strong>${escapeHtml(planResponsible(plan))}</strong></div><div><span>Duração prevista</span><strong>${escapeHtml(preventivePlanDurationLabel(plan))}</strong></div><div><span>Prioridade</span><strong>${escapeHtml(plan.priority||"Baixa")}</strong></div></div></article><article class="preventive-info-card"><h3>Próximas execuções</h3><div class="preventive-date-list">${dates.length?dates.map((date,index)=>`<div class="preventive-date-row"><span>${index+1}ª execução prevista</span><strong>${formatPlanDate(date)}</strong></div>`).join(""):`<div class="empty">Nenhuma execução programada.</div>`}</div></article></div><div class="preventive-kpis"><article class="preventive-mini-kpi"><span>Execuções concluídas</span><strong>${completed.length}</strong></article><article class="preventive-mini-kpi"><span>Execuções atrasadas</span><strong>${late.length}</strong></article><article class="preventive-mini-kpi"><span>O.S. abertas</span><strong>${open.length}</strong></article><article class="preventive-mini-kpi"><span>Cumprimento do plano</span><strong>${compliance}%</strong></article></div>`;}
+    function preventivePlanDurationLabel(plan = {}) {
+      const hours = preventivePlanDurationHours(plan.durationHours ?? plan.duration);
+      return hours > 0 ? `${hours.toLocaleString("pt-BR")} h` : "Sem dados";
+    }
     function preventiveTabContent(plan){if(selectedPreventiveTab==="overview")return preventiveOverview(plan);if(selectedPreventiveTab==="activities"){const checklist=byId(state.checklists,plan.checklistId);return`<div class="preventive-info-card"><h3>Atividades e Checklist</h3>${plan.description?`<p>${escapeHtml(plan.description)}</p>`:""}${checklist?`<div class="preventive-date-row"><span><strong>${escapeHtml(checklist.name||checklist.code)}</strong><small>${checklistItems(checklist).length} itens · ${checklist.status||"Ativo"}</small></span><button class="btn" onclick="openChecklistExecution('${checklist.id}')">Visualizar</button></div>`:`<div class="empty">Nenhum checklist vinculado a este plano.</div>`}</div>`;}if(selectedPreventiveTab==="parts"){const parts=(plan.plannedParts||[]).map(row=>({...row,part:byId(state.spareParts,row.spareId)})).filter(row=>row.part);return`<div class="preventive-info-card"><h3>Peças previstas</h3>${parts.length?parts.map(row=>`<div class="preventive-date-row"><span><strong>${escapeHtml(row.part.code)} · ${escapeHtml(row.part.name)}</strong><small>Previsto: ${Number(row.quantity||1)} ${row.part.unit||"UN"} · Estoque: ${Number(row.part.balance||0)}</small></span>${Number(row.part.balance||0)<Number(row.quantity||1)?tag("Estoque insuficiente"):tag("Disponível")}</div>`).join(""):`<div class="empty">Nenhuma peça prevista para este plano.</div>`}</div>`;}if(selectedPreventiveTab==="orders"){const rows=planOrders(plan.id);return`<div class="table-wrap"><table><thead><tr><th>O.S.</th><th>Data programada</th><th>Status</th><th>Responsável</th></tr></thead><tbody>${rows.map(item=>`<tr onclick="showOrderDetails('${item.id}')"><td>${escapeHtml(item.number)}</td><td>${formatPlanDate(item.scheduledAt)}</td><td>${tag(item.status)}</td><td>${escapeHtml(item.executor||"Sem responsável")}</td></tr>`).join("")||`<tr><td colspan="4" class="empty">Nenhuma Ordem de Serviço gerada por este plano.</td></tr>`}</tbody></table></div>`;}const history=[...(plan.createdAt?[{date:plan.createdAt,label:"Plano criado"}]:[]),...(plan.history||[]),...planOrders(plan.id).map(item=>({date:item.createdAt,label:`O.S. ${item.number} gerada`}))].sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));return`<div class="asset-history-timeline">${history.length?history.map(item=>`<div class="asset-history-event"><strong>${escapeHtml(item.label)}</strong><span>${formatDateTime(new Date(item.date).getTime())}</span></div>`).join(""):`<div class="empty">Nenhum histórico disponível.</div>`}</div>`;}
     function renderPreventivePlanDetail(){const target=$("preventiveDetailPanel"),plan=byId(state.preventivePlans,selectedPreventivePlanId);if(!target||!plan){closePreventivePlanDetail();return;}const asset=byId(state.assets,plan.assetId),situation=planSituationInfo(plan),tabs=[["overview","Visão Geral"],["activities","Atividades e Checklist"],["parts","Peças Previstas"],["orders","O.S. Geradas"],["history","Histórico"]];target.innerHTML=`<div class="preventive-detail-head"><div class="preventive-detail-top"><div class="preventive-detail-title"><span>${escapeHtml(asset?.code||"SEM EQUIPAMENTO")}</span><h2>${escapeHtml(plan.name||"Plano de Manutenção")}</h2><div class="preventive-detail-tags">${tag(situation.label)}<span class="tag">${escapeHtml(planFrequencyLabel(plan))}</span><span class="tag">Próxima: ${formatPlanDate(plan.nextExecution)}</span></div></div><div class="preventive-detail-actions"><button class="btn" onclick="closePreventivePlanDetail()">Voltar</button>${preventiveCanManage()&&plan.status!=="Pausado"?`<button class="btn primary" onclick="generatePreventivePlanOrder('${plan.id}',this)">Gerar O.S.</button>`:""}<details class="preventive-detail-menu"><summary data-gm-skip-icon aria-label="Mais ações"><svg class="preventive-more-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.7" fill="currentColor"></circle><circle cx="12" cy="12" r="1.7" fill="currentColor"></circle><circle cx="19" cy="12" r="1.7" fill="currentColor"></circle></svg></summary><div>${preventiveCanManage()?`<button onclick="editPreventivePlan('${plan.id}')">Editar</button><button onclick="reprogramPreventivePlan('${plan.id}')">Reprogramar</button><button onclick="togglePreventivePlanPause('${plan.id}')">${plan.status==="Pausado"?"Reativar plano":"Pausar plano"}</button><button onclick="duplicatePreventivePlan('${plan.id}')">Duplicar plano</button>`:""}<button onclick="selectPreventiveTab('history')">Ver histórico</button></div></details></div></div></div><nav class="preventive-tabs">${tabs.map(([key,label])=>`<button class="${selectedPreventiveTab===key?"active":""}" onclick="selectPreventiveTab('${key}')">${label}</button>`).join("")}</nav><div class="preventive-tab-body">${preventiveTabContent(plan)}</div>`;applyPermissionVisibility();}
     function duplicatePreventivePlan(id){if(!preventiveCanManage())return denyProfileAccess();const plan=byId(state.preventivePlans,id);if(!plan)return;const copy={...plan,id:uid("plan"),name:`${plan.name} (Cópia)`,status:"Pausado",createdAt:Date.now(),updatedAt:Date.now(),history:[{date:Date.now(),label:`Duplicado do plano ${plan.name}`} ]};state.preventivePlans.unshift(copy);saveState();render();showToast("Plano duplicado e mantido pausado para revisão.");}
@@ -36382,11 +36449,68 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function preventivePlanExecutionDate(plan={}){return String(plan.nextExecution||"").slice(0,10);}
     function preventivePlanHasGeneratedOrder(planId,executionDate,tenantId=preventivePlanCurrentTenantId()){return state.orders.find(order=>order.preventivePlanId===planId&&String(order.preventivePlanExecutionDate||order.scheduledAt||"").slice(0,10)===executionDate&&preventivePlanRecordBelongsToTenant(order,tenantId))||null;}
     function preventivePlanGenerationIssue(plan={}){const tenantId=preventivePlanCurrentTenantId(),execution=preventivePlanExecutionDate(plan),duration=preventivePlanDurationHours(plan.durationHours??plan.duration);if(!plan.id)return"PLAN_NOT_FOUND";if(!preventivePlanRecordBelongsToTenant(plan,tenantId))return"PLAN_TENANT_MISMATCH";if(plan.status==="Pausado")return"PLAN_PAUSED";if(!plan.assetId||!byId(state.assets,plan.assetId))return"PLAN_ASSET_INVALID";if(!execution||!planDateFromInput(execution))return"PLAN_EXECUTION_DATE_INVALID";if(duration===null)return"PLAN_DURATION_INVALID";if(!plan.responsibleId)return"PLAN_RESPONSIBLE_REQUIRED";const executorIds=preventivePlanStoredExecutorIds(plan),candidates=preventivePlanActiveExecutorCandidates(plan);if(!executorIds.includes(plan.responsibleId))return"PLAN_RESPONSIBLE_NOT_EXECUTOR";if(!executorIds.length||executorIds.some(id=>!candidates.some(candidate=>candidate.id===id)))return"PLAN_EXECUTOR_INVALID";if(plan.checklistId&&!byId(state.checklists,plan.checklistId))return"PLAN_CHECKLIST_INVALID";if((plan.plannedParts||[]).some(item=>item?.spareId&&!byId(state.spareParts,item.spareId)))return"PLAN_SPARE_INVALID";if(preventivePlanHasGeneratedOrder(plan.id,execution,tenantId))return"PLAN_ORDER_DUPLICATE";return"";}
-    function preventivePlanGenerationErrorMessage(code){return{PLAN_NOT_FOUND:"Plano preventivo não encontrado.",PLAN_TENANT_MISMATCH:"Este plano pertence a outra empresa.",PLAN_PAUSED:"Reative o plano antes de gerar uma O.S.",PLAN_ASSET_INVALID:"O equipamento vinculado ao plano não está disponível.",PLAN_EXECUTION_DATE_INVALID:"Informe uma data válida para a próxima execução.",PLAN_EXECUTION_CHANGED:"A data desta confirmação ficou desatualizada. Reabra o plano antes de gerar outra O.S.",PLAN_DURATION_INVALID:"A duração prevista do plano é inválida.",PLAN_RESPONSIBLE_REQUIRED:"Vincule um técnico ativo como responsável principal antes de gerar a O.S.",PLAN_RESPONSIBLE_NOT_EXECUTOR:"O responsável principal deve fazer parte dos executantes do plano.",PLAN_EXECUTOR_INVALID:"Um dos executantes não está ativo ou não pertence a esta empresa.",PLAN_CHECKLIST_INVALID:"O checklist vinculado ao plano não está disponível.",PLAN_SPARE_INVALID:"Uma peça prevista do plano não está disponível.",PLAN_ORDER_DUPLICATE:"Já existe uma Ordem de Serviço vinculada a este plano e a esta data."}[code]||"Não foi possível gerar a Ordem de Serviço.";}
+    function preventivePlanGenerationErrorMessage(code){return{PLAN_CONTEXT_REQUIRED:"Entre na empresa antes de gerar uma O.S.",PLAN_CONTEXT_CHANGED:"A sessão ou os dados mudaram durante a geração. Recarregue os planos para conferir o resultado antes de tentar novamente.",PLAN_PERMISSION_DENIED:"Seu perfil não permite gerar O.S. preventivas.",PLAN_GENERATION_BUSY:"Aguarde a geração preventiva em andamento antes de tentar novamente.",PLAN_NOT_FOUND:"Plano preventivo não encontrado.",PLAN_TENANT_MISMATCH:"Este plano pertence a outra empresa.",PLAN_PAUSED:"Reative o plano antes de gerar uma O.S.",PLAN_ASSET_INVALID:"O equipamento vinculado ao plano não está disponível.",PLAN_EXECUTION_DATE_INVALID:"Informe uma data válida para a próxima execução.",PLAN_EXECUTION_CHANGED:"A data desta confirmação ficou desatualizada. Reabra o plano antes de gerar outra O.S.",PLAN_DURATION_INVALID:"A duração prevista do plano é inválida.",PLAN_RESPONSIBLE_REQUIRED:"Vincule um técnico ativo como responsável principal antes de gerar a O.S.",PLAN_RESPONSIBLE_NOT_EXECUTOR:"O responsável principal deve fazer parte dos executantes do plano.",PLAN_EXECUTOR_INVALID:"Um dos executantes não está ativo ou não pertence a esta empresa.",PLAN_CHECKLIST_INVALID:"O checklist vinculado ao plano não está disponível.",PLAN_SPARE_INVALID:"Uma peça prevista do plano não está disponível.",PLAN_ORDER_DUPLICATE:"Já existe uma Ordem de Serviço vinculada a este plano e a esta data."}[code]||"Não foi possível gerar a Ordem de Serviço.";}
     function preventivePlanNextExecution(plan,execution){return planNextDates(plan,2,execution)[1]||addDaysToPlanDate(execution,Math.max(1,planIntervalDays(plan)));}
     function preventivePlanOrderType(plan={}){const type=normalizeTextKey(plan.maintenanceType||"preventiva");return type.includes("predit")?"Preditiva":type.includes("inspec")?"Inspecao":"Preventiva";}
     function buildPreventivePlanOrder(plan,number,now=Date.now()){const execution=preventivePlanExecutionDate(plan),snapshot=preventivePlanExecutorSnapshot(plan),primary=snapshot.find(item=>item.id===plan.responsibleId),resourceIds=snapshot.filter(item=>item.kind==="resource").map(item=>item.id),part=plan.plannedParts?.[0],tenantId=preventivePlanCurrentTenantId(),documents=(plan.documents||[]).map(item=>({...item}));return{id:uid("os"),number,companyId:tenantId,tenantId,createdAt:now,updatedAt:now,status:"Aberta",startedAt:null,finishedAt:null,title:plan.name||"Manutenção preventiva",description:plan.description||plan.name||"Manutenção preventiva programada",comment:plan.notes||"",assetId:plan.assetId,requester:state.profile?.name||currentAccount?.user?.name||"Planejamento preventivo",executor:primary?.name||plan.responsibleName||"",responsibleId:plan.responsibleId,executorIds:snapshot.map(item=>item.id),executorSnapshot:snapshot,executorValidationVersion:1,executors:snapshot.length,resourceId:primary?.kind==="resource"?primary.id:(resourceIds[0]||""),participantIds:resourceIds.filter(id=>id!==(primary?.kind==="resource"?primary.id:"")),teamId:primary?.teamIds?.[0]||"",type:preventivePlanOrderType(plan),maintenance:"Preventiva",priority:plan.priority||"Baixa",mttr:0,scheduledAt:`${execution}T08:00`,plannedDurationHours:preventivePlanDurationHours(plan.durationHours??plan.duration)||0,preventivePlanId:plan.id,preventivePlanExecutionDate:execution,linkedChecklists:plan.checklistId?[plan.checklistId]:[],plannedSpareId:part?.spareId||"",plannedSpareQuantity:Number(part?.quantity||0),plannedParts:(plan.plannedParts||[]).map(item=>({...item})),attachments:documents,documents,operationalCalendar:plan.operationalCalendar||"",history:[],assignmentHistory:[{date:now,type:"ATRIBUICAO",responsibleId:plan.responsibleId,responsibleName:primary?.name||plan.responsibleName||"",executorIds:snapshot.map(item=>item.id),companyId:tenantId,immutable:true}]};}
-    async function createPreventivePlanOrder(planId,expectedExecution=""){let plan=byId(state.preventivePlans,planId),execution=preventivePlanExecutionDate(plan||{}),issue=preventivePlanGenerationIssue(plan||{});if(expectedExecution&&execution!==expectedExecution)throw new Error("PLAN_EXECUTION_CHANGED");if(issue)throw new Error(issue);const number=await nextOrderNumberSafe();plan=byId(state.preventivePlans,planId);execution=preventivePlanExecutionDate(plan||{});if(expectedExecution&&execution!==expectedExecution)throw new Error("PLAN_EXECUTION_CHANGED");issue=preventivePlanGenerationIssue(plan||{});if(issue)throw new Error(issue);const now=Date.now(),order=buildPreventivePlanOrder(plan,number,now),orderIssue=orderPersistenceIssue(order,true);if(orderIssue)throw new Error(`ORDER_VALIDATION: ${orderIssue}`);const previousOrders=state.orders,previousPlans=state.preventivePlans;state.orders=[...state.orders,order];state.preventivePlans=state.preventivePlans.map(item=>item.id===planId?{...item,lastExecution:execution,nextExecution:preventivePlanNextExecution(item,execution),updatedAt:now,history:[...(item.history||[]),{id:uid("plan_event"),date:now,type:"OS_GERADA",orderId:order.id,orderNumber:order.number,executionDate:execution,companyId:preventivePlanCurrentTenantId(),user:state.profile?.name||currentAccount?.user?.name||"Usuário",label:`O.S. ${order.number} gerada para ${formatPlanDate(execution)}`,immutable:true}]}:item);try{saveState();const remoteSaved=await saveOrderSupabaseNow(order);if(remoteSaved!==true)throw new Error("PLAN_ORDER_PERSISTENCE_FAILED");return order;}catch(error){state.orders=previousOrders;state.preventivePlans=previousPlans;try{saveState();}catch(rollbackError){stage21TechnicalLog("error","preventive.order.rollback",rollbackError);}throw error;}}
+    async function createPreventivePlanOrder(planId, expectedExecution = "") {
+      const tenantId = preventivePlanCurrentTenantId(), userId = currentAccount?.user?.id, account = currentAccount, initialState = state;
+      if (!tenantId || !userId) throw new Error("PLAN_CONTEXT_REQUIRED");
+      if (!preventiveCanManage()) throw new Error("PLAN_PERMISSION_DENIED");
+      // All preventive plans share one state document; serialize their generation in this session.
+      if (preventivePlanOrderTransactions.has(tenantId)) throw new Error("PLAN_GENERATION_BUSY");
+      preventivePlanOrderTransactions.add(tenantId);
+      const sameSession = () => currentAccount === account && preventivePlanCurrentTenantId() === tenantId && currentAccount?.user?.id === userId;
+      try {
+        let plan = byId(state.preventivePlans, planId);
+        const execution = preventivePlanExecutionDate(plan || {});
+        if (expectedExecution && execution !== expectedExecution) throw new Error("PLAN_EXECUTION_CHANGED");
+        let issue = preventivePlanGenerationIssue(plan || {});
+        if (issue) throw new Error(issue);
+        const number = await nextOrderNumberSafe();
+        if (!sameSession() || state !== initialState) throw new Error("PLAN_CONTEXT_CHANGED");
+        if (!preventiveCanManage()) throw new Error("PLAN_PERMISSION_DENIED");
+        plan = byId(state.preventivePlans, planId);
+        if (preventivePlanExecutionDate(plan || {}) !== execution) throw new Error("PLAN_EXECUTION_CHANGED");
+        issue = preventivePlanGenerationIssue(plan || {});
+        if (issue) throw new Error(issue);
+        const now = Date.now(), order = buildPreventivePlanOrder(plan, number, now), orderIssue = orderPersistenceIssue(order,true);
+        if (orderIssue) throw new Error(`ORDER_VALIDATION: ${orderIssue}`);
+        const event = {id:uid("plan_event"),date:now,type:"OS_GERADA",orderId:order.id,orderNumber:order.number,executionDate:execution,companyId:tenantId,user:state.profile?.name||currentAccount?.user?.name||"Usuário",label:`O.S. ${order.number} gerada para ${formatPlanDate(execution)}`,immutable:true};
+        const generationValues = {lastExecution:execution,nextExecution:preventivePlanNextExecution(plan,execution),updatedAt:now};
+        const generatedPlan = {...plan,...generationValues,history:[...(plan.history||[]),event]};
+        state.orders = [...state.orders, order];
+        state.preventivePlans = state.preventivePlans.map(item => item === plan ? generatedPlan : item);
+        let persisted = false;
+        try {
+          saveState();
+          const remoteSaved = await saveOrderSupabaseNow(order);
+          if (remoteSaved!==true) throw new Error("PLAN_ORDER_PERSISTENCE_FAILED");
+          persisted = true;
+          if (!sameSession()) throw new Error("PLAN_CONTEXT_CHANGED");
+          return order;
+        } catch (error) {
+          // Never restore whole collections or write a previous tenant's state into a new session.
+          if (!persisted && sameSession()) {
+            state.orders = state.orders.filter(item => item.id !== order.id);
+            state.preventivePlans = state.preventivePlans.map(item => {
+              if (item.id !== planId || !item.history?.some(entry => entry.id === event.id)) return item;
+              const restored = {...item,history:item.history.filter(entry => entry.id !== event.id)};
+              for (const key of ["lastExecution","nextExecution","updatedAt"]) {
+                if (item[key] !== generationValues[key]) continue;
+                if (Object.prototype.hasOwnProperty.call(plan,key)) restored[key] = plan[key];
+                else delete restored[key];
+              }
+              return restored;
+            });
+            try { saveState(); } catch (rollbackError) { stage21TechnicalLog("error","preventive.order.rollback",rollbackError); }
+          }
+          throw error;
+        }
+      } finally {
+        preventivePlanOrderTransactions.delete(tenantId);
+      }
+    }
     function selectedPreventivePlanExecutorIds(){const select=$("planExecutorIds");return select?Array.from(select.selectedOptions).map(option=>option.value).filter(Boolean):[];}
     function renderPreventivePlanExecutorFields(selectedIds=null,responsibleId=null){const responsible=$("planResponsibleId"),executors=$("planExecutorIds");if(!responsible||!executors)return;const plan={assetId:$("planAsset")?.value||""},candidates=preventivePlanActiveExecutorCandidates(plan),previousResponsible=responsibleId??responsible.value,previousIds=new Set(selectedIds??selectedPreventivePlanExecutorIds());if(previousResponsible)previousIds.add(previousResponsible);responsible.innerHTML=`<option value="">Selecione um técnico ativo</option>${candidates.map(candidate=>`<option value="${escapeHtml(candidate.id)}">${escapeHtml(candidate.name)} · ${escapeHtml(candidate.specialty||"Técnico")}</option>`).join("")}`;executors.innerHTML=candidates.map(candidate=>`<option value="${escapeHtml(candidate.id)}" ${previousIds.has(candidate.id)?"selected":""}>${escapeHtml(candidate.name)} · ${escapeHtml(candidate.specialty||"Técnico")}</option>`).join("");if(candidates.some(candidate=>candidate.id===previousResponsible))responsible.value=previousResponsible;const hint=$("planExecutorHint");if(hint)hint.textContent=candidates.length?"Use Ctrl/Cmd para selecionar outros executantes. O responsável principal é incluído automaticamente.":"Nenhum técnico ativo disponível para este equipamento e empresa.";}
     function changePreventivePlanResponsible(){const id=$("planResponsibleId")?.value||"";if(!id)return;const option=Array.from($("planExecutorIds")?.options||[]).find(item=>item.value===id);if(option)option.selected=true;}

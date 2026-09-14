@@ -29,8 +29,11 @@ expect(generationIssue.includes("PLAN_ORDER_DUPLICATE"), "Proteção contra dupl
 expect(generationIssue.includes("PLAN_TENANT_MISMATCH"), "Isolamento explícito por tenant ausente.");
 expect(transaction.includes("remoteSaved!==true"), "Criação não aguarda confirmação de persistência.");
 expect(transaction.includes("orderPersistenceIssue(order,true)"), "Criação preventiva não reutiliza a validação de domínio da O.S.");
-expect(transaction.includes("state.orders=previousOrders"), "Rollback atômico da O.S. ausente.");
-expect(transaction.includes("state.preventivePlans=previousPlans"), "Rollback atômico da recorrência ausente.");
+expect(transaction.includes("state.orders.filter(item => item.id !== order.id)"), "Rollback seletivo da O.S. ausente.");
+expect(transaction.includes("item.history.filter(entry => entry.id !== event.id)"), "Rollback seletivo do evento de geração ausente.");
+expect(transaction.includes("preventivePlanOrderTransactions.has(tenantId)"), "Bloqueio de concorrência na função de domínio ausente.");
+expect(transaction.includes('throw new Error("PLAN_PERMISSION_DENIED")'), "Permissão não é validada na função de domínio.");
+expect(transaction.includes("!persisted && sameSession()"), "Rollback sem proteção contra troca de sessão.");
 expect(!generation.includes("openOrderModal"), "Gerar O.S. ainda abre o formulário manual.");
 expect(!html.includes("confirmGeneratePreventivePlanOrder = confirmGeneratePreventivePlanOrderWithExecutor"), "Override defeituoso da geração ainda está ativo.");
 expect(html === fallback, "index.html e 404.html não estão sincronizados.");
