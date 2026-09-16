@@ -726,7 +726,7 @@ body:not(.auth-required):not(.auth-loading):not(.panel-mode) #maintenanceIndicat
 
 @media (max-width: 1024px) {
   body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace .gm01-page-header,
-  body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is([class$="-page-head"],.industrial-dashboard-heading) {
+  body:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace :is([class$="-page-head"],.industrial-dashboard-heading,.s16-head) {
     align-items: flex-start !important;
     flex-direction: column !important;
   }

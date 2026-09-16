@@ -61,6 +61,10 @@ export function measurePhase05View() {
   const genericGlyphs = controls.filter(element => !element.closest("#mainNavigation"))
     .filter(element => /[⌕⋮☷＋▣‹›↻✋⚙]/u.test(element.textContent || "") && !element.querySelector(".gm-icon"))
     .map(element => (element.getAttribute("aria-label") || element.textContent || "").trim().slice(0,80));
+  const collapsedHeadings = [...document.querySelectorAll(".view.active :is(.s16-head,.stage18-head) h1")]
+    .filter(visible)
+    .map(element => ({ label:element.textContent.trim(), box:box(element) }))
+    .filter(item => item.label && item.box.width < 80);
   const workspace = document.querySelector(".workspace");
   return {
     viewport:{ width:innerWidth, height:innerHeight },
@@ -70,6 +74,7 @@ export function measurePhase05View() {
     clipped,
     compact,
     genericGlyphs,
+    collapsedHeadings,
   };
 }
 
@@ -82,6 +87,7 @@ export async function auditPhase05View(tab, target, view) {
   assert.equal(result.clipped.length, 0, `${view}: controles fora da viewport: ${JSON.stringify(result.clipped)}`);
   assert.equal(result.compact.length, 0, `${view}: controles compactos menores que 32px: ${JSON.stringify(result.compact)}`);
   assert.equal(result.genericGlyphs.length, 0, `${view}: ícones Unicode não decorados: ${JSON.stringify(result.genericGlyphs)}`);
+  assert.equal(result.collapsedHeadings.length, 0, `${view}: títulos colapsados: ${JSON.stringify(result.collapsedHeadings)}`);
   return result;
 }
 

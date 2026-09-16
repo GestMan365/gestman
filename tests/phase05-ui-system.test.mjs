@@ -6,6 +6,7 @@ const index = fs.readFileSync(new URL("../index.html", import.meta.url), "utf8")
 const fallback = fs.readFileSync(new URL("../404.html", import.meta.url), "utf8");
 const icons = fs.readFileSync(new URL("../assets/icons/flaticon/icon-registry.js", import.meta.url), "utf8");
 const fixture = fs.readFileSync(new URL("./fixtures/phase05-ui-audit.js", import.meta.url), "utf8");
+const standardUi = fs.readFileSync(new URL("../assets/ui/gestman-stage01-standard.css", import.meta.url), "utf8");
 
 test("a página oficial e o fallback continuam em paridade", () => {
   assert.equal(index, fallback);
@@ -23,6 +24,19 @@ test("o contrato compacto usa alvos adequados em desktop e mobile", () => {
 test("o foco visível alcança controles e campos do workspace", () => {
   assert.match(index, /\.workspace :is\([\s\S]*\[tabindex\]:not\(\[tabindex=\"-1\"\]\)[\s\S]*\):focus-visible/);
   assert.match(index, /outline:2px solid var\(--gm-info\)/);
+});
+
+test("Relatórios empilha o cabeçalho junto das ações até 1024px", () => {
+  assert.match(standardUi, /@media \(max-width: 1024px\)[\s\S]*:is\(\[class\$="-page-head"\],\.industrial-dashboard-heading,\.s16-head\)[\s\S]*flex-direction: column !important/);
+});
+
+test("o seletor de visualização de Documentos usa ícones licenciados e estado acessível", () => {
+  assert.match(icons, /function decorateDocumentViewButtons\(root\)/);
+  assert.match(icons, /name=list\?"workOrders":"dashboard"/);
+  assert.match(icons, /button\.dataset\.gmDocumentViewIcon!==name\|\|!button\.querySelector\("\.gm-icon"\)/);
+  assert.match(icons, /button\.setAttribute\("aria-label",label\)/);
+  assert.match(icons, /button\.setAttribute\("aria-pressed",String\(button\.classList\.contains\("active"\)\)\)/);
+  assert.match(icons, /decorateButtons\(root\);decorateDocumentViewButtons\(root\);decorateProfessionalIcons\(root\)/);
 });
 
 test("ícones genéricos são decorados somente fora dos grupos do sidebar", () => {
