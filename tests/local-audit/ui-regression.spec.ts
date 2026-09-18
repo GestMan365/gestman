@@ -151,14 +151,18 @@ test("navegação superior mantém nomes visíveis e não oferece recolhimento",
   await page.locator('#mainNavigation [data-nav-group="maintenance"] > summary').click();
   await expect(page.locator('#mainNavigation [data-nav-group="maintenance"] .nav-group-items')).toBeVisible();
   await expect(page.locator('#mainNavigation [data-view="orders"]')).toContainText("Ordens de Serviço");
+  const maintenanceSummary = await page.locator('#mainNavigation [data-nav-group="maintenance"] > summary').boundingBox();
   const submenu = await page.locator('#mainNavigation [data-nav-group="maintenance"] .nav-group-items').boundingBox();
+  expect(maintenanceSummary).not.toBeNull();
   expect(submenu).not.toBeNull();
   expect(submenu!.y).toBeGreaterThanOrEqual(desktop.topbar.bottom);
+  expect(submenu!.x).toBeCloseTo(maintenanceSummary!.x, 0);
 
   await page.setViewportSize({ width: 1920, height: 1080 });
   const wideHeader = await page.evaluate(() => {
     const actions = document.querySelector<HTMLElement>(".reference-topbar-actions")!.getBoundingClientRect();
-    const profile = document.querySelector<HTMLElement>(".reference-header-user")!.getBoundingClientRect();
+    const profileElement = document.querySelector<HTMLElement>(".reference-header-user")!;
+    const profile = profileElement.getBoundingClientRect();
     const nav = document.querySelector<HTMLElement>("#mainNavigation")!.getBoundingClientRect();
     const topbar = document.querySelector<HTMLElement>(".reference-topbar")!.getBoundingClientRect();
     const heading = document.querySelector<HTMLElement>(".reference-topbar-left")!;
@@ -166,6 +170,12 @@ test("navegação superior mantém nomes visíveis e não oferece recolhimento",
     return {
       actions: { x: actions.x, y: actions.y, height: actions.height },
       profileWidth: profile.width,
+      profileHeight: profile.height,
+      profileChildren: profileElement.children.length,
+      avatar: (() => {
+        const rect = document.querySelector<HTMLElement>(".reference-user-avatar")!.getBoundingClientRect();
+        return { width: rect.width, height: rect.height, borderRadius: getComputedStyle(document.querySelector<HTMLElement>(".reference-user-avatar")!).borderRadius };
+      })(),
       navBottom: nav.bottom,
       topbarHeight: topbar.height,
       headingDisplay: getComputedStyle(heading).display,
@@ -175,7 +185,12 @@ test("navegação superior mantém nomes visíveis e não oferece recolhimento",
   });
   expect(wideHeader.actions.y).toBeGreaterThanOrEqual(0);
   expect(wideHeader.actions.y + wideHeader.actions.height).toBeLessThanOrEqual(wideHeader.navBottom);
-  expect(wideHeader.profileWidth).toBeCloseTo(186, 0);
+  expect(wideHeader.profileWidth).toBeCloseTo(42, 0);
+  expect(wideHeader.profileHeight).toBeCloseTo(42, 0);
+  expect(wideHeader.profileChildren).toBe(1);
+  expect(wideHeader.avatar.width).toBeCloseTo(34, 0);
+  expect(wideHeader.avatar.height).toBeCloseTo(34, 0);
+  expect(wideHeader.avatar.borderRadius).toBe("50%");
   expect(wideHeader.topbarHeight).toBe(0);
   expect(wideHeader.headingDisplay).toBe("none");
   expect(wideHeader.workspaceY).toBeCloseTo(wideHeader.navBottom, 0);

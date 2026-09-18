@@ -20552,6 +20552,47 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       #measurements .stage15-tabs button { min-width:0 !important; width:100%; }
       #measurements .stage15-tabs button:first-child { grid-column:1/-1; }
     }
+    /* Correção de navegação: dropdown alinhado ao módulo acionado e perfil somente com foto. */
+    body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group-items {
+      left:var(--gm-nav-dropdown-left, 8px) !important;
+      right:auto !important;
+      margin:0 !important;
+    }
+    body:not(.auth-required):not(.auth-loading) .reference-header-user,
+    body.gm-top-navigation:not(.auth-required):not(.auth-loading) .reference-header-user {
+      box-sizing:border-box !important;
+      flex:0 0 42px !important;
+      width:42px !important;
+      min-width:42px !important;
+      max-width:42px !important;
+      height:42px !important;
+      min-height:42px !important;
+      padding:3px !important;
+      display:grid !important;
+      grid-template-columns:1fr !important;
+      place-items:center !important;
+      gap:0 !important;
+      overflow:visible !important;
+    }
+    body:not(.auth-required):not(.auth-loading) .reference-header-user .reference-user-avatar {
+      box-sizing:border-box !important;
+      flex:0 0 34px !important;
+      width:34px !important;
+      min-width:34px !important;
+      max-width:34px !important;
+      height:34px !important;
+      min-height:34px !important;
+      max-height:34px !important;
+      overflow:hidden !important;
+      border-radius:50% !important;
+    }
+    body:not(.auth-required):not(.auth-loading) .reference-header-user .reference-user-avatar > img {
+      width:100% !important;
+      height:100% !important;
+      object-fit:cover !important;
+      object-position:center !important;
+      border-radius:50% !important;
+    }
   </style>
 </head>
 <body class="auth-loading auth-restoring">
@@ -21156,9 +21197,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         <span class="theme-label">Escuro</span>
       </button>
       <button class="reference-header-user" type="button" onclick="openProfileModal()" aria-label="Abrir perfil do usuário" title="Abrir perfil do usuário" aria-haspopup="dialog">
-        <span class="reference-user-copy"><strong id="headerUserName">Usuário</strong><small id="headerUserRole">Perfil</small></span>
-        <span class="reference-user-avatar" id="headerUserAvatar">US<i aria-label="Online"></i></span>
-        <span class="reference-user-chevron" data-header-icon="chevronDown" aria-hidden="true"></span>
+        <span class="reference-user-avatar" id="headerUserAvatar">US</span>
       </button>
     </div>
   </header>
@@ -26223,6 +26262,18 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function saveNavGroupState(groupKey = "") {
       scopedSetItem(NAV_GROUPS_KEY, groupKey, "user");
     }
+    function positionNavGroupItems(group) {
+      if (!group?.open || !document.body.classList.contains("gm-top-navigation")) return;
+      const summary = group.querySelector(":scope>summary");
+      const panel = group.querySelector(":scope>.nav-group-items");
+      if (!summary || !panel) return;
+      const viewportPadding = 8;
+      const summaryRect = summary.getBoundingClientRect();
+      const panelWidth = panel.getBoundingClientRect().width || Math.min(292, innerWidth - (viewportPadding * 2));
+      const maximumLeft = Math.max(viewportPadding, innerWidth - panelWidth - viewportPadding);
+      const left = Math.min(Math.max(viewportPadding, summaryRect.left), maximumLeft);
+      panel.style.setProperty("--gm-nav-dropdown-left", `${Math.round(left)}px`);
+    }
     function openNavGroupForView(view) {
       const button = document.querySelector(`.tab[data-view="${view}"]`);
       const group = button?.closest("[data-nav-group]");
@@ -26260,12 +26311,17 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             const quick = document.querySelector("[data-nav-quick]");
             if (quick) quick.open = false;
             saveNavGroupState(key);
+            requestAnimationFrame(() => positionNavGroupItems(group));
           } else if (!document.querySelector("[data-nav-group][open]")) {
             saveNavGroupState("");
           }
           requestAnimationFrame(() => { navGroupToggleLock = false; });
         });
       });
+      document.querySelector("#mainNavigation .industrial-sidebar-scroll")?.addEventListener("scroll", () => {
+        const openGroup = document.querySelector("[data-nav-group][open]");
+        if (openGroup) positionNavGroupItems(openGroup);
+      }, { passive: true });
       const quick = document.querySelector("[data-nav-quick]");
       const quickSummary = quick?.querySelector(":scope>summary");
       quickSummary?.setAttribute("aria-expanded", String(Boolean(quick?.open)));
@@ -34524,8 +34580,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         const photo = user.photo || "";
         const initials = name.split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]).join("").toUpperCase() || "US";
         $("headerUserAvatar").innerHTML = photo
-          ? `<img src="${photo}" alt="${escapeHtml(name)}"><i aria-label="Online"></i>`
-          : `${initials}<i aria-label="Online"></i>`;
+          ? `<img src="${photo}" alt="${escapeHtml(name)}">`
+          : initials;
       }
     }
     async function openProfileModal(initialPanel = "company") {
