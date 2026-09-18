@@ -20593,6 +20593,11 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       object-position:center !important;
       border-radius:50% !important;
     }
+    @media (min-width:1700px) {
+      body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-scroll {
+        padding-right:360px !important;
+      }
+    }
   </style>
 </head>
 <body class="auth-loading auth-restoring">
@@ -21271,9 +21276,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         <div class="nav-group-items"><button class="tab" type="button" data-nav-action="users"><span class="tab-icon"></span><span>Usuários e Permissões</span></button></div>
       </details>
     </div>
-    <footer class="industrial-sidebar-footer sidebar-version-only" aria-label="Versão do sistema">
-      <small>GestMan <b>V.1.0.0</b></small>
-    </footer>
   </nav>
   <main class="workspace">
     <section class="view active" id="dashboard">

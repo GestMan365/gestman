@@ -167,6 +167,9 @@ test("navegação superior mantém nomes visíveis e não oferece recolhimento",
     const topbar = document.querySelector<HTMLElement>(".reference-topbar")!.getBoundingClientRect();
     const heading = document.querySelector<HTMLElement>(".reference-topbar-left")!;
     const workspace = document.querySelector<HTMLElement>(".workspace")!.getBoundingClientRect();
+    const navigationItems = Array.from(document.querySelectorAll<HTMLElement>("#mainNavigation :is(.nav-pinned .tab,.nav-group > summary)"))
+      .filter((item) => getComputedStyle(item).display !== "none")
+      .map((item) => item.getBoundingClientRect());
     return {
       actions: { x: actions.x, y: actions.y, height: actions.height },
       profileWidth: profile.width,
@@ -181,6 +184,8 @@ test("navegação superior mantém nomes visíveis e não oferece recolhimento",
       headingDisplay: getComputedStyle(heading).display,
       workspaceY: workspace.y,
       separator: getComputedStyle(document.querySelector<HTMLElement>(".reference-topbar-actions")!).borderLeftWidth,
+      navigationItemsRight: Math.max(...navigationItems.map((item) => item.right)),
+      versionElementPresent: Boolean(document.querySelector(".industrial-sidebar-footer")),
     };
   });
   expect(wideHeader.actions.y).toBeGreaterThanOrEqual(0);
@@ -195,6 +200,8 @@ test("navegação superior mantém nomes visíveis e não oferece recolhimento",
   expect(wideHeader.headingDisplay).toBe("none");
   expect(wideHeader.workspaceY).toBeCloseTo(wideHeader.navBottom, 0);
   expect(wideHeader.separator).toBe("1px");
+  expect(wideHeader.versionElementPresent).toBe(false);
+  expect(wideHeader.navigationItemsRight).toBeLessThanOrEqual(wideHeader.actions.x - 8);
 
   await page.evaluate(() => window.eval("setNavCollapsed(true)"));
   expect(await page.evaluate(() => document.body.classList.contains("sidebar-collapsed"))).toBe(false);
