@@ -115,7 +115,8 @@ test("navegação superior mantém nomes visíveis e não oferece recolhimento",
   expect(desktop.nav.x).toBe(0);
   expect(desktop.nav.y).toBe(0);
   expect(desktop.nav.width).toBeCloseTo(1366, 0);
-  expect(desktop.nav.height).toBeCloseTo(50, 0);
+  expect(desktop.nav.height).toBeGreaterThanOrEqual(56);
+  expect(desktop.nav.height).toBeLessThanOrEqual(72);
   expect(desktop.topbar.y).toBeCloseTo(desktop.nav.height, 0);
   expect(desktop.topbar.height).toBeCloseTo(48, 0);
   expect(desktop.workspace.x).toBe(0);
@@ -190,8 +191,10 @@ test("navegação superior mantém nomes visíveis e não oferece recolhimento",
   const mobile = await page.locator("#mainNavigation").boundingBox();
   expect(mobile).not.toBeNull();
   expect(mobile!.x).toBe(0);
+  expect(mobile!.y).toBeCloseTo(64, 0);
   expect(mobile!.width).toBeCloseTo(390, 0);
-  expect(mobile!.height).toBeCloseTo(60, 0);
+  expect(mobile!.height).toBeGreaterThanOrEqual(56);
+  expect(mobile!.height).toBeLessThanOrEqual(72);
   await page.evaluate(() => {
     document.querySelector<HTMLDetailsElement>('#mainNavigation [data-nav-group="maintenance"]')!.open = true;
   });

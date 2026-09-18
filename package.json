@@ -30,6 +30,7 @@
     "test:preventive-plan-order:static": "node scripts/validate-preventive-plan-order-generation.mjs",
     "test:phase05-ui": "node --test tests/phase05-ui-system.test.mjs",
     "test:phase05-ui:static": "node scripts/validate-phase05-ui.mjs",
+    "test:ui-standardization:static": "node scripts/validate-ui-standardization.mjs",
     "test:checklist-order-context": "node --test tests/checklist-order-context.test.mjs",
     "test:checklist-order-context:static": "node scripts/validate-checklist-order-context.mjs",
     "test:checklist-observation-audit": "node --test tests/checklist-observation-audit.test.mjs",
