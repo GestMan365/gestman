@@ -44,6 +44,20 @@ test("voltar e avançar restauram módulos sem recarregar a aplicação", async 
   await expect.poll(() => new URL(page.url()).searchParams.get("modulo")).toBe("ativos-e-equipamentos");
 });
 
+test("entrada autenticada sempre começa em Visão Geral", async ({ page }) => {
+  await page.goto("./?empresa=nadir&modulo=ordens-de-servico");
+  await prepareRouteAccount(page);
+  await page.evaluate(() => {
+    window.eval('setView("orders")');
+    window.eval("openOverviewAfterAuthentication()");
+  });
+
+  await expect(page.locator("#dashboard")).toHaveClass(/active/);
+  await expect(page.locator('.tab[data-view="dashboard"]')).toHaveClass(/active/);
+  expect(new URL(page.url()).searchParams.get("modulo")).toBe("visao-geral");
+  expect(await page.evaluate(() => window.eval("savedActiveView()"))).toBe("dashboard");
+});
+
 test("rota de ativo abre detalhe e voltar retorna à lista", async ({ page }) => {
   await page.goto("./?empresa=nadir&modulo=ativos-e-equipamentos");
   await prepareRouteAccount(page);

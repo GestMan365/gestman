@@ -25663,7 +25663,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       currentAccount = resolveCurrentAccount(authStore);
       reloadTenantData();
       applyAuthState();
-      if (!restoreApplicationRoute()) setView(savedActiveView(), { persist: false, silent: true, replaceRoute:true });
+      openOverviewAfterAuthentication();
       loadSupabaseState(false);
       stage21WriteAudit({ module:"Autenticação", action:"Login realizado", record:user.email, result:"Sucesso", origin:"Interface web" });
       showToast(`Bem-vindo, ${user.name}.`);
@@ -27258,6 +27258,12 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function savedActiveView() {
       const view = scopedGetItem(ACTIVE_VIEW_KEY, "user") || "dashboard";
       return document.getElementById(view) && canAccessView(view) ? view : firstAllowedView();
+    }
+    function openOverviewAfterAuthentication() {
+      if (!currentAccount || isPlatformAdmin()) return false;
+      const overviewView = canAccessView("dashboard") ? "dashboard" : firstAllowedView();
+      setView(overviewView, { persist:true, silent:true, replaceRoute:true });
+      return overviewView === "dashboard";
     }
     const HEADER_GROUP_LABELS = {
       maintenance: "Manutenção",
@@ -40090,7 +40096,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         if (!isPlatformAdmin() && context) await loadSupabaseState(false, true);
         const routedPlatformView = platformRouteView() || "platformRequests";
         if (isPlatformAdmin()) setView(routedPlatformView, { persist:false, silent:true, route:false });
-        else if (!restoreApplicationRoute()) setView(savedActiveView(), { persist:false, silent:true, replaceRoute:true });
+        else openOverviewAfterAuthentication();
         setAuthLoginStatus();
         showToast(`Bem-vindo, ${currentAccount.user.name}.`);
         return true;
@@ -40175,7 +40181,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         if (!isPlatformAdmin() && context) await loadSupabaseState(false, true);
         const routedPlatformView = platformRouteView() || "platformRequests";
         if (isPlatformAdmin()) setView(routedPlatformView, { persist:false, silent:true, route:false });
-        else if (!restoreApplicationRoute()) setView(savedActiveView(), { persist:false, silent:true, replaceRoute:true });
+        else openOverviewAfterAuthentication();
         setAuthLoginStatus();
         showToast(`Bem-vindo, ${currentAccount.user.name}.`);
         return true;
@@ -40292,7 +40298,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         if (!isPlatformAdmin() && context) await loadSupabaseState(false, true);
         const routedPlatformView = platformRouteView() || "platformRequests";
         if (isPlatformAdmin()) setView(routedPlatformView, { persist:false, silent:true, route:false });
-        else if (!restoreApplicationRoute()) setView(savedActiveView(), { persist:false, silent:true, replaceRoute:true });
+        else openOverviewAfterAuthentication();
         applyPanelMode();
         return true;
       } catch (error) {
@@ -41358,7 +41364,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     if (currentAccount) {
       captureSyncBaseline();
       applyAuthState();
-      if (!restoreApplicationRoute()) setView(savedActiveView(), { persist: false, silent: true, replaceRoute:true });
+      openOverviewAfterAuthentication();
       applyPanelMode();
       loadSupabaseState(false);
     } else {
