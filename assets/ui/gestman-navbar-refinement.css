@@ -179,6 +179,16 @@
     border-radius: 7px !important;
   }
 
+  body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group[open] > summary {
+    border-bottom-right-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+  }
+
+  body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group-items {
+    top: var(--gm-nav-dropdown-top, var(--gm-module-nav-height)) !important;
+    border-radius: 0 10px 10px 10px !important;
+  }
+
   body.gm-top-navigation:not(.auth-required):not(.auth-loading):not(.panel-mode) .workspace {
     top: var(--gm-module-nav-height) !important;
     height: calc(100dvh - var(--gm-module-nav-height)) !important;

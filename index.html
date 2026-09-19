@@ -26269,8 +26269,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function saveNavGroupState(groupKey = "") {
       scopedSetItem(NAV_GROUPS_KEY, groupKey, "user");
     }
-    function positionNavGroupItems(group) {
-      if (!group?.open || !document.body.classList.contains("gm-top-navigation")) return;
+    function positionNavGroupItems(group, beforeOpen = false) {
+      if ((!group?.open && !beforeOpen) || !document.body.classList.contains("gm-top-navigation")) return;
       const summary = group.querySelector(":scope>summary");
       const panel = group.querySelector(":scope>.nav-group-items");
       if (!summary || !panel) return;
@@ -26280,6 +26280,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const maximumLeft = Math.max(viewportPadding, innerWidth - panelWidth - viewportPadding);
       const left = Math.min(Math.max(viewportPadding, summaryRect.left), maximumLeft);
       panel.style.setProperty("--gm-nav-dropdown-left", `${Math.round(left)}px`);
+      panel.style.setProperty("--gm-nav-dropdown-top", `${Math.round(summaryRect.bottom - 1)}px`);
     }
     function openNavGroupForView(view) {
       const button = document.querySelector(`.tab[data-view="${view}"]`);
@@ -26300,6 +26301,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         const summary = group.querySelector(":scope>summary");
         summary?.setAttribute("aria-expanded", String(group.open));
         summary?.addEventListener("click", event => {
+          positionNavGroupItems(group, true);
           if (!document.body.classList.contains("sidebar-collapsed") || window.matchMedia("(max-width:600px)").matches) return;
           event.preventDefault();
           setNavCollapsed(false);
@@ -26318,7 +26320,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             const quick = document.querySelector("[data-nav-quick]");
             if (quick) quick.open = false;
             saveNavGroupState(key);
-            requestAnimationFrame(() => positionNavGroupItems(group));
+            positionNavGroupItems(group);
           } else if (!document.querySelector("[data-nav-group][open]")) {
             saveNavGroupState("");
           }
