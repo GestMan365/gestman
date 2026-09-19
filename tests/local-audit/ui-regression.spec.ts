@@ -258,6 +258,76 @@ test("navegação superior mantém nomes visíveis e não oferece recolhimento",
     expect(layout.nameVisible).toBe(true);
   }
 
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await page.evaluate(() => document.body.classList.add("theme-light"));
+  await page.waitForTimeout(350);
+  const lightHeader = await page.evaluate(() => {
+    const logoFrame = document.querySelector<HTMLElement>("#mainNavigation .sidebar-logo-frame")!;
+    const quickGroup = document.querySelector<HTMLElement>("#mainNavigation .nav-pinned")!;
+    const activeQuick = document.querySelector<HTMLElement>("#mainNavigation .nav-pinned .tab.active")!;
+    const actions = document.querySelector<HTMLElement>(".reference-topbar-actions")!;
+    const profileName = document.querySelector<HTMLElement>(".reference-header-user .reference-user-copy strong")!;
+    const logoStyle = getComputedStyle(logoFrame);
+    const quickStyle = getComputedStyle(quickGroup);
+    const activeStyle = getComputedStyle(activeQuick);
+    const actionsStyle = getComputedStyle(actions);
+    return {
+      logoBorderTop: logoStyle.borderTopWidth,
+      logoBorderBottom: logoStyle.borderBottomWidth,
+      logoShadow: logoStyle.boxShadow,
+      logoBeforeDisplay: getComputedStyle(logoFrame, "::before").display,
+      logoAfterDisplay: getComputedStyle(logoFrame, "::after").display,
+      quickBackground: quickStyle.backgroundColor,
+      activeBackground: activeStyle.backgroundColor,
+      activeColor: activeStyle.color,
+      actionsBackground: actionsStyle.backgroundColor,
+      actionsBackgroundImage: actionsStyle.backgroundImage,
+      profileColor: getComputedStyle(profileName).color,
+    };
+  });
+  expect(lightHeader.logoBorderTop).toBe("0px");
+  expect(lightHeader.logoBorderBottom).toBe("0px");
+  expect(lightHeader.logoShadow).toBe("none");
+  expect(lightHeader.logoBeforeDisplay).toBe("none");
+  expect(lightHeader.logoAfterDisplay).toBe("none");
+  expect(lightHeader.quickBackground).toBe("rgb(237, 245, 250)");
+  expect(lightHeader.activeBackground).toBe("rgb(217, 237, 248)");
+  expect(lightHeader.activeColor).toBe("rgb(7, 95, 147)");
+  expect(lightHeader.actionsBackground).toBe("rgb(248, 251, 253)");
+  expect(lightHeader.actionsBackgroundImage).toBe("none");
+  expect(lightHeader.profileColor).toBe("rgb(21, 38, 58)");
+
+  for (const viewport of [
+    { width: 1920, height: 1080 },
+    { width: 951, height: 535 },
+  ]) {
+    await page.setViewportSize(viewport);
+    const lightLayout = await page.evaluate(() => {
+      const rect = (selector: string) => document.querySelector<HTMLElement>(selector)!.getBoundingClientRect();
+      const brand = rect("#mainNavigation .industrial-sidebar-brand");
+      const quick = rect("#mainNavigation .nav-pinned");
+      const modules = rect("#mainNavigation .gm-module-nav-group");
+      const actions = rect(".reference-topbar-actions");
+      const overlaps = (first: DOMRect, second: DOMRect) =>
+        first.left < second.right && first.right > second.left && first.top < second.bottom && first.bottom > second.top;
+      return {
+        innerWidth,
+        documentWidth: document.documentElement.scrollWidth,
+        brandQuickOverlap: overlaps(brand, quick),
+        quickModulesOverlap: overlaps(quick, modules),
+        modulesActionsOverlap: overlaps(modules, actions),
+        quickActionsOverlap: overlaps(quick, actions),
+      };
+    });
+    expect(lightLayout.documentWidth).toBeLessThanOrEqual(lightLayout.innerWidth + 1);
+    expect(lightLayout.brandQuickOverlap).toBe(false);
+    expect(lightLayout.quickModulesOverlap).toBe(false);
+    expect(lightLayout.modulesActionsOverlap).toBe(false);
+    expect(lightLayout.quickActionsOverlap).toBe(false);
+  }
+
+  await page.evaluate(() => document.body.classList.remove("theme-light"));
+
   await page.evaluate(() => window.eval("setNavCollapsed(true)"));
   expect(await page.evaluate(() => document.body.classList.contains("sidebar-collapsed"))).toBe(false);
 

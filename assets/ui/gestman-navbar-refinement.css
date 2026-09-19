@@ -353,3 +353,136 @@
     padding-inline: 5px !important;
   }
 }
+
+/* Tema claro: superfícies, contraste e marca coerentes com a barra superior. */
+@media (min-width: 901px) {
+  body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation {
+    color: #24445d !important;
+    background: #f8fbfd !important;
+    background-image: none !important;
+    border-top: 0 !important;
+    border-bottom: 1px solid #d5e1e9 !important;
+    box-shadow: 0 2px 8px rgba(30, 55, 73, .09) !important;
+  }
+
+  body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-brand {
+    color: #24445d !important;
+    background: #fff !important;
+    background-image: none !important;
+    border: 0 !important;
+    border-right: 1px solid #d5e1e9 !important;
+    box-shadow: none !important;
+  }
+
+  body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation :is(
+    .industrial-sidebar-brand,
+    .sidebar-logo-frame
+  )::before,
+  body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation :is(
+    .industrial-sidebar-brand,
+    .sidebar-logo-frame
+  )::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .sidebar-logo-frame,
+  body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .sidebar-logo-frame .brand-logo-img {
+    background: transparent !important;
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    clip-path: none !important;
+  }
+
+  body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-scroll {
+    color: #24445d !important;
+    background: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .nav-pinned {
+    background: #edf5fa !important;
+    background-image: none !important;
+    border-color: #bdd0dc !important;
+    box-shadow: none !important;
+  }
+
+  body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .nav-pinned .tab,
+  body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .gm-module-nav-group .nav-group > summary {
+    color: #294b63 !important;
+    background: transparent !important;
+    background-image: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+  }
+
+  body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation :is(
+    .nav-pinned .tab,
+    .gm-module-nav-group .nav-group > summary
+  ):hover {
+    color: #075f93 !important;
+    background: #e4f1f8 !important;
+    border-color: #b1ccdc !important;
+  }
+
+  body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .nav-pinned .tab.active,
+  body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .gm-module-nav-group .nav-group[open] > summary {
+    color: #075f93 !important;
+    background: #d9edf8 !important;
+    background-image: none !important;
+    border-color: #76b9d8 !important;
+    box-shadow: inset 0 -2px #1999c1 !important;
+  }
+
+  body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .nav-pinned .tab.active :is(span, .gm-icon),
+  body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .gm-module-nav-group .nav-group[open] > summary :is(span, .gm-icon) {
+    color: #075f93 !important;
+  }
+
+  body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .gm-module-nav-group {
+    border-color: #bfd0dc !important;
+  }
+
+  body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) .reference-topbar-actions {
+    color: #24445d !important;
+    background: #f8fbfd !important;
+    background-image: none !important;
+    border-left-color: #bfd0dc !important;
+    box-shadow: none !important;
+  }
+
+  body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) .reference-topbar-actions :is(
+    .reference-icon-button,
+    .system-theme-toggle,
+    .reference-header-user
+  ) {
+    color: #24445d !important;
+    background: #fff !important;
+    background-image: none !important;
+    border-color: #c5d6e1 !important;
+    box-shadow: none !important;
+  }
+
+  body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) .reference-topbar-actions :is(
+    .reference-icon-button,
+    .system-theme-toggle,
+    .reference-header-user
+  ):hover,
+  body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) .reference-topbar-actions :is(
+    .reference-icon-button,
+    .system-theme-toggle,
+    .reference-header-user
+  ):focus-visible {
+    color: #075f93 !important;
+    background: #eaf4f9 !important;
+    border-color: #8ebbd1 !important;
+  }
+
+  body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) .reference-header-user .reference-user-copy strong,
+  body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) .reference-header-user .reference-user-copy span {
+    color: #203f55 !important;
+  }
+}
