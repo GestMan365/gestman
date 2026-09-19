@@ -20599,6 +20599,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       }
     }
   </style>
+  <link rel="stylesheet" href="assets/ui/gestman-navbar-refinement.css">
 </head>
 <body class="auth-loading auth-restoring">
   <script id="design-theme-bootstrap">
@@ -21203,6 +21204,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       </button>
       <button class="reference-header-user" type="button" onclick="openProfileModal()" aria-label="Abrir perfil do usuário" title="Abrir perfil do usuário" aria-haspopup="dialog">
         <span class="reference-user-avatar" id="headerUserAvatar">US</span>
+        <span class="reference-user-copy"><strong id="headerUserName">Usuário</strong></span>
+        <span class="reference-user-chevron" data-header-icon="chevronDown" aria-hidden="true"></span>
       </button>
     </div>
   </header>
@@ -21218,6 +21221,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         <button class="tab" data-view="quickAccess" title="Acessos Rápidos"><span class="tab-icon"></span><span>Acessos Rápidos</span></button>
         <button class="tab active" data-mobile-operational data-view="dashboard" title="Visão Geral"><span class="tab-icon"></span><span>Visão Geral</span></button>
       </div>
+      <div class="gm-module-nav-group" aria-label="Módulos principais">
       <details class="nav-group" data-nav-group="maintenance">
         <summary title="Manutenção"><span class="nav-group-icon"></span><span>Manutenção</span><i></i></summary>
         <div class="nav-group-items">
@@ -21275,6 +21279,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         <summary title="Administração"><span class="nav-group-icon"></span><span>Administração</span><i></i></summary>
         <div class="nav-group-items"><button class="tab" type="button" data-nav-action="users"><span class="tab-icon"></span><span>Usuários e Permissões</span></button></div>
       </details>
+      </div>
     </div>
   </nav>
   <main class="workspace">

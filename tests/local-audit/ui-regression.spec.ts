@@ -117,11 +117,10 @@ test("navegação superior mantém nomes visíveis e não oferece recolhimento",
   expect(desktop.nav.width).toBeCloseTo(1366, 0);
   expect(desktop.nav.height).toBeGreaterThanOrEqual(56);
   expect(desktop.nav.height).toBeLessThanOrEqual(72);
-  expect(desktop.topbar.y).toBeCloseTo(desktop.nav.height, 0);
-  expect(desktop.topbar.height).toBeCloseTo(48, 0);
+  expect(desktop.topbar.height).toBe(0);
   expect(desktop.workspace.x).toBe(0);
   expect(desktop.workspace.width).toBeCloseTo(1366, 0);
-  expect(desktop.workspace.y).toBeCloseTo(desktop.topbar.bottom, 0);
+  expect(desktop.workspace.y).toBeCloseTo(desktop.nav.height, 0);
   expect(desktop.collapseVisible).toBe(false);
 
   for (const label of ["Acessos Rápidos", "Visão Geral", "Manutenção", "Ativos e Instalações", "Materiais", "Planejamento", "Gestão", "Administração"]) {
@@ -155,7 +154,7 @@ test("navegação superior mantém nomes visíveis e não oferece recolhimento",
   const submenu = await page.locator('#mainNavigation [data-nav-group="maintenance"] .nav-group-items').boundingBox();
   expect(maintenanceSummary).not.toBeNull();
   expect(submenu).not.toBeNull();
-  expect(submenu!.y).toBeGreaterThanOrEqual(desktop.topbar.bottom);
+  expect(submenu!.y).toBeGreaterThanOrEqual(desktop.nav.height);
   expect(submenu!.x).toBeCloseTo(maintenanceSummary!.x, 0);
 
   await page.setViewportSize({ width: 1920, height: 1080 });
@@ -190,9 +189,9 @@ test("navegação superior mantém nomes visíveis e não oferece recolhimento",
   });
   expect(wideHeader.actions.y).toBeGreaterThanOrEqual(0);
   expect(wideHeader.actions.y + wideHeader.actions.height).toBeLessThanOrEqual(wideHeader.navBottom);
-  expect(wideHeader.profileWidth).toBeCloseTo(42, 0);
+  expect(wideHeader.profileWidth).toBeGreaterThanOrEqual(126);
   expect(wideHeader.profileHeight).toBeCloseTo(42, 0);
-  expect(wideHeader.profileChildren).toBe(1);
+  expect(wideHeader.profileChildren).toBe(3);
   expect(wideHeader.avatar.width).toBeCloseTo(34, 0);
   expect(wideHeader.avatar.height).toBeCloseTo(34, 0);
   expect(wideHeader.avatar.borderRadius).toBe("50%");
@@ -202,6 +201,42 @@ test("navegação superior mantém nomes visíveis e não oferece recolhimento",
   expect(wideHeader.separator).toBe("1px");
   expect(wideHeader.versionElementPresent).toBe(false);
   expect(wideHeader.navigationItemsRight).toBeLessThanOrEqual(wideHeader.actions.x - 8);
+
+  for (const viewport of [
+    { width: 1920, height: 1080 },
+    { width: 1366, height: 768 },
+    { width: 1103, height: 621 },
+    { width: 951, height: 535 },
+  ]) {
+    await page.setViewportSize(viewport);
+    const layout = await page.evaluate(() => {
+      const rect = (selector: string) => document.querySelector<HTMLElement>(selector)!.getBoundingClientRect();
+      const brand = rect("#mainNavigation .industrial-sidebar-brand");
+      const quick = rect("#mainNavigation .nav-pinned");
+      const modules = rect("#mainNavigation .gm-module-nav-group");
+      const actions = rect(".reference-topbar-actions");
+      const name = document.querySelector<HTMLElement>("#headerUserName")!;
+      const overlaps = (first: DOMRect, second: DOMRect) =>
+        first.left < second.right && first.right > second.left && first.top < second.bottom && first.bottom > second.top;
+      return {
+        innerWidth,
+        documentWidth: document.documentElement.scrollWidth,
+        brandQuickOverlap: overlaps(brand, quick),
+        quickModulesOverlap: overlaps(quick, modules),
+        modulesActionsOverlap: overlaps(modules, actions),
+        quickActionsOverlap: overlaps(quick, actions),
+        actionsRight: actions.right,
+        nameVisible: getComputedStyle(name).display !== "none" && name.getBoundingClientRect().width > 0,
+      };
+    });
+    expect(layout.documentWidth).toBeLessThanOrEqual(layout.innerWidth + 1);
+    expect(layout.brandQuickOverlap).toBe(false);
+    expect(layout.quickModulesOverlap).toBe(false);
+    expect(layout.modulesActionsOverlap).toBe(false);
+    expect(layout.quickActionsOverlap).toBe(false);
+    expect(layout.actionsRight).toBeLessThanOrEqual(layout.innerWidth + 1);
+    expect(layout.nameVisible).toBe(true);
+  }
 
   await page.evaluate(() => window.eval("setNavCollapsed(true)"));
   expect(await page.evaluate(() => document.body.classList.contains("sidebar-collapsed"))).toBe(false);
