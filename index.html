@@ -1423,12 +1423,22 @@
     .machine-alert.waiting {
       background: #039df4;
       color: #001828;
-      animation: alertBlue 1.8s ease-in-out infinite;
+      animation: none;
     }
     .machine-alert.running {
       background: #28d957;
       color: #03200b;
-      animation: alertGreen 1s ease-in-out infinite;
+      animation: none;
+    }
+    .machine-alert.material {
+      background: #f5b82e;
+      color: #2b1800;
+      animation: none;
+    }
+    .machine-alert.paused {
+      background: #f97316;
+      color: #2b0d00;
+      animation: none;
     }
     .machine-label {
       width: 132px;
@@ -23744,6 +23754,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     let selectedOrderId = null;
     let selectedOrderDetailTab = "general";
     let dragState = null;
+    let industrialMapAlertTimer = null;
+    const INDUSTRIAL_MAP_RECENT_ORDER_WINDOW_MS = 5 * 60 * 1000;
     let pendingMove = null;
     let isLoadingRemote = false;
     let taxonomySupabaseAvailable = false;
@@ -29483,15 +29495,38 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function orderAlertForAsset(assetId) {
       const active = activeOrdersForAsset(assetId);
       if (!active.length) return null;
+      const now = Date.now();
+      const newest = active.reduce((latest, order) => Math.max(latest, Number(timeValue(order.createdAt || order.openedAt) || 0)), 0);
+      const ageMs = newest ? now - newest : Number.POSITIVE_INFINITY;
+      if (ageMs >= 0 && ageMs <= INDUSTRIAL_MAP_RECENT_ORDER_WINDOW_MS) {
+        return { className: "recent", count: active.length, label: "O.S aberta há menos de 5 minutos" };
+      }
       if (active.some(order => isRunningOrder(order.status))) {
         return { className: "running", count: active.length, label: "O.S em execução" };
       }
-      const newest = active.reduce((latest, order) => Math.max(latest, Number(order.createdAt || 0)), 0);
-      const ageMs = Date.now() - newest;
-      if (ageMs <= 5 * 60 * 1000) {
-        return { className: "recent", count: active.length, label: "O.S aberta recentemente" };
+      if (active.some(order => normalizeTextKey(order.status).includes("aguardando material"))) {
+        return { className: "material", count: active.length, label: "O.S aguardando material" };
+      }
+      if (active.some(order => normalizeTextKey(order.status).startsWith("paus"))) {
+        return { className: "paused", count: active.length, label: "O.S pausada" };
       }
       return { className: "waiting", count: active.length, label: "O.S aberta aguardando início" };
+    }
+    function scheduleIndustrialMapAlertRefresh() {
+      clearTimeout(industrialMapAlertTimer);
+      industrialMapAlertTimer = null;
+      if (!$('industrialMap')) return;
+      const now = Date.now();
+      const nextRecent = state.orders
+        .filter(order => !isClosedOrder(order.status))
+        .map(order => Number(timeValue(order.createdAt || order.openedAt) || 0))
+        .filter(createdAt => createdAt > now - INDUSTRIAL_MAP_RECENT_ORDER_WINDOW_MS && createdAt <= now)
+        .sort((a, b) => a - b)[0];
+      if (!nextRecent) return;
+      industrialMapAlertTimer = setTimeout(() => {
+        industrialMapAlertTimer = null;
+        if ($('industrialMap')) renderMap();
+      }, Math.max(250, nextRecent + INDUSTRIAL_MAP_RECENT_ORDER_WINDOW_MS - Date.now() + 50));
     }
     function autoResizeLocations() {
       const regionPalette = ["#ff8a4c", "#60a5fa", "#4ade80", "#facc15", "#fb7185", "#a78bfa"];
@@ -29673,9 +29708,10 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const machines = visibleAssets.map(asset => {
         const alert = orderAlertForAsset(asset.id);
         const photo = String(asset.photo || "").trim();
+        const alertLabel = alert ? `${alert.count} ${alert.label}` : "";
         return `
-          <button class="machine-node match ${photo ? "has-photo" : ""}" data-machine="${escapeHtml(asset.id)}" style="left:${asset.x}%;top:${mapVisualY(asset.y, extentY)}%;" aria-label="${escapeHtml(`${asset.code || "Sem TAG"} - ${asset.name || "Equipamento"}`)}">
-            <span class="machine-icon"><span class="machine-icon-fallback">${visualIcon(asset.icon)}</span>${photo ? `<img class="machine-photo" src="${escapeHtml(photo)}" alt="Foto de ${escapeHtml(asset.name || "equipamento")}" loading="lazy">` : ""}${alert ? `<span class="machine-alert ${alert.className}">${alert.count}</span>` : ""}</span>
+          <button class="machine-node match ${photo ? "has-photo" : ""}" data-machine="${escapeHtml(asset.id)}" style="left:${asset.x}%;top:${mapVisualY(asset.y, extentY)}%;" aria-label="${escapeHtml(`${asset.code || "Sem TAG"} - ${asset.name || "Equipamento"}${alertLabel ? ` · ${alertLabel}` : ""}`)}">
+            <span class="machine-icon"><span class="machine-icon-fallback">${visualIcon(asset.icon)}</span>${photo ? `<img class="machine-photo" src="${escapeHtml(photo)}" alt="Foto de ${escapeHtml(asset.name || "equipamento")}" loading="lazy">` : ""}${alert ? `<span class="machine-alert ${alert.className}" title="${escapeHtml(alert.label)}" aria-label="${escapeHtml(alertLabel)}">${alert.count}</span>` : ""}</span>
             <span class="machine-label"><strong>${escapeHtml(asset.code || "SEM TAG")}</strong><small>${escapeHtml(asset.name || "Equipamento")}</small><span class="machine-state">${escapeHtml(ptBrText(asset.status || "Sem status"))} · ${escapeHtml(ptBrText(asset.criticality || "Sem criticidade"))}</span></span>
           </button>`;
       }).join("");
@@ -29706,6 +29742,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           openMachineMenu(event, button.dataset.machine);
         });
       });
+      scheduleIndustrialMapAlertRefresh();
     }
     function startMachineDrag(event, id) {
       if (event.button !== 0) return;

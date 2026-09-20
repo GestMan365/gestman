@@ -58,6 +58,49 @@ test("entrada autenticada sempre começa em Visão Geral", async ({ page }) => {
   expect(await page.evaluate(() => window.eval("savedActiveView()"))).toBe("dashboard");
 });
 
+test("indicador do mapa sinaliza O.S. nova e acompanha o andamento", async ({ page }) => {
+  await page.goto("./");
+  const alerts = await page.evaluate(() => window.eval(`(() => {
+    const now = Date.now();
+    state.orders = [
+      { id:"map-recent", assetId:"asset-recent", status:"Em execução", createdAt:now - 30_000 },
+      { id:"map-running", assetId:"asset-running", status:"Em execução", createdAt:now - 3600_000 },
+      { id:"map-material", assetId:"asset-material", status:"Aguardando material", createdAt:now - 3600_000 },
+      { id:"map-paused", assetId:"asset-paused", status:"Pausada", createdAt:now - 3600_000 },
+      { id:"map-open", assetId:"asset-open", status:"Aberta", createdAt:now - 3600_000 }
+    ];
+    return ["recent", "running", "material", "paused", "open"].map(key => {
+      const alert = orderAlertForAsset("asset-" + key);
+      return { key, className:alert?.className, label:alert?.label, count:alert?.count };
+    });
+  })()`));
+
+  expect(alerts).toEqual([
+    { key:"recent", className:"recent", label:"O.S aberta há menos de 5 minutos", count:1 },
+    { key:"running", className:"running", label:"O.S em execução", count:1 },
+    { key:"material", className:"material", label:"O.S aguardando material", count:1 },
+    { key:"paused", className:"paused", label:"O.S pausada", count:1 },
+    { key:"open", className:"waiting", label:"O.S aberta aguardando início", count:1 },
+  ]);
+
+  const marker = await page.evaluate(() => window.eval(`(() => {
+    const now = Date.now();
+    state.regions = [{ id:"map-region", name:"Linha de Produção", x:2, y:2, w:96, h:90 }];
+    state.locations = [{ id:"map-location", regionId:"map-region", name:"Linha 01", type:"Linha", x:8, y:12, w:80, h:70, color:"#2387ff" }];
+    state.assets = [{ id:"asset-recent", code:"EQP-01", name:"Máquina 01", locationId:"map-location", x:50, y:50, status:"Operando", criticality:"Alta" }];
+    state.orders = [{ id:"map-recent", assetId:"asset-recent", status:"Em execução", createdAt:now - 30_000 }];
+    renderMap();
+    const alert = document.querySelector("#industrialMap .machine-alert");
+    return { className:alert?.className, text:alert?.textContent, title:alert?.getAttribute("title"), aria:alert?.getAttribute("aria-label") };
+  })()`));
+  expect(marker).toEqual({
+    className:"machine-alert recent",
+    text:"1",
+    title:"O.S aberta há menos de 5 minutos",
+    aria:"1 O.S aberta há menos de 5 minutos",
+  });
+});
+
 test("rota de ativo abre detalhe e voltar retorna à lista", async ({ page }) => {
   await page.goto("./?empresa=nadir&modulo=ativos-e-equipamentos");
   await prepareRouteAccount(page);
