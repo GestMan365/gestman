@@ -58,8 +58,10 @@ test("entrada autenticada sempre começa em Visão Geral", async ({ page }) => {
   expect(await page.evaluate(() => window.eval("savedActiveView()"))).toBe("dashboard");
 });
 
-test("indicador do mapa sinaliza O.S. nova e acompanha o andamento", async ({ page }) => {
+test("indicador do mapa sinaliza O.S. nova e acompanha o andamento", async ({ page }, testInfo) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.goto("./");
+  await prepareRouteAccount(page);
   const alerts = await page.evaluate(() => window.eval(`(() => {
     const now = Date.now();
     state.orders = [
@@ -99,6 +101,37 @@ test("indicador do mapa sinaliza O.S. nova e acompanha o andamento", async ({ pa
     title:"O.S aberta há menos de 5 minutos",
     aria:"1 O.S aberta há menos de 5 minutos",
   });
+  await page.evaluate(() => window.eval('setView("map")'));
+  const badge = page.locator("#industrialMap .machine-alert");
+  await badge.scrollIntoViewIfNeeded();
+  await expect(badge).toBeVisible();
+  const geometry = await badge.evaluate(el => {
+    const rect = el.getBoundingClientRect();
+    const parent = el.parentElement!;
+    const card = parent.getBoundingClientRect();
+    return {
+      parent: parent.classList.contains("machine-node"),
+      hit: document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2) === el,
+      upperRight: rect.right >= card.right - 2 && rect.top < card.top + 2,
+      animation: getComputedStyle(el).animationName,
+    };
+  });
+  expect(geometry).toEqual({ parent: true, hit: true, upperRight: true, animation: "alertRed" });
+  await page.locator("#industrialMap").screenshot({ path: testInfo.outputPath("map-alert.png") });
+  await page.evaluate(() => window.eval(`
+    state.orders[0].createdAt = Date.now() - 299000;
+    renderMap();
+    renderActiveOrdersPanel("activeOrdersPanel");
+  `));
+  await expect(badge).toHaveClass("machine-alert recent");
+  await expect(page.locator("#activeOrdersPanel .os-live-card")).toHaveClass(/recent/);
+  await expect(badge).toHaveClass("machine-alert running");
+  await expect(page.locator("#activeOrdersPanel .os-live-card")).toHaveClass(/running/);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.evaluate(() => window.eval('state.orders[0].createdAt = Date.now(); renderMap();'));
+  expect(await badge.evaluate(el => getComputedStyle(el).animationName)).toBe("none");
+  await page.evaluate(() => window.eval('state.orders[0].status = "Concluída"; renderMap();'));
+  await expect(badge).toHaveCount(0);
 });
 
 test("rota de ativo abre detalhe e voltar retorna à lista", async ({ page }) => {

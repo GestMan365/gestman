@@ -15933,6 +15933,11 @@ body.theme-light .gm-icon-surface {
 }
 #map .machine-alert {
   z-index: 3;
+  top: -8px;
+  right: -8px;
+}
+#map .machine-alert.recent {
+  animation: alertRed 1.8s ease-in-out infinite !important;
 }
 #map .machine-label {
   display: grid;
@@ -16354,6 +16359,42 @@ body.panel-mode .os-live-desc span {
 #activeOrdersPanel .os-live-card {
   align-self: start;
   overflow: hidden;
+}
+/* Independent overlay: legacy !important shadows must not suppress the signal. */
+:is(#activeOrdersPanel, #dashboardActiveOrders) .os-live-card {
+  position: relative;
+  isolation: isolate;
+  --os-signal: #039df4;
+}
+:is(#activeOrdersPanel, #dashboardActiveOrders) .os-live-card.recent,
+:is(#activeOrdersPanel, #dashboardActiveOrders) .os-live-card.overdue { --os-signal: #ef4444; }
+:is(#activeOrdersPanel, #dashboardActiveOrders) .os-live-card.running { --os-signal: #22c55e; }
+:is(#activeOrdersPanel, #dashboardActiveOrders) .os-live-card.material { --os-signal: #f5b82e; }
+:is(#activeOrdersPanel, #dashboardActiveOrders) .os-live-card.paused { --os-signal: #f97316; }
+:is(#activeOrdersPanel, #dashboardActiveOrders) .os-live-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 3px solid var(--os-signal);
+  border-radius: inherit;
+  box-shadow: inset 0 0 22px -8px var(--os-signal);
+  pointer-events: none;
+  z-index: 2;
+  animation: gmOrderCardSignal 1.8s ease-in-out infinite !important;
+}
+:is(#activeOrdersPanel, #dashboardActiveOrders) .live-dot {
+  color: var(--os-signal);
+}
+@keyframes gmOrderCardSignal {
+  0%, 100% { opacity: .25; }
+  50% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(#activeOrdersPanel, #dashboardActiveOrders) .os-live-card::after {
+    animation: none !important;
+    opacity: 1;
+  }
+  #map .machine-alert.recent { animation: none !important; }
 }
 #activeOrdersPanel .os-live-head {
   grid-template-columns: 56px minmax(0, 1fr) auto;
@@ -29498,7 +29539,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const now = Date.now();
       const newest = active.reduce((latest, order) => Math.max(latest, Number(timeValue(order.createdAt || order.openedAt) || 0)), 0);
       const ageMs = newest ? now - newest : Number.POSITIVE_INFINITY;
-      if (ageMs >= 0 && ageMs <= INDUSTRIAL_MAP_RECENT_ORDER_WINDOW_MS) {
+      if (ageMs >= 0 && ageMs < INDUSTRIAL_MAP_RECENT_ORDER_WINDOW_MS) {
         return { className: "recent", count: active.length, label: "O.S aberta há menos de 5 minutos" };
       }
       if (active.some(order => isRunningOrder(order.status))) {
@@ -29526,6 +29567,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       industrialMapAlertTimer = setTimeout(() => {
         industrialMapAlertTimer = null;
         if ($('industrialMap')) renderMap();
+        renderActiveOrdersPanel("dashboardActiveOrders", 4);
+        renderActiveOrdersPanel("activeOrdersPanel");
       }, Math.max(250, nextRecent + INDUSTRIAL_MAP_RECENT_ORDER_WINDOW_MS - Date.now() + 50));
     }
     function autoResizeLocations() {
@@ -29711,7 +29754,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         const alertLabel = alert ? `${alert.count} ${alert.label}` : "";
         return `
           <button class="machine-node match ${photo ? "has-photo" : ""}" data-machine="${escapeHtml(asset.id)}" style="left:${asset.x}%;top:${mapVisualY(asset.y, extentY)}%;" aria-label="${escapeHtml(`${asset.code || "Sem TAG"} - ${asset.name || "Equipamento"}${alertLabel ? ` · ${alertLabel}` : ""}`)}">
-            <span class="machine-icon"><span class="machine-icon-fallback">${visualIcon(asset.icon)}</span>${photo ? `<img class="machine-photo" src="${escapeHtml(photo)}" alt="Foto de ${escapeHtml(asset.name || "equipamento")}" loading="lazy">` : ""}${alert ? `<span class="machine-alert ${alert.className}" title="${escapeHtml(alert.label)}" aria-label="${escapeHtml(alertLabel)}">${alert.count}</span>` : ""}</span>
+            <span class="machine-icon"><span class="machine-icon-fallback">${visualIcon(asset.icon)}</span>${photo ? `<img class="machine-photo" src="${escapeHtml(photo)}" alt="Foto de ${escapeHtml(asset.name || "equipamento")}" loading="lazy">` : ""}</span>
+            ${alert ? `<span class="machine-alert ${alert.className}" title="${escapeHtml(alert.label)}" aria-label="${escapeHtml(alertLabel)}">${alert.count}</span>` : ""}
             <span class="machine-label"><strong>${escapeHtml(asset.code || "SEM TAG")}</strong><small>${escapeHtml(asset.name || "Equipamento")}</small><span class="machine-state">${escapeHtml(ptBrText(asset.status || "Sem status"))} · ${escapeHtml(ptBrText(asset.criticality || "Sem criticidade"))}</span></span>
           </button>`;
       }).join("");
@@ -33038,19 +33082,25 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             const executor = osPanelExecutorNames(order);
             const asset = byId(state.assets, order.assetId) || {};
             const location = byId(state.locations, asset.locationId) || {};
-            const ageMs = Date.now() - Number(order.createdAt || Date.now());
+            const openedAt = Number(timeValue(order.createdAt || order.openedAt) || 0);
+            const ageMs = openedAt ? Date.now() - openedAt : Number.POSITIVE_INFINITY;
             const photo = String(asset.photo || "").trim();
             const dueState = orderDueState(order);
             const title = orderTitle(order);
             const description = order.description || order.maintenance || "Sem descrição informada.";
             const showDescription = normalizeTextKey(description) !== normalizeTextKey(title);
-            const liveState = running
-              ? { className: "running", label: "EM EXECUÇÃO" }
-              : overdue
-                ? { className: "overdue", label: "ATENDIMENTO ATRASADO" }
-                : ageMs <= 5 * 60 * 1000
-                  ? { className: "recent", label: "ABERTA RECENTE" }
-                  : { className: "waiting", label: "AGUARDANDO ATENDIMENTO" };
+            const statusKey = normalizeTextKey(order.status);
+            const liveState = ageMs >= 0 && ageMs < INDUSTRIAL_MAP_RECENT_ORDER_WINDOW_MS
+              ? { className: "recent", label: "ABERTA RECENTE" }
+              : running
+                ? { className: "running", label: "EM EXECUÇÃO" }
+                : statusKey.includes("aguardando material")
+                  ? { className: "material", label: "AGUARDANDO MATERIAL" }
+                  : statusKey.startsWith("paus")
+                    ? { className: "paused", label: "PAUSADA" }
+                    : overdue
+                      ? { className: "overdue", label: "ATENDIMENTO ATRASADO" }
+                      : { className: "waiting", label: "AGUARDANDO ATENDIMENTO" };
             return `
               <article class="os-live-card ${liveState.className}">
                 <div class="os-live-head">
@@ -33062,8 +33112,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
                 <div class="os-live-data">
                   <span><small>Status</small>${orderStatusChip(order)}</span>
                   <span><small>Prioridade</small>${orderPriorityChip(order.priority)}</span>
-                  <span><small>Horário de abertura</small>${formatTimeOnly(order.createdAt)}</span>
-                  <span><small>${running ? "Em atendimento" : "Aberta há"}</small>${elapsedLabel(running ? order.startedAt : order.createdAt)}</span>
+                  <span><small>Horário de abertura</small>${formatTimeOnly(openedAt)}</span>
+                  <span><small>${running ? "Em atendimento" : "Aberta há"}</small>${elapsedLabel(running ? order.startedAt : openedAt)}</span>
                   <span><small>Prazo</small>${escapeHtml(dueState.label)}</span>
                   <span><small>Executante</small>${escapeHtml(executor)}</span>
                   <span><small>Tipo</small>${escapeHtml(ptBrText(order.type || order.maintenanceType || "Não informado"))}</span>

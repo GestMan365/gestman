@@ -2,6 +2,46 @@ import { expect, test, type Page } from "@playwright/test";
 
 const companyLogo = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M/wHwAF/gL+AvzRkwAAAABJRU5ErkJggg==";
 
+test("card inteiro pulsa por andamento, expira o alerta recente e respeita movimento reduzido", async ({ page }, testInfo) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await prepareOperationalPanel(page);
+  const card = page.locator("#activeOrdersPanel .os-live-card");
+  const cases = [
+    { status: "Em execução", age: 60000, signal: "recent", color: "rgb(239, 68, 68)" },
+    { status: "Em execução", age: 300000, signal: "running", color: "rgb(34, 197, 94)" },
+    { status: "Aguardando material", age: 3600000, signal: "material", color: "rgb(245, 184, 46)" },
+    { status: "Pausada", age: 3600000, signal: "paused", color: "rgb(249, 115, 22)" },
+    { status: "Aberta", age: 3600000, signal: "waiting", color: "rgb(3, 157, 244)" },
+  ];
+  for (const theme of ["dark", "light"]) {
+    await page.evaluate(theme => document.body.classList.toggle("theme-light", theme === "light"), theme);
+    for (const scenario of cases) {
+      await page.evaluate(({ status, age }) => window.eval(`
+        state.orders[0].status = ${JSON.stringify(status)};
+        state.orders[0].createdAt = new Date(Date.now() - ${age}).toISOString();
+        renderActiveOrdersPanel("activeOrdersPanel");
+      `), scenario);
+      await expect(card).toHaveClass(new RegExp(scenario.signal));
+      await expect(card).not.toContainText("Invalid Date");
+      const style = await card.evaluate(el => {
+        const s = getComputedStyle(el, "::after");
+        return { animation: s.animationName, color: s.borderTopColor, pointer: s.pointerEvents, inset: s.top };
+      });
+      expect(style).toEqual({ animation: "gmOrderCardSignal", color: scenario.color, pointer: "none", inset: "0px" });
+      if (scenario.signal === "recent") {
+        await card.screenshot({ path: testInfo.outputPath(`card-recent-${theme}.png`) });
+      }
+    }
+  }
+  const opacity = await card.evaluate(el => getComputedStyle(el, "::after").opacity);
+  await expect.poll(() => card.evaluate(el => getComputedStyle(el, "::after").opacity)).not.toBe(opacity);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  expect(await card.evaluate(el => getComputedStyle(el, "::after").animationName)).toBe("none");
+  await page.evaluate(() => window.eval('state.orders[0].status = "Concluída"; renderActiveOrdersPanel("activeOrdersPanel");'));
+  await expect(card).toHaveCount(0);
+});
+
 async function prepareOperationalPanel(page: Page) {
   await page.goto("./?panel=os");
   await page.evaluate((logo) => {
