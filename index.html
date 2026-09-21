@@ -20651,11 +20651,20 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
   </style>
   <link rel="stylesheet" href="assets/ui/gestman-navbar-refinement.css">
+  <style id="os-panel-entry-guard">
+    body.os-panel-booting :is(.workspace, .topbar, .nav, .reference-topbar, .platform-owner-header, .mobile-bottom-nav) {
+      visibility: hidden !important;
+    }
+  </style>
 </head>
 <body class="auth-loading auth-restoring">
   <script id="design-theme-bootstrap">
     (() => {
       document.body.classList.add("gm-top-navigation");
+      // Resolve the dedicated destination before any application content can paint.
+      if (new URLSearchParams(window.location.search).get("panel") === "os") {
+        document.body.classList.add("os-panel-booting");
+      }
       try {
         const savedTheme = localStorage.getItem("gestman365-theme");
         const initialTheme = savedTheme === "light" ? "light" : "dark";
@@ -25664,6 +25673,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       renderProfile();
       if (currentAccount && isPlatformAdmin()) {
         setView(platformRouteView() || "platformRequests", { persist:false, silent:true, route:false });
+        document.body.classList.remove("os-panel-booting");
       }
     }
     function reloadTenantData() {
@@ -27314,6 +27324,10 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     function openOverviewAfterAuthentication() {
       if (!currentAccount || isPlatformAdmin()) return false;
+      if (isPanelMode()) {
+        applyPanelMode();
+        return false;
+      }
       const overviewView = canAccessView("dashboard") ? "dashboard" : firstAllowedView();
       setView(overviewView, { persist:true, silent:true, replaceRoute:true });
       return overviewView === "dashboard";
@@ -27377,7 +27391,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (willOpen) $("dashboardPlantFilter")?.focus();
     }
     const MOBILE_OPERATIONAL_VIEWS = new Set(["dashboard","orders","checklists","measurements","pendingActions","downtime","operationalDiary","assets","documentsCenter","materialRequests"]);
-    function mobileOperationalViewAllowed(view) { return !isMobileOperational() || MOBILE_OPERATIONAL_VIEWS.has(view); }
+    function mobileOperationalViewAllowed(view) { return !isMobileOperational() || MOBILE_OPERATIONAL_VIEWS.has(view) || (view === "activeOrders" && isPanelMode()); }
     function setView(view, options = {}) {
       if (!currentAccount) return;
       if (!isPlatformAdmin() && !mobileOperationalViewAllowed(view)) {
@@ -27507,12 +27521,14 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       document.documentElement.requestFullscreen?.().catch(() => showToast("O navegador não permitiu abrir em tela cheia.", "warning"));
     }
     function applyPanelMode() {
-      if (!isPanelMode()) return;
+      if (!isPanelMode() || !currentAccount) return;
       document.body.classList.add("panel-mode");
       document.title = "Painel O.S - GestMan365";
       renderOsPanelBrand();
       restoreOsPanelFilterState();
-      setView("activeOrders");
+      setView("activeOrders", { persist:false, silent:true, route:false });
+      document.body.classList.remove("os-panel-booting");
+      if (!isPanelMode()) return;
       updateIndustrialClock();
       setupOsPanelLiveSync();
       schedulePanelAutoScroll(2500);
@@ -40386,7 +40402,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         const routedPlatformView = platformRouteView() || "platformRequests";
         if (isPlatformAdmin()) setView(routedPlatformView, { persist:false, silent:true, route:false });
         else openOverviewAfterAuthentication();
-        applyPanelMode();
         return true;
       } catch (error) {
         gmClearSession();
@@ -41452,7 +41467,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       captureSyncBaseline();
       applyAuthState();
       openOverviewAfterAuthentication();
-      applyPanelMode();
       loadSupabaseState(false);
     } else {
       applyAuthState();

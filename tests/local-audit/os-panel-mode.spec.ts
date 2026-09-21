@@ -44,15 +44,20 @@ test("card inteiro pulsa por andamento, expira o alerta recente e respeita movim
 
 async function prepareOperationalPanel(page: Page) {
   await page.goto("./?panel=os");
+  await expect(page.locator("body")).toHaveClass(/os-panel-booting/);
+  // Emulate the async gap after session restoration, before tenant data is ready.
+  await page.evaluate(() => {
+    document.body.classList.remove("auth-required", "auth-loading", "auth-restoring");
+  });
+  await expect(page.locator("#dashboard")).toBeHidden();
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  await expect(page.locator("#dashboard")).toBeHidden();
   await page.evaluate((logo) => {
     document.body.classList.remove("auth-required", "auth-loading");
-    document.body.classList.add("panel-mode");
-    document.querySelectorAll<HTMLElement>(".view").forEach(view => view.classList.remove("active"));
-    document.querySelector<HTMLElement>("#activeOrders")!.classList.add("active");
     window.eval(`
       currentAccount = {
         user: { id: "audit-admin", role: "admin", accessProfile: "admin", name: "Auditor" },
-        company: { id: "audit-company", name: "Indústria Auditada" }
+        company: { id: "audit-company", name: "Indústria Auditada", remoteSync: false }
       };
       state = {
         ...state,
@@ -86,10 +91,33 @@ async function prepareOperationalPanel(page: Page) {
       };
       renderOsPanelBrand();
       setOsPanelFiltersCollapsed(false, false);
-      renderActiveOrdersPanel("activeOrdersPanel");
+      openOverviewAfterAuthentication();
     `);
   }, companyLogo);
+  await expect(page.locator("body")).not.toHaveClass(/os-panel-booting/);
+  await expect(page.locator("body")).toHaveClass(/panel-mode/);
+  await expect(page.locator("#dashboard")).toBeHidden();
+  await expect(page.locator("#activeOrders")).toBeVisible();
+  expect(new URL(page.url()).searchParams.get("panel")).toBe("os");
 }
+
+test("link do painel não expõe dashboard nem pula login sem sessão", async ({ page }) => {
+  await page.goto("./?panel=os&modulo=visao-geral");
+  await expect(page.locator("#dashboard")).toBeHidden();
+  await expect(page.locator("#authLoginForm")).toBeVisible();
+  expect(await page.evaluate(() => window.eval("currentAccount"))).toBeNull();
+});
+
+test("nova aba preserva destino explícito do painel", async ({ page }) => {
+  await page.goto("./?modulo=visao-geral");
+  const popupPromise = page.waitForEvent("popup");
+  await page.evaluate(() => window.eval("openOsPanelWindow()"));
+  const popup = await popupPromise;
+  await popup.waitForLoadState("domcontentloaded");
+  expect(new URL(popup.url()).searchParams.get("panel")).toBe("os");
+  await expect(popup.locator("#dashboard")).toBeHidden();
+  await expect(popup.locator("body")).toHaveClass(/os-panel-booting/);
+});
 
 test("painel de O.S. é independente, exibe as duas marcas e permite ocultar filtros", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
