@@ -20652,6 +20652,11 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   </style>
   <link rel="stylesheet" href="assets/ui/gestman-navbar-refinement.css">
   <style id="os-panel-entry-guard">
+    .gm-live-health { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:6px 10px; margin-bottom:8px; font-size:12px; color:var(--muted); }
+    .gm-live-health button { font:inherit; min-height:32px; color:inherit; background:transparent; border:1px solid currentColor; border-radius:6px; padding:4px 8px; cursor:pointer; }
+    .gm-live-health button:focus-visible { outline:2px solid #38bdf8; outline-offset:2px; }
+    body.gm-alerts-paused .machine-alert.recent,
+    body.gm-alerts-paused :is(#activeOrdersPanel, #dashboardActiveOrders) .os-live-card::after { animation:none !important; opacity:1; }
     body.os-panel-booting :is(.workspace, .topbar, .nav, .reference-topbar, .platform-owner-header, .mobile-bottom-nav) {
       visibility: hidden !important;
     }
@@ -33865,6 +33870,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       standardizeUiComponents();
       normalizeModuleLabels();
       syncActiveApplicationRouteFilters();
+      gmRenderLiveHealth();
     }
     const CRUD_FORM_CONFIG = {
       assetForm: { panelId: "assetFormPanel", tableBodyId: "assetRows", createLabel: "Criar equipamento", firstField: "assetCode", reset: resetAssetForm },
@@ -39325,25 +39331,86 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     $("resetDowntimeForm").addEventListener("click", resetDowntimeForm);
     $("resetMeasurementForm").addEventListener("click", resetMeasurementForm);
     $("resetOperationalDiaryForm").addEventListener("click", resetOperationalDiaryForm);
-    setInterval(() => {
-      if (!currentAccount) return;
-      renderMap();
-      renderTables();
-      renderActiveOrdersPanel("dashboardActiveOrders", 4);
-      renderActiveOrdersPanel("activeOrdersPanel");
-      renderCalendar();
-      renderDashboardStops();
-      renderDashboardExecutors();
-      renderDashboardLowStock();
-      renderReports();
-      renderAssistantSummary();
-    }, UI_REFRESH_INTERVAL_MS);
+    var gmLiveHealth = { companyId:"", checkedAt:0, failed:false };
+    function gmRenderLiveHealth() {
+      const view = document.querySelector(".view.active");
+      if (!currentAccount || !view) return;
+      if (gmLiveHealth.companyId !== currentAccount.company?.id) {
+        gmLiveHealth = { companyId:currentAccount.company?.id, checkedAt:0, failed:false };
+      }
+      let root = view.querySelector(".gm-live-health");
+      if (!root) {
+        root = document.createElement("div");
+        root.className = "gm-live-health";
+        const status = document.createElement("span");
+        status.setAttribute("role", "status");
+        root.append(status);
+        const button = document.createElement("button");
+        button.type = "button";
+        button.addEventListener("click", () => {
+          document.body.classList.toggle("gm-alerts-paused");
+          gmRenderLiveHealth();
+        });
+        root.append(button);
+        view.prepend(root);
+      }
+      const last = gmLiveHealth.checkedAt ? new Date(gmLiveHealth.checkedAt).toLocaleTimeString("pt-BR") : "";
+      root.querySelector("span").textContent = !navigator.onLine
+        ? "Sem conexão — dados podem estar desatualizados."
+        : gmLiveHealth.failed ? "Falha ao atualizar — dados podem estar desatualizados."
+        : last ? "Última verificação: " + last + (gmBackgroundRefreshBlocked() ? " · Atualização automática adiada durante interação." : "")
+        : "Aguardando confirmação dos dados.";
+      const paused = document.body.classList.contains("gm-alerts-paused");
+      const button = root.querySelector("button");
+      button.textContent = paused ? "Retomar animações de alerta" : "Pausar animações de alerta";
+      button.setAttribute("aria-pressed", String(paused));
+    }
+    function gmBackgroundRefreshBlocked() {
+      if (document.visibilityState === "hidden") return true;
+      if (document.querySelector(".modal.open, #genericModal.open, .platform-dialog.open")) return true;
+      const active = document.activeElement;
+      if (active?.matches("input, textarea, select, [contenteditable='true']")) return true;
+      return Array.from(document.querySelectorAll(".view.active form, .view.active .form-panel"))
+        .some(element => element.getClientRects().length && getComputedStyle(element).visibility !== "hidden");
+    }
+    function gmRenderPreservingViewport(renderer) {
+      const view = document.querySelector(".view.active");
+      const elements = [document.querySelector(".workspace"), view, ...(view?.querySelectorAll("*") || [])].filter(Boolean);
+      const positions = elements.filter(el => el.scrollTop || el.scrollLeft)
+        .map(el => ({ el, id:el.id, top:el.scrollTop, left:el.scrollLeft }));
+      const filters = elements.filter(el => el.id && el.matches("input:not([type='password']):not([type='file']), select")
+        && !el.closest("form")).map(el => ({ id:el.id, value:el.value, checked:el.checked }));
+      renderer();
+      filters.forEach(saved => {
+        const el = document.getElementById(saved.id);
+        if (el) { el.value = saved.value; if ("checked" in el) el.checked = saved.checked; }
+      });
+      positions.forEach(saved => {
+        const el = saved.el.isConnected ? saved.el : saved.id ? document.getElementById(saved.id) : null;
+        if (el) { el.scrollTop = saved.top; el.scrollLeft = saved.left; }
+      });
+    }
+    function gmRefreshVisibleTimers() {
+      gmRenderLiveHealth();
+      if (!currentAccount || gmBackgroundRefreshBlocked()) return;
+      const active = document.querySelector(".view.active")?.id;
+      gmRenderPreservingViewport(() => {
+        if (active === "activeOrders") renderActiveOrdersPanel("activeOrdersPanel");
+        if (active === "dashboard") {
+          renderActiveOrdersPanel("dashboardActiveOrders", 4);
+          renderDashboardStops();
+          renderDashboardExecutors();
+        }
+      });
+    }
+    setInterval(gmRefreshVisibleTimers, UI_REFRESH_INTERVAL_MS);
     setInterval(() => {
       if (!currentAccount || !SUPABASE_READY || $("genericModal").classList.contains("open")) return;
       loadSupabaseState(false);
     }, REMOTE_REFRESH_INTERVAL_MS);
     window.addEventListener("focus", () => { if (currentAccount) loadSupabaseState(false); });
     window.addEventListener("online", () => { if (currentAccount) loadSupabaseState(true); });
+    window.addEventListener("offline", gmRenderLiveHealth);
     document.addEventListener("visibilitychange", () => {
       if (currentAccount && document.visibilityState === "visible") loadSupabaseState(false);
     });
@@ -40102,12 +40169,24 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     async function loadSupabaseState(showMessage = true, force = false) {
       if (!currentAccount || !SUPABASE_READY || isLoadingRemote) return false;
       if (gmStateDirty && !force) return false;
+      if (!force && gmBackgroundRefreshBlocked()) return false;
+      const requestedAccount = currentAccount;
+      const requestedVersion = gmRemoteStateVersion;
       isLoadingRemote = true;
       try {
         const rows = await gmRpc("gm_load_tenant_state", {});
         const remote = Array.isArray(rows) ? rows[0] : rows;
         if (!remote) throw new Error("GM_COMPANY_STATE_NOT_FOUND");
-        if (isPanelMode() && gmRemoteStateUpdatedAt && Number(remote.version || 0) === gmRemoteStateVersion && remote.updated_at === gmRemoteStateUpdatedAt) return true;
+        if (currentAccount !== requestedAccount) return false;
+        if (!force && (gmStateDirty || gmRemoteStateVersion !== requestedVersion || gmBackgroundRefreshBlocked())) return false;
+        await gmLoadOperationalUsers(false);
+        if (currentAccount !== requestedAccount) return false;
+        if (!force && (gmStateDirty || gmRemoteStateVersion !== requestedVersion || gmBackgroundRefreshBlocked())) return false;
+        if (!force && gmRemoteStateUpdatedAt && Number(remote.version || 0) === gmRemoteStateVersion && remote.updated_at === gmRemoteStateUpdatedAt) {
+          gmLiveHealth = { companyId:currentAccount.company?.id, checkedAt:Date.now(), failed:false };
+          gmRenderLiveHealth();
+          return true;
+        }
         const nextState = gmNormalizeRemoteState(remote.state);
         state = nextState;
         gmRemoteStateVersion = Number(remote.version || 0);
@@ -40118,13 +40197,18 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         hasPendingLocalSync = false;
         hasSessionLocalChange = false;
         gmInvalidateMaintenanceMetrics();
-        await gmLoadOperationalUsers(false);
         captureSyncBaseline();
-        render();
+        gmRenderPreservingViewport(render);
+        gmLiveHealth = { companyId:currentAccount.company?.id, checkedAt:Date.now(), failed:false };
+        gmRenderLiveHealth();
         if (showMessage) showToast("Dados carregados do banco de dados.");
         return true;
       } catch (error) {
         stage21TechnicalLog("error", "supabase.state.load", error);
+        if (currentAccount === requestedAccount) {
+          gmLiveHealth.failed = true;
+          gmRenderLiveHealth();
+        }
         if (showMessage) showToast("Nao foi possivel carregar os dados do banco de dados.", "error");
         return false;
       } finally {
