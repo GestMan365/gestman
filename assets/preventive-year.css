@@ -1,0 +1,31 @@
+.gm-year-panel{min-width:0;margin:12px 0;padding:12px;border:1px solid #36516a;border-radius:10px;background:#0d1b2b}
+.gm-year-panel>summary{cursor:pointer;font-weight:750;padding:10px;min-height:40px}
+.gm-year-toolbar,.gm-year-legend{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:12px 0}
+.gm-year-toolbar label{display:flex;gap:8px;align-items:center}.gm-year-toolbar input{max-width:260px}
+.gm-year-scroll{overflow:auto;max-height:65vh;max-width:100%;border:1px solid #36516a;border-radius:8px}
+#preventivePlans .gm-year-table{border-collapse:separate;border-spacing:0;table-layout:fixed;width:max-content;min-width:100%}
+#preventivePlans table.gm-year-table{display:table!important}
+#preventivePlans .gm-year-table thead{display:table-header-group!important}
+#preventivePlans .gm-year-table tbody{display:table-row-group!important}
+#preventivePlans .gm-year-table tr{display:table-row!important}
+#preventivePlans .gm-year-table :is(th,td){display:table-cell!important;float:none!important}
+#preventivePlans .gm-year-table td::before{display:none!important}
+#preventivePlans .gm-year-table caption{display:table-caption!important;text-align:left}
+#preventivePlans .gm-year-table th,#preventivePlans .gm-year-table td{min-width:66px;width:66px;max-width:66px;padding:5px;border-right:1px solid #36516a;border-bottom:1px solid #36516a;white-space:normal;vertical-align:top}
+#preventivePlans .gm-year-table thead th{position:sticky;top:0;z-index:3;background:#102238}
+#preventivePlans .gm-year-table tr>:first-child{position:sticky;left:0;min-width:180px;width:180px;max-width:180px;background:#102238;z-index:2;overflow-wrap:anywhere}
+#preventivePlans .gm-year-table thead tr>:first-child{z-index:4}
+.gm-year-table small{display:block;font-size:10px;white-space:nowrap}.gm-year-table .gm-year-current{box-shadow:inset 0 0 0 2px #38bdf8}
+.gm-year-mark{display:block;width:100%;min-height:34px;margin:3px 0;border:1px solid transparent;border-radius:5px;font-weight:750;cursor:pointer}
+.gm-year-mark.late,.gm-year-legend .late{background:#991b1b;color:#fff}
+.gm-year-mark.done,.gm-year-legend .done{background:#166534;color:#fff}
+.gm-year-mark.future,.gm-year-legend .future{background:#1e40af;color:#fff}
+#preventivePlans .gm-year-table button.gm-year-mark{padding:4px!important;min-width:0!important;width:100%!important;color:#fff!important;white-space:nowrap!important}
+#preventivePlans .gm-year-table button.gm-year-mark.late{background:#991b1b!important}
+#preventivePlans .gm-year-table button.gm-year-mark.done{background:#166534!important}
+#preventivePlans .gm-year-table button.gm-year-mark.future{background:#1e40af!important}
+.gm-year-legend span{padding:5px 9px;border-radius:5px}.gm-year-mark:focus-visible{outline:3px solid #fbbf24;outline-offset:2px}
+body.theme-light .gm-year-panel{background:#fff;color:#15263a}
+body.theme-light #preventivePlans .gm-year-table :is(th,td){border-color:#cbd8e5}
+body.theme-light #preventivePlans .gm-year-table th,body.theme-light #preventivePlans .gm-year-table tr>:first-child{background:#edf3f8;color:#15263a}
+@media(max-width:600px){#preventivePlans .gm-year-table tr>:first-child{min-width:120px;width:120px;max-width:120px}.gm-year-toolbar label,.gm-year-toolbar input{max-width:100%}}
