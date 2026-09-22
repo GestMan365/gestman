@@ -26,7 +26,8 @@ por módulo será incremental. Adiar não salva rascunhos nem habilita modo offl
 1. Concorrência: validar contrato de versão, replay e unicidade
    empresa/plano/ocorrência em ambiente de teste. Dois navegadores/dispositivos,
    resposta perdida, rollback, OS e estoque. Trava de JavaScript não basta.
-2. Patrimônio: contrato de persistência, validação, pesquisa e detalhe/histórico.
+2. Patrimônio: frontend, validação, pesquisa e detalhe implementados.
+   Homologação remota e histórico patrimonial dedicado continuam separados.
 3. Peças: significado confirmado pelo operador: preço de referência cadastral,
    independente do custo médio de movimentações. Implementação frontend concluída;
    homologação de gravação real permanece separada, sem dados de produção nos testes.
@@ -54,4 +55,18 @@ Testes remotos/official não fazem parte dele.
 - Testes locais usam dados sintéticos e gravação simulada. Reabertura normalizada,
   falha, nova tentativa, entrada inválida e independência de custo são cobertos.
 - Nenhuma migration, SQL ou escrita remota de homologação foi executada.
-- Patrimônio continua desabilitado e não foi implementado neste lote.
+- Patrimônio foi habilitado no lote seguinte, descrito abaixo.
+
+## Patrimônio de ativos
+
+- Identificador opcional em assets[].patrimony no documento JSON existente.
+- Texto de até 80 caracteres, com zeros iniciais preservados; espaços externos
+  removidos e caracteres de controle rejeitados.
+- Edição, detalhe escapado e pesquisa do módulo incluem o identificador.
+- Duplicação e novo cadastro deixam o patrimônio vazio.
+- Cadastro só informa sucesso depois da confirmação da persistência existente.
+- Falhas mantêm formulário/ID e não prometem persistência local durável.
+- Não há nova constraint de unicidade ou garantia entre dispositivos.
+- Sem migration, alteração de Auth/RLS ou gravação remota de QA.
+- Testes locais simulam confirmação, falha e reabertura. Não comprovam
+  persistência em produção nem substituem homologação autorizada.
