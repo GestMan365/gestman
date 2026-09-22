@@ -11,8 +11,8 @@ function expect(condition, message) {
 
 expect(index === fallback, "index.html e 404.html permanecem idênticos");
 expect(index.includes("id=\"assetPatrimony\" disabled"), "campo visual de patrimônio sem persistência presente");
-expect(index.includes("id=\"materialPartUnitValuePreview\" type=\"text\""), "campo visual de valor unitário presente");
-expect(index.includes("não possui persistência de valor unitário"), "limitação de persistência do valor unitário explícita");
+expect(index.includes("id=\"materialPartReferenceValue\" type=\"text\" inputmode=\"decimal\""), "preço de referência editável presente");
+expect(index.includes("Não altera o custo médio nem o valor do estoque."), "preço de referência separado da valorização do estoque");
 expect(index.includes("function materialFinancialInfo"), "cálculo financeiro derivado de entradas existente");
 expect(index.includes("#measurements .stage15-tabs"), "abas de medições mobile cobertas");
 expect(index.includes("--gm-page-gap"), "tokens visuais transversais presentes");

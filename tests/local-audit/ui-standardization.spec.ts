@@ -76,7 +76,7 @@ test("padrão visual mantém geometria, controles e overflow nas quatro dimensõ
   }
 });
 
-test("patrimônio e valor unitário são apresentados sem prometer persistência", async ({ page }) => {
+test("patrimônio permanece futuro e preço de referência fica separado do custo", async ({ page }) => {
   for (const viewport of [{ width: 1366, height: 768 }, { width: 390, height: 844 }]) {
     await page.setViewportSize(viewport);
     await page.goto("./");
@@ -85,9 +85,9 @@ test("patrimônio e valor unitário são apresentados sem prometer persistência
     await expect(page.locator("#assetPatrimony")).toBeDisabled();
     await expect(page.locator("#assetPatrimony").locator("xpath=..")).toContainText("persistência ainda não disponível");
     await page.evaluate(() => window.eval(`resetAssetForm(); setView("spares", { persist:false, route:false }); openMaterialPartForm();`));
-    await expect(page.locator("#materialPartUnitValuePreview")).toBeDisabled();
-    await expect(page.locator("#materialPartUnitValuePreview")).toHaveValue("R$ 0,00");
-    await expect(page.locator("#materialPartSimpleForm")).toContainText("não possui persistência de valor unitário");
+    await expect(page.locator("#materialPartReferenceValue")).toBeEnabled();
+    await expect(page.locator("#materialPartReferenceValue")).toHaveValue("0");
+    await expect(page.locator("#materialPartSimpleForm")).toContainText("Não altera o custo médio nem o valor do estoque.");
     const geometry = await page.evaluate(() => ({ innerWidth, documentWidth: document.documentElement.scrollWidth }));
     expect(geometry.documentWidth).toBeLessThanOrEqual(geometry.innerWidth + 1);
   }
