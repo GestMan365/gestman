@@ -1,4 +1,66 @@
 /* GestMan365 - refinamento da navbar superior */
+
+/* Iconografia do cabeçalho: SVGs locais, sem placas decorativas ou relevo.
+   Não altera o display dos ícones: os breakpoints continuam controlando espaço. */
+body.gm-top-navigation:not(.auth-required):not(.auth-loading) :is(#mainNavigation, .reference-topbar-actions) {
+  --gm-header-icon-color: #a8c9dc;
+  --gm-header-icon-active: #74d4f2;
+  --gm-header-focus: #74d4f2;
+}
+
+body.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) :is(#mainNavigation, .reference-topbar-actions) {
+  --gm-header-icon-color: #365b74;
+  --gm-header-icon-active: #075f93;
+  --gm-header-focus: #075f93;
+}
+
+body.gm-top-navigation:is(.theme-light, :not(.theme-light)):not(.auth-required):not(.auth-loading) #mainNavigation span:is(.tab-icon, .nav-group-icon) {
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+  padding: 0 !important;
+  color: var(--gm-header-icon-color) !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation :is(.tab-icon, .nav-group-icon)::before,
+body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation :is(.tab-icon, .nav-group-icon)::after {
+  content: none !important;
+  display: none !important;
+}
+
+body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation :is(.tab-icon, .nav-group-icon) > .gm-icon,
+body.gm-top-navigation:not(.auth-required):not(.auth-loading) .reference-topbar-actions :is(.reference-icon-button, .theme-icon) .gm-icon {
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  color: inherit !important;
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+body.gm-top-navigation:is(.theme-light, :not(.theme-light)):not(.auth-required):not(.auth-loading) #mainNavigation :is(.tab.active, .tab:hover, .tab:focus-visible, .nav-group[open] > summary, .nav-group > summary:hover, .nav-group > summary:focus-visible) span:is(.tab-icon, .nav-group-icon) {
+  color: var(--gm-header-icon-active) !important;
+}
+
+body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group > summary > i > .gm-icon,
+body.gm-top-navigation:not(.auth-required):not(.auth-loading) .reference-topbar-actions .reference-user-chevron > .gm-icon {
+  width: 12px !important;
+  height: 12px !important;
+  min-width: 12px !important;
+  color: inherit !important;
+  filter: none !important;
+}
+
+body.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation :is(button, summary):focus-visible,
+body.gm-top-navigation:not(.auth-required):not(.auth-loading) .reference-topbar-actions button:focus-visible {
+  outline: 2px solid var(--gm-header-focus) !important;
+  outline-offset: -3px !important;
+}
+
 @media (min-width: 901px) {
   body.gm-top-navigation:not(.auth-required):not(.auth-loading):not(.panel-mode) {
     --gm-header-height: 0px;
@@ -195,7 +257,7 @@
   }
 }
 
-@media (min-width: 901px) and (max-width: 1500px) {
+@media (min-width: 901px) and (max-width: 1699px) {
   body.gm-top-navigation:not(.auth-required):not(.auth-loading):not(.panel-mode) {
     --gm-brand-width: 122px;
     --gm-utility-reserve: 292px;

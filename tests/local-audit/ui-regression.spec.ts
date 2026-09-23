@@ -222,8 +222,25 @@ test("navegação superior mantém nomes visíveis e não oferece recolhimento",
   expect(wideHeader.versionElementPresent).toBe(false);
   expect(wideHeader.navigationItemsRight).toBeLessThanOrEqual(wideHeader.actions.x - 8);
 
+  const headerIcons = await page.locator('#mainNavigation :is(.nav-pinned .tab-icon, .nav-group > summary .nav-group-icon)').evaluateAll((icons) =>
+    icons.map((icon) => ({
+      background: getComputedStyle(icon).backgroundColor,
+      border: getComputedStyle(icon).borderTopWidth,
+      shadow: getComputedStyle(icon).boxShadow,
+      size: icon.querySelector('.gm-icon')!.getBoundingClientRect().width,
+    })),
+  );
+  expect(headerIcons).toHaveLength(8);
+  for (const icon of headerIcons) {
+    expect(icon.background).toBe('rgba(0, 0, 0, 0)');
+    expect(icon.border).toBe('0px');
+    expect(icon.shadow).toBe('none');
+    expect(icon.size).toBeCloseTo(20, 0);
+  }
+
   for (const viewport of [
     { width: 1920, height: 1080 },
+    { width: 1655, height: 931 },
     { width: 1366, height: 768 },
     { width: 1103, height: 621 },
     { width: 951, height: 535 },
@@ -299,6 +316,7 @@ test("navegação superior mantém nomes visíveis e não oferece recolhimento",
 
   for (const viewport of [
     { width: 1920, height: 1080 },
+    { width: 1655, height: 931 },
     { width: 951, height: 535 },
   ]) {
     await page.setViewportSize(viewport);
