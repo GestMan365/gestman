@@ -20653,10 +20653,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   <link rel="stylesheet" href="assets/ui/gestman-navbar-refinement.css">
   <style id="os-panel-entry-guard">
     .gm-live-health { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:6px 10px; margin-bottom:8px; font-size:12px; color:var(--muted); }
-    .gm-live-health button { font:inherit; min-height:32px; color:inherit; background:transparent; border:1px solid currentColor; border-radius:6px; padding:4px 8px; cursor:pointer; }
-    .gm-live-health button:focus-visible { outline:2px solid #38bdf8; outline-offset:2px; }
-    body.gm-alerts-paused .machine-alert.recent,
-    body.gm-alerts-paused :is(#activeOrdersPanel, #dashboardActiveOrders) .os-live-card::after { animation:none !important; opacity:1; }
     body.os-panel-booting :is(.workspace, .topbar, .nav, .reference-topbar, .platform-owner-header, .mobile-bottom-nav) {
       visibility: hidden !important;
     }
@@ -39412,13 +39408,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         const status = document.createElement("span");
         status.setAttribute("role", "status");
         root.append(status);
-        const button = document.createElement("button");
-        button.type = "button";
-        button.addEventListener("click", () => {
-          document.body.classList.toggle("gm-alerts-paused");
-          gmRenderLiveHealth();
-        });
-        root.append(button);
         view.prepend(root);
       }
       const last = gmLiveHealth.checkedAt ? new Date(gmLiveHealth.checkedAt).toLocaleTimeString("pt-BR") : "";
@@ -39427,10 +39416,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         : gmLiveHealth.failed ? "Falha ao atualizar — dados podem estar desatualizados."
         : last ? "Última verificação: " + last + (gmBackgroundRefreshBlocked() ? " · Atualização automática adiada durante interação." : "")
         : "Aguardando confirmação dos dados.";
-      const paused = document.body.classList.contains("gm-alerts-paused");
-      const button = root.querySelector("button");
-      button.textContent = paused ? "Retomar animações de alerta" : "Pausar animações de alerta";
-      button.setAttribute("aria-pressed", String(paused));
     }
     function gmBackgroundRefreshBlocked() {
       if (document.visibilityState === "hidden") return true;

@@ -10,13 +10,9 @@ test.beforeEach(async ({ page }) => {
   `));
 });
 
-test("controle pausa animações sem ocultar o alerta; offline não sugere dados atuais", async ({ page, context }) => {
-  const control = page.locator(".gm-live-health button");
-  await control.click();
-  await expect(control).toHaveAttribute("aria-pressed", "true");
-  await expect(page.locator("body")).toHaveClass(/gm-alerts-paused/);
-  await control.click();
-  await expect(control).toHaveAttribute("aria-pressed", "false");
+test("status de conexão permanece sem controle de pausa visível", async ({ page, context }) => {
+  await expect(page.locator(".gm-live-health button")).toHaveCount(0);
+  await expect(page.getByText(/Pausar animações de alerta|Retomar animações de alerta/)).toHaveCount(0);
   await context.setOffline(true);
   await expect(page.locator(".gm-live-health")).toContainText("Sem conexão");
 });
