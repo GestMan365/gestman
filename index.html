@@ -21370,7 +21370,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
               <article class="professional-kpi-card stops-kpi-card" data-dashboard-kpi="activeStops" style="--kpi:#ef4444"><i class="professional-kpi-icon"></i><div class="professional-kpi-copy"><span>PARADAS ATIVAS</span><strong id="professionalActiveStops">0</strong><small id="professionalStopsImpact">Impacto: Baixo</small></div><canvas id="professionalStopsSpark" width="76" height="34" aria-label="Histórico de paradas ativas"></canvas></article>
             </div>
           </section>
-          <article class="industrial-card maintenance-trend-card dashboard-widget" data-dashboard-widget="trend"><div class="dashboard-controls" data-dashboard-controls="trend"></div><div class="industrial-card-head"><div><span>CONFIABILIDADE</span><h2>Tendência MTTR x MTBF</h2></div><label class="trend-period-control"><span>Período</span><select id="trendPeriodFilter" aria-label="Período do gráfico MTTR e MTBF" onchange="renderTrendChart()"><option value="6">6 meses</option><option value="12">12 meses</option><option value="24">24 meses</option></select></label></div><div id="trendChart" class="maintenance-trend-content"></div></article>
+          <article class="industrial-card maintenance-trend-card dashboard-widget" data-dashboard-widget="trend"><div class="dashboard-controls" data-dashboard-controls="trend"></div><div class="industrial-card-head"><div><span>CONFIABILIDADE</span><h2>Confiabilidade da manutenção</h2></div><div class="gm-trend-filters"><label class="trend-period-control"><span>Planta</span><select id="trendPlantFilter" aria-label="Planta dos gráficos de confiabilidade" onchange="renderDashboard()"><option value="">Todas as plantas</option></select></label><label class="trend-period-control"><span>Período</span><select id="trendPeriodFilter" aria-label="Período dos gráficos de confiabilidade" onchange="renderDashboard()"><option value="6">6 meses</option><option value="12">12 meses</option><option value="24">24 meses</option></select></label></div></div><div id="trendChart" class="maintenance-trend-content"></div></article>
           <article class="industrial-card maintenance-backlog-card dashboard-widget" data-dashboard-widget="status"><div class="dashboard-controls" data-dashboard-controls="status"></div><div class="industrial-card-head"><div><span>CARTEIRA</span><h2>Backlog de Manutenção</h2></div></div><div class="maintenance-backlog-content" id="statusBars"></div></article>
           <article class="industrial-card asset-health-card dashboard-widget" data-dashboard-widget="criticality"><div class="dashboard-controls" data-dashboard-controls="criticality"></div><div class="industrial-card-head"><div><span>CONDIÇÃO OPERACIONAL</span><h2>Saúde dos Ativos</h2></div></div><div class="asset-health-content" id="criticalityBars"></div></article>
           <article class="industrial-card industrial-chart-card dashboard-widget" data-dashboard-widget="ordersChart"><div class="dashboard-controls" data-dashboard-controls="ordersChart"></div><div class="industrial-card-head"><div><span>ÚLTIMOS 7 DIAS</span><h2>Ordens de Serviço</h2></div><div class="chart-legend"><span><i class="dot blue"></i>Abertas</span><span><i class="dot green"></i>Concluídas</span><span><i class="dot red"></i>Atrasadas</span></div></div><div class="industrial-stacked-chart" id="industrialOrdersChart"></div></article>
@@ -22337,6 +22337,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   <link rel="stylesheet" href="assets/preventive-year.css">
   <script src="assets/preventive-year.js"></script>
   <script src="assets/preventive-year-ui.js"></script>
+  <link rel="stylesheet" href="assets/maintenance-charts.css">
+  <script src="assets/maintenance-charts.js"></script>
   <script src="assets/vendor/qrcode-generator.js"></script>
 
   <script>
@@ -28091,17 +28093,26 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const ctx = canvas.getContext("2d");
       const width = canvas.width; const height = canvas.height;
       ctx.clearRect(0, 0, width, height);
-      const safe = (values || []).map(Number).filter(Number.isFinite);
-      const points = safe.length > 1 ? safe : safe.length ? [safe[0], safe[0]] : [0, 0, 0, 0, 0, 0];
-      const min = Math.min(...points); const max = Math.max(...points); const range = max - min || 1;
+      const points = (values || []).map(value => value == null || value === "" || !Number.isFinite(Number(value)) ? null : Number(value));
+      const valid = points.filter(value => value !== null);
+      if (!valid.length) return;
+      const min = Math.min(...valid); const max = Math.max(...valid); const range = max - min || 1;
+      let drawing = false;
       ctx.beginPath();
       points.forEach((value, index) => {
+        if (value === null) { drawing = false; return; }
         const x = 2 + index * (width - 4) / Math.max(1, points.length - 1);
         const y = max === min ? height / 2 : height - 3 - (value - min) / range * (height - 8);
-        if (index === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        if (!drawing) { ctx.moveTo(x, y); drawing = true; } else ctx.lineTo(x, y);
       });
-      ctx.strokeStyle = max === min ? "#334155" : color;
+      ctx.strokeStyle = color;
       ctx.lineWidth = 1.6; ctx.lineJoin = "round"; ctx.lineCap = "round"; ctx.stroke();
+      points.forEach((value, index) => {
+        if (value === null) return;
+        const x = 2 + index * (width - 4) / Math.max(1, points.length - 1);
+        const y = max === min ? height / 2 : height - 3 - (value - min) / range * (height - 8);
+        ctx.beginPath(); ctx.arc(x, y, 1.5, 0, Math.PI * 2); ctx.fillStyle = color; ctx.fill();
+      });
     }
     function professionalDelta(current, previous, suffix = "%") {
       if (!previous || !Number.isFinite(previous)) return "Sem histórico anterior";
@@ -28115,9 +28126,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const running = filtered.orders.filter(order => isRunningOrder(order.status));
       const critical = running.filter(order => statusKey(order.priority).includes("alta") || orderIsLate(order));
       const activeStops = filtered.downtimes.filter(item => item?.status === "Ativa");
-      const end = new Date(), start = new Date(end);
-      start.setMonth(start.getMonth() - filtered.months);
-      const filters = { ...stage16Filters, period:"custom", start:stage16DateInput(start), end:stage16DateInput(end), plant:filtered.plant === "Todas" ? "" : filtered.plant };
+      const metricMonths = [6,12,24].includes(Number($("trendPeriodFilter")?.value)) ? Number($("trendPeriodFilter").value) : 6;
+      const filters = dashboardTrendFilters(metricMonths);
       const previousFilters = stage16PreviousFilters(filters);
       const metrics = { mttr:stage16MetricData("mttr", filters), mtbf:stage16MetricData("mtbf", filters), availability:stage16MetricData("availability", filters) };
       const previous = { mttr:stage16MetricData("mttr", previousFilters), mtbf:stage16MetricData("mtbf", previousFilters), availability:stage16MetricData("availability", previousFilters) };
@@ -28138,7 +28148,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if ($("headerNotificationCount")) {
         $("headerNotificationCount").textContent = (critical.length + activeStops.length + lowStockItems().length).toLocaleString("pt-BR");
       }
-      const bucketCount = Math.min(12, filtered.months);
+      const bucketCount = metricMonths;
       drawDashboardSparkline("professionalMttrSpark", gmMaintenanceMetricSeries("mttr", filters, bucketCount).map(item => item.value));
       drawDashboardSparkline("professionalMtbfSpark", gmMaintenanceMetricSeries("mtbf", filters, bucketCount).map(item => item.value));
       drawDashboardSparkline("professionalAvailabilitySpark", gmMaintenanceMetricSeries("availability", filters, bucketCount).map(item => item.value));
@@ -28501,7 +28511,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     const dashboardWidgetDefaults = [
       { id: "metrics", label: "Indicadores principais" },
-      { id: "trend", label: "Tendência MTTR x MTBF" },
+      { id: "trend", label: "Gráficos de MTTR, MTBF e disponibilidade" },
       { id: "status", label: "Backlog de manutenção" },
       { id: "criticality", label: "Saúde dos ativos" },
       { id: "quickActions", label: "Ações rápidas" },
@@ -28697,7 +28707,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       announceDashboard("Widget ocultado na prévia.");
     }
     const dashboardWidgetDescriptions = {
-      trend:"Evolução das ordens de serviço no período.", status:"Distribuição operacional das ordens.", criticality:"Condição e criticidade dos ativos.",
+      trend:"Evolução de MTTR, MTBF e disponibilidade com dados oficiais.", status:"Distribuição operacional das ordens.", criticality:"Condição e criticidade dos ativos.",
       quickActions:"Atalhos para as tarefas mais usadas.", alerts:"Ocorrências importantes da operação.", latestOrders:"Ordens de serviço atualizadas recentemente.",
       stops:"Paradas e indisponibilidades registradas.", stockAlerts:"Itens abaixo do estoque mínimo.", ordersChart:"Visão consolidada das ordens.",
       activeOrders:"Ordens atualmente em execução.", agenda:"Programação de manutenção.", parts:"Consumo e movimentação de peças."
@@ -28783,117 +28793,43 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const numeric = typeof value === "number" || /^\d+$/.test(String(value)) ? new Date(Number(value)) : new Date(value);
       return Number.isNaN(numeric.getTime()) ? null : numeric;
     }
-    function trendMonthlyData(months) {
-      const layout = activeDashboardLayout();
-      const plant = layout.filters?.plant || "Unidade Industrial 01";
+    function refreshDashboardTrendPlants() {
+      const select = $("trendPlantFilter");
+      if (!select) return;
+      const selected = select.value;
+      const plants = [...new Set((state.assets || []).map(asset => {
+        const location = (state.locations || []).find(item => item.id === asset.locationId);
+        const region = (state.regions || []).find(item => item.id === (location?.regionId || asset.regionId));
+        return String(asset.plant || asset.unit || asset.factory || region?.name || "").trim();
+      }).filter(Boolean))].sort((a,b) => a.localeCompare(b, "pt-BR"));
+      const signature = JSON.stringify(plants);
+      if (select.dataset.optionsSignature === signature) return;
+      select.dataset.optionsSignature = signature;
+      select.innerHTML = '<option value="">Todas as plantas</option>' + plants.map(plant => `<option value="${escapeHtml(plant)}">${escapeHtml(plant)}</option>`).join("");
+      select.value = plants.includes(selected) ? selected : "";
+    }
+    function dashboardTrendFilters(months) {
+      const plant = $("trendPlantFilter")?.value || "";
       const now = new Date();
       const firstMonth = new Date(now.getFullYear(), now.getMonth() - (months - 1), 1);
-      const filters = {
-        ...stage16Filters,
-        period:"custom",
-        start:stage16DateInput(firstMonth),
-        end:stage16DateInput(now),
-        plant:plant === "Todas" ? "" : plant
-      };
-      const mttrSeries = gmMaintenanceMetricSeries("mttr", filters, months);
-      const mtbfSeries = gmMaintenanceMetricSeries("mtbf", filters, months);
-      return Array.from({ length:months }, (_, index) => {
-        const fallbackDate = new Date(now.getFullYear(), now.getMonth() - (months - 1 - index), 1);
-        const mttr = mttrSeries[index] || {};
-        const mtbf = mtbfSeries[index] || {};
-        return {
-          label:mttr.label || mtbf.label || fallbackDate.toLocaleDateString("pt-BR", { month:"short", year:"2-digit" }).replace(".", "").toUpperCase(),
-          mttr:mttr.value ?? null,
-          mtbf:mtbf.value ?? null,
-          mttrCount:Number(mttr.recordCount || 0),
-          mtbfCount:Number(mtbf.recordCount || 0),
-          mttrQuality:mttr.quality || "insufficient",
-          mtbfQuality:mtbf.quality || "insufficient",
-          mttrDetail:mttr.detail || "Sem reparos corretivos válidos no período.",
-          mtbfDetail:mtbf.detail || "Sem base operacional válida no período.",
-          source:mttr.source || mtbf.source || "gm_tenant_state (Supabase/PostgreSQL)"
-        };
-      });
+      return { period:"custom", start:stage16DateInput(firstMonth), end:stage16DateInput(now), plant };
     }
     function renderTrendChart() {
       const target = $("trendChart");
-      if (!target) return;
+      if (!target || !window.GMMaintenanceCharts) return;
+      refreshDashboardTrendPlants();
       const months = [6,12,24].includes(Number($("trendPeriodFilter")?.value)) ? Number($("trendPeriodFilter").value) : 6;
-      const buckets = trendMonthlyData(months);
-      const valid = buckets.filter(item => item.mttr !== null || item.mtbf !== null);
-      if (!valid.length) {
-        target.innerHTML = `<div class="trend-empty"><div><strong>Sem base operacional suficiente no período.</strong><br>Cadastre o encerramento e a duração de O.S. corretivas. O MTBF usa horímetros reais e, na ausência deles, horas-calendário dos ativos menos as paradas registradas.</div></div>`;
-        return;
-      }
-      const current = valid[valid.length - 1];
-      const formatHours = value => value === null ? "Sem dados" : `${value.toLocaleString("pt-BR", { maximumFractionDigits:1 })}h`;
-      const validPeriods = buckets.filter(item => item.mttrQuality !== "insufficient" || item.mtbfQuality !== "insufficient").length;
-      const partialPeriods = buckets.filter(item => item.mttrQuality === "partial" || item.mtbfQuality === "partial").length;
-      const qualityLabel = `${validPeriods} de ${buckets.length} período(s) com evidência${partialPeriods ? ` · ${partialPeriods} parcial(is)` : ""}`;
-      target.innerHTML = `<div class="trend-chart-shell"><div class="trend-chart-legend"><span><i style="background:#1d8cff"></i>MTBF real</span><span><i style="background:#f97316"></i>MTTR real</span></div><canvas id="maintenanceTrendCanvas" role="img" aria-label="Tendência mensal real de MTBF e MTTR"></canvas><div class="trend-chart-tooltip" id="maintenanceTrendTooltip"></div></div><div class="trend-summary"><div><span>MTBF · ${current.label}</span><strong>${formatHours(current.mtbf)}</strong></div><div><span>MTTR · ${current.label}</span><strong>${formatHours(current.mttr)}</strong></div><div><span>Qualidade da série</span><strong>${qualityLabel}</strong></div><div><span>Fonte oficial</span><strong title="${escapeHtml(current.source)}">Supabase / estado da empresa</strong></div></div><p class="trend-method-note"><strong>Origem:</strong> contrato oficial de indicadores. MTTR usa apenas reparos corretivos concluídos com duração válida. MTBF usa horímetros válidos ou calendário operacional vinculado, descontadas as paradas. Períodos sem evidência permanecem como lacuna.</p>`;
-      drawMaintenanceTrendCanvas(buckets);
-    }
-    function drawMaintenanceTrendCanvas(buckets) {
-      const canvas = $("maintenanceTrendCanvas");
-      const tooltip = $("maintenanceTrendTooltip");
-      if (!canvas || !tooltip) return;
-      const rect = canvas.getBoundingClientRect();
-      const width = Math.max(320, Math.round(rect.width || 680));
-      const height = Math.max(190, Math.round(rect.height || 232));
-      const ratio = Math.min(2, window.devicePixelRatio || 1);
-      canvas.width = width * ratio; canvas.height = height * ratio;
-      const ctx = canvas.getContext("2d"); ctx.scale(ratio, ratio);
-      const pad = { left:42, right:42, top:34, bottom:28 };
-      const plotWidth = width - pad.left - pad.right;
-      const plotHeight = height - pad.top - pad.bottom;
-      const mtbfValues = buckets.map(item => item.mtbf).filter(value => value !== null);
-      const mttrValues = buckets.map(item => item.mttr).filter(value => value !== null);
-      const mtbfMax = Math.max(1, ...mtbfValues);
-      const mttrMax = Math.max(1, ...mttrValues);
-      const x = index => pad.left + index * plotWidth / Math.max(1, buckets.length - 1);
-      const y = (value, max) => pad.top + plotHeight - (value / max) * plotHeight;
-      ctx.clearRect(0,0,width,height);
-      ctx.font = "12px Arial"; ctx.textBaseline = "middle";
-      for (let line = 0; line <= 4; line += 1) {
-        const lineY = pad.top + plotHeight * line / 4;
-        ctx.beginPath(); ctx.moveTo(pad.left,lineY); ctx.lineTo(width-pad.right,lineY);
-        ctx.strokeStyle = "rgba(51,65,85,.35)"; ctx.lineWidth = 1; ctx.stroke();
-        ctx.fillStyle = "#64748b"; ctx.textAlign = "right"; ctx.fillText(`${(mtbfMax * (4-line) / 4).toFixed(0)}h`, pad.left-6, lineY);
-        ctx.fillStyle = "#9a684c"; ctx.textAlign = "left"; ctx.fillText(`${(mttrMax * (4-line) / 4).toFixed(1)}h`, width-pad.right+6, lineY);
-      }
-      const labelStep = Math.max(1, Math.ceil(buckets.length / 6));
-      buckets.forEach((item,index) => {
-        if (index % labelStep !== 0 && index !== buckets.length - 1) return;
-        ctx.fillStyle="#71849c"; ctx.textAlign="center"; ctx.fillText(item.label,x(index),height-12);
+      const filters = dashboardTrendFilters(months);
+      const blocked = gmStateDirty || gmSyncConflict;
+      const contract = blocked ? null : gmMaintenanceMetricsContract(filters, months);
+      const key = gmMaintenanceMetricsKey(filters, months);
+      const failed = gmMaintenanceMetricsErrors.has(key);
+      const chartState = blocked ? "pending" : contract ? "ready" : !currentAccount ? "unavailable" : failed ? "error" : "loading";
+      window.GMMaintenanceCharts.render(target, contract, {
+        state:chartState,
+        scope:filters.plant || "Todas as plantas",
+        retry:() => { gmMaintenanceMetricsErrors.delete(key); renderTrendChart(); }
       });
-      const drawSeries = (key,max,color) => {
-        let drawing = false;
-        ctx.beginPath();
-        buckets.forEach((item,index) => {
-          const value = item[key];
-          if (value === null) { drawing=false; return; }
-          const pointX=x(index), pointY=y(value,max);
-          if (!drawing) { ctx.moveTo(pointX,pointY); drawing=true; } else ctx.lineTo(pointX,pointY);
-        });
-        ctx.strokeStyle=color; ctx.lineWidth=2; ctx.lineJoin="round"; ctx.lineCap="round"; ctx.stroke();
-        buckets.forEach((item,index) => {
-          const value=item[key]; if (value===null) return;
-          ctx.beginPath(); ctx.arc(x(index),y(value,max),2.7,0,Math.PI*2); ctx.fillStyle=document.body.classList.contains("theme-light")?"#f8fbff":"#0b1929"; ctx.fill(); ctx.lineWidth=1.5; ctx.strokeStyle=color; ctx.stroke();
-        });
-      };
-      drawSeries("mtbf",mtbfMax,"#1d8cff");
-      drawSeries("mttr",mttrMax,"#f97316");
-      const showTooltip = event => {
-        const bounds=canvas.getBoundingClientRect();
-        const localX=Math.max(0,Math.min(bounds.width,event.clientX-bounds.left));
-        const index=Math.max(0,Math.min(buckets.length-1,Math.round((localX/bounds.width)*(buckets.length-1))));
-        const item=buckets[index];
-        tooltip.innerHTML=`<strong>${item.label}</strong><span style="color:#63b3ff">MTBF: ${item.mtbf === null ? "Sem dados" : `${item.mtbf.toLocaleString("pt-BR", { maximumFractionDigits:1 })}h`}</span><br><span style="color:#fb923c">MTTR: ${item.mttr === null ? "Sem dados" : `${item.mttr.toLocaleString("pt-BR", { maximumFractionDigits:1 })}h`}</span><br>${escapeHtml(item.mtbfDetail)}<br>${escapeHtml(item.mttrDetail)}`;
-        tooltip.style.left=`${x(index)/width*100}%`; tooltip.style.top=`${Math.min(y(item.mtbf ?? 0,mtbfMax),y(item.mttr ?? 0,mttrMax))}px`; tooltip.classList.add("visible");
-      };
-      canvas.addEventListener("pointermove",showTooltip);
-      canvas.addEventListener("pointerdown",showTooltip);
-      canvas.addEventListener("pointerleave",()=>tooltip.classList.remove("visible"));
     }
     function backlogStatusKey(order) {
       const key = normalizeTextKey(order.status);

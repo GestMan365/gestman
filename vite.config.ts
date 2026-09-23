@@ -15,6 +15,7 @@ function copyClassicUiRuntime() {
         ["assets/vendor", "dist/assets/vendor"],
         ["assets/preventive-year.js", "dist/assets/preventive-year.js"],
         ["assets/preventive-year-ui.js", "dist/assets/preventive-year-ui.js"],
+        ["assets/maintenance-charts.js", "dist/assets/maintenance-charts.js"],
       ];
       runtimeDirectories.forEach(([sourcePath, targetPath]) => {
         const source = rootFile(sourcePath);

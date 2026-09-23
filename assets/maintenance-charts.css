@@ -1,0 +1,70 @@
+/* Scoped to the reliability widget; no changes to module layout or navigation. */
+body:not(.auth-required):not(.auth-loading) #dashboard .maintenance-trend-card {
+  grid-column: 1 / -1 !important;
+  min-height: 0 !important;
+}
+#dashboard .maintenance-trend-card > .industrial-card-head { flex-wrap: wrap; gap: 14px; }
+#dashboard .gm-trend-filters { display: flex; flex-wrap: wrap; gap: 12px; min-width: 0; max-width: 100%; }
+#dashboard .gm-trend-filters .trend-period-control { min-width: 0; max-width: 100%; }
+#dashboard .gm-trend-filters select { max-width: 220px; min-width: 0; text-overflow: ellipsis; }
+#dashboard .gm-maintenance-charts {
+  --metric-ink: #e4edf5; --metric-muted: #a4b6c7; --metric-border: #2b4053;
+  --metric-surface: #0c1c2a; --metric-grid: #263c50;
+  min-width: 0; padding: 4px 16px 18px;
+  color: var(--metric-ink);
+}
+body.theme-light #dashboard .gm-maintenance-charts {
+  --metric-ink: #18354b; --metric-muted: #4c6276; --metric-border: #cbdbe5;
+  --metric-surface: #fff; --metric-grid: #dde7ee;
+}
+#dashboard .gm-metric-context { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 20px; margin-bottom: 16px; font-size: 12px; color: var(--metric-muted); }
+#dashboard .gm-metric-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+#dashboard .gm-metric-card { --metric-accent: #70bcff; min-width: 0; padding: 18px 14px; border: 1px solid var(--metric-border); border-top: 3px solid var(--metric-accent); border-radius: 12px; background: var(--metric-surface); }
+#dashboard .gm-metric-card[data-metric="mttr"] { --metric-accent: #ffb570; }
+#dashboard .gm-metric-card[data-metric="availability"] { --metric-accent: #61dbb0; }
+body.theme-light #dashboard .gm-metric-card { --metric-accent: #1269b0; }
+body.theme-light #dashboard .gm-metric-card[data-metric="mttr"] { --metric-accent: #ad5108; }
+body.theme-light #dashboard .gm-metric-card[data-metric="availability"] { --metric-accent: #087c59; }
+#dashboard .gm-metric-heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: start; gap: 8px; }
+#dashboard .gm-metric-heading h3 { margin: 0; color: var(--metric-ink); font-size: 16px; font-weight: 750; }
+#dashboard .gm-metric-heading p { margin: 5px 0 0; color: var(--metric-muted); font-size: 12px; }
+#dashboard .gm-metric-quality { border: 1px solid var(--metric-border); border-radius: 5px; padding: 4px 6px; color: var(--metric-muted); font-size: 11px; }
+#dashboard .gm-metric-quality[data-quality="partial"] { border-style: dashed; }
+#dashboard .gm-metric-value { display: grid; gap: 5px; margin-top: 18px; }
+#dashboard .gm-metric-value strong { color: var(--metric-ink); font-size: clamp(24px, 2.2vw, 34px); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+#dashboard .gm-metric-value span, #dashboard .gm-metric-direction { color: var(--metric-muted); font-size: 12px; }
+#dashboard .gm-metric-direction { margin: 12px 0 3px; line-height: 1.6; }
+#dashboard .gm-metric-plot { display: block; width: 100%; height: auto; overflow: visible; }
+#dashboard .gm-metric-plot text { fill: var(--metric-muted); font-family: inherit; font-size: 17px; }
+#dashboard .gm-metric-gridline { stroke: var(--metric-grid); stroke-width: 1; }
+#dashboard .gm-metric-line { fill: none; stroke: var(--metric-accent); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+#dashboard .gm-metric-area { fill: var(--metric-accent); opacity: .08; }
+#dashboard .gm-metric-dot { fill: var(--metric-accent); stroke: var(--metric-accent); stroke-width: 2; }
+#dashboard .gm-metric-dot.is-partial { fill: var(--metric-surface); }
+#dashboard .gm-metric-hit { fill: transparent; stroke: transparent; cursor: pointer; }
+#dashboard .gm-metric-hit:focus-visible { outline: none; stroke: var(--metric-accent); stroke-width: 2; }
+#dashboard .gm-metric-detail { min-height: 64px; margin-top: 8px; padding: 10px; border: 1px solid var(--metric-border); border-radius: 6px; font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; color: var(--metric-ink); }
+#dashboard .gm-metric-method, #dashboard .gm-metric-note, #dashboard .gm-metric-empty, #dashboard .gm-metric-data p { color: var(--metric-muted); font-size: 12px; line-height: 1.65; overflow-wrap: anywhere; }
+#dashboard .gm-metric-method { margin: 10px 0 0; }
+#dashboard .gm-metric-note { margin: 16px 0 12px; }
+#dashboard .gm-metric-data { border-top: 1px solid var(--metric-border); padding-top: 10px; }
+#dashboard .gm-metric-data > summary { width: fit-content; max-width: 100%; cursor: pointer; padding: 8px 4px; font-size: 13px; color: var(--metric-ink); }
+#dashboard .gm-metric-data > summary:focus-visible, #dashboard .gm-metric-table-wrap:focus-visible { outline: 2px solid var(--metric-ink); outline-offset: 2px; }
+#dashboard .gm-metric-table-wrap { max-width: 100%; overflow-x: auto; }
+#dashboard .gm-metric-table-wrap table { width: 100%; min-width: 620px; border-collapse: collapse; }
+#dashboard .gm-metric-table-wrap th, #dashboard .gm-metric-table-wrap td { padding: 10px; text-align: left; border-bottom: 1px solid var(--metric-border); color: var(--metric-ink); font-size: 12px; }
+#dashboard .gm-metric-table-wrap caption { text-align: left; padding: 8px; color: var(--metric-muted); }
+#dashboard .gm-metric-state { padding: 40px 20px; border: 1px dashed var(--metric-border); border-radius: 10px; color: var(--metric-ink); }
+#dashboard .gm-metric-state p { color: var(--metric-muted); line-height: 1.6; }
+@media (max-width: 1180px) {
+  #dashboard .gm-metric-cards { grid-template-columns: minmax(0, 1fr); }
+  #dashboard .gm-metric-plot { max-height: 250px; }
+}
+@media (max-width: 600px) {
+  /* Preserve field-mode shortcuts; expose only the read-only reliability widget. */
+  body:not(.auth-required):not(.auth-loading) #dashboard .industrial-dashboard-shell { display: block !important; margin-top: 16px; }
+  #dashboard .industrial-dashboard-shell > :not(#dashboardWidgetGrid),
+  #dashboard #dashboardWidgetGrid > :not(.maintenance-trend-card) { display: none !important; }
+  #dashboard .gm-maintenance-charts { padding-inline: 10px; }
+  #dashboard .gm-metric-card { padding: 14px 10px; }
+}

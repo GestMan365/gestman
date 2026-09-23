@@ -34,8 +34,9 @@ for (const [name, html] of [["index.html", index], ["404.html", fallback]]) {
   assert.match(html, /function gmMaintenanceMetricData\(/, `${name}: adaptador dos indicadores ausente`);
   assert.match(html, /function gmMaintenanceMetricSeries\(/, `${name}: adaptador das séries ausente`);
   assert.match(html, /function stage16MetricData\(key,filters=stage16Filters\)\{return gmMaintenanceMetricData\(key,filters\)\}/, `${name}: indicadores ainda não delegam à fonte oficial`);
-  assert.match(html, /const mttrSeries = gmMaintenanceMetricSeries\("mttr", filters, months\)/, `${name}: tendência de MTTR não usa a fonte oficial`);
-  assert.match(html, /const mtbfSeries = gmMaintenanceMetricSeries\("mtbf", filters, months\)/, `${name}: tendência de MTBF não usa a fonte oficial`);
+  assert.match(html, /const contract = blocked \? null : gmMaintenanceMetricsContract\(filters, months\)/, `${name}: gráficos não usam o contrato oficial`);
+  assert.match(html, /GMMaintenanceCharts\.render\(target, contract/, `${name}: gráficos não recebem a fonte oficial`);
+  assert.match(html, /assets\/maintenance-charts\.js/, `${name}: renderizador de gráficos ausente`);
   assert.doesNotMatch(html, /function dashboardMetricsFor\(|function trendHourMeterHours\(|function trendDowntimeHours\(/, `${name}: cálculo legado duplicado ainda está ativo`);
   assert.doesNotMatch(html, /assets\.length\s*\*\s*months\s*\*\s*720/, `${name}: estimativa civil artificial de MTBF encontrada`);
 }
