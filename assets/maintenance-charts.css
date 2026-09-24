@@ -38,6 +38,9 @@ body.theme-light #dashboard .gm-metric-card[data-metric="availability"] { --metr
 #dashboard .gm-metric-plot text { fill: var(--metric-muted); font-family: inherit; font-size: 17px; }
 #dashboard .gm-metric-gridline { stroke: var(--metric-grid); stroke-width: 1; }
 #dashboard .gm-metric-line { fill: none; stroke: var(--metric-accent); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+#dashboard .gm-metric-reference { stroke: var(--metric-accent); stroke-width: 2; stroke-dasharray: 7 5; vector-effect: non-scaling-stroke; }
+#dashboard .gm-metric-reference-label { color: var(--metric-muted); font-size: 12px; line-height: 1.65; overflow-wrap: anywhere; }
+#dashboard .gm-metric-reference-label > span { display: inline-block; width: 24px; border-top: 2px dashed var(--metric-accent); margin-right: 6px; vertical-align: middle; }
 #dashboard .gm-metric-area { fill: var(--metric-accent); opacity: .08; }
 #dashboard .gm-metric-dot { fill: var(--metric-accent); stroke: var(--metric-accent); stroke-width: 2; }
 #dashboard .gm-metric-dot.is-partial { fill: var(--metric-surface); }

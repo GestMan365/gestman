@@ -33,7 +33,24 @@ test('base vazia não gera pontos nem indicador fictício', () => {
     assert.equal(card.value, null);
     assert.equal(card.valid, 0);
     assert.equal(card.segments.length, 0);
+    assert.equal(card.referenceY, null);
   }
+});
+
+test('referência usa agregado oficial com um ponto e não preenche lacunas', () => {
+  const card = model({ metrics: { mttr: { value: 6.52, quality: { state: 'valid' } } }, series: { mttr: [point(null), point(null), point(6.52)] } })[0];
+  assert.equal(card.value, 6.52);
+  assert.equal(card.valid, 1);
+  assert.deepEqual(card.points.map(p => p.value), [null, null, 6.52]);
+  assert.equal(card.referenceY, card.points[2].y);
+});
+
+test('escala inclui referência fora da série e distingue zero de base insuficiente', () => {
+  const cards = model({ metrics: { mttr: { value: 20, quality: { state: 'partial' } }, mtbf: { value: 0, quality: { state: 'valid' } }, availability: { value: 95, quality: { state: 'insufficient' } } }, series: { mttr: [point(1)] } });
+  assert.equal(cards[0].ceiling, 20);
+  assert.equal(cards[0].referenceY, 32);
+  assert.equal(cards[1].referenceY, 174);
+  assert.equal(cards[2].referenceY, null);
 });
 
 test('renderizador preserva MTTR calculado pelo contrato com registros operacionais', () => {

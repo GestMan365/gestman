@@ -29,7 +29,8 @@
         recordCount: Math.max(0, Math.trunc(Number(point.recordCount) || 0)),
       }));
       const values = series.filter(point => point.value !== null).map(point => point.value);
-      const max = Math.max(1, ...values);
+      const value = metric.quality?.state === 'insufficient' ? null : number(metric.value, definition.key);
+      const max = Math.max(1, value ?? 0, ...values);
       const magnitude = 10 ** Math.floor(Math.log10(max));
       const ceiling = definition.unit === '%' ? 100 : Math.ceil(max / magnitude) * magnitude;
       const points = series.map((point, index) => ({ ...point, x: 54 + index * 432 / Math.max(1, series.length - 1), y: point.value === null ? null : 174 - point.value / ceiling * 142 }));
@@ -40,7 +41,7 @@
         else segment.push(point);
       }
       if (segment.length) segments.push(segment);
-      return { ...definition, metric, points, segments, ceiling, value: metric.quality?.state === 'insufficient' ? null : number(metric.value, definition.key), valid: values.length };
+      return { ...definition, metric, points, segments, ceiling, value, referenceY: value === null ? null : 174 - value / ceiling * 142, valid: values.length };
     });
   }
   function plot(card) {
@@ -50,12 +51,13 @@
     }).join('');
     const step = Math.max(1, Math.ceil(card.points.length / 6));
     const labels = card.points.filter((_, index) => index % step === 0 || index === card.points.length - 1).map(point => `<text x="${point.x}" y="199" text-anchor="middle">${point.period}</text>`).join('');
-    const paths = card.segments.map(segment => {
+    const paths = card.segments.filter(segment => segment.length > 1).map(segment => {
       const line = segment.map((point, index) => `${index ? 'L' : 'M'}${point.x},${point.y}`).join(' ');
       return `<path class="gm-metric-area" d="${line} L${segment.at(-1).x},174 L${segment[0].x},174 Z"/><path class="gm-metric-line" d="${line}"/>`;
     }).join('');
     const points = card.points.map((point, index) => point.value === null ? '' : `<g><circle class="gm-metric-dot ${point.quality === 'partial' ? 'is-partial' : ''}" cx="${point.x}" cy="${point.y}" r="4"/><circle class="gm-metric-hit" cx="${point.x}" cy="${point.y}" r="12" tabindex="0" role="button" data-point="${index}" aria-label="${escape(`${card.name}, ${point.period}, ${point.range}: ${format(point.value, card.unit)}. ${quality(point.quality)}`)}"><title>${escape(`${point.range}: ${format(point.value, card.unit)}`)}</title></circle></g>`).join('');
-    return `<svg class="gm-metric-plot" viewBox="0 0 510 218" role="group" aria-label="Gráfico de ${card.name}. ${card.unit === 'h' ? 'Horas' : 'Percentual'}. Escala independente."><text x="54" y="17">${card.unit === 'h' ? 'Horas' : 'Percentual (%)'}</text>${grid}${paths}${labels}${points}</svg>`;
+    const reference = card.referenceY === null ? '' : `<line class="gm-metric-reference" x1="54" x2="486" y1="${card.referenceY}" y2="${card.referenceY}"><title>${escape(`Referência do período: ${format(card.value, card.unit)}. Não representa evolução histórica.`)}</title></line>`;
+    return `<svg class="gm-metric-plot" viewBox="0 0 510 218" role="group" aria-label="Gráfico de ${card.name}. ${card.unit === 'h' ? 'Horas' : 'Percentual'}. Escala independente."><text x="54" y="17">${card.unit === 'h' ? 'Horas' : 'Percentual (%)'}</text>${grid}${reference}${paths}${labels}${points}</svg>`;
   }
   const previous = new WeakMap();
   function render(target, contract, options = {}) {
@@ -85,6 +87,8 @@
         <div class="gm-metric-value"><strong>${format(card.value, card.unit)}</strong><span>Indicador no período inteiro</span></div>
         <p class="gm-metric-direction">${card.direction} <span>· ${card.valid}/${card.points.length} intervalos com dados</span></p>
         ${plot(card)}
+        ${card.value !== null ? `<p class="gm-metric-reference-label"><span aria-hidden="true"></span>Tracejado: ${card.key === 'availability' ? 'disponibilidade' : 'média'} do período · ${format(card.value, card.unit)}${card.metric.quality?.state === 'partial' ? ' · base parcial' : ''}. Não representa evolução histórica.</p>` : ''}
+        ${card.valid === 1 ? '<p class="gm-metric-empty">Apenas um intervalo com dados: o ponto mostra o valor observado. A linha de evolução aparecerá quando houver intervalos consecutivos com dados.</p>' : ''}
         ${!card.valid ? `<p class="gm-metric-empty">Sem evidência suficiente para traçar a série. ${card.hint}</p>` : ''}
         <div class="gm-metric-detail" aria-live="polite" data-point-detail>Toque ou foque um ponto para consultar datas, valor e qualidade.</div>
         <p class="gm-metric-method">${escape(card.metric.detail || card.hint)}</p>

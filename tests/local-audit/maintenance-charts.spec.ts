@@ -24,12 +24,12 @@ async function prepare(page: Page, mode = 'ready') {
         const keys = ['mttr','mtbf','availability'];
         const series = Object.fromEntries(keys.map(key => [key, Array.from({length:count}, (_, i) => ({
           start:new Date(Date.UTC(2026,0,1+i*5)).toISOString(), end:new Date(Date.UTC(2026,0,5+i*5)).toISOString(),
-          label:'Intervalo '+(i+1), value:window.qaChartMode === 'empty' || i === 1 ? null : key === 'mttr' ? 1+i/2 : key === 'mtbf' ? 100+i*20 : 90+i/4,
+          label:'Intervalo '+(i+1), value:window.qaChartMode === 'single' ? (key === 'mttr' && i === count-1 ? 6.52 : null) : window.qaChartMode === 'empty' || i === 1 ? null : key === 'mttr' ? 1+i/2 : key === 'mtbf' ? 100+i*20 : 90+i/4,
           quality:window.qaChartMode === 'empty' || i === 1 ? 'insufficient' : i === 2 ? 'partial' : 'valid', recordCount:2,
           source:'Contrato QA', detail:'Registro controlado para validação local.'
         }))]));
         return {tenant_state_version:1,contract:{version:1,period:{start:'2026-01-01T00:00:00Z',end:'2026-06-30T23:59:59Z'},updatedAt:'2026-06-30T23:00:00Z',series,
-          metrics:Object.fromEntries(keys.map(key=>[key,{value:window.qaChartMode === 'empty'?null:key === 'mttr'?2.8:key === 'mtbf'?170:96.4,quality:{state:window.qaChartMode === 'empty'?'insufficient':'partial'},detail:'Base controlada de QA.'}]))}};
+          metrics:Object.fromEntries(keys.map(key=>[key,{value:window.qaChartMode === 'single'?(key === 'mttr'?6.52:null):window.qaChartMode === 'empty'?null:key === 'mttr'?2.8:key === 'mtbf'?170:96.4,quality:{state:window.qaChartMode === 'single'?(key === 'mttr'?'valid':'insufficient'):window.qaChartMode === 'empty'?'insufficient':'partial'},detail:'Base controlada de QA.'}]))}};
       };
       document.body.classList.remove('auth-required','auth-loading','auth-restoring');
       document.body.classList.toggle('theme-light',false);
@@ -50,7 +50,8 @@ for (const viewport of [{width:1366,height:768},{width:951,height:535},{width:39
       await expect(widget.locator('[data-metric="mttr"] .gm-metric-value strong')).toHaveText('2,8 h');
       await expect(widget.locator('[data-metric="mtbf"] .gm-metric-value strong')).toHaveText('170 h');
       await expect(widget.locator('[data-metric="availability"] .gm-metric-value strong')).toHaveText('96,4 %');
-      await expect(widget.locator('[data-metric="mttr"] .gm-metric-line')).toHaveCount(2);
+      await expect(widget.locator('[data-metric="mttr"] .gm-metric-line')).toHaveCount(1);
+      await expect(widget.locator('.gm-metric-reference')).toHaveCount(3);
       await expect(widget.locator('[data-metric="mttr"] .gm-metric-dot.is-partial')).toHaveCount(1);
       const point=widget.locator('[data-metric="mttr"] [data-point="0"]');
       await point.focus();
@@ -108,11 +109,34 @@ test('base insuficiente e estado não sincronizado não exibem números falsos',
   await prepare(page,'empty');
   await expect(page.locator('.gm-metric-card')).toHaveCount(3);
   await expect(page.locator('.gm-metric-hit')).toHaveCount(0);
+  await expect(page.locator('.gm-metric-reference')).toHaveCount(0);
   await expect(page.locator('.gm-metric-value strong')).toHaveText(['Sem dados','Sem dados','Sem dados']);
   await page.evaluate(()=>window.eval('gmStateDirty = true; renderTrendChart();'));
   await expect(page.locator('#trendChart')).toContainText('Aguardando sincronização');
   await expect(page.locator('.gm-metric-plot')).toHaveCount(0);
 });
+
+for (const viewport of [{width:1916,height:910},{width:390,height:844}]) {
+  test(`um intervalo real exibe referência identificada sem histórico fictício ${viewport.width}`, async ({page}, info) => {
+    await page.setViewportSize(viewport);
+    await prepare(page, 'single');
+    const card = page.locator('[data-metric="mttr"]');
+    await expect(card.locator('.gm-metric-value strong')).toHaveText('6,52 h');
+    await expect(card.locator('.gm-metric-reference')).toHaveCount(1);
+    await expect(card.locator('.gm-metric-hit')).toHaveCount(1);
+    await expect(card.locator('.gm-metric-line')).toHaveCount(0);
+    await expect(card.locator('.gm-metric-reference-label')).toContainText('média do período · 6,52 h');
+    await expect(card).toContainText('Apenas um intervalo com dados');
+    await expect(page.locator('[data-metric="mtbf"] .gm-metric-reference, [data-metric="availability"] .gm-metric-reference')).toHaveCount(0);
+    const geometry = await card.locator('.gm-metric-reference').evaluate(el => ({ y:el.getAttribute('y1'), y2:el.getAttribute('y2'), dash:getComputedStyle(el).strokeDasharray }));
+    expect(Number(geometry.y)).toBeGreaterThanOrEqual(32);
+    expect(Number(geometry.y)).toBeLessThanOrEqual(174);
+    expect(geometry.y).toBe(geometry.y2);
+    expect(geometry.dash).not.toBe('none');
+    await card.screenshot({path:info.outputPath('single-reference.png')});
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  });
+}
 
 test('minigráficos não desenham zeros ou linhas através de lacunas', async ({page}) => {
   await prepare(page);
