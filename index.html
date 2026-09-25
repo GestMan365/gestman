@@ -7577,7 +7577,7 @@
     .maintenance-agenda-event {
       z-index: 4;
       min-width: 0 !important;
-      min-height: 0 !important;
+      min-height: 36px !important;
       height: auto !important;
       margin: 2px 4px !important;
       padding: 5px 7px !important;
@@ -15398,6 +15398,7 @@ body.theme-light .gm-icon-surface {
   }
 }
 @media (min-width: 901px) and (max-width: 1180px) {
+  #dashboard .industrial-dashboard-widget-grid > .maintenance-agenda-card.dashboard-widget { grid-column: 1 / -1 !important; }
   body:not(.auth-required):not(.auth-loading) .reference-topbar,
   body.sidebar-collapsed:not(.auth-required):not(.auth-loading) .reference-topbar {
     grid-template-columns: minmax(180px, 1fr) auto !important;
@@ -21359,6 +21360,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         <div class="dashboard-edit-banner" id="dashboardEditBanner"><span><strong>Personalizando Dashboard</strong><small> Arraste pela alça ou use os botões de movimento.</small></span><div><button type="button" onclick="saveDashboardCustomization()">Salvar</button><button type="button" onclick="cancelDashboardConfig()">Cancelar</button><button type="button" onclick="confirmResetDashboardLayout()">Restaurar padrão</button><button type="button" onclick="openDashboardConfig()">Widgets</button></div></div>
         <div class="sr-only" id="dashboardA11yStatus" aria-live="polite"></div>
         <div class="dashboard-layout industrial-dashboard-widget-grid" id="dashboardWidgetGrid">
+          <article class="industrial-card dashboard-widget dashboard-operational-summary size-full" data-dashboard-widget="operational" aria-labelledby="operationalInsightsTitle"><div class="industrial-card-head"><div><span>OPERAÇÃO</span><h2 id="operationalInsightsTitle">Prioridades e histórico operacional</h2></div></div><div id="operationalInsights"></div></article>
           <section class="professional-kpi-widget dashboard-widget size-full" data-dashboard-widget="metrics">
             <div class="dashboard-controls" data-dashboard-controls="metrics"></div>
             <div class="professional-kpi-strip">
@@ -21405,6 +21407,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       <div class="panel">
         <div class="table-wrap"><table><thead><tr><th>Calendário</th><th>Usuários vinculados</th><th>Aplicação</th><th>Status</th></tr></thead><tbody id="productiveCalendarRows"></tbody></table></div>
       </div>
+      <div id="operationalPlanning"></div>
     </section>
     <section class="view" id="quickAccess">
       <div id="stage20QuickRoot" class="stage20-workspace"></div>
@@ -22339,6 +22342,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   <script src="assets/preventive-year-ui.js"></script>
   <link rel="stylesheet" href="assets/maintenance-charts.css">
   <script src="assets/maintenance-charts.js"></script>
+  <link rel="stylesheet" href="assets/operational-planning.css">
+  <script src="assets/operational-planning.js"></script>
   <script src="assets/vendor/qrcode-generator.js"></script>
 
   <script>
@@ -23780,6 +23785,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       assets: [],
       orders: [],
       preventivePlans: [],
+      operationalCalendars: [],
+      operationalPolicy: { slaHours: {} },
       checklists: [],
       checklistExecutions: [],
       movements: [],
@@ -24219,6 +24226,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       normalized.assets = Array.isArray(normalized.assets) ? normalized.assets : [];
       normalized.orders = Array.isArray(normalized.orders) ? normalized.orders : [];
       normalized.preventivePlans = Array.isArray(normalized.preventivePlans) ? normalized.preventivePlans : [];
+      normalized.operationalCalendars = Array.isArray(normalized.operationalCalendars) ? normalized.operationalCalendars : [];
+      normalized.operationalPolicy = normalized.operationalPolicy && typeof normalized.operationalPolicy === "object" ? normalized.operationalPolicy : { slaHours:{} };
+      normalized.operationalPolicy.slaHours = normalized.operationalPolicy.slaHours && typeof normalized.operationalPolicy.slaHours === "object" ? normalized.operationalPolicy.slaHours : {};
       normalized.checklists = Array.isArray(normalized.checklists) ? normalized.checklists : [];
       normalized.checklistExecutions = Array.isArray(normalized.checklistExecutions) ? normalized.checklistExecutions : [];
       normalized.movements = Array.isArray(normalized.movements) ? normalized.movements : [];
@@ -27563,12 +27573,12 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (channel && !channel.__gestmanPanelListener) {
         channel.__gestmanPanelListener = true;
         channel.addEventListener("message", event => {
-          if (event.data?.type === "orders-updated" && currentAccount) loadSupabaseState(false, true);
+          if (event.data?.type === "orders-updated" && currentAccount) loadSupabaseState(false);
         });
       }
       if (!osPanelRemoteTimer) {
         osPanelRemoteTimer = window.setInterval(() => {
-          if (currentAccount && document.visibilityState === "visible" && !gmStateDirty) loadSupabaseState(false, true);
+          if (currentAccount && document.visibilityState === "visible" && !gmStateDirty) loadSupabaseState(false);
         }, 5000);
       }
     }
@@ -28508,10 +28518,16 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       renderDashboardExecutors();
       renderDashboardLowStock();
       renderIndustrialDashboard();
+      if (window.GMOperationalPlanning && hasPermission("orders")) {
+        const orders = stage16ScopedRows("orders", state.orders || []);
+        const assets = hasPermission("assets") ? stage16ScopedRows("assets", state.assets || []) : [];
+        window.GMOperationalPlanning.renderSummary($("operationalInsights"), window.GMOperationalPlanning.summary(orders, assets));
+      } else if ($("operationalInsights")) $("operationalInsights").replaceChildren();
     }
     const dashboardWidgetDefaults = [
       { id: "metrics", label: "Indicadores principais" },
       { id: "trend", label: "Gráficos de MTTR, MTBF e disponibilidade" },
+      { id: "operational", label: "Prioridades e histórico operacional" },
       { id: "status", label: "Backlog de manutenção" },
       { id: "criticality", label: "Saúde dos ativos" },
       { id: "quickActions", label: "Ações rápidas" },
@@ -28531,7 +28547,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     let dashboardDraftLayout = null;
     let draggedDashboardKpiId = "";
     function dashboardWidgetDefaultSize(id) {
-      if (["metrics", "agenda"].includes(id)) return "full";
+      if (["metrics", "agenda", "operational"].includes(id)) return "full";
       if (["trend", "ordersChart", "activeOrders"].includes(id)) return "wide";
       return "normal";
     }
@@ -28577,7 +28593,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function dashboardKpiControlsHtml(id){return `<div class="dashboard-kpi-controls"><button class="widget-btn kpi-drag" type="button" aria-label="Arrastar indicador" onpointerdown="event.stopPropagation();this.closest('[data-dashboard-kpi]').dataset.dragReady='1'">⠿</button><button class="widget-btn" type="button" aria-label="Mover indicador para a esquerda" onclick="moveDashboardKpi('${id}',-1)">←</button><button class="widget-btn" type="button" aria-label="Mover indicador para a direita" onclick="moveDashboardKpi('${id}',1)">→</button></div>`;}
     function applyDashboardLayout() {
       const layout = activeDashboardLayout();
-      const widgetPermissions = { metrics:"dashboard", trend:"reports", status:"orders", criticality:"assets", quickActions:"dashboard", alerts:"dashboard", latestOrders:"orders", stops:"orders", stockAlerts:"stock", ordersChart:"orders", activeOrders:"orders", agenda:"orders", parts:"stock" };
+      const widgetPermissions = { metrics:"dashboard", trend:"reports", operational:"orders", status:"orders", criticality:"assets", quickActions:"dashboard", alerts:"dashboard", latestOrders:"orders", stops:"orders", stockAlerts:"stock", ordersChart:"orders", activeOrders:"orders", agenda:"orders", parts:"stock" };
       document.querySelectorAll("[data-dashboard-widget]").forEach(widget => {
         const id = widget.dataset.dashboardWidget;
         const index = layout.order.indexOf(id);
@@ -33145,6 +33161,29 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         return `<tr><td><strong>${escapeHtml(region.name || "Região")}</strong></td><td>${locations.length}</td><td>${assets.length}</td><td class="actions"><button class="btn" type="button" onclick="editRegion('${region.id}')">Editar</button><button class="btn danger" type="button" onclick="deleteRegion('${region.id}')">Excluir</button></td></tr>`;
       }).join("") || `<tr><td colspan="4" class="empty">Nenhuma região cadastrada.</td></tr>`;
     }
+    async function gmSaveOperationalPlanning(change = {}) {
+      if (!isAdminUser() || !currentAccount) return false;
+      const now = Date.now();
+      if (change.calendar) {
+        const next = { ...change.calendar, updatedAt:now, history:[...(change.calendar.history || []), { date:now, label:"Calendário operacional alterado" }] };
+        const current = Array.isArray(state.operationalCalendars) ? state.operationalCalendars : [];
+        state.operationalCalendars = current.some(item => item.id === next.id) ? current.map(item => item.id === next.id ? next : item) : [next, ...current];
+      }
+      if (change.policy) state.operationalPolicy = { ...(state.operationalPolicy || {}), ...change.policy, updatedAt:now };
+      saveState();
+      return await gmPersistState(true);
+    }
+    function renderOperationalPlanning() {
+      const target = $("operationalPlanning");
+      if (!target || !window.GMOperationalPlanning) return;
+      window.GMOperationalPlanning.render({
+        target, calendars:state.operationalCalendars || [], assets:state.assets || [],
+        settings:state.operationalPolicy || { slaHours:{} }, canManage:isAdminUser(),
+        id:() => uid("calendar"), open:(title, html) => openModal(title, html, true),
+        close:() => closeModal(), save:change => gmSaveOperationalPlanning(change),
+        refresh:() => renderProductiveCalendars()
+      });
+    }
     function renderProductiveCalendars() {
       const target = $("productiveCalendarRows");
       if (!target) return;
@@ -33158,6 +33197,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       });
       if (!calendars.size) calendars.set("07:00-17:00", 0);
       target.innerHTML = Array.from(calendars.entries()).map(([name, count]) => `<tr><td><strong>${escapeHtml(name)}</strong></td><td>${count}</td><td>Planejamento de equipes e O.S.</td><td>${tag("Ativo")}</td></tr>`).join("");
+      renderOperationalPlanning();
     }
     function isMobileOperational() { return window.matchMedia("(max-width: 600px)").matches; }
     let mobileMyOrdersOnly = false;
@@ -36415,6 +36455,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function openOrderModalV2(assetId = "", editId = "") {
       if (!namedOperationAllowed("openOrderModal", "orders", editId ? "manage" : "operate", [assetId, editId])) return denyProfileAccess();
       const editing = byId(state.orders, editId);
+      let draftOrderBase = editing || null;
+      const formAccount = currentAccount;
       if (editing) { const blocked = blockWorkOrderMutation(editing); if (blocked) return { ok:false, code:blocked.code }; }
       const selectedAssetId = editing?.assetId || assetId;
       const activeAssets = orderActiveAssets(selectedAssetId);
@@ -36474,11 +36516,23 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (editing?.resourceId && [...$("orderResponsible").options].some(option => option.value === editing.resourceId)) $("orderResponsible").value = editing.resourceId;
       updateOrderAssetContext();
       updateOrderDetailsCount();
+      const applyOrderSlaDeadline = () => {
+        const deadlineField = $("orderDeadline");
+        if (!deadlineField || editing || (deadlineField.value && deadlineField.dataset.slaSuggested !== "true")) return;
+        const suggested = window.GMOperationalPlanning?.deadline($("orderPriority")?.value, editing?.createdAt || Date.now(), state.operationalPolicy || {});
+        if (!suggested) return;
+        deadlineField.value = localDateTimeValue(suggested);
+        deadlineField.dataset.slaSuggested = "true";
+        updateOrderDetailsCount();
+      };
+      applyOrderSlaDeadline();
       $("orderAssetSearch").addEventListener("input", renderOrderAssetOptions);
       $("orderAsset").addEventListener("change", () => { updateOrderAssetContext(); if ($("orderAsset").value) { $("orderAssetError").hidden = true; $("orderAsset").removeAttribute("aria-invalid"); } });
       $("orderDescription").addEventListener("input", () => { if (value("orderDescription")) { $("orderDescriptionError").hidden = true; $("orderDescription").removeAttribute("aria-invalid"); } });
       $("orderTeam").addEventListener("change", renderOrderExecutorPicker);
       $("orderExecutorSearch").addEventListener("input", renderOrderExecutorPicker);
+      $("orderPriority")?.addEventListener("change", applyOrderSlaDeadline);
+      $("orderDeadline")?.addEventListener("input", event => { if (event.target.value !== event.target.defaultValue) delete event.target.dataset.slaSuggested; updateOrderDetailsCount(); });
       ["orderChecklist","orderPlannedSpare","orderNotes","orderDeadline","orderDuration","orderAttachments"].forEach(id => $(id)?.addEventListener("change", updateOrderDetailsCount));
       $("orderForm").addEventListener("submit", async event => {
         event.preventDefault();
@@ -36490,7 +36544,11 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         if (invalid) return;
         orderQuickSaveLock = true;
         const button = event.submitter;
-        const previousOrders = state.orders;
+        const form = event.currentTarget;
+        const submitButtons = Array.from(form.querySelectorAll("button:not(:disabled)"));
+        submitButtons.forEach(item => item.disabled = true);
+        form.classList.add("is-loading");
+        form.setAttribute("aria-busy", "true");
         if (button) button.disabled = true;
         try {
           const now = Date.now();
@@ -36499,7 +36557,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           const invalidFile = selectedFiles.map(file => ({ file, issue:stage21AllowedFile(file, attachmentRules) })).find(item => item.issue);
           if (invalidFile) { showToast(`${invalidFile.file.name}: ${invalidFile.issue}`, "warning"); if (button) button.disabled = false; return; }
           const files = await Promise.all(selectedFiles.map(async file => ({ id:uid("file"), name:file.name, type:file.type || "", size:file.size, createdAt:now, dataUrl:await readAssetFile(file) })));
-          const base = editing || { id:uid("os"), number:await nextOrderNumberSafe(), createdAt:now, status:"Aberta", startedAt:null, finishedAt:null };
+          if (!draftOrderBase) draftOrderBase = { id:uid("os"), number:await nextOrderNumberSafe(), createdAt:now, status:"Aberta", startedAt:null, finishedAt:null };
+          const base = draftOrderBase;
+          if (currentAccount !== formAccount || !form.isConnected) throw new Error("ORDER_CONTEXT_CHANGED");
           const snapshot = orderExecutorSnapshot();
           const selectedIds = snapshot.map(item => item.id);
           const responsibleId = $("orderResponsible").value || "";
@@ -36515,6 +36575,11 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             saveState();
           }
           const remoteSaved = await saveOrderSupabaseNow(payload);
+          if (!remoteSaved) {
+            showToast("Salvamento não confirmado. Mantenha esta tela aberta e tente novamente; a mesma O.S. será reutilizada.", "error");
+            return;
+          }
+          if (currentAccount !== formAccount) return;
           if (remoteSaved && !editing) await saveOrderEventSupabase(payload, "CRIADA", { data_abertura:new Date(payload.createdAt).toISOString(), executantes:selectedIds });
           selectedOrderId = payload.id;
           closeModal();
@@ -36522,10 +36587,14 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           if (button?.value === "start") await startOrder(payload.id, payload.executor); else render();
           showToast(editing ? "O.S. atualizada com sucesso." : "Ordem de Serviço criada com sucesso.");
         } catch (error) {
-          state.orders = previousOrders;
           stage21HandleError(error, "orders.save", "Não foi possível salvar. Todos os dados preenchidos foram preservados.");
           if (button) button.disabled = false;
-        } finally { setTimeout(() => orderQuickSaveLock = false, 1200); }
+        } finally {
+          form.classList.remove("is-loading");
+          form.removeAttribute("aria-busy");
+          submitButtons.forEach(item => item.disabled = false);
+          orderQuickSaveLock = false;
+        }
       });
     }
     openOrderModal = openOrderModalV2;
@@ -39991,7 +40060,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       clearTimeout(gmRemoteSaveTimer);
       if (gmSyncConflict) return;
       gmRemoteSaveTimer = setTimeout(() => {
-        gmRemoteSavePromise = gmRemoteSavePromise.then(() => gmPersistState(false));
+        gmPersistState(false);
       }, 250);
     }
     function persistLocalStateOnly() { saveState(); }
@@ -40066,11 +40135,26 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       render();
       showToast("Versao do servidor carregada.", "warning");
     }
-    async function gmHandleStateConflict(snapshot, showMessage, conflictAttempt) {
+    async function gmHandleStateConflict(snapshot, showMessage, conflictAttempt, requestedAccount = currentAccount) {
       const rows = await gmRpc("gm_load_tenant_state", {});
+      if (currentAccount !== requestedAccount) return false;
+      // Edits made while the failed request was in flight also belong to this save.
+      snapshot = JSON.parse(JSON.stringify(state));
       const remote = Array.isArray(rows) ? rows[0] : rows;
       if (!remote) throw new Error("GM_COMPANY_STATE_NOT_FOUND");
       const remoteState = gmNormalizeRemoteState(remote.state);
+      // A lost response may have followed a successful commit. Confirm identical
+      // state before treating the retry as a competing edit.
+      if (!gmChangedTopLevelKeys(remoteState, normalizeState(snapshot)).length) {
+        gmRemoteStateVersion = Number(remote.version || 0);
+        gmRemoteStateUpdatedAt = remote.updated_at || "";
+        gmRemoteLastSavedState = normalizeState(JSON.parse(JSON.stringify(remoteState)));
+        gmSyncConflict = null;
+        gmStateDirty = false;
+        hasPendingLocalSync = false;
+        hasSessionLocalChange = false;
+        return true;
+      }
       const localKeys = gmChangedTopLevelKeys(gmRemoteLastSavedState, snapshot);
       const remoteKeys = gmChangedTopLevelKeys(gmRemoteLastSavedState, remoteState);
       const overlapKeys = localKeys.filter(key => remoteKeys.includes(key));
@@ -40082,7 +40166,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         gmRemoteStateUpdatedAt = remote.updated_at || "";
         gmRemoteLastSavedState = normalizeState(JSON.parse(JSON.stringify(remoteState)));
         gmStateDirty = true;
-        return gmPersistState(showMessage, conflictAttempt + 1);
+        return gmPersistStateNow(showMessage, conflictAttempt + 1);
       }
       state = normalizeState(JSON.parse(JSON.stringify(snapshot)));
       gmSyncConflict = {
@@ -40102,7 +40186,18 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       return false;
     }
     async function gmPersistState(showMessage = false, conflictAttempt = 0) {
-      if (!currentAccount || !gmStateDirty) return true;
+      const requestedAccount = currentAccount;
+      const operation = gmRemoteSavePromise.then(() => {
+        if (!requestedAccount || currentAccount !== requestedAccount) return false;
+        return gmPersistStateNow(showMessage, conflictAttempt);
+      });
+      gmRemoteSavePromise = operation.catch(() => false);
+      return operation;
+    }
+    async function gmPersistStateNow(showMessage = false, conflictAttempt = 0) {
+      if (!currentAccount) return false;
+      if (!gmStateDirty) return true;
+      const requestedAccount = currentAccount;
       if (gmSyncConflict) {
         gmShowSyncConflictModal();
         return false;
@@ -40117,27 +40212,33 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           p_state:snapshot
         });
         const result = Array.isArray(rows) ? rows[0] : rows;
-        gmRemoteStateVersion = Number(result?.version ?? gmRemoteStateVersion + 1);
+        if (currentAccount !== requestedAccount) return false;
+        if (!Number.isSafeInteger(Number(result?.version)) || Number(result.version) <= gmRemoteStateVersion) {
+          throw new Error("GM_SAVE_NOT_CONFIRMED");
+        }
+        const changedDuringSave = JSON.stringify(state) !== JSON.stringify(snapshot);
+        gmRemoteStateVersion = Number(result.version);
         gmRemoteStateUpdatedAt = result?.updated_at || new Date().toISOString();
         gmRemoteLastSavedState = normalizeState(snapshot);
         gmSyncConflict = null;
-        gmStateDirty = false;
-        hasPendingLocalSync = false;
-        hasSessionLocalChange = false;
+        gmStateDirty = changedDuringSave;
+        hasPendingLocalSync = changedDuringSave;
+        hasSessionLocalChange = changedDuringSave;
         gmInvalidateMaintenanceMetrics();
         gmScheduleMaintenanceMetricsRender();
         notifyOsPanelUpdate();
         dispatchWhatsAppOrderEvents(previousOrdersForWhatsApp, snapshot.orders);
-        if (showMessage) showToast("Dados salvos no banco de dados.");
+        if (showMessage && !changedDuringSave) showToast("Dados salvos no banco de dados.");
         return true;
       } catch (error) {
+        if (currentAccount !== requestedAccount) return false;
         stage21TechnicalLog("error", "supabase.state.save", error);
         if (String(error?.message || "").includes("GM_STATE_CONFLICT")) {
           try {
-            return await gmHandleStateConflict(snapshot, showMessage, conflictAttempt);
+            return await gmHandleStateConflict(snapshot, showMessage, conflictAttempt, requestedAccount);
           } catch (conflictError) {
             stage21TechnicalLog("error", "supabase.state.conflict", conflictError);
-            state = normalizeState(snapshot);
+            if (currentAccount !== requestedAccount) return false;
             gmStateDirty = true;
             showToast("Conflito detectado. Seus dados continuam nesta tela; tente novamente antes de sair.", "warning");
           }
@@ -40616,6 +40717,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function gmScheduleMaintenanceMetricsRender() {
       clearTimeout(gmMaintenanceMetricsRenderTimer);
       gmMaintenanceMetricsRenderTimer = setTimeout(() => {
+        if (gmBackgroundRefreshBlocked()) return;
         const view = document.querySelector(".view.active")?.id || "";
         if (["dashboard","maintenanceIndicators","reports","assistant"].includes(view)) render();
       }, 80);
