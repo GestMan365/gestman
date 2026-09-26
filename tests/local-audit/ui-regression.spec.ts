@@ -115,8 +115,8 @@ test("navegação superior mantém nomes visíveis e não oferece recolhimento",
   expect(desktop.nav.x).toBe(0);
   expect(desktop.nav.y).toBe(0);
   expect(desktop.nav.width).toBeCloseTo(1366, 0);
-  expect(desktop.nav.height).toBeGreaterThanOrEqual(56);
-  expect(desktop.nav.height).toBeLessThanOrEqual(72);
+  // Notebook: atalhos e módulos ocupam faixas separadas, sem cortar nomes.
+  expect(desktop.nav.height).toBe(112);
   expect(desktop.topbar.height).toBe(0);
   expect(desktop.workspace.x).toBe(0);
   expect(desktop.workspace.width).toBeCloseTo(1366, 0);
@@ -167,14 +167,14 @@ test("navegação superior mantém nomes visíveis e não oferece recolhimento",
   });
   expect(immediatePosition.open).toBe(true);
   expect(immediatePosition.dropdownLeft).toBeCloseTo(immediatePosition.anchorLeft, 0);
-  expect(immediatePosition.dropdownTop).toBeCloseTo(immediatePosition.anchorBottom - 1, 0);
+  expect(immediatePosition.dropdownTop).toBe(Math.round(immediatePosition.anchorBottom - 1));
   await expect(page.locator('#mainNavigation [data-nav-group="maintenance"] .nav-group-items')).toBeVisible();
   await expect(page.locator('#mainNavigation [data-view="orders"]')).toContainText("Ordens de Serviço");
   const maintenanceSummary = await page.locator('#mainNavigation [data-nav-group="maintenance"] > summary').boundingBox();
   const submenu = await page.locator('#mainNavigation [data-nav-group="maintenance"] .nav-group-items').boundingBox();
   expect(maintenanceSummary).not.toBeNull();
   expect(submenu).not.toBeNull();
-  expect(submenu!.y).toBeCloseTo(maintenanceSummary!.y + maintenanceSummary!.height - 1, 0);
+  expect(submenu!.y).toBe(Math.round(maintenanceSummary!.y + maintenanceSummary!.height - 1));
   expect(submenu!.x).toBeCloseTo(maintenanceSummary!.x, 0);
 
   await page.setViewportSize({ width: 1920, height: 1080 });
