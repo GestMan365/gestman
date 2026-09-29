@@ -1,0 +1,89 @@
+/* Listagem de O.S.: hierarquia e consulta, sem alterar o fluxo operacional. */
+#orders {
+  --os-list-surface: #102330;
+  --os-list-text: #e9f2fa;
+  --os-list-muted: #adc2d3;
+  --os-list-border: #345166;
+  --os-list-hover: #173247;
+}
+body.theme-light #orders {
+  --os-list-surface: #fff;
+  --os-list-text: #20384e;
+  --os-list-muted: #4b6479;
+  --os-list-border: #c3d2de;
+  --os-list-hover: #edf5fb;
+}
+body:not(.auth-required):not(.auth-loading) #orders .os-page-head { position: static !important; margin-bottom: 16px; }
+body:not(.auth-required):not(.auth-loading) #orders .os-search-row { margin-bottom: 0; }
+body:not(.auth-required):not(.auth-loading) #orders .os-search-row label {
+  height: 48px; border-radius: 10px 10px 0 0 !important;
+  background: var(--os-list-surface) !important; border: 1px solid var(--os-list-border) !important;
+}
+body:not(.auth-required):not(.auth-loading) #orders .os-search-row input { min-width: 0; color: var(--os-list-text) !important; font-size: 14px !important; text-align: left !important; }
+body:not(.auth-required):not(.auth-loading) #orders .os-filter-panel {
+  grid-template-columns: repeat(3, minmax(130px, 1fr)) minmax(290px, 1.7fr);
+  align-items: end; gap: 12px; padding: 16px !important;
+  margin-top: 0 !important; border-radius: 0 0 10px 10px !important;
+  background: var(--os-list-surface) !important; border-color: var(--os-list-border) !important;
+}
+body:not(.auth-required):not(.auth-loading) #orders .os-filter-panel label { min-width: 0; gap: 6px; color: var(--os-list-muted) !important; text-transform: none !important; }
+body:not(.auth-required):not(.auth-loading) #orders .os-filter-panel .field { width: 100%; min-width: 0; min-height: 40px !important; }
+body:not(.auth-required):not(.auth-loading) #orders .os-period-fields { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 6px; }
+body:not(.auth-required):not(.auth-loading) #orders .os-advanced-filters { grid-column: 1 / -2; }
+body:not(.auth-required):not(.auth-loading) #orders .os-advanced-filters[open] > div { grid-template-columns: minmax(0, 1fr); }
+body:not(.auth-required):not(.auth-loading) #orders .os-filter-btn { justify-self: end; }
+body:not(.auth-required):not(.auth-loading) #orders .os-list-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 16px; border-bottom: 1px solid var(--os-list-border); }
+body:not(.auth-required):not(.auth-loading) #orders .os-list-heading h2 { margin: 0; color: var(--os-list-text); font-size: 16px !important; }
+body:not(.auth-required):not(.auth-loading) #orders .os-list-heading p { margin: 5px 0 0; color: var(--os-list-muted); font-size: 12px; }
+body:not(.auth-required):not(.auth-loading) #orders #osListCount { color: var(--os-list-muted); font-size: 12px; font-weight: 600; }
+body:not(.auth-required):not(.auth-loading) #orders .os-table-panel .table-wrap { min-height: 0; max-height: 65vh; }
+body:not(.auth-required):not(.auth-loading) #orders .os-table { min-width: 1120px !important; table-layout: auto !important; }
+body:not(.auth-required):not(.auth-loading) #orders .os-table th,
+body:not(.auth-required):not(.auth-loading) #orders .os-table th button { white-space: nowrap !important; word-break: normal !important; overflow-wrap: normal !important; }
+body:not(.auth-required):not(.auth-loading) #orders .os-table td { padding: 14px 12px !important; color: var(--os-list-text); }
+body:not(.auth-required):not(.auth-loading) #orders .os-title-cell { min-width: 220px; max-width: 350px; white-space: normal; overflow-wrap: anywhere; }
+body:not(.auth-required):not(.auth-loading) #orders .os-title-cell > strong { display: block; font-size: 13px; line-height: 1.5; color: var(--os-list-text); }
+body:not(.auth-required):not(.auth-loading) #orders .os-title-cell > small { display: block; margin-top: 5px; color: var(--os-list-muted); font-size: 12px; }
+body:not(.auth-required):not(.auth-loading) #orders .os-equipment-cell span { color: var(--os-list-muted); }
+body:not(.auth-required):not(.auth-loading) #orders .os-list-actions { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+body:not(.auth-required):not(.auth-loading) #orders .os-list-details { display: inline-flex !important; align-items: center; justify-content: center; gap: 6px; min-height: 38px !important; color: var(--os-list-text) !important; background: var(--os-list-surface) !important; border: 1px solid var(--os-list-border) !important; }
+body:not(.auth-required):not(.auth-loading) #orders .os-list-details:hover { background: var(--os-list-hover) !important; }
+body:not(.auth-required):not(.auth-loading) #orders .os-row-menu { border-color: var(--os-list-border) !important; }
+body:not(.auth-required):not(.auth-loading) #orders .os-chip { gap: 6px; max-width: 100%; white-space: normal; line-height: 1.4; }
+body:not(.auth-required):not(.auth-loading) #orders .os-pagination { flex-wrap: wrap; gap: 12px; padding: 14px; color: var(--os-list-muted) !important; }
+@media (max-width: 1500px) {
+  body:not(.auth-required):not(.auth-loading) #orders .os-content-grid { grid-template-columns: minmax(0, 1fr) !important; }
+}
+@media (max-width: 1180px) {
+  body:not(.auth-required):not(.auth-loading) #orders .os-filter-panel { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  body:not(.auth-required):not(.auth-loading) #orders .os-advanced-filters { grid-column: 1; }
+}
+@media (min-width: 761px) and (max-width: 1024px) {
+  body:not(.auth-required):not(.auth-loading) #orders .os-table-panel > .table-wrap { display: none; }
+  body:not(.auth-required):not(.auth-loading) #orders .os-mobile-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 12px; gap: 12px; }
+}
+@media (max-width: 1024px) {
+  body:not(.auth-required):not(.auth-loading) #orders .os-mobile-cards { gap: 12px; }
+  body:not(.auth-required):not(.auth-loading) #orders .os-mobile-card { display: grid; grid-template-columns: minmax(0, 1fr) auto !important; gap: 10px; align-items: start; min-width: 0; padding: 16px !important; border: 1px solid var(--os-list-border) !important; border-radius: 10px; background: var(--os-list-surface) !important; }
+  body:not(.auth-required):not(.auth-loading) #orders .os-mobile-card > strong { color: var(--os-list-text); font-size: 14px; }
+  body:not(.auth-required):not(.auth-loading) #orders .os-mobile-card .mobile-order-description { grid-column: 1 / -1; color: var(--os-list-text) !important; font-size: 14px !important; line-height: 1.5; overflow-wrap: anywhere; font-weight: 600; }
+  body:not(.auth-required):not(.auth-loading) #orders .os-mobile-asset { min-width: 0; color: var(--os-list-muted) !important; overflow-wrap: anywhere; font-size: 12px; }
+  body:not(.auth-required):not(.auth-loading) #orders .os-mobile-meta { grid-column: 1 / -1; color: var(--os-list-muted) !important; line-height: 1.6; overflow-wrap: anywhere; }
+  body:not(.auth-required):not(.auth-loading) #orders .os-mobile-card > .os-list-details { grid-column: 1 / -1; min-height: 44px !important; }
+  body:not(.auth-required):not(.auth-loading) #orders .os-mobile-card > .mobile-order-action { grid-column: 1 / -1; min-height: 44px !important; }
+}
+@media (max-width: 600px) {
+  body:not(.auth-required):not(.auth-loading) #orders #osFilterToggle { display: inline-flex !important; }
+  body:not(.auth-required):not(.auth-loading) #orders .os-page-actions { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  body:not(.auth-required):not(.auth-loading) #orders .os-page-actions #createOrderBtn { grid-column: 1 / -1; }
+  body:not(.auth-required):not(.auth-loading) #orders .os-filter-panel { grid-template-columns: minmax(0, 1fr) !important; border-radius: 0 !important; }
+  body:not(.auth-required):not(.auth-loading) #orders .os-advanced-filters, body:not(.auth-required):not(.auth-loading) #orders .os-filter-btn { grid-column: 1; width: 100%; }
+  body:not(.auth-required):not(.auth-loading) #orders .os-list-heading { padding: 14px; }
+}
+@media (max-width: 760px) {
+  /* A seleção automática não pode transformar o resumo em uma camada sobre a lista. */
+  body:not(.auth-required):not(.auth-loading) #orders #osDetailPanel.has-order {
+    position: static !important; inset: auto !important; z-index: auto;
+    width: 100%; max-width: 100%; min-height: 0; border-radius: 10px;
+  }
+}

@@ -20652,6 +20652,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
   </style>
   <link rel="stylesheet" href="assets/ui/gestman-navbar-refinement.css">
+  <link rel="stylesheet" href="assets/ui/gestman-orders-refinement.css">
   <style id="os-panel-entry-guard">
     .gm-live-health { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:6px 10px; margin-bottom:8px; font-size:12px; color:var(--muted); }
     body.os-panel-booting :is(.workspace, .topbar, .nav, .reference-topbar, .platform-owner-header, .mobile-bottom-nav) {
@@ -22127,18 +22128,20 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             <button class="btn primary" id="createOrderBtn">Nova O.S.</button>
           </div>
         </div>
-        <div class="os-search-row"><label><span>⌕</span><input class="field" id="osSearch" placeholder="Buscar por número, equipamento ou descrição" oninput="resetOrderPage();render()"></label></div>
+        <div class="os-search-row"><label for="osSearch"><span aria-hidden="true" data-gm-icon="search"></span><input class="field" id="osSearch" aria-label="Buscar ordens de serviço" placeholder="Buscar por número, equipamento ou descrição" oninput="resetOrderPage();render()"></label></div>
         <div class="mobile-os-filters" id="mobileOsFilters"><button class="active" type="button" onclick="setMobileOrderFilter('all',this)">Todas</button><button type="button" onclick="setMobileOrderFilter('open',this)">Abertas</button><button type="button" onclick="setMobileOrderFilter('running',this)">Em execução</button><button type="button" onclick="setMobileOrderFilter('paused',this)">Pausadas</button><button type="button" onclick="setMobileOrderFilter('late',this)">Atrasadas</button><button type="button" onclick="setMobileOrderFilter('closed',this)">Concluídas</button></div>
         <div class="os-filter-panel" id="osFilterPanel">
           <label>Status <select class="field" id="osStatusFilter" onchange="render()"><option value="">Todos</option></select></label>
           <label>Prioridade <select class="field" id="osPriorityFilter" onchange="render()"><option value="">Todas</option></select></label>
           <label>Equipamento <select class="field" id="osAssetFilter" onchange="render()"><option value="">Todos</option></select></label>
-          <details class="os-advanced-filters"><summary>Mais filtros</summary><div><label>Período <span class="os-period-fields"><input class="field" id="osPeriodStart" type="date" onchange="render()"><b>—</b><input class="field" id="osPeriodEnd" type="date" onchange="render()"></span></label><label>Responsável <select class="field" id="osExecutorFilter" onchange="render()"><option value="">Todos</option></select></label></div></details>
+          <label class="os-period-filter">Período de abertura <span class="os-period-fields"><input class="field" id="osPeriodStart" aria-label="Abertura a partir de" type="date" onchange="render()"><b aria-hidden="true">—</b><input class="field" id="osPeriodEnd" aria-label="Abertura até" type="date" onchange="render()"></span></label>
+          <details class="os-advanced-filters"><summary>Mais filtros</summary><div><label>Responsável <select class="field" id="osExecutorFilter" onchange="render()"><option value="">Todos</option></select></label></div></details>
           <button class="btn os-filter-btn" type="button" onclick="resetOrderFilters()">Limpar filtros</button>
         </div>
         <div class="os-metric-grid" id="osMetricGrid"></div>
         <div class="os-content-grid">
           <div class="panel os-table-panel">
+            <div class="os-list-heading"><div><h2>Ordens de Serviço</h2><p>Consulte os detalhes ou acesse as ações de cada ordem.</p></div><span id="osListCount" role="status" aria-live="polite"></span></div>
             <div class="table-wrap">
               <table class="os-table">
                 <thead><tr><th><button type="button" onclick="sortOrdersBy('number')">Nº O.S.</button></th><th><button type="button" onclick="sortOrdersBy('description')">Descrição</button></th><th><button type="button" onclick="sortOrdersBy('asset')">Equipamento</button></th><th><button type="button" onclick="sortOrdersBy('priority')">Prioridade</button></th><th><button type="button" onclick="sortOrdersBy('status')">Status</button></th><th><button type="button" onclick="sortOrdersBy('executor')">Responsável</button></th><th><button type="button" onclick="sortOrdersBy('due')">Prazo</button></th><th>Ações</th></tr></thead>
@@ -32254,6 +32257,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       osCurrentPage = Math.min(osCurrentPage, pages);
       const startIndex = (osCurrentPage - 1) * OS_PAGE_SIZE;
       const visibleOrders = orders.slice(startIndex, startIndex + OS_PAGE_SIZE);
+      if ($("osListCount")) $("osListCount").textContent = `${orders.length} ${orders.length === 1 ? "ordem encontrada" : "ordens encontradas"}`;
       if (!orders.some(order => order.id === selectedOrderId)) selectedOrderId = orders[0]?.id || null;
       $("orderRows").innerHTML = visibleOrders.map(order => {
         const asset = byId(state.assets, order.assetId) || {};
@@ -32261,16 +32265,16 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         const due = dueDate ? formatDateTime(dueDate.getTime()).split(" ") : ["-", ""];
         return `<tr class="${order.id === selectedOrderId ? "selected" : ""}" onclick="selectOrder('${order.id}')">
           <td><span class="os-number">${escapeHtml(order.number || "-")}</span></td>
-          <td class="os-title-cell">${escapeHtml(orderTitle(order))}</td>
+          <td class="os-title-cell"><strong>${escapeHtml(orderTitle(order))}</strong><small>${escapeHtml(ptBrText(order.type || "Tipo não informado"))}</small></td>
           <td class="os-equipment-cell"><strong>${escapeHtml(asset.code || "-")}</strong><span>${escapeHtml(asset.name || "Equipamento")}</span></td>
           <td>${orderPriorityChip(order.priority)}</td>
           <td>${orderStatusChip(order)}</td>
           <td class="os-person-cell"><span class="os-person-avatar">${escapeHtml(orderInitials(order.executor))}</span><strong>${escapeHtml(order.executor || "Sem responsável")}</strong></td>
           <td class="os-date-cell">${escapeHtml(due[0] || "-")}<br><span>${escapeHtml(due.slice(1).join(" "))}</span></td>
-          <td><button class="os-row-menu" type="button" onclick="event.stopPropagation();showOrderActions('${order.id}')" aria-label="Ações da O.S">⋮</button></td>
+          <td><div class="os-list-actions"><button class="btn os-list-details" type="button" onclick="event.stopPropagation();showOrderDetails('${order.id}')" aria-label="Detalhes da O.S. ${escapeHtml(order.number || "")}">${gmIcon("eye", { size:16 })}Detalhes</button><button class="os-row-menu" type="button" onclick="event.stopPropagation();showOrderActions('${order.id}')" aria-label="Ações da O.S. ${escapeHtml(order.number || "")}">${gmIcon("more", { size:16 })}</button></div></td>
         </tr>`;
       }).join("") || `<tr><td colspan="8" class="empty">Nenhuma O.S encontrada com os filtros selecionados.</td></tr>`;
-      if ($("osMobileCards")) $("osMobileCards").innerHTML = visibleOrders.map(order => { const main=mobileOrderMainAction(order); return `<article class="os-mobile-card" onclick="selectOrder('${order.id}')"><strong>${escapeHtml(order.number || "O.S")}</strong>${orderStatusChip(order)}<span class="mobile-order-description">${escapeHtml(orderTitle(order))}</span><span>${escapeHtml(machineName(order.assetId))}</span>${orderPriorityChip(order.priority)}<small>Prazo: ${escapeHtml(order.scheduledAt ? formatPlanDate(String(order.scheduledAt).slice(0,10)) : "Não definido")} · ${escapeHtml(order.executor||"Sem responsável")}</small><span>›</span><button class="mobile-order-action" type="button" onclick="event.stopPropagation();${main.action}">${main.label}</button></article>`; }).join("") || `<div class="empty">Nenhuma O.S encontrada.</div>`;
+      if ($("osMobileCards")) $("osMobileCards").innerHTML = visibleOrders.map(order => { const main=mobileOrderMainAction(order); return `<article class="os-mobile-card" onclick="selectOrder('${order.id}')"><strong>${escapeHtml(order.number || "O.S")}</strong>${orderStatusChip(order)}<span class="mobile-order-description">${escapeHtml(orderTitle(order))}</span><span class="os-mobile-asset">${escapeHtml(machineName(order.assetId))}</span>${orderPriorityChip(order.priority)}<small class="os-mobile-meta">Prazo: ${escapeHtml(order.scheduledAt ? formatPlanDate(String(order.scheduledAt).slice(0,10)) : "Não definido")} · ${escapeHtml(order.executor||"Sem responsável")}</small><button class="btn os-list-details" type="button" onclick="event.stopPropagation();showOrderDetails('${order.id}')" aria-label="Detalhes da O.S. ${escapeHtml(order.number || "")}">${gmIcon("eye", { size:16 })}Detalhes</button><button class="mobile-order-action" type="button" onclick="event.stopPropagation();${main.action}">${main.label}</button></article>`; }).join("") || `<div class="empty">Nenhuma O.S encontrada.</div>`;
       if ($("osPaginationText")) $("osPaginationText").textContent = `${orders.length ? `${startIndex+1} - ${Math.min(startIndex+OS_PAGE_SIZE,orders.length)} de ` : ""}${orders.length} itens`;
       if ($("osPaginationButtons")) $("osPaginationButtons").innerHTML = `<button type="button" onclick="changeOrderPage(${osCurrentPage-1})" ${osCurrentPage===1?"disabled":""}>‹</button>${Array.from({length:pages},(_,i)=>i+1).slice(Math.max(0,osCurrentPage-3),Math.max(5,osCurrentPage+2)).map(page=>`<button type="button" class="${page===osCurrentPage?"active":""}" onclick="changeOrderPage(${page})">${page}</button>`).join("")}<button type="button" onclick="changeOrderPage(${osCurrentPage+1})" ${osCurrentPage===pages?"disabled":""}>›</button>`;
       renderOrderDetail(byId(state.orders, selectedOrderId));
