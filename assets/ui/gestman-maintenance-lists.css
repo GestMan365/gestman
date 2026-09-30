@@ -1,0 +1,90 @@
+/* Ativos e Preventivas: o mesmo padrão de leitura da listagem de O.S. */
+:is(#assets, #preventivePlans) {
+  --gm-list-surface: #102330;
+  --gm-list-text: #e9f2fa;
+  --gm-list-muted: #adc2d3;
+  --gm-list-border: #345166;
+  --gm-list-hover: #173247;
+}
+body.theme-light :is(#assets, #preventivePlans) {
+  --gm-list-surface: #fff;
+  --gm-list-text: #20384e;
+  --gm-list-muted: #4b6479;
+  --gm-list-border: #c3d2de;
+  --gm-list-hover: #edf5fb;
+}
+body:not(.auth-required):not(.auth-loading) :is(#assets, #preventivePlans) :is(.asset-filter-panel, .preventive-filter-panel) {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  align-items: end; gap: 12px !important; padding: 16px !important;
+  background: var(--gm-list-surface) !important; border-color: var(--gm-list-border) !important;
+  border-radius: 10px !important; min-width: 0;
+}
+body:not(.auth-required):not(.auth-loading) :is(#assets, #preventivePlans) :is(.asset-search, .preventive-search) { grid-column: 1 / -1; min-width: 0; }
+body:not(.auth-required):not(.auth-loading) :is(#assets, #preventivePlans) .gm-list-filter-label {
+  display: grid; gap: 6px; min-width: 0; color: var(--gm-list-muted) !important;
+  font-size: 12px; font-weight: 600; text-transform: none !important;
+}
+body:not(.auth-required):not(.auth-loading) :is(#assets, #preventivePlans) :is(.asset-filter-panel, .preventive-filter-panel) .field {
+  min-height: 42px !important; width: 100%; min-width: 0; max-width: 100%;
+}
+body:not(.auth-required):not(.auth-loading) :is(#assets, #preventivePlans) :is(.asset-search, .preventive-search) input { text-align: left !important; padding-left: 36px !important; }
+body:not(.auth-required):not(.auth-loading) #assets .asset-more-filters { grid-column: 1 / -2; }
+body:not(.auth-required):not(.auth-loading) #assets .asset-more-filters > div {
+  position: static; width: 100%; box-sizing: border-box; margin-top: 8px; box-shadow: none;
+}
+body:not(.auth-required):not(.auth-loading) :is(#assets, #preventivePlans) :is(.asset-filter-panel, .preventive-filter-panel) > button { justify-self: end; }
+body:not(.auth-required):not(.auth-loading) #preventivePlans .preventive-filter-panel > button { grid-column: 4; }
+body:not(.auth-required):not(.auth-loading) :is(#assets, #preventivePlans) :is(.asset-list-meta, .preventive-list-meta) {
+  padding: 16px !important; display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  border-bottom: 1px solid var(--gm-list-border);
+}
+body:not(.auth-required):not(.auth-loading) :is(#assets, #preventivePlans) :is(.asset-list-meta, .preventive-list-meta) strong { color: var(--gm-list-text) !important; font-size: 16px; }
+body:not(.auth-required):not(.auth-loading) :is(#assets, #preventivePlans) :is(.asset-list-meta, .preventive-list-meta) span { color: var(--gm-list-muted) !important; line-height: 1.5; }
+body:not(.auth-required):not(.auth-loading) :is(#assets, #preventivePlans) :is(.asset-table, .preventive-table) { table-layout: auto !important; }
+body:not(.auth-required):not(.auth-loading) #assets .asset-table { min-width: 1250px !important; }
+body:not(.auth-required):not(.auth-loading) #preventivePlans .preventive-table { min-width: 1120px !important; }
+body:not(.auth-required):not(.auth-loading) :is(#assets, #preventivePlans) :is(.asset-table, .preventive-table) th,
+body:not(.auth-required):not(.auth-loading) :is(#assets, #preventivePlans) :is(.asset-table, .preventive-table) th button { white-space: nowrap !important; word-break: normal !important; overflow-wrap: normal !important; }
+body:not(.auth-required):not(.auth-loading) :is(#assets, #preventivePlans) :is(.asset-table, .preventive-table) td { padding: 14px 12px !important; line-height: 1.5; }
+body:not(.auth-required):not(.auth-loading) #assets .asset-name-cell { min-width: 200px; max-width: 320px; }
+body:not(.auth-required):not(.auth-loading) #assets .asset-name-cell strong { white-space: normal; overflow-wrap: anywhere; }
+body:not(.auth-required):not(.auth-loading) #preventivePlans .preventive-table td:first-child { min-width: 210px; max-width: 320px; white-space: normal; overflow-wrap: anywhere; }
+body:not(.auth-required):not(.auth-loading) :is(#assets, #preventivePlans) .gm-list-actions { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+body:not(.auth-required):not(.auth-loading) :is(#assets, #preventivePlans) .gm-list-details {
+  display: inline-flex !important; align-items: center; justify-content: center; gap: 6px;
+  min-height: 38px !important; color: var(--gm-list-text) !important;
+  background: var(--gm-list-surface) !important; border: 1px solid var(--gm-list-border) !important;
+}
+body:not(.auth-required):not(.auth-loading) :is(#assets, #preventivePlans) .gm-list-details:hover { background: var(--gm-list-hover) !important; }
+body:not(.auth-required):not(.auth-loading) :is(#assets, #preventivePlans) :is(.asset-pagination, .preventive-pagination) { flex-wrap: wrap; gap: 8px; padding: 14px; }
+@media (max-width: 1180px) {
+  body:not(.auth-required):not(.auth-loading) :is(#assets, #preventivePlans) :is(.asset-filter-panel, .preventive-filter-panel) { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  body:not(.auth-required):not(.auth-loading) #assets .asset-more-filters { grid-column: 1; }
+  body:not(.auth-required):not(.auth-loading) #preventivePlans .preventive-filter-panel > button { grid-column: 2; }
+}
+@media (max-width: 1024px) {
+  body:not(.auth-required):not(.auth-loading) :is(#assets, #preventivePlans) :is(.asset-table-wrap, .preventive-table-wrap) { display: none !important; }
+  body:not(.auth-required):not(.auth-loading) :is(#assets, #preventivePlans) :is(.asset-mobile-list, .preventive-mobile-list) { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 12px; gap: 12px; }
+  body:not(.auth-required):not(.auth-loading) :is(#assets, #preventivePlans) :is(.asset-mobile-card, .preventive-mobile-card) {
+    display: flex; flex-direction: column; align-items: stretch; gap: 10px; min-width: 0;
+    padding: 16px !important; background: var(--gm-list-surface) !important;
+    border: 1px solid var(--gm-list-border) !important; border-radius: 10px;
+  }
+  body:not(.auth-required):not(.auth-loading) :is(#assets, #preventivePlans) :is(.asset-mobile-card-top, .preventive-mobile-card > div) { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; }
+  body:not(.auth-required):not(.auth-loading) :is(#assets, #preventivePlans) :is(.asset-mobile-card, .preventive-mobile-card) h3 { color: var(--gm-list-text) !important; font-size: 14px !important; line-height: 1.5; overflow-wrap: anywhere; margin: 3px 0; }
+  body:not(.auth-required):not(.auth-loading) :is(#assets, #preventivePlans) :is(.asset-mobile-card, .preventive-mobile-card) p { color: var(--gm-list-muted) !important; font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; margin: 0; }
+  body:not(.auth-required):not(.auth-loading) :is(#assets, #preventivePlans) :is(.asset-mobile-card, .preventive-mobile-card) .tag { max-width: 100%; white-space: normal; line-height: 1.4; align-self: start; }
+  body:not(.auth-required):not(.auth-loading) :is(#assets, #preventivePlans) .gm-list-details { min-height: 44px !important; }
+  body:not(.auth-required):not(.auth-loading) #assets .asset-mobile-card > .gm-list-details { margin-top: auto; }
+}
+@media (max-width: 900px) {
+  body:not(.auth-required):not(.auth-loading) #preventivePlans .preventive-filter-panel { position: static !important; inset: auto; max-height: none; box-shadow: none !important; }
+}
+@media (max-width: 760px) {
+  body:not(.auth-required):not(.auth-loading) #assets .asset-filter-panel { position: static !important; inset: auto; max-height: none; box-shadow: none !important; }
+}
+@media (max-width: 600px) {
+  body:not(.auth-required):not(.auth-loading) :is(#assets, #preventivePlans) :is(.asset-mobile-list, .preventive-mobile-list, .asset-filter-panel, .preventive-filter-panel) { grid-template-columns: minmax(0, 1fr) !important; }
+  body:not(.auth-required):not(.auth-loading) :is(#assets, #preventivePlans) :is(.asset-more-filters, .preventive-filter-panel > button) { grid-column: 1; }
+  body:not(.auth-required):not(.auth-loading) :is(#assets, #preventivePlans) :is(.asset-filter-panel, .preventive-filter-panel) > button { width: 100%; }
+}
