@@ -3,6 +3,19 @@
 
   const STORAGE_PREFIX = "gestman365.workOrderDesktopAlerts.v1";
   const MAX_SEEN = 500;
+  const SOUND_MODELS = [
+    { name: "Campainha", notes: [740, 988], type: "sine", step: 0.5 },
+    { name: "Alerta industrial", notes: [660, 880], type: "triangle", step: 0.25 },
+    { name: "Sonar", notes: [1100, 550], type: "sine", step: 0.75 },
+    { name: "Chamada tripla", notes: [784, 988, 1175], type: "sine", step: 0.3 },
+    { name: "Pulso grave", notes: [330, 440], type: "triangle", step: 0.5 },
+    { name: "Sinal digital", notes: [1200, 900, 1200, 600], type: "square", step: 0.2 },
+    { name: "Melodia ascendente", notes: [523, 659, 784, 1047], type: "sine", step: 0.4 },
+    { name: "Melodia descendente", notes: [1047, 784, 659, 523], type: "triangle", step: 0.4 },
+    { name: "Duplo chamado", notes: [880, 880, 660, 660], type: "sine", step: 0.25 },
+    { name: "Aviso suave", notes: [392, 494, 587], type: "sine", step: 0.65 }
+  ];
+  let soundEnd = 0;
   let activeScope = "";
   let initialized = false;
   let seenIds = new Set();
@@ -31,9 +44,9 @@
   function readSettings(scope) {
     try {
       const parsed = JSON.parse(global.localStorage?.getItem(storageKey(scope)) || "{}");
-      return { enabled: parsed.enabled === true, seen: Array.isArray(parsed.seen) ? parsed.seen.slice(-MAX_SEEN) : [] };
+      return { enabled: parsed.enabled === true, soundModel: validModel(parsed.soundModel), seen: Array.isArray(parsed.seen) ? parsed.seen.slice(-MAX_SEEN) : [] };
     } catch {
-      return { enabled: false, seen: [] };
+      return { enabled: false, soundModel: 0, seen: [] };
     }
   }
 
@@ -41,6 +54,7 @@
     try {
       global.localStorage?.setItem(storageKey(scope), JSON.stringify({
         enabled: settings.enabled === true,
+        soundModel: validModel(settings.soundModel),
         seen: Array.from(settings.seen || []).slice(-MAX_SEEN)
       }));
     } catch {
@@ -68,30 +82,47 @@
     return {
       supported: "Notification" in global,
       permission: permissionState(),
-      enabled: settings.enabled === true
+      enabled: settings.enabled === true,
+      soundModel: settings.soundModel
     };
   }
 
-  async function playSound() {
+  function validModel(value) {
+    return Number.isInteger(value) && value >= 0 && value < SOUND_MODELS.length ? value : 0;
+  }
+
+  function selectSound(account, model) {
+    const settings = ensureScope(account);
+    writeSettings(activeScope, { ...settings, soundModel: validModel(Number(model)), seen: seenIds });
+  }
+
+  async function playSound(modelIndex = readSettings(activeScope).soundModel) {
     const AudioCtor = global.AudioContext || global.webkitAudioContext;
     if (!AudioCtor) return false;
     try {
       audioContext = audioContext || new AudioCtor();
       if (audioContext.state === "suspended") await audioContext.resume();
       const now = audioContext.currentTime;
-      const gain = audioContext.createGain();
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(0.28, now + 0.015);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.7);
-      gain.connect(audioContext.destination);
-      [740, 988].forEach((frequency, index) => {
+      if (now < soundEnd) return true;
+      soundEnd = now + 5;
+      const model = SOUND_MODELS[validModel(modelIndex)];
+      let index = 0;
+      for (let offset = 0; offset < 5; offset += model.step) {
+        const start = now + offset;
+        const end = Math.min(now + 5, start + model.step);
+        const gain = audioContext.createGain();
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(model.type === "square" ? 0.08 : 0.22, start + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, end);
+        gain.connect(audioContext.destination);
         const oscillator = audioContext.createOscillator();
-        oscillator.type = "sine";
-        oscillator.frequency.setValueAtTime(frequency, now + index * 0.16);
+        oscillator.type = model.type;
+        oscillator.frequency.setValueAtTime(model.notes[index++ % model.notes.length], start);
         oscillator.connect(gain);
-        oscillator.start(now + index * 0.16);
-        oscillator.stop(now + 0.38 + index * 0.16);
-      });
+        oscillator.start(start);
+        oscillator.stop(end);
+        oscillator.onended = () => { oscillator.disconnect?.(); gain.disconnect?.(); };
+      }
       return true;
     } catch {
       return false;
@@ -115,7 +146,7 @@
         badge: "assets/ui/illustrations/favicon-32.png",
         tag: `gestman-os-${order.id}`,
         renotify: false,
-        silent: false
+        silent: true
       });
       notification.onclick = function () {
         global.focus?.();
@@ -126,7 +157,7 @@
     } catch {
       return false;
     }
-    playSound();
+    playSound(settings.soundModel);
     if (typeof global.stage20EmitNotification === "function") {
       global.stage20EmitNotification({
         stableKey: `desktop-new-order:${order.id}`,
@@ -172,7 +203,7 @@
       return { ok: false, reason: permission };
     }
     writeSettings(activeScope, { ...settings, enabled: true, seen: seenIds });
-    await playSound();
+    await playSound(settings.soundModel);
     return { ok: true, reason: "granted" };
   }
 
@@ -199,6 +230,11 @@
     panel.dataset.desktopOrderAlerts = "true";
     panel.innerHTML = `<div class="stage20-desktop-alert-row"><span><strong>Alertas de nova O.S. no computador</strong><small class="stage20-sub" data-desktop-alert-status>${statusLabel(current)}</small></span><div class="stage20-notification-actions"><button class="btn primary" type="button" data-desktop-alert-enable>${current.enabled ? "Testar alerta" : "Ativar alertas"}</button>${current.enabled ? '<button class="btn" type="button" data-desktop-alert-disable>Desativar</button>' : ""}</div></div>`;
     const actions = form.querySelector(".toolbar");
+    const chooser = global.document.createElement("label");
+    chooser.innerHTML = `Modelo de alerta · 5 segundos<select class="field" aria-label="Modelo de alerta sonoro">${SOUND_MODELS.map((model, index) => `<option value="${index}" ${index === current.soundModel ? "selected" : ""}>${index + 1}. ${model.name}</option>`).join("")}</select><button class="btn" type="button" data-sound-preview>Ouvir modelo por 5 segundos</button>`;
+    panel.appendChild(chooser);
+    chooser.querySelector("select").addEventListener("change", event => selectSound(accountProvider(), event.target.value));
+    chooser.querySelector("[data-sound-preview]").addEventListener("click", () => playSound(Number(chooser.querySelector("select").value)));
     form.insertBefore(panel, actions || null);
     panel.querySelector("[data-desktop-alert-enable]")?.addEventListener("click", async function () {
       const result = await configure(accountProvider());
@@ -221,5 +257,5 @@
   const observer = global.MutationObserver ? new global.MutationObserver(enhancePreferences) : null;
   if (observer && global.document?.documentElement) observer.observe(global.document.documentElement, { childList: true, subtree: true });
 
-  global.gmWorkOrderDesktopAlerts = { configure, disable, observe, status, playSound, isOpenOrder, setAccountProvider, enhancePreferences };
+  global.gmWorkOrderDesktopAlerts = { configure, disable, observe, status, playSound, isOpenOrder, setAccountProvider, enhancePreferences, selectSound, soundModels: SOUND_MODELS };
 })(window);

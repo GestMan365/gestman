@@ -8,6 +8,7 @@ const source = fs.readFileSync(new URL("../assets/work-order-desktop-alerts.js",
 function environment() {
   const values = new Map();
   const notifications = [];
+  const soundTimes = [];
   class NotificationMock {
     static permission = "granted";
     static async requestPermission() { return this.permission; }
@@ -20,7 +21,7 @@ function environment() {
     destination = {};
     async resume() {}
     createGain() { return { gain: { setValueAtTime() {}, exponentialRampToValueAtTime() {} }, connect() {} }; }
-    createOscillator() { return { frequency: { setValueAtTime() {} }, connect() {}, start() {}, stop() {}, type: "" }; }
+    createOscillator() { return { frequency: { setValueAtTime() {} }, connect() {}, start(at) { soundTimes.push({ start: at }); }, stop(at) { soundTimes.push({ stop: at }); }, type: "" }; }
   }
   const window = {
     Notification: NotificationMock,
@@ -32,10 +33,25 @@ function environment() {
     document: null
   };
   vm.runInNewContext(source, { window });
-  return { api: window.gmWorkOrderDesktopAlerts, notifications };
+  return { api: window.gmWorkOrderDesktopAlerts, notifications, soundTimes };
 }
 
 const account = { company: { id: "empresa-qa" }, user: { id: "usuario-qa" } };
+
+test("os dez modelos tocam exatamente cinco segundos e preservam a escolha", async () => {
+  for (let model = 0; model < 10; model++) {
+    const { api, soundTimes } = environment();
+    assert.equal(api.soundModels.length, 10);
+    api.selectSound(account, model);
+    assert.equal(api.status(account).soundModel, model);
+    assert.equal(await api.playSound(model), true);
+    assert.equal(Math.min(...soundTimes.filter(item => "start" in item).map(item => item.start)), 0);
+    assert.equal(Math.max(...soundTimes.filter(item => "stop" in item).map(item => item.stop)), 5);
+    const count = soundTimes.length;
+    await api.playSound(model);
+    assert.equal(soundTimes.length, count, "alertas simultâneos não sobrepõem sons");
+  }
+});
 
 test("não alerta ordens antigas no primeiro carregamento", () => {
   const { api, notifications } = environment();

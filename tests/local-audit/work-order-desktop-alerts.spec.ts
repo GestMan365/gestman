@@ -13,6 +13,10 @@ test("preferências expõem ativação segura dos alertas de nova O.S.", async (
   `));
   const alertPanel = page.locator("[data-desktop-order-alerts]");
   await expect(alertPanel).toBeVisible();
+  await expect(alertPanel.getByLabel("Modelo de alerta sonoro").locator("option")).toHaveCount(10);
+  await alertPanel.getByLabel("Modelo de alerta sonoro").selectOption("9");
+  await expect(alertPanel.getByLabel("Modelo de alerta sonoro")).toHaveValue("9");
+  await expect(alertPanel.getByRole("button", { name: "Ouvir modelo por 5 segundos" })).toBeVisible();
   await expect(alertPanel.getByText("Alertas de nova O.S. no computador")).toBeVisible();
   await expect(alertPanel.getByRole("button", { name: /Ativar alertas|Testar alerta/ })).toBeVisible();
   for (const viewport of [{ width: 1366, height: 768 }, { width: 390, height: 844 }]) {
