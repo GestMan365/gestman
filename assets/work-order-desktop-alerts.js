@@ -4,16 +4,16 @@
   const STORAGE_PREFIX = "gestman365.workOrderDesktopAlerts.v1";
   const MAX_SEEN = 500;
   const SOUND_MODELS = [
-    { name: "Sirene de fábrica", notes: [420, 1100], type: "sawtooth", step: 1, sweep: true },
-    { name: "Buzzer de painel", notes: [180], type: "square", step: 0.5, pulse: 0.65 },
-    { name: "Buzina industrial", notes: [220], type: "sawtooth", step: 1, pulse: 0.85, harmonic: 1.5 },
-    { name: "Sirene de emergência", notes: [650, 1200], type: "square", step: 0.5 },
-    { name: "Alarme de máquina", notes: [850], type: "square", step: 0.25, pulse: 0.6 },
-    { name: "Sirene de varredura rápida", notes: [350, 1400], type: "sawtooth", step: 0.25, sweep: true },
-    { name: "Alarme de ré industrial", notes: [1000], type: "square", step: 0.75, pulse: 0.5 },
-    { name: "Buzina dupla de atenção", notes: [155, 195], type: "sawtooth", step: 0.5, pulse: 0.8, harmonic: 2 },
-    { name: "Buzzer rápido de falha", notes: [300, 600], type: "square", step: 0.125, pulse: 0.75 },
-    { name: "Sirene grave de operação", notes: [160, 480], type: "sawtooth", step: 1.25, sweep: true, harmonic: 1.5 }
+    { name: "Aviso padrão", notes: [720], type: "sine", step: 1, pulse: 0.22 },
+    { name: "Duplo aviso", notes: [780, 780], type: "sine", step: 0.5, pulse: 0.32 },
+    { name: "Chamada de O.S.", notes: [640, 800], type: "triangle", step: 0.5, pulse: 0.38 },
+    { name: "Atenção operacional", notes: [920], type: "triangle", step: 0.625, pulse: 0.28 },
+    { name: "Toque discreto", notes: [520], type: "sine", step: 1.25, pulse: 0.24 },
+    { name: "Pulso de acompanhamento", notes: [680], type: "triangle", step: 0.5, pulse: 0.2 },
+    { name: "Aviso claro", notes: [1040], type: "sine", step: 1, pulse: 0.18 },
+    { name: "Duplo tom sóbrio", notes: [600, 720], type: "sine", step: 0.625, pulse: 0.3 },
+    { name: "Chamada prioritária", notes: [840], type: "triangle", step: 0.3125, pulse: 0.25 },
+    { name: "Aviso encorpado", notes: [440], type: "sine", step: 1, pulse: 0.3, harmonic: 2 }
   ];
   let soundEnd = 0;
   let activeScope = "";
