@@ -4,16 +4,16 @@
   const STORAGE_PREFIX = "gestman365.workOrderDesktopAlerts.v1";
   const MAX_SEEN = 500;
   const SOUND_MODELS = [
-    { name: "Campainha", notes: [740, 988], type: "sine", step: 0.5 },
-    { name: "Alerta industrial", notes: [660, 880], type: "triangle", step: 0.25 },
-    { name: "Sonar", notes: [1100, 550], type: "sine", step: 0.75 },
-    { name: "Chamada tripla", notes: [784, 988, 1175], type: "sine", step: 0.3 },
-    { name: "Pulso grave", notes: [330, 440], type: "triangle", step: 0.5 },
-    { name: "Sinal digital", notes: [1200, 900, 1200, 600], type: "square", step: 0.2 },
-    { name: "Melodia ascendente", notes: [523, 659, 784, 1047], type: "sine", step: 0.4 },
-    { name: "Melodia descendente", notes: [1047, 784, 659, 523], type: "triangle", step: 0.4 },
-    { name: "Duplo chamado", notes: [880, 880, 660, 660], type: "sine", step: 0.25 },
-    { name: "Aviso suave", notes: [392, 494, 587], type: "sine", step: 0.65 }
+    { name: "Sirene de fábrica", notes: [420, 1100], type: "sawtooth", step: 1, sweep: true },
+    { name: "Buzzer de painel", notes: [180], type: "square", step: 0.5, pulse: 0.65 },
+    { name: "Buzina industrial", notes: [220], type: "sawtooth", step: 1, pulse: 0.85, harmonic: 1.5 },
+    { name: "Sirene de emergência", notes: [650, 1200], type: "square", step: 0.5 },
+    { name: "Alarme de máquina", notes: [850], type: "square", step: 0.25, pulse: 0.6 },
+    { name: "Sirene de varredura rápida", notes: [350, 1400], type: "sawtooth", step: 0.25, sweep: true },
+    { name: "Alarme de ré industrial", notes: [1000], type: "square", step: 0.75, pulse: 0.5 },
+    { name: "Buzina dupla de atenção", notes: [155, 195], type: "sawtooth", step: 0.5, pulse: 0.8, harmonic: 2 },
+    { name: "Buzzer rápido de falha", notes: [300, 600], type: "square", step: 0.125, pulse: 0.75 },
+    { name: "Sirene grave de operação", notes: [160, 480], type: "sawtooth", step: 1.25, sweep: true, harmonic: 1.5 }
   ];
   let soundEnd = 0;
   let activeScope = "";
@@ -110,18 +110,33 @@
       for (let offset = 0; offset < 5; offset += model.step) {
         const start = now + offset;
         const end = Math.min(now + 5, start + model.step);
+        const toneEnd = start + (end - start) * (model.pulse || 1);
         const gain = audioContext.createGain();
         gain.gain.setValueAtTime(0.0001, start);
-        gain.gain.exponentialRampToValueAtTime(model.type === "square" ? 0.08 : 0.22, start + 0.015);
-        gain.gain.exponentialRampToValueAtTime(0.0001, end);
+        gain.gain.exponentialRampToValueAtTime(model.harmonic ? 0.07 : 0.12, Math.min(start + 0.01, toneEnd));
+        gain.gain.setValueAtTime(model.harmonic ? 0.07 : 0.12, Math.max(start + 0.01, toneEnd - 0.025));
+        gain.gain.exponentialRampToValueAtTime(0.0001, toneEnd);
         gain.connect(audioContext.destination);
         const oscillator = audioContext.createOscillator();
         oscillator.type = model.type;
-        oscillator.frequency.setValueAtTime(model.notes[index++ % model.notes.length], start);
+        const noteIndex = index++ % model.notes.length;
+        const frequency = model.notes[noteIndex];
+        oscillator.frequency.setValueAtTime(frequency, start);
+        if (model.sweep) oscillator.frequency.linearRampToValueAtTime(model.notes[(noteIndex + 1) % model.notes.length], toneEnd);
         oscillator.connect(gain);
         oscillator.start(start);
         oscillator.stop(end);
         oscillator.onended = () => { oscillator.disconnect?.(); gain.disconnect?.(); };
+        if (model.harmonic) {
+          const overtone = audioContext.createOscillator();
+          overtone.type = "triangle";
+          overtone.frequency.setValueAtTime(frequency * model.harmonic, start);
+          if (model.sweep) overtone.frequency.linearRampToValueAtTime(model.notes[(noteIndex + 1) % model.notes.length] * model.harmonic, toneEnd);
+          overtone.connect(gain);
+          overtone.start(start);
+          overtone.stop(end);
+          overtone.onended = () => overtone.disconnect?.();
+        }
       }
       return true;
     } catch {

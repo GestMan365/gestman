@@ -21,7 +21,7 @@ function environment() {
     destination = {};
     async resume() {}
     createGain() { return { gain: { setValueAtTime() {}, exponentialRampToValueAtTime() {} }, connect() {} }; }
-    createOscillator() { return { frequency: { setValueAtTime() {} }, connect() {}, start(at) { soundTimes.push({ start: at }); }, stop(at) { soundTimes.push({ stop: at }); }, type: "" }; }
+    createOscillator() { return { frequency: { setValueAtTime() {}, linearRampToValueAtTime() {} }, connect() {}, start(at) { soundTimes.push({ start: at }); }, stop(at) { soundTimes.push({ stop: at }); }, type: "" }; }
   }
   const window = {
     Notification: NotificationMock,
