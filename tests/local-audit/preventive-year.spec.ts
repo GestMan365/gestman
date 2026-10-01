@@ -9,7 +9,7 @@ test("cronograma anual mostra estados e detalhes sem escrita nos quatro tamanhos
     document.body.classList.remove("auth-required","auth-loading","auth-restoring");
     currentAccount={user:{id:"qa",name:"QA",role:"admin",accessProfile:"admin",active:true},company:{id:"qa",name:"QA"}};
     createDemoDataSet();
-    state.assets=[{id:"a",code:"MAQ-01",name:"Máquina QA",status:"Operando"}];
+    state.assets=[{id:"a",code:"GFG-QA-EQP-001",name:"Motor elétrico industrial da linha de produção com identificação extensa",status:"Operando"}];
     state.preventivePlans=[{id:"p",assetId:"a",name:"Lubrificação QA",nextExecution:"2026-01-01",intervalDays:30,frequencyPreset:"monthly",status:"Ativo"}];
     state.orders=[{id:"os",number:"OS-QA",assetId:"a",preventivePlanId:"p",scheduledAt:"2026-01-01T08:00",status:"Concluída"}];
     window.qaWrites=0;saveState=()=>{window.qaWrites++};
@@ -32,6 +32,9 @@ test("cronograma anual mostra estados e detalhes sem escrita nos quatro tamanhos
       const columns=await page.locator("#gmPreventiveYearTable thead th").evaluateAll(nodes=>nodes.slice(1,4).map(n=>({x:n.getBoundingClientRect().x,y:n.getBoundingClientRect().y})));
       expect(columns[0].y).toBe(columns[1].y);
       expect(columns[1].x).toBeGreaterThan(columns[0].x);
+      const machineColumn=await page.locator("#gmPreventiveYearTable tbody th").first().evaluate(cell=>{const bounds=cell.getBoundingClientRect(),label=cell.querySelector("small")?.getBoundingClientRect();return{right:bounds.right,labelRight:label?.right||0,scrollWidth:cell.scrollWidth,clientWidth:cell.clientWidth}});
+      expect(machineColumn.labelRight).toBeLessThanOrEqual(machineColumn.right+1);
+      expect(machineColumn.scrollWidth).toBeLessThanOrEqual(machineColumn.clientWidth+1);
       for(const [state,color] of [["done","rgb(23, 100, 58)"],["late","rgb(143, 29, 37)"],["future","rgb(31, 77, 152)"]]){
         await expect(page.locator(".gm-year-mark."+state).first()).toHaveCSS("background-color",color);
       }
