@@ -13,6 +13,8 @@ function copyClassicUiRuntime() {
       const runtimeDirectories = [
         ["assets/icons/flaticon", "dist/assets/icons/flaticon"],
         ["assets/vendor", "dist/assets/vendor"],
+        ["assets/work-order-desktop-alerts.js", "dist/assets/work-order-desktop-alerts.js"],
+        ["assets/work-order-desktop-alerts.css", "dist/assets/work-order-desktop-alerts.css"],
         ["assets/preventive-year.js", "dist/assets/preventive-year.js"],
         ["assets/preventive-year-ui.js", "dist/assets/preventive-year-ui.js"],
         ["assets/maintenance-charts.js", "dist/assets/maintenance-charts.js"],

@@ -20661,6 +20661,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       visibility: hidden !important;
     }
   </style>
+  <link rel="stylesheet" href="assets/work-order-desktop-alerts.css">
 </head>
 <body class="auth-loading auth-restoring">
   <script id="design-theme-bootstrap">
@@ -22342,6 +22343,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   <div class="toast" id="toast"></div>
 
   <script src="assets/icons/flaticon/icon-registry.js"></script>
+  <script src="assets/work-order-desktop-alerts.js"></script>
   <link rel="stylesheet" href="assets/preventive-year.css">
   <script src="assets/preventive-year.js"></script>
   <script src="assets/preventive-year-ui.js"></script>
@@ -40234,6 +40236,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         gmScheduleMaintenanceMetricsRender();
         notifyOsPanelUpdate();
         dispatchWhatsAppOrderEvents(previousOrdersForWhatsApp, snapshot.orders);
+        globalThis.gmWorkOrderDesktopAlerts?.observe(previousOrdersForWhatsApp, snapshot.orders, currentAccount);
         if (showMessage && !changedDuringSave) showToast("Dados salvos no banco de dados.");
         return true;
       } catch (error) {
@@ -40283,6 +40286,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           return true;
         }
         const nextState = gmNormalizeRemoteState(remote.state);
+        globalThis.gmWorkOrderDesktopAlerts?.observe(state.orders, nextState.orders, currentAccount);
         state = nextState;
         gmRemoteStateVersion = Number(remote.version || 0);
         gmRemoteStateUpdatedAt = remote.updated_at || "";
@@ -41639,6 +41643,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     initCompanyRequestPage();
     initPlatformAdmin();
+    window.gmWorkOrderDesktopAlerts?.setAccountProvider(() => currentAccount);
     applyTheme(currentTheme, { silent:true });
     initNavCollapse();
     initNavGroups();

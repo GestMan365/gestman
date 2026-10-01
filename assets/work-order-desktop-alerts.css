@@ -1,0 +1,42 @@
+.stage20-desktop-alert-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px;
+  border: 1px solid #29445e;
+  border-radius: 10px;
+  background: #091827;
+  color: #dce7f2;
+}
+
+.stage20-desktop-alert-row > span {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.stage20-desktop-alert-row .stage20-notification-actions {
+  flex: 0 0 auto;
+}
+
+body.theme-light .stage20-desktop-alert-row {
+  border-color: #cbd8e5;
+  background: #f8fafc;
+  color: #15263a;
+}
+
+@media (max-width: 650px) {
+  .stage20-desktop-alert-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .stage20-desktop-alert-row .stage20-notification-actions {
+    justify-content: stretch;
+  }
+
+  .stage20-desktop-alert-row .btn {
+    flex: 1 1 auto;
+  }
+}
