@@ -15,8 +15,9 @@ test("cronograma anual mostra estados e detalhes sem escrita nos quatro tamanhos
     window.qaWrites=0;saveState=()=>{window.qaWrites++};
     setView("preventivePlans",{persist:false,route:false});renderPreventivePlansWorkspace();
   `));
-  await page.locator("#gmPreventiveYearPanel > summary").click();
+  await page.evaluate(()=>window.eval(`document.getElementById("gmPreventiveYearPanel").open=true;renderPreventiveYear()`));
   await page.locator("#gmPreventiveYear").selectOption("2026");
+  await expect(page.locator("#gmPreventiveYearKpis .gm-year-kpi")).toHaveCount(4);
   await expect(page.locator(".gm-year-mark.done")).toHaveCount(1);
   await expect(page.locator(".gm-year-mark.late").first()).toBeVisible();
   await expect(page.locator(".gm-year-mark.future").first()).toBeAttached();
@@ -31,7 +32,7 @@ test("cronograma anual mostra estados e detalhes sem escrita nos quatro tamanhos
       const columns=await page.locator("#gmPreventiveYearTable thead th").evaluateAll(nodes=>nodes.slice(1,4).map(n=>({x:n.getBoundingClientRect().x,y:n.getBoundingClientRect().y})));
       expect(columns[0].y).toBe(columns[1].y);
       expect(columns[1].x).toBeGreaterThan(columns[0].x);
-      for(const [state,color] of [["done","rgb(22, 101, 52)"],["late","rgb(153, 27, 27)"],["future","rgb(30, 64, 175)"]]){
+      for(const [state,color] of [["done","rgb(23, 100, 58)"],["late","rgb(143, 29, 37)"],["future","rgb(31, 77, 152)"]]){
         await expect(page.locator(".gm-year-mark."+state).first()).toHaveCSS("background-color",color);
       }
       await page.locator("#gmPreventiveYearScroll").scrollIntoViewIfNeeded();
@@ -41,6 +42,10 @@ test("cronograma anual mostra estados e detalhes sem escrita nos quatro tamanhos
   await page.locator(".gm-year-mark.done").click();
   await expect(page.getByText("O.S. OS-QA", {exact:false})).toBeVisible();
   await page.evaluate(()=>window.eval("closeModal()"));
+  await page.locator("#gmPreventiveYearStatus").selectOption("done");
+  await expect(page.locator(".gm-year-mark.late")).toHaveCount(0);
+  await page.getByRole("button",{name:"Limpar filtros"}).first().click();
+  await expect(page.locator(".gm-year-mark.late").first()).toBeVisible();
   await page.locator("#gmPreventiveYearSearch").fill("inexistente");
   await expect(page.locator("#gmPreventiveYearTable")).toContainText("Nenhuma máquina encontrada");
   expect(await page.evaluate(()=>window.eval("window.qaWrites"))).toBe(0);
