@@ -35894,6 +35894,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const paused = key.includes("paus");
       const running = isRunningOrder(order.status);
       const panelClass = placement === "panel" ? " is-panel" : "";
+      if (placement === "footer" && (closed || paused || running)) return "";
       const permission = `data-permission-module="orders" data-required-level="operate"`;
       if (closed) {
         return `<section class="order-execution-cta is-closed${panelClass}" data-order-execution-cta data-order-state="closed">
@@ -35927,6 +35928,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         </section>`;
       }
       const startAction = placement === "panel" ? `confirmStartOrder('${order.id}')` : `confirmStartOrder('${order.id}', true)`;
+      if (placement === "modal") return "";
+      if (placement === "footer") return `<div class="order-start-footer"><button class="btn primary order-execution-primary is-start" type="button" data-order-primary-action="start" ${permission} onclick="${startAction}">${gmIcon("play", { size:20 })} Iniciar O.S. agora</button></div>`;
       return `<section class="order-execution-cta is-ready${panelClass}" data-order-execution-cta data-order-state="ready">
         <div class="order-execution-copy">
           <i class="order-execution-icon">${gmIcon("workOrders", { size:24 })}</i>
@@ -35992,6 +35995,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             <button class="btn ${orderReadOnly ? "" : "danger"}" type="button" onclick="closeModal()">${orderReadOnly ? "Fechar" : "Cancelar"}</button>
             ${orderReadOnly ? `<span class="muted">O.S. encerrada — alterações bloqueadas.</span>` : `<button class="btn primary" type="submit">Salvar detalhes</button>`}
           </div>
+          ${orderExecutionCta(order, "footer")}
           </div>
         </form>
       `, true);

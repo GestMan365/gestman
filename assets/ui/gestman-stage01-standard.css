@@ -607,7 +607,7 @@ body:not(.auth-required):not(.auth-loading):not(.panel-mode) #assistant .ai-form
   overscroll-behavior: contain;
 }
 
-#genericModal :is(.os-create-actions,.order-execution-actions,.modal-actions,.modal-foot,.materials-form-actions,.stage14-form-actions,.stage15-form-actions,.tenant-user-editor-foot),
+#genericModal :is(.os-create-actions,.modal-actions,.modal-foot,.materials-form-actions,.stage14-form-actions,.stage15-form-actions,.tenant-user-editor-foot),
 .platform-dialog-actions.is-sticky {
   position: sticky !important;
   bottom: 0 !important;
@@ -617,6 +617,19 @@ body:not(.auth-required):not(.auth-loading):not(.panel-mode) #assistant .ai-form
   background: var(--gm01-surface) !important;
   border-top: 1px solid var(--gm01-border) !important;
   box-shadow: 0 -10px 24px color-mix(in srgb, var(--gm01-bg) 72%, transparent) !important;
+}
+
+#genericModal .order-start-footer {
+  position: static !important;
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 0;
+  clear: both;
+}
+
+#genericModal .order-start-footer .btn {
+  position: static !important;
+  min-height: 48px;
 }
 
 body:not(.auth-required):not(.auth-loading) #assets .asset-form-panel {
