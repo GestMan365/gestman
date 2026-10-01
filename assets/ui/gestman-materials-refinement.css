@@ -1,0 +1,71 @@
+/* GestMan365 — refinamento profissional de Materiais e Estoque */
+#spares .materials-workspace{gap:16px}
+#spares .materials-page-head{padding:6px 2px 2px}
+#spares .materials-page-head p{max-width:720px;line-height:1.55}
+#spares .materials-tabs{width:100%;justify-content:flex-start;padding:5px}
+#spares .materials-tabs button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px}
+#spares .materials-tabs button.active{box-shadow:inset 0 -2px 0 #38bdf8}
+#spares .materials-metrics{gap:12px}
+#spares .materials-metric{min-height:84px;padding:14px;border-radius:12px}
+#spares .materials-metric strong{font-size:clamp(1.05rem,1.5vw,1.4rem);font-variant-numeric:tabular-nums}
+#spares .materials-toolbar{grid-template-columns:minmax(300px,1fr) minmax(220px,280px) auto;align-items:end;padding:12px;border-radius:12px}
+#spares .materials-search{display:grid;gap:6px}
+#spares .materials-search>span{top:50%;width:18px;height:18px;display:grid;place-items:center}
+#spares .materials-toolbar .btn{min-height:40px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+#spares .materials-filter-panel{grid-template-columns:repeat(4,minmax(150px,1fr));padding:14px;border-radius:12px}
+#spares .materials-filter-panel label{gap:7px;text-transform:none;letter-spacing:.01em}
+#spares .materials-filter-panel>.btn{min-height:40px}
+#spares .materials-alert-panel{min-height:64px;padding:13px 15px;border-radius:12px}
+#spares .materials-alert-copy i{width:38px;height:38px;border-radius:10px}
+#spares .materials-list-panel{border-radius:14px;box-shadow:0 14px 34px rgba(0,0,0,.12)}
+#spares .materials-list-head{min-height:62px;padding:12px 15px}
+#spares .materials-list-head strong{font-size:var(--font-size-base)}
+#spares .materials-list-head span{font-variant-numeric:tabular-nums}
+#spares .materials-table{min-width:1480px!important;table-layout:auto!important}
+#spares .materials-table th{height:46px;color:#a9bdd1;font-size:var(--font-size-xs);letter-spacing:.035em;text-transform:uppercase;white-space:nowrap}
+#spares .materials-table td{min-height:56px;padding-top:12px;padding-bottom:12px}
+#spares .materials-table th:last-child,#spares .materials-table td:last-child{min-width:150px}
+#spares .materials-table tbody tr{transition:background-color .16s ease,box-shadow .16s ease}
+#spares .materials-table tbody tr:focus-visible{outline:2px solid #38bdf8;outline-offset:-2px}
+#spares .materials-name-cell strong{line-height:1.35}
+#spares .materials-financial-value{font-weight:800;font-variant-numeric:tabular-nums}
+#spares .materials-row-actions{display:flex;align-items:center;justify-content:flex-end;gap:6px;white-space:nowrap}
+#spares .materials-row-actions .gm-list-details{min-width:102px;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap!important}
+#spares .gm-list-details:focus,#spares .gm-list-details:focus-visible{outline:2px solid #38bdf8!important;outline-offset:2px!important;box-shadow:0 0 0 4px rgba(56,189,248,.24)!important}
+#spares .materials-row-menu>button{font-size:0}
+#spares .materials-row-menu>button svg{width:18px;height:18px}
+#spares .materials-mobile-card{position:relative;gap:11px;padding:14px;border-radius:13px;box-shadow:0 8px 22px rgba(0,0,0,.1)}
+#spares .materials-mobile-card-head>div{min-width:0}
+#spares .materials-mobile-card h3{overflow-wrap:anywhere;line-height:1.35}
+#spares .materials-mobile-meta span{display:grid;gap:4px}
+#spares .materials-mobile-meta strong{color:var(--gm-text-primary,#e8f2fc);font-variant-numeric:tabular-nums}
+#spares .materials-mobile-actions{display:flex;justify-content:flex-end;padding-top:2px}
+#spares .materials-mobile-actions .gm-list-details{width:100%;min-height:40px;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+#spares .materials-pagination button{cursor:pointer}
+#spares .materials-pagination button:focus-visible{outline:2px solid #38bdf8;outline-offset:2px}
+body.theme-light #spares .materials-mobile-meta strong{color:#15263a}
+body.theme-light #spares .materials-list-panel{box-shadow:0 12px 30px rgba(31,55,81,.08)}
+@media(max-width:1200px){
+  #spares .materials-filter-panel{grid-template-columns:repeat(3,minmax(145px,1fr))}
+}
+@media(max-width:1024px){
+  #spares .materials-table-wrap{display:none!important}
+  #spares .materials-mobile-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:12px}
+  #spares .materials-filter-panel{position:static!important;left:auto!important;right:auto!important;bottom:auto!important;max-height:none!important;box-shadow:none!important}
+  #spares .materials-filter-panel.mobile-open{display:grid}
+}
+@media(max-width:700px){
+  #spares .materials-toolbar{grid-template-columns:1fr 1fr}
+  #spares .materials-search{grid-column:1/-1}
+  #spares .materials-toolbar select{grid-column:auto}
+  #spares .materials-filter-panel{grid-template-columns:1fr}
+  #spares .materials-mobile-list{grid-template-columns:1fr;padding:9px}
+  #spares .materials-list-head{align-items:stretch}
+  #spares .materials-list-head .btn{width:100%}
+}
+@media(max-width:420px){
+  #spares .materials-toolbar{grid-template-columns:1fr}
+  #spares .materials-search,#spares .materials-toolbar select{grid-column:1}
+  #spares .materials-tabs{display:flex;overflow-x:auto;scrollbar-width:thin}
+  #spares .materials-tabs button{flex:0 0 auto;padding-inline:12px}
+}
