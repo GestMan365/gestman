@@ -11,6 +11,9 @@ function copyClassicUiRuntime() {
     name: "copy-classic-ui-runtime",
     closeBundle() {
       const runtimeDirectories = [
+        ["assets/premium-ui.css", "dist/assets/premium-ui.css"],
+        ["assets/premium-ui.js", "dist/assets/premium-ui.js"],
+        ["assets/fonts", "dist/assets/fonts"],
         ["assets/icons/flaticon", "dist/assets/icons/flaticon"],
         ["assets/vendor", "dist/assets/vendor"],
         ["assets/work-order-desktop-alerts.js", "dist/assets/work-order-desktop-alerts.js"],

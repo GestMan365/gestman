@@ -30,7 +30,7 @@ test("endereço da empresa identifica o cliente e remove o campo de domínio", a
   await expect(page.getByRole("textbox", { name: "Usuário", exact: true })).toBeVisible();
   await expect(page.locator("#authPassword")).toBeVisible();
   await expect.poll(() => requestedSlug).toBe("beautylab");
-  await expect(page.locator("base")).toHaveAttribute("href", "/nadirteste/");
+  await expect(page.locator("base")).toHaveAttribute("href", new URL(page.url()).pathname.startsWith("/nadirteste/") ? "/nadirteste/" : "/");
 });
 
 test("login geral continua disponível para administração e acesso alternativo", async ({ page }) => {

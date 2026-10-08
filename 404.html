@@ -1,8 +1,8 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-BR" id="gm-premium">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
@@ -20662,11 +20662,12 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
   </style>
   <link rel="stylesheet" href="assets/work-order-desktop-alerts.css">
+  <link rel="stylesheet" href="assets/premium-ui.css">
 </head>
 <body class="auth-loading auth-restoring">
   <script id="design-theme-bootstrap">
     (() => {
-      document.body.classList.add("gm-top-navigation");
+      document.body.classList.add("premium-shell");
       // Resolve the dedicated destination before any application content can paint.
       if (new URLSearchParams(window.location.search).get("panel") === "os") {
         document.body.classList.add("os-panel-booting");
@@ -21358,7 +21359,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       </div>
       <div class="industrial-dashboard-shell">
         <div class="industrial-dashboard-heading">
-          <div class="d2-dashboard-welcome"><span>CENTRAL DE MANUTENÇÃO INDUSTRIAL</span><h1>Visão operacional da manutenção</h1><p>Acompanhe disponibilidade, backlog, riscos e prioridades do parque industrial em uma única visão.</p><div class="d2-dashboard-context" aria-label="Resumo operacional"><span>Indicadores em tempo real</span><span>Manutenção e ativos</span><span>Operação monitorada</span></div></div>
+          <div class="d2-dashboard-welcome"><span>CENTRAL DE OPERAÇÕES</span><h1>Manutenção sob controle.</h1><p>Da prioridade de hoje à confiabilidade de amanhã. Acompanhe sua operação em uma única visão.</p><div class="d2-dashboard-context" aria-label="Resumo operacional"><span>Visão Geral</span><span>Manutenção e ativos</span></div></div>
           <div class="industrial-heading-actions"><button class="dashboard-config-trigger btn" type="button" onclick="openDashboardConfig()">Configurar Dashboard</button><div class="industrial-dashboard-live"><i></i><span>Sistema operacional</span><strong id="dashboardRefreshTime">Atualizado agora</strong></div></div>
         </div>
         <div class="dashboard-edit-banner" id="dashboardEditBanner"><span><strong>Personalizando Dashboard</strong><small> Arraste pela alça ou use os botões de movimento.</small></span><div><button type="button" onclick="saveDashboardCustomization()">Salvar</button><button type="button" onclick="cancelDashboardConfig()">Cancelar</button><button type="button" onclick="confirmResetDashboardLayout()">Restaurar padrão</button><button type="button" onclick="openDashboardConfig()">Widgets</button></div></div>
@@ -26333,19 +26334,22 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function setNavCollapsed(collapsed) {
       clearNavAutoCollapse();
       hideSidebarTooltip();
-      document.body.classList.remove("sidebar-collapsed");
+      document.body.classList.toggle("sidebar-collapsed", Boolean(collapsed));
       document.body.classList.remove("sidebar-hover-open");
-      scopedSetItem(NAV_COLLAPSED_KEY, "0", "user");
-      try { localStorage.setItem(NAV_COLLAPSED_KEY, "0"); } catch {}
+      scopedSetItem(NAV_COLLAPSED_KEY, collapsed ? "1" : "0", "user");
       [$("navToggleBtn"), $("navRailToggle"), $("topbarMenuBtn")].filter(Boolean).forEach(button => {
-        button.hidden = true;
-        button.setAttribute("aria-hidden", "true");
-        button.setAttribute("tabindex", "-1");
+        button.hidden = false;
+        button.removeAttribute("aria-hidden");
+        button.removeAttribute("tabindex");
+        button.setAttribute("aria-expanded", String(!collapsed));
+        button.setAttribute("aria-label", collapsed ? "Expandir menu" : "Recolher menu");
+        button.title = collapsed ? "Expandir menu" : "Recolher menu";
       });
     }
     function initNavCollapse() {
       prepareSidebarBrand();
-      setNavCollapsed(false);
+      setNavCollapsed(scopedGetItem(NAV_COLLAPSED_KEY, "user") === "1");
+      $("navToggleBtn")?.addEventListener("click", () => setNavCollapsed(!document.body.classList.contains("sidebar-collapsed")));
       $("navMobileClose")?.addEventListener("click", closeMobileNavigation);
       window.addEventListener("keydown", event => {
         if (event.key === "Escape" && document.body.classList.contains("mobile-nav-open")) closeMobileNavigation();
@@ -33214,8 +33218,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function updateMobileBottomNav(view) { document.querySelectorAll("[data-mobile-view]").forEach(button=>button.classList.toggle("active",button.dataset.mobileView===view)); }
     function openMobileMyOrders() { mobileMyOrdersOnly=true; mobileOrderFilter="all"; if($("osSearch"))$("osSearch").value=""; setView("orders",{mobileOrders:true}); }
     function openMobileNavigation() {
-      document.body.classList.remove("sidebar-collapsed", "mobile-nav-open");
-      $("mobileMoreBtn")?.setAttribute("aria-expanded", "false");
+      document.body.classList.remove("sidebar-collapsed");
+      document.body.classList.add("mobile-nav-open");
+      $("mobileMoreBtn")?.setAttribute("aria-expanded", "true");
       document.querySelector("#mainNavigation .tab:not(.is-permission-hidden), #mainNavigation summary")?.focus({ preventScroll:true });
     }
     function closeMobileNavigation() {
@@ -38868,7 +38873,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     document.addEventListener("input", scheduleApplicationRouteFilterSync);
     document.addEventListener("change", scheduleApplicationRouteFilterSync);
     $("topbarMenuBtn").addEventListener("click", () => {
-      if (window.matchMedia("(max-width:600px)").matches) openMobileNavigation();
+      if (window.matchMedia("(max-width:900px)").matches) openMobileNavigation();
       else setNavCollapsed(!document.body.classList.contains("sidebar-collapsed"));
     });
     window.addEventListener("keydown", event => {
@@ -41679,5 +41684,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       button.textContent = "\u00d7";
     });
   </script>
+  <script src="assets/premium-ui.js"></script>
 </body>
 </html>

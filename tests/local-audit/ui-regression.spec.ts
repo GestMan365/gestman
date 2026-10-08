@@ -92,284 +92,54 @@ test("modal longo mantém cabeçalho fixo e conteúdo rolável dentro da tela", 
   expect(result.actionBottom).toBeLessThanOrEqual(result.boxBottom + 1);
 });
 
-test("navegação superior mantém nomes visíveis e não oferece recolhimento", async ({ page }) => {
-  await page.setViewportSize({ width: 1366, height: 768 });
+test("navegação lateral preserva acesso, espaço útil e recolhimento", async ({ page }) => {
   await page.goto("./");
-  await page.evaluate(() => document.body.classList.remove("auth-required", "auth-loading"));
-
-  const desktop = await page.evaluate(() => {
-    const nav = document.querySelector<HTMLElement>("#mainNavigation")!;
-    const topbar = document.querySelector<HTMLElement>(".reference-topbar")!;
-    const workspace = document.querySelector<HTMLElement>(".workspace")!;
-    const navRect = nav.getBoundingClientRect();
-    const topbarRect = topbar.getBoundingClientRect();
-    const workspaceRect = workspace.getBoundingClientRect();
-    return {
-      nav: { x: navRect.x, y: navRect.y, width: navRect.width, height: navRect.height },
-      topbar: { y: topbarRect.y, height: topbarRect.height, bottom: topbarRect.bottom },
-      workspace: { x: workspaceRect.x, y: workspaceRect.y, width: workspaceRect.width },
-      collapseVisible: Array.from(document.querySelectorAll<HTMLElement>("#navToggleBtn,#topbarMenuBtn"))
-        .some((button) => getComputedStyle(button).display !== "none"),
-    };
-  });
-  expect(desktop.nav.x).toBe(0);
-  expect(desktop.nav.y).toBe(0);
-  expect(desktop.nav.width).toBeCloseTo(1366, 0);
-  // Notebook: atalhos e módulos ocupam faixas separadas, sem cortar nomes.
-  expect(desktop.nav.height).toBe(112);
-  expect(desktop.topbar.height).toBe(0);
-  expect(desktop.workspace.x).toBe(0);
-  expect(desktop.workspace.width).toBeCloseTo(1366, 0);
-  expect(desktop.workspace.y).toBeCloseTo(desktop.nav.height, 0);
-  expect(desktop.collapseVisible).toBe(false);
-
-  for (const label of ["Acessos Rápidos", "Visão Geral", "Manutenção", "Ativos e Instalações", "Materiais", "Planejamento", "Gestão", "Administração"]) {
-    await expect(page.locator("#mainNavigation").getByText(label, { exact: true })).toBeVisible();
-  }
-
-  const closedActiveGroup = await page.evaluate(() => {
-    const activeGroup = document.querySelector<HTMLDetailsElement>('#mainNavigation [data-nav-group="assets"]')!;
-    const referenceGroup = document.querySelector<HTMLDetailsElement>('#mainNavigation [data-nav-group="materials"]')!;
-    activeGroup.open = false;
-    referenceGroup.open = false;
-    activeGroup.classList.add("contains-active");
-    const activeStyle = getComputedStyle(activeGroup.querySelector("summary")!);
-    const referenceStyle = getComputedStyle(referenceGroup.querySelector("summary")!);
-    return {
-      activeBackground: activeStyle.backgroundColor,
-      referenceBackground: referenceStyle.backgroundColor,
-      activeBorder: activeStyle.borderColor,
-      referenceBorder: referenceStyle.borderColor,
-      activeShadow: activeStyle.boxShadow,
-    };
-  });
-  expect(closedActiveGroup.activeBackground).toBe(closedActiveGroup.referenceBackground);
-  expect(closedActiveGroup.activeBorder).toBe(closedActiveGroup.referenceBorder);
-  expect(closedActiveGroup.activeShadow).toBe("none");
-
-  const immediatePosition = await page.evaluate(() => {
-    const group = document.querySelector<HTMLDetailsElement>('#mainNavigation [data-nav-group="maintenance"]')!;
-    const summary = group.querySelector<HTMLElement>(":scope > summary")!;
-    const panel = group.querySelector<HTMLElement>(":scope > .nav-group-items")!;
-    group.open = false;
-    panel.style.removeProperty("--gm-nav-dropdown-left");
-    panel.style.removeProperty("--gm-nav-dropdown-top");
-    const anchor = summary.getBoundingClientRect();
-    summary.click();
-    const dropdown = panel.getBoundingClientRect();
-    return {
-      open: group.open,
-      anchorLeft: anchor.left,
-      anchorBottom: anchor.bottom,
-      dropdownLeft: dropdown.left,
-      dropdownTop: dropdown.top,
-    };
-  });
-  expect(immediatePosition.open).toBe(true);
-  expect(immediatePosition.dropdownLeft).toBeCloseTo(immediatePosition.anchorLeft, 0);
-  expect(immediatePosition.dropdownTop).toBe(Math.round(immediatePosition.anchorBottom - 1));
-  await expect(page.locator('#mainNavigation [data-nav-group="maintenance"] .nav-group-items')).toBeVisible();
-  await expect(page.locator('#mainNavigation [data-view="orders"]')).toContainText("Ordens de Serviço");
-  const maintenanceSummary = await page.locator('#mainNavigation [data-nav-group="maintenance"] > summary').boundingBox();
-  const submenu = await page.locator('#mainNavigation [data-nav-group="maintenance"] .nav-group-items').boundingBox();
-  expect(maintenanceSummary).not.toBeNull();
-  expect(submenu).not.toBeNull();
-  expect(submenu!.y).toBe(Math.round(maintenanceSummary!.y + maintenanceSummary!.height - 1));
-  expect(submenu!.x).toBeCloseTo(maintenanceSummary!.x, 0);
-
-  await page.setViewportSize({ width: 1920, height: 1080 });
-  const wideHeader = await page.evaluate(() => {
-    const actions = document.querySelector<HTMLElement>(".reference-topbar-actions")!.getBoundingClientRect();
-    const profileElement = document.querySelector<HTMLElement>(".reference-header-user")!;
-    const profile = profileElement.getBoundingClientRect();
-    const nav = document.querySelector<HTMLElement>("#mainNavigation")!.getBoundingClientRect();
-    const topbar = document.querySelector<HTMLElement>(".reference-topbar")!.getBoundingClientRect();
-    const heading = document.querySelector<HTMLElement>(".reference-topbar-left")!;
-    const workspace = document.querySelector<HTMLElement>(".workspace")!.getBoundingClientRect();
-    const navigationItems = Array.from(document.querySelectorAll<HTMLElement>("#mainNavigation :is(.nav-pinned .tab,.nav-group > summary)"))
-      .filter((item) => getComputedStyle(item).display !== "none")
-      .map((item) => item.getBoundingClientRect());
-    return {
-      actions: { x: actions.x, y: actions.y, height: actions.height },
-      profileWidth: profile.width,
-      profileHeight: profile.height,
-      profileChildren: profileElement.children.length,
-      avatar: (() => {
-        const rect = document.querySelector<HTMLElement>(".reference-user-avatar")!.getBoundingClientRect();
-        return { width: rect.width, height: rect.height, borderRadius: getComputedStyle(document.querySelector<HTMLElement>(".reference-user-avatar")!).borderRadius };
-      })(),
-      navBottom: nav.bottom,
-      topbarHeight: topbar.height,
-      headingDisplay: getComputedStyle(heading).display,
-      workspaceY: workspace.y,
-      separator: getComputedStyle(document.querySelector<HTMLElement>(".reference-topbar-actions")!).borderLeftWidth,
-      navigationItemsRight: Math.max(...navigationItems.map((item) => item.right)),
-      versionElementPresent: Boolean(document.querySelector(".industrial-sidebar-footer")),
-    };
-  });
-  expect(wideHeader.actions.y).toBeGreaterThanOrEqual(0);
-  expect(wideHeader.actions.y + wideHeader.actions.height).toBeLessThanOrEqual(wideHeader.navBottom);
-  expect(wideHeader.profileWidth).toBeGreaterThanOrEqual(126);
-  expect(wideHeader.profileHeight).toBeCloseTo(42, 0);
-  expect(wideHeader.profileChildren).toBe(3);
-  expect(wideHeader.avatar.width).toBeCloseTo(34, 0);
-  expect(wideHeader.avatar.height).toBeCloseTo(34, 0);
-  expect(wideHeader.avatar.borderRadius).toBe("50%");
-  expect(wideHeader.topbarHeight).toBe(0);
-  expect(wideHeader.headingDisplay).toBe("none");
-  expect(wideHeader.workspaceY).toBeCloseTo(wideHeader.navBottom, 0);
-  expect(wideHeader.separator).toBe("1px");
-  expect(wideHeader.versionElementPresent).toBe(false);
-  expect(wideHeader.navigationItemsRight).toBeLessThanOrEqual(wideHeader.actions.x - 8);
-
-  const headerIcons = await page.locator('#mainNavigation :is(.nav-pinned .tab-icon, .nav-group > summary .nav-group-icon)').evaluateAll((icons) =>
-    icons.map((icon) => ({
-      background: getComputedStyle(icon).backgroundColor,
-      border: getComputedStyle(icon).borderTopWidth,
-      shadow: getComputedStyle(icon).boxShadow,
-      size: icon.querySelector('.gm-icon')!.getBoundingClientRect().width,
-    })),
-  );
-  expect(headerIcons).toHaveLength(8);
-  for (const icon of headerIcons) {
-    expect(icon.background).toBe('rgba(0, 0, 0, 0)');
-    expect(icon.border).toBe('0px');
-    expect(icon.shadow).toBe('none');
-    expect(icon.size).toBeCloseTo(20, 0);
-  }
-
-  for (const viewport of [
-    { width: 1920, height: 1080 },
-    { width: 1655, height: 931 },
-    { width: 1366, height: 768 },
-    { width: 1103, height: 621 },
-    { width: 951, height: 535 },
-  ]) {
+  await page.evaluate(() => document.body.classList.remove("auth-required", "auth-loading", "auth-restoring"));
+  for (const viewport of [{width:1920,height:1080},{width:1366,height:768},{width:1103,height:621},{width:951,height:535}]) {
     await page.setViewportSize(viewport);
-    const layout = await page.evaluate(() => {
-      const rect = (selector: string) => document.querySelector<HTMLElement>(selector)!.getBoundingClientRect();
-      const brand = rect("#mainNavigation .industrial-sidebar-brand");
-      const quick = rect("#mainNavigation .nav-pinned");
-      const modules = rect("#mainNavigation .gm-module-nav-group");
-      const actions = rect(".reference-topbar-actions");
-      const name = document.querySelector<HTMLElement>("#headerUserName")!;
-      const overlaps = (first: DOMRect, second: DOMRect) =>
-        first.left < second.right && first.right > second.left && first.top < second.bottom && first.bottom > second.top;
-      return {
-        innerWidth,
-        documentWidth: document.documentElement.scrollWidth,
-        brandQuickOverlap: overlaps(brand, quick),
-        quickModulesOverlap: overlaps(quick, modules),
-        modulesActionsOverlap: overlaps(modules, actions),
-        quickActionsOverlap: overlaps(quick, actions),
-        actionsRight: actions.right,
-        nameVisible: getComputedStyle(name).display !== "none" && name.getBoundingClientRect().width > 0,
-      };
+    const geometry = await page.evaluate(() => {
+      const nav = document.querySelector("#mainNavigation")!.getBoundingClientRect();
+      const main = document.querySelector("main.workspace")!.getBoundingClientRect();
+      const bar = document.querySelector(".reference-topbar")!.getBoundingClientRect();
+      const actions = document.querySelector(".reference-topbar-actions")!.getBoundingClientRect();
+      return { navRight:nav.right, mainLeft:main.left, mainTop:main.top, barBottom:bar.bottom, barLeft:bar.left,
+        actionsRight:actions.right, width:innerWidth, scroll:document.documentElement.scrollWidth };
     });
-    expect(layout.documentWidth).toBeLessThanOrEqual(layout.innerWidth + 1);
-    expect(layout.brandQuickOverlap).toBe(false);
-    expect(layout.quickModulesOverlap).toBe(false);
-    expect(layout.modulesActionsOverlap).toBe(false);
-    expect(layout.quickActionsOverlap).toBe(false);
-    expect(layout.actionsRight).toBeLessThanOrEqual(layout.innerWidth + 1);
-    expect(layout.nameVisible).toBe(true);
-  }
-
-  await page.setViewportSize({ width: 1920, height: 1080 });
-  await page.evaluate(() => document.body.classList.add("theme-light"));
-  await page.waitForTimeout(350);
-  const lightHeader = await page.evaluate(() => {
-    const logoFrame = document.querySelector<HTMLElement>("#mainNavigation .sidebar-logo-frame")!;
-    const quickGroup = document.querySelector<HTMLElement>("#mainNavigation .nav-pinned")!;
-    const activeQuick = document.querySelector<HTMLElement>("#mainNavigation .nav-pinned .tab.active")!;
-    const actions = document.querySelector<HTMLElement>(".reference-topbar-actions")!;
-    const profileName = document.querySelector<HTMLElement>(".reference-header-user .reference-user-copy strong")!;
-    const logoStyle = getComputedStyle(logoFrame);
-    const quickStyle = getComputedStyle(quickGroup);
-    const activeStyle = getComputedStyle(activeQuick);
-    const actionsStyle = getComputedStyle(actions);
-    return {
-      logoBorderTop: logoStyle.borderTopWidth,
-      logoBorderBottom: logoStyle.borderBottomWidth,
-      logoShadow: logoStyle.boxShadow,
-      logoBeforeDisplay: getComputedStyle(logoFrame, "::before").display,
-      logoAfterDisplay: getComputedStyle(logoFrame, "::after").display,
-      quickBackground: quickStyle.backgroundColor,
-      activeBackground: activeStyle.backgroundColor,
-      activeColor: activeStyle.color,
-      actionsBackground: actionsStyle.backgroundColor,
-      actionsBackgroundImage: actionsStyle.backgroundImage,
-      profileColor: getComputedStyle(profileName).color,
-    };
-  });
-  expect(lightHeader.logoBorderTop).toBe("0px");
-  expect(lightHeader.logoBorderBottom).toBe("0px");
-  expect(lightHeader.logoShadow).toBe("none");
-  expect(lightHeader.logoBeforeDisplay).toBe("none");
-  expect(lightHeader.logoAfterDisplay).toBe("none");
-  expect(lightHeader.quickBackground).toBe("rgb(237, 245, 250)");
-  expect(lightHeader.activeBackground).toBe("rgb(217, 237, 248)");
-  expect(lightHeader.activeColor).toBe("rgb(7, 95, 147)");
-  expect(lightHeader.actionsBackground).toBe("rgb(248, 251, 253)");
-  expect(lightHeader.actionsBackgroundImage).toBe("none");
-  expect(lightHeader.profileColor).toBe("rgb(21, 38, 58)");
-
-  for (const viewport of [
-    { width: 1920, height: 1080 },
-    { width: 1655, height: 931 },
-    { width: 951, height: 535 },
-  ]) {
-    await page.setViewportSize(viewport);
-    const lightLayout = await page.evaluate(() => {
-      const rect = (selector: string) => document.querySelector<HTMLElement>(selector)!.getBoundingClientRect();
-      const brand = rect("#mainNavigation .industrial-sidebar-brand");
-      const quick = rect("#mainNavigation .nav-pinned");
-      const modules = rect("#mainNavigation .gm-module-nav-group");
-      const actions = rect(".reference-topbar-actions");
-      const overlaps = (first: DOMRect, second: DOMRect) =>
-        first.left < second.right && first.right > second.left && first.top < second.bottom && first.bottom > second.top;
-      return {
-        innerWidth,
-        documentWidth: document.documentElement.scrollWidth,
-        brandQuickOverlap: overlaps(brand, quick),
-        quickModulesOverlap: overlaps(quick, modules),
-        modulesActionsOverlap: overlaps(modules, actions),
-        quickActionsOverlap: overlaps(quick, actions),
-      };
+    expect(geometry.mainLeft).toBeGreaterThanOrEqual(geometry.navRight);
+    expect(geometry.mainTop).toBeGreaterThanOrEqual(geometry.barBottom);
+    expect(geometry.barLeft).toBeGreaterThanOrEqual(geometry.navRight);
+    expect(geometry.actionsRight).toBeLessThanOrEqual(geometry.width);
+    expect(geometry.scroll).toBeLessThanOrEqual(geometry.width+1);
+    for (const label of ["Acessos Rápidos","Visão Geral","Manutenção","Ativos e Instalações","Materiais","Planejamento","Gestão","Administração"]) {
+      const item = page.locator("#mainNavigation").getByText(label,{exact:true});
+      await item.scrollIntoViewIfNeeded();
+      await expect(item).toBeVisible();
+    }
+    const admin = page.locator('[data-nav-group="admin"]>summary');
+    await admin.focus();
+    await expect(admin).toBeFocused();
+    const visible = await admin.evaluate(item => {
+      const box=item.getBoundingClientRect(),scroll=document.querySelector(".industrial-sidebar-scroll")!.getBoundingClientRect();
+      return box.top>=scroll.top && box.bottom<=scroll.bottom;
     });
-    expect(lightLayout.documentWidth).toBeLessThanOrEqual(lightLayout.innerWidth + 1);
-    expect(lightLayout.brandQuickOverlap).toBe(false);
-    expect(lightLayout.quickModulesOverlap).toBe(false);
-    expect(lightLayout.modulesActionsOverlap).toBe(false);
-    expect(lightLayout.quickActionsOverlap).toBe(false);
+    expect(visible).toBe(true);
   }
-
-  await page.evaluate(() => document.body.classList.remove("theme-light"));
-
-  await page.evaluate(() => window.eval("setNavCollapsed(true)"));
-  expect(await page.evaluate(() => document.body.classList.contains("sidebar-collapsed"))).toBe(false);
-
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.evaluate(() => {
-    document.querySelectorAll<HTMLDetailsElement>("#mainNavigation [data-nav-group]").forEach((group) => { group.open = false; });
-  });
-  const mobile = await page.locator("#mainNavigation").boundingBox();
-  expect(mobile).not.toBeNull();
-  expect(mobile!.x).toBe(0);
-  expect(mobile!.y).toBeCloseTo(64, 0);
-  expect(mobile!.width).toBeCloseTo(390, 0);
-  expect(mobile!.height).toBeGreaterThanOrEqual(56);
-  expect(mobile!.height).toBeLessThanOrEqual(72);
-  await page.evaluate(() => {
-    document.querySelector<HTMLDetailsElement>('#mainNavigation [data-nav-group="maintenance"]')!.open = true;
-  });
-  await expect(page.locator('#mainNavigation [data-nav-group="maintenance"] .nav-group-items')).toBeVisible();
-  await expect(page.locator('#mainNavigation [data-view="orders"]')).toContainText("Ordens de Serviço");
-  const dimensions = await page.evaluate(() => ({
-    innerWidth,
-    documentWidth: document.documentElement.scrollWidth,
-  }));
-  expect(dimensions.documentWidth).toBeLessThanOrEqual(dimensions.innerWidth + 1);
+  await page.locator("#topbarMenuBtn").click();
+  await expect(page.locator("body")).toHaveClass(/sidebar-collapsed/);
+  expect((await page.locator("#mainNavigation").boundingBox())!.width).toBe(80);
+  await page.locator("#topbarMenuBtn").click();
+  const summary=page.locator('[data-nav-group="maintenance"]>summary');
+  await summary.click();
+  const submenu=page.locator('[data-nav-group="maintenance"] .nav-group-items');
+  await expect(submenu).toBeVisible();
+  expect(await submenu.evaluate(item=>getComputedStyle(item).position)).toBe("static");
+  const icons=page.locator('#mainNavigation .nav-group>summary .nav-group-icon .gm-icon');
+  await expect(icons).toHaveCount(6);
+  await page.setViewportSize({width:390,height:844});
+  await page.locator("#topbarMenuBtn").click();
+  await expect(page.locator("body")).toHaveClass(/mobile-nav-open/);
+  await page.locator("#navMobileClose").click();
+  await expect(page.locator("body")).not.toHaveClass(/mobile-nav-open/);
 });
 
 test("acabamento profissional usa ícones corretos e não reserva painel vazio", async ({ page }) => {

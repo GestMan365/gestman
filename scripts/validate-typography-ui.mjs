@@ -67,7 +67,7 @@ try {
           .map((element) => getComputedStyle(element).fontFamily),
       )].sort();
       const nonApprovedFontFamilies = allFontFamilies.filter(
-        (font) => !/^(?:Inter|"?Cascadia Mono|Consolas)(?:,|$)/i.test(font),
+        (font) => !/^(?:Inter|"?Cascadia Mono"?|Consolas)(?:,|$)/i.test(font),
       );
 
       return {

@@ -1,0 +1,898 @@
+[
+  {
+    "theme": "light",
+    "view": "dashboard",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "regions",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "productiveCalendars",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "quickAccess",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "operationalAreas",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "documentsCenter",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "measurements",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "downtime",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "operationalDiary",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "pendingActions",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "toolsControl",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "teamsResources",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "maintenanceIndicators",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "map",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "assets",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "suppliers",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "stock",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "spares",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "stockMoves",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "materialRequests",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "stockTransfers",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "locations",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "tags",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "orders",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "calendar",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "preventivePlans",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "activeOrders",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "reports",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "assistant",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "checklists",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "platformRequests",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "light",
+    "view": "platformCompanies",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(32, 54, 77)",
+      "navBackground": "rgb(255, 255, 255)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "dashboard",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "regions",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "productiveCalendars",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "quickAccess",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "operationalAreas",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "documentsCenter",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "measurements",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "downtime",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "operationalDiary",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "pendingActions",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "toolsControl",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "teamsResources",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "maintenanceIndicators",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "map",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "assets",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "suppliers",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "stock",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "spares",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "stockMoves",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "materialRequests",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "stockTransfers",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "locations",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "tags",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "orders",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "calendar",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "preventivePlans",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "activeOrders",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "reports",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "assistant",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "checklists",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "platformRequests",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  },
+  {
+    "theme": "dark",
+    "view": "platformCompanies",
+    "lowContrast": 0,
+    "suspiciousSurfaces": 0,
+    "suspiciousControls": 0,
+    "header": {
+      "background": "rgb(19, 27, 41)",
+      "color": "rgb(220, 233, 245)",
+      "navBackground": "rgb(16, 24, 39)",
+      "navColor": "rgb(219, 234, 247)"
+    },
+    "overflow": 0
+  }
+]

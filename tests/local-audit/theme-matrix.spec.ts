@@ -36,6 +36,8 @@ test("matriz visual claro e escuro de todos os módulos", async ({ page }) => {
 
   for (const theme of ["light", "dark"] as const) {
     await page.evaluate((nextTheme) => window.eval(`applyTheme("${nextTheme}", { silent:true })`), theme);
+    // Audit settled colors, not the intermediate frames of a theme transition.
+    await page.waitForTimeout(250);
     for (const view of viewIds) {
       await page.evaluate((viewId) => {
         document.body.classList.remove("auth-required", "auth-loading", "auth-restoring", "platform-owner-mode", "company-request-route");
@@ -50,7 +52,7 @@ test("matriz visual claro e escuro de todos os módulos", async ({ page }) => {
           }
         }
       }, view);
-      await page.waitForTimeout(45);
+      await page.waitForTimeout(200);
 
       const audit = await page.evaluate(({ theme, view }) => {
         const parse = (value: string) => {

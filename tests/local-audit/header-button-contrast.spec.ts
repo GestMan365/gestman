@@ -11,14 +11,20 @@ for (const theme of ["dark", "light"]) {
         document.body.classList.toggle("theme-light", theme === "light");
         document.body.classList.toggle("theme-dark", theme === "dark");
       }, theme);
-      const buttons = page.locator("#mainNavigation .gm-module-nav-group .nav-group > summary");
-      await expect(buttons).toHaveCount(6);
+      if (viewport.width <= 900) await page.locator('#topbarMenuBtn').click();
+      const buttons = page.locator("#mainNavigation .gm-module-nav-group .nav-group > summary:visible");
+      await expect(buttons).toHaveCount(viewport.width <= 600 ? 3 : 6);
       for (const button of await buttons.all()) {
         await button.scrollIntoViewIfNeeded();
         await expect(button).toBeVisible();
         const style = await button.evaluate(element => {
           const css = getComputedStyle(element);
           const label = getComputedStyle(element.querySelector("span:nth-child(2)")!);
+          // Text navigation intentionally has no boxed border. Measure against
+          // its actual painted ancestor rather than transparent rgba as black.
+          let surface: Element | null = element;
+          while (surface?.parentElement && getComputedStyle(surface).backgroundColor === 'rgba(0, 0, 0, 0)') surface = surface.parentElement;
+          const background = getComputedStyle(surface!).backgroundColor;
           const luminance = (color: string) => {
             const rgb = color.match(/[\d.]+/g)!.slice(0, 3).map(Number).map(v => v / 255).map(v => v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4);
             return rgb[0] * .2126 + rgb[1] * .7152 + rgb[2] * .0722;
@@ -31,12 +37,10 @@ for (const theme of ["dark", "light"]) {
           const textRect = element.querySelector("span:nth-child(2)")!.getBoundingClientRect();
           const utility = document.querySelector(".reference-topbar-actions")!.getBoundingClientRect();
           const overlapsUtility = rect.left < utility.right && rect.right > utility.left && rect.top < utility.bottom && rect.bottom > utility.top;
-          return { background: css.backgroundColor, border: css.borderTopWidth, textContrast: contrast(label.color, css.backgroundColor), borderContrast: contrast(css.borderTopColor, css.backgroundColor), left: rect.left, right: rect.right, textLeft: textRect.left, textRight: textRect.right, overlapsUtility, width: innerWidth, documentWidth: document.documentElement.scrollWidth };
+          return { background, textContrast: contrast(label.color, background), left: rect.left, right: rect.right, textLeft: textRect.left, textRight: textRect.right, overlapsUtility, width: innerWidth, documentWidth: document.documentElement.scrollWidth };
         });
         expect(style.background).not.toBe("rgba(0, 0, 0, 0)");
-        expect(style.border).toBe("1px");
         expect(style.textContrast).toBeGreaterThanOrEqual(4.5);
-        expect(style.borderContrast).toBeGreaterThanOrEqual(3);
         expect(style.left).toBeGreaterThanOrEqual(0);
         expect(style.right).toBeLessThanOrEqual(style.width + 1);
         expect(style.textLeft).toBeGreaterThanOrEqual(style.left);
@@ -47,6 +51,8 @@ for (const theme of ["dark", "light"]) {
       const maintenance = buttons.first();
       await maintenance.scrollIntoViewIfNeeded();
       await maintenance.focus();
+      await page.keyboard.press('Tab');
+      await page.keyboard.press('Shift+Tab');
       await expect(maintenance).toBeFocused();
       expect(await maintenance.evaluate(el => getComputedStyle(el).outlineStyle)).toBe("solid");
       const closed = await maintenance.evaluate(el => getComputedStyle(el).backgroundColor);

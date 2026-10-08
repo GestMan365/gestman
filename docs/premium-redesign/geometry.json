@@ -1,0 +1,2562 @@
+[
+  {
+    "view": "dashboard",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "regions",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "productiveCalendars",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "quickAccess",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "operationalAreas",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "documentsCenter",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "measurements",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "downtime",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "operationalDiary",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "pendingActions",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "toolsControl",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "teamsResources",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "maintenanceIndicators",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "map",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "assets",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "suppliers",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "stock",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "spares",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "stockMoves",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "materialRequests",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "stockTransfers",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "locations",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "tags",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "orders",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "calendar",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "preventivePlans",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "activeOrders",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "reports",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "assistant",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "checklists",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "platformRequests",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "platformCompanies",
+    "theme": "dark",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "dashboard",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "regions",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "productiveCalendars",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "quickAccess",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "operationalAreas",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "documentsCenter",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "measurements",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "downtime",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "operationalDiary",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "pendingActions",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "toolsControl",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "teamsResources",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "maintenanceIndicators",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "map",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "assets",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "suppliers",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "stock",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "spares",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "stockMoves",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "materialRequests",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "stockTransfers",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "locations",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "tags",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "orders",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "calendar",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "preventivePlans",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "activeOrders",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "reports",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "assistant",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "checklists",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "platformRequests",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "platformCompanies",
+    "theme": "light",
+    "width": 1440,
+    "height": 960,
+    "scroll": 1440,
+    "left": 280,
+    "right": 1412,
+    "mainTop": 72
+  },
+  {
+    "view": "dashboard",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "regions",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "productiveCalendars",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "quickAccess",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "operationalAreas",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "documentsCenter",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "measurements",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "downtime",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "operationalDiary",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "pendingActions",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "toolsControl",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "teamsResources",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "maintenanceIndicators",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "map",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "assets",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "suppliers",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "stock",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "spares",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "stockMoves",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "materialRequests",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "stockTransfers",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "locations",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "tags",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "orders",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "calendar",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "preventivePlans",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "activeOrders",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "reports",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "assistant",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "checklists",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "platformRequests",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "platformCompanies",
+    "theme": "dark",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "dashboard",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "regions",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "productiveCalendars",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "quickAccess",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "operationalAreas",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "documentsCenter",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "measurements",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "downtime",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "operationalDiary",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "pendingActions",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "toolsControl",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "teamsResources",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "maintenanceIndicators",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "map",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "assets",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "suppliers",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "stock",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "spares",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "stockMoves",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "materialRequests",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "stockTransfers",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "locations",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "tags",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "orders",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "calendar",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "preventivePlans",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "activeOrders",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "reports",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "assistant",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "checklists",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "platformRequests",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "platformCompanies",
+    "theme": "light",
+    "width": 1103,
+    "height": 621,
+    "scroll": 1103,
+    "left": 280,
+    "right": 1075,
+    "mainTop": 72
+  },
+  {
+    "view": "dashboard",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "regions",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "productiveCalendars",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "quickAccess",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "operationalAreas",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "documentsCenter",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "measurements",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "downtime",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "operationalDiary",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "pendingActions",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "toolsControl",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "teamsResources",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "maintenanceIndicators",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "map",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "assets",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "suppliers",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "stock",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "spares",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "stockMoves",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "materialRequests",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "stockTransfers",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "locations",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "tags",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "orders",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "calendar",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "preventivePlans",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "activeOrders",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "reports",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "assistant",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "checklists",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "platformRequests",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "platformCompanies",
+    "theme": "dark",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "dashboard",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "regions",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "productiveCalendars",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "quickAccess",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "operationalAreas",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "documentsCenter",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "measurements",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "downtime",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "operationalDiary",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "pendingActions",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "toolsControl",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "teamsResources",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "maintenanceIndicators",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "map",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "assets",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "suppliers",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "stock",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "spares",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "stockMoves",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "materialRequests",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "stockTransfers",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "locations",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "tags",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "orders",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "calendar",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "preventivePlans",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "activeOrders",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "reports",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "assistant",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "checklists",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "platformRequests",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "platformCompanies",
+    "theme": "light",
+    "width": 951,
+    "height": 535,
+    "scroll": 951,
+    "left": 248,
+    "right": 929,
+    "mainTop": 72
+  },
+  {
+    "view": "dashboard",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "regions",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "productiveCalendars",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "quickAccess",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "operationalAreas",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "documentsCenter",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "measurements",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "downtime",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "operationalDiary",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "pendingActions",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "toolsControl",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "teamsResources",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "maintenanceIndicators",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "map",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "assets",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "suppliers",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "stock",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "spares",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "stockMoves",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "materialRequests",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "stockTransfers",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "locations",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "tags",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "orders",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "calendar",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "preventivePlans",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "activeOrders",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "reports",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "assistant",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "checklists",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "platformRequests",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "platformCompanies",
+    "theme": "dark",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "dashboard",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "regions",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "productiveCalendars",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "quickAccess",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "operationalAreas",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "documentsCenter",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "measurements",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "downtime",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "operationalDiary",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "pendingActions",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "toolsControl",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "teamsResources",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "maintenanceIndicators",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "map",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "assets",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "suppliers",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "stock",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "spares",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "stockMoves",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "materialRequests",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "stockTransfers",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "locations",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "tags",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "orders",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "calendar",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "preventivePlans",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "activeOrders",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "reports",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "assistant",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "checklists",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "platformRequests",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  },
+  {
+    "view": "platformCompanies",
+    "theme": "light",
+    "width": 390,
+    "height": 844,
+    "scroll": 390,
+    "left": 14,
+    "right": 376,
+    "mainTop": 64
+  }
+]
