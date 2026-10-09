@@ -28071,18 +28071,10 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         .sort((a, b) => b.stockAlert.shortage - a.stockAlert.shortage);
     }
     function calcMetrics() {
-      if (typeof stage16MetricData === "function" && typeof stage16Filters === "object") {
-        const layout = activeDashboardLayout();
-        const months = Math.max(1, Math.min(12, Number(layout.filters?.period || 6)));
-        const end = new Date();
-        const start = new Date(end);
-        start.setMonth(start.getMonth() - months);
-        const filters = { ...stage16Filters, period: "custom", start: stage16DateInput(start), end: stage16DateInput(end), plant: layout.filters?.plant === "Todas" ? "" : layout.filters?.plant || "" };
-        const mttrData = stage16MetricData("mttr", filters);
-        const mtbfData = stage16MetricData("mtbf", filters);
-        const availabilityData = stage16MetricData("availability", filters);
-        const valueOrNull = data => data?.value == null || !Number.isFinite(Number(data.value)) ? null : Number(data.value);
-        return { mttr: valueOrNull(mttrData), mtbf: valueOrNull(mtbfData), availability: valueOrNull(availabilityData) };
+      if (window.GMMaintenanceCharts && !gmStateDirty && !gmSyncConflict) {
+        const months = [6,12,24].includes(Number($("trendPeriodFilter")?.value)) ? Number($("trendPeriodFilter").value) : 6;
+        const contract = gmMaintenanceMetricsContract(dashboardTrendFilters(months), months);
+        return Object.fromEntries(window.GMMaintenanceCharts.model(contract).map(card => [card.key, card.value]));
       }
       return { mttr:null, mtbf:null, availability:null };
     }
@@ -28147,20 +28139,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const running = filtered.orders.filter(order => isRunningOrder(order.status));
       const critical = running.filter(order => statusKey(order.priority).includes("alta") || orderIsLate(order));
       const activeStops = filtered.downtimes.filter(item => item?.status === "Ativa");
-      const metricMonths = [6,12,24].includes(Number($("trendPeriodFilter")?.value)) ? Number($("trendPeriodFilter").value) : 6;
-      const filters = dashboardTrendFilters(metricMonths);
-      const previousFilters = stage16PreviousFilters(filters);
-      const metrics = { mttr:stage16MetricData("mttr", filters), mtbf:stage16MetricData("mtbf", filters), availability:stage16MetricData("availability", filters) };
-      const previous = { mttr:stage16MetricData("mttr", previousFilters), mtbf:stage16MetricData("mtbf", previousFilters), availability:stage16MetricData("availability", previousFilters) };
-      const formatted = (data, unit, digits = 1) => data.value == null ? "Sem dados" : `${Number(data.value).toLocaleString("pt-BR", { minimumFractionDigits:digits, maximumFractionDigits:digits })}${unit}`;
-      $("professionalMttr").textContent = formatted(metrics.mttr, "h");
-      $("professionalMtbf").textContent = formatted(metrics.mtbf, "h", 0);
-      $("professionalAvailability").textContent = formatted(metrics.availability, "%");
+      renderTrendChart();
       $("professionalEquipment").textContent = filtered.assets.length.toLocaleString("pt-BR");
       $("professionalRunningOrders").textContent = running.length.toLocaleString("pt-BR");
-      $("professionalMttrDelta").textContent = stage16Comparison("mttr", metrics.mttr.value, previous.mttr.value).text;
-      $("professionalMtbfDelta").textContent = stage16Comparison("mtbf", metrics.mtbf.value, previous.mtbf.value).text;
-      $("professionalAvailabilityDelta").textContent = stage16Comparison("availability", metrics.availability.value, previous.availability.value).text;
       $("professionalEquipmentComplement").textContent = `${filtered.assets.filter(asset => statusKey(asset.status).includes("operando")).length} operando`;
       $("professionalCriticalOrders").textContent = `${critical.length} críticas`;
       $("professionalActiveStops").textContent = activeStops.length;
@@ -28169,10 +28150,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if ($("headerNotificationCount")) {
         $("headerNotificationCount").textContent = (critical.length + activeStops.length + lowStockItems().length).toLocaleString("pt-BR");
       }
-      const bucketCount = metricMonths;
-      drawDashboardSparkline("professionalMttrSpark", gmMaintenanceMetricSeries("mttr", filters, bucketCount).map(item => item.value));
-      drawDashboardSparkline("professionalMtbfSpark", gmMaintenanceMetricSeries("mtbf", filters, bucketCount).map(item => item.value));
-      drawDashboardSparkline("professionalAvailabilitySpark", gmMaintenanceMetricSeries("availability", filters, bucketCount).map(item => item.value));
       drawDashboardSparkline("professionalEquipmentSpark", [filtered.assets.length]);
       drawDashboardSparkline("professionalOrdersSpark", [running.length]);
       drawDashboardSparkline("professionalStopsSpark", [activeStops.length], "#ef4444");
@@ -28841,6 +28818,24 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const firstMonth = new Date(now.getFullYear(), now.getMonth() - (months - 1), 1);
       return { period:"custom", start:stage16DateInput(firstMonth), end:stage16DateInput(now), plant };
     }
+    function renderDashboardReliabilityKpis(contract, chartState, filters, months) {
+      const previous = contract ? gmMaintenanceMetricsContract(stage16PreviousFilters(filters), months) : null;
+      const previousCards = window.GMMaintenanceCharts.model(previous);
+      const ids = { mttr:"professionalMttr", mtbf:"professionalMtbf", availability:"professionalAvailability" };
+      const pendingText = { loading:"Carregando...", error:"Indisponível", pending:"Aguardando sincronização", unavailable:"Indisponível" };
+      window.GMMaintenanceCharts.model(contract).forEach(card => {
+        const id = ids[card.key];
+        if (!$(id)) return;
+        $(id).textContent = chartState !== "ready" ? pendingText[chartState] || "Sem dados"
+          : card.value === null ? "Sem dados" : `${card.value.toLocaleString("pt-BR", { maximumFractionDigits:2 })} ${card.unit}`;
+        const detail = chartState !== "ready" ? "Indicador oficial ainda não disponível."
+          : card.value === null ? card.metric.detail || "Base insuficiente para calcular."
+          : stage16Comparison(card.key, card.value, previousCards.find(item => item.key === card.key)?.value ?? null).text;
+        if ($(id + "Delta")) $(id + "Delta").textContent = detail;
+        $(id).title = `${filters.plant || "Todas as plantas"} · ${filters.start} – ${filters.end}`;
+        drawDashboardSparkline(id + "Spark", card.points.map(point => point.value));
+      });
+    }
     function renderTrendChart() {
       const target = $("trendChart");
       if (!target || !window.GMMaintenanceCharts) return;
@@ -28852,6 +28847,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const key = gmMaintenanceMetricsKey(filters, months);
       const failed = gmMaintenanceMetricsErrors.has(key);
       const chartState = blocked ? "pending" : contract ? "ready" : !currentAccount ? "unavailable" : failed ? "error" : "loading";
+      renderDashboardReliabilityKpis(contract, chartState, filters, months);
       window.GMMaintenanceCharts.render(target, contract, {
         state:chartState,
         scope:filters.plant || "Todas as plantas",
@@ -38575,7 +38571,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function stage16Refresh(){gmInvalidateMaintenanceMetrics();stage16UpdatedAt=Date.now();renderStage16Managerial();renderStage16Reports();showToast("Atualizando indicadores a partir do banco de dados.")}
     function stage16Quality(){let ignored=0,missingAsset=0;const orderNumbers=new Set(),duplicates=new Set();(state.orders||[]).forEach(item=>{if(item.number&&orderNumbers.has(item.number))duplicates.add(item.number);orderNumbers.add(item.number);if(item.assetId&&!byId(state.assets,item.assetId))missingAsset++;const start=stage16Date(item.startedAt),end=stage16Date(item.finishedAt);if(start&&end&&end<start)ignored++});(state.downtimes||[]).forEach(item=>{const start=stage16Date(item.startAt),end=stage16Date(item.endAt);if(!start||(end&&end<start))ignored++;if(item.assetId&&!byId(state.assets,item.assetId))missingAsset++});return{ignored:ignored+duplicates.size+missingAsset,duplicates:duplicates.size,missingAsset}}
     function stage16MetricCard(key){const meta=STAGE16_METRICS[key],data=stage16MetricData(key),previous=stage16MetricData(key,stage16PreviousFilters()),comparison=stage16Comparison(key,data.value,previous.value),available=data.value!=null;return`<article class="s16-kpi" onclick="openStage16Metric('${key}')"><div class="s16-kpi-top"><i class="s16-kpi-icon">${gmIcon(GMIcons.metricIcons[key]||"indicators",{size:20})}</i><span class="s16-kpi-status">${available?"Calculado com dados reais":"Indisponível"}</span></div><div class="s16-kpi-value"><strong>${stage16FormatMetric(data.value,meta.unit)}</strong>${available&&meta.unit?`<span>${meta.unit}</span>`:""}</div><small>${escapeHtml(data.complement)}</small><div class="s16-compare ${comparison.class}"><span>${comparison.icon}</span>${escapeHtml(comparison.text)}</div><button class="s16-link">Ver detalhes</button></article>`}
-    function stage16UpdateDashboardMetrics(){if(!$("professionalMttr"))return;const layout=activeDashboardLayout(),months=Math.max(1,Math.min(12,Number(layout.filters?.period||6))),end=new Date(),start=new Date();start.setMonth(start.getMonth()-months);const filters={...stage16Filters,period:"custom",start:stage16DateInput(start),end:stage16DateInput(end),plant:layout.filters?.plant==="Todas"?"":layout.filters?.plant||""},previousFilters=stage16PreviousFilters(filters);[["mttr","professionalMttr","professionalMttrDelta"],["mtbf","professionalMtbf","professionalMtbfDelta"],["availability","professionalAvailability","professionalAvailabilityDelta"]].forEach(([key,valueId,deltaId])=>{const meta=STAGE16_METRICS[key],current=stage16MetricData(key,filters),previous=stage16MetricData(key,previousFilters),comparison=stage16Comparison(key,current.value,previous.value);$(valueId).textContent=current.value==null?"Sem dados":`${stage16FormatMetric(current.value,meta.unit)}${meta.unit}`;if($(deltaId))$(deltaId).textContent=comparison.text})}
+    function stage16UpdateDashboardMetrics(){renderTrendChart()}
     function renderStage16Managerial(){const root=$("stage16ManagerialRoot");if(!root||!hasPermission("reports"))return;const quality=stage16Quality(),keys=Object.keys(STAGE16_METRICS).filter(stage16MetricAllowed);root.innerHTML=`<header class="s16-head"><div><span class="s16-eyebrow">GESTÃO DE MANUTENÇÃO</span><h1>${stage16ManagerialTab==="indicators"?"Indicadores":"Análises"}</h1><p>${stage16ManagerialTab==="indicators"?"Resultados rastreáveis, comparação com o período anterior e acesso aos registros de origem.":"Tendências e distribuições prontas, sem previsões ou diagnósticos artificiais."}</p><span class="s16-updated">Atualizado em: ${new Date(stage16UpdatedAt).toLocaleString("pt-BR")}</span></div><div class="s16-head-actions"><button class="btn" onclick="stage16Refresh()">↻ Atualizar dados</button><button class="btn" onclick="setView('reports')">Central de Relatórios</button></div></header><nav class="s16-tabs"><button class="${stage16ManagerialTab==="indicators"?"active":""}" onclick="stage16SetManagerialTab('indicators')">Indicadores</button><button class="${stage16ManagerialTab==="analytics"?"active":""}" onclick="stage16SetManagerialTab('analytics')">Análises</button></nav>${stage16FilterHtml("s16m")}${quality.ignored?`<div class="s16-quality"><span>Alguns registros não foram considerados devido a dados incompletos.</span><button class="btn" onclick="openStage16Quality()">Ver quantidade (${quality.ignored})</button></div>`:""}<div id="stage16ManagerialContent">${stage16ManagerialTab==="indicators"?`<section class="s16-kpis">${keys.map(stage16MetricCard).join("")}</section>`:stage16AnalyticsHtml()}</div>`;stage16SyncFilterInputs("s16m")}
     function stage16SetManagerialTab(tab){stage16ManagerialTab=tab;setHeaderContext("Gestão",tab==="analytics"?"Análises":"Indicadores");renderStage16Managerial()}
     function stage16Group(rows,labelFn){const map={};rows.forEach(item=>{const label=labelFn(item)||"Não informado";map[label]=(map[label]||0)+1});return Object.entries(map).map(([label,value])=>({label,value})).sort((a,b)=>b.value-a.value).slice(0,8)}

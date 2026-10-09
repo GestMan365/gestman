@@ -97,12 +97,15 @@ test('distingue carregamento e falha; permite nova tentativa sem fabricar dados'
   await prepare(page,'loading');
   await expect(page.locator('#trendChart')).toContainText('Carregando indicadores');
   await expect(page.locator('#trendChart')).toHaveAttribute('aria-busy','true');
+  await expect(page.locator('#professionalMttr')).toHaveText('Carregando...');
   await prepare(page,'error');
   await expect(page.locator('#trendChart')).toContainText('Não foi possível consultar');
   await expect(page.locator('.gm-metric-plot')).toHaveCount(0);
+  await expect(page.locator('#professionalMttr')).toHaveText('Indisponível');
   await page.evaluate(()=>{(window as any).qaChartMode='ready';});
   await page.getByRole('button',{name:'Tentar novamente',exact:true}).click();
   await expect(page.locator('.gm-metric-card')).toHaveCount(3);
+  await expect(page.locator('#professionalMttr')).toHaveText('2,8 h');
 });
 
 test('base insuficiente e estado não sincronizado não exibem números falsos',async({page})=>{
@@ -111,8 +114,10 @@ test('base insuficiente e estado não sincronizado não exibem números falsos',
   await expect(page.locator('.gm-metric-hit')).toHaveCount(0);
   await expect(page.locator('.gm-metric-reference')).toHaveCount(0);
   await expect(page.locator('.gm-metric-value strong')).toHaveText(['Sem dados','Sem dados','Sem dados']);
+  await expect(page.locator('#professionalMttr')).toHaveText('Sem dados');
   await page.evaluate(()=>window.eval('gmStateDirty = true; renderTrendChart();'));
   await expect(page.locator('#trendChart')).toContainText('Aguardando sincronização');
+  await expect(page.locator('#professionalMttr')).toHaveText('Aguardando sincronização');
   await expect(page.locator('.gm-metric-plot')).toHaveCount(0);
 });
 
@@ -137,6 +142,30 @@ for (const viewport of [{width:1916,height:910},{width:390,height:844}]) {
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
   });
 }
+
+test('cards e gráficos compartilham contrato, filtros e precisão após atualização legada', async ({page}) => {
+  await prepare(page, 'single');
+  await expect(page.locator('#professionalMttr')).toHaveText('6,52 h');
+  await page.evaluate(() => window.eval(`
+    stage16Filters.asset = 'outro-ativo';
+    stage16Filters.plant = 'outra-planta';
+    stage16UpdateDashboardMetrics();
+    renderProfessionalKpis();
+  `));
+  for (const [key, id] of [['mttr','professionalMttr'],['mtbf','professionalMtbf'],['availability','professionalAvailability']]) {
+    await expect(page.locator('#'+id)).toHaveText(await page.locator('[data-metric="'+key+'"] .gm-metric-value strong').innerText());
+  }
+  for (const months of ['12','24','6']) {
+    await page.locator('#trendPeriodFilter').selectOption(months);
+    await expect(page.locator('#professionalMttr')).toHaveText('6,52 h');
+  }
+  await page.locator('#trendPlantFilter').selectOption('Planta real de QA');
+  await expect(page.locator('#professionalMttr')).toHaveAttribute('title', /Planta real de QA/);
+  await expect(page.locator('#professionalMttr')).toHaveText('6,52 h');
+  const requests = await page.evaluate(() => (window as any).qaMetricRequests);
+  expect(requests.filter((request:any) => request.asset || request.plant === 'outra-planta')).toEqual([]);
+  expect(requests.every((request:any) => [6,12,24].includes(request.seriesBuckets))).toBe(true);
+});
 
 test('minigráficos não desenham zeros ou linhas através de lacunas', async ({page}) => {
   await prepare(page);
