@@ -337,7 +337,7 @@ body.theme-light #dashboard .industrial-card-head h2 { color:#25364c !important;
       padding:0 16px !important;
     }
     html#gm-premium body.premium-shell.theme-light .reference-topbar-heading,
-    html#gm-premium body.premium-shell.theme-light .reference-topbar .topbar-menu-btn { display:none !important; }
+    html#gm-premium body.premium-shell.theme-light:not(.auth-required):not(.auth-loading) .reference-topbar .topbar-menu-btn { display:none !important; }
     html#gm-premium body.premium-shell.theme-light:not(.auth-required):not(.auth-loading) #mainNavigation {
       inset:56px auto 0 0 !important;
       width:60px !important;
@@ -510,9 +510,8 @@ body.theme-light #dashboard .industrial-card-head h2 { color:#25364c !important;
       align-items:center !important;
       margin-left:auto !important;
     }
-    html#gm-premium body.premium-shell.theme-light .reference-topbar .topbar-menu-btn {
-      width:34px !important;
-      height:34px !important;
+    html#gm-premium body.premium-shell:not(.auth-required):not(.auth-loading) .reference-topbar .topbar-menu-btn {
+      display:none !important;
     }
   }
   @media (max-width:360px) {
