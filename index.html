@@ -22437,6 +22437,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     const PENDING_UPSERTS_KEY = "gestman365-pending-upserts-v2";
     const DELETED_RECORDS_KEY = "gestman365-deleted-records-v1";
     const THEME_KEY = "gestman365-theme";
+    const LIGHT_LAYOUT_ROLLOUT_KEY = "gestman365-light-layout-v1";
     const DASHBOARD_LAYOUT_KEY = "gestman365.dashboard.layout.v3";
     const ACTIVE_VIEW_KEY = "gestman365-active-view-v1";
     const NAV_COLLAPSED_KEY = "gestman365.navigation.collapsed.v1";
@@ -40051,6 +40052,15 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       });
       gmPreferencesReady = true;
     }
+    function gmApplyLoadedThemePreference() {
+      if (scopedGetItem(LIGHT_LAYOUT_ROLLOUT_KEY, "user") !== "1") {
+        applyTheme("light", { silent:true });
+        scopedSetItem(LIGHT_LAYOUT_ROLLOUT_KEY, "1", "user");
+        return;
+      }
+      const preferredTheme = scopedGetItem(THEME_KEY, "user");
+      if (preferredTheme) applyTheme(preferredTheme, { silent:true });
+    }
     function gmSchedulePreferencesSave() {
       clearTimeout(gmPreferencesTimer);
       gmPreferencesTimer = setTimeout(async () => {
@@ -40399,8 +40409,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         applyAuthState();
         if (!isPlatformAdmin()) {
           await gmLoadPreferences();
-          const preferredTheme = scopedGetItem(THEME_KEY, "user");
-          if (preferredTheme) applyTheme(preferredTheme, { silent:true });
+          gmApplyLoadedThemePreference();
         }
         if (!isPlatformAdmin() && context) await loadSupabaseState(false, true);
         const routedPlatformView = platformRouteView() || "platformRequests";
@@ -40484,8 +40493,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         applyAuthState();
         if (!isPlatformAdmin()) {
           await gmLoadPreferences();
-          const preferredTheme = scopedGetItem(THEME_KEY, "user");
-          if (preferredTheme) applyTheme(preferredTheme, { silent:true });
+          gmApplyLoadedThemePreference();
         }
         if (!isPlatformAdmin() && context) await loadSupabaseState(false, true);
         const routedPlatformView = platformRouteView() || "platformRequests";
@@ -40551,6 +40559,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         gmApplyContext(context);
         applyAuthState();
         await gmLoadPreferences();
+        gmApplyLoadedThemePreference();
         await loadSupabaseState(false, true);
         setView("dashboard", { persist:false, silent:true });
         $("setupAdminPassword").value = "";
@@ -40601,8 +40610,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         applyAuthState();
         if (!isPlatformAdmin()) {
           await gmLoadPreferences();
-          const preferredTheme = scopedGetItem(THEME_KEY, "user");
-          if (preferredTheme) applyTheme(preferredTheme, { silent:true });
+          gmApplyLoadedThemePreference();
         }
         if (!isPlatformAdmin() && context) await loadSupabaseState(false, true);
         const routedPlatformView = platformRouteView() || "platformRequests";
