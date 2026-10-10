@@ -8304,20 +8304,30 @@
       .mobile-bottom-nav button.active { color:#63b3ff !important; background:rgba(29,140,255,.12) !important; }
       #dashboard .industrial-dashboard-shell { display:none !important; }
       .mobile-technician-home { display:grid; gap:12px; }
-      .mobile-tech-greeting { padding:14px; display:grid; gap:4px; background:linear-gradient(145deg,#0f1b2b,#0a1726); border:1px solid #1f334a; border-radius:12px; }
-      .mobile-tech-greeting span { color:#f8fafc; font-size:var(--font-size-lg); }
-      .mobile-tech-greeting small { color:#94a3b8; font-size:var(--font-size-xs); }
+      .mobile-tech-greeting { padding:14px; display:flex; align-items:center; justify-content:space-between; gap:12px; background:linear-gradient(145deg,#102944 0%,#0b1929 72%); border:1px solid #255277; border-radius:14px; box-shadow:0 12px 28px rgba(0,0,0,.18); }
+      .mobile-tech-greeting-copy { min-width:0; display:grid; gap:4px; }
+      .mobile-tech-eyebrow { color:#62b5ff !important; font-size:10px !important; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+      .mobile-tech-greeting strong { color:#f8fafc; font-size:var(--font-size-lg); line-height:1.15; }
+      .mobile-tech-greeting small { color:#a9bdd2; font-size:var(--font-size-xs); line-height:1.35; }
+      .mobile-tech-scan { flex:0 0 82px; min-height:76px !important; padding:9px 6px !important; display:grid !important; place-items:center !important; gap:4px !important; color:#fff !important; background:linear-gradient(145deg,#1478d4,#0d5da9) !important; border:1px solid #55b7ff !important; border-radius:11px !important; box-shadow:0 8px 20px rgba(13,93,169,.3) !important; font-size:var(--font-size-xs) !important; font-weight:800 !important; text-align:center !important; }
+      .mobile-tech-scan i { font-style:normal; line-height:1; }
+      .mobile-tech-scan .gm-icon { width:24px; height:24px; }
       .mobile-tech-summary { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
       .mobile-tech-summary article { min-height:78px; padding:11px; display:grid; gap:4px; background:#0f1b2b; border:1px solid #1f334a; border-radius:10px; }
       .mobile-tech-summary strong { color:#f8fafc; font-size:var(--font-size-heading-md); }
       .mobile-tech-summary span { color:#94a3b8; font-size:var(--font-size-xs); }
       .mobile-tech-section { padding:12px; background:#0f1b2b; border:1px solid #1f334a; border-radius:11px; }
-      .mobile-tech-section h2 { margin:0 0 10px; color:#f8fafc; font-size:var(--font-size-sm); }
+      .mobile-tech-section h2 { margin:0; color:#f8fafc; font-size:var(--font-size-sm); }
+      .mobile-tech-section > p { margin:4px 0 10px; color:#8297ad; font-size:var(--font-size-xs); line-height:1.35; }
       .mobile-tech-section-head { display:flex; align-items:center; justify-content:space-between; }
       .mobile-tech-section-head button { min-height:32px !important; padding:5px 8px !important; color:#63b3ff !important; background:transparent !important; border:0 !important; box-shadow:none !important; font-size:var(--font-size-xs) !important; }
       .mobile-tech-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
-      .mobile-tech-actions button { min-height:76px !important; padding:10px !important; display:grid !important; grid-template-columns:30px 1fr !important; align-items:center !important; gap:8px !important; color:#dbeafe !important; background:#0b1929 !important; border:1px solid #1f334a !important; border-radius:9px !important; box-shadow:none !important; text-align:left !important; font-size:var(--font-size-xs) !important; }
-      .mobile-tech-actions i { color:#1d8cff; font-size:var(--font-size-lg); font-style:normal; }
+      .mobile-tech-actions button { min-height:82px !important; padding:10px !important; display:grid !important; grid-template-columns:32px minmax(0,1fr) !important; align-items:center !important; gap:9px !important; color:#dbeafe !important; background:linear-gradient(145deg,#102337,#0b1929) !important; border:1px solid #1f334a !important; border-radius:10px !important; box-shadow:none !important; text-align:left !important; font-size:var(--font-size-xs) !important; transition:transform .16s ease,border-color .16s ease,background .16s ease !important; }
+      .mobile-tech-actions button:active { transform:scale(.98); border-color:#3b9bf2 !important; background:#102b47 !important; }
+      .mobile-tech-actions button > i { width:32px; height:32px; display:grid; place-items:center; color:#63b8ff; background:rgba(29,140,255,.12); border:1px solid rgba(83,177,255,.32); border-radius:9px; font-style:normal; }
+      .mobile-tech-actions button > span { min-width:0; display:grid; gap:3px; }
+      .mobile-tech-actions button strong { color:#e8f3ff; font-size:var(--font-size-xs); line-height:1.2; }
+      .mobile-tech-actions button small { color:#8297ad; font-size:10px; line-height:1.2; }
       .mobile-tech-priorities { display:grid; gap:7px; }
       .mobile-tech-priority { padding:10px; display:grid; grid-template-columns:1fr auto; gap:4px; color:#dbeafe; background:#0b1929; border:1px solid #1f334a; border-left:3px solid var(--priority-color,#1d8cff); border-radius:8px; text-align:left; }
       .mobile-tech-priority strong { font-size:var(--font-size-xs); }
@@ -20663,6 +20673,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   </style>
   <link rel="stylesheet" href="assets/work-order-desktop-alerts.css">
   <link rel="stylesheet" href="assets/premium-ui.css">
+  <link rel="stylesheet" href="assets/ui/gestman-light-dashboard.css">
 </head>
 <body class="auth-loading auth-restoring">
   <script id="design-theme-bootstrap">
@@ -20674,7 +20685,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       }
       try {
         const savedTheme = localStorage.getItem("gestman365-theme");
-        const initialTheme = savedTheme === "light" ? "light" : "dark";
+        const initialTheme = savedTheme === "dark" ? "dark" : "light";
         const publicDarkSurface = document.body.classList.contains("auth-loading")
           || /\/(cadastrar-empresa)\/?$/.test(window.location.pathname)
           || window.location.hash === "#cadastrar-empresa";
@@ -21236,6 +21247,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   </header>
   <header class="topbar reference-topbar">
     <div class="reference-topbar-left">
+      <img class="reference-topbar-logo" src="assets/ui/illustrations/gestman365-logo.png" alt="GestMan365">
       <button class="topbar-menu-btn" id="topbarMenuBtn" type="button" title="Recolher menu" aria-label="Recolher menu" aria-controls="mainNavigation" aria-expanded="true"></button>
       <div class="reference-topbar-heading">
         <nav class="header-breadcrumb" aria-label="Localização atual">
@@ -21352,12 +21364,13 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   <main class="workspace">
     <section class="view active" id="dashboard">
       <div class="mobile-technician-home" id="mobileTechnicianHome">
-        <div class="mobile-tech-greeting"><span>Olá, <strong id="mobileTechName">Técnico</strong></span><small>Estas são suas prioridades de hoje.</small></div>
+        <div class="mobile-tech-greeting"><div class="mobile-tech-greeting-copy"><span class="mobile-tech-eyebrow">Operação em campo</span><strong>Olá, <span id="mobileTechName">Técnico</span></strong><small>Acesse sua rotina em poucos toques.</small></div><button class="mobile-tech-scan" type="button" onclick="setView('assets')" aria-label="Consultar ativo ou equipamento"><i></i><span>Consultar<br>ativo</span></button></div>
         <div class="mobile-tech-summary" id="mobileTechSummary"></div>
-        <div class="mobile-tech-section"><h2>Ações rápidas</h2><div class="mobile-tech-actions"><button type="button" onclick="openOrderModal()"><i></i><span>Nova O.S.</span></button><button type="button" onclick="openQuickChecklist()"><i></i><span>Executar checklist</span></button><button type="button" onclick="openMobileDowntimeModal()"><i></i><span>Registrar parada</span></button><button type="button" onclick="setView('measurements')"><i></i><span>Registrar medição</span></button><button type="button" onclick="setView('documentsCenter')"><i></i><span>Documentos</span></button><button type="button" onclick="setView('assets')"><i></i><span>Consultar ativo</span></button></div></div>
+        <div class="mobile-tech-section"><h2>Acesso rápido</h2><p>As tarefas mais usadas da manutenção.</p><div class="mobile-tech-actions"><button type="button" onclick="openOrderModal()"><i></i><span><strong>Nova O.S.</strong><small>Abrir chamado</small></span></button><button type="button" onclick="openMobileMyOrders()"><i></i><span><strong>Minhas O.S.</strong><small>Acompanhar execução</small></span></button><button type="button" onclick="openQuickChecklist()"><i></i><span><strong>Checklist</strong><small>Executar rotina</small></span></button><button type="button" onclick="openMobileDowntimeModal()"><i></i><span><strong>Registrar parada</strong><small>Informar indisponibilidade</small></span></button><button type="button" onclick="setView('measurements')"><i></i><span><strong>Registrar medição</strong><small>Adicionar leitura</small></span></button><button type="button" onclick="setView('assets')"><i></i><span><strong>Consultar ativo</strong><small>Equipamentos e TAGs</small></span></button><button type="button" onclick="setView('documentsCenter')"><i></i><span><strong>Documentos</strong><small>Procedimentos e arquivos</small></span></button><button type="button" onclick="stage20OpenNotificationCenter()"><i></i><span><strong>Notificações</strong><small>Alertas da operação</small></span></button></div></div>
         <div class="mobile-tech-section"><div class="mobile-tech-section-head"><h2>Precisa de atenção</h2><button type="button" onclick="openMobileMyOrders()">Ver minhas O.S.</button></div><div class="mobile-tech-priorities" id="mobileTechPriorities"></div></div>
       </div>
       <div class="industrial-dashboard-shell">
+        <nav class="gm-dashboard-breadcrumb" aria-label="Localização"><span>Início</span><span aria-hidden="true">/</span><strong>Visão Geral</strong><button type="button" onclick="openDashboardConfig()">Configurar painel</button></nav>
         <div class="industrial-dashboard-heading">
           <div class="d2-dashboard-welcome"><span>CENTRAL DE OPERAÇÕES</span><h1>Manutenção sob controle.</h1><p>Da prioridade de hoje à confiabilidade de amanhã. Acompanhe sua operação em uma única visão.</p><div class="d2-dashboard-context" aria-label="Resumo operacional"><span>Visão Geral</span><span>Manutenção e ativos</span></div></div>
           <div class="industrial-heading-actions"><button class="dashboard-config-trigger btn" type="button" onclick="openDashboardConfig()">Configurar Dashboard</button><div class="industrial-dashboard-live"><i></i><span>Sistema operacional</span><strong id="dashboardRefreshTime">Atualizado agora</strong></div></div>
@@ -21375,6 +21388,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
               <article class="professional-kpi-card" data-dashboard-kpi="equipment" style="--kpi:#2387ff"><i class="professional-kpi-icon"></i><div class="professional-kpi-copy"><span>EQUIPAMENTOS</span><strong id="professionalEquipment">0</strong><small id="professionalEquipmentComplement">0 operando</small></div><canvas id="professionalEquipmentSpark" width="76" height="34" aria-label="Histórico de equipamentos"></canvas></article>
               <article class="professional-kpi-card" data-dashboard-kpi="runningOrders" style="--kpi:#2387ff"><i class="professional-kpi-icon"></i><div class="professional-kpi-copy"><span>O.S EM EXECUÇÃO</span><strong id="professionalRunningOrders">0</strong><small id="professionalCriticalOrders">0 críticas</small></div><canvas id="professionalOrdersSpark" width="76" height="34" aria-label="Histórico de ordens em execução"></canvas></article>
               <article class="professional-kpi-card stops-kpi-card" data-dashboard-kpi="activeStops" style="--kpi:#ef4444"><i class="professional-kpi-icon"></i><div class="professional-kpi-copy"><span>PARADAS ATIVAS</span><strong id="professionalActiveStops">0</strong><small id="professionalStopsImpact">Impacto: Baixo</small></div><canvas id="professionalStopsSpark" width="76" height="34" aria-label="Histórico de paradas ativas"></canvas></article>
+              <article class="professional-kpi-card" data-dashboard-kpi="openOrders" style="--kpi:#2387ff"><i class="professional-kpi-icon"></i><div class="professional-kpi-copy"><span>O.S. ABERTAS</span><strong id="professionalOpenOrders">0</strong><small>Aguardando conclusão</small></div></article>
+              <article class="professional-kpi-card" data-dashboard-kpi="preventivePlans" style="--kpi:#36a56a"><i class="professional-kpi-icon"></i><div class="professional-kpi-copy"><span>PLANOS PREVENTIVOS</span><strong id="professionalPreventivePlans">0</strong><small>Planos ativos</small></div></article>
             </div>
           </section>
           <article class="industrial-card maintenance-trend-card dashboard-widget" data-dashboard-widget="trend"><div class="dashboard-controls" data-dashboard-controls="trend"></div><div class="industrial-card-head"><div><span>CONFIABILIDADE</span><h2>Confiabilidade da manutenção</h2></div><div class="gm-trend-filters"><label class="trend-period-control"><span>Planta</span><select id="trendPlantFilter" aria-label="Planta dos gráficos de confiabilidade" onchange="renderDashboard()"><option value="">Todas as plantas</option></select></label><label class="trend-period-control"><span>Período</span><select id="trendPeriodFilter" aria-label="Período dos gráficos de confiabilidade" onchange="renderDashboard()"><option value="6">6 meses</option><option value="12">12 meses</option><option value="24">24 meses</option></select></label></div></div><div id="trendChart" class="maintenance-trend-content"></div></article>
@@ -23850,12 +23865,12 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     let currentTheme = (() => {
       try {
         const savedTheme = localStorage.getItem(THEME_KEY);
-        return savedTheme === "light" ? "light" : "dark";
+        return savedTheme === "dark" ? "dark" : "light";
       } catch {
-        return "dark";
+        return "light";
       }
     })();
-    if (!/^(light|dark)$/.test(currentTheme)) currentTheme = "dark";
+    if (!/^(light|dark)$/.test(currentTheme)) currentTheme = "light";
     let calendarMode = window.matchMedia("(max-width: 600px)").matches ? "list" : "week";
     let industrialAgendaStart = null;
     let calendarViewDate = new Date();
@@ -26368,7 +26383,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       scopedSetItem(NAV_GROUPS_KEY, groupKey, "user");
     }
     function positionNavGroupItems(group, beforeOpen = false) {
-      if ((!group?.open && !beforeOpen) || !document.body.classList.contains("gm-top-navigation")) return;
+      const isLightRail = document.body.classList.contains("premium-shell") && document.body.classList.contains("theme-light") && innerWidth >= 901;
+      if ((!group?.open && !beforeOpen) || (!document.body.classList.contains("gm-top-navigation") && !isLightRail)) return;
       const summary = group.querySelector(":scope>summary");
       const panel = group.querySelector(":scope>.nav-group-items");
       if (!summary || !panel) return;
@@ -26378,7 +26394,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const maximumLeft = Math.max(viewportPadding, innerWidth - panelWidth - viewportPadding);
       const left = Math.min(Math.max(viewportPadding, summaryRect.left), maximumLeft);
       panel.style.setProperty("--gm-nav-dropdown-left", `${Math.round(left)}px`);
-      panel.style.setProperty("--gm-nav-dropdown-top", `${Math.round(summaryRect.bottom - 1)}px`);
+      panel.style.setProperty("--gm-nav-dropdown-top", `${Math.round(isLightRail ? summaryRect.top : summaryRect.bottom - 1)}px`);
     }
     function openNavGroupForView(view) {
       const button = document.querySelector(`.tab[data-view="${view}"]`);
@@ -28142,6 +28158,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       renderTrendChart();
       $("professionalEquipment").textContent = filtered.assets.length.toLocaleString("pt-BR");
       $("professionalRunningOrders").textContent = running.length.toLocaleString("pt-BR");
+      $("professionalOpenOrders").textContent = filtered.orders.filter(order => !isClosedOrder(order.status)).length.toLocaleString("pt-BR");
+      $("professionalPreventivePlans").textContent = state.preventivePlans.filter(plan => (filtered.plant === "Todas" || dashboardItemPlant(plan) === filtered.plant) && plan.status !== "Pausado" && plan.status !== "Inativo").length.toLocaleString("pt-BR");
       $("professionalEquipmentComplement").textContent = `${filtered.assets.filter(asset => statusKey(asset.status).includes("operando")).length} operando`;
       $("professionalCriticalOrders").textContent = `${critical.length} críticas`;
       $("professionalActiveStops").textContent = activeStops.length;
@@ -28528,7 +28546,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       { id: "agenda", label: "Agenda de manutenção" },
       { id: "parts", label: "Consumo de peças" }
     ];
-    const dashboardKpiDefaults = ["mttr","mtbf","availability","equipment","runningOrders","activeStops"];
+    const dashboardKpiDefaults = ["availability","mtbf","mttr","equipment","openOrders","runningOrders","activeStops","preventivePlans"];
     let draggedDashboardWidgetId = "";
     let dashboardEditMode = false;
     let dashboardEditSnapshot = "";
