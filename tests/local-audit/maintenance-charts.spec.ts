@@ -127,6 +127,13 @@ for (const viewport of [{width:1916,height:910},{width:390,height:844}]) {
     await prepare(page, 'single');
     const card = page.locator('[data-metric="mttr"]');
     await expect(card.locator('.gm-metric-value strong')).toHaveText('6,52 h');
+    await expect(card.locator('.gm-metric-plot')).not.toContainText(/\bP\d+\b/);
+    await expect(card.locator('.gm-metric-plot')).toContainText('jan');
+    await expect(card.locator('[data-point-detail]')).toContainText('Último intervalo com dados');
+    await expect(card.locator('[data-point-detail]')).toContainText('6,52 h');
+    await expect(page.locator('[data-metric="mtbf"] .gm-metric-plot')).toHaveCount(0);
+    await expect(page.locator('[data-metric="mtbf"]')).toContainText('horímetros');
+    await expect(page.locator('[data-metric="availability"]')).toContainText('calendário operacional');
     await expect(card.locator('.gm-metric-reference')).toHaveCount(1);
     await expect(card.locator('.gm-metric-hit')).toHaveCount(1);
     await expect(card.locator('.gm-metric-line')).toHaveCount(0);
