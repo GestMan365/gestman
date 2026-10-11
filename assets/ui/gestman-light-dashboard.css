@@ -1,4 +1,13 @@
 /* Visão clara GestMan365: cabeçalho de marca, navegação lateral e dados reais. */
+/* Validação da O.S.: destaque visível também no tema claro. */
+html#gm-premium body.theme-light #orderForm .field[aria-invalid="true"],
+html#gm-premium body.theme-light #orderForm #orderExecutorField.is-invalid {
+  border-color:#dc2626 !important;
+  box-shadow:0 0 0 3px rgba(220,38,38,.18) !important;
+}
+html#gm-premium body.theme-light #orderForm .field-error:not([hidden]) {
+  color:#b91c1c !important;
+}
 /* Ações da abertura de O.S. acompanham o fim do formulário, sem cobrir campos ao rolar. */
 html#gm-premium body #genericBody #orderForm .os-create-actions {
   position:static !important;

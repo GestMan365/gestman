@@ -23,20 +23,52 @@ test.beforeEach(async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Salvar e Iniciar', exact: true })).toHaveCount(0);
   await page.locator('#orderAsset').selectOption('asset-qa');
   await page.locator('#orderDescription').fill('QA: verificar confirmação antes de fechar');
+  await page.locator('#orderRequester').fill('Solicitante QA');
   await page.locator('#orderResponsible').selectOption('user:qa-user');
+});
+
+test('campos obrigatórios esquecidos ficam vermelhos e o primeiro recebe foco', async ({ page }) => {
+  await page.evaluate(() => document.body.classList.add('theme-light'));
+  await page.locator('#orderAsset').selectOption('');
+  await page.locator('#orderDescription').fill('');
+  await page.locator('#orderRequester').fill('');
+  await page.evaluate(() => window.eval("setOrderExecutorSelection('user:qa-user',false)"));
+  await page.getByRole('button', { name: 'Enviar O.S.', exact: true }).click();
+
+  for (const selector of ['#orderAsset', '#orderDescription', '#orderRequester', '#orderExecutorSearch']) {
+    await expect(page.locator(selector)).toHaveAttribute('aria-invalid', 'true');
+  }
+  await expect(page.locator('#orderExecutorField')).toHaveClass(/is-invalid/);
+  await expect(page.locator('#orderAssetError')).toBeVisible();
+  await expect(page.locator('#orderDescriptionError')).toBeVisible();
+  await expect(page.locator('#orderRequesterError')).toBeVisible();
+  await expect(page.locator('#orderExecutorError')).toBeVisible();
+  expect(await page.evaluate(() => document.activeElement?.id)).toBe('orderAsset');
+  expect(await page.locator('#orderAsset').evaluate(el => getComputedStyle(el).borderColor)).toBe('rgb(220, 38, 38)');
+  expect(await page.locator('#orderExecutorField').evaluate(el => getComputedStyle(el).borderColor)).toBe('rgb(220, 38, 38)');
+  expect(await page.evaluate(() => window.eval('window.qaSaves.length'))).toBe(0);
+
+  await page.locator('#orderAsset').selectOption('asset-qa');
+  await page.locator('#orderDescription').fill('Falha mecânica');
+  await page.locator('#orderRequester').fill('Solicitante QA');
+  await page.evaluate(() => window.eval("setOrderExecutorSelection('user:qa-user',true)"));
+  for (const selector of ['#orderAsset', '#orderDescription', '#orderRequester', '#orderExecutorSearch']) {
+    await expect(page.locator(selector)).not.toHaveAttribute('aria-invalid', 'true');
+  }
+  await expect(page.locator('#orderExecutorField')).not.toHaveClass(/is-invalid/);
 });
 
 for (const failure of [false, 'throw']) {
   test(`falha ${failure} preserva formulário e reutiliza ID sem falso sucesso`, async ({ page }) => {
     await page.evaluate(value => window.eval(`window.qaSaveResult=${JSON.stringify(value)}`), failure);
-    await page.getByRole('button', { name: 'Salvar O.S.', exact: true }).click();
+    await page.getByRole('button', { name: 'Enviar O.S.', exact: true }).click();
     await expect.poll(() => page.evaluate(() => window.eval('window.qaSaves.length'))).toBe(1);
     await expect(page.locator('#orderForm')).toBeVisible();
     await expect(page.locator('#orderDescription')).toHaveValue('QA: verificar confirmação antes de fechar');
     expect(await page.evaluate(() => window.eval('window.qaStarts'))).toBe(0);
     expect(await page.evaluate(() => window.eval('window.qaMessages.some(text=>/com sucesso/.test(text))'))).toBe(false);
     await page.evaluate(() => window.eval('window.qaSaveResult=true'));
-    await page.getByRole('button', { name: 'Salvar O.S.', exact: true }).click();
+    await page.getByRole('button', { name: 'Enviar O.S.', exact: true }).click();
     await expect(page.locator('#genericModal')).not.toHaveClass(/open/);
     const result = await page.evaluate(() => window.eval('({ids:window.qaSaves.map(item=>item.id),count:state.orders.length})'));
     expect(result.ids).toHaveLength(2);
@@ -51,9 +83,9 @@ test('salvamento lento bloqueia segunda submissão e preserva o modal durante re
   await page.evaluate(() => window.eval(`
     saveOrderSupabaseNow=async order=>{window.qaSaves.push(order);return new Promise(resolve=>window.qaResolveSave=resolve)};
   `));
-  await page.getByRole('button', { name: 'Salvar O.S.', exact: true }).click();
+  await page.getByRole('button', { name: 'Enviar O.S.', exact: true }).click();
   await expect(page.locator('#orderForm')).toHaveAttribute('aria-busy', 'true');
-  await expect(page.getByRole('button', { name: 'Salvar O.S.', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Enviar O.S.', exact: true })).toBeDisabled();
   const blocked = await page.evaluate(() => window.eval(`
     window.qaLoadCalls=0;gmRpc=async()=>{window.qaLoadCalls++;return []};
     gmStateDirty=false;

@@ -20702,7 +20702,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   </style>
   <link rel="stylesheet" href="assets/work-order-desktop-alerts.css">
   <link rel="stylesheet" href="assets/premium-ui.css">
-  <link rel="stylesheet" href="assets/ui/gestman-light-dashboard.css?v=20261011-order-actions-flow">
+  <link rel="stylesheet" href="assets/ui/gestman-light-dashboard.css?v=20261011-order-required-fields">
   <link rel="stylesheet" href="assets/ui/gestman-pagination.css">
 </head>
 <body class="auth-loading auth-restoring">
@@ -36422,18 +36422,35 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         activeAtAssignment:Boolean(candidate.selectable)
       }));
     }
+    function markOrderRequiredField(id, errorId) {
+      const field = $(id);
+      if (!field) return;
+      field.setAttribute("aria-invalid", "true");
+      field.style.setProperty("border-color", "#dc2626", "important");
+      field.style.setProperty("box-shadow", "0 0 0 3px rgba(220,38,38,.18)", "important");
+      if (errorId && $(errorId)) $(errorId).hidden = false;
+    }
+    function clearOrderRequiredField(id, errorId) {
+      const field = $(id);
+      if (!field) return;
+      field.removeAttribute("aria-invalid");
+      field.style.removeProperty("border-color");
+      field.style.removeProperty("box-shadow");
+      if (errorId && $(errorId)) $(errorId).hidden = true;
+    }
     function clearOrderExecutorError() {
       $("orderExecutorField")?.classList.remove("is-invalid");
       if ($("orderExecutorError")) $("orderExecutorError").hidden = true;
-      $("orderExecutorSearch")?.removeAttribute("aria-invalid");
+      $("orderExecutorField")?.style.removeProperty("border-color");
+      $("orderExecutorField")?.style.removeProperty("box-shadow");
+      clearOrderRequiredField("orderExecutorSearch");
     }
     function showOrderExecutorError() {
       $("orderExecutorField")?.classList.add("is-invalid");
       if ($("orderExecutorError")) $("orderExecutorError").hidden = false;
-      $("orderExecutorSearch")?.setAttribute("aria-invalid", "true");
-      $("orderExecutorField")?.scrollIntoView({ behavior:"smooth", block:"center" });
-      $("orderExecutorSearch")?.focus({ preventScroll:true });
-      showToast(ORDER_EXECUTOR_REQUIRED_MESSAGE, "warning");
+      $("orderExecutorField")?.style.setProperty("border-color", "#dc2626", "important");
+      $("orderExecutorField")?.style.setProperty("box-shadow", "0 0 0 3px rgba(220,38,38,.18)", "important");
+      markOrderRequiredField("orderExecutorSearch");
     }
     function renderOrderExecutorPicker() {
       const optionsRoot = $("orderExecutorOptions");
@@ -36555,7 +36572,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           <label>Checklist<select class="field" id="orderChecklist"><option value="">Nenhum</option>${checklists}</select></label><label>Peça prevista<select class="field" id="orderPlannedSpare"><option value="">Nenhuma</option>${spares}</select></label>
           <label class="full">Anexos<input class="field" id="orderAttachments" type="file" multiple accept=".png,.jpg,.jpeg,.webp,.pdf,.txt,.csv,.doc,.docx,.xls,.xlsx"></label><label class="full">Observações<textarea class="field" id="orderNotes"></textarea></label>
         </div></details>
-        <div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button>${editing ? `<button class="btn primary" type="submit" value="save">Salvar alterações</button>` : `<button class="btn primary" type="submit" value="save">Salvar O.S.</button>`}</div>
+        <div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button>${editing ? `<button class="btn primary" type="submit" value="save">Salvar alterações</button>` : `<button class="btn primary" type="submit" value="save">Enviar O.S.</button>`}</div>
       </form>`, true);
       if (editing) {
         $("orderRequester").value = editing.requester || "";
@@ -36586,9 +36603,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         updateOrderDetailsCount();
       };
       applyOrderSlaDeadline();
-      $("orderAsset").addEventListener("change", () => { updateOrderAssetContext(); if ($("orderAsset").value) { $("orderAssetError").hidden = true; $("orderAsset").removeAttribute("aria-invalid"); } });
-      $("orderDescription").addEventListener("input", () => { if (value("orderDescription")) { $("orderDescriptionError").hidden = true; $("orderDescription").removeAttribute("aria-invalid"); } });
-      $("orderRequester").addEventListener("input", () => { if (value("orderRequester")) { $("orderRequesterError").hidden = true; $("orderRequester").removeAttribute("aria-invalid"); } });
+      $("orderAsset").addEventListener("change", () => { updateOrderAssetContext(); if ($("orderAsset").value) clearOrderRequiredField("orderAsset", "orderAssetError"); });
+      $("orderDescription").addEventListener("input", () => { if (value("orderDescription")) clearOrderRequiredField("orderDescription", "orderDescriptionError"); });
+      $("orderRequester").addEventListener("input", () => { if (value("orderRequester")) clearOrderRequiredField("orderRequester", "orderRequesterError"); });
       $("orderTeam").addEventListener("change", renderOrderExecutorPicker);
       $("orderExecutorSearch").addEventListener("input", renderOrderExecutorPicker);
       $("orderPriority")?.addEventListener("change", applyOrderSlaDeadline);
@@ -36597,12 +36614,17 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       $("orderForm").addEventListener("submit", async event => {
         event.preventDefault();
         if (orderQuickSaveLock) return;
-        let invalid = false;
-        if (!$("orderAsset").value) { $("orderAsset").setAttribute("aria-invalid", "true"); $("orderAssetError").hidden = false; invalid = true; }
-        if (!value("orderDescription")) { $("orderDescription").setAttribute("aria-invalid", "true"); $("orderDescriptionError").hidden = false; invalid = true; }
-        if (!value("orderRequester")) { $("orderRequester").setAttribute("aria-invalid", "true"); $("orderRequesterError").hidden = false; invalid = true; }
-        if (!orderExecutorSelection.size) { showOrderExecutorError(); invalid = true; }
-        if (invalid) return;
+        const missingFields = [];
+        if (!$("orderAsset").value) { markOrderRequiredField("orderAsset", "orderAssetError"); missingFields.push($("orderAsset")); }
+        if (!value("orderDescription")) { markOrderRequiredField("orderDescription", "orderDescriptionError"); missingFields.push($("orderDescription")); }
+        if (!value("orderRequester")) { markOrderRequiredField("orderRequester", "orderRequesterError"); missingFields.push($("orderRequester")); }
+        if (!orderExecutorSelection.size) { showOrderExecutorError(); missingFields.push($("orderExecutorSearch")); }
+        if (missingFields.length) {
+          missingFields[0].scrollIntoView({ behavior:"instant", block:"center" });
+          missingFields[0].focus({ preventScroll:true });
+          showToast(`Preencha ${missingFields.length === 1 ? "o campo obrigatório destacado" : `os ${missingFields.length} campos obrigatórios destacados`} antes de enviar a O.S.`, "warning");
+          return;
+        }
         orderQuickSaveLock = true;
         const button = event.submitter;
         const form = event.currentTarget;
