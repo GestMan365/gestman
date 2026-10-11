@@ -1,0 +1,38 @@
+@layer premium {
+  html#gm-premium body.premium-shell .workspace .gm-pagination {
+    display:flex !important;
+    align-items:center !important;
+    justify-content:flex-end !important;
+    flex-wrap:wrap !important;
+    gap:10px 14px !important;
+    padding:12px 16px !important;
+    color:var(--p-muted) !important;
+    background:var(--p-surface) !important;
+    border-top:1px solid var(--p-line) !important;
+  }
+  html#gm-premium body.premium-shell .workspace .gm-page-summary { margin-right:auto !important; font-size:12px !important; }
+  html#gm-premium body.premium-shell .workspace .gm-page-size { display:flex; align-items:center; gap:8px; font-size:12px; white-space:nowrap; }
+  html#gm-premium body.premium-shell .workspace .gm-page-size select {
+    width:70px !important; min-height:36px !important; padding:5px 24px 5px 9px !important;
+    color:var(--p-text) !important; background:var(--p-surface) !important;
+    border:1px solid var(--p-line) !important; border-radius:7px !important;
+  }
+  html#gm-premium body.premium-shell .workspace .gm-page-buttons { display:flex !important; align-items:center !important; flex-wrap:wrap !important; gap:5px !important; }
+  html#gm-premium body.premium-shell .workspace .gm-page-buttons button {
+    display:grid !important; place-items:center !important; min-width:36px !important; width:auto !important;
+    height:36px !important; min-height:36px !important; padding:0 9px !important;
+    color:var(--p-text) !important; background:var(--p-surface) !important;
+    border:1px solid var(--p-line) !important; border-radius:7px !important; box-shadow:none !important;
+    font-size:12px !important; font-weight:650 !important; cursor:pointer;
+  }
+  html#gm-premium body.premium-shell .workspace .gm-page-buttons button:is(.active,[aria-current="page"]) {
+    color:#fff !important; background:var(--p-blue) !important; border-color:var(--p-blue) !important;
+  }
+  html#gm-premium body.premium-shell .workspace .gm-page-buttons button:hover:not(:disabled):not(.active) { color:var(--p-blue) !important; border-color:var(--p-blue) !important; }
+  html#gm-premium body.premium-shell .workspace .gm-page-buttons button:disabled { opacity:.42 !important; cursor:not-allowed !important; }
+  html#gm-premium body.premium-shell .workspace .gm-page-ellipsis { padding:0 3px; color:var(--p-muted); }
+  @media (max-width:600px) {
+    html#gm-premium body.premium-shell .workspace .gm-pagination { justify-content:center !important; }
+    html#gm-premium body.premium-shell .workspace .gm-page-summary { width:100%; text-align:center; margin:0 !important; }
+  }
+}

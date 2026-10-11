@@ -1,4 +1,36 @@
 /* Visão clara GestMan365: cabeçalho de marca, navegação lateral e dados reais. */
+.theme-light .order-execution-cta {
+  color:#1c3047 !important;
+  background:#ffffff !important;
+  border-color:#c9d8e7 !important;
+  border-left-color:#16a34a !important;
+  box-shadow:0 4px 14px rgba(31,55,81,.10) !important;
+}
+.theme-light .order-execution-cta.is-running { border-left-color:#1b61d6 !important; }
+.theme-light .order-execution-cta.is-paused { border-left-color:#b8660a !important; }
+.theme-light .order-execution-cta.is-closed { border-left-color:#64748b !important; box-shadow:none !important; }
+.theme-light .order-execution-cta .order-execution-icon {
+  color:#1764a9 !important;
+  background:#eaf4ff !important;
+  border-color:#bdd8ee !important;
+}
+.theme-light .order-execution-cta .order-execution-copy small { color:#376381 !important; }
+.theme-light .order-execution-cta .order-execution-copy strong { color:#172b43 !important; }
+.theme-light .order-execution-cta .order-execution-copy span { color:#50647a !important; }
+.theme-light .tag.status-overdue,
+.theme-light .badge.status-overdue,
+.theme-light .pill.status-overdue {
+  color:#9f1d29 !important;
+  background:#fff0f1 !important;
+  border-color:#efadb3 !important;
+}
+.theme-light .tag.status-cancelled,
+.theme-light .badge.status-cancelled,
+.theme-light .pill.status-cancelled {
+  color:#9f1d29 !important;
+  background:#fff0f1 !important;
+  border-color:#efadb3 !important;
+}
 .reference-topbar-logo,
 .gm-dashboard-breadcrumb { display:none; }
 
