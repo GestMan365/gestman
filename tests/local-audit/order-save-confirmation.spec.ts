@@ -20,6 +20,7 @@ test.beforeEach(async ({ page }) => {
   `));
   await page.locator('#createOrderBtn').click();
   await expect(page.locator('#orderForm')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Salvar e Iniciar', exact: true })).toHaveCount(0);
   await page.locator('#orderAsset').selectOption('asset-qa');
   await page.locator('#orderDescription').fill('QA: verificar confirmação antes de fechar');
   await page.locator('#orderResponsible').selectOption('user:qa-user');
@@ -28,7 +29,7 @@ test.beforeEach(async ({ page }) => {
 for (const failure of [false, 'throw']) {
   test(`falha ${failure} preserva formulário e reutiliza ID sem falso sucesso`, async ({ page }) => {
     await page.evaluate(value => window.eval(`window.qaSaveResult=${JSON.stringify(value)}`), failure);
-    await page.getByRole('button', { name: 'Salvar e Iniciar', exact: true }).click();
+    await page.getByRole('button', { name: 'Salvar O.S.', exact: true }).click();
     await expect.poll(() => page.evaluate(() => window.eval('window.qaSaves.length'))).toBe(1);
     await expect(page.locator('#orderForm')).toBeVisible();
     await expect(page.locator('#orderDescription')).toHaveValue('QA: verificar confirmação antes de fechar');
@@ -41,6 +42,8 @@ for (const failure of [false, 'throw']) {
     expect(result.ids).toHaveLength(2);
     expect(new Set(result.ids).size).toBe(1);
     expect(result.count).toBe(1);
+    expect(await page.evaluate(() => window.eval('state.orders[0].status'))).toBe('Aberta');
+    expect(await page.evaluate(() => window.eval('window.qaStarts'))).toBe(0);
   });
 }
 
@@ -50,7 +53,7 @@ test('salvamento lento bloqueia segunda submissão e preserva o modal durante re
   `));
   await page.getByRole('button', { name: 'Salvar O.S.', exact: true }).click();
   await expect(page.locator('#orderForm')).toHaveAttribute('aria-busy', 'true');
-  await expect(page.getByRole('button', { name: 'Salvar e Iniciar', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Salvar O.S.', exact: true })).toBeDisabled();
   const blocked = await page.evaluate(() => window.eval(`
     window.qaLoadCalls=0;gmRpc=async()=>{window.qaLoadCalls++;return []};
     gmStateDirty=false;

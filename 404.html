@@ -10429,6 +10429,13 @@
     body.theme-light .stage20-notification-center .stage20-tabs button.active{color:#075fae!important;border-color:#1769c8!important}
     body.theme-light .stage20-empty,body.theme-light .stage20-empty strong{color:#36536d!important}
     body.theme-light .stage20-pref-list label{background:#fff!important;border-color:#d2dfea!important;color:#203b55!important}
+    #genericModal #s20NotificationPrefs .stage20-pref-list>label{background:#fff!important;border:1px solid #cbd9e6!important;color:#18324b!important;box-shadow:0 1px 3px rgba(35,57,79,.04)!important}
+    #genericModal #s20NotificationPrefs .stage20-pref-list>label>span{color:#18324b!important}
+    html#gm-premium body.premium-shell #genericModal #s20NotificationPrefs .stage20-pref-list>label .stage20-sub{color:#536d86!important}
+    #genericModal #s20NotificationPrefs input[type="checkbox"]{accent-color:#1769c8}
+    #genericModal #s20NotificationPrefs .stage20-warning{background:#fff7ed!important;border-color:#f3bc78!important;color:#85420a!important}
+    #genericModal #s20NotificationPrefs .stage20-desktop-alert-row{background:#f7fafc!important;border-color:#cbd9e6!important;color:#18324b!important}
+    html#gm-premium body.premium-shell #genericModal #s20NotificationPrefs .stage20-desktop-alert-row .stage20-sub{color:#536d86!important}
     /* Planos preventivos, ativos e checklists */
     body.theme-light :is(.preventive-metric,.preventive-filter-panel,.preventive-list-panel,.preventive-detail-panel,.preventive-calendar-filters,.asset-metric,.asset-filter-panel,.asset-list-panel,.asset-detail-panel,.checklist-metric,.checklist-filter-panel,.checklist-list-panel,.checklist-detail-panel){background:#fff!important;border-color:#cbd8e5!important;color:#15263a!important;box-shadow:0 4px 14px rgba(31,55,81,.05)!important}
     body.theme-light :is(.preventive-metric,.asset-metric,.checklist-metric) :is(strong,span){color:#17314b!important}
@@ -36224,7 +36231,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           <label>Checklist <select class="field" id="orderChecklist"><option value="">Nenhum</option>${checklists}</select></label><label>Peça prevista <select class="field" id="orderPlannedSpare"><option value="">Nenhuma</option>${spares}</select></label>
           <label class="full">Anexos <input class="field" id="orderAttachments" type="file" multiple accept=".png,.jpg,.jpeg,.webp,.pdf,.txt,.csv,.doc,.docx,.xls,.xlsx"></label><label class="full">Observações <textarea class="field" id="orderNotes"></textarea></label>
         </div></details>
-        <div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button>${editing ? `<button class="btn primary" type="submit" value="save">Salvar alterações</button>` : `<button class="btn" type="submit" value="save">Salvar O.S.</button><button class="btn primary" type="submit" value="start">Salvar e Iniciar</button>`}</div>
+        <div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button>${editing ? `<button class="btn primary" type="submit" value="save">Salvar alterações</button>` : `<button class="btn primary" type="submit" value="save">Salvar O.S.</button>`}</div>
       </form>`, true);
       if(editing){$("orderRequester").value=editing.requester||"";$("orderExecutor").value=editing.executor||"";$("orderType").value=editing.type||"Corretiva";$("orderPriority").value=editing.priority||"Baixa";$("orderScheduled").value=String(editing.scheduledAt||"").slice(0,10);$("orderDescription").value=editing.description||"";$("orderNotes").value=editing.comment||"";$("orderChecklist").value=editing.linkedChecklists?.[0]||"";$("orderPlannedSpare").value=editing.plannedSpareId||"";}
       if (accessProfileForUser(currentAccount?.user || {}) === "requester") {
@@ -36257,7 +36264,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           selectedOrderId=payload.id;
           closeModal();
           setView("orders");
-          if(button?.value==="start")await startOrder(payload.id,payload.executor);else render();
+          render();
           showToast(editing?"O.S. atualizada.":"O.S. criada com sucesso.");
         }catch(error){
           state.orders=previousOrders;
@@ -36548,7 +36555,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           <label>Checklist<select class="field" id="orderChecklist"><option value="">Nenhum</option>${checklists}</select></label><label>Peça prevista<select class="field" id="orderPlannedSpare"><option value="">Nenhuma</option>${spares}</select></label>
           <label class="full">Anexos<input class="field" id="orderAttachments" type="file" multiple accept=".png,.jpg,.jpeg,.webp,.pdf,.txt,.csv,.doc,.docx,.xls,.xlsx"></label><label class="full">Observações<textarea class="field" id="orderNotes"></textarea></label>
         </div></details>
-        <div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button>${editing ? `<button class="btn primary" type="submit" value="save">Salvar alterações</button>` : `<button class="btn" type="submit" value="save">Salvar O.S.</button><button class="btn primary" type="submit" value="start">Salvar e Iniciar</button>`}</div>
+        <div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button>${editing ? `<button class="btn primary" type="submit" value="save">Salvar alterações</button>` : `<button class="btn primary" type="submit" value="save">Salvar O.S.</button>`}</div>
       </form>`, true);
       if (editing) {
         $("orderRequester").value = editing.requester || "";
@@ -36637,7 +36644,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           selectedOrderId = payload.id;
           closeModal();
           setView("orders");
-          if (button?.value === "start") await startOrder(payload.id, payload.executor); else render();
+          render();
           showToast(editing ? "O.S. atualizada com sucesso." : "Ordem de Serviço criada com sucesso.");
         } catch (error) {
           stage21HandleError(error, "orders.save", "Não foi possível salvar. Todos os dados preenchidos foram preservados.");

@@ -26,3 +26,28 @@ test("notificações e central usam cores legíveis no modo claro", async ({ pag
   expect(colors.filter).toBe("rgb(247, 249, 252)");
   expect(colors.preference).toBe("rgb(255, 255, 255)");
 });
+
+test("preferências de notificação não exibem linhas escuras", async ({ page }) => {
+  await page.goto("./");
+  const colors = await page.evaluate(() => {
+    const body = document.getElementById("genericBody")!;
+    body.innerHTML = `<form id="s20NotificationPrefs" class="stage20-form"><div class="full stage20-pref-list"><label><span>Ordem de Serviço<small class="stage20-sub">Afeta somente futuras notificações não urgentes.</small></span><input type="checkbox" checked></label></div><div class="full stage20-warning">Notificações urgentes permanecem ativas.</div><div class="full stage20-pref-list"><div class="stage20-desktop-alert-row"><span><strong>Alertas de nova O.S. no computador</strong><small class="stage20-sub">Ativo</small></span></div><label>Modelo de alerta<select class="field"><option>Duplo tom</option></select></label></div></form>`;
+    const read = () => {
+      const style = (selector: string) => getComputedStyle(body.querySelector(selector)!);
+      return {
+        row: style(".stage20-pref-list > label").backgroundColor,
+        title: style(".stage20-pref-list > label > span").color,
+        subtitle: style(".stage20-pref-list .stage20-sub").color,
+        warning: style(".stage20-warning").backgroundColor,
+        alert: style(".stage20-desktop-alert-row").backgroundColor,
+      };
+    };
+    document.body.classList.add("theme-light");
+    return read();
+  });
+  expect(colors.row).toBe("rgb(255, 255, 255)");
+  expect(colors.title).toBe("rgb(24, 50, 75)");
+  expect(colors.subtitle).toBe("rgb(86, 103, 126)");
+  expect(colors.warning).toBe("rgb(255, 247, 237)");
+  expect(colors.alert).toBe("rgb(247, 250, 252)");
+});
