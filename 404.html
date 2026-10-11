@@ -20676,7 +20676,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   </style>
   <link rel="stylesheet" href="assets/work-order-desktop-alerts.css">
   <link rel="stylesheet" href="assets/premium-ui.css">
-  <link rel="stylesheet" href="assets/ui/gestman-light-dashboard.css?v=20261011-orders-chart-values">
+  <link rel="stylesheet" href="assets/ui/gestman-light-dashboard.css?v=20261011-asset-health-compact">
   <link rel="stylesheet" href="assets/ui/gestman-pagination.css">
 </head>
 <body class="auth-loading auth-restoring">
@@ -28907,7 +28907,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const counts = Object.fromEntries(definitions.map(item => [item.key, classified.filter(entry => entry.health.key === item.key).length]));
       const total = assets.length;
       const gradient = total ? industrialDonutGradient(definitions.map(item => counts[item.key]), definitions.map(item => item.color)) : "conic-gradient(#334155 0 100%)";
-      target.innerHTML = `<div class="asset-health-main"><div class="asset-health-donut" style="--health-donut:${gradient}"><div><strong>${total.toLocaleString("pt-BR")}</strong><span>equipamentos</span></div></div><div class="asset-health-legend">${definitions.map(item => { const count=counts[item.key]; const percent=total ? count/total*100 : 0; return `<div class="asset-health-legend-row" style="--health-color:${item.color}"><i></i><span>${item.label}</span><strong>${count}</strong><small>${percent.toLocaleString("pt-BR", { maximumFractionDigits:0 })}%</small></div>`; }).join("")}</div></div><div class="asset-health-footer"><button class="chart-link-button" type="button" onclick="openCriticalAssets()">Ver ativos críticos</button></div>`;
+      const attention = counts.regular + counts.critical;
+      const healthy = counts.excellent + counts.good;
+      target.innerHTML = `<div class="asset-health-overview"><div class="asset-health-donut" style="--health-donut:${gradient}" role="img" aria-label="${total} equipamentos: ${counts.excellent} excelentes, ${counts.good} bons, ${counts.regular} regulares e ${counts.critical} críticos"><div><strong>${total.toLocaleString("pt-BR")}</strong><span>ativos</span></div></div><div class="asset-health-summary"><span class="asset-health-summary-label">PANORAMA DA FROTA</span><strong>${attention.toLocaleString("pt-BR")} <span>sob atenção</span></strong><small>${healthy.toLocaleString("pt-BR")} em condição boa ou excelente · ${total ? Math.round(healthy / total * 100) : 0}% do total</small></div></div><div class="asset-health-breakdown">${definitions.map(item => { const count=counts[item.key]; const percent=total ? count/total*100 : 0; return `<div class="asset-health-breakdown-row" style="--health-color:${item.color};--health-width:${percent}%"><div class="asset-health-breakdown-head"><span><i></i>${item.label}</span><strong>${count.toLocaleString("pt-BR")}</strong><small>${percent.toLocaleString("pt-BR", { maximumFractionDigits:0 })}%</small></div><div class="asset-health-breakdown-track"><i></i></div></div>`; }).join("")}</div><div class="asset-health-footer"><button class="chart-link-button" type="button" onclick="openCriticalAssets()">Ver ${counts.critical.toLocaleString("pt-BR")} ativo${counts.critical === 1 ? "" : "s"} crítico${counts.critical === 1 ? "" : "s"}</button></div>`;
     }
     function openMaintenanceBacklog() {
       dashboardBacklogView = true;
@@ -28916,7 +28918,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       setView("orders", { dashboardFilter:"backlog" });
     }
     function openCriticalAssets() {
-      dashboardCriticalAssetIds = new Set(state.assets.filter(asset => assetHealthCategory(asset).key === "critical").map(asset => asset.id));
+      dashboardCriticalAssetIds = new Set(dashboardFilteredData().assets.filter(asset => assetHealthCategory(asset).key === "critical").map(asset => asset.id));
       if ($("globalSearch")) $("globalSearch").value="";
       setView("assets", { dashboardFilter:"critical" });
     }

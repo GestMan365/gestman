@@ -380,8 +380,85 @@ body.theme-light #dashboard .professional-kpi-copy strong {
 }
 body.theme-light #dashboard .professional-kpi-copy small { color:#7a899a !important; font-size:10px !important; }
 body.theme-light #dashboard .maintenance-trend-card { order:1; grid-column:1/-1 !important; }
-body.theme-light #dashboard .maintenance-backlog-card { order:2; grid-column:span 6 !important; }
-body.theme-light #dashboard .asset-health-card { order:3; grid-column:span 6 !important; }
+body.theme-light #dashboard .maintenance-backlog-card { order:2; grid-column:span 8 !important; }
+body.theme-light #dashboard .asset-health-card { order:3; grid-column:span 4 !important; min-height:0 !important; align-self:start !important; }
+body.theme-light #dashboard .asset-health-content { padding:14px 18px 16px; }
+body.theme-light #dashboard .asset-health-overview {
+  display:grid;
+  grid-template-columns:102px minmax(0,1fr);
+  align-items:center;
+  gap:18px;
+  min-height:114px;
+}
+body.theme-light #dashboard .asset-health-donut {
+  width:98px;
+  height:98px;
+  box-shadow:none;
+}
+body.theme-light #dashboard .asset-health-donut::after { inset:16px; }
+body.theme-light #dashboard .asset-health-donut strong { font-size:24px; }
+body.theme-light #dashboard .asset-health-donut span { font-size:10px; }
+body.theme-light #dashboard .asset-health-summary { display:grid; gap:5px; min-width:0; }
+body.theme-light #dashboard .asset-health-summary-label {
+  color:#58708a;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.08em;
+}
+body.theme-light #dashboard .asset-health-summary > strong {
+  color:#172b43;
+  font-size:27px;
+  line-height:1.05;
+}
+body.theme-light #dashboard .asset-health-summary > strong span {
+  display:block;
+  color:#526981;
+  font-size:13px;
+  font-weight:700;
+}
+body.theme-light #dashboard .asset-health-summary small { color:#526981; font-size:11px; line-height:1.35; }
+body.theme-light #dashboard .asset-health-breakdown { display:grid; gap:9px; margin-top:13px; }
+body.theme-light #dashboard .asset-health-breakdown-row { min-width:0; }
+body.theme-light #dashboard .asset-health-breakdown-head {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 30px 35px;
+  align-items:center;
+  gap:6px;
+  margin-bottom:4px;
+  font-size:11px;
+}
+body.theme-light #dashboard .asset-health-breakdown-head > span { display:flex; align-items:center; gap:6px; color:#344e68; }
+body.theme-light #dashboard .asset-health-breakdown-head > span i {
+  width:8px;
+  height:8px;
+  flex:0 0 8px;
+  border-radius:50%;
+  background:var(--health-color);
+}
+body.theme-light #dashboard .asset-health-breakdown-head strong { color:#172b43; text-align:right; }
+body.theme-light #dashboard .asset-health-breakdown-head small { color:#526981; text-align:right; }
+body.theme-light #dashboard .asset-health-breakdown-track {
+  height:6px;
+  overflow:hidden;
+  border-radius:99px;
+  background:#e9eef4;
+}
+body.theme-light #dashboard .asset-health-breakdown-track i {
+  display:block;
+  width:var(--health-width);
+  height:100%;
+  border-radius:inherit;
+  background:var(--health-color);
+}
+body.theme-light #dashboard .asset-health-footer { margin-top:15px; padding-top:12px; border-top-color:#e4e9f0; }
+@media (max-width:1250px) {
+  body.theme-light #dashboard :is(.maintenance-backlog-card,.asset-health-card) { grid-column:1/-1 !important; }
+}
+@media (max-width:520px) {
+  body.theme-light #dashboard .asset-health-overview { grid-template-columns:86px minmax(0,1fr); gap:12px; }
+  body.theme-light #dashboard .asset-health-donut { width:84px; height:84px; }
+  body.theme-light #dashboard .asset-health-donut::after { inset:14px; }
+}
 body.theme-light #dashboard .industrial-chart-card { order:4; grid-column:1/-1 !important; }
 body.theme-light #dashboard .industrial-chart-card .chart-legend strong {
   color:#17324b;
