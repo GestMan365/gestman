@@ -1,4 +1,57 @@
 /* Visão clara GestMan365: cabeçalho de marca, navegação lateral e dados reais. */
+/* O.S.: os executantes seguem a mesma superfície clara dos demais campos. */
+html#gm-premium body.theme-light .os-simple-form .order-executor-field {
+  background:#f8fbff !important;
+  border-color:#cbd9e8 !important;
+  color:#17324f !important;
+}
+html#gm-premium body.theme-light .os-simple-form .order-executor-chip {
+  background:#eaf3ff !important;
+  border-color:#91bcea !important;
+  color:#123553 !important;
+}
+html#gm-premium body.theme-light .os-simple-form .order-executor-chip strong,
+html#gm-premium body.theme-light .os-simple-form .order-executor-chip small {
+  color:#123553 !important;
+}
+html#gm-premium body.theme-light .os-simple-form .order-executor-chip.is-historical {
+  background:#f1f4f8 !important;
+  border-color:#c9d2dc !important;
+}
+html#gm-premium body.theme-light .os-simple-form .order-executor-chip button {
+  background:#fff !important;
+  border:1px solid #9db9d8 !important;
+}
+html#gm-premium body.theme-light .os-simple-form .order-executor-chip button::before,
+html#gm-premium body.theme-light .os-simple-form .order-executor-chip button::after {
+  background:#28577f !important;
+}
+html#gm-premium body.theme-light .os-simple-form .order-executor-option {
+  background:#fff !important;
+  border-color:#cbd9e8 !important;
+  color:#17324f !important;
+}
+html#gm-premium body.theme-light .os-simple-form .order-executor-option:hover,
+html#gm-premium body.theme-light .os-simple-form .order-executor-option.is-selected {
+  background:#eaf3ff !important;
+  border-color:#3382d5 !important;
+}
+html#gm-premium body.theme-light .os-simple-form .order-executor-option strong,
+html#gm-premium body.theme-light .os-simple-form .order-executor-option small,
+html#gm-premium body.theme-light .os-simple-form .order-executor-head span {
+  color:#31516f !important;
+}
+html#gm-premium body.theme-light .os-simple-form .order-executor-placeholder,
+html#gm-premium body.theme-light .os-simple-form .order-executor-empty {
+  color:#4b6580 !important;
+}
+html#gm-premium body.theme-light .os-simple-form .order-executor-empty {
+  background:#fff !important;
+  border-color:#cbd9e8 !important;
+}
+html#gm-premium body.theme-light .os-simple-form .order-executor-empty strong {
+  color:#17324f !important;
+}
 body.theme-light .os-priority-chip.priority-urgent {
   color:#991b1b !important;
   background:#fee2e2 !important;

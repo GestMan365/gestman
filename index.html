@@ -20702,7 +20702,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   </style>
   <link rel="stylesheet" href="assets/work-order-desktop-alerts.css">
   <link rel="stylesheet" href="assets/premium-ui.css">
-  <link rel="stylesheet" href="assets/ui/gestman-light-dashboard.css?v=20261011-asset-health-compact">
+  <link rel="stylesheet" href="assets/ui/gestman-light-dashboard.css?v=20261011-order-requester-executor-light">
   <link rel="stylesheet" href="assets/ui/gestman-pagination.css">
 </head>
 <body class="auth-loading auth-restoring">
@@ -36530,7 +36530,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       orderExecutorSelection = new Set(orderExistingExecutorSelection(editing));
       openModal(editing ? "Editar Ordem de Serviço" : "Nova Ordem de Serviço", `<form class="os-simple-form" id="orderForm" novalidate data-permission-module="orders" data-required-level="${editing ? "manage" : "operate"}" data-permission-action="${editing ? "Editar O.S." : "Criar O.S."}">
         <section class="os-form-section"><header><span>1</span><div><strong>Identificação</strong><small>Escolha o equipamento e classifique o atendimento.</small></div></header><div class="os-form-grid">
-          <label class="full required">Buscar equipamento<input class="field" id="orderAssetSearch" type="search" autocomplete="off" placeholder="Buscar por nome, código, TAG, local ou setor"></label>
           <label class="full required">Equipamento<select class="field" id="orderAsset" required><option value="">Selecione um equipamento</option>${activeAssets.map(asset => `<option value="${asset.id}" ${asset.id === selectedAssetId ? "selected" : ""}>${escapeHtml(asset.code || "SEM TAG")} · ${escapeHtml(asset.name)} · ${escapeHtml(locationName(asset.locationId) || "Sem local")}</option>`).join("")}</select><small class="field-error" id="orderAssetError" hidden>Selecione um equipamento.</small></label>
           <div class="full order-asset-context" id="orderAssetContext"></div>
           <label class="required">Tipo de manutenção<select class="field" id="orderType" required><option>Corretiva</option><option>Preventiva</option><option>Preditiva</option><option value="Inspecao">Inspeção</option><option>Melhoria</option><option>Instalação</option><option>Outro</option></select></label>
@@ -36539,7 +36538,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         <section class="os-form-section"><header><span>2</span><div><strong>Solicitação</strong><small>Descreva claramente o problema ou serviço.</small></div></header><div class="os-form-grid">
           <label class="full">Título ou resumo<input class="field" id="orderTitle" maxlength="120" placeholder="Resumo curto, opcional"></label>
           <label class="full required">Descrição do problema<textarea class="field" id="orderDescription" required placeholder="Descreva o problema, sintoma ou serviço solicitado."></textarea><small class="field-error" id="orderDescriptionError" hidden>Informe o problema ou serviço solicitado.</small></label>
-          <label>Solicitante<input class="field" id="orderRequester" placeholder="Quem abriu a ordem"></label>
+          <label class="required">Solicitante<input class="field" id="orderRequester" required aria-describedby="orderRequesterError" placeholder="Quem abriu a ordem"><small class="field-error" id="orderRequesterError" role="alert" hidden>Informe o solicitante da O.S.</small></label>
           <label>Data de abertura<input class="field" id="orderOpenedAt" value="${new Date(editing?.createdAt || Date.now()).toLocaleString("pt-BR")}" readonly></label>
         </div></section>
         <section class="os-form-section"><header><span>3</span><div><strong>Planejamento</strong><small>Selecione explicitamente quem atenderá a O.S.</small></div></header><div class="os-form-grid">
@@ -36586,9 +36585,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         updateOrderDetailsCount();
       };
       applyOrderSlaDeadline();
-      $("orderAssetSearch").addEventListener("input", renderOrderAssetOptions);
       $("orderAsset").addEventListener("change", () => { updateOrderAssetContext(); if ($("orderAsset").value) { $("orderAssetError").hidden = true; $("orderAsset").removeAttribute("aria-invalid"); } });
       $("orderDescription").addEventListener("input", () => { if (value("orderDescription")) { $("orderDescriptionError").hidden = true; $("orderDescription").removeAttribute("aria-invalid"); } });
+      $("orderRequester").addEventListener("input", () => { if (value("orderRequester")) { $("orderRequesterError").hidden = true; $("orderRequester").removeAttribute("aria-invalid"); } });
       $("orderTeam").addEventListener("change", renderOrderExecutorPicker);
       $("orderExecutorSearch").addEventListener("input", renderOrderExecutorPicker);
       $("orderPriority")?.addEventListener("change", applyOrderSlaDeadline);
@@ -36600,6 +36599,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         let invalid = false;
         if (!$("orderAsset").value) { $("orderAsset").setAttribute("aria-invalid", "true"); $("orderAssetError").hidden = false; invalid = true; }
         if (!value("orderDescription")) { $("orderDescription").setAttribute("aria-invalid", "true"); $("orderDescriptionError").hidden = false; invalid = true; }
+        if (!value("orderRequester")) { $("orderRequester").setAttribute("aria-invalid", "true"); $("orderRequesterError").hidden = false; invalid = true; }
         if (!orderExecutorSelection.size) { showOrderExecutorError(); invalid = true; }
         if (invalid) return;
         orderQuickSaveLock = true;
