@@ -20676,7 +20676,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   </style>
   <link rel="stylesheet" href="assets/work-order-desktop-alerts.css">
   <link rel="stylesheet" href="assets/premium-ui.css">
-  <link rel="stylesheet" href="assets/ui/gestman-light-dashboard.css?v=20261011-priority-colors">
+  <link rel="stylesheet" href="assets/ui/gestman-light-dashboard.css?v=20261011-orders-chart-values">
   <link rel="stylesheet" href="assets/ui/gestman-pagination.css">
 </head>
 <body class="auth-loading auth-restoring">
@@ -28198,13 +28198,18 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         const onDay = value => { const parsed = value ? new Date(value) : null; return parsed && !Number.isNaN(parsed.getTime()) && parsed.toLocaleDateString("pt-BR") === key; };
         return {
           label: date.toLocaleDateString("pt-BR", { weekday: "short" }).replace(".", ""),
+          date: date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }),
           opened: dashboardOrders.filter(order => onDay(order.createdAt)).length,
           closed: dashboardOrders.filter(order => onDay(order.finishedAt)).length,
           late: dashboardOrders.filter(order => orderIsLate(order) && onDay(order.scheduledAt || order.createdAt)).length
         };
       });
       const max = Math.max(1, ...rows.flatMap(row => [row.opened, row.closed, row.late]));
-      target.innerHTML = rows.map(row => `<div class="stacked-day"><div class="stacked-bars"><i class="opened" style="height:${Math.max(3, row.opened / max * 100)}%" title="${row.opened} abertas"></i><i class="closed" style="height:${Math.max(3, row.closed / max * 100)}%" title="${row.closed} concluídas"></i><i class="late" style="height:${Math.max(3, row.late / max * 100)}%" title="${row.late} atrasadas"></i></div><span>${escapeHtml(row.label)}</span></div>`).join("");
+      const series = [{ key:"opened", label:"Abertas", dot:"blue" }, { key:"closed", label:"Concluídas", dot:"green" }, { key:"late", label:"Atrasadas", dot:"red" }];
+      const totals = Object.fromEntries(series.map(item => [item.key, rows.reduce((sum, row) => sum + row[item.key], 0)]));
+      const legend = target.closest(".industrial-chart-card")?.querySelector(".chart-legend");
+      if (legend) legend.innerHTML = series.map(item => `<span><i class="dot ${item.dot}"></i>${item.label} <strong>${totals[item.key]}</strong></span>`).join("");
+      target.innerHTML = rows.map(row => `<div class="stacked-day" aria-label="${escapeHtml(row.label)} ${row.date}: ${row.opened} abertas, ${row.closed} concluídas, ${row.late} atrasadas"><div class="stacked-bars">${series.map(item => `<span class="stacked-series" style="--bar-height:${row[item.key] ? Math.max(7, row[item.key] / max * 78) : 0}%">${row[item.key] ? `<strong class="stacked-value value-${item.key}">${row[item.key]}</strong>` : ""}<i class="stacked-column ${item.key}" style="${row[item.key] ? "" : "display:none"}" title="${row[item.key]} ${item.label.toLowerCase()}"></i></span>`).join("")}</div><div class="stacked-day-footer"><span>${escapeHtml(row.label)} · ${row.date}</span><div class="stacked-counts">${series.map(item => `<span class="count-${item.key}" title="${item.label}: ${row[item.key]}">${row[item.key]}</span>`).join("")}</div></div></div>`).join("");
     }
     function renderIndustrialPartsDonut() {
       const target = $("industrialPartsDonut"); if (!target) return;
