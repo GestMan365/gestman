@@ -213,7 +213,7 @@ body.theme-light:not(.auth-required):not(.auth-loading) .reference-topbar-search
 }
 
 body.theme-light #dashboard .industrial-dashboard-shell {
-  max-width:1480px !important;
+  max-width:none !important;
   gap:16px !important;
   padding:18px clamp(12px,2vw,30px) 32px !important;
 }
@@ -494,9 +494,18 @@ body.theme-light #dashboard .industrial-card-head h2 { color:#25364c !important;
       width:calc(100% - 60px) !important;
       min-height:calc(100dvh - 56px) !important;
       padding:0 !important;
-      background:#f4f6fa !important;
+      background:var(--p-bg) !important;
     }
     html#gm-premium body.premium-shell.theme-light #dashboard .industrial-dashboard-heading { display:none !important; }
+  }
+  html#gm-premium body.premium-shell.theme-light:not(.auth-required):not(.auth-loading):not(.panel-mode) main.workspace .view {
+    max-width:none !important;
+    width:100% !important;
+    margin-inline:0 !important;
+    background:transparent !important;
+  }
+  html#gm-premium body.premium-shell.theme-light #dashboard .industrial-dashboard-shell {
+    max-width:none !important;
   }
   html#gm-premium body.premium-shell.theme-light #dashboard .professional-kpi-widget {
     padding:18px !important;
