@@ -32113,6 +32113,17 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function orderInitials(name) {
       return String(name || "SE").trim().split(/\s+/).slice(0, 2).map(part => part[0] || "").join("").toUpperCase();
     }
+    function orderResponsibleAvatarHtml(order = {}) {
+      const name = String(order.executor || "").trim();
+      const initials = escapeHtml(orderInitials(name));
+      const companyId = currentAccount?.company?.id;
+      const users = [currentAccount?.user, ...(authStore?.users || []).filter(user => user.companyId === companyId)]
+        .filter(user => user && user.photo);
+      const identified = users.find(user => user.id && user.id === order.responsibleId);
+      const matching = users.filter(user => statusKey(tenantUserDisplayName(user)) === statusKey(name));
+      const photo = identified?.photo || (new Set(matching.map(user => user.id)).size === 1 ? matching[0]?.photo : "");
+      return `<span class="os-person-avatar">${initials}${photo ? `<img src="${escapeHtml(photo)}" alt="" loading="lazy" decoding="async" onerror="this.remove()">` : ""}</span>`;
+    }
     let osCurrentPage = 1;
     let osSortKey = "created";
     let osSortDirection = -1;
@@ -32267,7 +32278,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           <td class="os-equipment-cell"><strong>${escapeHtml(asset.code || "-")}</strong><span>${escapeHtml(asset.name || "Equipamento")}</span></td>
           <td>${orderPriorityChip(order.priority)}</td>
           <td>${orderStatusChip(order)}</td>
-          <td class="os-person-cell"><span class="os-person-avatar">${escapeHtml(orderInitials(order.executor))}</span><strong>${escapeHtml(order.executor || "Sem responsável")}</strong></td>
+          <td class="os-person-cell">${orderResponsibleAvatarHtml(order)}<strong>${escapeHtml(order.executor || "Sem responsável")}</strong></td>
           <td class="os-date-cell">${escapeHtml(due[0] || "-")}<br><span>${escapeHtml(due.slice(1).join(" "))}</span></td>
           <td><div class="os-list-actions"><button class="btn os-list-details" type="button" onclick="event.stopPropagation();showOrderDetails('${order.id}')" aria-label="Detalhes da O.S. ${escapeHtml(order.number || "")}">${gmIcon("eye", { size:16 })}Detalhes</button><button class="os-row-menu" type="button" onclick="event.stopPropagation();showOrderActions('${order.id}')" aria-label="Ações da O.S. ${escapeHtml(order.number || "")}">${gmIcon("more", { size:16 })}</button></div></td>
         </tr>`;
