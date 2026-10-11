@@ -15906,8 +15906,8 @@ body.theme-light .gm-icon-surface {
   width: 220px !important;
   min-width: 220px !important;
   max-width: 220px !important;
-  min-height: 0 !important;
-  height: auto !important;
+  min-height: 90px !important;
+  height: 90px !important;
   gap: 8px !important;
   padding: 8px !important;
   overflow: visible !important;
@@ -15954,18 +15954,21 @@ body.theme-light .gm-icon-surface {
   display: grid;
   min-width: 0;
   max-width: none;
-  gap: 3px;
+  width: 100%;
+  height: 72px;
+  min-height: 72px;
+  grid-template-rows: 14px minmax(0, 1fr) 11px;
+  gap: 2px;
   text-align: left;
   line-height: 1.18;
   text-shadow: 0 2px 5px #000;
 }
 #map .machine-label strong {
-  overflow: visible;
+  overflow: hidden;
   color: #f5fbff;
   font-size: 11px;
-  text-overflow: clip;
-  white-space: normal;
-  overflow-wrap: anywhere;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 #map .machine-label small {
   display: -webkit-box;
@@ -27700,7 +27703,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const width = Math.max(1, Number(location?.w || 0));
       const height = Math.max(1, Number(location?.h || 0));
       const horizontalInset = Math.min(INDUSTRIAL_MAP_MACHINE_GRID.horizontalInset, Math.max(5, width / 2 - 2));
-      const topInset = Math.min(INDUSTRIAL_MAP_MACHINE_GRID.headerCenterOffset, Math.max(6, height / 2));
+      const topInset = Math.min(INDUSTRIAL_MAP_MACHINE_GRID.headerCenterOffset, Math.max(6, height - INDUSTRIAL_MAP_MACHINE_GRID.bottomInset));
       const bottomInset = Math.min(INDUSTRIAL_MAP_MACHINE_GRID.bottomInset, Math.max(4, height / 2 - 2));
       const rawMinY = Number(location?.y || 0) + topInset;
       const rawMaxY = Number(location?.y || 0) + height - bottomInset;
@@ -29729,7 +29732,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         const photo = String(asset.photo || "").trim();
         const alertLabel = alert ? `${alert.count} ${alert.label}` : "";
         return `
-          <button class="machine-node match ${photo ? "has-photo" : ""}" data-machine="${escapeHtml(asset.id)}" style="left:${asset.x}%;top:${mapVisualY(asset.y, extentY)}%;" aria-label="${escapeHtml(`${asset.code || "Sem TAG"} - ${asset.name || "Equipamento"}${alertLabel ? ` · ${alertLabel}` : ""}`)}">
+          <button class="machine-node match ${photo ? "has-photo" : ""}" data-machine="${escapeHtml(asset.id)}" style="left:${asset.x}%;top:${mapVisualY(asset.y, extentY)}%;" title="${escapeHtml(`${asset.code || "Sem TAG"} - ${asset.name || "Equipamento"}`)}" aria-label="${escapeHtml(`${asset.code || "Sem TAG"} - ${asset.name || "Equipamento"}${alertLabel ? ` · ${alertLabel}` : ""}`)}">
             <span class="machine-icon"><span class="machine-icon-fallback">${visualIcon(asset.icon)}</span>${photo ? `<img class="machine-photo" src="${escapeHtml(photo)}" alt="Foto de ${escapeHtml(asset.name || "equipamento")}" loading="lazy">` : ""}</span>
             ${alert ? `<span class="machine-alert ${alert.className}" title="${escapeHtml(alert.label)}" aria-label="${escapeHtml(alertLabel)}">${alert.count}</span>` : ""}
             <span class="machine-label"><strong>${escapeHtml(asset.code || "SEM TAG")}</strong><small>${escapeHtml(asset.name || "Equipamento")}</small><span class="machine-state">${escapeHtml(ptBrText(asset.status || "Sem status"))} · ${escapeHtml(ptBrText(asset.criticality || "Sem criticidade"))}</span></span>
