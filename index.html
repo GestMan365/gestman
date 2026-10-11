@@ -20684,12 +20684,10 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         document.body.classList.add("os-panel-booting");
       }
       try {
-        const savedTheme = localStorage.getItem("gestman365-theme");
-        const initialTheme = savedTheme === "dark" ? "dark" : "light";
         const publicDarkSurface = document.body.classList.contains("auth-loading")
           || /\/(cadastrar-empresa)\/?$/.test(window.location.pathname)
           || window.location.hash === "#cadastrar-empresa";
-        const renderedTheme = publicDarkSurface ? "dark" : initialTheme;
+        const renderedTheme = publicDarkSurface ? "dark" : "light";
         document.body.classList.toggle("theme-light", renderedTheme === "light");
         document.documentElement.dataset.gmTheme = renderedTheme;
         document.documentElement.style.colorScheme = renderedTheme;
@@ -21241,7 +21239,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     </nav>
     <div class="platform-owner-account">
       <span class="platform-owner-account-copy"><strong id="platformOwnerEmail">Propriet&aacute;rio GestMan</strong><small>Propriet&aacute;rio da plataforma</small></span>
-      <button class="platform-owner-theme" type="button" onclick="toggleSystemTheme()" aria-label="Alternar tema" title="Alternar tema">&#9788;</button>
       <button class="platform-owner-logout" type="button" onclick="logoutTenantUser()" aria-label="Sair do painel GestMan">Sair</button>
     </div>
   </header>
@@ -21276,11 +21273,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       <span class="reference-header-separator" aria-hidden="true"></span>
       <button class="reference-icon-button reference-help" type="button" aria-label="Ajuda" title="Ajuda" aria-haspopup="dialog" onclick="openSystemHelp()"></button>
       <span class="reference-header-separator" aria-hidden="true"></span>
-      <button class="system-theme-toggle" id="themeBtn" type="button" data-gm-skip-icon aria-label="Ativar modo claro" title="Ativar modo claro" aria-pressed="false" onclick="toggleSystemTheme()">
-        <span class="theme-icon theme-icon-dark" data-header-icon="moon" aria-hidden="true"></span>
-        <span class="theme-icon theme-icon-light" data-header-icon="sun" aria-hidden="true"></span>
-        <span class="theme-label">Escuro</span>
-      </button>
       <button class="reference-header-user" type="button" onclick="openProfileModal()" aria-label="Abrir perfil do usuário" title="Abrir perfil do usuário" aria-haspopup="dialog">
         <span class="reference-user-avatar" id="headerUserAvatar">US</span>
         <span class="reference-user-copy"><strong id="headerUserName">Usuário</strong></span>
@@ -23863,15 +23855,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     let deletedRecords = loadDeletedRecords();
     let syncTimer = null;
     let spareSupplierDraftId = "";
-    let currentTheme = (() => {
-      try {
-        const savedTheme = localStorage.getItem(THEME_KEY);
-        return savedTheme === "dark" ? "dark" : "light";
-      } catch {
-        return "light";
-      }
-    })();
-    if (!/^(light|dark)$/.test(currentTheme)) currentTheme = "light";
+    let currentTheme = "light";
     let calendarMode = window.matchMedia("(max-width: 600px)").matches ? "list" : "week";
     let industrialAgendaStart = null;
     let calendarViewDate = new Date();
@@ -25702,8 +25686,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function applyAuthState() {
       const previousTenantId = activeTenantRuntimeId;
       currentAccount = resolveCurrentAccount(authStore);
-      const savedUserTheme = scopedGetItem(THEME_KEY, "user") || currentTheme;
-      applyTheme(savedUserTheme, { silent:true });
+      applyTheme("light", { silent:true });
       const nextTenantId = currentAccount?.company?.id || "";
       if (nextTenantId && nextTenantId !== previousTenantId) {
         reloadTenantData();
@@ -26245,7 +26228,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       return gmIcon(theme === "light" ? "sun" : "moon", { size:20 });
     }
     function applyTheme(theme = currentTheme, options = {}) {
-      currentTheme = theme === "light" ? "light" : "dark";
+      currentTheme = "light";
       const publicDarkSurface = !currentAccount || isCompanyRequestRoute();
       const renderedTheme = publicDarkSurface ? "dark" : currentTheme;
       document.body.classList.toggle("theme-light", renderedTheme === "light");
@@ -26253,22 +26236,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       document.documentElement.style.colorScheme = renderedTheme;
       try { localStorage.setItem(THEME_KEY, currentTheme); } catch {}
       if (currentAccount) scopedSetItem(THEME_KEY, currentTheme, "user");
-      const button = $("themeBtn");
-      if (button) {
-        const isLight = currentTheme === "light";
-        button.setAttribute("aria-pressed", String(isLight));
-        button.setAttribute("aria-label", isLight ? "Ativar modo escuro" : "Ativar modo claro");
-        button.title = isLight ? "Ativar modo escuro" : "Ativar modo claro";
-        const label = button.querySelector(".theme-label");
-        if (label) label.textContent = isLight ? "Claro" : "Escuro";
-      }
       const themeMeta = document.querySelector('meta[name="theme-color"]');
       if (themeMeta) themeMeta.content = renderedTheme === "light" ? "#ffffff" : "#081727";
-      if (!options.silent && typeof showToast === "function") showToast(`Modo ${currentTheme === "light" ? "claro" : "escuro"} ativado.`);
       return currentTheme;
-    }
-    function toggleSystemTheme() {
-      applyTheme(currentTheme === "light" ? "dark" : "light");
     }
     const NAV_AUTO_COLLAPSE_DELAY = 30000;
     let navAutoCollapseTimer = null;
@@ -39038,9 +39008,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       renderAssistantSummary();
       $("aiAnswer").textContent = ptBrText(answerSystemAi("resumo"));
     });
-    if ($("themeBtn")) $("themeBtn").addEventListener("keydown", event => {
-      if (event.key === "Enter" || event.key === " ") event.currentTarget.setAttribute("data-keyboard-use", "true");
-    });
     $("supplierForm").addEventListener("submit", async event => {
       event.preventDefault();
       const id = $("supplierId").value || uid("supplier");
@@ -40053,13 +40020,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       gmPreferencesReady = true;
     }
     function gmApplyLoadedThemePreference() {
-      if (scopedGetItem(LIGHT_LAYOUT_ROLLOUT_KEY, "user") !== "1") {
-        applyTheme("light", { silent:true });
-        scopedSetItem(LIGHT_LAYOUT_ROLLOUT_KEY, "1", "user");
-        return;
-      }
-      const preferredTheme = scopedGetItem(THEME_KEY, "user");
-      if (preferredTheme) applyTheme(preferredTheme, { silent:true });
+      applyTheme("light", { silent:true });
+      if (scopedGetItem(LIGHT_LAYOUT_ROLLOUT_KEY, "user") !== "1") scopedSetItem(LIGHT_LAYOUT_ROLLOUT_KEY, "1", "user");
     }
     function gmSchedulePreferencesSave() {
       clearTimeout(gmPreferencesTimer);

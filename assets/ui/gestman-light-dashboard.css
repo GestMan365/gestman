@@ -319,6 +319,67 @@ body.theme-light #dashboard .industrial-card-head h2 { color:#25364c !important;
     box-shadow:0 2px 8px rgba(15,32,61,.18) !important;
   }
   html#gm-premium body.premium-shell.theme-light .reference-topbar-logo { display:block !important; }
+  html#gm-premium body.premium-shell.theme-light:not(.auth-required):not(.auth-loading) .reference-topbar .reference-header-user {
+    display:flex !important;
+    flex:0 1 auto !important;
+    align-items:center !important;
+    justify-content:flex-start !important;
+    gap:9px !important;
+    width:auto !important;
+    min-width:0 !important;
+    max-width:230px !important;
+    height:40px !important;
+    min-height:40px !important;
+    padding:4px 10px 4px 5px !important;
+    overflow:hidden !important;
+  }
+  html#gm-premium body.premium-shell.theme-light .reference-header-user .reference-user-avatar {
+    display:grid !important;
+    place-items:center !important;
+    flex:0 0 30px !important;
+    width:30px !important;
+    min-width:30px !important;
+    max-width:30px !important;
+    height:30px !important;
+    min-height:30px !important;
+    max-height:30px !important;
+    overflow:hidden !important;
+    border-radius:50% !important;
+    aspect-ratio:1 !important;
+  }
+  html#gm-premium body.premium-shell.theme-light .reference-header-user .reference-user-avatar img {
+    display:block !important;
+    width:100% !important;
+    height:100% !important;
+    object-fit:cover !important;
+    border-radius:50% !important;
+  }
+  html#gm-premium body.premium-shell.theme-light .reference-header-user .reference-user-copy {
+    display:block !important;
+    flex:1 1 auto !important;
+    width:auto !important;
+    min-width:0 !important;
+    max-width:none !important;
+    overflow:hidden !important;
+  }
+  html#gm-premium body.premium-shell.theme-light .reference-header-user .reference-user-copy strong {
+    display:block !important;
+    width:100% !important;
+    max-width:none !important;
+    color:#f4f7ff !important;
+    font-size:12px !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+  @media (min-width:901px) {
+    html#gm-premium body.premium-shell.theme-light:not(.auth-required):not(.auth-loading) .reference-topbar .reference-header-user {
+      flex:0 0 188px !important;
+      width:188px !important;
+      min-width:188px !important;
+      max-width:188px !important;
+    }
+  }
   html#gm-premium body.premium-shell.theme-light .reference-topbar :is(.reference-icon-button,.system-theme-toggle,.reference-header-user) {
     color:#f4f7ff !important;
     background:#213858 !important;
@@ -484,6 +545,11 @@ body.theme-light #dashboard .industrial-card-head h2 { color:#25364c !important;
     html#gm-premium body.premium-shell.theme-light #dashboard .professional-kpi-strip { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
   }
   @media (max-width:600px) {
+    html#gm-premium body.premium-shell.theme-light:not(.auth-required):not(.auth-loading) .reference-topbar .reference-header-user {
+      max-width:142px !important;
+      gap:6px !important;
+      padding:3px 6px 3px 3px !important;
+    }
     html#gm-premium body.premium-shell.theme-light:not(.auth-required):not(.auth-loading) .reference-topbar {
       display:flex !important;
       flex-wrap:nowrap !important;
@@ -516,6 +582,8 @@ body.theme-light #dashboard .industrial-card-head h2 { color:#25364c !important;
   }
   @media (max-width:360px) {
     html#gm-premium body.premium-shell.theme-light .reference-topbar .reference-help { display:none !important; }
+    html#gm-premium body.premium-shell.theme-light .reference-topbar .header-mobile-search { display:none !important; }
     html#gm-premium body.premium-shell.theme-light .reference-topbar-logo { width:90px !important; flex-basis:90px !important; }
+    html#gm-premium body.premium-shell.theme-light:not(.auth-required):not(.auth-loading) .reference-topbar .reference-header-user { max-width:142px !important; }
   }
 }
