@@ -20676,7 +20676,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   </style>
   <link rel="stylesheet" href="assets/work-order-desktop-alerts.css">
   <link rel="stylesheet" href="assets/premium-ui.css">
-  <link rel="stylesheet" href="assets/ui/gestman-light-dashboard.css">
+  <link rel="stylesheet" href="assets/ui/gestman-light-dashboard.css?v=20261011-avatar-fix">
   <link rel="stylesheet" href="assets/ui/gestman-pagination.css">
 </head>
 <body class="auth-loading auth-restoring">
@@ -32122,7 +32122,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const identified = users.find(user => user.id && user.id === order.responsibleId);
       const matching = users.filter(user => statusKey(tenantUserDisplayName(user)) === statusKey(name));
       const photo = identified?.photo || (new Set(matching.map(user => user.id)).size === 1 ? matching[0]?.photo : "");
-      return `<span class="os-person-avatar">${initials}${photo ? `<img src="${escapeHtml(photo)}" alt="" loading="lazy" decoding="async" onerror="this.remove()">` : ""}</span>`;
+      return `<span class="os-person-avatar" style="position:relative;display:inline-grid;width:26px;height:26px;min-width:26px;max-width:26px;min-height:26px;max-height:26px;overflow:hidden">${initials}${photo ? `<img src="${escapeHtml(photo)}" alt="" width="26" height="26" style="position:absolute;inset:0;display:block;width:26px;height:26px;max-width:26px;max-height:26px;object-fit:cover;border-radius:50%" loading="lazy" decoding="async" onerror="this.remove()">` : ""}</span>`;
     }
     let osCurrentPage = 1;
     let osSortKey = "created";

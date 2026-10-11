@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import { runInNewContext } from "node:vm";
+import { chromium } from "@playwright/test";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const source = readFileSync(resolve(root, "index.html"), "utf8");
@@ -44,4 +45,21 @@ test("não confunde pessoas de outra empresa nem nomes duplicados", () => {
     { id: "u4", companyId: "empresa-1", name: "Anderson Vieira", photo: "https://example.com/dois.png" }
   ];
   assert.doesNotMatch(renderAvatar({ executor: "Anderson Vieira" }, current, duplicates), /<img/);
+});
+
+test("foto permanece dentro do círculo mesmo com CSS anterior em cache", async () => {
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const page = await browser.newPage();
+    const user = { id: "u1", name: "Anderson Vieira", photo: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='500'%3E%3Crect width='500' height='500' fill='blue'/%3E%3C/svg%3E" };
+    await page.setContent(`<table><tbody><tr><td class="os-person-cell">${renderAvatar({ executor: user.name }, user)}</td><td>Próxima coluna</td></tr></tbody></table>`);
+    const dimensions = await page.locator(".os-person-avatar img").evaluate(image => {
+      const photo = image.getBoundingClientRect();
+      const circle = image.parentElement.getBoundingClientRect();
+      return { photoWidth: photo.width, photoHeight: photo.height, circleWidth: circle.width, circleHeight: circle.height };
+    });
+    assert.deepEqual(dimensions, { photoWidth:26, photoHeight:26, circleWidth:26, circleHeight:26 });
+  } finally {
+    await browser.close();
+  }
 });
