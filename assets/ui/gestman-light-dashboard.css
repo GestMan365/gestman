@@ -1,4 +1,14 @@
 /* Visão clara GestMan365: cabeçalho de marca, navegação lateral e dados reais. */
+.os-person-cell .os-person-identity {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  width:100%;
+  text-align:center;
+}
+.os-person-cell .os-person-identity strong { margin:0; line-height:1.2; }
 .os-person-cell .os-person-avatar {
   position:relative;
   display:inline-grid;
@@ -11,6 +21,7 @@
   min-height:26px;
   max-height:26px;
   flex:0 0 26px;
+  margin:0;
 }
 .os-person-cell .os-person-avatar img {
   position:absolute;

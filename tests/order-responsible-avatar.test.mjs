@@ -63,3 +63,25 @@ test("foto permanece dentro do círculo mesmo com CSS anterior em cache", async 
     await browser.close();
   }
 });
+
+test("foto fica centralizada sobre o nome na coluna responsável", async () => {
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const page = await browser.newPage();
+    const user = { id: "u1", name: "Anderson Vieira", photo: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='500'%3E%3Crect width='500' height='500' fill='blue'/%3E%3C/svg%3E" };
+    const template = source.match(/<td class="os-person-cell">(.+)<\/td>/)?.[0];
+    assert.ok(template, "A coluna deve ter um contêiner para avatar e nome.");
+    const cell = template
+      .replace("${orderResponsibleAvatarHtml(order)}", renderAvatar({ executor:user.name }, user))
+      .replace('${escapeHtml(order.executor || "Sem responsável")}', user.name);
+    await page.setContent(`<style>.os-person-avatar{margin-right:6px}.os-person-cell{width:160px}</style><table><tbody><tr>${cell}</tr></tbody></table>`);
+    const centers = await page.locator(".os-person-cell").evaluate(cell => {
+      const avatar = cell.querySelector(".os-person-avatar").getBoundingClientRect();
+      const name = cell.querySelector("strong").getBoundingClientRect();
+      return { avatar:avatar.left + avatar.width / 2, name:name.left + name.width / 2 };
+    });
+    assert.ok(Math.abs(centers.avatar - centers.name) < 1, `Avatar e nome desalinhados: ${JSON.stringify(centers)}`);
+  } finally {
+    await browser.close();
+  }
+});
