@@ -20676,7 +20676,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   </style>
   <link rel="stylesheet" href="assets/work-order-desktop-alerts.css">
   <link rel="stylesheet" href="assets/premium-ui.css">
-  <link rel="stylesheet" href="assets/ui/gestman-light-dashboard.css?v=20261011-avatar-center">
+  <link rel="stylesheet" href="assets/ui/gestman-light-dashboard.css?v=20261011-priority-colors">
   <link rel="stylesheet" href="assets/ui/gestman-pagination.css">
 </head>
 <body class="auth-loading auth-restoring">
@@ -32105,7 +32105,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function orderPriorityChip(priority) {
       const label = ptBrText(priority || "Baixa");
       const key = normalizeTextKey(label);
-      return `<span class="os-chip tag ${key.includes("alta") ? "danger" : key.includes("media") ? "warn" : "ok"}">${escapeHtml(label)}</span>`;
+      const level = key.startsWith("urg") ? "urgent" : key.startsWith("crit") ? "critical" : key.startsWith("alt") ? "high" : key.startsWith("med") ? "medium" : "low";
+      return `<span class="os-chip tag os-priority-chip priority-${level}">${escapeHtml(label)}</span>`;
     }
     function orderTitle(order) {
       return String(order.description || order.maintenance || "Ordem de manutenção").split(/\r?\n/)[0].trim() || "Ordem de manutenção";

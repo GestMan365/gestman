@@ -1,4 +1,29 @@
 /* Visão clara GestMan365: cabeçalho de marca, navegação lateral e dados reais. */
+body.theme-light .os-priority-chip.priority-urgent {
+  color:#991b1b !important;
+  background:#fee2e2 !important;
+  border-color:#ef9a9a !important;
+}
+body.theme-light .os-priority-chip.priority-critical {
+  color:#6b21a8 !important;
+  background:#f3e8ff !important;
+  border-color:#d8b4fe !important;
+}
+body.theme-light .os-priority-chip.priority-high {
+  color:#9a3412 !important;
+  background:#ffedd5 !important;
+  border-color:#fdba74 !important;
+}
+body.theme-light .os-priority-chip.priority-medium {
+  color:#854d0e !important;
+  background:#fef3c7 !important;
+  border-color:#f4c96b !important;
+}
+body.theme-light .os-priority-chip.priority-low {
+  color:#166534 !important;
+  background:#dcfce7 !important;
+  border-color:#86d7a8 !important;
+}
 .os-person-cell .os-person-identity {
   display:flex;
   flex-direction:column;
