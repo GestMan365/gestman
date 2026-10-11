@@ -1,4 +1,15 @@
 /* Visão clara GestMan365: cabeçalho de marca, navegação lateral e dados reais. */
+/* Ações da abertura de O.S. acompanham o fim do formulário, sem cobrir campos ao rolar. */
+html#gm-premium body #genericBody #orderForm .os-create-actions {
+  position:static !important;
+  bottom:auto !important;
+  z-index:auto !important;
+  margin:4px 0 0 !important;
+  padding:14px 0 0 !important;
+  border-top:1px solid #d6e2ed !important;
+  background:transparent !important;
+  box-shadow:none !important;
+}
 /* O.S.: os executantes seguem a mesma superfície clara dos demais campos. */
 html#gm-premium body.theme-light .os-simple-form .order-executor-field {
   background:#f8fbff !important;
