@@ -493,7 +493,8 @@ body.theme-light #dashboard .industrial-card-head h2 { color:#25364c !important;
       margin:56px 0 0 60px !important;
       width:calc(100% - 60px) !important;
       min-height:calc(100dvh - 56px) !important;
-      padding:0 !important;
+      box-sizing:border-box !important;
+      padding:0 16px !important;
       background:var(--p-bg) !important;
     }
     html#gm-premium body.premium-shell.theme-light #dashboard .industrial-dashboard-heading { display:none !important; }
