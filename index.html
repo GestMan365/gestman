@@ -27375,13 +27375,14 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const view = scopedGetItem(ACTIVE_VIEW_KEY, "user") || "dashboard";
       return document.getElementById(view) && canAccessView(view) ? view : firstAllowedView();
     }
-    function openOverviewAfterAuthentication() {
+    function openOverviewAfterAuthentication(options = {}) {
       if (!currentAccount || isPlatformAdmin()) return false;
       if (isPanelMode()) {
         applyPanelMode();
         return false;
       }
-      const overviewView = canAccessView("dashboard") ? "dashboard" : firstAllowedView();
+      if (restoreApplicationRoute()) return applicationRouteView() === "dashboard";
+      const overviewView = options.restoreLastView ? savedActiveView() : (canAccessView("dashboard") ? "dashboard" : firstAllowedView());
       setView(overviewView, { persist:true, silent:true, replaceRoute:true });
       return overviewView === "dashboard";
     }
@@ -40681,7 +40682,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         if (!isPlatformAdmin() && context) await loadSupabaseState(false, true);
         const routedPlatformView = platformRouteView() || "platformRequests";
         if (isPlatformAdmin()) setView(routedPlatformView, { persist:false, silent:true, route:false });
-        else openOverviewAfterAuthentication();
+        else openOverviewAfterAuthentication({ restoreLastView:true });
         return true;
       } catch (error) {
         gmClearSession();
@@ -41748,7 +41749,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     if (currentAccount) {
       captureSyncBaseline();
       applyAuthState();
-      openOverviewAfterAuthentication();
+      openOverviewAfterAuthentication({ restoreLastView:true });
       loadSupabaseState(false);
     } else {
       applyAuthState();

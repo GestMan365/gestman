@@ -44,18 +44,29 @@ test("voltar e avançar restauram módulos sem recarregar a aplicação", async 
   await expect.poll(() => new URL(page.url()).searchParams.get("modulo")).toBe("ativos-e-equipamentos");
 });
 
-test("entrada autenticada sempre começa em Visão Geral", async ({ page }) => {
+test("entrada autenticada preserva o módulo indicado na URL", async ({ page }) => {
   await page.goto("./?empresa=nadir&modulo=ordens-de-servico");
   await prepareRouteAccount(page);
   await page.evaluate(() => {
-    window.eval('setView("orders")');
     window.eval("openOverviewAfterAuthentication()");
   });
 
-  await expect(page.locator("#dashboard")).toHaveClass(/active/);
-  await expect(page.locator('.tab[data-view="dashboard"]')).toHaveClass(/active/);
-  expect(new URL(page.url()).searchParams.get("modulo")).toBe("visao-geral");
-  expect(await page.evaluate(() => window.eval("savedActiveView()"))).toBe("dashboard");
+  await expect(page.locator("#orders")).toHaveClass(/active/);
+  await expect(page.locator('.tab[data-view="orders"]')).toHaveClass(/active/);
+  expect(new URL(page.url()).searchParams.get("modulo")).toBe("ordens-de-servico");
+});
+
+test("sem módulo na URL, atualização restaura a última página permitida", async ({ page }) => {
+  await page.goto("./?empresa=nadir");
+  await prepareRouteAccount(page);
+  await page.evaluate(() => {
+    window.eval('setView("orders")');
+    history.replaceState({}, "", "?empresa=nadir");
+    window.eval("openOverviewAfterAuthentication({ restoreLastView:true })");
+  });
+
+  await expect(page.locator("#orders")).toHaveClass(/active/);
+  expect(new URL(page.url()).searchParams.get("modulo")).toBe("ordens-de-servico");
 });
 
 test("indicador do mapa sinaliza O.S. nova e acompanha o andamento", async ({ page }, testInfo) => {
