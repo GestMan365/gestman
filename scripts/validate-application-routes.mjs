@@ -14,7 +14,7 @@ const requiredMarkers = [
   "function writeApplicationRoute(view, options = {})",
   "function applyApplicationRouteFilters(view)",
   "function restoreApplicationRoute(options = {})",
-  "function openOverviewAfterAuthentication()",
+  "function openOverviewAfterAuthentication(options = {})",
   "applicationRouteTenantAllowed()",
   'route.searchParams.set("modulo", APPLICATION_ROUTE_SLUGS[param === "os" ? "orders" : "assets"]);',
   'window.addEventListener("popstate", () => {',
@@ -38,11 +38,11 @@ for (const [file, source] of Object.entries(sources)) {
   if (!/requestedAssetId && !byId\(state\.assets, requestedAssetId\)/.test(source)) {
     throw new Error(`${file}: ID de ativo não é validado no estado da empresa atual.`);
   }
-  if (!/function openOverviewAfterAuthentication\(\)[\s\S]*?setView\(overviewView, \{ persist:true, silent:true, replaceRoute:true \}\)/.test(source)) {
-    throw new Error(`${file}: entrada autenticada não está fixada na Visão Geral.`);
+  if (!/function openOverviewAfterAuthentication\(options = \{\}\)[\s\S]*?if \(restoreApplicationRoute\(\)\) return[\s\S]*?setView\(overviewView, \{ persist:true, silent:true, replaceRoute:true \}\)/.test(source)) {
+    throw new Error(`${file}: entrada autenticada não preserva a rota antes do fallback.`);
   }
-  if ((source.match(/openOverviewAfterAuthentication\(\);/g) || []).length < 5) {
-    throw new Error(`${file}: algum fluxo de login ou restauração ainda não direciona para a Visão Geral.`);
+  if (!source.includes("openOverviewAfterAuthentication({ restoreLastView:true })")) {
+    throw new Error(`${file}: a restauração da sessão não preserva a última página.`);
   }
 }
 
@@ -56,7 +56,7 @@ console.log(JSON.stringify({
   entityRoutes:["os", "ativo"],
   legacyLinksPreserved:true,
   historyNavigation:true,
-  loginLandingView:"dashboard",
+  loginLandingView:"requested-route-or-last-view",
   routeFilters:true,
   permissionCheck:true,
   tenantCheck:true,

@@ -1,5 +1,24 @@
 import { expect, test } from "@playwright/test";
 
+test("durante a restauração, a logo cobre a página até a rota estar pronta", async ({ page }) => {
+  await page.addInitScript(() => {
+    sessionStorage.setItem("gestman365.supabase.session.v1", JSON.stringify({
+      access_token: "test-session", refresh_token: "test-refresh",
+      expires_at: Math.floor(Date.now() / 1000) + 3600,
+      session_started_at: Math.floor(Date.now() / 1000),
+      session_expires_at: Math.floor(Date.now() / 1000) + 3600
+    }));
+  });
+  await page.route("**/rest/v1/**", async () => new Promise(() => {}));
+  await page.goto("./?modulo=ordens-de-servico");
+
+  await expect(page.locator("body")).toHaveClass(/auth-restoring/);
+  await expect(page.locator(".gestman-boot-loader")).toBeVisible();
+  await expect(page.locator(".gestman-boot-mark img")).toHaveJSProperty("complete", true);
+  await expect(page.locator("#dashboard")).toBeHidden();
+  expect(new URL(page.url()).searchParams.get("modulo")).toBe("ordens-de-servico");
+});
+
 async function prepareRouteAccount(page: import("@playwright/test").Page) {
   await page.evaluate(() => {
     window.eval(`
