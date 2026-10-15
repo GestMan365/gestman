@@ -20749,7 +20749,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   </style>
   <link rel="stylesheet" href="assets/work-order-desktop-alerts.css">
   <link rel="stylesheet" href="assets/premium-ui.css">
-  <link rel="stylesheet" href="assets/ui/gestman-light-dashboard.css?v=20261011-order-required-fields">
+  <link rel="stylesheet" href="assets/ui/gestman-light-dashboard.css?v=20261015-map-rail">
   <link rel="stylesheet" href="assets/ui/gestman-pagination.css">
 </head>
 <body class="auth-loading auth-restoring">
@@ -21369,7 +21369,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     <div class="sidebar-mobile-head"><div><strong>Operação em campo</strong><small>Somente registros e documentos</small></div><button id="navMobileClose" type="button" aria-label="Fechar menu">×</button></div>
     <div class="industrial-sidebar-scroll tabs" aria-label="Módulos do GestMan365">
       <div class="nav-section-label">INÍCIO</div>
-      <button class="nav-rail-expand" id="navRailExpandBtn" type="button" aria-controls="mainNavigation" aria-expanded="false" aria-label="Ampliar menu de módulos" title="Ampliar menu de módulos"><span class="nav-rail-expand-arrow" aria-hidden="true"></span><span class="nav-rail-expand-text">Ampliar menu</span></button>
+      <button class="nav-rail-expand" id="navRailExpandBtn" type="button" aria-controls="mainNavigation" aria-expanded="false" aria-label="Ampliar menu de módulos" title="Ampliar menu de módulos"><span class="nav-rail-expand-arrow" aria-hidden="true"></span></button>
       <div class="nav-pinned">
         <button class="tab" data-view="quickAccess" title="Acessos Rápidos"><span class="tab-icon"></span><span>Acessos Rápidos</span></button>
         <button class="tab active" data-mobile-operational data-view="dashboard" title="Visão Geral"><span class="tab-icon"></span><span>Visão Geral</span></button>
@@ -21835,7 +21835,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           <button class="btn ghost" type="button" onclick="clearIndustrialMapFilters()">Limpar</button>
         </div>
         <div class="map-shell industrial-map-shell">
-              <div class="industrial-map-canvas-shell"><div class="industrial-map" id="industrialMap" aria-label="Mapa das regiões, locais e máquinas"></div><p class="industrial-map-help">Clique em uma máquina para ver os dados. Arraste dentro do mesmo Local para reposicionar ou solte em outro Local para registrar uma movimentação. Não é permitido deixar equipamentos fora de um Local.</p></div>
+              <div class="industrial-map-canvas-shell"><div class="industrial-map" id="industrialMap" aria-label="Mapa das regiões, locais e máquinas"></div><p class="industrial-map-help">Passe o mouse sobre uma máquina para ver o resumo e clique para acessar seus dados e ações. Arraste dentro do mesmo Local para reposicionar ou solte em outro Local para registrar uma movimentação. Não é permitido deixar equipamentos fora de um Local.</p></div>
           <aside class="map-side industrial-map-side" id="mapDetails" aria-live="polite"><div class="industrial-map-side-empty"><strong>Selecione uma máquina ou local</strong><span>Os detalhes, a foto e as ordens ativas serão exibidos aqui.</span></div></aside>
         </div>
       </div>
@@ -22412,13 +22412,12 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     <button id="mobileMoreBtn" type="button" aria-controls="mainNavigation" aria-expanded="false" onclick="openMobileMoreMenu()"><i></i><span>Mais</span></button>
   </nav>
   <div class="context-menu" id="machineMenu">
-    <button class="menu-item machine-menu-item" data-machine-action="checklists"><span aria-hidden="true"></span><span>CHECKLISTS</span></button>
-    <button class="menu-item machine-menu-item" data-machine-action="newOrder"><span aria-hidden="true"></span><span>NOVA O.S</span></button>
-    <button class="menu-item machine-menu-item" data-machine-action="history"><span aria-hidden="true"></span><span>HISTÓRICO DE O.S</span></button>
-    <button class="menu-item machine-menu-item" data-machine-action="openOrders"><span aria-hidden="true"></span><span>LISTAR O.S ABERTAS</span></button>
-    <button class="menu-item machine-menu-item" data-machine-action="pending"><span aria-hidden="true"></span><span>LISTAR PENDÊNCIAS ABERTAS</span></button>
-    <button class="menu-item machine-menu-item" data-machine-action="compiled"><span aria-hidden="true"></span><span>COMPILADO DE CHECKLIST</span></button>
-    <button class="menu-item machine-menu-item" data-machine-action="specialist"><span aria-hidden="true"></span><span>ESPECIALISTA GESTMAN365</span></button>
+    <div class="machine-menu-head"><small>ACESSO AO EQUIPAMENTO</small><strong id="machineMenuTitle">Equipamento</strong><span id="machineMenuSubtitle"></span></div>
+    <button class="menu-item machine-menu-item" data-machine-action="details"><span aria-hidden="true">▣</span><span>Ficha completa</span></button>
+    <button class="menu-item machine-menu-item" data-machine-action="openOrders"><span aria-hidden="true">▤</span><span>Ordens em aberto</span><b id="machineMenuOrderCount">0</b></button>
+    <button class="menu-item machine-menu-item" data-machine-action="history"><span aria-hidden="true">◷</span><span>Histórico de O.S.</span></button>
+    <button class="menu-item machine-menu-item" data-machine-action="checklists"><span aria-hidden="true">☑</span><span>Checklists</span></button>
+    <button class="menu-item machine-menu-item" data-machine-action="newOrder"><span aria-hidden="true">＋</span><span>Nova O.S.</span></button>
   </div>
   <div class="context-menu" id="locationMenu">
     <button class="menu-item location-menu-item" data-location-action="checklists"><span aria-hidden="true"></span><span>CHECKLISTS DO LOCAL</span></button>
@@ -26414,20 +26413,20 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         button.title = collapsed ? "Expandir menu" : "Recolher menu";
       });
     }
+    const NAV_RAIL_EXPANDED_KEY = "gestman365.navigation.railExpanded.v2";
     function setNavRailExpanded(expanded, persist = true) {
       const railButton = $("navRailExpandBtn");
       document.body.classList.toggle("gm-rail-expanded", expanded);
       railButton?.setAttribute("aria-expanded", String(expanded));
       railButton?.setAttribute("aria-label", expanded ? "Recolher menu de módulos" : "Ampliar menu de módulos");
       railButton?.setAttribute("title", expanded ? "Recolher menu de módulos" : "Ampliar menu de módulos");
-      if (railButton) railButton.querySelector(".nav-rail-expand-text").textContent = expanded ? "Recolher menu" : "Ampliar menu";
-      if (persist) scopedSetItem("gestman365.navigation.railExpanded.v1", expanded ? "1" : "0", "user");
+      if (persist) scopedSetItem(NAV_RAIL_EXPANDED_KEY, expanded ? "1" : "0", "user");
     }
     function initNavCollapse() {
       prepareSidebarBrand();
       setNavCollapsed(scopedGetItem(NAV_COLLAPSED_KEY, "user") === "1");
       $("navToggleBtn")?.addEventListener("click", () => setNavCollapsed(!document.body.classList.contains("sidebar-collapsed")));
-      setNavRailExpanded(scopedGetItem("gestman365.navigation.railExpanded.v1", "user") === "1", false);
+      setNavRailExpanded(scopedGetItem(NAV_RAIL_EXPANDED_KEY, "user") !== "0", false);
       $("navRailExpandBtn")?.addEventListener("click", () => setNavRailExpanded(!document.body.classList.contains("gm-rail-expanded")));
       $("navMobileClose")?.addEventListener("click", closeMobileNavigation);
       window.addEventListener("keydown", event => {
@@ -29791,6 +29790,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function renderMap() {
       const map = $("industrialMap");
       if (!map) return;
+      hideIndustrialMachinePreview();
       autoResizeLocations();
       refreshIndustrialMapFilters();
       const q = normalizeTextKey($("imSearch")?.value || "");
@@ -29850,12 +29850,17 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       });
       map.querySelectorAll("[data-machine]").forEach(button => {
         if (canManageAssets()) button.addEventListener("pointerdown", event => startMachineDrag(event, button.dataset.machine));
+        button.removeAttribute("title");
+        button.addEventListener("mouseenter", () => showIndustrialMachinePreview(button));
+        button.addEventListener("mouseleave", hideIndustrialMachinePreview);
+        button.addEventListener("focus", () => showIndustrialMachinePreview(button));
+        button.addEventListener("blur", hideIndustrialMachinePreview);
         button.addEventListener("click", event => {
           if (button.dataset.dragged === "1") {
             button.dataset.dragged = "0";
             return;
           }
-          showMachineDetails(button.dataset.machine);
+          openMachineMenu(event, button.dataset.machine);
         });
         button.addEventListener("contextmenu", event => {
           event.preventDefault();
@@ -29864,6 +29869,23 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         });
       });
       scheduleIndustrialMapAlertRefresh();
+    }
+    function hideIndustrialMachinePreview() { $("industrialMachinePreview")?.remove(); }
+    function showIndustrialMachinePreview(button) {
+      const asset = byId(state.assets, button.dataset.machine);
+      if (!asset || $("machineMenu")?.classList.contains("open")) return;
+      hideIndustrialMachinePreview();
+      const orders = activeOrdersForAsset(asset.id);
+      const preview = document.createElement("div");
+      preview.id = "industrialMachinePreview";
+      preview.className = "industrial-machine-preview";
+      preview.setAttribute("role", "tooltip");
+      preview.innerHTML = `<small>VISÃO RÁPIDA</small><strong>${escapeHtml(asset.code || "SEM TAG")} · ${escapeHtml(asset.name || "Equipamento")}</strong><span>${escapeHtml(locationShortName(asset.locationId))}</span><div><span>${escapeHtml(ptBrText(asset.status || "Sem status"))}</span><span>${orders.length} O.S. ativa(s)</span></div><p>${escapeHtml([asset.brand, asset.model].filter(Boolean).join(" · ") || "Marca e modelo não informados")}</p>`;
+      document.body.append(preview);
+      const rect = button.getBoundingClientRect();
+      const box = preview.getBoundingClientRect();
+      preview.style.left = `${Math.max(12, Math.min(window.innerWidth - box.width - 12, rect.left + rect.width / 2 - box.width / 2))}px`;
+      preview.style.top = `${Math.max(12, rect.top - box.height - 12)}px`;
     }
     function startMachineDrag(event, id) {
       if (event.button !== 0) return;
@@ -34599,10 +34621,16 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function openMachineMenu(event, id) {
       selectedMachineId = id;
       closeLocationMenu();
+      hideIndustrialMachinePreview();
       showMachineDetails(id);
       const menu = $("machineMenu");
-      menu.style.left = `${Math.min(window.innerWidth - 260, event.clientX + 8)}px`;
-      menu.style.top = `${Math.min(window.innerHeight - 260, event.clientY + 8)}px`;
+      const asset = byId(state.assets, id);
+      $("machineMenuTitle").textContent = asset ? `${asset.code || "SEM TAG"} · ${asset.name || "Equipamento"}` : "Equipamento";
+      $("machineMenuSubtitle").textContent = asset ? locationShortName(asset.locationId) : "";
+      $("machineMenuOrderCount").textContent = String(activeOrdersForAsset(id).length);
+      const width = 280, height = 320;
+      menu.style.left = `${Math.max(12, Math.min(window.innerWidth - width - 12, event.clientX + 12))}px`;
+      menu.style.top = `${Math.max(12, Math.min(window.innerHeight - height - 12, event.clientY + 12))}px`;
       menu.classList.add("open");
     }
     function closeMachineMenu() {
@@ -37259,6 +37287,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const asset = byId(state.assets, selectedMachineId);
       closeMachineMenu();
       if (!asset) return;
+      if (action === "details") { setView("assets"); return openAssetDetail(asset.id); }
       if (action === "newOrder") return openOrderModal(asset.id);
       if (action === "checklists") return openChecklistModal(asset.id);
       if (action === "history") return openModal("Lista de O.S", renderOrderList(asset.id), true);
@@ -40210,7 +40239,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     function gmApplyLoadedThemePreference() {
       applyTheme("light", { silent:true });
-      setNavRailExpanded(scopedGetItem("gestman365.navigation.railExpanded.v1", "user") === "1", false);
+      setNavRailExpanded(scopedGetItem(NAV_RAIL_EXPANDED_KEY, "user") !== "0", false);
       if (scopedGetItem(LIGHT_LAYOUT_ROLLOUT_KEY, "user") !== "1") scopedSetItem(LIGHT_LAYOUT_ROLLOUT_KEY, "1", "user");
     }
     function gmSchedulePreferencesSave() {

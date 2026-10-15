@@ -443,6 +443,37 @@ body.theme-light:not(.auth-required):not(.auth-loading) .reference-topbar-search
   }
 }
 
+/* Mapa Industrial: resumo flutuante e atalhos próprios do equipamento. */
+.industrial-machine-preview {
+  position:fixed;
+  z-index:180;
+  display:grid;
+  gap:5px;
+  width:min(278px,calc(100vw - 24px));
+  padding:13px 14px;
+  border:1px solid #bfd4e8;
+  border-radius:12px;
+  background:#fff;
+  color:#26415b;
+  box-shadow:0 16px 38px rgba(20,42,70,.2);
+  pointer-events:none;
+  font-size:12px;
+}
+.industrial-machine-preview small { color:#1267bc; font-size:10px; font-weight:800; letter-spacing:.1em; }
+.industrial-machine-preview strong { color:#153553; font-size:13px; line-height:1.3; }
+.industrial-machine-preview > span,.industrial-machine-preview p { color:#60758c; margin:0; }
+.industrial-machine-preview > div { display:flex; gap:6px; flex-wrap:wrap; margin:3px 0; }
+.industrial-machine-preview > div span { padding:4px 7px; border-radius:999px; background:#edf6ff; color:#195e9e; font-size:11px; font-weight:700; }
+#machineMenu.context-menu { width:280px !important; max-width:calc(100vw - 24px) !important; padding:7px !important; border-radius:13px !important; }
+#machineMenu .machine-menu-head { display:grid; gap:3px; padding:9px 11px 11px; margin-bottom:4px; border-bottom:1px solid #dbe6ef; }
+#machineMenu .machine-menu-head small { color:#1769bd !important; font-size:10px; font-weight:800; letter-spacing:.09em; }
+#machineMenu .machine-menu-head strong { color:#153553 !important; font-size:13px; line-height:1.25; }
+#machineMenu .machine-menu-head > span { color:#60758c !important; font-size:11px; }
+#machineMenu .machine-menu-item { display:grid !important; grid-template-columns:26px minmax(0,1fr) auto !important; align-items:center !important; gap:9px !important; min-height:40px !important; padding:7px 9px !important; text-align:left !important; color:#25435f !important; border-radius:8px !important; }
+#machineMenu .machine-menu-item:hover,#machineMenu .machine-menu-item:focus-visible { color:#0b5eb0 !important; background:#eaf4ff !important; }
+#machineMenu .machine-menu-item > span:first-child { display:grid !important; place-items:center !important; width:26px !important; height:26px !important; border-radius:7px !important; background:#e7f1fb !important; color:#1769bd !important; font-size:15px !important; }
+#machineMenu .machine-menu-item > b { min-width:21px; padding:3px 5px; border-radius:999px; background:#dbeafe; color:#135da5; text-align:center; font-size:10px; }
+
 body.theme-light #dashboard .industrial-dashboard-shell {
   max-width:none !important;
   gap:16px !important;
@@ -1013,16 +1044,13 @@ body.theme-light #dashboard .industrial-card-head h2 { color:#25364c !important;
       align-items:stretch !important;
     }
     html#gm-premium body.premium-shell.theme-light.gm-top-navigation.gm-rail-expanded:not(.auth-required):not(.auth-loading) #mainNavigation .nav-rail-expand {
-      width:100% !important;
-      grid-template-columns:24px minmax(0,1fr) !important;
-      justify-items:start !important;
-      gap:8px !important;
-      padding:0 12px !important;
-      font-size:12px !important;
-      font-weight:700 !important;
+      width:48px !important;
+      grid-template-columns:1fr !important;
+      justify-items:center !important;
+      gap:0 !important;
+      padding:0 !important;
     }
     html#gm-premium body.premium-shell.theme-light.gm-rail-expanded #mainNavigation .nav-rail-expand-arrow { transform:rotate(135deg) !important; }
-    html#gm-premium body.premium-shell.theme-light.gm-rail-expanded #mainNavigation .nav-rail-expand-text { display:block !important; }
     html#gm-premium body.premium-shell.theme-light.gm-rail-expanded #mainNavigation :is(.nav-pinned,.gm-module-nav-group) {
       align-items:stretch !important;
       width:100% !important;
