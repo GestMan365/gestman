@@ -21355,6 +21355,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     <div class="sidebar-mobile-head"><div><strong>Operação em campo</strong><small>Somente registros e documentos</small></div><button id="navMobileClose" type="button" aria-label="Fechar menu">×</button></div>
     <div class="industrial-sidebar-scroll tabs" aria-label="Módulos do GestMan365">
       <div class="nav-section-label">INÍCIO</div>
+      <button class="nav-rail-expand" id="navRailExpandBtn" type="button" aria-controls="mainNavigation" aria-expanded="false" aria-label="Ampliar menu de módulos" title="Ampliar menu de módulos"><span class="nav-rail-expand-arrow" aria-hidden="true"></span><span class="nav-rail-expand-text">Ampliar menu</span></button>
       <div class="nav-pinned">
         <button class="tab" data-view="quickAccess" title="Acessos Rápidos"><span class="tab-icon"></span><span>Acessos Rápidos</span></button>
         <button class="tab active" data-mobile-operational data-view="dashboard" title="Visão Geral"><span class="tab-icon"></span><span>Visão Geral</span></button>
@@ -26399,10 +26400,21 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         button.title = collapsed ? "Expandir menu" : "Recolher menu";
       });
     }
+    function setNavRailExpanded(expanded, persist = true) {
+      const railButton = $("navRailExpandBtn");
+      document.body.classList.toggle("gm-rail-expanded", expanded);
+      railButton?.setAttribute("aria-expanded", String(expanded));
+      railButton?.setAttribute("aria-label", expanded ? "Recolher menu de módulos" : "Ampliar menu de módulos");
+      railButton?.setAttribute("title", expanded ? "Recolher menu de módulos" : "Ampliar menu de módulos");
+      if (railButton) railButton.querySelector(".nav-rail-expand-text").textContent = expanded ? "Recolher menu" : "Ampliar menu";
+      if (persist) scopedSetItem("gestman365.navigation.railExpanded.v1", expanded ? "1" : "0", "user");
+    }
     function initNavCollapse() {
       prepareSidebarBrand();
       setNavCollapsed(scopedGetItem(NAV_COLLAPSED_KEY, "user") === "1");
       $("navToggleBtn")?.addEventListener("click", () => setNavCollapsed(!document.body.classList.contains("sidebar-collapsed")));
+      setNavRailExpanded(scopedGetItem("gestman365.navigation.railExpanded.v1", "user") === "1", false);
+      $("navRailExpandBtn")?.addEventListener("click", () => setNavRailExpanded(!document.body.classList.contains("gm-rail-expanded")));
       $("navMobileClose")?.addEventListener("click", closeMobileNavigation);
       window.addEventListener("keydown", event => {
         if (event.key === "Escape" && document.body.classList.contains("mobile-nav-open")) closeMobileNavigation();
@@ -40184,6 +40196,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     function gmApplyLoadedThemePreference() {
       applyTheme("light", { silent:true });
+      setNavRailExpanded(scopedGetItem("gestman365.navigation.railExpanded.v1", "user") === "1", false);
       if (scopedGetItem(LIGHT_LAYOUT_ROLLOUT_KEY, "user") !== "1") scopedSetItem(LIGHT_LAYOUT_ROLLOUT_KEY, "1", "user");
     }
     function gmSchedulePreferencesSave() {

@@ -966,4 +966,118 @@ body.theme-light #dashboard .industrial-card-head h2 { color:#25364c !important;
     html#gm-premium body.premium-shell.theme-light .reference-topbar-logo { width:90px !important; flex-basis:90px !important; }
     html#gm-premium body.premium-shell.theme-light:not(.auth-required):not(.auth-loading) .reference-topbar .reference-header-user { max-width:142px !important; }
   }
+  html#gm-premium body.premium-shell #mainNavigation .nav-rail-expand { display:none !important; }
+  @media (min-width:901px) {
+    html#gm-premium body.premium-shell.theme-light.gm-top-navigation:not(.auth-required):not(.auth-loading) #mainNavigation .nav-rail-expand {
+      display:grid !important;
+      flex:0 0 38px !important;
+      place-items:center !important;
+      width:48px !important;
+      height:38px !important;
+      min-height:38px !important;
+      margin:0 0 8px !important;
+      padding:0 !important;
+      color:#376292 !important;
+      background:#edf3fb !important;
+      border:1px solid #d5e0ef !important;
+      border-radius:8px !important;
+      cursor:pointer !important;
+    }
+    html#gm-premium body.premium-shell.theme-light #mainNavigation .nav-rail-expand:hover,
+    html#gm-premium body.premium-shell.theme-light #mainNavigation .nav-rail-expand:focus-visible {
+      color:#1159a5 !important;
+      background:#e2edfb !important;
+      border-color:#8db7e5 !important;
+      outline:2px solid #80b7ef !important;
+      outline-offset:2px !important;
+    }
+    html#gm-premium body.premium-shell.theme-light #mainNavigation .nav-rail-expand-arrow {
+      display:block !important;
+      width:9px !important;
+      height:9px !important;
+      border-right:2px solid currentColor !important;
+      border-bottom:2px solid currentColor !important;
+      transform:rotate(-45deg) !important;
+    }
+    html#gm-premium body.premium-shell.theme-light #mainNavigation .nav-rail-expand-text { display:none !important; }
+    html#gm-premium body.premium-shell.theme-light #mainNavigation .nav-rail-expand .gm-button-icon { display:none !important; }
+    html#gm-premium body.premium-shell.theme-light.gm-rail-expanded:not(.auth-required):not(.auth-loading) #mainNavigation {
+      width:244px !important;
+      min-width:244px !important;
+      max-width:244px !important;
+    }
+    html#gm-premium body.premium-shell.theme-light.gm-rail-expanded:not(.auth-required):not(.auth-loading) #mainNavigation .industrial-sidebar-scroll {
+      width:244px !important;
+      min-width:244px !important;
+      padding:10px 9px 18px !important;
+      align-items:stretch !important;
+    }
+    html#gm-premium body.premium-shell.theme-light.gm-top-navigation.gm-rail-expanded:not(.auth-required):not(.auth-loading) #mainNavigation .nav-rail-expand {
+      width:100% !important;
+      grid-template-columns:24px minmax(0,1fr) !important;
+      justify-items:start !important;
+      gap:8px !important;
+      padding:0 12px !important;
+      font-size:12px !important;
+      font-weight:700 !important;
+    }
+    html#gm-premium body.premium-shell.theme-light.gm-rail-expanded #mainNavigation .nav-rail-expand-arrow { transform:rotate(135deg) !important; }
+    html#gm-premium body.premium-shell.theme-light.gm-rail-expanded #mainNavigation .nav-rail-expand-text { display:block !important; }
+    html#gm-premium body.premium-shell.theme-light.gm-rail-expanded #mainNavigation :is(.nav-pinned,.gm-module-nav-group) {
+      align-items:stretch !important;
+      width:100% !important;
+    }
+    html#gm-premium body.premium-shell.theme-light.gm-rail-expanded #mainNavigation .nav-group {
+      width:100% !important;
+      height:auto !important;
+      min-height:44px !important;
+      flex:0 0 auto !important;
+    }
+    html#gm-premium body.premium-shell.theme-light.gm-rail-expanded #mainNavigation :is(.nav-pinned .tab,.nav-group>summary) {
+      width:100% !important;
+      min-width:0 !important;
+      max-width:none !important;
+      height:44px !important;
+      min-height:44px !important;
+      padding:0 10px !important;
+      grid-template-columns:30px minmax(0,1fr) 16px !important;
+      place-items:initial !important;
+      align-items:center !important;
+      gap:8px !important;
+      text-align:left !important;
+    }
+    html#gm-premium body.premium-shell.theme-light.gm-top-navigation.gm-rail-expanded:not(.auth-required):not(.auth-loading) #mainNavigation :is(.nav-pinned .tab,.nav-group>summary)>span:nth-child(2) {
+      display:block !important;
+      grid-column:2 !important;
+      min-width:0 !important;
+      overflow:hidden !important;
+      text-overflow:ellipsis !important;
+      white-space:nowrap !important;
+    }
+    html#gm-premium body.premium-shell.theme-light.gm-top-navigation.gm-rail-expanded:not(.auth-required):not(.auth-loading) #mainNavigation .nav-group>summary>i {
+      display:block !important;
+      grid-column:3 !important;
+    }
+    html#gm-premium body.premium-shell.theme-light.gm-rail-expanded #mainNavigation .nav-group-items {
+      position:static !important;
+      inset:auto !important;
+      width:100% !important;
+      max-width:none !important;
+      max-height:none !important;
+      margin:0 !important;
+      padding:2px 0 6px 12px !important;
+      border:0 !important;
+      border-radius:0 !important;
+      box-shadow:none !important;
+      background:transparent !important;
+      overflow:visible !important;
+    }
+    html#gm-premium body.premium-shell.theme-light.gm-rail-expanded #mainNavigation .nav-group:not([open])>.nav-group-items { display:none !important; }
+    html#gm-premium body.premium-shell.theme-light.gm-rail-expanded #mainNavigation .nav-group[open]>.nav-group-items { display:grid !important; }
+    html#gm-premium body.premium-shell.theme-light.gm-rail-expanded:not(.auth-required):not(.auth-loading):not(.panel-mode) main.workspace {
+      inset:56px 0 0 244px !important;
+      margin:0 !important;
+      width:calc(100% - 244px) !important;
+    }
+  }
 }
