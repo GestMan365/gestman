@@ -476,7 +476,23 @@
       border-radius: 50%;
       animation: gestman-boot-spin 1.2s linear infinite;
     }
-    .gestman-boot-mark img { display: block; width: 82px; height: 82px; object-fit: contain; }
+    .gestman-boot-symbol {
+      position: relative;
+      display: block;
+      width: 94px;
+      height: 94px;
+      overflow: hidden;
+      border-radius: 50%;
+    }
+    .gestman-boot-symbol img {
+      position: absolute;
+      top: -2px;
+      left: -18px;
+      display: block;
+      width: 340px;
+      height: auto;
+      max-width: none;
+    }
     @keyframes gestman-boot-spin { to { transform: rotate(360deg); } }
     @keyframes gestman-boot-breathe { 50% { transform: scale(1.05); } }
     @media (prefers-reduced-motion: reduce) {
@@ -20724,7 +20740,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
 </head>
 <body class="auth-loading auth-restoring">
   <div class="gestman-boot-loader" role="status" aria-live="polite" aria-label="Carregando GestMan365">
-    <span class="gestman-boot-mark"><img src="assets/ui/illustrations/gestman365-logo.png" alt=""></span>
+    <span class="gestman-boot-mark"><span class="gestman-boot-symbol"><img src="assets/ui/illustrations/gestman365-logo-light.png" alt=""></span></span>
     <span>Carregando GestMan365...</span>
   </div>
   <script id="design-theme-bootstrap">
