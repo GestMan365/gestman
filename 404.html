@@ -22434,6 +22434,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   <script src="assets/vendor/qrcode-generator.js"></script>
   <script src="assets/ui/gestman-pagination.js"></script>
   <script type="module" src="assets/asset-qr-scanner.js"></script>
+  <script type="module" src="assets/tenant-realtime.js"></script>
 
   <script>
     /*
@@ -22533,7 +22534,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     const SUPABASE_TABLES_INSERT_ORDER = ["perfis", "fornecedores", "estoques", "pecas", "regioes", "locais_instalacao", "tags", "subtags", "equipamentos", "subtags_equipamento", "ordens_servico", "checklists", "movimentacoes_tags", "movimentacoes_estoque", "movimentacoes_estoque_itens", "requisicoes_materiais", "requisicoes_materiais_itens", "transferencias_estoque", "transferencias_estoque_itens"];
     const SUPABASE_TABLES_UPSERT_ORDER = ["fornecedores", "estoques", "pecas", "regioes", "locais_instalacao", "tags", "subtags", "equipamentos", "subtags_equipamento", "ordens_servico", "checklists", "movimentacoes_tags", "movimentacoes_estoque", "movimentacoes_estoque_itens", "requisicoes_materiais", "requisicoes_materiais_itens", "transferencias_estoque", "transferencias_estoque_itens"];
     const LOCAL_SYNC_DELAY_MS = 400;
-    const REMOTE_REFRESH_INTERVAL_MS = 30000;
+    const REMOTE_REFRESH_INTERVAL_MS = 120000;
     const UI_REFRESH_INTERVAL_MS = 30000;
     const SESSION_DURATION_MS = 8 * 60 * 60 * 1000;
     const SESSION_EXPIRED_NOTICE_KEY = "gestman365.sessionExpired.v1";
@@ -39759,15 +39760,18 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       });
     }
     setInterval(gmRefreshVisibleTimers, UI_REFRESH_INTERVAL_MS);
+    setInterval(gmPollTenantVersion, 5000);
+    window.addEventListener("gm-tenant-realtime-ready", gmConnectTenantRealtime);
+    if (window.GMTenantRealtime) gmConnectTenantRealtime();
     setInterval(() => {
       if (!currentAccount || !SUPABASE_READY || $("genericModal").classList.contains("open")) return;
       loadSupabaseState(false);
     }, REMOTE_REFRESH_INTERVAL_MS);
-    window.addEventListener("focus", () => { if (currentAccount) loadSupabaseState(false); });
+    window.addEventListener("focus", () => { if (currentAccount) { gmPollTenantVersion(true); gmApplyPendingRemoteState(); } });
     window.addEventListener("online", () => { if (currentAccount) loadSupabaseState(true); });
     window.addEventListener("offline", gmRenderLiveHealth);
     document.addEventListener("visibilitychange", () => {
-      if (currentAccount && document.visibilityState === "visible") loadSupabaseState(false);
+      if (currentAccount && document.visibilityState === "visible") { gmPollTenantVersion(true); gmApplyPendingRemoteState(); }
     });
     /* Fonte unica de verdade: banco de dados. Nenhum dado operacional e persistido no navegador. */
     var GM_SUPABASE_SESSION_KEY = "gestman365.supabase.session.v1";
@@ -39784,6 +39788,10 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     var gmPreferencesTimer = null;
     var gmOperationalUsers = [];
     var gmOperationalUsersReady = false;
+    var gmKnownRemoteOrderIds = null;
+    var gmPendingRemoteState = null;
+    var gmRealtimeRefreshPromise = null;
+    var gmLastVersionCheckAt = 0;
     function gmReadSession() {
       try {
         const session = safeParseJson(sessionStorage.getItem(GM_SUPABASE_SESSION_KEY), null);
@@ -39826,6 +39834,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     function gmClearSession() {
       sessionStorage.removeItem(GM_SUPABASE_SESSION_KEY);
+      window.GMTenantRealtime?.disconnect();
+      gmKnownRemoteOrderIds = null;
+      gmPendingRemoteState = null;
     }
     async function gmAuthFetch(path, options = {}) {
       const response = await fetch(`${SUPABASE_URL}/auth/v1/${path}`, {
@@ -40230,6 +40241,12 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       return Array.isArray(rows) ? rows[0] || null : rows || null;
     }
     function gmApplyContext(context) {
+      if (currentAccount?.company?.id !== context.company_id || currentAccount?.user?.id !== context.user_id) {
+        gmKnownRemoteOrderIds = null;
+        gmPendingRemoteState = null;
+        gmRemoteStateVersion = 0;
+        gmRemoteStateUpdatedAt = "";
+      }
       const role = context.member_role || "requester";
       const accessProfiles = {
         administrator:"admin", planner:"supervisor", supervisor:"supervisor",
@@ -40280,6 +40297,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       saveAuthStore(authStore);
       currentAccount = resolveCurrentAccount(authStore);
       remoteTenantIsolationVerified = true;
+      gmConnectTenantRealtime();
       return currentAccount;
     }
     function gmPreferenceStorageKey(key, scope) {
@@ -40377,6 +40395,80 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         role:isAdminUser() ? "Administrador" : "Usuario"
       };
       return nextState;
+    }
+    function gmConnectTenantRealtime() {
+      if (!SUPABASE_READY || !currentAccount?.company?.id || !gmReadSession()?.access_token || isPlatformAdmin()) return;
+      window.GMTenantRealtime?.connect({
+        url:SUPABASE_URL, key:SUPABASE_KEY, companyId:currentAccount.company.id,
+        onChange:version => version ? gmRefreshRemoteFromSignal(version) : gmPollTenantVersion(true)
+      });
+    }
+    function gmObserveNewRemoteOrders(remoteOrders) {
+      const orders = Array.isArray(remoteOrders) ? remoteOrders : [];
+      const currentIds = new Set(orders.map(order => String(order?.id || "")).filter(Boolean));
+      if (!gmKnownRemoteOrderIds) {
+        gmKnownRemoteOrderIds = currentIds;
+        return;
+      }
+      const added = orders.filter(order => order?.id && !gmKnownRemoteOrderIds.has(String(order.id)) && !isClosedOrder(order.status));
+      currentIds.forEach(id => gmKnownRemoteOrderIds.add(id));
+      if (!added.length || !canAccessView("orders")) return;
+      globalThis.gmWorkOrderDesktopAlerts?.observe(state.orders, orders, currentAccount);
+      added.forEach(order => {
+        const stableKey = `desktop-new-order:${order.id}`;
+        if (stage20Notifications().some(notification => notification.stableKey === stableKey)) return;
+        stage20EmitNotification({
+          stableKey, title:`Nova O.S. aberta · ${order.number || "O.S."}`,
+          message:order.title || order.description || "Uma nova ordem de serviço foi registrada.",
+          category:"Ordem de Serviço", level:/urgent|critic/i.test(String(order.priority || "")) ? "Urgente" : "Atenção",
+          related:{ view:"orders", type:"order", id:order.id }, action:"Abrir O.S."
+        });
+      });
+      if ($("stage20NotificationCenter")) stage20RenderNotificationCenter();
+      showToast(added.length === 1 ? `Nova O.S. recebida: ${added[0].number || "abrir notificações"}.` : `${added.length} novas O.S. recebidas.`, "info");
+    }
+    function gmRefreshRemoteFromSignal(version = 0) {
+      if (!currentAccount || !gmReadSession()?.access_token || document.visibilityState === "hidden") return Promise.resolve(false);
+      if (version && version <= Math.max(gmRemoteStateVersion, Number(gmPendingRemoteState?.version || 0))) return Promise.resolve(false);
+      if (gmRealtimeRefreshPromise) return gmRealtimeRefreshPromise;
+      const companyId = currentAccount.company.id;
+      gmRealtimeRefreshPromise = (async () => {
+        try {
+          const rows = await gmRpc("gm_load_tenant_state", {});
+          const remote = Array.isArray(rows) ? rows[0] : rows;
+          if (currentAccount?.company?.id !== companyId || !remote || Number(remote.version || 0) <= gmRemoteStateVersion) return false;
+          gmObserveNewRemoteOrders(remote.state?.orders);
+          gmPendingRemoteState = remote;
+          return gmApplyPendingRemoteState();
+        } catch (error) {
+          stage21TechnicalLog("warning", "supabase.realtime.refresh", error);
+          return false;
+        } finally { gmRealtimeRefreshPromise = null; }
+      })();
+      return gmRealtimeRefreshPromise;
+    }
+    async function gmApplyPendingRemoteState() {
+      const pending = gmPendingRemoteState;
+      if (!pending || !currentAccount || gmStateDirty || gmBackgroundRefreshBlocked()) return false;
+      if (Number(pending.version || 0) <= gmRemoteStateVersion) { gmPendingRemoteState = null; return true; }
+      const applied = await loadSupabaseState(false, false, pending);
+      if (applied && gmPendingRemoteState === pending) gmPendingRemoteState = null;
+      return applied;
+    }
+    async function gmPollTenantVersion(force = false) {
+      if (!currentAccount || !SUPABASE_READY || !gmReadSession()?.access_token || document.visibilityState === "hidden" || !gmRemoteStateVersion || isPlatformAdmin()) return;
+      const now = Date.now();
+      const interval = 5000;
+      if (!force && now - gmLastVersionCheckAt < interval) return;
+      gmLastVersionCheckAt = now;
+      const companyId = currentAccount.company.id;
+      try {
+        const rows = await supabaseFetch(`gm_tenant_state?select=version&company_id=eq.${encodeURIComponent(companyId)}&limit=1`);
+        if (currentAccount?.company?.id !== companyId) return;
+        const version = Number(rows?.[0]?.version || 0);
+        if (version > Math.max(gmRemoteStateVersion, Number(gmPendingRemoteState?.version || 0))) gmRefreshRemoteFromSignal(version);
+        else gmApplyPendingRemoteState();
+      } catch (error) { stage21TechnicalLog("warning", "supabase.realtime.version", error); }
     }
     function gmChangedTopLevelKeys(baseState, nextState) {
       const base = baseState && typeof baseState === "object" ? baseState : {};
@@ -40523,6 +40615,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         gmRemoteStateVersion = Number(result.version);
         gmRemoteStateUpdatedAt = result?.updated_at || new Date().toISOString();
         gmRemoteLastSavedState = normalizeState(snapshot);
+        if (!gmKnownRemoteOrderIds) gmKnownRemoteOrderIds = new Set();
+        (snapshot.orders || []).forEach(order => { if (order?.id) gmKnownRemoteOrderIds.add(String(order.id)); });
         gmSyncConflict = null;
         gmStateDirty = changedDuringSave;
         hasPendingLocalSync = changedDuringSave;
@@ -40532,6 +40626,10 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         notifyOsPanelUpdate();
         dispatchWhatsAppOrderEvents(previousOrdersForWhatsApp, snapshot.orders);
         globalThis.gmWorkOrderDesktopAlerts?.observe(previousOrdersForWhatsApp, snapshot.orders, currentAccount);
+        const previousOrderIds = new Set(previousOrdersForWhatsApp.map(order => String(order?.id || "")));
+        if ((snapshot.orders || []).some(order => order?.id && !previousOrderIds.has(String(order.id)) && !isClosedOrder(order.status))) {
+          window.GMTenantRealtime?.publish(currentAccount.company.id, gmRemoteStateVersion);
+        }
         if (showMessage && !changedDuringSave) showToast("Dados salvos no banco de dados.");
         return true;
       } catch (error) {
@@ -40559,7 +40657,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         return false;
       }
     }
-    async function loadSupabaseState(showMessage = true, force = false) {
+    async function loadSupabaseState(showMessage = true, force = false, prefetched = null) {
       if (!currentAccount || !SUPABASE_READY || isLoadingRemote) return false;
       if (gmStateDirty && !force) return false;
       if (!force && gmBackgroundRefreshBlocked()) return false;
@@ -40567,7 +40665,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const requestedVersion = gmRemoteStateVersion;
       isLoadingRemote = true;
       try {
-        const rows = await gmRpc("gm_load_tenant_state", {});
+        const rows = prefetched || await gmRpc("gm_load_tenant_state", {});
         const remote = Array.isArray(rows) ? rows[0] : rows;
         if (!remote) throw new Error("GM_COMPANY_STATE_NOT_FOUND");
         if (currentAccount !== requestedAccount) return false;
@@ -40581,11 +40679,13 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           return true;
         }
         const nextState = gmNormalizeRemoteState(remote.state);
+        gmObserveNewRemoteOrders(nextState.orders);
         globalThis.gmWorkOrderDesktopAlerts?.observe(state.orders, nextState.orders, currentAccount);
         state = nextState;
         gmRemoteStateVersion = Number(remote.version || 0);
         gmRemoteStateUpdatedAt = remote.updated_at || "";
         gmRemoteLastSavedState = normalizeState(JSON.parse(JSON.stringify(state)));
+        if (Number(gmPendingRemoteState?.version || 0) <= gmRemoteStateVersion) gmPendingRemoteState = null;
         gmSyncConflict = null;
         gmStateDirty = false;
         hasPendingLocalSync = false;
