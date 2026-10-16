@@ -43,3 +43,12 @@ test('seta acima de Acessos Rápidos amplia o menu e mostra nomes', async ({ pag
   await expect(label).toBeVisible();
   await expect(label).toHaveText('Acessos Rápidos');
 });
+
+test('barra de módulos fica próxima à base sem encostar na borda', async ({ page }) => {
+  await page.setViewportSize({ width:390, height:844 });
+  const nav = page.locator('#mobileBottomNav');
+  await expect(nav).toBeVisible();
+  const bottomGap = await nav.evaluate(element => window.innerHeight - element.getBoundingClientRect().bottom);
+  expect(bottomGap).toBeGreaterThanOrEqual(5);
+  expect(bottomGap).toBeLessThanOrEqual(8);
+});
