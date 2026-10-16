@@ -20739,7 +20739,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   </style>
   <link rel="stylesheet" href="assets/work-order-desktop-alerts.css">
   <link rel="stylesheet" href="assets/premium-ui.css">
-  <link rel="stylesheet" href="assets/ui/gestman-light-dashboard.css?v=20261016-mobile-pill-login-fit">
+  <link rel="stylesheet" href="assets/ui/gestman-light-dashboard.css?v=20261016-order-sent-auto-close">
   <link rel="stylesheet" href="assets/ui/gestman-pagination.css">
 </head>
 <body class="auth-loading auth-restoring">
@@ -36652,10 +36652,10 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       confirmation.className = "order-sent-confirmation";
       confirmation.setAttribute("role", "status");
       confirmation.setAttribute("aria-live", "assertive");
-      confirmation.innerHTML = `<div class="order-sent-card"><span class="order-sent-mark" aria-hidden="true">✓</span><strong>O.S. enviada com sucesso!</strong><p>${escapeHtml(number || "Ordem de Serviço")} foi registrada.</p><button class="btn primary" type="button">Continuar</button></div>`;
+      confirmation.innerHTML = `<div class="order-sent-card"><span class="order-sent-mark" aria-hidden="true">✓</span><strong>O.S. enviada com sucesso!</strong><p>${escapeHtml(number || "Ordem de Serviço")} foi registrada.</p><span class="order-sent-progress" aria-hidden="true"></span></div>`;
       document.body.append(confirmation);
-      const close = () => confirmation.remove();
-      confirmation.querySelector("button").addEventListener("click", close);
+      setTimeout(() => confirmation.classList.add("is-leaving"), 2650);
+      setTimeout(() => confirmation.remove(), 3000);
     }
     function openOrderModalV2(assetId = "", editId = "") {
       if (!namedOperationAllowed("openOrderModal", "orders", editId ? "manage" : "operate", [assetId, editId])) return denyProfileAccess();

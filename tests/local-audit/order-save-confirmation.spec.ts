@@ -75,6 +75,7 @@ for (const failure of [false, 'throw']) {
     await page.getByRole('button', { name: 'Enviar O.S.', exact: true }).click();
     await expect(page.locator('#genericModal')).not.toHaveClass(/open/);
     await expect(page.locator('#orderSentConfirmation')).toContainText('O.S. enviada com sucesso!');
+    await expect(page.locator('#orderSentConfirmation button')).toHaveCount(0);
     const result = await page.evaluate(() => window.eval('({ids:window.qaSaves.map(item=>item.id),count:state.orders.length})'));
     expect(result.ids).toHaveLength(2);
     expect(new Set(result.ids).size).toBe(1);
@@ -83,6 +84,17 @@ for (const failure of [false, 'throw']) {
     expect(await page.evaluate(() => window.eval('window.qaStarts'))).toBe(0);
   });
 }
+
+test('confirmação animada não tem botão e fecha automaticamente em três segundos', async ({ page }) => {
+  await page.evaluate(() => window.eval("showOrderSentConfirmation('O.S.-QA')"));
+  const confirmation = page.locator('#orderSentConfirmation');
+  await expect(confirmation).toContainText('O.S.-QA foi registrada.');
+  await expect(confirmation.locator('button')).toHaveCount(0);
+  await expect(confirmation.locator('.order-sent-progress')).toBeVisible();
+  await page.waitForTimeout(2200);
+  await expect(confirmation).toBeVisible();
+  await expect(confirmation).toHaveCount(0, { timeout: 1800 });
+});
 
 test('salvamento lento bloqueia segunda submissão e preserva o modal durante refresh', async ({ page }) => {
   await page.evaluate(() => window.eval(`

@@ -485,12 +485,16 @@ body.theme-light:not(.auth-required):not(.auth-loading) .reference-topbar-search
 .order-sent-mark { display:grid; place-items:center; width:68px; height:68px; margin-bottom:5px; border-radius:50%; background:#e4f8ed; color:#16834a; font-size:38px; font-weight:800; box-shadow:0 0 0 8px rgba(41,183,103,.12); animation:order-send-pulse 1.3s ease-out .3s 2; }
 .order-sent-card strong { font-size:19px; }
 .order-sent-card p { margin:0 0 8px; color:#55708a; font-size:13px; }
-.order-sent-card .btn { min-width:130px; }
+.order-sent-progress { display:block; width:100%; height:4px; overflow:hidden; border-radius:999px; background:#e4edf5; }
+.order-sent-progress::before { content:""; display:block; width:100%; height:100%; border-radius:inherit; background:#1b68cf; transform-origin:left center; animation:order-send-countdown 3s linear forwards; }
+.order-sent-confirmation.is-leaving { opacity:0; transition:opacity .35s ease; }
+.order-sent-confirmation.is-leaving .order-sent-card { transform:translateY(-8px) scale(.96); transition:transform .35s ease; }
 @keyframes order-send-spin { to { transform:rotate(360deg); } }
 @keyframes order-send-fade { from { opacity:0; } to { opacity:1; } }
 @keyframes order-send-pop { from { opacity:0; transform:translateY(14px) scale(.92); } to { opacity:1; transform:translateY(0) scale(1); } }
 @keyframes order-send-pulse { 50% { box-shadow:0 0 0 18px rgba(41,183,103,0); } }
-@media (prefers-reduced-motion:reduce) { .order-sent-confirmation,.order-sent-card,.order-sent-mark,#orderForm .os-submit-status[data-kind="pending"]::before { animation:none !important; } }
+@keyframes order-send-countdown { to { transform:scaleX(0); } }
+@media (prefers-reduced-motion:reduce) { .order-sent-confirmation,.order-sent-card,.order-sent-mark,.order-sent-progress::before,#orderForm .os-submit-status[data-kind="pending"]::before { animation:none !important; transition:none !important; } }
 @media (max-width:900px) {
   html,body { touch-action:pan-x pan-y; }
   html#gm-premium body :is(#genericModal,.view,.auth-screen) :is(input,select,textarea) { font-size:16px !important; }
