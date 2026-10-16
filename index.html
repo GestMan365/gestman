@@ -2,7 +2,7 @@
 <html lang="pt-BR" id="gm-premium">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
@@ -18742,11 +18742,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       #genericModal #orderDetailForm .detail-main { width: 100% !important; min-width: 0 !important; }
     }
 
-    /* Modo mobile de campo: somente execução, consulta e fechamento de documentos. */
+    /* No celular, o menu conserva todos os módulos autorizados para o perfil. */
     @media (max-width: 600px) {
-      body:not(.platform-owner-mode) #mainNavigation .tab:not([data-mobile-operational]) { display:none !important; }
-      body:not(.platform-owner-mode) #mainNavigation :is([data-nav-group="planning"],[data-nav-group="analytics"],[data-nav-group="admin"]) { display:none !important; }
-      body:not(.platform-owner-mode) #mainNavigation .nav-section-label { display:none !important; }
       body:not(.platform-owner-mode) #mainNavigation .industrial-sidebar-scroll { padding-top:8px !important; }
       body:not(.platform-owner-mode) #mainNavigation .nav-pinned { margin-bottom:8px !important; }
       #mainNavigation .sidebar-mobile-head { min-height:64px !important; padding:9px 12px !important; }
@@ -18772,13 +18769,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       :is(.stage14-metrics,.stage15-metrics,.materials-metrics) > * { flex:0 0 min(72vw,250px) !important; min-width:0 !important; }
       :is(.stage15-tabs,.materials-tabs) { width:100% !important; max-width:100% !important; overflow-x:auto !important; }
       :is(.stage15-tabs,.materials-tabs) button { flex:0 0 auto !important; min-width:108px !important; }
-      #spares .materials-tabs button:not([data-materials-tab="requests"]),
-      #spares .materials-metrics,
-      #spares .materials-alert-panel,
-      #spares #materialsWarehouseFilter,
-      #spares #materialsReplenishmentBtn { display:none !important; }
-      #spares .materials-tabs { display:block !important; padding:0 !important; border:0 !important; background:transparent !important; }
-      #spares .materials-tabs button[data-materials-tab="requests"] { width:100% !important; min-height:44px !important; }
       #spares .materials-toolbar { grid-template-columns:1fr auto !important; }
       #spares .materials-search { grid-column:1 !important; }
       #spares .materials-page-head p { max-width:34ch; }
@@ -20749,7 +20739,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   </style>
   <link rel="stylesheet" href="assets/work-order-desktop-alerts.css">
   <link rel="stylesheet" href="assets/premium-ui.css">
-  <link rel="stylesheet" href="assets/ui/gestman-light-dashboard.css?v=20261015-map-rail">
+  <link rel="stylesheet" href="assets/ui/gestman-light-dashboard.css?v=20261016-mobile-module-access">
   <link rel="stylesheet" href="assets/ui/gestman-pagination.css">
 </head>
 <body class="auth-loading auth-restoring">
@@ -22938,7 +22928,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const requestedView = requestedOrderId ? "orders" : requestedAssetId ? "assets" : applicationRouteView();
       if (!requestedView) return false;
       if (!currentAccount || !applicationRouteTenantAllowed()) return rejectApplicationRoute();
-      if (!document.getElementById(requestedView) || !canAccessView(requestedView) || !mobileOperationalViewAllowed(requestedView)) {
+      if (!document.getElementById(requestedView) || !canAccessView(requestedView)) {
         return rejectApplicationRoute("Você não tem permissão para abrir este módulo pelo link informado.");
       }
       if (requestedOrderId && !byId(state.orders, requestedOrderId)) return rejectApplicationRoute("A O.S. deste link não existe nesta empresa ou não está disponível.");
@@ -25916,6 +25906,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     function applyPermissionVisibility() {
       if (!document.body) return;
+      document.querySelectorAll("#mobileBottomNav [data-mobile-view]").forEach(button => {
+        button.classList.toggle("is-permission-hidden", Boolean(currentAccount) && !canAccessView(button.dataset.mobileView));
+      });
       document.querySelectorAll("[data-view]").forEach(button => {
         const view = button.dataset.view;
         button.classList.toggle("is-permission-hidden", Boolean(currentAccount) && !canAccessView(view));
@@ -26416,6 +26409,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     const NAV_RAIL_EXPANDED_KEY = "gestman365.navigation.railExpanded.v2";
     function setNavRailExpanded(expanded, persist = true) {
       const railButton = $("navRailExpandBtn");
+      if (expanded && document.body.classList.contains("sidebar-collapsed")) setNavCollapsed(false);
       document.body.classList.toggle("gm-rail-expanded", expanded);
       railButton?.setAttribute("aria-expanded", String(expanded));
       railButton?.setAttribute("aria-label", expanded ? "Recolher menu de módulos" : "Ampliar menu de módulos");
@@ -27505,14 +27499,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       $("headerContextBtn")?.setAttribute("aria-expanded", String(willOpen));
       if (willOpen) $("dashboardPlantFilter")?.focus();
     }
-    const MOBILE_OPERATIONAL_VIEWS = new Set(["dashboard","orders","checklists","measurements","pendingActions","downtime","operationalDiary","assets","documentsCenter","materialRequests"]);
-    function mobileOperationalViewAllowed(view) { return !isMobileOperational() || MOBILE_OPERATIONAL_VIEWS.has(view) || (view === "activeOrders" && isPanelMode()); }
     function setView(view, options = {}) {
       if (!currentAccount) return;
-      if (!isPlatformAdmin() && !mobileOperationalViewAllowed(view)) {
-        view = "dashboard";
-        if (options.silent !== true) showToast("No celular, use apenas os fluxos de campo: O.S., checklists, medições e documentos.", "warning");
-      }
       if (isPlatformAdmin() && !["platformRequests", "platformCompanies"].includes(view)) {
         view = "platformRequests";
       }
@@ -36620,6 +36608,25 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const count = ids.filter(id => String($(id)?.value || "").trim()).length + Number($("orderAttachments")?.files?.length || 0);
       if ($("orderDetailsCount")) { $("orderDetailsCount").textContent = count ? String(count) : ""; $("orderDetailsCount").hidden = !count; }
     }
+    function setOrderSubmitStatus(form, message, kind = "info") {
+      const status = form?.querySelector("#orderSubmitStatus");
+      if (!status) return;
+      status.textContent = message;
+      status.dataset.kind = kind;
+      status.hidden = !message;
+    }
+    function showOrderSentConfirmation(number) {
+      $("orderSentConfirmation")?.remove();
+      const confirmation = document.createElement("div");
+      confirmation.id = "orderSentConfirmation";
+      confirmation.className = "order-sent-confirmation";
+      confirmation.setAttribute("role", "status");
+      confirmation.setAttribute("aria-live", "assertive");
+      confirmation.innerHTML = `<div class="order-sent-card"><span class="order-sent-mark" aria-hidden="true">✓</span><strong>O.S. enviada com sucesso!</strong><p>${escapeHtml(number || "Ordem de Serviço")} foi registrada.</p><button class="btn primary" type="button">Continuar</button></div>`;
+      document.body.append(confirmation);
+      const close = () => confirmation.remove();
+      confirmation.querySelector("button").addEventListener("click", close);
+    }
     function openOrderModalV2(assetId = "", editId = "") {
       if (!namedOperationAllowed("openOrderModal", "orders", editId ? "manage" : "operate", [assetId, editId])) return denyProfileAccess();
       const editing = byId(state.orders, editId);
@@ -36662,6 +36669,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           <label>Checklist<select class="field" id="orderChecklist"><option value="">Nenhum</option>${checklists}</select></label><label>Peça prevista<select class="field" id="orderPlannedSpare"><option value="">Nenhuma</option>${spares}</select></label>
           <label class="full">Anexos<input class="field" id="orderAttachments" type="file" multiple accept=".png,.jpg,.jpeg,.webp,.pdf,.txt,.csv,.doc,.docx,.xls,.xlsx"></label><label class="full">Observações<textarea class="field" id="orderNotes"></textarea></label>
         </div></details>
+        <div class="os-submit-status" id="orderSubmitStatus" role="status" aria-live="polite" hidden></div>
         <div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button>${editing ? `<button class="btn primary" type="submit" value="save">Salvar alterações</button>` : `<button class="btn primary" type="submit" value="save">Enviar O.S.</button>`}</div>
       </form>`, true);
       if (editing) {
@@ -36710,6 +36718,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         if (!value("orderRequester")) { markOrderRequiredField("orderRequester", "orderRequesterError"); missingFields.push($("orderRequester")); }
         if (!orderExecutorSelection.size) { showOrderExecutorError(); missingFields.push($("orderExecutorSearch")); }
         if (missingFields.length) {
+          setOrderSubmitStatus(event.currentTarget, `Faltam ${missingFields.length} campo(s) obrigatório(s). Os campos estão destacados em vermelho.`, "warning");
           missingFields[0].scrollIntoView({ behavior:"instant", block:"center" });
           missingFields[0].focus({ preventScroll:true });
           showToast(`Preencha ${missingFields.length === 1 ? "o campo obrigatório destacado" : `os ${missingFields.length} campos obrigatórios destacados`} antes de enviar a O.S.`, "warning");
@@ -36718,6 +36727,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         orderQuickSaveLock = true;
         const button = event.submitter;
         const form = event.currentTarget;
+        const originalButtonText = button?.textContent || "Enviar O.S.";
+        setOrderSubmitStatus(form, "Enviando O.S. e aguardando confirmação do sistema...", "pending");
+        if (button) button.textContent = "Enviando...";
         const submitButtons = Array.from(form.querySelectorAll("button:not(:disabled)"));
         submitButtons.forEach(item => item.disabled = true);
         form.classList.add("is-loading");
@@ -36728,7 +36740,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           const selectedFiles = Array.from($("orderAttachments").files || []);
           const attachmentRules = { maxBytes:4*1024*1024, types:["image/png","image/jpeg","image/webp","application/pdf","text/plain","text/csv","application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/vnd.ms-excel","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"], extensions:["png","jpg","jpeg","webp","pdf","txt","csv","doc","docx","xls","xlsx"] };
           const invalidFile = selectedFiles.map(file => ({ file, issue:stage21AllowedFile(file, attachmentRules) })).find(item => item.issue);
-          if (invalidFile) { showToast(`${invalidFile.file.name}: ${invalidFile.issue}`, "warning"); if (button) button.disabled = false; return; }
+          if (invalidFile) { setOrderSubmitStatus(form, `${invalidFile.file.name}: ${invalidFile.issue}`, "warning"); showToast(`${invalidFile.file.name}: ${invalidFile.issue}`, "warning"); return; }
           const files = await Promise.all(selectedFiles.map(async file => ({ id:uid("file"), name:file.name, type:file.type || "", size:file.size, createdAt:now, dataUrl:await readAssetFile(file) })));
           if (!draftOrderBase) draftOrderBase = { id:uid("os"), number:await nextOrderNumberSafe(), createdAt:now, status:"Aberta", startedAt:null, finishedAt:null };
           const base = draftOrderBase;
@@ -36749,6 +36761,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           }
           const remoteSaved = await saveOrderSupabaseNow(payload);
           if (!remoteSaved) {
+            setOrderSubmitStatus(form, "A O.S. ainda não foi confirmada pelo servidor. Seus dados continuam aqui; toque em Enviar O.S. para tentar novamente.", "error");
             showToast("Salvamento não confirmado. Mantenha esta tela aberta e tente novamente; a mesma O.S. será reutilizada.", "error");
             return;
           }
@@ -36758,11 +36771,13 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           closeModal();
           setView("orders");
           render();
+          if (!editing) showOrderSentConfirmation(payload.number);
           showToast(editing ? "O.S. atualizada com sucesso." : "Ordem de Serviço criada com sucesso.");
         } catch (error) {
+          setOrderSubmitStatus(form, "Não foi possível enviar a O.S. Seus dados foram preservados. Confira os campos e tente novamente.", "error");
           stage21HandleError(error, "orders.save", "Não foi possível salvar. Todos os dados preenchidos foram preservados.");
-          if (button) button.disabled = false;
         } finally {
+          if (button) button.textContent = originalButtonText;
           form.classList.remove("is-loading");
           form.removeAttribute("aria-busy");
           submitButtons.forEach(item => item.disabled = false);

@@ -3,6 +3,7 @@ import { expect, test } from '@playwright/test';
 test.beforeEach(async ({ page }) => {
   await page.route('**/*', route => new URL(route.request().url()).hostname === '127.0.0.1' ? route.continue() : route.abort());
   await page.goto('./');
+  await page.waitForTimeout(300);
   await page.evaluate(() => window.eval(`
     document.body.classList.remove('auth-required','auth-loading','auth-restoring');
     currentAccount={company:{id:'qa-save',name:'QA',remoteSync:true},user:{id:'qa-user',name:'QA',role:'admin',accessProfile:'admin',active:true}};
@@ -17,8 +18,8 @@ test.beforeEach(async ({ page }) => {
     startOrder=async()=>{window.qaStarts++};
     showToast=message=>window.qaMessages.push(message);
     setView('orders',{persist:false,route:false});
+    openOrderModal();
   `));
-  await page.locator('#createOrderBtn').click();
   await expect(page.locator('#orderForm')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Salvar e Iniciar', exact: true })).toHaveCount(0);
   await page.locator('#orderAsset').selectOption('asset-qa');
@@ -64,12 +65,16 @@ for (const failure of [false, 'throw']) {
     await page.getByRole('button', { name: 'Enviar O.S.', exact: true }).click();
     await expect.poll(() => page.evaluate(() => window.eval('window.qaSaves.length'))).toBe(1);
     await expect(page.locator('#orderForm')).toBeVisible();
+    await expect(page.locator('#orderSubmitStatus')).toBeVisible();
+    await expect(page.locator('#orderSubmitStatus')).toHaveAttribute('data-kind', 'error');
+    await expect(page.locator('#orderSentConfirmation')).toHaveCount(0);
     await expect(page.locator('#orderDescription')).toHaveValue('QA: verificar confirmação antes de fechar');
     expect(await page.evaluate(() => window.eval('window.qaStarts'))).toBe(0);
     expect(await page.evaluate(() => window.eval('window.qaMessages.some(text=>/com sucesso/.test(text))'))).toBe(false);
     await page.evaluate(() => window.eval('window.qaSaveResult=true'));
     await page.getByRole('button', { name: 'Enviar O.S.', exact: true }).click();
     await expect(page.locator('#genericModal')).not.toHaveClass(/open/);
+    await expect(page.locator('#orderSentConfirmation')).toContainText('O.S. enviada com sucesso!');
     const result = await page.evaluate(() => window.eval('({ids:window.qaSaves.map(item=>item.id),count:state.orders.length})'));
     expect(result.ids).toHaveLength(2);
     expect(new Set(result.ids).size).toBe(1);
@@ -85,7 +90,8 @@ test('salvamento lento bloqueia segunda submissão e preserva o modal durante re
   `));
   await page.getByRole('button', { name: 'Enviar O.S.', exact: true }).click();
   await expect(page.locator('#orderForm')).toHaveAttribute('aria-busy', 'true');
-  await expect(page.getByRole('button', { name: 'Enviar O.S.', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Enviando...', exact: true })).toBeDisabled();
+  await expect(page.locator('#orderSubmitStatus')).toHaveAttribute('data-kind', 'pending');
   const blocked = await page.evaluate(() => window.eval(`
     window.qaLoadCalls=0;gmRpc=async()=>{window.qaLoadCalls++;return []};
     gmStateDirty=false;
@@ -106,6 +112,13 @@ test('SLA sugere prazo somente para nova O.S. sem sobrescrever prazo manual', as
   await page.locator('#orderPriority').selectOption('Baixa');
   await expect(page.locator('#orderDeadline')).toHaveValue('2030-01-01T12:00');
   expect(suggested).not.toBe('2030-01-01T12:00');
+});
+
+test('formulário mobile mantém escala fixa e campos legíveis', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.locator('meta[name="viewport"]')).toHaveAttribute('content', /maximum-scale=1, user-scalable=no/);
+  const fontSize = await page.locator('#orderDescription').evaluate(element => getComputedStyle(element).fontSize);
+  expect(fontSize).toBe('16px');
 });
 
 test('atualização atrasada dos indicadores não redesenha formulário em edição', async ({ page }) => {
