@@ -20739,7 +20739,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   </style>
   <link rel="stylesheet" href="assets/work-order-desktop-alerts.css">
   <link rel="stylesheet" href="assets/premium-ui.css">
-  <link rel="stylesheet" href="assets/ui/gestman-light-dashboard.css?v=20261016-mobile-module-access">
+  <link rel="stylesheet" href="assets/ui/gestman-light-dashboard.css?v=20261016-mobile-pill-login-fit">
   <link rel="stylesheet" href="assets/ui/gestman-pagination.css">
 </head>
 <body class="auth-loading auth-restoring">
@@ -22395,8 +22395,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   <div class="platform-dialog" id="platformRequestDialog" role="dialog" aria-modal="true" aria-labelledby="platformRequestDialogTitle"><div class="platform-dialog-card"><header class="platform-dialog-head"><h2 id="platformRequestDialogTitle">Analisar solicitação</h2><button class="platform-dialog-close" type="button" onclick="closePlatformDialog('platformRequestDialog')" aria-label="Fechar">×</button></header><div class="platform-dialog-body" id="platformRequestDialogBody"></div></div></div>
   <div class="platform-dialog" id="platformCompanyDialog" role="dialog" aria-modal="true" aria-labelledby="platformCompanyDialogTitle"><div class="platform-dialog-card"><header class="platform-dialog-head"><h2 id="platformCompanyDialogTitle">Gerenciar empresa</h2><button class="platform-dialog-close" type="button" onclick="closePlatformDialog('platformCompanyDialog')" aria-label="Fechar">×</button></header><div class="platform-dialog-body" id="platformCompanyDialogBody"></div></div></div>
   <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Navegação do técnico">
+    <span class="mobile-nav-indicator" aria-hidden="true"></span>
     <button class="active" type="button" data-mobile-view="dashboard" onclick="setView('dashboard')"><i></i><span>Início</span></button>
-    <button type="button" data-mobile-view="orders" onclick="openMobileMyOrders()"><i></i><span>Minhas O.S.</span></button>
+    <button type="button" data-mobile-view="orders" onclick="openMobileMyOrders()"><i></i><span>O.S.</span></button>
     <button type="button" data-mobile-view="checklists" onclick="setView('checklists')"><i></i><span>Checklist</span></button>
     <button type="button" data-mobile-view="assets" onclick="setView('assets')"><i></i><span>Ativos</span></button>
     <button id="mobileMoreBtn" type="button" aria-controls="mainNavigation" aria-expanded="false" onclick="openMobileMoreMenu()"><i></i><span>Mais</span></button>
@@ -33331,17 +33332,46 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     let mobileMyOrdersOnly = false;
     let mobileOrderFilter = "all";
     function currentTechnicianName() { return currentAccount?.user?.name || state.profile?.name || "Técnico"; }
-    function updateMobileBottomNav(view) { document.querySelectorAll("[data-mobile-view]").forEach(button=>button.classList.toggle("active",button.dataset.mobileView===view)); }
+    let mobileNavAnimationFrame = 0;
+    function syncMobileNavIndicator() {
+      const nav = $("mobileBottomNav");
+      const active = nav?.querySelector("button.active:not(.is-permission-hidden)");
+      if (!nav || !active) return;
+      const navRect = nav.getBoundingClientRect();
+      const activeRect = active.getBoundingClientRect();
+      nav.style.setProperty("--mobile-indicator-x", `${activeRect.left - navRect.left}px`);
+      nav.style.setProperty("--mobile-indicator-width", `${activeRect.width}px`);
+      nav.classList.add("indicator-ready");
+    }
+    function queueMobileNavIndicator() {
+      cancelAnimationFrame(mobileNavAnimationFrame);
+      mobileNavAnimationFrame = requestAnimationFrame(syncMobileNavIndicator);
+    }
+    window.addEventListener("resize", queueMobileNavIndicator, { passive:true });
+    function updateMobileBottomNav(view) {
+      const nav = $("mobileBottomNav");
+      if (!nav) return;
+      const target = Array.from(nav.querySelectorAll("[data-mobile-view]")).find(button => button.dataset.mobileView === view && !button.classList.contains("is-permission-hidden")) || $("mobileMoreBtn");
+      nav.querySelectorAll("button").forEach(button => {
+        const active = button === target;
+        button.classList.toggle("active", active);
+        if (active && button !== $("mobileMoreBtn")) button.setAttribute("aria-current", "page");
+        else button.removeAttribute("aria-current");
+      });
+      queueMobileNavIndicator();
+    }
     function openMobileMyOrders() { mobileMyOrdersOnly=true; mobileOrderFilter="all"; if($("osSearch"))$("osSearch").value=""; setView("orders",{mobileOrders:true}); }
     function openMobileNavigation() {
       document.body.classList.remove("sidebar-collapsed");
       document.body.classList.add("mobile-nav-open");
       $("mobileMoreBtn")?.setAttribute("aria-expanded", "true");
+      updateMobileBottomNav("more");
       document.querySelector("#mainNavigation .tab:not(.is-permission-hidden), #mainNavigation summary")?.focus({ preventScroll:true });
     }
     function closeMobileNavigation() {
       document.body.classList.remove("mobile-nav-open");
       $("mobileMoreBtn")?.setAttribute("aria-expanded", "false");
+      updateMobileBottomNav(document.querySelector(".view.active")?.id || "dashboard");
       document.querySelectorAll("[data-nav-group][open]").forEach(group => { group.open = false; });
     }
     function openMobileMoreMenu() { openMobileNavigation(); }
