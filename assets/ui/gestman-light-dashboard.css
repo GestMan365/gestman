@@ -615,6 +615,25 @@ body.theme-light:not(.auth-required):not(.auth-loading) .reference-topbar-search
 }
 }
 .os-mobile-detail-tabs { display:none; }
+#genericModalBox .order-execution-dock {
+  flex:0 0 auto;
+  padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+  border-top:1px solid #cbd8e5;
+  background:#fff;
+  z-index:9;
+  box-shadow:0 -8px 20px rgba(25,51,79,.10);
+}
+#genericModalBox .order-execution-dock .order-execution-cta {
+  position:static !important;
+  margin:0;
+}
+#genericModalBox #orderDetailForm .order-detail-savebar {
+  position:static !important;
+}
+body:not(.theme-light) #genericModalBox .order-execution-dock {
+  background:#0a1726;
+  border-color:#294158;
+}
 html#gm-premium body.premium-shell #genericModal #simpleFinishForm .finish-info-tabs {
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
@@ -641,6 +660,41 @@ html#gm-premium body.premium-shell #genericModal #simpleFinishForm .finish-info-
 #simpleFinishForm .finish-info-panel > .full { grid-column:1/-1; }
 #simpleFinishForm #finishRequestPanel { display:block; overflow-wrap:anywhere; }
 @media (max-width:600px) {
+  html#gm-premium body.premium-shell #orders .os-detail-panel.has-order {
+    overflow:visible !important;
+    padding-bottom:8px;
+  }
+  html#gm-premium body.premium-shell #orders .os-detail-actions {
+    position:static !important;
+  }
+  html#gm-premium body.premium-shell #orders .os-detail-panel:has(> .order-execution-cta) .os-detail-actions .mobile-primary {
+    display:none !important;
+  }
+  html#gm-premium body.premium-shell #orders .order-execution-cta.is-panel:not(.is-closed) {
+    position:sticky !important;
+    top:auto !important;
+    bottom:calc(82px + env(safe-area-inset-bottom)) !important;
+    z-index:4;
+    margin:10px;
+    padding:9px 11px;
+    gap:7px;
+    grid-template-columns:minmax(0,1fr) auto;
+    box-shadow:0 6px 20px rgba(25,51,79,.16);
+  }
+  html#gm-premium body.premium-shell #orders .order-execution-cta.is-panel .order-execution-copy span {
+    display:none;
+  }
+  html#gm-premium body.premium-shell #orders .order-execution-cta.is-panel .order-execution-actions {
+    width:auto;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  html#gm-premium body.premium-shell #orders .order-execution-cta.is-panel .order-execution-actions .btn {
+    min-height:42px !important;
+    padding:7px 9px !important;
+  }
+  html#gm-premium body.premium-shell #orders .order-execution-cta.is-panel .order-execution-primary {
+    min-width:0 !important;
+  }
   #simpleFinishForm .finish-info-panel { grid-template-columns:1fr; }
   html#gm-premium body.premium-shell #orders .os-detail-tabs { display:none !important; }
   html#gm-premium body.premium-shell #orders .os-mobile-detail-tabs {
@@ -690,6 +744,14 @@ html#gm-premium body.premium-shell #genericModal #simpleFinishForm .finish-info-
     color:#285781 !important;
     background:#f5f9fd !important;
     border-color:#cbd8e5 !important;
+  }
+}
+@media (max-width:410px) {
+  html#gm-premium body.premium-shell #orders .order-execution-cta.is-panel {
+    grid-template-columns:1fr;
+  }
+  html#gm-premium body.premium-shell #orders .order-execution-cta.is-panel .order-execution-actions {
+    width:100%;
   }
 }
 

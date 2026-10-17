@@ -20739,7 +20739,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   </style>
   <link rel="stylesheet" href="assets/work-order-desktop-alerts.css">
   <link rel="stylesheet" href="assets/premium-ui.css">
-  <link rel="stylesheet" href="assets/ui/gestman-light-dashboard.css?v=20261016-mobile-order-light-nav">
+  <link rel="stylesheet" href="assets/ui/gestman-light-dashboard.css?v=20261017-order-execution-footer">
   <link rel="stylesheet" href="assets/ui/gestman-pagination.css">
 </head>
 <body class="auth-loading auth-restoring">
@@ -32360,7 +32360,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             <div class="wide"><span>Descrição</span><strong>${escapeHtml(order.description || "Sem descrição")}</strong></div>
           </div>
         </div>
-        ${orderExecutionCta(order, "panel")}
         ${isClosedOrder(order.status) ? "" : `<div class="mobile-execution-shortcuts"><button type="button" onclick="addOrderObservation('${order.id}')">Observação</button><button type="button" onclick="openMobileOrderAttachment('${order.id}',true)">Foto</button><button type="button" onclick="openMobileOrderAttachment('${order.id}',false)">Documento</button><button type="button" onclick="setView('measurements');openCrudFormForCreate('measurementForm')">Medição</button><button type="button" onclick="openMobilePartUsed('${order.id}')">Peça utilizada</button><button type="button" onclick="setOrderDetailTab('checklist')">Checklist</button></div>`}
         <div class="os-detail-tabs">
           ${[["general","Geral"],["checklist","Checklist"],["parts","Peças"],["notes","Apontamentos"],["history","Histórico"],["attachments","Anexos"]].map(([key,label]) => `<button class="${selectedOrderDetailTab === key ? "active" : ""}" type="button" onclick="setOrderDetailTab('${key}')">${label}</button>`).join("")}
@@ -32369,7 +32368,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           ${["CheckLists", "Outros Custos", "Assinatura", "Detalhes", "Historico", "Geral", "Equipe", "Tarefas", "Seguranca", "Fotos", "Anexos", "Documentos", "Materiais", "Recursos"].map(tab => `<button type="button" onclick="openMobileOrderDetailTab('${order.id}', '${tab}')">${ptBrText(tab)}</button>`).join("")}
         </nav>
         <div class="os-detail-body">${orderDetailTabContent(order)}</div>
-        <div class="os-detail-actions">${orderActionButtons(order)}</div>`;
+        <div class="os-detail-actions">${orderActionButtons(order)}</div>
+        ${orderExecutionCta(order, "panel")}`;
     }
     function renderOrderWorkspace(filter = () => true) {
       const orders = filteredOrdersForWorkspace(filter);
@@ -34856,6 +34856,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     function openModal(title, html, large = false) {
       document.querySelectorAll(".platform-dialog.open").forEach(dialog => dialog.classList.remove("open"));
+      $("genericModalBox").querySelector(".order-execution-dock")?.remove();
       modalLastFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       $("genericTitle").textContent = ptBrText(title);
       $("genericBody").innerHTML = html;
@@ -34877,6 +34878,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function closeModal() {
       const modal = $("genericModal");
       modal?.classList.remove("open");
+      $("genericModalBox").querySelector(".order-execution-dock")?.remove();
       document.body.classList.remove("generic-modal-open");
       if (modalLastFocusedElement?.isConnected) modalLastFocusedElement.focus({ preventScroll:true });
       modalLastFocusedElement = null;
@@ -36165,7 +36167,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
               <button class="icon-btn gm-icon-only" type="button" title="QR Code da O.S." aria-label="QR Code da O.S." data-gm-skip-icon onclick="openOrderQr('${order.id}')">${orderQrIconMarkup()}</button><button class="icon-btn gm-icon-only" type="button" title="Imprimir O.S." aria-label="Imprimir O.S." onclick="simpleOrderAction('${order.id}', 'Impressao')">${gmIcon("printer", { size:18 })}</button>
             </div>
           </div>
-          ${orderExecutionCta(order)}
           <div class="side-box" id="detailTabPanel">${detailTabContent("Geral", order)}</div>
           <div class="detail-grid">
             <label>Num. O.S</label><input class="field" id="detailNumber" value="${order.number}" readonly>
@@ -36199,6 +36200,14 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           </div>
         </form>
       `, true);
+      if (isRunningOrder(order.status) || normalizeTextKey(order.status).includes("paus")) {
+        const dock = document.createElement("div");
+        dock.className = "order-execution-dock";
+        dock.innerHTML = orderExecutionCta(order);
+        $("genericModalBox").appendChild(dock);
+        standardizeUiComponents(dock);
+        applyPermissionVisibility();
+      }
       $("detailType").value = order.type || "Corretiva";
       $("detailMaintenance").value = order.maintenance || "Preventiva";
       $("detailPriority").value = order.priority || "Baixa";
