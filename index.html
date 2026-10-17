@@ -8377,7 +8377,7 @@
       #orders .os-detail-tabs { position:sticky; top:0; z-index:3; background:#0f1b2b; }
       #orders .os-detail-actions { position:sticky; bottom:0; z-index:4; padding:10px; background:#07111f; }
       #orders .os-detail-actions .btn { display:none !important; }
-      #orders .os-detail-actions .mobile-primary,#orders .os-detail-actions .mobile-qr,#orders .os-detail-actions .mobile-close { display:block !important; min-height:48px !important; }
+      #orders .os-detail-actions .mobile-primary,#orders .os-detail-actions .mobile-close { display:block !important; min-height:48px !important; }
       #orders .os-detail-actions .mobile-primary { flex:1 1 100%; }
       .mobile-execution-shortcuts { padding:9px 12px; grid-template-columns:repeat(3,1fr); gap:6px; border-bottom:1px solid #1f334a; }
       .mobile-execution-shortcuts button { min-height:54px !important; padding:6px 3px !important; color:#9fcaff !important; background:#0b1929 !important; border:1px solid #1f334a !important; border-radius:7px !important; box-shadow:none !important; font-size:var(--font-size-xs) !important; }
@@ -32372,8 +32372,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           ${["CheckLists", "Outros Custos", "Assinatura", "Detalhes", "Historico", "Geral", "Equipe", "Tarefas", "Seguranca", "Fotos", "Anexos", "Documentos", "Materiais", "Recursos"].map(tab => `<button type="button" onclick="openMobileOrderDetailTab('${order.id}', '${tab}')">${ptBrText(tab)}</button>`).join("")}
         </nav>
         <div class="os-detail-body">${orderDetailTabContent(order)}</div>
-        <div class="os-detail-actions">${orderActionButtons(order)}</div>
-        ${orderExecutionCta(order, "panel")}`;
+        <div class="os-detail-actions">${orderActionButtons(order)}</div>`;
     }
     function renderOrderWorkspace(filter = () => true) {
       const orders = filteredOrdersForWorkspace(filter);
@@ -32438,7 +32437,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const closed = isClosedOrder(order.status) || key.includes("cancel");
       const paused = key.includes("paus");
       const running = isRunningOrder(order.status);
-      return `${!closed && !running && !paused ? `<button class="btn primary mobile-primary" type="button" onclick="confirmStartOrder('${order.id}')">Iniciar serviço</button>` : ""}${running ? `<button class="btn mobile-primary" type="button" onclick="changeOrderOperationalStatus('${order.id}','Pausada')">Pausar</button><button class="btn primary mobile-primary" type="button" onclick="finishOrder('${order.id}')">Concluir</button>` : ""}${paused ? `<button class="btn primary mobile-primary" type="button" onclick="changeOrderOperationalStatus('${order.id}','Em execucao')">Retomar</button>` : ""}${!closed ? `<button class="btn" type="button" onclick="${isAdminUser() ? `editOrder('${order.id}')` : `showOrderDetails('${order.id}')`}">${isAdminUser() ? "Editar solicitação" : "Preencher atendimento"}</button><button class="btn danger" type="button" onclick="cancelOrder('${order.id}')">Cancelar</button>` : `<span class="muted">O.S encerrada — disponível somente para consulta.</span>`}<button class="btn mobile-qr" type="button" onclick="openOrderQr('${order.id}')">QR Code</button><button class="btn mobile-close" type="button" onclick="selectedOrderId=null;render()">Fechar</button>`;
+      return `${!closed && !running && !paused ? `<button class="btn primary mobile-primary" type="button" onclick="confirmStartOrder('${order.id}')">Iniciar serviço</button>` : ""}${running ? `<button class="btn mobile-primary" type="button" onclick="changeOrderOperationalStatus('${order.id}','Pausada')">Pausar</button><button class="btn primary mobile-primary" type="button" onclick="finishOrder('${order.id}')">Finalizar O.S.</button>` : ""}${paused ? `<button class="btn primary mobile-primary" type="button" onclick="changeOrderOperationalStatus('${order.id}','Em execucao')">Retomar</button>` : ""}${!closed ? `<button class="btn" type="button" onclick="${isAdminUser() ? `editOrder('${order.id}')` : `showOrderDetails('${order.id}')`}">${isAdminUser() ? "Editar solicitação" : "Preencher atendimento"}</button><button class="btn danger" type="button" onclick="cancelOrder('${order.id}')">Cancelar</button>` : `<span class="muted">O.S encerrada — disponível somente para consulta.</span>`}<button class="btn mobile-close" type="button" onclick="selectedOrderId=null;render()">Fechar</button>`;
     }
     function orderAdminDeleteButton(order) {
       if (!order || !isAdminUser() || isClosedOrder(order.status)) return "";

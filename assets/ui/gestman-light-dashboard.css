@@ -670,34 +670,6 @@ html#gm-premium body.premium-shell #genericModal #simpleFinishForm .finish-info-
   html#gm-premium body.premium-shell #orders .os-detail-actions {
     position:static !important;
   }
-  html#gm-premium body.premium-shell #orders .os-detail-panel:has(> .order-execution-cta) .os-detail-actions .mobile-primary {
-    display:none !important;
-  }
-  html#gm-premium body.premium-shell #orders .order-execution-cta.is-panel:not(.is-closed) {
-    position:sticky !important;
-    top:auto !important;
-    bottom:calc(82px + env(safe-area-inset-bottom)) !important;
-    z-index:4;
-    margin:10px;
-    padding:9px 11px;
-    gap:7px;
-    grid-template-columns:minmax(0,1fr) auto;
-    box-shadow:0 6px 20px rgba(25,51,79,.16);
-  }
-  html#gm-premium body.premium-shell #orders .order-execution-cta.is-panel .order-execution-copy span {
-    display:none;
-  }
-  html#gm-premium body.premium-shell #orders .order-execution-cta.is-panel .order-execution-actions {
-    width:auto;
-    grid-template-columns:repeat(2,minmax(0,1fr));
-  }
-  html#gm-premium body.premium-shell #orders .order-execution-cta.is-panel .order-execution-actions .btn {
-    min-height:42px !important;
-    padding:7px 9px !important;
-  }
-  html#gm-premium body.premium-shell #orders .order-execution-cta.is-panel .order-execution-primary {
-    min-width:0 !important;
-  }
   #simpleFinishForm .finish-info-panel { grid-template-columns:1fr; }
   html#gm-premium body.premium-shell #orders .os-detail-tabs { display:none !important; }
   html#gm-premium body.premium-shell #orders .os-mobile-detail-tabs {
@@ -749,15 +721,6 @@ html#gm-premium body.premium-shell #genericModal #simpleFinishForm .finish-info-
     border-color:#cbd8e5 !important;
   }
 }
-@media (max-width:410px) {
-  html#gm-premium body.premium-shell #orders .order-execution-cta.is-panel {
-    grid-template-columns:1fr;
-  }
-  html#gm-premium body.premium-shell #orders .order-execution-cta.is-panel .order-execution-actions {
-    width:100%;
-  }
-}
-
 /* O cartão de acesso deve caber inteiro na viewport, sem uma segunda altura de tela. */
 @media (max-width:600px) {
   html#gm-premium body.premium-shell .auth-screen {

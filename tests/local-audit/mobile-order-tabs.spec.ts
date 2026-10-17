@@ -16,6 +16,9 @@ test('mobile mostra todas as abas da O.S. e conclusão abre em adicionar informa
     applyPermissionVisibility();
   `));
   const panel=page.locator('#orders .os-detail-panel.has-order');
+  await expect(panel.locator('> .order-execution-cta')).toHaveCount(0);
+  await expect(panel.locator('.os-detail-actions').getByRole('button', {name:'Finalizar O.S.'})).toBeVisible();
+  await expect(panel.locator('.os-detail-actions').getByRole('button', {name:'QR Code'})).toHaveCount(0);
   const tabs=panel.locator('.os-mobile-detail-tabs button');
   await expect(tabs).toHaveCount(14);
   await expect(tabs.first()).toBeVisible();
@@ -24,7 +27,7 @@ test('mobile mostra todas as abas da O.S. e conclusão abre em adicionar informa
   await tabs.filter({hasText:'Materiais'}).click();
   await expect(page.locator('#genericModal.open #orderDetailForm [data-detail-tab="Materiais"]')).toHaveClass(/active/);
   await page.locator('#genericModal .close').click();
-  await page.evaluate(() => window.eval('openSimpleFinishOrderModal(state.orders[0].id)'));
+  await panel.locator('.os-detail-actions').getByRole('button', {name:'Finalizar O.S.'}).click();
   await expect(page.locator('#finishInfoTab')).toHaveAttribute('aria-selected','true');
   await expect(page.locator('#simpleFinishSolution')).toBeVisible();
   const finishTabs = page.locator('#simpleFinishForm [data-finish-detail-tab]');
