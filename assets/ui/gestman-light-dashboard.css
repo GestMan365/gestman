@@ -615,24 +615,18 @@ body.theme-light:not(.auth-required):not(.auth-loading) .reference-topbar-search
 }
 }
 .os-mobile-detail-tabs { display:none; }
-#genericModalBox .order-execution-dock {
-  flex:0 0 auto;
-  padding:10px 14px calc(10px + env(safe-area-inset-bottom));
-  border-top:1px solid #cbd8e5;
-  background:#fff;
-  z-index:9;
-  box-shadow:0 -8px 20px rgba(25,51,79,.10);
-}
-#genericModalBox .order-execution-dock .order-execution-cta {
-  position:static !important;
-  margin:0;
-}
 #genericModalBox #orderDetailForm .order-detail-savebar {
   position:static !important;
-}
-body:not(.theme-light) #genericModalBox .order-execution-dock {
-  background:#0a1726;
-  border-color:#294158;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:flex-start;
+  gap:8px;
+  padding:14px 0 0;
+  background:#fff !important;
+  border-top:1px solid #d2deea;
+  box-shadow:none;
+  backdrop-filter:none;
 }
 html#gm-premium body.premium-shell #genericModal #simpleFinishForm .finish-info-tabs {
   display:grid;

@@ -122,8 +122,13 @@ test("executante preenche atendimento sem alterar os dados do solicitante", asyn
     await expect(page.locator(selector)).toBeDisabled();
   }
   await expect(page.getByRole("button", {name:"Editar solicitação"})).toHaveCount(0);
+  await expect(page.locator("#saveGeneralTab, #tabGeneralComment, #tabGeneralNote")).toHaveCount(0);
+  await expect(page.locator("#genericModalBox .order-execution-dock")).toHaveCount(0);
+  await expect(page.locator("#orderDetailForm .order-detail-savebar button")).toHaveCount(3);
+  await expect(page.getByRole("button", {name:"Salvar detalhes"})).toHaveCount(0);
+  await expect(page.locator("#orderDetailForm").getByRole("button", {name:"Pausar"})).toBeVisible();
+  await expect(page.locator("#orderDetailForm").getByRole("button", {name:"Finalizar O.S."})).toBeVisible();
   await page.locator("#detailComment").fill("Serviço executado sem alterar a solicitação");
-  await page.getByRole("button", {name:"Salvar detalhes"}).click();
   await expect.poll(() => page.evaluate(() => window.eval(`state.orders[0].comment`))).toBe("Serviço executado sem alterar a solicitação");
   const result = await page.evaluate(() => window.eval(`({
     order:state.orders[0],
@@ -137,6 +142,29 @@ test("executante preenche atendimento sem alterar os dados do solicitante", asyn
   expect(patch).not.toHaveProperty("priority");
   expect(patch).not.toHaveProperty("type");
   expect(patch.executor).toBe("Técnico QA");
+});
+
+test("rodapé claro pausa ou finaliza e preserva o atendimento digitado", async ({ page }) => {
+  await page.evaluate(() => window.eval(`
+    currentAccount.user={id:"qa-tech",name:"Técnico QA",role:"user",accessProfile:"technician",active:true};
+    Object.assign(state.orders[0], {status:"Em execução",startedAt:Date.now()-60000,executor:"Técnico QA",description:"Solicitação original"});
+    saveState=()=>{};
+    showOrderDetails("qa-order-1");
+  `));
+  const footer = page.locator("#orderDetailForm .order-detail-savebar");
+  await expect(footer).toBeVisible();
+  expect(await footer.evaluate(element => getComputedStyle(element).backgroundColor)).toBe("rgb(255, 255, 255)");
+  await expect(footer.getByRole("button", {name:"Cancelar"})).toBeVisible();
+  await page.locator("#detailComment").fill("Atendimento em andamento");
+  await footer.getByRole("button", {name:"Pausar"}).click();
+  await expect(page.locator("#orderTransitionReasonForm")).toBeVisible();
+  expect(await page.evaluate(() => window.eval(`state.orders[0].comment`))).toBe("Atendimento em andamento");
+
+  await page.evaluate(() => window.eval(`showOrderDetails("qa-order-1")`));
+  await page.locator("#detailComment").fill("Serviço pronto para conclusão");
+  await page.locator("#orderDetailForm .order-detail-savebar").getByRole("button", {name:"Finalizar O.S."}).click();
+  await expect(page.locator("#simpleFinishForm")).toBeVisible();
+  await expect(page.locator("#simpleFinishSolution")).toHaveValue("Serviço pronto para conclusão");
 });
 
 test("iniciar, pausar e retomar usam somente o RPC transacional", async ({ page }) => {
