@@ -56,6 +56,53 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
+test("encerramento não pede horas manuais nem altera dados da solicitação", async ({ page }) => {
+  await page.evaluate(() => window.eval(`
+    Object.assign(state.orders[0], {
+      title:"Resumo original", description:"Defeito informado pelo solicitante",
+      requester:"Solicitante QA", createdAt:1760000000000, startedAt:1760000060000,
+      executor:"Técnico QA", status:"Em execução"
+    });
+    openSimpleFinishOrderModal("qa-order-1");
+  `));
+  await expect(page.locator("#simpleFinishForm")).toBeVisible();
+  await expect(page.locator("#simpleFinishForm details, #simpleFinishForm [id*='WorkedHours']")).toHaveCount(0);
+  const result = await page.evaluate(() => window.eval(`
+    ({
+      patch:gmPrepareWorkOrderTransitionPatch(state.orders[0], "Concluída", {
+        description:"Alteração indevida", requester:"Outro", createdAt:1,
+        finishedAt:1760003660000
+      }, 1760003660000),
+      original:state.orders[0]
+    })
+  `));
+  expect(result.patch).not.toHaveProperty("description");
+  expect(result.patch).not.toHaveProperty("requester");
+  expect(result.patch).not.toHaveProperty("createdAt");
+  expect(result.patch.mttr).toBe(1);
+  expect(result.original).toMatchObject({
+    description:"Defeito informado pelo solicitante", requester:"Solicitante QA", createdAt:1760000000000
+  });
+});
+
+test("edição preserva descrição, solicitante, equipamento e abertura", async ({ page }) => {
+  await page.evaluate(() => window.eval(`
+    Object.assign(state.orders[0], {
+      title:"Resumo original", description:"Defeito original", requester:"Solicitante QA"
+    });
+    openOrderModal("qa-asset-1", "qa-order-1");
+  `));
+  for (const selector of ["#orderTitle", "#orderDescription", "#orderRequester", "#orderOpenedAt"]) {
+    await expect(page.locator(selector)).toHaveJSProperty("readOnly", true);
+  }
+  await expect(page.locator("#orderAsset")).toBeDisabled();
+  const refusal = await page.evaluate(() => window.eval(`
+    try { persistValidatedOrderRecord({...state.orders[0], description:"Alterado"}); "accepted" }
+    catch (error) { error.message }
+  `));
+  expect(refusal).toBe("ORDER_REQUEST_IMMUTABLE:description");
+});
+
 test("iniciar, pausar e retomar usam somente o RPC transacional", async ({ page }) => {
   await page.evaluate(() => window.eval(`startOrder("qa-order-1", "Técnico QA")`));
   await expect.poll(() => page.evaluate(() => window.eval(`state.orders[0].status`))).toBe("Em execução");

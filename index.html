@@ -36455,7 +36455,14 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     function persistValidatedOrderRecord(order) {
       const existingOrder = byId(state.orders, order.id);
-      if (existingOrder) assertWorkOrderMutable(existingOrder);
+      if (existingOrder) {
+        assertWorkOrderMutable(existingOrder);
+        for (const field of ["assetId", "title", "description", "requester", "createdAt"]) {
+          if (JSON.stringify(order[field] ?? null) !== JSON.stringify(existingOrder[field] ?? null)) {
+            throw new Error(`ORDER_REQUEST_IMMUTABLE:${field}`);
+          }
+        }
+      }
       const issue = orderPersistenceIssue(order, true);
       if (issue) throw new Error(`ORDER_VALIDATION: ${issue}`);
       state.orders = state.orders.filter(item => item.id !== order.id).concat(order);
@@ -36752,6 +36759,11 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         $("orderChecklist").value = editing.linkedChecklists?.[0] || "";
         $("orderPlannedSpare").value = editing.plannedSpareId || "";
         $("orderTeam").value = editing.teamId || "";
+        $("orderAsset").disabled = true;
+        for (const field of ["orderTitle", "orderDescription", "orderRequester", "orderOpenedAt"]) {
+          $(field).readOnly = true;
+          $(field).setAttribute("aria-readonly", "true");
+        }
       }
       if (accessProfileForUser(currentAccount?.user || {}) === "requester") { $("orderRequester").value = tenantUserDisplayName(currentAccount.user); $("orderRequester").readOnly = true; }
       renderOrderExecutorPicker();
@@ -36781,8 +36793,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         if (orderQuickSaveLock) return;
         const missingFields = [];
         if (!$("orderAsset").value) { markOrderRequiredField("orderAsset", "orderAssetError"); missingFields.push($("orderAsset")); }
-        if (!value("orderDescription")) { markOrderRequiredField("orderDescription", "orderDescriptionError"); missingFields.push($("orderDescription")); }
-        if (!value("orderRequester")) { markOrderRequiredField("orderRequester", "orderRequesterError"); missingFields.push($("orderRequester")); }
+        if (!editing && !value("orderDescription")) { markOrderRequiredField("orderDescription", "orderDescriptionError"); missingFields.push($("orderDescription")); }
+        if (!editing && !value("orderRequester")) { markOrderRequiredField("orderRequester", "orderRequesterError"); missingFields.push($("orderRequester")); }
         if (!orderExecutorSelection.size) { showOrderExecutorError(); missingFields.push($("orderExecutorSearch")); }
         if (missingFields.length) {
           setOrderSubmitStatus(event.currentTarget, `Faltam ${missingFields.length} campo(s) obrigatório(s). Os campos estão destacados em vermelho.`, "warning");
@@ -36820,7 +36832,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           const resourceIds = snapshot.filter(item => item.kind === "resource").map(item => item.id);
           const resourceId = primary?.kind === "resource" ? primary.id : (resourceIds[0] || "");
           const checklistId = $("orderChecklist").value;
-          const payload = { ...base, title:value("orderTitle"), assetId:$("orderAsset").value, requester:value("orderRequester"), executor:primary?.name || "", executorIds:selectedIds, executorSnapshot:snapshot, executorValidationVersion:1, executors:selectedIds.length, teamId:$("orderTeam").value, resourceId, participantIds:resourceIds.filter(id => id !== resourceId), type:$("orderType").value, priority:$("orderPriority").value, scheduledAt:$("orderScheduled").value, deadline:$("orderDeadline").value, plannedDurationHours:Number($("orderDuration").value || 0), description:value("orderDescription"), comment:value("orderNotes"), linkedChecklists:checklistId ? [checklistId] : (base.linkedChecklists || []), plannedSpareId:$("orderPlannedSpare").value, preventivePlanId:$("orderForm").dataset.preventivePlanId || base.preventivePlanId || "", attachments:(base.attachments || []).concat(files), mttr:Number(base.mttr || 0), updatedAt:now };
+          const payload = { ...base, title:editing ? editing.title : value("orderTitle"), assetId:editing ? editing.assetId : $("orderAsset").value, requester:editing ? editing.requester : value("orderRequester"), executor:primary?.name || "", executorIds:selectedIds, executorSnapshot:snapshot, executorValidationVersion:1, executors:selectedIds.length, teamId:$("orderTeam").value, resourceId, participantIds:resourceIds.filter(id => id !== resourceId), type:$("orderType").value, priority:$("orderPriority").value, scheduledAt:$("orderScheduled").value, deadline:$("orderDeadline").value, plannedDurationHours:Number($("orderDuration").value || 0), description:editing ? editing.description : value("orderDescription"), comment:value("orderNotes"), linkedChecklists:checklistId ? [checklistId] : (base.linkedChecklists || []), plannedSpareId:$("orderPlannedSpare").value, preventivePlanId:$("orderForm").dataset.preventivePlanId || base.preventivePlanId || "", attachments:(base.attachments || []).concat(files), mttr:Number(base.mttr || 0), updatedAt:now };
           persistValidatedOrderRecord(payload);
           if (payload.preventivePlanId && !editing) {
             state.preventivePlans = state.preventivePlans.map(plan => plan.id === payload.preventivePlanId ? { ...plan, updatedAt:now, history:[...(plan.history || []), { date:now, label:`O.S. ${payload.number} gerada para ${formatPlanDate(payload.scheduledAt)}` }] } : plan);
@@ -37780,6 +37792,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     function gmPrepareWorkOrderTransitionPatch(order = {}, toStatus = "", patch = {}, now = Date.now()) {
       const nextPatch = patch && typeof patch === "object" ? { ...patch } : {};
+      for (const field of ["assetId", "title", "description", "requester", "createdAt"]) delete nextPatch[field];
       if (gmCanonicalOrderStatus(toStatus) !== "Concluída") return nextPatch;
       const finishedAt = gmNormalizeOrderCompletionTime(order, nextPatch.finishedAt ?? now, now);
       return { ...nextPatch, finishedAt, mttr:gmEffectiveOrderHours(order, finishedAt) };
@@ -37795,7 +37808,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     function openSimpleFinishOrderModal(id) {
       const order=byId(state.orders,id); if(!order||isClosedOrder(order.status))return;
-      openModal("Concluir O.S.",`<form class="form" id="simpleFinishForm"><div class="full side-box"><strong>${escapeHtml(order.number||"O.S.")}</strong><span>${escapeHtml(machineName(order.assetId))}</span></div><label class="full">Solução ou serviço realizado * <textarea class="field" id="simpleFinishSolution" required placeholder="Descreva objetivamente o serviço executado">${escapeHtml(order.comment||"")}</textarea></label><label>Data e hora da conclusão * <input class="field" id="simpleFinishAt" type="datetime-local" step="1" required value="${localDateTimeSecondsValue()}"></label><label>Responsável pela execução * <input class="field" id="simpleFinishExecutor" required value="${escapeHtml(order.executor||"")}"></label><details class="os-quick-details"><summary>Adicionar mais informações</summary><div><label>Tempo trabalhado (h) <input class="field" id="simpleFinishHours" type="text" inputmode="decimal" maxlength="5" autocomplete="off" placeholder="Ex.: 1,5"></label><label>Anexos <input class="field" id="simpleFinishFiles" type="file" multiple accept=".png,.jpg,.jpeg,.webp,.pdf,.txt,.csv,.doc,.docx,.xls,.xlsx"></label><label class="full"><input type="checkbox" id="simpleFinishPending" ${order.pendingExecution?"checked":""}> Manter pendência de execução</label></div></details><div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Concluir serviço</button></div></form>`,true);
+      openModal("Concluir O.S.",`<form class="form" id="simpleFinishForm"><div class="full side-box"><strong>${escapeHtml(order.number||"O.S.")}</strong><span>${escapeHtml(machineName(order.assetId))}</span></div><label class="full">Solução ou serviço realizado * <textarea class="field" id="simpleFinishSolution" required placeholder="Descreva objetivamente o serviço executado">${escapeHtml(order.comment||"")}</textarea></label><label>Data e hora da conclusão * <input class="field" id="simpleFinishAt" type="datetime-local" step="1" required value="${localDateTimeSecondsValue()}"></label><label>Responsável pela execução * <input class="field" id="simpleFinishExecutor" required value="${escapeHtml(order.executor||"")}"></label><div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Concluir serviço</button></div></form>`,true);
       $("simpleFinishForm").addEventListener("submit", async event => {
         event.preventDefault();
         const solution = value("simpleFinishSolution");
@@ -37807,23 +37820,14 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         } catch (error) {
           return showToast(gmOrderTransitionErrorMessage(error), "warning");
         }
-        const parsedWorkedHours = parseWorkedHoursInput($("simpleFinishHours").value);
-        if (parsedWorkedHours.error) return showToast(parsedWorkedHours.error, "warning");
-        const selectedFiles = Array.from($("simpleFinishFiles").files || []);
-        const attachmentRules = { maxBytes:4*1024*1024, types:["image/png","image/jpeg","image/webp","application/pdf","text/plain","text/csv","application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/vnd.ms-excel","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"], extensions:["png","jpg","jpeg","webp","pdf","txt","csv","doc","docx","xls","xlsx"] };
-        const invalid = selectedFiles.map(file => ({ file, issue:stage21AllowedFile(file, attachmentRules) })).find(item => item.issue);
-        if (invalid) return showToast(`${invalid.file.name}: ${invalid.issue}`, "warning");
         const button = event.submitter;
         if (button) button.disabled = true;
         try {
-          const files = await Promise.all(selectedFiles.map(async file => ({ id:uid("file"), name:file.name, type:file.type || "", size:file.size, createdAt:Date.now(), dataUrl:await readAssetFile(file) })));
           await gmTransitionWorkOrder(id, "Concluída", {
             comment:solution,
             executor,
             finishedAt,
-            workedHours:parsedWorkedHours.value,
-            pendingExecution:$("simpleFinishPending").checked,
-            attachments:(order.attachments || []).concat(files)
+            pendingExecution:false
           });
           closeModal();
           render();
@@ -37912,7 +37916,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const now = Date.now();
       const order = byId(state.orders, id);
       if (!order) return;
-      const startedAt = gmOrderTimeMs(order.startedAt, gmOrderTimeMs(order.createdAt, now));
       const comment = $("finishComment").value.trim();
       const executor = $("finishExecutor").value.trim();
       if (!comment || !executor) {
@@ -37931,7 +37934,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           executor,
           executors:$("finishExecutors").value,
           comment,
-          description:order.description || "",
           pendingExecution:$("finishPending").checked,
           machineStopped:$("finishStopped").checked,
           finishedAt:now
