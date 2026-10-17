@@ -21175,7 +21175,11 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   <script>
     window.__gestmanHasSavedSession = function () {
       try {
-        const session = JSON.parse(sessionStorage.getItem("gestman365.supabase.session.v1") || "null");
+        const key = "gestman365.supabase.session.v1";
+        let stored = null;
+        try { stored = localStorage.getItem(key); } catch {}
+        if (!stored) stored = sessionStorage.getItem(key);
+        const session = JSON.parse(stored || "null");
         return Boolean(session?.access_token && session?.refresh_token);
       } catch {
         return false;
@@ -21236,7 +21240,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
               <button class="auth-password-toggle" id="authPasswordToggle" type="button" aria-label="Mostrar senha" aria-pressed="false"><span data-auth-icon="eye" aria-hidden="true"></span></button>
             </span>
           </label>
-          <label class="auth-remember"><input id="rememberLogin" type="checkbox"><span class="auth-switch" aria-hidden="true"></span><span>Continuar conectado</span></label>
+          <label class="auth-remember"><input id="rememberLogin" type="checkbox" checked><span class="auth-switch" aria-hidden="true"></span><span>Continuar conectado neste dispositivo</span></label>
           <div class="auth-login-status" id="authLoginStatus" role="alert" aria-live="polite" hidden></div>
           <div class="auth-actions"><button class="btn primary auth-submit" type="submit"><span class="auth-submit-text">Entrar</span><span class="auth-submit-arrow" data-auth-icon="arrowRight" aria-hidden="true"></span></button></div>
           <a class="auth-forgot" id="forgotPasswordLink" href="#">Esqueci minha senha</a>
@@ -39838,17 +39842,23 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     var gmLastVersionCheckAt = 0;
     function gmReadSession() {
       try {
-        const session = safeParseJson(sessionStorage.getItem(GM_SUPABASE_SESSION_KEY), null);
+        let storedOnDevice = null;
+        try { storedOnDevice = safeParseJson(localStorage.getItem(GM_SUPABASE_SESSION_KEY), null); } catch {}
+        const storedInTab = safeParseJson(sessionStorage.getItem(GM_SUPABASE_SESSION_KEY), null);
+        const session = storedOnDevice?.persistent === true && storedOnDevice?.access_token
+          ? storedOnDevice : storedInTab;
         if (!session?.access_token) return null;
         const nowSeconds = Math.floor(Date.now() / 1000);
         if (!Number(session.session_started_at || 0)) session.session_started_at = nowSeconds;
-        if (!Number(session.session_expires_at || 0)) session.session_expires_at = Number(session.session_started_at) + Math.floor(SESSION_DURATION_MS / 1000);
-        if (Number(session.session_expires_at) <= nowSeconds) {
-          sessionStorage.removeItem(GM_SUPABASE_SESSION_KEY);
+        if (session.persistent !== true && !Number(session.session_expires_at || 0)) {
+          session.session_expires_at = Number(session.session_started_at) + Math.floor(SESSION_DURATION_MS / 1000);
+        }
+        if (session.persistent !== true && Number(session.session_expires_at) <= nowSeconds) {
+          gmClearSession();
           sessionStorage.setItem(SESSION_EXPIRED_NOTICE_KEY, "1");
           return null;
         }
-        sessionStorage.setItem(GM_SUPABASE_SESSION_KEY, JSON.stringify(session));
+        if (session.persistent !== true) sessionStorage.setItem(GM_SUPABASE_SESSION_KEY, JSON.stringify(session));
         return session;
       } catch { return null; }
     }
@@ -39857,15 +39867,17 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const previous = gmReadSession() || {};
       const nowSeconds = Math.floor(Date.now() / 1000);
       const resetLifetime = options.resetLifetime === true;
+      const persistent = options.persistent === true || (options.persistent !== false && previous.persistent === true);
       const sessionStartedAt = resetLifetime ? nowSeconds : Number(previous.session_started_at || nowSeconds);
       const next = {
         access_token: payload.access_token,
         refresh_token: payload.refresh_token || previous.refresh_token || "",
         expires_at: Number(payload.expires_at || (nowSeconds + Number(payload.expires_in || 3600))),
         session_started_at: sessionStartedAt,
-        session_expires_at: resetLifetime
+        session_expires_at: persistent ? 0 : resetLifetime
           ? sessionStartedAt + Math.floor(SESSION_DURATION_MS / 1000)
           : Number(previous.session_expires_at || (sessionStartedAt + Math.floor(SESSION_DURATION_MS / 1000))),
+        persistent,
         token_type: payload.token_type || "bearer",
         user: payload.user ? {
           id: payload.user.id,
@@ -39873,11 +39885,25 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           user_metadata: payload.user.user_metadata || {}
         } : previous.user || null
       };
-      sessionStorage.setItem(GM_SUPABASE_SESSION_KEY, JSON.stringify(next));
+      if (persistent) {
+        try {
+          localStorage.setItem(GM_SUPABASE_SESSION_KEY, JSON.stringify(next));
+          sessionStorage.removeItem(GM_SUPABASE_SESSION_KEY);
+        } catch {
+          next.persistent = false;
+          next.session_expires_at = sessionStartedAt + Math.floor(SESSION_DURATION_MS / 1000);
+          sessionStorage.setItem(GM_SUPABASE_SESSION_KEY, JSON.stringify(next));
+        }
+      } else {
+        sessionStorage.setItem(GM_SUPABASE_SESSION_KEY, JSON.stringify(next));
+        try { localStorage.removeItem(GM_SUPABASE_SESSION_KEY); } catch {}
+      }
+      sessionStorage.removeItem(SESSION_EXPIRED_NOTICE_KEY);
       return next;
     }
     function gmClearSession() {
-      sessionStorage.removeItem(GM_SUPABASE_SESSION_KEY);
+      try { sessionStorage.removeItem(GM_SUPABASE_SESSION_KEY); } catch {}
+      try { localStorage.removeItem(GM_SUPABASE_SESSION_KEY); } catch {}
       window.GMTenantRealtime?.disconnect();
       gmKnownRemoteOrderIds = null;
       gmPendingRemoteState = null;
@@ -39889,7 +39915,11 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       });
       const text = await response.text();
       const payload = text ? safeParseJson(text, { message:text }) : null;
-      if (!response.ok) throw new Error(payload?.msg || payload?.message || `AUTH_HTTP_${response.status}`);
+      if (!response.ok) {
+        const error = new Error(payload?.msg || payload?.message || `AUTH_HTTP_${response.status}`);
+        error.status = response.status;
+        throw error;
+      }
       return payload;
     }
     async function gmEnsureSession(forceRefresh = false) {
@@ -39925,7 +39955,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const payload = text ? safeParseJson(text, text) : null;
       if (!response.ok) {
         const message = payload?.message || payload?.hint || `REMOTE_HTTP_${response.status}`;
-        throw new Error(message);
+        const error = new Error(message);
+        error.status = response.status;
+        throw error;
       }
       return payload;
     }
@@ -40794,7 +40826,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           method:"POST",
           body:JSON.stringify({ email:normalizedEmail, password:rawPassword })
         });
-        gmWriteSession(session, { resetLifetime:true });
+        gmWriteSession(session, { resetLifetime:true, persistent:$("rememberLogin")?.checked === true });
         if ($("authPassword")) $("authPassword").value = "";
         const context = await gmLoadContext();
         await gmLoadPlatformAccess();
@@ -40875,7 +40907,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           method:"POST",
           body:JSON.stringify({ email:authEmail, password:rawPassword })
         });
-        gmWriteSession(session, { resetLifetime:true });
+        gmWriteSession(session, { resetLifetime:true, persistent:$("rememberLogin")?.checked === true });
         if ($("authPassword")) $("authPassword").value = "";
         const context = await gmLoadContext();
         await gmLoadPlatformAccess();
@@ -40950,7 +40982,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             showToast("Confirme o email recebido e depois entre para concluir a empresa.", "warning");
             return true;
           }
-          session = gmWriteSession(signup, { resetLifetime:true });
+          session = gmWriteSession(signup, { resetLifetime:true, persistent:true });
         }
         const bootstrapIdempotencyKey = `gm-${Date.now()}-${crypto.randomUUID()}`;
         await gmAuthenticatedFunction("bootstrap-company", {
@@ -40980,7 +41012,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     async function logoutTenantUser(confirmed = false) {
       if (!confirmed) {
-        requestDestructiveConfirmation("Sair desta empresa?", "A sessao desta aba sera encerrada. Os dados permanecem no banco de dados.", "Sair", () => logoutTenantUser(true));
+        requestDestructiveConfirmation("Sair desta empresa?", "A sessão deste dispositivo será encerrada. Os dados permanecem no banco de dados.", "Sair", () => logoutTenantUser(true));
         return;
       }
       try {
@@ -41024,24 +41056,30 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         else openOverviewAfterAuthentication({ restoreLastView:true });
         return true;
       } catch (error) {
-        gmClearSession();
+        const reason = String(error?.message || error || "");
+        const status = Number(error?.status || 0);
+        const temporaryFailure = status === 429 || status >= 500
+          || /failed to fetch|network|connection|timeout|load failed|(?:AUTH|REMOTE)_HTTP_5\d\d/i.test(reason);
+        if (!temporaryFailure || gmReadSession()?.persistent !== true) gmClearSession();
         gmPlatformRole = "";
         stage21TechnicalLog("warning", "auth.restore", error);
         currentAccount = null;
         authStore = normalizeAuthStore({});
         applyAuthState();
+        if (temporaryFailure) setAuthLoginStatus("Sem conexão com o servidor. Sua sessão foi preservada; tente atualizar quando a conexão voltar.", "warning");
         return false;
       } finally {
         // Reveal the app only after its account, data and destination view are ready.
         document.body.classList.remove("auth-restoring");
         if (currentAccount) document.body.classList.remove("auth-loading");
+        else renderAuthScreen();
       }
     }
     function renderStage21SecurityCenter() {
       const root = $("stage21SecurityRoot");
       if (!root || !isAdminUser()) return;
       const counts = stage21CollectionCounts(state);
-      root.innerHTML = `<div class="stage21-center-head"><div><h3>Seguranca, auditoria e recuperacao</h3><p>O banco de dados é a fonte unica de verdade desta empresa.</p></div><span class="stage21-badge">● RLS ativo por empresa</span></div><div class="stage21-grid"><div class="stage21-card"><span>Persistencia operacional</span><strong>Banco de dados PostgreSQL</strong><small>${stage21TotalRecords(counts).toLocaleString("pt-BR")} registros remotos · versao ${gmRemoteStateVersion}</small></div><div class="stage21-card"><span>Autenticacao</span><strong>Autenticação segura</strong><small>Sessao protegida nesta aba; nenhuma credencial empresarial e salva localmente.</small></div><div class="stage21-card"><span>Arquivos</span><strong>Storage privado</strong><small>Bucket gestman-attachments protegido por empresa.</small></div></div><div class="stage21-note">Nenhum dado operacional utiliza localStorage. Alteracoes sao enviadas diretamente ao banco de dados e validadas por versao.</div><details class="stage21-section" open><summary>Auditoria</summary><div class="stage21-section-body" id="stage21AuditRoot"></div></details>`;
+      root.innerHTML = `<div class="stage21-center-head"><div><h3>Seguranca, auditoria e recuperacao</h3><p>O banco de dados é a fonte unica de verdade desta empresa.</p></div><span class="stage21-badge">● RLS ativo por empresa</span></div><div class="stage21-grid"><div class="stage21-card"><span>Persistencia operacional</span><strong>Banco de dados PostgreSQL</strong><small>${stage21TotalRecords(counts).toLocaleString("pt-BR")} registros remotos · versao ${gmRemoteStateVersion}</small></div><div class="stage21-card"><span>Autenticacao</span><strong>Autenticação segura</strong><small>A senha não é salva no navegador. Com “Continuar conectado”, somente o token de sessão fica neste dispositivo até sair ou o servidor revogá-lo.</small></div><div class="stage21-card"><span>Arquivos</span><strong>Storage privado</strong><small>Bucket gestman-attachments protegido por empresa.</small></div></div><div class="stage21-note">Nenhum dado operacional utiliza localStorage. Alteracoes sao enviadas diretamente ao banco de dados e validadas por versao.</div><details class="stage21-section" open><summary>Auditoria</summary><div class="stage21-section-body" id="stage21AuditRoot"></div></details>`;
       renderStage21Audit();
     }
     /* Cadastro publico e administracao SaaS */
@@ -42099,9 +42137,12 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       applyAuthState();
     }
     gmRestoreSupabaseSession();
+    window.addEventListener("online", () => {
+      if (!currentAccount && gmReadSession()?.persistent === true) gmRestoreSupabaseSession();
+    });
     stage21AuditCaptureEnabled = true;
     setInterval(() => {
-      if (!currentAccount || !Number(authStore.session?.expiresAt || 0) || Number(authStore.session.expiresAt) > Date.now()) return;
+      if (!currentAccount || gmReadSession()?.persistent === true || !Number(authStore.session?.expiresAt || 0) || Number(authStore.session.expiresAt) > Date.now()) return;
       stage21WriteAudit({ module:"Autenticação", action:"Sessão expirada", record:currentAccount.user.email, result:"Encerrada", origin:"Controle de sessão" });
       authStore.session = null;
       saveAuthStore(authStore);
