@@ -659,7 +659,16 @@ html#gm-premium body.premium-shell #genericModal #simpleFinishForm .finish-info-
 #simpleFinishForm button[hidden] { display:none !important; }
 #simpleFinishForm .finish-info-panel > .full { grid-column:1/-1; }
 #simpleFinishForm #finishRequestPanel { display:block; overflow-wrap:anywhere; }
+#simpleFinishForm .finish-order-extra { display:grid; gap:4px; margin-top:8px; color:#17314b; }
+#simpleFinishForm .finish-order-extra span { color:#55708a; font-size:13px; }
+#simpleFinishForm .finish-order-detail-tabs { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; min-width:0; }
+#simpleFinishForm .finish-order-detail-tabs button { min-height:40px; padding:8px; border:1px solid #cbd8e5; border-radius:9px; background:#f5f8fc; color:#29445e; font-weight:700; cursor:pointer; }
+#simpleFinishForm .finish-order-detail-tabs button.active { border-color:#1768cf; background:#e7f1ff; color:#1258a7; }
+#simpleFinishForm .finish-order-detail-panel { min-width:0; overflow-wrap:anywhere; }
+#simpleFinishForm .finish-order-detail-panel[hidden] { display:none !important; }
+#simpleFinishForm .finish-order-detail-panel .tab-workspace { min-width:0; }
 @media (max-width:600px) {
+  #simpleFinishForm .finish-order-detail-tabs { grid-template-columns:repeat(2,minmax(0,1fr)); }
   html#gm-premium body.premium-shell #orders .os-detail-panel.has-order {
     overflow:visible !important;
     padding-bottom:8px;

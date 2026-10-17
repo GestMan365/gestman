@@ -20739,7 +20739,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   </style>
   <link rel="stylesheet" href="assets/work-order-desktop-alerts.css">
   <link rel="stylesheet" href="assets/premium-ui.css">
-  <link rel="stylesheet" href="assets/ui/gestman-light-dashboard.css?v=20261017-order-execution-footer">
+  <link rel="stylesheet" href="assets/ui/gestman-light-dashboard.css?v=20261017-finish-information-tabs">
   <link rel="stylesheet" href="assets/ui/gestman-pagination.css">
 </head>
 <body class="auth-loading auth-restoring">
@@ -35311,7 +35311,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const files = orderTabArray(order, key);
       const rows = files.map(file => `
         <tr>
-          <td>${escapeHtml(file.name || "Arquivo")}</td>
+          <td>${file.dataUrl?.startsWith("data:image/") ? `<a href="${escapeHtml(file.dataUrl)}" target="_blank" rel="noopener"><img src="${escapeHtml(file.dataUrl)}" alt="${escapeHtml(file.name || "Foto da O.S.")}" style="width:52px;height:52px;object-fit:cover;border-radius:7px;vertical-align:middle;margin-right:8px"></a>` : ""}${file.dataUrl ? `<a href="${escapeHtml(file.dataUrl)}" download="${escapeHtml(file.name || "arquivo")}">${escapeHtml(file.name || "Arquivo")}</a>` : escapeHtml(file.name || "Arquivo")}</td>
           <td>${escapeHtml(file.note || "-")}</td>
           <td>${file.size ? `${Math.round(Number(file.size) / 1024)} KB` : "-"}</td>
           <td>${formatDateTime(file.createdAt)}</td>
@@ -35327,7 +35327,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             <div class="full toolbar"><button class="btn primary" type="button" id="orderFileAddBtn">Vincular ${ptBrText(tabName)}</button></div>
           </div>
           <div class="table-wrap"><table><thead><tr><th>Arquivo</th><th>Observação</th><th>Tamanho</th><th>Data</th><th>Ação</th></tr></thead><tbody>${rows}</tbody></table></div>
-          <span class="muted">O arquivo fica registrado na O.S pelo nome e dados do arquivo. Para anexar conteúdo online, envie o arquivo ao seu repositório/armazenamento e registre a referência aqui.</span>
+          <span class="muted">Arquivos novos ficam vinculados à O.S. Registros antigos sem conteúdo permanecem identificados pelo nome.</span>
         </div>`;
     }
     function orderAuditTime(value) {
@@ -36033,26 +36033,30 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (tabKey === "fotos" || tabKey === "anexos" || tabKey === "documentos") {
         const key = tabKey === "fotos" ? "photos" : tabKey === "documentos" ? "documents" : "attachments";
         const add = $("orderFileAddBtn");
-        if (add) add.addEventListener("click", () => {
+        if (add) add.addEventListener("click", async () => {
           const files = Array.from($("orderFileInput")?.files || []);
           const note = value("orderFileNote");
           if (!files.length) { showToast("Selecione um arquivo para vincular."); return; }
-          const order = byId(state.orders, orderId) || {};
           const allowedTypes = tabKey === "fotos" ? ["image/png","image/jpeg","image/webp"] : ["image/png","image/jpeg","image/webp","application/pdf","text/plain","text/csv","application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/vnd.ms-excel","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"];
           const allowedExtensions = tabKey === "fotos" ? ["png","jpg","jpeg","webp"] : ["png","jpg","jpeg","webp","pdf","txt","csv","doc","docx","xls","xlsx"];
           const invalid = files.map(file => ({ file, issue:stage21AllowedFile(file,{maxBytes:8*1024*1024,types:allowedTypes,extensions:allowedExtensions}) })).find(item=>item.issue);
           if (invalid) { showToast(`${invalid.file.name}: ${invalid.issue}`,"warning"); return; }
-          const nextFiles = files.map(file => ({
-            id: uid("file"),
-            name: file.name,
-            type: file.type || "",
-            size: file.size || 0,
-            note,
-            createdAt: Date.now()
-          }));
-          updateOrderExtras(orderId, { [key]: orderTabArray(order, key).concat(nextFiles) });
-          refreshOrderDetailTab(tabName, orderId);
-          showToast(`${ptBrText(tabName)} vinculado à O.S.`);
+          add.disabled = true;
+          try {
+            const nextFiles = await Promise.all(files.map(async file => ({
+              id: uid("file"), name:file.name, type:file.type || "", size:file.size || 0,
+              note, createdAt:Date.now(), dataUrl:await readAssetFile(file)
+            })));
+            const order = byId(state.orders, orderId);
+            assertWorkOrderMutable(order);
+            updateOrderExtras(orderId, { [key]: orderTabArray(order, key).concat(nextFiles) });
+            refreshOrderDetailTab(tabName, orderId);
+            const saved = await gmPersistState(false);
+            showToast(saved ? `${ptBrText(tabName)} vinculado à O.S.` : "Arquivo preparado, mas ainda não sincronizado. Tente salvar novamente antes de concluir a O.S.", saved ? "success" : "warning");
+          } catch (error) {
+            stage21TechnicalLog("error", "orders.file", error);
+            showToast("Não foi possível vincular o arquivo. Tente novamente antes de concluir a O.S.", "error");
+          } finally { if (add.isConnected) add.disabled = false; }
         });
       }
       if (tabKey === "recursos") {
@@ -36707,14 +36711,15 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       status.dataset.kind = kind;
       status.hidden = !message;
     }
-    function showOrderSentConfirmation(number) {
+    function showOrderSentConfirmation(number, kind = "sent") {
       $("orderSentConfirmation")?.remove();
       const confirmation = document.createElement("div");
       confirmation.id = "orderSentConfirmation";
       confirmation.className = "order-sent-confirmation";
       confirmation.setAttribute("role", "status");
       confirmation.setAttribute("aria-live", "assertive");
-      confirmation.innerHTML = `<div class="order-sent-card"><span class="order-sent-mark" aria-hidden="true">✓</span><strong>O.S. enviada com sucesso!</strong><p>${escapeHtml(number || "Ordem de Serviço")} foi registrada.</p><span class="order-sent-progress" aria-hidden="true"></span></div>`;
+      const finished = kind === "finished";
+      confirmation.innerHTML = `<div class="order-sent-card"><span class="order-sent-mark" aria-hidden="true">✓</span><strong>${finished ? "O.S. concluída com sucesso!" : "O.S. enviada com sucesso!"}</strong><p>${escapeHtml(number || "Ordem de Serviço")} ${finished ? "foi finalizada e registrada." : "foi registrada."}</p><span class="order-sent-progress" aria-hidden="true"></span></div>`;
       document.body.append(confirmation);
       setTimeout(() => confirmation.classList.add("is-leaving"), 2650);
       setTimeout(() => confirmation.remove(), 3000);
@@ -37837,6 +37842,11 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
              <label class="full">Solução ou serviço realizado * <textarea class="field" id="simpleFinishSolution" required placeholder="Descreva objetivamente o serviço executado">${escapeHtml(order.comment||"")}</textarea></label>
              <label>Data e hora da conclusão * <input class="field" id="simpleFinishAt" type="datetime-local" step="1" required value="${localDateTimeSecondsValue()}"></label>
              <label>Responsável pela execução * <input class="field" id="simpleFinishExecutor" required value="${escapeHtml(order.executor||"")}"></label>
+             <div class="full finish-order-extra"><strong>Informações do atendimento</strong><span>Adicione fotos, anexos e demais registros antes de concluir a O.S.</span></div>
+             <nav class="full finish-order-detail-tabs" aria-label="Informações do atendimento">
+               ${["CheckLists", "Outros Custos", "Assinatura", "Detalhes", "Historico", "Geral", "Equipe", "Tarefas", "Seguranca", "Fotos", "Anexos", "Documentos", "Materiais", "Recursos"].map(tab => `<button type="button" data-finish-detail-tab="${tab}">${ptBrText(tab)}</button>`).join("")}
+             </nav>
+             <div class="full finish-order-detail-panel side-box" id="detailTabPanel" hidden></div>
            </div>
            <div class="full finish-info-panel" id="finishRequestPanel" role="tabpanel" aria-labelledby="finishRequestTab" hidden>
              <p><strong>Solicitante:</strong> ${escapeHtml(order.requester||"Não informado")}</p>
@@ -37854,6 +37864,13 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
            $(id).classList.toggle("active", active);
            $(id).setAttribute("aria-selected", String(active));
          }
+       }));
+       $("simpleFinishForm").querySelectorAll("[data-finish-detail-tab]").forEach(tab => tab.addEventListener("click", () => {
+         $("simpleFinishForm").querySelectorAll("[data-finish-detail-tab]").forEach(item => item.classList.toggle("active", item === tab));
+         const panel = $("detailTabPanel");
+         panel.hidden = false;
+         panel.innerHTML = detailTabContent(tab.dataset.finishDetailTab, byId(state.orders, id) || order);
+         wireDetailTab(tab.dataset.finishDetailTab, id);
        }));
       $("simpleFinishForm").addEventListener("submit", async event => {
         event.preventDefault();
@@ -37877,7 +37894,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           });
           closeModal();
           render();
-          showToast("O.S. concluída com sucesso e registrada no histórico.");
+          showOrderSentConfirmation((byId(state.orders, id) || order).number, "finished");
         } catch (error) {
           if (button) button.disabled = false;
           stage21TechnicalLog("error", "orders.finish", error);
@@ -37986,7 +38003,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         });
         closeModal();
         render();
-        showToast("O.S. finalizada e registrada no histórico.");
+        showOrderSentConfirmation((byId(state.orders, id) || order).number, "finished");
       } catch (error) {
         stage21TechnicalLog("error", "orders.finish.detail", error);
         showToast(gmOrderTransitionErrorMessage(error), "error");
