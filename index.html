@@ -21428,7 +21428,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   <main class="workspace">
     <section class="view active" id="dashboard">
       <div class="mobile-technician-home" id="mobileTechnicianHome">
-        <div class="mobile-tech-greeting"><div class="mobile-tech-greeting-copy"><span class="mobile-tech-eyebrow">Operação em campo</span><strong>Olá, <span id="mobileTechName">Técnico</span></strong><small>Acesse sua rotina em poucos toques.</small></div><button class="mobile-tech-scan" type="button" data-view-button="assets" onclick="event.stopImmediatePropagation();openMobileAssetQrScanner()" aria-label="Abrir câmera para ler QR Code do equipamento"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h3l2-2h6l2 2h3v11H4z"/><circle cx="12" cy="12.5" r="3.2"/></svg><span>Ler QR</span></button></div>
+        <div class="mobile-tech-greeting"><div class="mobile-tech-greeting-copy"><span class="mobile-tech-eyebrow">Operação em campo</span><strong>Olá, <span id="mobileTechName">Técnico</span></strong><small>Acesse sua rotina em poucos toques.</small></div><button class="mobile-tech-scan" type="button" data-view-button="assets" data-gm-skip-icon onclick="event.stopImmediatePropagation();openMobileAssetQrScanner()" aria-label="Abrir câmera para ler QR Code do equipamento"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h3l2-2h6l2 2h3v11H4z"/><circle cx="12" cy="12.5" r="3.2"/></svg><span>Ler QR</span></button></div>
         <div class="mobile-tech-summary" id="mobileTechSummary"></div>
         <div class="mobile-tech-section"><h2>Acesso rápido</h2><p>As tarefas mais usadas da manutenção.</p><div class="mobile-tech-actions"><button type="button" onclick="openOrderModal()"><i></i><span><strong>Nova O.S.</strong><small>Abrir chamado</small></span></button><button type="button" onclick="openMobileMyOrders()"><i></i><span><strong>Minhas O.S.</strong><small>Acompanhar execução</small></span></button><button type="button" onclick="openQuickChecklist()"><i></i><span><strong>Checklist</strong><small>Executar rotina</small></span></button><button type="button" onclick="openMobileDowntimeModal()"><i></i><span><strong>Registrar parada</strong><small>Informar indisponibilidade</small></span></button><button type="button" onclick="setView('measurements')"><i></i><span><strong>Registrar medição</strong><small>Adicionar leitura</small></span></button><button type="button" onclick="setView('assets')"><i></i><span><strong>Consultar ativo</strong><small>Equipamentos e TAGs</small></span></button><button type="button" onclick="setView('documentsCenter')"><i></i><span><strong>Documentos</strong><small>Procedimentos e arquivos</small></span></button><button type="button" onclick="stage20OpenNotificationCenter()"><i></i><span><strong>Notificações</strong><small>Alertas da operação</small></span></button></div></div>
         <div class="mobile-tech-section"><div class="mobile-tech-section-head"><h2>Precisa de atenção</h2><button type="button" onclick="openMobileMyOrders()">Ver minhas O.S.</button></div><div class="mobile-tech-priorities" id="mobileTechPriorities"></div></div>
@@ -22433,8 +22433,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   <script src="assets/operational-planning.js"></script>
   <script src="assets/vendor/qrcode-generator.js"></script>
   <script src="assets/ui/gestman-pagination.js"></script>
-  <script type="module" src="assets/asset-qr-scanner.js"></script>
-  <script type="module" src="assets/tenant-realtime.js"></script>
+  <script defer src="assets/vendor/asset-qr-scanner.js"></script>
+  <script defer src="assets/vendor/tenant-realtime.js"></script>
 
   <script>
     /*
@@ -25723,7 +25723,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         browserMemoryStore.delete(REMEMBER_LOGIN_KEY);
       }
       const sessionExpired = sessionStorage.getItem(SESSION_EXPIRED_NOTICE_KEY) === "1";
-      sessionStorage.removeItem(SESSION_EXPIRED_NOTICE_KEY);
       const routeSlug = companySlugFromRoute();
       const routeLogin = companyLoginFromRoute();
       document.body.classList.toggle("auth-link-company", Boolean(routeLogin));

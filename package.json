@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit -p tsconfig.json && vite build",
+    "build": "npm run build:classic-modules && tsc --noEmit -p tsconfig.json && vite build",
+    "build:classic-modules": "esbuild assets/asset-qr-scanner.js assets/tenant-realtime.js --bundle --minify --format=iife --target=es2020 --outdir=assets/vendor",
     "preview": "vite preview",
     "test:ai:static": "node scripts/validate-ai-gestman.mjs",
     "test:profile-images": "node scripts/validate-profile-image-persistence.mjs",
@@ -61,6 +62,7 @@
     "@types/react": "^18.3.4",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
+    "esbuild": "0.21.5",
     "typescript": "^5.5.4",
     "vite": "^5.4.1"
   }
