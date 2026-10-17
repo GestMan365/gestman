@@ -85,22 +85,58 @@ test("encerramento não pede horas manuais nem altera dados da solicitação", a
   });
 });
 
-test("edição preserva descrição, solicitante, equipamento e abertura", async ({ page }) => {
+test("administrador pode corrigir a solicitação de uma O.S. aberta", async ({ page }) => {
   await page.evaluate(() => window.eval(`
     Object.assign(state.orders[0], {
-      title:"Resumo original", description:"Defeito original", requester:"Solicitante QA"
+      title:"Resumo original", description:"Defeito original", requester:"Solicitante QA",
+      executor:"Técnico QA", executorIds:["qa-user"]
     });
+    saveState=()=>{};
     openOrderModal("qa-asset-1", "qa-order-1");
   `));
   for (const selector of ["#orderTitle", "#orderDescription", "#orderRequester", "#orderOpenedAt"]) {
+    await expect(page.locator(selector)).toHaveJSProperty("readOnly", false);
+  }
+  await expect(page.locator("#orderAsset")).toBeEnabled();
+  const result = await page.evaluate(() => window.eval(`
+    persistValidatedOrderRecord({...state.orders[0], description:"Corrigido pelo administrador"}).description
+  `));
+  expect(result).toBe("Corrigido pelo administrador");
+});
+
+test("executante preenche atendimento sem alterar os dados do solicitante", async ({ page }) => {
+  await page.evaluate(() => window.eval(`
+    currentAccount.user={id:"qa-tech",name:"Técnico QA",role:"user",accessProfile:"technician",active:true};
+    Object.assign(state.orders[0], {
+      title:"Resumo original", description:"Defeito original", requester:"Solicitante QA",
+      type:"Corretiva", priority:"Alta", scheduledAt:"2026-10-18T09:00",
+      executor:"Técnico QA", executorIds:["qa-tech"], status:"Em execução", startedAt:Date.now()-60000
+    });
+    saveState=()=>{}; saveOrderSupabaseNow=async()=>true; saveOrderEventSupabase=async()=>true;
+    showOrderDetails("qa-order-1");
+  `));
+  for (const selector of ["#detailPlan", "#detailScheduled", "#detailExecutor", "#detailDays"]) {
     await expect(page.locator(selector)).toHaveJSProperty("readOnly", true);
   }
-  await expect(page.locator("#orderAsset")).toBeDisabled();
-  const refusal = await page.evaluate(() => window.eval(`
-    try { persistValidatedOrderRecord({...state.orders[0], description:"Alterado"}); "accepted" }
-    catch (error) { error.message }
-  `));
-  expect(refusal).toBe("ORDER_REQUEST_IMMUTABLE:description");
+  for (const selector of ["#detailType", "#detailPriority", "#detailMaintenance"]) {
+    await expect(page.locator(selector)).toBeDisabled();
+  }
+  await expect(page.getByRole("button", {name:"Editar solicitação"})).toHaveCount(0);
+  await page.locator("#detailComment").fill("Serviço executado sem alterar a solicitação");
+  await page.getByRole("button", {name:"Salvar detalhes"}).click();
+  await expect.poll(() => page.evaluate(() => window.eval(`state.orders[0].comment`))).toBe("Serviço executado sem alterar a solicitação");
+  const result = await page.evaluate(() => window.eval(`({
+    order:state.orders[0],
+    editAttempt:editOrder("qa-order-1")===false?"denied":"accepted",
+    mutationAttempt:(()=>{try{updateOrderExtras("qa-order-1",{priority:"Baixa"});return "accepted"}catch(error){return error.message}})()
+  })`));
+  expect(result.order).toMatchObject({description:"Defeito original",requester:"Solicitante QA",priority:"Alta",type:"Corretiva",scheduledAt:"2026-10-18T09:00",comment:"Serviço executado sem alterar a solicitação"});
+  expect(result.editAttempt).toBe("denied");
+  expect(result.mutationAttempt).toBe("ORDER_REQUEST_ADMIN_ONLY:priority");
+  const patch = await page.evaluate(() => window.eval(`gmPrepareWorkOrderTransitionPatch(state.orders[0],"Pausada",{priority:"Baixa",type:"Outro",executor:"Outro técnico",comment:"Atendimento"})`));
+  expect(patch).not.toHaveProperty("priority");
+  expect(patch).not.toHaveProperty("type");
+  expect(patch.executor).toBe("Técnico QA");
 });
 
 test("iniciar, pausar e retomar usam somente o RPC transacional", async ({ page }) => {

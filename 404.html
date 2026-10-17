@@ -25944,7 +25944,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     function actionModuleForElement(element) {
       const view = element.closest?.(".view")?.id || document.querySelector(".view.active")?.id || "dashboard";
-      return element.dataset?.permissionModule || VIEW_PERMISSION[view] || "dashboard";
+      return element.dataset?.permissionModule || element.closest?.("[data-permission-module]")?.dataset?.permissionModule || VIEW_PERMISSION[view] || "dashboard";
     }
     function applyActionPermissionVisibility(root = document) {
       if (!currentAccount) return;
@@ -32438,7 +32438,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const closed = isClosedOrder(order.status) || key.includes("cancel");
       const paused = key.includes("paus");
       const running = isRunningOrder(order.status);
-      return `${!closed && !running && !paused ? `<button class="btn primary mobile-primary" type="button" onclick="confirmStartOrder('${order.id}')">Iniciar serviço</button>` : ""}${running ? `<button class="btn mobile-primary" type="button" onclick="changeOrderOperationalStatus('${order.id}','Pausada')">Pausar</button><button class="btn primary mobile-primary" type="button" onclick="finishOrder('${order.id}')">Concluir</button>` : ""}${paused ? `<button class="btn primary mobile-primary" type="button" onclick="changeOrderOperationalStatus('${order.id}','Em execucao')">Retomar</button>` : ""}${!closed ? `<button class="btn" type="button" onclick="editOrder('${order.id}')">Editar</button><button class="btn danger" type="button" onclick="cancelOrder('${order.id}')">Cancelar</button>` : `<span class="muted">O.S encerrada — disponível somente para consulta.</span>`}<button class="btn mobile-qr" type="button" onclick="openOrderQr('${order.id}')">QR Code</button><button class="btn mobile-close" type="button" onclick="selectedOrderId=null;render()">Fechar</button>`;
+      return `${!closed && !running && !paused ? `<button class="btn primary mobile-primary" type="button" onclick="confirmStartOrder('${order.id}')">Iniciar serviço</button>` : ""}${running ? `<button class="btn mobile-primary" type="button" onclick="changeOrderOperationalStatus('${order.id}','Pausada')">Pausar</button><button class="btn primary mobile-primary" type="button" onclick="finishOrder('${order.id}')">Concluir</button>` : ""}${paused ? `<button class="btn primary mobile-primary" type="button" onclick="changeOrderOperationalStatus('${order.id}','Em execucao')">Retomar</button>` : ""}${!closed ? `<button class="btn" type="button" onclick="${isAdminUser() ? `editOrder('${order.id}')` : `showOrderDetails('${order.id}')`}">${isAdminUser() ? "Editar solicitação" : "Preencher atendimento"}</button><button class="btn danger" type="button" onclick="cancelOrder('${order.id}')">Cancelar</button>` : `<span class="muted">O.S encerrada — disponível somente para consulta.</span>`}<button class="btn mobile-qr" type="button" onclick="openOrderQr('${order.id}')">QR Code</button><button class="btn mobile-close" type="button" onclick="selectedOrderId=null;render()">Fechar</button>`;
     }
     function orderAdminDeleteButton(order) {
       if (!order || !isAdminUser() || isClosedOrder(order.status)) return "";
@@ -35128,7 +35128,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           <strong>Confirma o início da ${order.number}?</strong>
           <span>Equipamento: ${machineName(order.assetId)}</span>
           <span>A data e hora de início serão registradas automaticamente.</span>
-          <label>Executante <input class="field" id="startExecutor" value="${order.executor || ""}" placeholder="Nome de quem esta atendendo"></label>
+          <label>Executante <input class="field" id="startExecutor" value="${escapeHtml(order.executor || "")}" placeholder="Nome de quem esta atendendo" ${order.executor && !isAdminUser() ? "readonly" : ""}></label>
         </div>
         <div class="toolbar">
           <button class="btn danger" id="cancelStartOrder">Cancelar</button>
@@ -35315,7 +35315,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           <td>${escapeHtml(file.note || "-")}</td>
           <td>${file.size ? `${Math.round(Number(file.size) / 1024)} KB` : "-"}</td>
           <td>${formatDateTime(file.createdAt)}</td>
-          <td class="actions"><button class="btn danger" type="button" data-remove-list="${key}" data-item-id="${escapeHtml(file.id)}">Remover</button></td>
+          <td class="actions">${key === "attachments" && !isAdminUser() ? "Somente leitura" : `<button class="btn danger" type="button" data-remove-list="${key}" data-item-id="${escapeHtml(file.id)}">Remover</button>`}</td>
         </tr>
       `).join("") || orderRowsEmpty(`Nenhum item vinculado em ${ptBrText(tabName)}.`, 5);
       return `
@@ -35504,14 +35504,14 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           <div class="tab-workspace">
             <strong>DETALHES TÉCNICOS</strong>
             <div class="form">
-              <label>Plano <input class="field" id="tabDetailPlan" value="${escapeHtml(order.plan || "")}"></label>
+              <label>Plano <input class="field" id="tabDetailPlan" value="${escapeHtml(order.plan || "")}" ${isAdminUser() ? "" : "readonly"}></label>
               <label>Categoria <input class="field" id="tabDetailCategory" value="${escapeHtml(order.category || "")}" placeholder="Mecânica, elétrica, lubrificação..."></label>
-              <label>Tipo de serviço <select class="field" id="tabDetailType"><option>Corretiva</option><option>Preventiva</option><option value="Inspecao">Inspeção</option><option value="Eletrica">Elétrica</option><option value="Mecanica">Mecânica</option></select></label>
-              <label>Tipo de manutenção <select class="field" id="tabDetailMaintenance"><option>Preventiva</option><option>Corretiva</option><option>Preditiva</option><option>Melhoria</option></select></label>
-              <label>Prioridade <select class="field" id="tabDetailPriority"><option>Baixa</option><option value="Media">Média</option><option>Alta</option></select></label>
+              <label>Tipo de serviço <select class="field" id="tabDetailType" ${isAdminUser() ? "" : "disabled"}><option>Corretiva</option><option>Preventiva</option><option value="Inspecao">Inspeção</option><option value="Eletrica">Elétrica</option><option value="Mecanica">Mecânica</option></select></label>
+              <label>Tipo de manutenção <select class="field" id="tabDetailMaintenance" ${isAdminUser() ? "" : "disabled"}><option>Preventiva</option><option>Corretiva</option><option>Preditiva</option><option>Melhoria</option></select></label>
+              <label>Prioridade <select class="field" id="tabDetailPriority" ${isAdminUser() ? "" : "disabled"}><option>Baixa</option><option value="Media">Média</option><option>Alta</option></select></label>
               <label>Status <select class="field" id="tabDetailStatus" disabled><option>Aberta</option><option>Planejada</option><option value="Em execucao">Em execução</option><option value="Aguardando material">Aguardando material</option><option value="Pausada">Pausada</option><option value="Concluida">Concluída</option><option value="Cancelada">Cancelada</option></select><small class="muted">Use as ações Iniciar, Pausar, Retomar, Concluir ou Cancelar.</small></label>
-              <label>Data/Hora Programada <input class="field" id="tabDetailScheduled" value="${escapeHtml(order.scheduledAt || "")}" placeholder="dd/mm/aaaa --:--"></label>
-              <label>Duração estimada <input class="field" id="tabDetailHours" value="${escapeHtml(order.durationHours || "01:00")}" placeholder="01:00 hrs"></label>
+              <label>Data/Hora Programada <input class="field" id="tabDetailScheduled" value="${escapeHtml(order.scheduledAt || "")}" placeholder="dd/mm/aaaa --:--" ${isAdminUser() ? "" : "readonly"}></label>
+              <label>Duração estimada <input class="field" id="tabDetailHours" value="${escapeHtml(order.durationHours || "01:00")}" placeholder="01:00 hrs" ${isAdminUser() ? "" : "readonly"}></label>
               <label><span class="switch-line"><input type="checkbox" id="tabDetailPending" ${order.pendingExecution ? "checked" : ""}> Pendente de execução</span></label>
               <label><span class="switch-line"><input type="checkbox" id="tabDetailStopped" ${order.machineStopped ? "checked" : ""}> Equipamento parado</span></label>
               <div class="full toolbar"><button class="btn primary" type="button" id="saveDetailsTab">Salvar detalhes</button></div>
@@ -35573,7 +35573,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             <td>${escapeHtml(item.name || "Checklist")}</td>
             <td>${escapeHtml(item.lastFill || "-")}</td>
             <td>${linked.has(String(item.id)) ? tag("Vinculado") : tag("Disponível")}</td>
-            <td class="actions"><button class="btn" type="button" data-link-checklist="${escapeHtml(item.id)}">${linked.has(String(item.id)) ? "Desvincular" : "Vincular"}</button></td>
+            <td class="actions"><button class="btn" type="button" data-link-checklist="${escapeHtml(item.id)}" ${isAdminUser() ? "" : "disabled"}>${linked.has(String(item.id)) ? "Desvincular" : "Vincular"}</button></td>
           </tr>
         `).join("") || orderRowsEmpty("Nenhum checklist cadastrado para este equipamento.", 5);
         return `
@@ -35627,13 +35627,13 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           <div class="tab-workspace">
             <strong>EQUIPE</strong>
             <div class="form">
-              <label>Executante principal <input class="field" id="teamMainExecutor" value="${escapeHtml(order.executor || "")}"></label>
-              <label>Número de executantes <input class="field" id="teamExecutors" type="number" min="1" value="${escapeHtml(order.executors || 1)}"></label>
+              <label>Executante principal <input class="field" id="teamMainExecutor" value="${escapeHtml(order.executor || "")}" ${isAdminUser() ? "" : "readonly"}></label>
+              <label>Número de executantes <input class="field" id="teamExecutors" type="number" min="1" value="${escapeHtml(order.executors || 1)}" ${isAdminUser() ? "" : "readonly"}></label>
               <label>Nome <input class="field" id="teamName" placeholder="Nome do integrante"></label>
               <label>Função <input class="field" id="teamRole" placeholder="Mecânico, eletricista, apoio..."></label>
               <label>Horas <input class="field" id="teamHours" placeholder="Ex: 02:30"></label>
               <div class="toolbar"><button class="btn primary" type="button" id="addTeamBtn">Adicionar à equipe</button></div>
-              <div class="full toolbar"><button class="btn" type="button" id="saveTeamMainBtn">Salvar executante principal</button></div>
+              ${isAdminUser() ? `<div class="full toolbar"><button class="btn" type="button" id="saveTeamMainBtn">Salvar executante principal</button></div>` : ""}
             </div>
             <div class="table-wrap"><table><thead><tr><th>Nome</th><th>Função</th><th>Horas</th><th>Ação</th></tr></thead><tbody>${rows}</tbody></table></div>
           </div>`;
@@ -35693,6 +35693,13 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const existingOrder = byId(state.orders, id);
       assertWorkOrderMutable(existingOrder);
       const safePatch = { ...(patch || {}) };
+      if (!isAdminUser()) {
+        for (const field of ORDER_REQUEST_PROTECTED_FIELDS) {
+          if (Object.hasOwn(safePatch, field) && JSON.stringify(safePatch[field] ?? null) !== JSON.stringify(existingOrder[field] ?? null)) throw new Error(`ORDER_REQUEST_ADMIN_ONLY:${field}`);
+        }
+        if (existingOrder.executor && Object.hasOwn(safePatch, "executor") && safePatch.executor !== existingOrder.executor) throw new Error("ORDER_REQUEST_ADMIN_ONLY:executor");
+        if (Object.hasOwn(safePatch, "attachments") && (existingOrder.attachments || []).some(file => !(safePatch.attachments || []).some(next => JSON.stringify(next) === JSON.stringify(file)))) throw new Error("ORDER_REQUEST_ADMIN_ONLY:attachments");
+      }
       ["status", "startedAt", "finishedAt", "pausedAt", "pauseReason", "waitingReason"].forEach(key => delete safePatch[key]);
       let updatedOrder = null;
       state.orders = state.orders.map(order => {
@@ -35894,31 +35901,34 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         const save = $("saveDetailsTab");
         if (save) save.addEventListener("click", () => {
           const patch = {
-            plan: value("tabDetailPlan"),
             category: value("tabDetailCategory"),
-            type: $("tabDetailType").value,
-            maintenance: $("tabDetailMaintenance").value,
-            priority: $("tabDetailPriority").value,
-            scheduledAt: $("tabDetailScheduled").value,
-            durationHours: $("tabDetailHours").value,
             pendingExecution: $("tabDetailPending").checked,
             machineStopped: $("tabDetailStopped").checked
           };
+          if (isAdminUser()) Object.assign(patch, {
+            plan:value("tabDetailPlan"), type:$("tabDetailType").value,
+            maintenance:$("tabDetailMaintenance").value, priority:$("tabDetailPriority").value,
+            scheduledAt:$("tabDetailScheduled").value, durationHours:$("tabDetailHours").value
+          });
           updateOrderExtras(orderId, patch);
-          if ($("detailPlan")) $("detailPlan").value = patch.plan;
-          if ($("detailType")) $("detailType").value = patch.type;
-          if ($("detailMaintenance")) $("detailMaintenance").value = patch.maintenance;
-          if ($("detailPriority")) $("detailPriority").value = patch.priority;
-          if ($("detailScheduled")) $("detailScheduled").value = patch.scheduledAt;
-          if ($("detailHours")) $("detailHours").value = patch.durationHours;
+          if (isAdminUser()) {
+            if ($("detailPlan")) $("detailPlan").value = patch.plan;
+            if ($("detailType")) $("detailType").value = patch.type;
+            if ($("detailMaintenance")) $("detailMaintenance").value = patch.maintenance;
+            if ($("detailPriority")) $("detailPriority").value = patch.priority;
+            if ($("detailScheduled")) $("detailScheduled").value = patch.scheduledAt;
+            if ($("detailHours")) $("detailHours").value = patch.durationHours;
+          }
           if ($("detailPending")) $("detailPending").checked = patch.pendingExecution;
           if ($("detailStopped")) $("detailStopped").checked = patch.machineStopped;
-          if ($("finishPlan")) $("finishPlan").value = patch.plan;
-          if ($("finishType")) $("finishType").value = patch.type;
-          if ($("finishMaintenance")) $("finishMaintenance").value = patch.maintenance;
-          if ($("finishPriority")) $("finishPriority").value = patch.priority;
-          if ($("finishScheduled")) $("finishScheduled").value = patch.scheduledAt;
-          if ($("finishHours")) $("finishHours").value = patch.durationHours;
+          if (isAdminUser()) {
+            if ($("finishPlan")) $("finishPlan").value = patch.plan;
+            if ($("finishType")) $("finishType").value = patch.type;
+            if ($("finishMaintenance")) $("finishMaintenance").value = patch.maintenance;
+            if ($("finishPriority")) $("finishPriority").value = patch.priority;
+            if ($("finishScheduled")) $("finishScheduled").value = patch.scheduledAt;
+            if ($("finishHours")) $("finishHours").value = patch.durationHours;
+          }
           if ($("finishPending")) $("finishPending").checked = patch.pendingExecution;
           if ($("finishStopped")) $("finishStopped").checked = patch.machineStopped;
           showToast("Aba Detalhes salva na O.S.");
@@ -36158,7 +36168,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const plan = order.plan || "43";
       const detailTitle = isClosedOrder(order.status) ? "Consultar O.S." : "Preencher O.S.";
       openModal(detailTitle, `
-        <form class="order-detail" id="orderDetailForm">
+        <form class="order-detail" id="orderDetailForm" data-permission-module="orders" data-required-level="operate">
           <div class="detail-tabs">
             ${["CheckLists", "Outros Custos", "Assinatura", "Detalhes", "Historico", "Geral", "Equipe", "Tarefas", "Seguranca", "Fotos", "Anexos", "Documentos", "Materiais", "Recursos"].map((tab, index) => `<button class="detail-tab ${index === 5 ? "active" : ""}" type="button" data-detail-tab="${tab}">${ptBrText(tab)}</button>`).join("")}
           </div>
@@ -36167,6 +36177,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             <div class="toolbar">
               <button class="btn" type="button" onclick="simpleOrderAction('${order.id}', 'Modelo')">Modelos</button>
               <strong>${order.number}</strong>
+              ${isAdminUser() && !orderReadOnly ? `<button class="btn" type="button" onclick="closeModal();editOrder('${order.id}')">Editar solicitação</button>` : ""}
             </div>
             <div class="icon-actions">
               <button class="icon-btn gm-icon-only" type="button" title="Gerar PDF" aria-label="Gerar PDF" data-gm-skip-icon onclick="simpleOrderAction('${order.id}', 'PDF')">${orderPdfIconMarkup()}</button>
@@ -36178,19 +36189,19 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           <div class="side-box" id="detailTabPanel">${detailTabContent("Geral", order)}</div>
           <div class="detail-grid">
             <label>Num. O.S</label><input class="field" id="detailNumber" value="${order.number}" readonly>
-            <label>Plano</label><input class="field" id="detailPlan" value="${plan}">
+            <label>Plano</label><input class="field" id="detailPlan" value="${escapeHtml(plan)}" ${isAdminUser() ? "" : "readonly"}>
             <label>Região / local de instalação</label><input class="field detail-span" value="${locationName(asset.locationId)}" readonly>
             <label>LI</label><input class="field detail-span" value="${asset.name || "-"}" readonly>
             <label>TAG</label><input class="field detail-span" value="${tagDisplayName(asset.tagId)} ${subtagName(asset.subtagId)}" readonly>
              <label>Solicitante</label><input class="field detail-span" id="detailRequester" value="${escapeHtml(order.requester || "")}" readonly>
-            <label>Tipo de Serviço</label><select class="field detail-span" id="detailType"><option>Corretiva</option><option>Preventiva</option><option value="Inspecao">Inspeção</option><option value="Eletrica">Elétrica</option><option value="Mecanica">Mecânica</option></select>
-            <label>Tipo de Manutenção</label><select class="field detail-span" id="detailMaintenance"><option>Preventiva</option><option>Corretiva</option><option>Preditiva</option><option>Melhoria</option></select>
-            <label>Prioridade</label><select class="field detail-span" id="detailPriority"><option>Baixa</option><option value="Media">Média</option><option>Alta</option></select>
+            <label>Tipo de Serviço</label><select class="field detail-span" id="detailType" ${isAdminUser() ? "" : "disabled"}><option>Corretiva</option><option>Preventiva</option><option value="Inspecao">Inspeção</option><option value="Eletrica">Elétrica</option><option value="Mecanica">Mecânica</option></select>
+            <label>Tipo de Manutenção</label><select class="field detail-span" id="detailMaintenance" ${isAdminUser() ? "" : "disabled"}><option>Preventiva</option><option>Corretiva</option><option>Preditiva</option><option>Melhoria</option></select>
+            <label>Prioridade</label><select class="field detail-span" id="detailPriority" ${isAdminUser() ? "" : "disabled"}><option>Baixa</option><option value="Media">Média</option><option>Alta</option></select>
             <label>Status</label><select class="field detail-span" id="detailStatus" disabled><option>Aberta</option><option>Planejada</option><option value="Em execucao">Em execução</option><option value="Aguardando material">Aguardando material</option><option value="Pausada">Pausada</option><option value="Concluida">Concluída</option><option value="Cancelada">Cancelada</option></select>
-            <label>Data/Hora Programada</label><input class="field detail-span" id="detailScheduled" value="${order.scheduledAt || ""}" placeholder="dd/mm/aaaa --:--">
-            <label>Duração estimada</label><div class="detail-span detail-two"><input class="field" id="detailDays" type="number" min="0" value="${order.durationDays || 0}"><input class="field" id="detailHours" value="${order.durationHours || "01:00"}" placeholder="01:00 hrs"></div>
-            <label>Executante</label><input class="field detail-span" id="detailExecutor" value="${order.executor || ""}" placeholder="Nome do executante">
-            <label>Número de executantes</label><input class="field detail-span" id="detailExecutors" type="number" min="1" value="${order.executors || 1}">
+            <label>Data/Hora Programada</label><input class="field detail-span" id="detailScheduled" value="${escapeHtml(order.scheduledAt || "")}" placeholder="dd/mm/aaaa --:--" ${isAdminUser() ? "" : "readonly"}>
+            <label>Duração estimada</label><div class="detail-span detail-two"><input class="field" id="detailDays" type="number" min="0" value="${order.durationDays || 0}" ${isAdminUser() ? "" : "readonly"}><input class="field" id="detailHours" value="${escapeHtml(order.durationHours || "01:00")}" placeholder="01:00 hrs" ${isAdminUser() ? "" : "readonly"}></div>
+            <label>Executante</label><input class="field detail-span" id="detailExecutor" value="${escapeHtml(order.executor || "")}" placeholder="Nome do executante" ${isAdminUser() ? "" : "readonly"}>
+            <label>Número de executantes</label><input class="field detail-span" id="detailExecutors" type="number" min="1" value="${order.executors || 1}" ${isAdminUser() ? "" : "readonly"}>
             <label>Data e hora de início</label><input class="field detail-span" value="${formatDateTime(order.startedAt)}" readonly>
             <label>Data e Hora de Termino</label><input class="field detail-span" value="${formatDateTime(order.finishedAt)}" readonly>
             <label>Descrição do defeito</label><textarea class="field detail-span" id="detailDescription" readonly>${order.description || ""}</textarea>
@@ -36201,8 +36212,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             <label class="switch-line"><input type="checkbox" id="detailStopped" ${order.machineStopped ? "checked" : ""}> Equipamento parado durante o serviço</label>
           </div>
           <div class="toolbar order-detail-savebar">
-            <button class="btn ${orderReadOnly ? "" : "danger"}" type="button" onclick="closeModal()">${orderReadOnly ? "Fechar" : "Cancelar"}</button>
-            ${orderReadOnly ? `<span class="muted">O.S. encerrada — alterações bloqueadas.</span>` : `<button class="btn primary" type="submit">Salvar detalhes</button>`}
+            <button class="btn ${orderReadOnly ? "" : "danger"}" type="button" data-required-level="view" onclick="closeModal()">${orderReadOnly ? "Fechar" : "Cancelar"}</button>
+            ${orderReadOnly ? `<span class="muted">O.S. encerrada — alterações bloqueadas.</span>` : `<button class="btn primary" type="submit" data-required-level="operate">Salvar detalhes</button>`}
           </div>
           ${orderExecutionCta(order, "footer")}
           </div>
@@ -36246,16 +36257,16 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           if (item.id !== id) return item;
           updatedOrder = {
             ...item,
-            plan: $("detailPlan").value,
-            type: $("detailType").value,
-            maintenance: $("detailMaintenance").value,
-            priority: $("detailPriority").value,
+            plan: isAdminUser() ? $("detailPlan").value : item.plan,
+            type: isAdminUser() ? $("detailType").value : item.type,
+            maintenance: isAdminUser() ? $("detailMaintenance").value : item.maintenance,
+            priority: isAdminUser() ? $("detailPriority").value : item.priority,
             status: item.status || "Aberta",
-            scheduledAt: $("detailScheduled").value,
-            durationDays: $("detailDays").value,
-            durationHours: $("detailHours").value,
-            executor: $("detailExecutor").value,
-            executors: $("detailExecutors").value,
+            scheduledAt: isAdminUser() ? $("detailScheduled").value : item.scheduledAt,
+            durationDays: isAdminUser() ? $("detailDays").value : item.durationDays,
+            durationHours: isAdminUser() ? $("detailHours").value : item.durationHours,
+            executor: isAdminUser() ? $("detailExecutor").value : item.executor,
+            executors: isAdminUser() ? $("detailExecutors").value : item.executors,
             comment: $("detailComment").value,
             description: item.description || "",
             pendingExecution: $("detailPending").checked,
@@ -36475,15 +36486,18 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (enforceExecutors && !orderRecordExecutorIds(order).length) return ORDER_EXECUTOR_REQUIRED_MESSAGE;
       return "";
     }
+    const ORDER_REQUEST_PROTECTED_FIELDS = ["number", "assetId", "title", "description", "requester", "createdAt", "plan", "type", "maintenance", "priority", "scheduledAt", "deadline", "plannedDurationHours", "durationDays", "durationHours", "teamId", "resourceId", "executorIds", "executorSnapshot", "participantIds", "linkedChecklists", "plannedSpareId", "preventivePlanId"];
     function persistValidatedOrderRecord(order) {
       const existingOrder = byId(state.orders, order.id);
       if (existingOrder) {
         assertWorkOrderMutable(existingOrder);
-        for (const field of ["assetId", "title", "description", "requester", "createdAt"]) {
+        if (!isAdminUser()) for (const field of ORDER_REQUEST_PROTECTED_FIELDS) {
           if (JSON.stringify(order[field] ?? null) !== JSON.stringify(existingOrder[field] ?? null)) {
-            throw new Error(`ORDER_REQUEST_IMMUTABLE:${field}`);
+            throw new Error(`ORDER_REQUEST_ADMIN_ONLY:${field}`);
           }
         }
+        if (!isAdminUser() && existingOrder.executor && order.executor !== existingOrder.executor) throw new Error("ORDER_REQUEST_ADMIN_ONLY:executor");
+        if (!isAdminUser() && (existingOrder.attachments || []).some(file => !(order.attachments || []).some(next => JSON.stringify(next) === JSON.stringify(file)))) throw new Error("ORDER_REQUEST_ADMIN_ONLY:attachments");
       }
       const issue = orderPersistenceIssue(order, true);
       if (issue) throw new Error(`ORDER_VALIDATION: ${issue}`);
@@ -36725,6 +36739,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       setTimeout(() => confirmation.remove(), 3000);
     }
     function openOrderModalV2(assetId = "", editId = "") {
+      if (editId && !isAdminUser()) return denyProfileAccess();
       if (!namedOperationAllowed("openOrderModal", "orders", editId ? "manage" : "operate", [assetId, editId])) return denyProfileAccess();
       const editing = byId(state.orders, editId);
       let draftOrderBase = editing || null;
@@ -36751,7 +36766,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           <label class="full">Título ou resumo<input class="field" id="orderTitle" maxlength="120" placeholder="Resumo curto, opcional"></label>
           <label class="full required">Descrição do problema<textarea class="field" id="orderDescription" required placeholder="Descreva o problema, sintoma ou serviço solicitado."></textarea><small class="field-error" id="orderDescriptionError" hidden>Informe o problema ou serviço solicitado.</small></label>
           <label class="required">Solicitante<input class="field" id="orderRequester" required aria-describedby="orderRequesterError" placeholder="Quem abriu a ordem"><small class="field-error" id="orderRequesterError" role="alert" hidden>Informe o solicitante da O.S.</small></label>
-          <label>Data de abertura<input class="field" id="orderOpenedAt" value="${new Date(editing?.createdAt || Date.now()).toLocaleString("pt-BR")}" readonly></label>
+          <label>Data de abertura<input class="field" id="orderOpenedAt" ${editing ? `type="datetime-local" step="1" value="${localDateTimeSecondsValue(editing.createdAt || Date.now())}"` : `value="${new Date().toLocaleString("pt-BR")}" readonly`}></label>
         </div></section>
         <section class="os-form-section"><header><span>3</span><div><strong>Planejamento</strong><small>Selecione explicitamente quem atenderá a O.S.</small></div></header><div class="os-form-grid">
           <label>Equipe responsável<select class="field" id="orderTeam"><option value="">Sem equipe definida</option>${teams.map(team => `<option value="${team.id}">${escapeHtml(team.name)} · ${escapeHtml(team.specialty || "Multidisciplinar")}</option>`).join("")}</select></label>
@@ -36782,10 +36797,12 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         $("orderChecklist").value = editing.linkedChecklists?.[0] || "";
         $("orderPlannedSpare").value = editing.plannedSpareId || "";
         $("orderTeam").value = editing.teamId || "";
-        $("orderAsset").disabled = true;
-        for (const field of ["orderTitle", "orderDescription", "orderRequester", "orderOpenedAt"]) {
-          $(field).readOnly = true;
-          $(field).setAttribute("aria-readonly", "true");
+        if (!isAdminUser()) {
+          $("orderAsset").disabled = true;
+          for (const field of ["orderTitle", "orderDescription", "orderRequester", "orderOpenedAt"]) {
+            $(field).readOnly = true;
+            $(field).setAttribute("aria-readonly", "true");
+          }
         }
       }
       if (accessProfileForUser(currentAccount?.user || {}) === "requester") { $("orderRequester").value = tenantUserDisplayName(currentAccount.user); $("orderRequester").readOnly = true; }
@@ -36816,8 +36833,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         if (orderQuickSaveLock) return;
         const missingFields = [];
         if (!$("orderAsset").value) { markOrderRequiredField("orderAsset", "orderAssetError"); missingFields.push($("orderAsset")); }
-        if (!editing && !value("orderDescription")) { markOrderRequiredField("orderDescription", "orderDescriptionError"); missingFields.push($("orderDescription")); }
-        if (!editing && !value("orderRequester")) { markOrderRequiredField("orderRequester", "orderRequesterError"); missingFields.push($("orderRequester")); }
+        if (!value("orderDescription")) { markOrderRequiredField("orderDescription", "orderDescriptionError"); missingFields.push($("orderDescription")); }
+        if (!value("orderRequester")) { markOrderRequiredField("orderRequester", "orderRequesterError"); missingFields.push($("orderRequester")); }
         if (!orderExecutorSelection.size) { showOrderExecutorError(); missingFields.push($("orderExecutorSearch")); }
         if (missingFields.length) {
           setOrderSubmitStatus(event.currentTarget, `Faltam ${missingFields.length} campo(s) obrigatório(s). Os campos estão destacados em vermelho.`, "warning");
@@ -36855,7 +36872,11 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           const resourceIds = snapshot.filter(item => item.kind === "resource").map(item => item.id);
           const resourceId = primary?.kind === "resource" ? primary.id : (resourceIds[0] || "");
           const checklistId = $("orderChecklist").value;
-          const payload = { ...base, title:editing ? editing.title : value("orderTitle"), assetId:editing ? editing.assetId : $("orderAsset").value, requester:editing ? editing.requester : value("orderRequester"), executor:primary?.name || "", executorIds:selectedIds, executorSnapshot:snapshot, executorValidationVersion:1, executors:selectedIds.length, teamId:$("orderTeam").value, resourceId, participantIds:resourceIds.filter(id => id !== resourceId), type:$("orderType").value, priority:$("orderPriority").value, scheduledAt:$("orderScheduled").value, deadline:$("orderDeadline").value, plannedDurationHours:Number($("orderDuration").value || 0), description:editing ? editing.description : value("orderDescription"), comment:value("orderNotes"), linkedChecklists:checklistId ? [checklistId] : (base.linkedChecklists || []), plannedSpareId:$("orderPlannedSpare").value, preventivePlanId:$("orderForm").dataset.preventivePlanId || base.preventivePlanId || "", attachments:(base.attachments || []).concat(files), mttr:Number(base.mttr || 0), updatedAt:now };
+          const openedAt = editing
+            ? ($("orderOpenedAt").value === localDateTimeSecondsValue(editing.createdAt) ? editing.createdAt : gmLocalDateTimeMs($("orderOpenedAt").value, 0))
+            : base.createdAt;
+          if (!openedAt || openedAt > now) throw new Error("ORDER_VALIDATION: informe uma data de abertura válida, não futura.");
+          const payload = { ...base, createdAt:openedAt, title:value("orderTitle"), assetId:$("orderAsset").value, requester:value("orderRequester"), executor:primary?.name || "", executorIds:selectedIds, executorSnapshot:snapshot, executorValidationVersion:1, executors:selectedIds.length, teamId:$("orderTeam").value, resourceId, participantIds:resourceIds.filter(id => id !== resourceId), type:$("orderType").value, priority:$("orderPriority").value, scheduledAt:$("orderScheduled").value, deadline:$("orderDeadline").value, plannedDurationHours:Number($("orderDuration").value || 0), description:value("orderDescription"), comment:value("orderNotes"), linkedChecklists:checklistId ? [checklistId] : (base.linkedChecklists || []), plannedSpareId:$("orderPlannedSpare").value, preventivePlanId:$("orderForm").dataset.preventivePlanId || base.preventivePlanId || "", attachments:(base.attachments || []).concat(files), mttr:Number(base.mttr || 0), updatedAt:now };
           persistValidatedOrderRecord(payload);
           if (payload.preventivePlanId && !editing) {
             state.preventivePlans = state.preventivePlans.map(plan => plan.id === payload.preventivePlanId ? { ...plan, updatedAt:now, history:[...(plan.history || []), { date:now, label:`O.S. ${payload.number} gerada para ${formatPlanDate(payload.scheduledAt)}` }] } : plan);
@@ -37428,7 +37449,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             <div class="side-box" style="margin:10px"><span>Aberta: ${formatDateTime(order.createdAt)}</span><span>Início: ${formatDateTime(order.startedAt)}</span><span>Finalização: ${formatDateTime(order.finishedAt)}</span></div>
             <div class="os-actions">
               <button class="btn" onclick="showOrderDetails('${order.id}')">${actionIcon("details", "edit")}Detalhes</button>
-              <button class="btn" onclick="editOrder('${order.id}')">${actionIcon("edit", "edit")}Editar / Preencher</button>
+              <button class="btn" onclick="${isAdminUser() ? `editOrder('${order.id}')` : `showOrderDetails('${order.id}')`}">${actionIcon("edit", "edit")}${isAdminUser() ? "Editar solicitação" : "Preencher atendimento"}</button>
               ${isRunningOrder(order.status) ? `<button class="btn" onclick="finishOrder('${order.id}')">${actionIcon("done", "done")}Encerrar</button>` : ""}
               <button class="btn" onclick="openOrderQr('${order.id}')">${actionIcon("details", "edit")}QR Code</button><button class="btn" onclick="simpleOrderAction('${order.id}', 'Impressao')">${actionIcon("print", "edit")}Imprimir</button>
               <button class="btn" onclick="simpleOrderAction('${order.id}', 'Compartilhamento')">${actionIcon("share", "edit")}Compartilhar O.S</button>
@@ -37697,6 +37718,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       return links.map(link => `${link.count} ${link.label}`).join("; ");
     }
     function editOrder(id) {
+      if (!isAdminUser()) return denyProfileAccess();
       if (!namedOperationAllowed("editOrder", "orders", "manage", [id])) return denyProfileAccess();
       const item = byId(state.orders, id); if (!item) return;
       openOrderModal(item.assetId, item.id);
@@ -37816,6 +37838,10 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     function gmPrepareWorkOrderTransitionPatch(order = {}, toStatus = "", patch = {}, now = Date.now()) {
       const nextPatch = patch && typeof patch === "object" ? { ...patch } : {};
       for (const field of ["assetId", "title", "description", "requester", "createdAt"]) delete nextPatch[field];
+      if (!isAdminUser()) {
+        for (const field of ORDER_REQUEST_PROTECTED_FIELDS) delete nextPatch[field];
+        if (order.executor) nextPatch.executor = order.executor;
+      }
       if (gmCanonicalOrderStatus(toStatus) !== "Concluída") return nextPatch;
       const finishedAt = gmNormalizeOrderCompletionTime(order, nextPatch.finishedAt ?? now, now);
       return { ...nextPatch, finishedAt, mttr:gmEffectiveOrderHours(order, finishedAt) };
@@ -37841,7 +37867,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
            <div class="full finish-info-panel" id="finishInfoPanel" role="tabpanel" aria-labelledby="finishInfoTab">
              <label class="full">Solução ou serviço realizado * <textarea class="field" id="simpleFinishSolution" required placeholder="Descreva objetivamente o serviço executado">${escapeHtml(order.comment||"")}</textarea></label>
              <label>Data e hora da conclusão * <input class="field" id="simpleFinishAt" type="datetime-local" step="1" required value="${localDateTimeSecondsValue()}"></label>
-             <label>Responsável pela execução * <input class="field" id="simpleFinishExecutor" required value="${escapeHtml(order.executor||"")}"></label>
+             <label>Responsável pela execução * <input class="field" id="simpleFinishExecutor" required value="${escapeHtml(order.executor||"")}" ${order.executor && !isAdminUser() ? "readonly" : ""}></label>
              <div class="full finish-order-extra"><strong>Informações do atendimento</strong><span>Adicione fotos, anexos e demais registros antes de concluir a O.S.</span></div>
              <nav class="full finish-order-detail-tabs" aria-label="Informações do atendimento">
                ${["CheckLists", "Outros Custos", "Assinatura", "Detalhes", "Historico", "Geral", "Equipe", "Tarefas", "Seguranca", "Fotos", "Anexos", "Documentos", "Materiais", "Recursos"].map(tab => `<button type="button" data-finish-detail-tab="${tab}">${ptBrText(tab)}</button>`).join("")}
