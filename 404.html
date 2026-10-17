@@ -15,12 +15,20 @@
       base.href = deploymentBase;
       document.head.appendChild(base);
       window.__gestmanDeploymentBasePath = deploymentBase;
+      const manifest = document.createElement("link");
+      manifest.rel = "manifest";
+      manifest.href = new URL("assets/brand/manifest.webmanifest", document.baseURI).href;
+      document.head.appendChild(manifest);
     })();
   </script>
-  <meta name="theme-color" content="#06111f">
-  <link rel="icon" sizes="any" href="assets/ui/illustrations/favicon.ico">
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/ui/illustrations/favicon-32.png">
-  <link rel="apple-touch-icon" href="assets/ui/illustrations/apple-touch-icon-v2.png" sizes="180x180">
+  <meta name="theme-color" content="#172f53">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="GestMan365">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="icon" type="image/svg+xml" href="assets/brand/gestman-app-icon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/gestman-icon-32.png">
+  <link rel="shortcut icon" href="assets/brand/favicon.ico">
+  <link rel="apple-touch-icon" href="assets/brand/gestman-apple-touch.png" sizes="180x180">
   <link rel="preload" href="assets/fonts/inter/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
   <style>
     :root {
@@ -4194,7 +4202,7 @@
       width: 82px;
       height: 82px;
       padding: 0;
-      background: #fff url("assets/ui/illustrations/gestman365-logo-light.png") left center / 270px auto no-repeat;
+      background: #fff url("assets/brand/gestman-logo-on-light.svg") left center / 270px auto no-repeat;
       border: 5px solid rgba(255,255,255,.96);
       border-bottom-color: var(--orange);
       border-radius: 50%;
@@ -6296,10 +6304,10 @@
     }
     /* Identidade visual adaptativa: branca no tema escuro e azul no claro. */
     [data-theme-logo] {
-      content: url("assets/ui/illustrations/gestman365-logo.png");
+      content: url("assets/brand/gestman-logo-on-dark.svg");
     }
     body.theme-light [data-theme-logo] {
-      content: url("assets/ui/illustrations/gestman365-logo-light.png");
+      content: url("assets/brand/gestman-logo-on-light.svg");
     }
     body:not(.theme-light) .topbar {
       background: linear-gradient(135deg, #071a3e, #0d2f73 58%, #123f8d);
@@ -10644,7 +10652,7 @@
       background:
         linear-gradient(90deg,rgba(1,12,29,.30),rgba(2,14,34,.08) 46%,rgba(1,11,28,.30)),
         linear-gradient(180deg,rgba(0,12,32,.18),rgba(0,10,27,.40)),
-        url("assets/ui/illustrations/gestman365-logo.png") center center/cover no-repeat!important;
+        url("assets/brand/gestman-logo-on-dark.svg") center center/cover no-repeat!important;
       color:#f4f8ff!important;font-family:var(--gm-font-sans)!important;
     }
     body.auth-required,body.auth-loading{overflow:hidden!important}
@@ -20805,10 +20813,11 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   <link rel="stylesheet" href="assets/premium-ui.css">
   <link rel="stylesheet" href="assets/ui/gestman-light-dashboard.css?v=20261017-finish-information-tabs">
   <link rel="stylesheet" href="assets/ui/gestman-pagination.css">
+  <link rel="stylesheet" href="assets/brand/gestman-identity.css">
 </head>
 <body class="auth-loading auth-restoring">
   <div class="gestman-boot-loader" role="status" aria-live="polite" aria-label="Carregando GestMan365">
-    <span class="gestman-boot-stage" aria-hidden="true"><span class="gestman-boot-shadow"></span><span class="gestman-boot-mark"><span class="gestman-boot-symbol"><img src="assets/ui/illustrations/gestman365-logo-light.png" alt=""></span><span class="gestman-boot-glint"></span></span></span>
+    <span class="gestman-boot-stage" aria-hidden="true"><span class="gestman-boot-shadow"></span><span class="gestman-boot-mark"><span class="gestman-boot-symbol"><img src="assets/brand/gestman-symbol.svg" alt=""></span><span class="gestman-boot-glint"></span></span></span>
     <span>Carregando GestMan365...</span>
   </div>
   <script id="design-theme-bootstrap">
@@ -21264,7 +21273,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     window.addEventListener("error", () => window.__gestmanReleaseAuthLoading(true), { once: true });
   </script>
   <div class="auth-screen" id="authScreen">
-    <div class="auth-brand-strip"><div class="auth-brand-logo"><img src="assets/ui/illustrations/gestman365-logo.png" class="auth-logo-img" data-theme-logo alt="GestMan365 - CMMS Industrial"></div></div>
+    <div class="auth-brand-strip"><div class="auth-brand-logo"><img src="assets/brand/gestman-logo-on-dark.svg" class="auth-logo-img" data-theme-logo alt="GestMan — CMMS Gestão de Manutenção"></div></div>
     <div class="auth-shell">
       <section class="auth-hero-panel">
         <h1>Gestão completa da manutenção industrial.</h1>
@@ -21273,7 +21282,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       </section>
       <div class="auth-card">
       <div class="auth-main">
-        <div class="auth-card-logo-wrap"><img src="assets/ui/illustrations/gestman365-logo.png" class="auth-logo-img" data-theme-logo alt="GestMan365 - CMMS Industrial"></div>
+        <div class="auth-card-logo-wrap"><img src="assets/brand/gestman-logo-on-dark.svg" class="auth-logo-img" data-theme-logo alt="GestMan — CMMS Gestão de Manutenção"></div>
         <div class="auth-company-brand" id="authCompanyBrand" hidden aria-live="polite">
           <div class="auth-company-logo-frame">
             <img class="auth-company-logo" id="authCompanyLogo" alt="" hidden>
@@ -21383,7 +21392,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   </header>
   <header class="topbar reference-topbar">
     <div class="reference-topbar-left">
-      <img class="reference-topbar-logo" src="assets/ui/illustrations/gestman365-logo.png" alt="GestMan365">
+      <img class="reference-topbar-logo" src="assets/brand/gestman-logo-on-dark.svg" alt="GestMan">
       <button class="topbar-menu-btn" id="topbarMenuBtn" type="button" title="Recolher menu" aria-label="Recolher menu" aria-controls="mainNavigation" aria-expanded="true"></button>
       <div class="reference-topbar-heading">
         <nav class="header-breadcrumb" aria-label="Localização atual">
@@ -21421,7 +21430,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   </header>
   <nav class="nav" id="mainNavigation" aria-label="Menu principal">
     <div class="industrial-sidebar-brand">
-      <img src="assets/ui/illustrations/gestman365-logo.png" class="brand-logo-img" data-theme-logo alt="GestMan365 - CMMS Industrial">
+      <img src="assets/brand/gestman-logo-on-dark.svg" class="brand-logo-img" data-theme-logo alt="GestMan — CMMS Gestão de Manutenção">
       <button class="nav-toggle-btn" id="navToggleBtn" type="button" title="Recolher menu" aria-label="Recolher menu"><i>‹</i><span>Recolher menu</span></button>
     </div>
     <div class="sidebar-mobile-head"><div><strong>Operação em campo</strong><small>Somente registros e documentos</small></div><button id="navMobileClose" type="button" aria-label="Fechar menu">×</button></div>
@@ -22367,7 +22376,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         <header class="os-broadcast-head">
           <div class="os-broadcast-brand">
             <div class="os-broadcast-brands" aria-label="GestMan365 e empresa contratante">
-              <span class="os-broadcast-system-logo"><img src="assets/ui/illustrations/gestman365-logo.png" alt="GestMan365 — CMMS Industrial"></span>
+              <span class="os-broadcast-system-logo"><img src="assets/brand/gestman-logo-on-dark.svg" alt="GestMan — CMMS Gestão de Manutenção"></span>
               <i class="os-broadcast-brand-divider" aria-hidden="true"></i>
               <span class="os-broadcast-company-brand" id="osPanelCompanyBrand">
                 <span class="os-broadcast-company-mark"><img id="osPanelCompanyLogo" alt="" hidden><strong id="osPanelCompanyLogoFallback" aria-hidden="true">GM</strong></span>
@@ -23453,7 +23462,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     const COMPANY_LOGO_INPUT_LIMIT = 3 * 1024 * 1024;
     const COMPANY_LOGO_STORED_LIMIT = 700 * 1024;
-    const COMPANY_LOGO_FALLBACK = "assets/ui/illustrations/gestman365-logo.png";
+    const COMPANY_LOGO_FALLBACK = "assets/brand/gestman-logo-on-light.svg";
     let pendingCompanyLogoData = "";
     let pendingCompanyLogoName = "";
     function isCompanyLogoDataUrl(value) {

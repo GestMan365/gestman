@@ -157,8 +157,8 @@
     try {
       const notification = new global.Notification(`Nova Ordem de Serviço · ${number}`, {
         body: notificationBody(order),
-        icon: "assets/ui/illustrations/apple-touch-icon-v2.png",
-        badge: "assets/ui/illustrations/favicon-32.png",
+        icon: "assets/brand/gestman-icon-192.png",
+        badge: "assets/brand/gestman-icon-32.png",
         tag: `gestman-os-${order.id}`,
         renotify: false,
         silent: true

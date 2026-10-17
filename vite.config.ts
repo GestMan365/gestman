@@ -23,6 +23,7 @@ function copyClassicUiRuntime() {
         ["assets/premium-ui.css", "dist/assets/premium-ui.css"],
         ["assets/premium-ui.js", "dist/assets/premium-ui.js"],
         ["assets/fonts", "dist/assets/fonts"],
+        ["assets/brand", "dist/assets/brand"],
         ["assets/icons/flaticon", "dist/assets/icons/flaticon"],
         ["assets/vendor", "dist/assets/vendor"],
         ["assets/work-order-desktop-alerts.js", "dist/assets/work-order-desktop-alerts.js"],

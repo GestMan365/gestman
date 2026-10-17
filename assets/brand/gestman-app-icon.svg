@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">GestMan</title>
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#1c416f"/><stop offset="1" stop-color="#071c37"/></linearGradient></defs>
+  <rect width="512" height="512" rx="104" fill="url(#bg)"/>
+  <g transform="translate(104 80) scale(1.9)">
+    <path d="M80 3 153 45v90L80 177 7 135V45Z" fill="#102e56"/>
+    <path d="M80 3v91L7 135V45Z" fill="#197eff"/>
+    <path d="M80 3 153 45v90L80 94Z" fill="#0bc7bc"/>
+    <path d="M7 135 80 94v83Z" fill="#0c56bd"/>
+    <path d="M80 94 153 135 80 177Z" fill="#102e56"/>
+    <path d="M66 35c-17 6-27 20-27 38 0 17 10 32 25 39v41a16 16 0 0 0 32 0v-41c15-7 25-22 25-39 0-18-10-32-27-38v35c0 9-6 16-14 16s-14-7-14-16V35Z" fill="#fff"/>
+  </g>
+</svg>
