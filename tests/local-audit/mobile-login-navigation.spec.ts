@@ -61,7 +61,7 @@ test('navegação inferior desliza a cápsula ao trocar o atalho', async ({ page
   const nav = page.locator('#mobileBottomNav');
   await expect(nav).toHaveClass(/indicator-ready/);
   const appearance = await nav.evaluate(element => ({background:getComputedStyle(element).backgroundColor,radius:getComputedStyle(element).borderTopLeftRadius}));
-  expect(appearance.background).toBe('rgb(24, 24, 26)');
+  expect(appearance.background).toBe('rgb(255, 255, 255)');
   expect(appearance.radius).toBe('999px');
   const first = await nav.evaluate(element => getComputedStyle(element).getPropertyValue('--mobile-indicator-x'));
   await page.evaluate(() => window.eval("updateMobileBottomNav('orders')"));

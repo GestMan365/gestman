@@ -592,6 +592,55 @@ body.theme-light:not(.auth-required):not(.auth-loading) .reference-topbar-search
 }
 }
 
+/* A O.S. acompanha o tema claro; a navegação mantém a cápsula animada sem cobrir ações. */
+@layer premium {
+@media (max-width:600px) {
+  html#gm-premium body.premium-shell:not(.auth-required):not(.auth-loading) #mobileBottomNav {
+    bottom:max(2px, calc(env(safe-area-inset-bottom) - 22px)) !important;
+  }
+  html#gm-premium body.premium-shell.theme-light:not(.auth-required):not(.auth-loading) #mobileBottomNav {
+    background:#fff !important;
+    border-color:#cbd8e5 !important;
+    box-shadow:0 10px 28px rgba(25,51,79,.18),inset 0 1px rgba(255,255,255,.9) !important;
+  }
+  html#gm-premium body.premium-shell.theme-light #mobileBottomNav .mobile-nav-indicator {
+    background:#e6f1fd !important;
+  }
+  html#gm-premium body.premium-shell.theme-light #mobileBottomNav button:not(.is-permission-hidden) {
+    color:#405a76 !important;
+  }
+  html#gm-premium body.premium-shell.theme-light #mobileBottomNav button.active {
+    color:#0c5bab !important;
+  }
+}
+}
+@media (max-width:600px) {
+  html#gm-premium body.premium-shell.theme-light #orders .os-detail-panel {
+    background:#fff !important;
+  }
+  html#gm-premium body.premium-shell.theme-light #orders .os-detail-tabs {
+    background:#f5f8fc !important;
+    border-color:#d4e0eb !important;
+  }
+  html#gm-premium body.premium-shell.theme-light #orders .os-detail-tabs button {
+    color:#526981 !important;
+  }
+  html#gm-premium body.premium-shell.theme-light #orders .os-detail-tabs button.active {
+    color:#0b67c2 !important;
+    box-shadow:inset 0 -2px #0b67c2 !important;
+  }
+  html#gm-premium body.premium-shell.theme-light #orders .os-detail-actions,
+  html#gm-premium body.premium-shell.theme-light #orders .mobile-execution-shortcuts {
+    background:#fff !important;
+    border-color:#d4e0eb !important;
+  }
+  html#gm-premium body.premium-shell.theme-light #orders .mobile-execution-shortcuts button {
+    color:#285781 !important;
+    background:#f5f9fd !important;
+    border-color:#cbd8e5 !important;
+  }
+}
+
 /* O cartão de acesso deve caber inteiro na viewport, sem uma segunda altura de tela. */
 @media (max-width:600px) {
   html#gm-premium body.premium-shell .auth-screen {

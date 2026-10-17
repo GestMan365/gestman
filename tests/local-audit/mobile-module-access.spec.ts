@@ -49,6 +49,6 @@ test('barra de módulos fica próxima à base sem encostar na borda', async ({ p
   const nav = page.locator('#mobileBottomNav');
   await expect(nav).toBeVisible();
   const bottomGap = await nav.evaluate(element => window.innerHeight - element.getBoundingClientRect().bottom);
-  expect(bottomGap).toBeGreaterThanOrEqual(5);
-  expect(bottomGap).toBeLessThanOrEqual(8);
+  expect(bottomGap).toBeGreaterThanOrEqual(2);
+  expect(bottomGap).toBeLessThanOrEqual(4);
 });
