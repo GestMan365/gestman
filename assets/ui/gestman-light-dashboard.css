@@ -614,7 +614,59 @@ body.theme-light:not(.auth-required):not(.auth-loading) .reference-topbar-search
   }
 }
 }
+.os-mobile-detail-tabs { display:none; }
+html#gm-premium body.premium-shell #genericModal #simpleFinishForm .finish-info-tabs {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+html#gm-premium body.premium-shell #genericModal #simpleFinishForm .finish-info-tabs button {
+  width:100%;
+  min-height:42px;
+  padding:8px 12px;
+  border:1px solid #cbd8e5 !important;
+  border-radius:9px;
+  background:#f5f8fc !important;
+  color:#29445e !important;
+  font-weight:700;
+}
+html#gm-premium body.premium-shell #genericModal #simpleFinishForm .finish-info-tabs button.active {
+  background:#1768cf !important;
+  color:#fff !important;
+  border-color:#1768cf !important;
+}
+#simpleFinishForm .finish-info-panel { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; min-width:0; }
+#simpleFinishForm .finish-info-panel[hidden] { display:none !important; }
+#simpleFinishForm button[hidden] { display:none !important; }
+#simpleFinishForm .finish-info-panel > .full { grid-column:1/-1; }
+#simpleFinishForm #finishRequestPanel { display:block; overflow-wrap:anywhere; }
 @media (max-width:600px) {
+  #simpleFinishForm .finish-info-panel { grid-template-columns:1fr; }
+  html#gm-premium body.premium-shell #orders .os-detail-tabs { display:none !important; }
+  html#gm-premium body.premium-shell #orders .os-mobile-detail-tabs {
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:7px;
+    padding:12px;
+    background:#f5f8fc;
+    border-block:1px solid #d4e0eb;
+  }
+  html#gm-premium body.premium-shell #orders .os-mobile-detail-tabs button {
+    min-width:0;
+    min-height:40px;
+    padding:7px 9px;
+    border:1px solid #cbd8e5;
+    border-radius:9px;
+    background:#fff;
+    color:#29445e;
+    font-weight:700;
+    text-align:center;
+    white-space:normal;
+  }
+  html#gm-premium body.premium-shell #orders .os-mobile-detail-tabs button:active {
+    background:#e6f1fd;
+    transform:scale(.98);
+  }
   html#gm-premium body.premium-shell.theme-light #orders .os-detail-panel {
     background:#fff !important;
   }

@@ -32365,6 +32365,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         <div class="os-detail-tabs">
           ${[["general","Geral"],["checklist","Checklist"],["parts","Peças"],["notes","Apontamentos"],["history","Histórico"],["attachments","Anexos"]].map(([key,label]) => `<button class="${selectedOrderDetailTab === key ? "active" : ""}" type="button" onclick="setOrderDetailTab('${key}')">${label}</button>`).join("")}
         </div>
+        <nav class="os-mobile-detail-tabs" aria-label="Informações da ordem de serviço">
+          ${["CheckLists", "Outros Custos", "Assinatura", "Detalhes", "Historico", "Geral", "Equipe", "Tarefas", "Seguranca", "Fotos", "Anexos", "Documentos", "Materiais", "Recursos"].map(tab => `<button type="button" onclick="openMobileOrderDetailTab('${order.id}', '${tab}')">${ptBrText(tab)}</button>`).join("")}
+        </nav>
         <div class="os-detail-body">${orderDetailTabContent(order)}</div>
         <div class="os-detail-actions">${orderActionButtons(order)}</div>`;
     }
@@ -32403,6 +32406,13 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       render();
     }
     function setOrderDetailTab(tabName) { selectedOrderDetailTab = tabName; renderOrderDetail(byId(state.orders, selectedOrderId)); }
+    function openMobileOrderDetailTab(orderId, tabName) {
+      showOrderDetails(orderId);
+      const tab = Array.from(document.querySelectorAll("#orderDetailForm [data-detail-tab]")).find(button => button.dataset.detailTab === tabName);
+      tab?.click();
+      const strip = tab?.parentElement;
+      if (strip && tab) strip.scrollLeft = Math.max(0, tab.offsetLeft - strip.offsetLeft - strip.clientWidth / 2 + tab.clientWidth / 2);
+    }
     function resetOrderFilters() {
       ["osPeriodStart", "osPeriodEnd", "osStatusFilter", "osPriorityFilter", "osAssetFilter", "osExecutorFilter"].forEach(id => { if ($(id)) $(id).value = ""; });
       if ($("osSearch")) $("osSearch").value = "";
@@ -35476,7 +35486,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
               <span><strong>Abertura:</strong> ${formatDateTime(order.createdAt)}</span>
             </div>
             <div class="form">
-              <label>Solicitante <input class="field" id="tabGeneralRequester" value="${escapeHtml(order.requester || "")}"></label>
+               <label>Solicitante <input class="field" id="tabGeneralRequester" value="${escapeHtml(order.requester || "")}" readonly></label>
               <label>Comentário <input class="field" id="tabGeneralComment" value="${escapeHtml(order.comment || "")}" placeholder="Resumo do que foi feito"></label>
               <label class="full">Observação geral <textarea class="field" id="tabGeneralNote" placeholder="Anotações gerais desta O.S">${escapeHtml(order.generalNote || "")}</textarea></label>
               <div class="full toolbar"><button class="btn primary" type="button" id="saveGeneralTab">Salvar geral</button></div>
@@ -35859,14 +35869,11 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (tabKey === "geral") {
         const save = $("saveGeneralTab");
         if (save) save.addEventListener("click", () => {
-          const requester = value("tabGeneralRequester");
           const comment = value("tabGeneralComment");
           updateOrderExtras(orderId, {
-            requester,
             comment,
             generalNote: value("tabGeneralNote")
           });
-          if ($("detailRequester")) $("detailRequester").value = requester;
           if ($("detailComment")) $("detailComment").value = comment;
           if ($("finishComment")) $("finishComment").value = comment;
           showToast("Aba Geral salva na O.S.");
@@ -36166,7 +36173,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             <label>Região / local de instalação</label><input class="field detail-span" value="${locationName(asset.locationId)}" readonly>
             <label>LI</label><input class="field detail-span" value="${asset.name || "-"}" readonly>
             <label>TAG</label><input class="field detail-span" value="${tagDisplayName(asset.tagId)} ${subtagName(asset.subtagId)}" readonly>
-            <label>Solicitante</label><input class="field detail-span" id="detailRequester" value="${order.requester || ""}" placeholder="Quem abriu a O.S">
+             <label>Solicitante</label><input class="field detail-span" id="detailRequester" value="${escapeHtml(order.requester || "")}" readonly>
             <label>Tipo de Serviço</label><select class="field detail-span" id="detailType"><option>Corretiva</option><option>Preventiva</option><option value="Inspecao">Inspeção</option><option value="Eletrica">Elétrica</option><option value="Mecanica">Mecânica</option></select>
             <label>Tipo de Manutenção</label><select class="field detail-span" id="detailMaintenance"><option>Preventiva</option><option>Corretiva</option><option>Preditiva</option><option>Melhoria</option></select>
             <label>Prioridade</label><select class="field detail-span" id="detailPriority"><option>Baixa</option><option value="Media">Média</option><option>Alta</option></select>
@@ -36232,7 +36239,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
             durationHours: $("detailHours").value,
             executor: $("detailExecutor").value,
             executors: $("detailExecutors").value,
-            requester: $("detailRequester").value,
             comment: $("detailComment").value,
             description: item.description || "",
             pendingExecution: $("detailPending").checked,
@@ -37807,7 +37813,35 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     function openSimpleFinishOrderModal(id) {
       const order=byId(state.orders,id); if(!order||isClosedOrder(order.status))return;
-      openModal("Concluir O.S.",`<form class="form" id="simpleFinishForm"><div class="full side-box"><strong>${escapeHtml(order.number||"O.S.")}</strong><span>${escapeHtml(machineName(order.assetId))}</span></div><label class="full">Solução ou serviço realizado * <textarea class="field" id="simpleFinishSolution" required placeholder="Descreva objetivamente o serviço executado">${escapeHtml(order.comment||"")}</textarea></label><label>Data e hora da conclusão * <input class="field" id="simpleFinishAt" type="datetime-local" step="1" required value="${localDateTimeSecondsValue()}"></label><label>Responsável pela execução * <input class="field" id="simpleFinishExecutor" required value="${escapeHtml(order.executor||"")}"></label><div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Concluir serviço</button></div></form>`,true);
+       openModal("Concluir O.S.",`
+         <form class="form" id="simpleFinishForm">
+           <div class="full side-box"><strong>${escapeHtml(order.number||"O.S.")}</strong><span>${escapeHtml(machineName(order.assetId))}</span></div>
+           <div class="full finish-info-tabs" role="tablist" aria-label="Conclusão da ordem de serviço">
+             <button class="active" type="button" role="tab" aria-selected="true" aria-controls="finishInfoPanel" id="finishInfoTab">Adicionar informações</button>
+             <button type="button" role="tab" aria-selected="false" aria-controls="finishRequestPanel" id="finishRequestTab">Dados da solicitação</button>
+           </div>
+           <div class="full finish-info-panel" id="finishInfoPanel" role="tabpanel" aria-labelledby="finishInfoTab">
+             <label class="full">Solução ou serviço realizado * <textarea class="field" id="simpleFinishSolution" required placeholder="Descreva objetivamente o serviço executado">${escapeHtml(order.comment||"")}</textarea></label>
+             <label>Data e hora da conclusão * <input class="field" id="simpleFinishAt" type="datetime-local" step="1" required value="${localDateTimeSecondsValue()}"></label>
+             <label>Responsável pela execução * <input class="field" id="simpleFinishExecutor" required value="${escapeHtml(order.executor||"")}"></label>
+           </div>
+           <div class="full finish-info-panel" id="finishRequestPanel" role="tabpanel" aria-labelledby="finishRequestTab" hidden>
+             <p><strong>Solicitante:</strong> ${escapeHtml(order.requester||"Não informado")}</p>
+             <p><strong>Abertura:</strong> ${formatDateTime(order.createdAt)}</p>
+             <p><strong>Descrição:</strong> ${escapeHtml(order.description||"Sem descrição")}</p>
+           </div>
+           <div class="os-create-actions"><button class="btn" type="button" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Concluir serviço</button></div>
+         </form>`,true);
+       ["finishInfoTab", "finishRequestTab"].forEach(tabId => $(tabId).addEventListener("click", () => {
+         const infoActive = tabId === "finishInfoTab";
+         $("finishInfoPanel").hidden = !infoActive;
+         $("finishRequestPanel").hidden = infoActive;
+         $("simpleFinishForm").querySelector('button[type="submit"]').hidden = !infoActive;
+         for (const [id, active] of [["finishInfoTab", infoActive], ["finishRequestTab", !infoActive]]) {
+           $(id).classList.toggle("active", active);
+           $(id).setAttribute("aria-selected", String(active));
+         }
+       }));
       $("simpleFinishForm").addEventListener("submit", async event => {
         event.preventDefault();
         const solution = value("simpleFinishSolution");
