@@ -22439,7 +22439,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   <script src="assets/preventive-year.js"></script>
   <script src="assets/preventive-year-ui.js"></script>
   <link rel="stylesheet" href="assets/maintenance-charts.css?v=readable-metrics-2">
-  <link rel="stylesheet" href="assets/dashboard-distributions.css?v=clear-distributions-1">
+  <link rel="stylesheet" href="assets/dashboard-distributions.css?v=clickable-distributions-2">
   <script src="assets/maintenance-charts.js?v=readable-metrics-2"></script>
   <link rel="stylesheet" href="assets/operational-planning.css">
   <script src="assets/operational-planning.js"></script>
@@ -27541,8 +27541,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       }
       stage19Ui.calendarPreventiveOnly = nextView === "calendar" && options.preventiveCalendar === true;
       if (nextView !== "orders" || options.preserveStage20OrderScope !== true) window.stage20OrderScope = "";
-      if (nextView !== "orders" || options.dashboardFilter !== "backlog") dashboardBacklogView = false;
-      if (nextView !== "assets" || options.dashboardFilter !== "critical") dashboardCriticalAssetIds = null;
+      if (nextView !== "orders" || options.dashboardFilter !== "backlog") { dashboardBacklogView = false; dashboardBacklogOrderIds = null; $("dashboardOrderSelection")?.remove(); }
+      if (nextView !== "assets" || options.dashboardFilter !== "critical") { dashboardCriticalAssetIds = null; $("dashboardAssetSelection")?.remove(); }
       if (nextView !== "orders" || options.mobileOrders !== true) mobileMyOrdersOnly = false;
       if (options.persist !== false) scopedSetItem(ACTIVE_VIEW_KEY, nextView, "user");
       if (nextView !== "activeOrders" && document.body.classList.contains("panel-mode")) {
@@ -28880,6 +28880,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       showToast("Dashboard restaurado ao padrão.");
     }
     let dashboardBacklogView = false;
+    let dashboardBacklogOrderIds = null;
     let dashboardCriticalAssetIds = null;
     function validOperationalDate(value) {
       if (value === null || value === undefined || value === "") return null;
@@ -28967,10 +28968,10 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const percent = count => backlog ? count / backlog * 100 : 0;
       const fmt = count => count.toLocaleString("pt-BR");
       target.innerHTML = `<div class="gm-distribution-hero"><div><span class="gm-distribution-eyebrow">ORDENS PENDENTES</span><strong class="gm-distribution-total">${fmt(backlog)}<small>O.S.</small></strong><p>Aguardando conclusão no filtro atual</p></div><div class="gm-distribution-callouts"><span><i style="background:#f08a35"></i><strong>${fmt(counts.running)}</strong> em execução</span><span><i style="background:#d9a52b"></i><strong>${fmt(waiting)}</strong> aguardando material ou aprovação</span></div></div>
-        <div class="gm-distribution-stack" role="img" aria-label="Distribuição de ${backlog} ordens pendentes">${definitions.filter(item => counts[item.key]).map(item=>`<span style="width:${percent(counts[item.key])}%;background:${item.color}" title="${item.label}: ${counts[item.key]}"></span>`).join("")}</div>
+        <div class="gm-distribution-stack" role="group" aria-label="Distribuição de ${backlog} ordens pendentes">${definitions.filter(item => counts[item.key]).map(item=>`<button type="button" data-gm-skip-icon onclick="openMaintenanceBacklog(\'${item.key}\')" style="width:${percent(counts[item.key])}%;background:${item.color}" aria-label="Ver O.S. ${item.label}: ${counts[item.key]}" title="${item.label}: ${counts[item.key]}"></button>`).join("")}</div>
         <div class="gm-distribution-caption"><strong>Composição do backlog</strong><span>% das ordens pendentes</span></div>
-        <div class="gm-distribution-rows">${definitions.map(item=>`<div class="gm-distribution-row ${counts[item.key] ? "" : "is-zero"}" style="--distribution-color:${item.color}"><div class="gm-distribution-row-head"><span><i></i>${item.label}</span><strong>${fmt(counts[item.key])}</strong><small>${Math.round(percent(counts[item.key]))}%</small></div><div class="gm-distribution-track"><span style="width:${percent(counts[item.key])}%"></span></div></div>`).join("")}</div>
-        <div class="gm-backlog-completed"><span class="gm-completed-check" aria-hidden="true">✓</span><div><strong>${fmt(completed)} encerradas no período</strong><span>Fora do total de ordens pendentes</span></div></div>
+        <div class="gm-distribution-rows">${definitions.map(item=>`<button type="button" data-gm-skip-icon onclick="openMaintenanceBacklog(\'${item.key}\')" aria-label="Ver O.S. ${item.label}: ${counts[item.key]}" class="gm-distribution-row ${counts[item.key] ? "" : "is-zero"}" style="--distribution-color:${item.color}"><div class="gm-distribution-row-head"><span><i></i>${item.label}</span><strong>${fmt(counts[item.key])}</strong><small>${Math.round(percent(counts[item.key]))}%</small></div><div class="gm-distribution-track"><span style="width:${percent(counts[item.key])}%"></span></div></button>`).join("")}</div>
+        <button type="button" data-gm-skip-icon class="gm-backlog-completed" onclick="openMaintenanceBacklog(\'completed\')"><span class="gm-completed-check" aria-hidden="true">✓</span><div><strong>${fmt(completed)} encerradas no período</strong><span>Fora do total de ordens pendentes</span></div></button>
         <div class="maintenance-backlog-footer"><span>${backlog ? "Priorize a fila e acompanhe a execução." : "Nenhuma ordem pendente neste filtro."}</span><button class="chart-link-button" type="button" onclick="openMaintenanceBacklog()">Ver backlog completo →</button></div>`;
     }
     function assetHealthCategory(asset) {
@@ -29008,21 +29009,53 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       const fmt = count => count.toLocaleString("pt-BR");
       target.innerHTML = `<div class="asset-health-overview"><div class="asset-health-donut" style="--health-donut:${gradient}" role="img" aria-label="${total} equipamentos: ${counts.excellent} excelentes, ${counts.good} bons, ${counts.regular} regulares e ${counts.critical} críticos"><div><strong>${fmt(total)}</strong><span>ativos avaliados</span></div></div><div class="asset-health-summary"><span class="asset-health-summary-label">PRECISAM DE ATENÇÃO</span><strong>${fmt(attention)} <span>ativos</span></strong><small>${fmt(counts.regular)} regulares · ${fmt(counts.critical)} críticos</small><span class="gm-health-good"><i></i>${healthyPercent}% em boa ou excelente condição</span></div></div>
         <div class="gm-distribution-caption"><strong>Condição dos equipamentos</strong><span>% do total de ativos</span></div>
-        <div class="gm-distribution-rows">${definitions.map(item=>{const count=counts[item.key],percent=total?count/total*100:0;return `<div class="gm-distribution-row ${count?"":"is-zero"}" style="--distribution-color:${item.color}"><div class="gm-distribution-row-head"><span><i></i>${item.label}</span><strong>${fmt(count)}</strong><small>${Math.round(percent)}%</small></div><div class="gm-distribution-track"><span style="width:${percent}%"></span></div></div>`;}).join("")}</div>
+        <div class="gm-distribution-rows">${definitions.map(item=>{const count=counts[item.key],percent=total?count/total*100:0;return `<button type="button" data-gm-skip-icon onclick="openAssetCondition(\'${item.key}\')" aria-label="Ver equipamentos: ${item.label}, ${count}" class="gm-distribution-row ${count?"":"is-zero"}" style="--distribution-color:${item.color}"><div class="gm-distribution-row-head"><span><i></i>${item.label}</span><strong>${fmt(count)}</strong><small>${Math.round(percent)}%</small></div><div class="gm-distribution-track"><span style="width:${percent}%"></span></div></button>`;}).join("")}</div>
         <details class="gm-health-method"><summary>Como a condição é avaliada</summary><p>Classificação indicativa com base no status do ativo, criticidade, ordens abertas, paradas ativas, planos vencidos e medições críticas. Não substitui a inspeção técnica do equipamento.</p></details>
         <div class="asset-health-footer"><span>${total ? `${fmt(healthy)} de ${fmt(total)} em boa ou excelente condição` : "Nenhum ativo neste filtro"}</span><button class="chart-link-button" type="button" onclick="openCriticalAssets()">Ver ${fmt(counts.critical)} ativo${counts.critical===1?"":"s"} crítico${counts.critical===1?"":"s"} →</button></div>`;
     }
-    function openMaintenanceBacklog() {
+    function showDashboardSelection(id, anchorId, label, clear) {
+      $(id)?.remove();
+      const anchor = $(anchorId);
+      if (!anchor) return;
+      const banner = document.createElement("div");
+      banner.id = id;
+      banner.className = "gm-dashboard-selection";
+      banner.setAttribute("role", "status");
+      const text = document.createElement("span");
+      text.textContent = label + " · filtros do dashboard";
+      const button = document.createElement("button");
+      button.type = "button";
+      button.dataset.gmSkipIcon = "";
+      button.textContent = "Limpar seleção";
+      button.addEventListener("click", clear);
+      banner.append(text, button);
+      anchor.before(banner);
+    }
+    function openMaintenanceBacklog(status = "") {
+      const labels = {open:"Abertas",running:"Em execução",planned:"Planejadas",material:"Aguardando material",approval:"Aguardando aprovação",completed:"Encerradas no período"};
+      if (status && !labels[status]) return;
+      if (!canAccessView("orders")) { showToast("Sem permissão para consultar ordens de serviço."); return; }
       dashboardBacklogView = true;
-      ["osPeriodStart","osPeriodEnd","osStatusFilter","osPriorityFilter","osAssetFilter","osExecutorFilter"].forEach(id => { if ($(id)) $(id).value=""; });
+      dashboardBacklogOrderIds = new Set(dashboardFilteredData().orders.filter(order => status ? backlogStatusKey(order) === status : !isClosedOrder(order.status)).map(order => order.id));
+      ["osPeriodStart","osPeriodEnd","osStatusFilter","osPriorityFilter","osAssetFilter","osExecutorFilter","osSearch"].forEach(id => { if ($(id)) $(id).value=""; });
       if ($("globalSearch")) $("globalSearch").value="";
+      mobileOrderFilter = "all";
+      osCurrentPage = 1;
       setView("orders", { dashboardFilter:"backlog" });
+      showDashboardSelection("dashboardOrderSelection", "osFilterPanel", status ? "O.S. — " + labels[status] : "Todas as O.S. pendentes", resetOrderFilters);
     }
-    function openCriticalAssets() {
-      dashboardCriticalAssetIds = new Set(dashboardFilteredData().assets.filter(asset => assetHealthCategory(asset).key === "critical").map(asset => asset.id));
+    function openAssetCondition(condition = "critical") {
+      const labels = {excellent:"Excelente",good:"Bom",regular:"Regular",critical:"Crítico"};
+      if (!labels[condition]) return;
+      if (!canAccessView("assets")) { showToast("Sem permissão para consultar equipamentos."); return; }
+      dashboardCriticalAssetIds = new Set(dashboardFilteredData().assets.filter(asset => assetHealthCategory(asset).key === condition).map(asset => asset.id));
+      ["assetWorkspaceSearch","assetStatusFilter","assetCriticalityFilter","assetCategoryFilter","assetLocationFilter","assetHealthFilter"].forEach(id => { if ($(id)) $(id).value=""; });
       if ($("globalSearch")) $("globalSearch").value="";
+      assetWorkspacePage = 1;
       setView("assets", { dashboardFilter:"critical" });
+      showDashboardSelection("dashboardAssetSelection", "assetFilterPanel", "Condição dos ativos — " + labels[condition], clearAssetFilters);
     }
+    function openCriticalAssets() { openAssetCondition("critical"); }
     function orderStatusCounts() {
       return {
         abertas: state.orders.filter(order => statusKey(order.status).startsWith("aberta")).length,
@@ -32294,7 +32327,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
           && (!localSearch || localText.includes(localSearch))
           && (!isMobileOperational() || !mobileMyOrdersOnly || normalizeTextKey(order.executor).includes(normalizeTextKey(currentTechnicianName())))
           && (!isMobileOperational() || mobileOrderFilter === "all" || (mobileOrderFilter === "open" && normalizeTextKey(order.status).includes("abert")) || (mobileOrderFilter === "running" && isRunningOrder(order.status)) || (mobileOrderFilter === "paused" && normalizeTextKey(order.status).includes("paus")) || (mobileOrderFilter === "late" && orderIsLate(order)) || (mobileOrderFilter === "closed" && isClosedOrder(order.status)))
-          && (!dashboardBacklogView || !isClosedOrder(order.status))
+          && (!dashboardBacklogView || (dashboardBacklogOrderIds ? dashboardBacklogOrderIds.has(order.id) : !isClosedOrder(order.status)))
           && (!window.stage20OrderScope || (window.stage20OrderScope === "unassigned" && !order.executor) || (window.stage20OrderScope === "mine" && Boolean(executorIdentity) && userIdentity.some(identity => executorIdentity.includes(identity) || identity.includes(executorIdentity))) || (window.stage20OrderScope === "myRequests" && Boolean(requesterIdentity) && userIdentity.some(identity => requesterIdentity.includes(identity) || identity.includes(requesterIdentity))))
           && (!status || order.status === status)
           && (!priority || order.priority === priority)
@@ -32436,6 +32469,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (strip && tab) strip.scrollLeft = Math.max(0, tab.offsetLeft - strip.offsetLeft - strip.clientWidth / 2 + tab.clientWidth / 2);
     }
     function resetOrderFilters() {
+      dashboardBacklogView = false;
+      dashboardBacklogOrderIds = null;
+      $("dashboardOrderSelection")?.remove();
       ["osPeriodStart", "osPeriodEnd", "osStatusFilter", "osPriorityFilter", "osAssetFilter", "osExecutorFilter"].forEach(id => { if ($(id)) $(id).value = ""; });
       if ($("osSearch")) $("osSearch").value = "";
       osCurrentPage = 1;
@@ -32751,7 +32787,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     function resetAssetWorkspacePage(){ assetWorkspacePage=1; }
     function toggleAssetFilters(){ const panel=$("assetFilterPanel"); if(!panel)return; if(window.matchMedia("(max-width:760px)").matches)panel.classList.toggle("mobile-open"); else panel.classList.toggle("is-hidden"); }
-    function clearAssetFilters(){ ["assetWorkspaceSearch","assetStatusFilter","assetCriticalityFilter","assetCategoryFilter","assetLocationFilter","assetHealthFilter"].forEach(id=>{if($(id))$(id).value="";}); assetWorkspacePage=1; $("assetFilterPanel")?.classList.remove("mobile-open"); renderAssetsWorkspace(); syncActiveApplicationRouteFilters(); }
+    function clearAssetFilters(){ dashboardCriticalAssetIds=null; $("dashboardAssetSelection")?.remove(); ["assetWorkspaceSearch","assetStatusFilter","assetCriticalityFilter","assetCategoryFilter","assetLocationFilter","assetHealthFilter"].forEach(id=>{if($(id))$(id).value="";}); assetWorkspacePage=1; $("assetFilterPanel")?.classList.remove("mobile-open"); renderAssetsWorkspace(); syncActiveApplicationRouteFilters(); }
     function sortAssetsWorkspace(key){ assetWorkspaceSortDirection=assetWorkspaceSort===key?assetWorkspaceSortDirection*-1:1;assetWorkspaceSort=key;assetWorkspacePage=1;renderAssetsWorkspace(); }
     function changeAssetWorkspacePage(page){assetWorkspacePage=Math.max(1,Number(page||1));renderAssetsWorkspace();}
     function closeAssetDetail(){selectedAssetDetailId=null;selectedAssetTab="overview";$("assetDetailPanel")?.classList.add("is-hidden");$("assetListPanel")?.classList.remove("is-hidden");writeApplicationRoute("assets");}
@@ -39221,6 +39257,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     if ($("removeDemoDataBtn")) $("removeDemoDataBtn").addEventListener("click", removeDemoData);
     $("globalSearch").addEventListener("input", () => {
       dashboardCriticalAssetIds = null;
+      $("dashboardAssetSelection")?.remove();
       clearTimeout(window.stage21GlobalSearchTimer);
       window.stage21GlobalSearchTimer = setTimeout(() => render(), 250);
     });
