@@ -20,7 +20,7 @@
   const quality = value => ({ valid: 'Base válida', partial: 'Base parcial', insufficient: 'Base insuficiente' })[value] || 'Base insuficiente';
   const shortDate = value => {
     const parsed = new Date(value || '');
-    return Number.isFinite(+parsed) ? parsed.toLocaleDateString('pt-BR', { day:'2-digit', month:'short', timeZone:'UTC' }).replace(/\./g, '') : 'Sem data';
+    return Number.isFinite(+parsed) ? parsed.toLocaleDateString('pt-BR', { day:'2-digit', month:'short', timeZone:'UTC' }).replace(/\./g, '').replace(/\s+de\s+/g, ' ') : 'Sem data';
   };
   function model(contract) {
     return definitions.map(definition => {
@@ -57,20 +57,47 @@
     const labels = labelIndices.map(index => {
       const point = card.points[index];
       const anchor = index === 0 ? 'start' : index === card.points.length - 1 ? 'end' : 'middle';
-      return `<text x="${point.x}" y="199" text-anchor="${anchor}"><tspan x="${point.x}">${escape(shortDate(point.start))}</tspan><tspan x="${point.x}" dy="19">a ${escape(shortDate(point.end))}</tspan><title>${escape(point.range)}</title></text>`;
+      return `<text class="gm-metric-axis-date" x="${point.x}" y="199" text-anchor="${anchor}"><tspan x="${point.x}">${escape(shortDate(point.start))}</tspan><tspan x="${point.x}" dy="18">a ${escape(shortDate(point.end))}</tspan><title>${escape(point.range)}</title></text>`;
     }).join('');
     const paths = card.segments.filter(segment => segment.length > 1).map(segment => {
       const line = segment.map((point, index) => `${index ? 'L' : 'M'}${point.x},${point.y}`).join(' ');
       return `<path class="gm-metric-area" d="${line} L${segment.at(-1).x},174 L${segment[0].x},174 Z"/><path class="gm-metric-line" d="${line}"/>`;
     }).join('');
-    const points = card.points.map((point, index) => point.value === null ? '' : `<g><circle class="gm-metric-dot ${point.quality === 'partial' ? 'is-partial' : ''}" cx="${point.x}" cy="${point.y}" r="4"/><circle class="gm-metric-hit" cx="${point.x}" cy="${point.y}" r="12" tabindex="0" role="button" data-point="${index}" aria-label="${escape(`${card.name}, ${point.period}, ${point.range}: ${format(point.value, card.unit)}. ${quality(point.quality)}`)}"><title>${escape(`${point.range}: ${format(point.value, card.unit)}`)}</title></circle></g>`).join('');
+    const points = card.points.map((point, index) => point.value === null ? '' : `<g><circle class="gm-metric-dot ${point.quality === 'partial' ? 'is-partial' : ''}" cx="${point.x}" cy="${point.y}" r="4.5"/><circle class="gm-metric-hit" cx="${point.x}" cy="${point.y}" r="14" tabindex="0" role="button" data-point="${index}" aria-label="${escape(`${card.name}, ${point.period}, ${point.range}: ${format(point.value, card.unit)}. ${quality(point.quality)}`)}"><title>${escape(`${point.range}: ${format(point.value, card.unit)}`)}</title></circle></g>`).join('');
     const reference = card.referenceY === null ? '' : `<line class="gm-metric-reference" x1="54" x2="486" y1="${card.referenceY}" y2="${card.referenceY}"><title>${escape(`Referência do período: ${format(card.value, card.unit)}. Não representa evolução histórica.`)}</title></line>`;
-    return `<svg class="gm-metric-plot" viewBox="0 0 510 236" role="group" aria-label="Gráfico de ${card.name}. ${card.unit === 'h' ? 'Horas' : 'Percentual'}. Intervalos por data. Escala independente."><text x="54" y="17">${card.unit === 'h' ? 'Horas' : 'Percentual (%)'}</text>${grid}${reference}${paths}${labels}${points}</svg>`;
+    const latest = card.points.filter(point => point.value !== null).at(-1);
+    const label = latest ? format(latest.value, card.unit) : '';
+    const labelWidth = Math.min(160, Math.max(76, label.length * 8 + 20));
+    const labelX = latest ? Math.max(54, Math.min(486 - labelWidth, latest.x - labelWidth / 2)) : 54;
+    const labelY = latest ? (latest.y < 58 ? latest.y + 12 : latest.y - 33) : 0;
+    const latestLabel = latest ? `<g class="gm-metric-value-label" aria-hidden="true" pointer-events="none"><rect x="${labelX}" y="${labelY}" width="${labelWidth}" height="25" rx="7"/><text x="${labelX + labelWidth / 2}" y="${labelY + 17}" text-anchor="middle">${escape(label)}</text></g>` : '';
+    return `<svg class="gm-metric-plot" viewBox="0 0 510 236" role="group" aria-label="Gráfico de ${card.name}. ${card.unit === 'h' ? 'Horas' : 'Percentual'}. Intervalos por data. Escala independente."><text class="gm-metric-axis-unit" x="54" y="17">${card.unit === 'h' ? 'Horas' : 'Percentual (%)'}</text>${grid}${reference}${paths}${labels}${points}${latestLabel}</svg>`;
   }
-  const pointDetail = (point, card) => `${point.range} · ${format(point.value, card.unit)} · ${point.recordCount} registro(s) · ${quality(point.quality)}. ${point.detail || ''}`;
   function initialDetail(card) {
     const point = card.points.filter(point => point.value !== null).at(-1);
-    return point ? `Último intervalo com dados: ${pointDetail(point, card)} Toque nos pontos para consultar outros intervalos.` : '';
+    return point ? selectedDetail(point, card, true) : '';
+  }
+  function selectedDetail(point, card, latest = false) {
+    return `<div class="gm-metric-selection-head"><span>${latest ? 'Último intervalo com dados' : 'Intervalo selecionado'}</span><strong>${format(point.value, card.unit)}</strong></div><div class="gm-metric-selection-meta"><span>${escape(point.range)}</span><span>${point.recordCount} registro(s) · ${quality(point.quality)}</span></div>`;
+  }
+  function metricIcon(key) {
+    const drawing = key === 'mttr' ? '<circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2M9 2h6"/>' : key === 'mtbf' ? '<path d="M4 9a8 8 0 0 1 14-3l2 3M20 4v5h-5M20 15a8 8 0 0 1-14 3l-2-3M4 20v-5h5"/>' : '<path d="M4 13h4l3-7 3 13 3-6h3"/><rect x="2" y="3" width="20" height="18" rx="4"/>';
+    return `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${drawing}</svg>`;
+  }
+  function interpretation(card) {
+    return card.key === 'mttr' ? 'Em média, para concluir um reparo.' : card.key === 'mtbf' ? 'De operação comprovada por falha registrada.' : 'Do tempo programado com operação disponível.';
+  }
+  function comparison(card) {
+    const lastIndex = card.points.findLastIndex(point => point.value !== null);
+    const last = card.points[lastIndex], before = card.points[lastIndex - 1];
+    if (!last || !before || before.value === null) return '<span class="gm-metric-comparison is-neutral">Sem comparação entre intervalos consecutivos</span>';
+    const delta = last.value - before.value;
+    const better = card.key === 'mttr' ? delta < 0 : delta > 0;
+    const direction = delta === 0 ? 'Estável' : `${delta > 0 ? '↑' : '↓'} ${format(Math.abs(delta), card.unit === '%' ? 'p.p.' : 'h')}`;
+    return `<span class="gm-metric-comparison ${delta === 0 ? 'is-neutral' : better ? 'is-better' : 'is-worse'}">${direction} <span>vs. intervalo anterior</span></span>`;
+  }
+  function coverage(card) {
+    return `<div class="gm-metric-coverage"><div><span>Cobertura do histórico</span><strong>${card.valid} de ${card.points.length} intervalos</strong></div><div class="gm-metric-coverage-track" aria-hidden="true">${card.points.map(point => `<span class="${point.value === null ? 'is-missing' : point.quality === 'partial' ? 'is-partial' : 'has-data'}" title="${escape(`${point.range}: ${point.value === null ? 'sem dados' : quality(point.quality)}`)}"></span>`).join('')}</div></div>`;
   }
   const previous = new WeakMap();
   function render(target, contract, options = {}) {
@@ -96,18 +123,20 @@
     const cards = model(contract);
     target.innerHTML = `<div class="gm-metric-context"><span>${escape(options.scope || 'Empresa')} · ${date(contract.period?.start)} – ${date(contract.period?.end)}</span><span>Atualizado em ${escape(new Date(contract.updatedAt).toLocaleString('pt-BR'))}</span></div>
       <div class="gm-metric-cards">${cards.map(card => `<section class="gm-metric-card" data-metric="${card.key}" aria-label="${card.name}">
-        <div class="gm-metric-heading"><div><h3>${card.name}</h3><p>${card.title}</p></div><span class="gm-metric-quality" data-quality="${escape(card.metric.quality?.state || 'insufficient')}">${quality(card.metric.quality?.state)}</span></div>
-        <div class="gm-metric-value"><strong>${format(card.value, card.unit)}</strong><span>Indicador no período inteiro</span></div>
-        <p class="gm-metric-direction">${card.direction} <span>· ${card.valid}/${card.points.length} intervalos com dados</span></p>
+        <div class="gm-metric-heading"><span class="gm-metric-symbol">${metricIcon(card.key)}</span><div class="gm-metric-heading-copy"><h3>${card.name}</h3><p>${card.title}</p></div><span class="gm-metric-quality" data-quality="${escape(card.metric.quality?.state || 'insufficient')}">${quality(card.metric.quality?.state)}</span></div>
+        <div class="gm-metric-value"><span class="gm-metric-eyebrow">${card.key === 'availability' ? 'Disponibilidade no período' : 'Média do período'}</span><strong>${format(card.value, card.unit)}</strong><span>${interpretation(card)}</span></div>
+        <div class="gm-metric-direction"><span>${card.key === 'mttr' ? '↓' : '↑'} ${card.direction}</span>${comparison(card)}</div>
+        <div class="gm-metric-chart-heading"><strong>Evolução por intervalo</strong><span>${card.valid === 1 ? '1 intervalo registrado' : `${card.valid} intervalos registrados`}</span></div>
         ${card.valid ? plot(card) : `<div class="gm-metric-state" role="status"><strong>Ainda não é possível calcular a evolução</strong><p>${escape(card.metric.detail || card.hint)}</p><p>${card.key === 'mtbf' ? 'Confira os horímetros ou vincule um calendário operacional aos ativos, além de registrar as falhas corretivas.' : card.key === 'availability' ? 'Vincule um calendário operacional válido aos ativos e registre as paradas com início e fim.' : 'Conclua os reparos corretivos com horários válidos de início e término.'}</p></div>`}
-        ${card.value !== null ? `<p class="gm-metric-reference-label"><span aria-hidden="true"></span>Tracejado: ${card.key === 'availability' ? 'disponibilidade' : 'média'} do período · ${format(card.value, card.unit)}${card.metric.quality?.state === 'partial' ? ' · base parcial' : ''}. Não representa evolução histórica.</p>` : ''}
-        ${card.valid === 1 ? '<p class="gm-metric-empty">Apenas um intervalo com dados: o ponto mostra o valor observado. A linha de evolução aparecerá quando houver intervalos consecutivos com dados.</p>' : ''}
-        ${!card.valid ? `<p class="gm-metric-empty">Sem evidência suficiente para traçar a série. ${card.hint}</p>` : ''}
-        ${card.valid ? `<div class="gm-metric-detail" aria-live="polite" data-point-detail>${escape(initialDetail(card))}</div>` : ''}
-        <p class="gm-metric-method">${escape(card.metric.detail || card.hint)}</p>
+        ${card.value !== null ? `<p class="gm-metric-reference-label"><span aria-hidden="true"></span>Referência: ${card.key === 'availability' ? 'disponibilidade' : 'média'} do período · ${format(card.value, card.unit)}</p>` : ''}
+        ${coverage(card)}
+        ${card.valid ? `<div class="gm-metric-detail" aria-live="polite" data-point-detail>${initialDetail(card)}</div>` : ''}
+        ${card.valid === 1 ? '<p class="gm-metric-empty">Apenas um intervalo com dados. Ainda não há histórico suficiente para mostrar uma tendência.</p>' : ''}
+        ${card.metric.quality?.state === 'partial' ? '<p class="gm-metric-quality-note">Leitura parcial: resultado considera apenas os registros disponíveis.</p>' : ''}
+        <details class="gm-metric-explanation"><summary>Como interpretar este indicador</summary><p>${card.key === 'mttr' ? 'Quanto menos tempo um reparo leva, mais rápido o equipamento retorna à operação.' : card.key === 'mtbf' ? 'Mais horas de operação por falha indicam maior tempo de funcionamento entre ocorrências.' : 'Quanto mais próximo de 100%, maior a parcela do tempo programado disponível para operar.'}</p><p>${escape(card.metric.detail || card.hint)}</p></details>
       </section>`).join('')}</div>
-      <p class="gm-metric-note">Dados oficiais da empresa · As datas abaixo do gráfico mostram o início e o fim de cada intervalo destacado, não necessariamente meses completos. Toque em qualquer ponto para ver o intervalo exato e seu valor. Cada gráfico tem sua própria escala. Lacunas indicam ausência de dados, não zero. Pontos vazados indicam base parcial.</p>
-      <details class="gm-metric-data"><summary>Ver dados e metodologia</summary><p>MTTR: duração total dos reparos corretivos concluídos ÷ reparos válidos. MTBF: horas operacionais comprovadas ÷ falhas. Disponibilidade: tempo operacional disponível em relação ao calendário válido. Nenhuma média de médias é utilizada nos totais.</p>
+      <p class="gm-metric-note">Toque ou passe o mouse nos pontos para consultar cada intervalo. Trechos vazios significam ausência de dados, não valor zero.</p>
+      <details class="gm-metric-data"><summary>Ver dados e metodologia</summary><p>Cada gráfico tem sua própria escala. A linha tracejada representa o resultado do período inteiro; não é uma meta nem uma evolução histórica. Pontos vazados e faixas claras indicam base parcial. As datas mostram os limites de cada intervalo, não necessariamente meses completos.</p><p>MTTR: duração total dos reparos corretivos concluídos ÷ reparos válidos. MTBF: horas operacionais comprovadas ÷ falhas. Disponibilidade: tempo operacional disponível em relação ao calendário válido. Nenhuma média de médias é utilizada nos totais.</p>
       <div class="gm-metric-table-wrap" tabindex="0" role="region" aria-label="Tabela dos indicadores por intervalo"><table><caption>Valores oficiais por intervalo</caption><thead><tr><th scope="col">Indicador</th><th scope="col">Intervalo</th><th scope="col">Valor</th><th scope="col">Registros</th><th scope="col">Qualidade</th></tr></thead><tbody>${cards.flatMap(card => card.points.map(point => `<tr><th scope="row">${card.name} · ${point.period}</th><td>${escape(point.range)}</td><td>${format(point.value, card.unit)}</td><td>${point.recordCount}</td><td>${quality(point.quality)}</td></tr>`)).join('')}</tbody></table></div></details>`;
     cards.forEach(card => {
       const element = target.querySelector(`[data-metric="${card.key}"]`);
@@ -115,12 +144,13 @@
         const hit = event.target.closest('[data-point]');
         if (!hit) return;
         const point = card.points[Number(hit.dataset.point)];
-        element.querySelector('[data-point-detail]').textContent = pointDetail(point, card);
+        element.querySelector('[data-point-detail]').innerHTML = selectedDetail(point, card);
+        element.querySelectorAll('.gm-metric-hit').forEach(node => node.classList.toggle('is-selected', node === hit));
       };
       element.addEventListener('pointerover', select);
       element.addEventListener('click', select);
       element.addEventListener('focusin', select);
-      element.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); select(event); } });
+      element.addEventListener('keydown', event => { if (event.target.closest('[data-point]') && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); select(event); } });
     });
   }
   root.GMMaintenanceCharts = Object.freeze({ model, render });

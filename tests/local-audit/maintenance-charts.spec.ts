@@ -71,7 +71,10 @@ for (const viewport of [{width:1366,height:768},{width:951,height:535},{width:39
         await expect(widget.locator('[data-metric="availability"] [data-point-detail]')).toContainText('91,25 %');
         await page.screenshot({path:info.outputPath(`charts-mobile-last-${theme}.png`)});
       }
-      await widget.getByText('Ver dados e metodologia',{exact:true}).click();
+      const methodology = widget.getByText('Ver dados e metodologia',{exact:true});
+      await methodology.focus();
+      await methodology.press('Enter');
+      await expect(widget.locator('.gm-metric-data')).toHaveAttribute('open', '');
       await expect(widget.locator('tbody tr')).toHaveCount(18);
       expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
     });

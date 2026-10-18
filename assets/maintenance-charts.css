@@ -19,34 +19,67 @@ body.theme-light #dashboard .gm-maintenance-charts {
 }
 #dashboard .gm-metric-context { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 20px; margin-bottom: 16px; font-size: 12px; color: var(--metric-muted); }
 #dashboard .gm-metric-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-#dashboard .gm-metric-card { --metric-accent: #70bcff; min-width: 0; padding: 18px 14px; border: 1px solid var(--metric-border); border-top: 3px solid var(--metric-accent); border-radius: 12px; background: var(--metric-surface); }
+#dashboard .gm-metric-card { --metric-accent: #70bcff; display:flex; flex-direction:column; min-width: 0; padding: 20px; border: 1px solid var(--metric-border); border-radius: 16px; background: var(--metric-surface); box-shadow:0 3px 12px rgba(6,24,45,.04); }
 #dashboard .gm-metric-card[data-metric="mttr"] { --metric-accent: #ffb570; }
 #dashboard .gm-metric-card[data-metric="availability"] { --metric-accent: #61dbb0; }
 body.theme-light #dashboard .gm-metric-card { --metric-accent: #1269b0; }
 body.theme-light #dashboard .gm-metric-card[data-metric="mttr"] { --metric-accent: #ad5108; }
 body.theme-light #dashboard .gm-metric-card[data-metric="availability"] { --metric-accent: #087c59; }
-#dashboard .gm-metric-heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: start; gap: 8px; }
+#dashboard .gm-metric-heading { display: flex; align-items: center; gap: 10px; }
+#dashboard .gm-metric-heading-copy { flex:1; min-width:0; }
+#dashboard .gm-metric-symbol { display:grid; place-items:center; flex:0 0 38px; height:38px; border:1px solid color-mix(in srgb,var(--metric-accent) 20%,transparent); border-radius:12px; color:var(--metric-accent); background:color-mix(in srgb,var(--metric-accent) 8%,transparent); }
+#dashboard .gm-metric-symbol svg { display:block; width:21px; height:21px; }
 #dashboard .gm-metric-heading h3 { margin: 0; color: var(--metric-ink); font-size: 16px; font-weight: 750; }
 #dashboard .gm-metric-heading p { margin: 5px 0 0; color: var(--metric-muted); font-size: 12px; }
-#dashboard .gm-metric-quality { border: 1px solid var(--metric-border); border-radius: 5px; padding: 4px 6px; color: var(--metric-muted); font-size: 11px; }
+#dashboard .gm-metric-quality { flex-shrink:0; border: 1px solid var(--metric-border); border-radius: 999px; padding: 4px 7px; color: var(--metric-muted); font-size: 10px; white-space:nowrap; }
 #dashboard .gm-metric-quality[data-quality="partial"] { border-style: dashed; }
-#dashboard .gm-metric-value { display: grid; gap: 5px; margin-top: 18px; }
-#dashboard .gm-metric-value strong { color: var(--metric-ink); font-size: clamp(24px, 2.2vw, 34px); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+#dashboard .gm-metric-value { display: grid; gap: 6px; margin-top: 24px; }
+#dashboard .gm-metric-value strong { color: var(--metric-ink); font-size: clamp(32px, 2.6vw, 42px); font-weight:750; line-height:1.2; font-variant-numeric: tabular-nums; letter-spacing:-.035em; overflow-wrap: anywhere; }
+#dashboard .gm-metric-value .gm-metric-eyebrow { font-size:10px; text-transform:uppercase; font-weight:700; letter-spacing:.09em; }
 #dashboard .gm-metric-value span, #dashboard .gm-metric-direction { color: var(--metric-muted); font-size: 12px; }
-#dashboard .gm-metric-direction { margin: 12px 0 3px; line-height: 1.6; }
+#dashboard .gm-metric-direction { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:start; gap:8px; margin:16px 0 0; line-height:1.45; }
+#dashboard .gm-metric-direction > span:first-child { padding:4px 7px; border-radius:6px; background:color-mix(in srgb,var(--metric-accent) 7%,transparent); color:var(--metric-accent); font-size:10px; font-weight:700; }
+#dashboard .gm-metric-comparison { display:grid; gap:2px; color:var(--metric-ink); font-size:11px; font-weight:700; }
+#dashboard .gm-metric-comparison > span { color:var(--metric-muted); font-size:10px; font-weight:400; }
+#dashboard .gm-metric-comparison.is-better { color:#188060; }
+#dashboard .gm-metric-comparison.is-worse { color:#bd5f27; }
+#dashboard .gm-metric-comparison.is-neutral { color:var(--metric-muted); max-width:170px; font-size:10px; font-weight:400; }
+#dashboard .gm-metric-chart-heading { display:flex; justify-content:space-between; align-items:center; gap:8px; margin:20px 0 8px; padding-top:16px; border-top:1px solid var(--metric-border); }
+#dashboard .gm-metric-chart-heading strong { font-size:11px; font-weight:650; }
+#dashboard .gm-metric-chart-heading > span { color:var(--metric-muted); font-size:10px; }
 #dashboard .gm-metric-plot { display: block; width: 100%; height: auto; overflow: visible; }
-#dashboard .gm-metric-plot text { fill: var(--metric-muted); font-family: inherit; font-size: 17px; }
+#dashboard .gm-metric-plot text { fill: var(--metric-muted); font-family: inherit; font-size: 15px; }
+#dashboard .gm-metric-plot .gm-metric-axis-date { font-size:16px; }
+#dashboard .gm-metric-plot .gm-metric-axis-unit { font-size:13px; }
 #dashboard .gm-metric-gridline { stroke: var(--metric-grid); stroke-width: 1; }
 #dashboard .gm-metric-line { fill: none; stroke: var(--metric-accent); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
-#dashboard .gm-metric-reference { stroke: var(--metric-accent); stroke-width: 2; stroke-dasharray: 7 5; vector-effect: non-scaling-stroke; }
-#dashboard .gm-metric-reference-label { color: var(--metric-muted); font-size: 12px; line-height: 1.65; overflow-wrap: anywhere; }
+#dashboard .gm-metric-reference { stroke: var(--metric-accent); stroke-opacity:.6; stroke-width: 1.5; stroke-dasharray: 5 5; vector-effect: non-scaling-stroke; }
+#dashboard .gm-metric-reference-label { color: var(--metric-muted); font-size: 10px; margin:0 0 14px; line-height: 1.5; overflow-wrap: anywhere; }
 #dashboard .gm-metric-reference-label > span { display: inline-block; width: 24px; border-top: 2px dashed var(--metric-accent); margin-right: 6px; vertical-align: middle; }
-#dashboard .gm-metric-area { fill: var(--metric-accent); opacity: .08; }
+#dashboard .gm-metric-area { fill: var(--metric-accent); opacity: .12; }
+#dashboard .gm-metric-value-label rect { fill:var(--metric-surface); stroke:var(--metric-accent); stroke-opacity:.35; }
+#dashboard .gm-metric-plot .gm-metric-value-label text { fill:var(--metric-accent); font-size:15px; font-weight:750; }
 #dashboard .gm-metric-dot { fill: var(--metric-accent); stroke: var(--metric-accent); stroke-width: 2; }
 #dashboard .gm-metric-dot.is-partial { fill: var(--metric-surface); }
 #dashboard .gm-metric-hit { fill: transparent; stroke: transparent; cursor: pointer; }
 #dashboard .gm-metric-hit:focus-visible { outline: none; stroke: var(--metric-accent); stroke-width: 2; }
-#dashboard .gm-metric-detail { min-height: 64px; margin-top: 8px; padding: 10px; border: 1px solid var(--metric-border); border-radius: 6px; font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; color: var(--metric-ink); }
+#dashboard .gm-metric-hit.is-selected { stroke:var(--metric-accent); stroke-width:1.5; stroke-dasharray:2 3; }
+#dashboard .gm-metric-coverage { margin:0 0 16px; }
+#dashboard .gm-metric-coverage > div:first-child { display:flex; flex-wrap:wrap; justify-content:space-between; gap:4px; color:var(--metric-muted); font-size:10px; }
+#dashboard .gm-metric-coverage strong { color:var(--metric-ink); font-weight:650; }
+#dashboard .gm-metric-coverage-track { display:flex; gap:4px; margin-top:7px; }
+#dashboard .gm-metric-coverage-track > span { flex:1; height:5px; min-width:0; border-radius:3px; background:var(--metric-grid); }
+#dashboard .gm-metric-coverage-track > .has-data { background:var(--metric-accent); }
+#dashboard .gm-metric-coverage-track > .is-partial { background:color-mix(in srgb,var(--metric-accent) 45%,var(--metric-surface)); }
+#dashboard .gm-metric-detail { margin:0 0 12px; padding:12px; border:1px solid var(--metric-border); border-left:3px solid var(--metric-accent); border-radius:9px; background:color-mix(in srgb,var(--metric-accent) 3%,var(--metric-surface)); color:var(--metric-ink); }
+#dashboard .gm-metric-selection-head { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:6px; }
+#dashboard .gm-metric-selection-head > span { font-size:10px; font-weight:650; }
+#dashboard .gm-metric-selection-head strong { font-size:17px; font-variant-numeric:tabular-nums; letter-spacing:-.02em; }
+#dashboard .gm-metric-selection-meta { display:flex; flex-wrap:wrap; justify-content:space-between; gap:4px 10px; margin-top:6px; color:var(--metric-muted); font-size:10px; line-height:1.5; }
+#dashboard .gm-metric-quality-note { margin:0 0 12px; padding:8px 10px; border-radius:7px; background:color-mix(in srgb,var(--metric-accent) 5%,var(--metric-surface)); color:var(--metric-muted); font-size:10px; line-height:1.6; }
+#dashboard .gm-metric-explanation { margin-top:auto; padding-top:4px; }
+#dashboard .gm-metric-explanation summary { cursor:pointer; color:var(--metric-muted); font-size:11px; padding:6px 0; }
+#dashboard .gm-metric-explanation p { margin:7px 0; color:var(--metric-muted); font-size:11px; line-height:1.65; }
 #dashboard .gm-metric-method, #dashboard .gm-metric-note, #dashboard .gm-metric-empty, #dashboard .gm-metric-data p { color: var(--metric-muted); font-size: 12px; line-height: 1.65; overflow-wrap: anywhere; }
 #dashboard .gm-metric-method { margin: 10px 0 0; }
 #dashboard .gm-metric-note { margin: 16px 0 12px; }
@@ -57,7 +90,7 @@ body.theme-light #dashboard .gm-metric-card[data-metric="availability"] { --metr
 #dashboard .gm-metric-table-wrap table { width: 100%; min-width: 620px; border-collapse: collapse; }
 #dashboard .gm-metric-table-wrap th, #dashboard .gm-metric-table-wrap td { padding: 10px; text-align: left; border-bottom: 1px solid var(--metric-border); color: var(--metric-ink); font-size: 12px; }
 #dashboard .gm-metric-table-wrap caption { text-align: left; padding: 8px; color: var(--metric-muted); }
-#dashboard .gm-metric-state { padding: 40px 20px; border: 1px dashed var(--metric-border); border-radius: 10px; color: var(--metric-ink); }
+#dashboard .gm-metric-state { padding: 24px 16px; border: 1px dashed var(--metric-border); border-radius: 10px; color: var(--metric-ink); }
 #dashboard .gm-metric-state p { color: var(--metric-muted); line-height: 1.6; }
 @media (max-width: 1180px) {
   #dashboard .gm-metric-cards { grid-template-columns: minmax(0, 1fr); }
@@ -69,5 +102,7 @@ body.theme-light #dashboard .gm-metric-card[data-metric="availability"] { --metr
   #dashboard .industrial-dashboard-shell > :not(#dashboardWidgetGrid),
   #dashboard #dashboardWidgetGrid > :not(.maintenance-trend-card) { display: none !important; }
   #dashboard .gm-maintenance-charts { padding-inline: 10px; }
-  #dashboard .gm-metric-card { padding: 14px 10px; }
+  #dashboard .gm-metric-card { padding: 16px 12px; }
+  #dashboard .gm-metric-quality { font-size:9px; padding:4px 6px; }
+  #dashboard .gm-metric-heading p { font-size:11px; }
 }

@@ -173,10 +173,10 @@ html#gm-premium body.premium-shell .stage17-layout{grid-template-columns:minmax(
 html#gm-premium body.premium-shell .stage17-detail{min-width:0!important}
 html#gm-premium body.premium-shell .stage17-detail-hero{flex-wrap:wrap!important}
 @media(max-width:1200px){html#gm-premium body.premium-shell .stage17-layout{grid-template-columns:minmax(0,1fr)!important}}
-html#gm-premium body.premium-shell .gm-maintenance-charts{--metric-ink:var(--p-text);--metric-muted:var(--p-muted);--metric-border:var(--p-line);--metric-surface:var(--p-raised);--metric-grid:var(--p-line)}
-html#gm-premium body.premium-shell .gm-metric-card{background:var(--p-raised)!important;border:1px solid var(--p-line)!important;border-top:2px solid var(--metric-accent)!important;border-radius:10px!important}
-html#gm-premium body.premium-shell .gm-metric-heading h3{font-size:14px!important;font-weight:650!important}
-html#gm-premium body.premium-shell .gm-metric-value strong{font-size:30px!important;font-weight:650!important;letter-spacing:-.04em!important}
+html#gm-premium body.premium-shell .gm-maintenance-charts{--metric-ink:var(--p-text);--metric-muted:var(--p-muted);--metric-border:var(--p-line);--metric-surface:var(--p-surface);--metric-grid:var(--p-line)}
+html#gm-premium body.premium-shell .gm-metric-card{background:var(--p-surface)!important;border:1px solid var(--p-line)!important;border-top:1px solid var(--p-line)!important;border-radius:16px!important}
+html#gm-premium body.premium-shell .gm-metric-heading h3{font-size:16px!important;font-weight:700!important}
+html#gm-premium body.premium-shell .gm-metric-value strong{font-size:clamp(32px,2.6vw,42px)!important;font-weight:750!important;letter-spacing:-.035em!important}
 html#gm-premium body.premium-shell :is(.stage18-sub,.stage19-sub,.stage20-sub,.s16-updated,.materials-financial-value.is-empty){color:var(--p-muted)!important}
 html#gm-premium body.premium-shell :is(.stage18-code,.stage19-code,.os-number){color:var(--p-accent)!important}
 html#gm-premium body.premium-shell :is(.stage15-tabs,.materials-tabs,.checklist-tabs) button.active>span{background:var(--p-tint)!important;color:var(--p-accent)!important}
