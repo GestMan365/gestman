@@ -20892,6 +20892,13 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
       html#gm-premium body.panel-mode.premium-shell .os-broadcast-clock span { font-size:10px; }
       html#gm-premium body.panel-mode.premium-shell #activeOrdersPanel { padding:10px 10px 14px!important; }
     }
+    @media(max-width:900px) {
+      html#gm-premium body.premium-shell .reference-topbar .reference-topbar-logo {
+        display:block!important; width:min(340px,calc(100vw - 190px))!important;
+        min-width:0!important; max-width:calc(100vw - 190px)!important;
+        height:62px!important; max-height:62px!important; object-fit:contain!important;
+      }
+    }
   </style>
 </head>
 <body class="auth-loading auth-restoring">
@@ -21483,7 +21490,6 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
     </label>
     <div class="reference-topbar-actions">
       <button class="reference-icon-button header-context-trigger" id="headerContextBtn" type="button" aria-label="Selecionar planta e período" title="Planta e período" aria-controls="headerDashboardFilters" aria-expanded="false" onclick="toggleHeaderContext(event)"><span data-header-icon="filter" aria-hidden="true"></span></button>
-      <button class="reference-icon-button header-mobile-search" id="headerMobileSearchBtn" type="button" aria-label="Abrir busca" title="Buscar" aria-expanded="false" onclick="openHeaderMobileSearch()"><span data-header-icon="search" aria-hidden="true"></span></button>
       <div class="header-dashboard-filters" id="headerDashboardFilters">
         <label title="Selecionar planta"><i data-header-icon="building" aria-hidden="true"></i><span>Planta</span><select id="dashboardPlantFilter" aria-label="Selecionar planta" onchange="changeDashboardFilters()"><option value="Unidade Industrial 01">Unidade Industrial 01</option><option value="Unidade Industrial 02">Unidade Industrial 02</option><option value="Todas">Todas as plantas</option></select></label>
         <label title="Selecionar período"><i data-header-icon="calendarRange" aria-hidden="true"></i><span>Período</span><select id="dashboardPeriodFilter" aria-label="Selecionar período" onchange="changeDashboardFilters()"><option value="1">Último mês</option><option value="3">Últimos 3 meses</option><option value="6" selected>Últimos 6 meses</option><option value="12">Últimos 12 meses</option></select></label>
