@@ -10599,14 +10599,17 @@
     body.auth-loading .auth-screen::before{content:none!important;display:none!important}
     .auth-logo-loader{display:none;position:fixed;inset:0;z-index:5;place-items:center;pointer-events:none}
     body.auth-loading .auth-logo-loader{display:grid}
-    .auth-loader-spinner{position:relative;display:block;width:min(168px,42vw,26vh);aspect-ratio:1;opacity:0;transform:scale(.9);animation:authSpinnerEnter .2s cubic-bezier(.2,.75,.25,1) forwards}
-    .auth-loader-spinner span{position:absolute;top:50%;left:50%;box-sizing:border-box;width:16%;height:32%;border:clamp(3px,.65vw,6px) solid #f1f6ff;border-radius:999px;background:transparent;transform:translate(-50%,-50%) rotate(var(--spinner-angle)) translateY(-108%);opacity:.2;animation:authSpinnerPulse 1.05s ease-in-out infinite;animation-delay:var(--spinner-delay)}
+    .auth-loader-spinner{position:relative;display:block;width:min(84px,22vw,14vh);aspect-ratio:1;perspective:360px;opacity:0;transform:scale(.9);animation:authSpinnerEnter .2s cubic-bezier(.2,.75,.25,1) forwards}
+    .auth-spinner-rotor{position:absolute;inset:0;transform-style:preserve-3d;animation:authSpinnerOrbit 2.4s linear infinite;will-change:transform}
+    .auth-loader-spinner span{position:absolute;top:50%;left:50%;box-sizing:border-box;width:16%;height:32%;border:2px solid #e7f2ff;border-radius:999px;background:transparent;box-shadow:1px 1px 0 #7d9fbd,2px 2px 0 #42627f,3px 3px 0 #203e56,0 5px 7px rgba(0,0,0,.28),inset 0 1px 2px rgba(255,255,255,.35);transform:translate(-50%,-50%) rotate(var(--spinner-angle)) translateY(-108%) translateZ(3px);opacity:.2;animation:authSpinnerPulse 1.05s ease-in-out infinite;animation-delay:var(--spinner-delay)}
     body.auth-loading-finishing .auth-loader-spinner{animation:authSpinnerExit .3s ease-in forwards}
     @keyframes authSpinnerEnter{to{opacity:1;transform:scale(1)}}
+    @keyframes authSpinnerOrbit{0%{transform:rotateX(48deg) rotateY(-12deg) rotateZ(0deg)}50%{transform:rotateX(62deg) rotateY(12deg) rotateZ(180deg)}100%{transform:rotateX(48deg) rotateY(-12deg) rotateZ(360deg)}}
     @keyframes authSpinnerExit{0%{opacity:var(--auth-spinner-current-opacity,1);transform:scale(var(--auth-spinner-current-scale,1))}100%{opacity:0;transform:scale(.98)}}
     @keyframes authSpinnerPulse{0%,100%{opacity:.2;filter:drop-shadow(0 0 0 rgba(100,174,255,0))}50%{opacity:1;filter:drop-shadow(0 0 7px rgba(100,174,255,.56))}}
     @media(prefers-reduced-motion:reduce){
-      .auth-loader-spinner,.auth-loader-spinner span{animation:none!important}
+      .auth-loader-spinner,.auth-spinner-rotor,.auth-loader-spinner span{animation:none!important}
+      .auth-spinner-rotor{transform:rotateX(32deg) rotateZ(-15deg);will-change:auto}
       .auth-loader-spinner{opacity:1!important;transform:none!important}
       body.auth-loading-finishing .auth-logo-loader{display:none!important}
     }
@@ -21407,6 +21410,7 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
   <div class="auth-screen" id="authScreen">
     <div class="auth-logo-loader" id="authLogoLoader" role="status" aria-label="Carregando GestMan365">
       <div class="auth-loader-spinner" role="presentation" aria-hidden="true">
+        <div class="auth-spinner-rotor">
         <span style="--spinner-angle:0deg;--spinner-delay:0s"></span>
         <span style="--spinner-angle:45deg;--spinner-delay:-.91875s"></span>
         <span style="--spinner-angle:90deg;--spinner-delay:-.7875s"></span>
@@ -21415,6 +21419,7 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
         <span style="--spinner-angle:225deg;--spinner-delay:-.39375s"></span>
         <span style="--spinner-angle:270deg;--spinner-delay:-.2625s"></span>
         <span style="--spinner-angle:315deg;--spinner-delay:-.13125s"></span>
+        </div>
       </div>
     </div>
     <div class="auth-brand-strip"><div class="auth-brand-logo"><img src="assets/ui/illustrations/gestman365-logo.png" class="auth-logo-img" data-theme-logo alt="GestMan365 - CMMS Industrial"></div></div>
