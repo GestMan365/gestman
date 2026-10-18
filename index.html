@@ -10599,26 +10599,15 @@
     body.auth-loading .auth-screen::before{content:none!important;display:none!important}
     .auth-logo-loader{display:none;position:fixed;inset:0;z-index:5;place-items:center;pointer-events:none}
     body.auth-loading .auth-logo-loader{display:grid}
-    .auth-logo-loader svg{display:block;width:min(260px,58vw,38vh);height:auto;overflow:visible;opacity:0;transform:scale(.9);animation:authLogoEnter .5s cubic-bezier(.2,.75,.25,1) forwards}
-    .auth-logo-art{transform-box:view-box;transform-origin:627px 627px;filter:drop-shadow(0 0 0 rgba(50,165,255,0));animation:authLogoBreath 2.8s ease-in-out infinite}
-    .auth-logo-gear{mask:url(#gm-loader-alpha-mask);transform-box:view-box;transform-origin:380px 620px;fill:none;stroke:#72d8ff;stroke-width:24;stroke-dasharray:72 112;stroke-linecap:round;opacity:.9;filter:drop-shadow(0 0 5px rgba(42,170,255,1)) drop-shadow(0 0 12px rgba(24,117,255,.95));animation:authGearSpin 2.8s linear infinite}
-    .auth-logo-pixel{opacity:.68;filter:drop-shadow(0 0 0 rgba(225,248,255,0));animation:authPixelStartup 3.2s linear infinite;animation-delay:var(--pixel-delay)}
-    .auth-logo-pixel.is-green{opacity:.94;filter:drop-shadow(0 0 2px rgba(43,255,117,.45));animation-name:authPixelGreen;animation-duration:3.2s}
-    body.auth-loading-finishing .auth-logo-loader svg{animation:authLogoExit .3s ease-in forwards}
-    body.auth-loading-finishing .auth-logo-art{animation:none!important;filter:drop-shadow(0 0 8px rgba(50,165,255,.58))!important}
-    body.auth-loading-finishing .auth-logo-gear{animation:authGearFinish .3s cubic-bezier(.2,.7,.2,1) forwards}
-    body.auth-loading-finishing .auth-logo-pixel{opacity:1!important;animation:none!important;filter:drop-shadow(0 0 5px rgba(255,255,255,.28))!important}
-    body.auth-loading-finishing .auth-logo-pixel.is-green{filter:drop-shadow(0 0 9px rgba(43,255,117,.72))!important}
-    @keyframes authLogoEnter{to{opacity:1;transform:scale(1)}}
-    @keyframes authLogoExit{0%{opacity:var(--auth-logo-current-opacity,1);transform:scale(var(--auth-logo-current-scale,1))}100%{opacity:0;transform:scale(.98)}}
-    @keyframes authLogoBreath{0%,100%{transform:scale(1);filter:drop-shadow(0 0 0 rgba(50,165,255,0))}50%{transform:scale(1.03);filter:drop-shadow(0 0 12px rgba(50,165,255,.58))}}
-    @keyframes authGearSpin{to{transform:rotate(360deg)}}
-    @keyframes authGearFinish{0%{transform:rotate(var(--auth-gear-current,0deg))}100%{transform:rotate(var(--auth-gear-final,38deg))}}
-    @keyframes authPixelStartup{0%,8%{opacity:.68;filter:drop-shadow(0 0 0 rgba(225,248,255,0))}4%{opacity:1;filter:drop-shadow(0 0 10px rgba(225,248,255,1))}9%,100%{opacity:.68;filter:drop-shadow(0 0 0 rgba(225,248,255,0))}}
-    @keyframes authPixelGreen{0%,8%{opacity:.94;filter:drop-shadow(0 0 2px rgba(43,255,117,.45))}4%{opacity:1;filter:drop-shadow(0 0 11px rgba(43,255,117,1))}9%,100%{opacity:.94;filter:drop-shadow(0 0 2px rgba(43,255,117,.45))}}
+    .auth-loader-spinner{position:relative;display:block;width:min(168px,42vw,26vh);aspect-ratio:1;opacity:0;transform:scale(.9);animation:authSpinnerEnter .2s cubic-bezier(.2,.75,.25,1) forwards}
+    .auth-loader-spinner span{position:absolute;top:50%;left:50%;box-sizing:border-box;width:16%;height:32%;border:clamp(3px,.65vw,6px) solid #f1f6ff;border-radius:999px;background:transparent;transform:translate(-50%,-50%) rotate(var(--spinner-angle)) translateY(-108%);opacity:.2;animation:authSpinnerPulse 1.05s ease-in-out infinite;animation-delay:var(--spinner-delay)}
+    body.auth-loading-finishing .auth-loader-spinner{animation:authSpinnerExit .3s ease-in forwards}
+    @keyframes authSpinnerEnter{to{opacity:1;transform:scale(1)}}
+    @keyframes authSpinnerExit{0%{opacity:var(--auth-spinner-current-opacity,1);transform:scale(var(--auth-spinner-current-scale,1))}100%{opacity:0;transform:scale(.98)}}
+    @keyframes authSpinnerPulse{0%,100%{opacity:.2;filter:drop-shadow(0 0 0 rgba(100,174,255,0))}50%{opacity:1;filter:drop-shadow(0 0 7px rgba(100,174,255,.56))}}
     @media(prefers-reduced-motion:reduce){
-      .auth-logo-loader svg,.auth-logo-art,.auth-logo-gear,.auth-logo-pixel{animation:none!important}
-      .auth-logo-loader svg{opacity:1!important;transform:none!important}
+      .auth-loader-spinner,.auth-loader-spinner span{animation:none!important}
+      .auth-loader-spinner{opacity:1!important;transform:none!important}
       body.auth-loading-finishing .auth-logo-loader{display:none!important}
     }
     @media(max-height:950px){
@@ -21378,22 +21367,14 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
       const body = document.body;
       if (!body || !body.classList.contains("auth-loading")) return;
       if (window.__gestmanAuthExitTimer) clearTimeout(window.__gestmanAuthExitTimer);
-      const logo = document.querySelector(".auth-logo-loader svg");
-      if (logo && !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
-        const logoStyle = getComputedStyle(logo);
-        const logoMatrix = logoStyle.transform.match(/^matrix\(([^)]+)\)$/);
-        const logoValues = logoMatrix?.[1].split(",").map(Number);
-        const currentScale = logoValues?.length >= 2 ? Math.hypot(logoValues[0], logoValues[1]) : 1;
-        logo.style.setProperty("--auth-logo-current-opacity", logoStyle.opacity);
-        logo.style.setProperty("--auth-logo-current-scale", String(currentScale));
-      }
-      const gear = document.querySelector(".auth-logo-gear");
-      if (gear && !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
-        const matrix = getComputedStyle(gear).transform.match(/^matrix\(([^)]+)\)$/);
+      const spinner = document.querySelector(".auth-loader-spinner");
+      if (spinner && !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+        const spinnerStyle = getComputedStyle(spinner);
+        const matrix = spinnerStyle.transform.match(/^matrix\(([^)]+)\)$/);
         const values = matrix?.[1].split(",").map(Number);
-        const currentAngle = values?.length >= 2 ? Math.atan2(values[1], values[0]) * 180 / Math.PI : 0;
-        gear.style.setProperty("--auth-gear-current", `${currentAngle}deg`);
-        gear.style.setProperty("--auth-gear-final", `${currentAngle + 9}deg`);
+        const currentScale = values?.length >= 2 ? Math.hypot(values[0], values[1]) : 1;
+        spinner.style.setProperty("--auth-spinner-current-opacity", spinnerStyle.opacity);
+        spinner.style.setProperty("--auth-spinner-current-scale", String(currentScale));
       }
       const finish = () => {
         body.classList.remove("auth-loading", "auth-loading-finishing");
@@ -21424,31 +21405,17 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
     window.addEventListener("error", () => window.__gestmanReleaseAuthLoading(true), { once: true });
   </script>
   <div class="auth-screen" id="authScreen">
-    <div class="auth-logo-loader" id="authLogoLoader" aria-hidden="true">
-      <svg viewBox="0 0 1254 1254" role="presentation" focusable="false">
-        <defs>
-          <mask id="gm-loader-alpha-mask" mask-type="alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="1254" height="1254">
-            <image href="assets/ui/illustrations/gmi-loader-mark.png" width="1254" height="1254"/>
-          </mask>
-          <clipPath id="gm-loader-letter-regions" clipPathUnits="userSpaceOnUse"><rect x="270" y="390" width="690" height="590"/></clipPath>
-          <clipPath id="gm-loader-pixel-1" clipPathUnits="userSpaceOnUse"><rect x="1044" y="374" width="75" height="75"/></clipPath>
-          <clipPath id="gm-loader-pixel-2" clipPathUnits="userSpaceOnUse"><rect x="1128" y="374" width="75" height="75"/></clipPath>
-          <clipPath id="gm-loader-pixel-3" clipPathUnits="userSpaceOnUse"><rect x="960" y="464" width="75" height="75"/></clipPath>
-          <clipPath id="gm-loader-pixel-4" clipPathUnits="userSpaceOnUse"><rect x="1044" y="464" width="75" height="75"/></clipPath>
-          <clipPath id="gm-loader-pixel-5" clipPathUnits="userSpaceOnUse"><rect x="1128" y="464" width="75" height="75"/></clipPath>
-          <clipPath id="gm-loader-pixel-6" clipPathUnits="userSpaceOnUse"><rect x="1044" y="548" width="75" height="75"/></clipPath>
-        </defs>
-        <g class="auth-logo-art">
-        <image href="assets/ui/illustrations/gmi-loader-mark.png" width="1254" height="1254"/>
-        <circle class="auth-logo-gear" cx="380" cy="620" r="457"/>
-        <image class="auth-logo-pixel is-green" style="--pixel-delay:0s" clip-path="url(#gm-loader-pixel-1)" href="assets/ui/illustrations/gmi-loader-mark.png" width="1254" height="1254"/>
-        <image class="auth-logo-pixel" style="--pixel-delay:.4s" clip-path="url(#gm-loader-pixel-2)" href="assets/ui/illustrations/gmi-loader-mark.png" width="1254" height="1254"/>
-        <image class="auth-logo-pixel" style="--pixel-delay:.8s" clip-path="url(#gm-loader-pixel-3)" href="assets/ui/illustrations/gmi-loader-mark.png" width="1254" height="1254"/>
-        <image class="auth-logo-pixel" style="--pixel-delay:1.2s" clip-path="url(#gm-loader-pixel-4)" href="assets/ui/illustrations/gmi-loader-mark.png" width="1254" height="1254"/>
-        <image class="auth-logo-pixel" style="--pixel-delay:1.6s" clip-path="url(#gm-loader-pixel-5)" href="assets/ui/illustrations/gmi-loader-mark.png" width="1254" height="1254"/>
-        <image class="auth-logo-pixel" style="--pixel-delay:2s" clip-path="url(#gm-loader-pixel-6)" href="assets/ui/illustrations/gmi-loader-mark.png" width="1254" height="1254"/>
-        </g>
-      </svg>
+    <div class="auth-logo-loader" id="authLogoLoader" role="status" aria-label="Carregando GestMan365">
+      <div class="auth-loader-spinner" role="presentation" aria-hidden="true">
+        <span style="--spinner-angle:0deg;--spinner-delay:0s"></span>
+        <span style="--spinner-angle:45deg;--spinner-delay:-.91875s"></span>
+        <span style="--spinner-angle:90deg;--spinner-delay:-.7875s"></span>
+        <span style="--spinner-angle:135deg;--spinner-delay:-.65625s"></span>
+        <span style="--spinner-angle:180deg;--spinner-delay:-.525s"></span>
+        <span style="--spinner-angle:225deg;--spinner-delay:-.39375s"></span>
+        <span style="--spinner-angle:270deg;--spinner-delay:-.2625s"></span>
+        <span style="--spinner-angle:315deg;--spinner-delay:-.13125s"></span>
+      </div>
     </div>
     <div class="auth-brand-strip"><div class="auth-brand-logo"><img src="assets/ui/illustrations/gestman365-logo.png" class="auth-logo-img" data-theme-logo alt="GestMan365 - CMMS Industrial"></div></div>
     <div class="auth-shell">
