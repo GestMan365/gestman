@@ -233,7 +233,8 @@ html#gm-premium body.premium-shell.theme-light :is(.stage18-chip,.stage19-chip,.
  html#gm-premium body.premium-shell :is(.gm01-page-header,.stage14-head,.stage15-head,.stage17-head,.stage18-head,.stage19-head,.stage20-head,.assets-page-head){flex-wrap:wrap!important;gap:12px!important}
  html#gm-premium body.premium-shell .mobile-bottom-nav{background:var(--p-surface)!important;border-top:1px solid var(--p-line)!important;color:var(--p-muted)!important}
 }
-@media(prefers-reduced-motion:reduce){html#gm-premium body.premium-shell *,html#gm-premium body.premium-shell *::before,html#gm-premium body.premium-shell *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important;scroll-behavior:auto!important}}
+/* The startup loader provides its own non-spatial reduced-motion treatment. */
+@media(prefers-reduced-motion:reduce){html#gm-premium body.premium-shell *:not(#authLogoLoader *),html#gm-premium body.premium-shell *:not(#authLogoLoader *)::before,html#gm-premium body.premium-shell *:not(#authLogoLoader *)::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important;scroll-behavior:auto!important}}
 /* Permission and native hidden states must always outrank presentation. */
 html#gm-premium body.premium-shell .is-permission-hidden,
 html#gm-premium body.premium-shell .is-action-permission-hidden,

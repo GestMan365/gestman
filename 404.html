@@ -10607,8 +10607,12 @@
     @keyframes authSpinnerOrbit{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
     @keyframes authSpinnerExit{0%{opacity:var(--auth-spinner-current-opacity,1);transform:scale(var(--auth-spinner-current-scale,1))}100%{opacity:0;transform:scale(.98)}}
     @keyframes authSpinnerPulse{0%,100%{opacity:.2;filter:drop-shadow(0 0 0 rgba(100,174,255,0))}50%{opacity:1;filter:drop-shadow(0 0 7px rgba(100,174,255,.56))}}
+    @keyframes authSpinnerReducedPulse{0%,100%{opacity:.38}50%{opacity:1}}
     @media(prefers-reduced-motion:reduce){
-      .auth-loader-spinner,.auth-spinner-rotor,.auth-loader-spinner span{animation:none!important}
+      .auth-loader-spinner,.auth-spinner-rotor{animation:none!important}
+      /* Keep progress perceptible without rotation, zoom or glow in reduced-motion mode.
+         The premium theme excludes this loader from its universal animation reset. */
+      html body #authLogoLoader .auth-loader-spinner span{animation:authSpinnerReducedPulse 1.6s ease-in-out infinite!important;animation-delay:var(--spinner-delay)!important;filter:none!important}
       .auth-spinner-rotor{transform:none;will-change:auto}
       .auth-loader-spinner{opacity:1!important;transform:none!important}
       body.auth-loading-finishing .auth-logo-loader{display:none!important}
@@ -20697,7 +20701,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
   </style>
   <link rel="stylesheet" href="assets/work-order-desktop-alerts.css">
-  <link rel="stylesheet" href="assets/premium-ui.css">
+  <link rel="stylesheet" href="assets/premium-ui.css?v=loader-motion-2">
   <link rel="stylesheet" href="assets/ui/gestman-light-dashboard.css?v=20261017-finish-information-tabs">
   <link rel="stylesheet" href="assets/ui/gestman-pagination.css">
 </head>
