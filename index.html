@@ -441,127 +441,6 @@
     body.auth-restoring .auth-screen {
       display: none !important;
     }
-    .gestman-boot-loader { display: none; }
-    body.auth-restoring .gestman-boot-loader {
-      position: fixed;
-      inset: 0;
-      z-index: 30000;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 22px;
-      background: radial-gradient(circle at 50% 43%, #fff 0, #f3f7ff 42%, #e8effa 100%);
-      color: #17345a;
-      font: 700 14px var(--gm-font-sans);
-      letter-spacing: .025em;
-      overflow: hidden;
-    }
-    .gestman-boot-stage {
-      position: relative;
-      display: grid;
-      place-items: center;
-      width: 190px;
-      height: 180px;
-      perspective: 700px;
-    }
-    .gestman-boot-mark {
-      position: relative;
-      display: grid;
-      place-items: center;
-      width: 142px;
-      height: 142px;
-      border-radius: 50%;
-      border: 1px solid rgba(255, 255, 255, .95);
-      background: linear-gradient(145deg, #fff 8%, #eef5ff 52%, #c8dcf5 100%);
-      box-shadow: 2px 4px 0 #acc8eb, 5px 8px 0 #81a9d6, 11px 19px 24px rgba(22, 65, 120, .24), inset 0 2px 5px rgba(255,255,255,.98), inset -5px -7px 12px rgba(44, 103, 174, .16);
-      transform-style: preserve-3d;
-      animation: gestman-boot-tilt 3.2s ease-in-out infinite !important;
-      will-change: transform;
-    }
-    .gestman-boot-mark::before {
-      content: "";
-      position: absolute;
-      inset: 7px;
-      border-radius: 50%;
-      border: 1px solid rgba(65, 129, 206, .2);
-      box-shadow: inset 0 5px 11px rgba(35, 84, 146, .13), 0 2px 1px #fff;
-      transform: translateZ(2px);
-    }
-    .gestman-boot-mark::after {
-      content: "";
-      position: absolute;
-      inset: -13px;
-      border: 2px solid rgba(87, 151, 224, .18);
-      border-top-color: #1e66d8;
-      border-right-color: #82c7ff;
-      border-radius: 50%;
-      animation: gestman-boot-spin 2.2s linear infinite !important;
-    }
-    .gestman-boot-glint {
-      position: absolute;
-      inset: 9px;
-      overflow: hidden;
-      border-radius: 50%;
-      pointer-events: none;
-      transform: translateZ(17px);
-    }
-    .gestman-boot-glint::after {
-      content: "";
-      position: absolute;
-      inset: -70% auto -70% -45%;
-      width: 38%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.72), transparent);
-      transform: rotate(25deg);
-      animation: gestman-boot-shine 3.2s ease-in-out infinite !important;
-    }
-    .gestman-boot-shadow {
-      position: absolute;
-      bottom: 3px;
-      width: 116px;
-      height: 19px;
-      border-radius: 50%;
-      background: rgba(27, 74, 135, .17);
-      filter: blur(11px);
-      animation: gestman-boot-shadow 3.2s ease-in-out infinite !important;
-    }
-    .gestman-boot-symbol {
-      position: relative;
-      display: block;
-      width: 126px;
-      height: 126px;
-      overflow: hidden;
-      border-radius: 50%;
-      background: radial-gradient(circle at 34% 23%, #fff, #f6faff 66%, #e1edfc);
-      transform: translateZ(10px);
-    }
-    .gestman-boot-symbol img {
-      position: absolute;
-      top: 14px;
-      left: 1px;
-      display: block;
-      width: 365px;
-      height: auto;
-      max-width: none;
-    }
-    @keyframes gestman-boot-spin { to { transform: rotate(360deg); } }
-    @keyframes gestman-boot-tilt {
-      0%, 100% { transform: rotateX(9deg) rotateY(-13deg) translateY(2px); }
-      50% { transform: rotateX(-6deg) rotateY(13deg) translateY(-8px); }
-    }
-    @keyframes gestman-boot-shine {
-      0%, 22% { left: -45%; opacity: 0; }
-      45% { opacity: .95; }
-      70%, 100% { left: 125%; opacity: 0; }
-    }
-    @keyframes gestman-boot-shadow {
-      0%, 100% { transform: scale(1); opacity: .75; }
-      50% { transform: scale(.72); opacity: .42; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .gestman-boot-mark, .gestman-boot-mark::after, .gestman-boot-glint::after, .gestman-boot-shadow { animation: none !important; }
-      .gestman-boot-mark { transform: rotateX(6deg) rotateY(-8deg); }
-    }
     body.auth-loading .auth-card {
       opacity: 0;
       pointer-events: none;
@@ -20807,10 +20686,6 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   <link rel="stylesheet" href="assets/ui/gestman-pagination.css">
 </head>
 <body class="auth-loading auth-restoring">
-  <div class="gestman-boot-loader" role="status" aria-live="polite" aria-label="Carregando GestMan365">
-    <span class="gestman-boot-stage" aria-hidden="true"><span class="gestman-boot-shadow"></span><span class="gestman-boot-mark"><span class="gestman-boot-symbol"><img src="assets/ui/illustrations/gestman365-logo-light.png" alt=""></span><span class="gestman-boot-glint"></span></span></span>
-    <span>Carregando GestMan365...</span>
-  </div>
   <script id="design-theme-bootstrap">
     (() => {
       document.body.classList.add("premium-shell");

@@ -1,7 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("durante a restauração, a logo cobre a página até a rota estar pronta", async ({ page }, testInfo) => {
-  await page.emulateMedia({reducedMotion:"no-preference"});
+test("a restauração da sessão não exibe a tela inicial de carregamento", async ({ page }) => {
   await page.addInitScript(() => {
     sessionStorage.setItem("gestman365.supabase.session.v1", JSON.stringify({
       access_token: "test-session", refresh_token: "test-refresh",
@@ -14,20 +13,7 @@ test("durante a restauração, a logo cobre a página até a rota estar pronta",
   await page.goto("./?modulo=ordens-de-servico");
 
   await expect(page.locator("body")).toHaveClass(/auth-restoring/);
-  await expect(page.locator(".gestman-boot-loader")).toBeVisible();
-  await expect(page.locator(".gestman-boot-mark img")).toHaveJSProperty("complete", true);
-  await expect(page.locator(".gestman-boot-stage")).toBeVisible();
-  await expect(page.locator(".gestman-boot-glint")).toHaveCount(1);
-  expect(await page.locator(".gestman-boot-mark").evaluate(element => getComputedStyle(element).animationName)).toBe("gestman-boot-tilt");
-  expect(await page.locator(".gestman-boot-mark").evaluate(element => getComputedStyle(element).transformStyle)).toBe("preserve-3d");
-  await page.screenshot({path:testInfo.outputPath("boot-loader-3d.png")});
-  await page.emulateMedia({reducedMotion:"reduce"});
-  expect(await page.locator(".gestman-boot-mark").evaluate(element => getComputedStyle(element).animationName)).toBe("none");
-  await page.setViewportSize({width:390,height:844});
-  const mobileMark = await page.locator(".gestman-boot-stage").boundingBox();
-  expect(mobileMark!.x).toBeGreaterThanOrEqual(0);
-  expect(mobileMark!.x + mobileMark!.width).toBeLessThanOrEqual(390);
-  await page.screenshot({path:testInfo.outputPath("boot-loader-3d-mobile.png")});
+  await expect(page.locator(".gestman-boot-loader")).toHaveCount(0);
   await expect(page.locator("#dashboard")).toBeHidden();
   expect(new URL(page.url()).searchParams.get("modulo")).toBe("ordens-de-servico");
 });
