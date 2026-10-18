@@ -20834,6 +20834,65 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
   <link rel="stylesheet" href="assets/premium-ui.css">
   <link rel="stylesheet" href="assets/ui/gestman-light-dashboard.css?v=20261017-finish-information-tabs">
   <link rel="stylesheet" href="assets/ui/gestman-pagination.css">
+  <style id="os-panel-fullscreen-layout-fix">
+    html body.panel-mode.premium-shell:not(.auth-required):not(.auth-loading) { overflow:hidden!important; margin:0!important; min-height:100dvh; background:#eaf1f7!important; }
+    html#gm-premium body.panel-mode.premium-shell .workspace {
+      position:fixed!important; inset:0!important; top:0!important; left:0!important; right:0!important; bottom:0!important;
+      display:flex!important; width:100vw!important; height:100vh!important; height:100dvh!important;
+      min-height:0!important; max-width:none!important; margin:0!important; padding:0!important;
+      overflow:hidden!important; background:#eaf1f7!important;
+    }
+    html#gm-premium body.panel-mode.premium-shell #activeOrders#activeOrders.view.active {
+      display:flex!important; flex:1 1 auto; flex-direction:column; width:100%!important; max-width:none!important;
+      min-width:0; min-height:0; height:100%!important; margin:0!important; padding:0!important;
+    }
+    html#gm-premium body.panel-mode.premium-shell #activeOrders > .gm01-page-header { display:none!important; }
+    html#gm-premium body.panel-mode.premium-shell #activeOrders > .panel {
+      display:grid!important; flex:1 1 auto; grid-template-rows:auto minmax(0,1fr)!important;
+      width:100%!important; max-width:none!important; min-width:0; min-height:0; height:100%!important;
+      margin:0!important; padding:0!important; overflow:hidden!important;
+      border:0!important; border-radius:0!important; background:#eaf1f7!important;
+    }
+    html#gm-premium body.panel-mode.premium-shell .os-broadcast-head {
+      display:flex!important; align-items:center; justify-content:space-between; gap:12px;
+      width:100%; min-height:58px; padding:8px 22px!important; margin:0;
+      border:0!important; border-bottom:1px solid #d3dfeb!important; background:#fff!important;
+    }
+    html#gm-premium body.panel-mode.premium-shell .os-broadcast-head > :not(.os-broadcast-clock):not(.gm-live-health) { display:none!important; }
+    html#gm-premium body.panel-mode.premium-shell .os-broadcast-head > .gm-live-health { display:flex!important; }
+    html#gm-premium body.panel-mode.premium-shell .gm-live-health {
+      display:flex!important; align-items:center; justify-content:flex-start; flex:1 1 auto;
+      min-width:0; margin:0!important; padding:0!important; color:#536a80!important;
+      font-size:12px; text-align:left;
+    }
+    html#gm-premium body.panel-mode.premium-shell .os-broadcast-clock {
+      display:flex!important; align-items:baseline; justify-content:flex-end; gap:12px;
+      flex:0 0 auto; min-width:0; margin-left:auto;
+    }
+    html#gm-premium body.panel-mode.premium-shell .os-broadcast-clock time { color:#17324b!important; font-size:27px; }
+    html#gm-premium body.panel-mode.premium-shell .os-broadcast-clock span {
+      display:inline!important; color:#60758a!important; font-size:12px;
+      letter-spacing:0; text-transform:none; white-space:nowrap;
+    }
+    html#gm-premium body.panel-mode.premium-shell #activeOrdersPanel {
+      width:100%!important; max-width:none!important; min-width:0; min-height:0;
+      margin:0!important; padding:14px 20px 20px!important; overflow:auto!important;
+      background:#eaf1f7!important;
+    }
+    html#gm-premium body.panel-mode.premium-shell #activeOrdersPanel .os-card-grid {
+      display:grid; width:100%; max-width:none!important;
+      grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr))!important;
+      align-content:start; gap:14px!important;
+    }
+    @media(max-width:760px) {
+      html#gm-premium body.panel-mode.premium-shell .os-broadcast-head { min-height:52px; padding:7px 12px!important; }
+      html#gm-premium body.panel-mode.premium-shell .gm-live-health { font-size:11px; }
+      html#gm-premium body.panel-mode.premium-shell .os-broadcast-clock { gap:7px; }
+      html#gm-premium body.panel-mode.premium-shell .os-broadcast-clock time { font-size:22px; }
+      html#gm-premium body.panel-mode.premium-shell .os-broadcast-clock span { font-size:10px; }
+      html#gm-premium body.panel-mode.premium-shell #activeOrdersPanel { padding:10px 10px 14px!important; }
+    }
+  </style>
 </head>
 <body class="auth-loading auth-restoring">
   <script id="design-theme-bootstrap">
@@ -27627,6 +27686,9 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
       if (options.persist !== false) scopedSetItem(ACTIVE_VIEW_KEY, nextView, "user");
       if (nextView !== "activeOrders" && document.body.classList.contains("panel-mode")) {
         document.body.classList.remove("panel-mode");
+        const panelView = $("activeOrders");
+        ["width", "max-width", "min-width", "height", "margin", "padding"].forEach(property => panelView?.style.removeProperty(property));
+        if (typeof gmRenderLiveHealth === "function") gmRenderLiveHealth();
         const url = new URL(window.location.href);
         if (url.searchParams.has("panel")) {
           url.searchParams.delete("panel");
@@ -27727,8 +27789,16 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
       renderOsPanelBrand();
       restoreOsPanelFilterState();
       setView("activeOrders", { persist:false, silent:true, route:false });
+      const panelView = $("activeOrders");
+      panelView?.style.setProperty("width", "100vw", "important");
+      panelView?.style.setProperty("max-width", "none", "important");
+      panelView?.style.setProperty("min-width", "0", "important");
+      panelView?.style.setProperty("height", "100%", "important");
+      panelView?.style.setProperty("margin", "0", "important");
+      panelView?.style.setProperty("padding", "0", "important");
       document.body.classList.remove("os-panel-booting");
       if (!isPanelMode()) return;
+      if (typeof gmRenderLiveHealth === "function") gmRenderLiveHealth();
       updateIndustrialClock();
       setupOsPanelLiveSync();
       schedulePanelAutoScroll(2500);
@@ -39855,6 +39925,10 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
         root.append(status);
         view.prepend(root);
       }
+      const panelMode = view.id === "activeOrders" && document.body.classList.contains("panel-mode");
+      const panelHead = panelMode ? view.querySelector(".os-broadcast-head") : null;
+      if (panelHead && root.parentElement !== panelHead) panelHead.prepend(root);
+      else if (!panelMode && root.parentElement !== view) view.prepend(root);
       const last = gmLiveHealth.checkedAt ? new Date(gmLiveHealth.checkedAt).toLocaleTimeString("pt-BR") : "";
       root.querySelector("span").textContent = !navigator.onLine
         ? "Sem conexão — dados podem estar desatualizados."
