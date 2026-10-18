@@ -16561,6 +16561,144 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title strong, .os-li
 body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live-desc span, .os-live-route small, .os-live-data small) {
   color: #60758a !important;
 }
+.os-broadcast-brands {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+.os-broadcast-system-logo,
+.os-broadcast-company-brand {
+  display: grid !important;
+  place-items: center;
+  flex: 0 0 auto;
+}
+.os-broadcast-system-logo img {
+  display: block;
+  width: 152px !important;
+  height: 48px !important;
+  padding: 5px;
+  border: 1px solid #27445e;
+  border-radius: 9px;
+  background: #071827;
+  object-fit: contain;
+}
+.os-broadcast-brand-divider {
+  width: 1px;
+  height: 38px;
+  background: #66819a;
+  opacity: .55;
+}
+.os-broadcast-company-mark {
+  display: grid !important;
+  place-items: center;
+  width: 112px;
+  height: 48px;
+  padding: 5px 8px;
+  overflow: hidden;
+  border: 1px solid #35536d;
+  border-radius: 9px;
+  background: #fff;
+}
+.os-broadcast-company-mark img {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  object-fit: contain;
+}
+.os-broadcast-company-mark strong {
+  color: #17324b;
+  font-size: 18px;
+  font-weight: 850;
+  letter-spacing: .04em;
+}
+body.theme-light.panel-mode .os-broadcast-system-logo img {
+  border-color: #c8d7e3;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(31, 66, 94, .10);
+}
+body.theme-light.panel-mode .os-broadcast-company-mark {
+  border-color: #c8d7e3;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(31, 66, 94, .10);
+}
+body.os-panel-fullscreen {
+  overflow: hidden !important;
+}
+body.os-panel-fullscreen .workspace {
+  display: flex !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  min-height: 0 !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+body.os-panel-fullscreen #activeOrders.view.active {
+  display: flex !important;
+  flex: 1 1 auto;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0;
+  min-height: 0;
+  padding: 0 !important;
+}
+body.os-panel-fullscreen #activeOrders > .gm01-page-header {
+  display: none !important;
+}
+body.os-panel-fullscreen #activeOrders > .panel {
+  display: grid !important;
+  flex: 1 1 auto;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0;
+  min-height: 0;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+}
+body.os-panel-fullscreen .os-broadcast-head {
+  display: flex !important;
+  justify-content: flex-end;
+  min-height: 0;
+  padding: 10px 20px 8px;
+  border: 0 !important;
+  background: transparent !important;
+}
+body.os-panel-fullscreen .os-broadcast-head > :not(.os-broadcast-clock) {
+  display: none !important;
+}
+body.os-panel-fullscreen .os-broadcast-clock {
+  min-width: 0;
+  justify-items: end;
+}
+body.os-panel-fullscreen .os-broadcast-clock span {
+  display: none !important;
+}
+body.os-panel-fullscreen #activeOrdersPanel {
+  width: 100% !important;
+  min-width: 0;
+  min-height: 0;
+  padding: 10px 18px 18px !important;
+  overflow: auto !important;
+}
+body.os-panel-fullscreen #activeOrdersPanel .os-card-grid {
+  width: 100%;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)) !important;
+  align-content: start;
+  gap: 14px !important;
+}
+body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
+  min-height: 0 !important;
+}
 @media (max-width: 1180px) {
   #map .industrial-map-filters {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -16605,6 +16743,17 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   }
   body.panel-mode .workspace {
     padding: 6px !important;
+  }
+  body.os-panel-fullscreen .workspace,
+  body.os-panel-fullscreen #activeOrders.view.active,
+  body.os-panel-fullscreen #activeOrders > .panel {
+    padding: 0 !important;
+  }
+  body.os-panel-fullscreen .os-broadcast-head {
+    padding: 8px 12px 4px;
+  }
+  body.os-panel-fullscreen #activeOrdersPanel {
+    padding: 6px 10px 12px !important;
   }
   body.panel-mode #activeOrders .panel {
     overflow: visible;
@@ -22243,11 +22392,10 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         <header class="os-broadcast-head">
           <div class="os-broadcast-brand">
             <div class="os-broadcast-brands" aria-label="GestMan365 e empresa contratante">
-              <span class="os-broadcast-system-logo"><img src="assets/ui/illustrations/gestman365-logo.png" alt="GestMan365 — CMMS Industrial"></span>
+              <span class="os-broadcast-system-logo"><img src="assets/ui/illustrations/gestman365-logo.png" data-theme-logo alt="GestMan365 — CMMS Industrial"></span>
               <i class="os-broadcast-brand-divider" aria-hidden="true"></i>
               <span class="os-broadcast-company-brand" id="osPanelCompanyBrand">
                 <span class="os-broadcast-company-mark"><img id="osPanelCompanyLogo" alt="" hidden><strong id="osPanelCompanyLogoFallback" aria-hidden="true">GM</strong></span>
-                <span><small>EMPRESA CONTRATANTE</small><strong id="osPanelCompanyName">Empresa</strong></span>
               </span>
             </div>
             <div class="os-broadcast-title"><span>ACOMPANHAMENTO OPERACIONAL</span><h2>Painel de Ordens de Serviço</h2><p>Atendimentos atribuídos aos executantes · atualização automática ao vivo</p></div>
@@ -23345,10 +23493,10 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     }
     function renderOsPanelBrand() {
       const companyName = String(currentAccount?.company?.name || state?.profile?.company || "Empresa contratante").trim();
-      const nameTarget = $("osPanelCompanyName");
+      const brandTarget = $("osPanelCompanyBrand");
       const logoTarget = $("osPanelCompanyLogo");
       const fallbackTarget = $("osPanelCompanyLogoFallback");
-      if (nameTarget) nameTarget.textContent = companyName;
+      if (brandTarget) brandTarget.setAttribute("aria-label", `Logo da empresa contratante: ${companyName}`);
       if (fallbackTarget) fallbackTarget.textContent = osPanelBrandInitials(companyName);
       if (!logoTarget || !fallbackTarget) return;
       const logo = companyLogoData();
@@ -27569,6 +27717,9 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       }
       document.documentElement.requestFullscreen?.().catch(() => showToast("O navegador não permitiu abrir em tela cheia.", "warning"));
     }
+    document.addEventListener("fullscreenchange", () => {
+      document.body.classList.toggle("os-panel-fullscreen", Boolean(document.fullscreenElement) && isPanelMode());
+    });
     function applyPanelMode() {
       if (!isPanelMode() || !currentAccount) return;
       document.body.classList.add("panel-mode");
