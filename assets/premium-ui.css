@@ -11,6 +11,8 @@
  html#gm-premium body.premium-shell.platform-owner-mode #mainNavigation{display:none!important}
 }
 @layer premium {
+/* Mask-based action icons need a painted surface; legacy menu span rules clear it. */
+.context-menu .menu-item .gm-icon.gm-flaticon-icon{display:block!important;width:16px!important;height:16px!important;flex:0 0 16px!important;background-color:currentColor!important;border-radius:0!important;box-shadow:none!important;filter:none!important}
 html#gm-premium body.premium-shell{
   --p-bg:#0c111b;--p-surface:#131b29;--p-raised:#1a2535;--p-hover:#202e42;
   --p-text:#edf2fa;--p-muted:#a4b2c7;--p-line:#2a384c;--p-accent:#78b2ff;--p-blue:#1b61d6;--p-tint:#1c3251;
