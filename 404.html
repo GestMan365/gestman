@@ -10600,11 +10600,9 @@
     .auth-logo-loader{display:none;position:fixed;inset:0;z-index:5;place-items:center;pointer-events:none}
     body.auth-loading .auth-logo-loader{display:grid}
     .auth-logo-loader svg{display:block;width:min(260px,58vw,38vh);height:auto;overflow:visible;opacity:0;transform:scale(.9);animation:authLogoEnter .5s cubic-bezier(.2,.75,.25,1) forwards}
-    .auth-logo-base{mask:url(#gm-loader-static-mask)}
-    .auth-logo-gear{mask:url(#gm-loader-gear-mask);transform-box:view-box;transform-origin:380px 620px;animation:authGearSpin 5.2s linear infinite}
-    .auth-logo-letters{clip-path:url(#gm-loader-letter-regions)}
-    .auth-logo-pixel{opacity:0;animation:authPixelStartup 2.4s ease-in-out infinite;animation-delay:var(--pixel-delay)}
-    .auth-logo-pixel.is-green{filter:drop-shadow(0 0 7px rgba(43,255,117,.55));animation-name:authPixelGreen}
+    .auth-logo-gear{mask:url(#gm-loader-gear-mask);transform-box:view-box;transform-origin:380px 620px;filter:drop-shadow(0 0 5px rgba(48,151,255,.78));animation:authGearSpin 2.8s linear infinite}
+    .auth-logo-pixel{opacity:.86;filter:drop-shadow(0 0 0 rgba(225,248,255,0));animation:authPixelStartup 2.4s ease-in-out infinite;animation-delay:var(--pixel-delay)}
+    .auth-logo-pixel.is-green{opacity:.94;filter:drop-shadow(0 0 2px rgba(43,255,117,.45));animation-name:authPixelGreen}
     .auth-logo-sweep{mask:url(#gm-loader-alpha-mask);opacity:.34;animation:authEnergySweep 3.4s ease-in-out infinite}
     body.auth-loading-finishing .auth-logo-loader svg{animation:authLogoExit .3s ease-in forwards}
     body.auth-loading-finishing .auth-logo-gear{animation:authGearFinish .3s cubic-bezier(.2,.7,.2,1) forwards}
@@ -10615,8 +10613,8 @@
     @keyframes authLogoExit{0%{opacity:var(--auth-logo-current-opacity,1);transform:scale(var(--auth-logo-current-scale,1))}100%{opacity:0;transform:scale(.98)}}
     @keyframes authGearSpin{to{transform:rotate(360deg)}}
     @keyframes authGearFinish{0%{transform:rotate(var(--auth-gear-current,0deg))}100%{transform:rotate(var(--auth-gear-final,38deg))}}
-    @keyframes authPixelStartup{0%,7%,34%,100%{opacity:0}12%,27%{opacity:.94}}
-    @keyframes authPixelGreen{0%,7%,34%,100%{opacity:.24}12%,27%{opacity:1}}
+    @keyframes authPixelStartup{0%,100%{opacity:.86;filter:drop-shadow(0 0 0 rgba(225,248,255,0))}12%,30%{opacity:1;filter:drop-shadow(0 0 7px rgba(225,248,255,.95))}}
+    @keyframes authPixelGreen{0%,100%{opacity:.94;filter:drop-shadow(0 0 2px rgba(43,255,117,.45))}12%,30%{opacity:1;filter:drop-shadow(0 0 9px rgba(43,255,117,.9))}}
     @keyframes authEnergySweep{0%,100%{transform:translateX(-1254px);opacity:0}22%,56%{opacity:.34}78%{transform:translateX(1254px);opacity:0}}
     @keyframes authFinalPulse{0%{opacity:.2}45%{opacity:.66}100%{opacity:0}}
     @media(prefers-reduced-motion:reduce){
@@ -21201,17 +21199,12 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
     <div class="auth-logo-loader" id="authLogoLoader" aria-hidden="true">
       <svg viewBox="0 0 1254 1254" role="presentation" focusable="false">
         <defs>
-          <mask id="gm-loader-static-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1254" height="1254">
-            <rect width="1254" height="1254" fill="white"/><circle cx="380" cy="620" r="485" fill="black"/><circle cx="380" cy="620" r="278" fill="white"/>
-            <rect x="1044" y="374" width="75" height="75" fill="black"/><rect x="1128" y="374" width="75" height="75" fill="black"/><rect x="960" y="464" width="75" height="75" fill="black"/><rect x="1044" y="464" width="75" height="75" fill="black"/><rect x="1128" y="464" width="75" height="75" fill="black"/><rect x="1044" y="548" width="75" height="75" fill="black"/>
-          </mask>
-          <mask id="gm-loader-gear-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1254" height="1254"><rect width="1254" height="1254" fill="black"/><circle cx="380" cy="620" r="485" fill="white"/><circle cx="380" cy="620" r="278" fill="black"/></mask>
+          <mask id="gm-loader-gear-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1254" height="1254"><rect width="1254" height="1254" fill="black"/><circle cx="380" cy="620" r="485" fill="white"/><circle cx="380" cy="620" r="365" fill="black"/></mask>
           <mask id="gm-loader-alpha-mask" mask-type="alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="1254" height="1254"><image href="assets/ui/illustrations/gmi-loader-mark.png" width="1254" height="1254"/></mask>
-          <clipPath id="gm-loader-letter-regions" clipPathUnits="userSpaceOnUse"><rect x="270" y="390" width="690" height="590"/></clipPath>
           <clipPath id="gm-loader-pixel-1" clipPathUnits="userSpaceOnUse"><rect x="1044" y="374" width="75" height="75"/></clipPath><clipPath id="gm-loader-pixel-2" clipPathUnits="userSpaceOnUse"><rect x="1128" y="374" width="75" height="75"/></clipPath><clipPath id="gm-loader-pixel-3" clipPathUnits="userSpaceOnUse"><rect x="960" y="464" width="75" height="75"/></clipPath><clipPath id="gm-loader-pixel-4" clipPathUnits="userSpaceOnUse"><rect x="1044" y="464" width="75" height="75"/></clipPath><clipPath id="gm-loader-pixel-5" clipPathUnits="userSpaceOnUse"><rect x="1128" y="464" width="75" height="75"/></clipPath><clipPath id="gm-loader-pixel-6" clipPathUnits="userSpaceOnUse"><rect x="1044" y="548" width="75" height="75"/></clipPath>
           <linearGradient id="gm-loader-energy-gradient" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".48" stop-color="#dffaff" stop-opacity=".65"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
         </defs>
-        <image class="auth-logo-base" href="assets/ui/illustrations/gmi-loader-mark.png" width="1254" height="1254"/><image class="auth-logo-gear" href="assets/ui/illustrations/gmi-loader-mark.png" width="1254" height="1254"/><image class="auth-logo-letters" href="assets/ui/illustrations/gmi-loader-mark.png" width="1254" height="1254"/>
+        <image href="assets/ui/illustrations/gmi-loader-mark.png" width="1254" height="1254"/><image class="auth-logo-gear" href="assets/ui/illustrations/gmi-loader-mark.png" width="1254" height="1254"/>
         <image class="auth-logo-pixel is-green" style="--pixel-delay:0s" clip-path="url(#gm-loader-pixel-1)" href="assets/ui/illustrations/gmi-loader-mark.png" width="1254" height="1254"/><image class="auth-logo-pixel" style="--pixel-delay:.16s" clip-path="url(#gm-loader-pixel-2)" href="assets/ui/illustrations/gmi-loader-mark.png" width="1254" height="1254"/><image class="auth-logo-pixel" style="--pixel-delay:.32s" clip-path="url(#gm-loader-pixel-3)" href="assets/ui/illustrations/gmi-loader-mark.png" width="1254" height="1254"/><image class="auth-logo-pixel" style="--pixel-delay:.48s" clip-path="url(#gm-loader-pixel-4)" href="assets/ui/illustrations/gmi-loader-mark.png" width="1254" height="1254"/><image class="auth-logo-pixel" style="--pixel-delay:.64s" clip-path="url(#gm-loader-pixel-5)" href="assets/ui/illustrations/gmi-loader-mark.png" width="1254" height="1254"/><image class="auth-logo-pixel" style="--pixel-delay:.80s" clip-path="url(#gm-loader-pixel-6)" href="assets/ui/illustrations/gmi-loader-mark.png" width="1254" height="1254"/>
         <rect class="auth-logo-sweep" x="0" y="0" width="1254" height="1254" fill="url(#gm-loader-energy-gradient)"/>
       </svg>
