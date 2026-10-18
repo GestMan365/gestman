@@ -22656,6 +22656,7 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
   <script src="assets/preventive-year.js"></script>
   <script src="assets/preventive-year-ui.js"></script>
   <link rel="stylesheet" href="assets/maintenance-charts.css?v=readable-metrics-2">
+  <link rel="stylesheet" href="assets/dashboard-distributions.css?v=clear-distributions-1">
   <script src="assets/maintenance-charts.js?v=readable-metrics-2"></script>
   <link rel="stylesheet" href="assets/operational-planning.css">
   <script src="assets/operational-planning.js"></script>
@@ -29186,17 +29187,22 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
       const target = $("statusBars"); if (!target) return;
       const orders = dashboardFilteredData().orders;
       const definitions = [
-        { key:"open", label:"Aberta", color:"#1d8cff" }, { key:"running", label:"Em execução", color:"#f97316" },
-        { key:"planned", label:"Planejada", color:"#38bdf8" }, { key:"material", label:"Aguardando material", color:"#facc15" },
-        { key:"approval", label:"Aguardando aprovação", color:"#a78bfa" }, { key:"completed", label:"Concluída no período", color:"#22c55e" }
+        { key:"open", label:"Abertas", color:"#2584ed" }, { key:"running", label:"Em execução", color:"#f08a35" },
+        { key:"planned", label:"Planejadas", color:"#26a6bc" }, { key:"material", label:"Aguardando material", color:"#d9a52b" },
+        { key:"approval", label:"Aguardando aprovação", color:"#9475cf" }
       ];
-      const total = orders.length;
       const counts = Object.fromEntries(definitions.map(item => [item.key, orders.filter(order => backlogStatusKey(order) === item.key).length]));
-      const backlog = definitions.filter(item => item.key !== "completed").reduce((sum,item) => sum + counts[item.key],0);
-      target.innerHTML = definitions.map(item => {
-        const count=counts[item.key]; const percent=total ? count/total*100 : 0;
-        return `<div class="maintenance-backlog-row"><span>${item.label}</span><strong>${count.toLocaleString("pt-BR")}</strong><small>${percent.toLocaleString("pt-BR", { maximumFractionDigits:0 })}%</small><div class="maintenance-backlog-track"><i style="--backlog-width:${percent}%;--backlog-color:${item.color}"></i></div></div>`;
-      }).join("") + `<div class="maintenance-backlog-footer"><span>Total no backlog <strong>${backlog.toLocaleString("pt-BR")}</strong></span><button class="chart-link-button" type="button" onclick="openMaintenanceBacklog()">Ver backlog completo</button></div>`;
+      const backlog = definitions.reduce((sum,item) => sum + counts[item.key],0);
+      const completed = orders.filter(order => backlogStatusKey(order) === "completed").length;
+      const waiting = counts.material + counts.approval;
+      const percent = count => backlog ? count / backlog * 100 : 0;
+      const fmt = count => count.toLocaleString("pt-BR");
+      target.innerHTML = `<div class="gm-distribution-hero"><div><span class="gm-distribution-eyebrow">ORDENS PENDENTES</span><strong class="gm-distribution-total">${fmt(backlog)}<small>O.S.</small></strong><p>Aguardando conclusão no filtro atual</p></div><div class="gm-distribution-callouts"><span><i style="background:#f08a35"></i><strong>${fmt(counts.running)}</strong> em execução</span><span><i style="background:#d9a52b"></i><strong>${fmt(waiting)}</strong> aguardando material ou aprovação</span></div></div>
+        <div class="gm-distribution-stack" role="img" aria-label="Distribuição de ${backlog} ordens pendentes">${definitions.filter(item => counts[item.key]).map(item=>`<span style="width:${percent(counts[item.key])}%;background:${item.color}" title="${item.label}: ${counts[item.key]}"></span>`).join("")}</div>
+        <div class="gm-distribution-caption"><strong>Composição do backlog</strong><span>% das ordens pendentes</span></div>
+        <div class="gm-distribution-rows">${definitions.map(item=>`<div class="gm-distribution-row ${counts[item.key] ? "" : "is-zero"}" style="--distribution-color:${item.color}"><div class="gm-distribution-row-head"><span><i></i>${item.label}</span><strong>${fmt(counts[item.key])}</strong><small>${Math.round(percent(counts[item.key]))}%</small></div><div class="gm-distribution-track"><span style="width:${percent(counts[item.key])}%"></span></div></div>`).join("")}</div>
+        <div class="gm-backlog-completed"><span class="gm-completed-check" aria-hidden="true">✓</span><div><strong>${fmt(completed)} encerradas no período</strong><span>Fora do total de ordens pendentes</span></div></div>
+        <div class="maintenance-backlog-footer"><span>${backlog ? "Priorize a fila e acompanhe a execução." : "Nenhuma ordem pendente neste filtro."}</span><button class="chart-link-button" type="button" onclick="openMaintenanceBacklog()">Ver backlog completo →</button></div>`;
     }
     function assetHealthCategory(asset) {
       const status = normalizeTextKey(asset.status);
@@ -29220,16 +29226,22 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
       const target = $("criticalityBars"); if (!target) return;
       const assets = dashboardFilteredData().assets;
       const definitions = [
-        { key:"excellent", label:"Excelente", color:"#22c55e" }, { key:"good", label:"Bom", color:"#1d8cff" },
-        { key:"regular", label:"Regular", color:"#facc15" }, { key:"critical", label:"Crítico", color:"#ef4444" }
+        { key:"excellent", label:"Excelente", color:"#28b487" }, { key:"good", label:"Bom", color:"#2584ed" },
+        { key:"regular", label:"Regular", color:"#d9a52b" }, { key:"critical", label:"Crítico", color:"#e35c68" }
       ];
       const classified = assets.map(asset => ({ asset, health:assetHealthCategory(asset) }));
       const counts = Object.fromEntries(definitions.map(item => [item.key, classified.filter(entry => entry.health.key === item.key).length]));
       const total = assets.length;
-      const gradient = total ? industrialDonutGradient(definitions.map(item => counts[item.key]), definitions.map(item => item.color)) : "conic-gradient(#334155 0 100%)";
+      const gradient = total ? industrialDonutGradient(definitions.map(item => counts[item.key]), definitions.map(item => item.color)) : "conic-gradient(#738297 0 100%)";
       const attention = counts.regular + counts.critical;
       const healthy = counts.excellent + counts.good;
-      target.innerHTML = `<div class="asset-health-overview"><div class="asset-health-donut" style="--health-donut:${gradient}" role="img" aria-label="${total} equipamentos: ${counts.excellent} excelentes, ${counts.good} bons, ${counts.regular} regulares e ${counts.critical} críticos"><div><strong>${total.toLocaleString("pt-BR")}</strong><span>ativos</span></div></div><div class="asset-health-summary"><span class="asset-health-summary-label">PANORAMA DA FROTA</span><strong>${attention.toLocaleString("pt-BR")} <span>sob atenção</span></strong><small>${healthy.toLocaleString("pt-BR")} em condição boa ou excelente · ${total ? Math.round(healthy / total * 100) : 0}% do total</small></div></div><div class="asset-health-breakdown">${definitions.map(item => { const count=counts[item.key]; const percent=total ? count/total*100 : 0; return `<div class="asset-health-breakdown-row" style="--health-color:${item.color};--health-width:${percent}%"><div class="asset-health-breakdown-head"><span><i></i>${item.label}</span><strong>${count.toLocaleString("pt-BR")}</strong><small>${percent.toLocaleString("pt-BR", { maximumFractionDigits:0 })}%</small></div><div class="asset-health-breakdown-track"><i></i></div></div>`; }).join("")}</div><div class="asset-health-footer"><button class="chart-link-button" type="button" onclick="openCriticalAssets()">Ver ${counts.critical.toLocaleString("pt-BR")} ativo${counts.critical === 1 ? "" : "s"} crítico${counts.critical === 1 ? "" : "s"}</button></div>`;
+      const healthyPercent = total ? Math.round(healthy / total * 100) : 0;
+      const fmt = count => count.toLocaleString("pt-BR");
+      target.innerHTML = `<div class="asset-health-overview"><div class="asset-health-donut" style="--health-donut:${gradient}" role="img" aria-label="${total} equipamentos: ${counts.excellent} excelentes, ${counts.good} bons, ${counts.regular} regulares e ${counts.critical} críticos"><div><strong>${fmt(total)}</strong><span>ativos avaliados</span></div></div><div class="asset-health-summary"><span class="asset-health-summary-label">PRECISAM DE ATENÇÃO</span><strong>${fmt(attention)} <span>ativos</span></strong><small>${fmt(counts.regular)} regulares · ${fmt(counts.critical)} críticos</small><span class="gm-health-good"><i></i>${healthyPercent}% em boa ou excelente condição</span></div></div>
+        <div class="gm-distribution-caption"><strong>Condição dos equipamentos</strong><span>% do total de ativos</span></div>
+        <div class="gm-distribution-rows">${definitions.map(item=>{const count=counts[item.key],percent=total?count/total*100:0;return `<div class="gm-distribution-row ${count?"":"is-zero"}" style="--distribution-color:${item.color}"><div class="gm-distribution-row-head"><span><i></i>${item.label}</span><strong>${fmt(count)}</strong><small>${Math.round(percent)}%</small></div><div class="gm-distribution-track"><span style="width:${percent}%"></span></div></div>`;}).join("")}</div>
+        <details class="gm-health-method"><summary>Como a condição é avaliada</summary><p>Classificação indicativa com base no status do ativo, criticidade, ordens abertas, paradas ativas, planos vencidos e medições críticas. Não substitui a inspeção técnica do equipamento.</p></details>
+        <div class="asset-health-footer"><span>${total ? `${fmt(healthy)} de ${fmt(total)} em boa ou excelente condição` : "Nenhum ativo neste filtro"}</span><button class="chart-link-button" type="button" onclick="openCriticalAssets()">Ver ${fmt(counts.critical)} ativo${counts.critical===1?"":"s"} crítico${counts.critical===1?"":"s"} →</button></div>`;
     }
     function openMaintenanceBacklog() {
       dashboardBacklogView = true;
