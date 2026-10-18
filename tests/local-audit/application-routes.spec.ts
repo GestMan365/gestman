@@ -33,6 +33,24 @@ async function prepareRouteAccount(page: import("@playwright/test").Page) {
   });
 }
 
+test("ícone do equipamento não cobre o texto no card de O.S. do dashboard", async ({ page }) => {
+  await page.goto("./");
+  await prepareRouteAccount(page);
+  await page.evaluate(() => window.eval('renderActiveOrdersPanel("dashboardActiveOrders", 4)'));
+
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    const layout = await page.locator("#dashboardActiveOrders .os-live-head").evaluate(head => {
+      const icon = head.querySelector<HTMLElement>(".os-panel-machine-photo")!;
+      return {
+        firstColumn: Number.parseFloat(getComputedStyle(head).gridTemplateColumns),
+        iconWidth: Number.parseFloat(getComputedStyle(icon).width),
+      };
+    });
+    expect(layout.firstColumn).toBeGreaterThanOrEqual(layout.iconWidth);
+  }
+});
+
 test("refresh direto restaura módulo, O.S. e filtros da query", async ({ page }) => {
   await page.goto("./?empresa=nadir&modulo=ordens-de-servico&os=qa-route-order&status=Aberta&prioridade=Alta");
   await prepareRouteAccount(page);
