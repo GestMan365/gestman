@@ -9,6 +9,20 @@ vm.createContext(context);
 vm.runInContext(source, context);
 const planning = context.GMOperationalPlanning;
 
+test("painel operacional trata base vazia e escapa nomes dos equipamentos", () => {
+  const target = { innerHTML: "" };
+  planning.renderSummary(target, planning.summary([], []));
+  assert.ok(!target.innerHTML.includes("NaN"));
+  assert.ok(!target.innerHTML.includes("Infinity"));
+  assert.ok(target.innerHTML.includes("Nenhum registro encontrado"));
+  const data = planning.summary([], []);
+  data.top = [{ name: '<img src=x onerror=alert(1)>', count: 2 }];
+  planning.renderSummary(target, data);
+  assert.ok(!target.innerHTML.includes('<img'));
+  assert.ok(target.innerHTML.includes('&lt;img'));
+  assert.ok(target.innerHTML.includes('aria-valuenow="2"'));
+});
+
 test("valida política sem inventar SLA e calcula prazo em horas", () => {
   assert.deepEqual(JSON.parse(JSON.stringify(planning.policy({ baixa: "24", media: "", alta: "2,5" }))), { slaHours: { baixa: 24, alta: 2.5 } });
   assert.equal(planning.deadline("Baixa", "2026-09-25T08:00:00.000Z", { slaHours: { baixa: 24 } }), "2026-09-26T08:00:00.000Z");

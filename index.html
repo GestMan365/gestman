@@ -22658,8 +22658,9 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
   <link rel="stylesheet" href="assets/maintenance-charts.css?v=readable-metrics-2">
   <link rel="stylesheet" href="assets/dashboard-distributions.css?v=clickable-distributions-2">
   <script src="assets/maintenance-charts.js?v=readable-metrics-2"></script>
-  <link rel="stylesheet" href="assets/operational-planning.css">
-  <script src="assets/operational-planning.js"></script>
+  <link rel="stylesheet" href="assets/operational-planning.css?v=operations-refresh-2">
+  <link rel="stylesheet" href="assets/dashboard-operations.css?v=operations-refresh-2">
+  <script src="assets/operational-planning.js?v=operations-refresh-2"></script>
   <script src="assets/vendor/qrcode-generator.js"></script>
   <script src="assets/ui/gestman-pagination.js"></script>
   <script defer src="assets/vendor/asset-qr-scanner.js"></script>
@@ -28740,7 +28741,7 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
       const target = $("dashboardAlertList");
       if (!target) return;
       const alerts = collectDashboardAlerts();
-      target.innerHTML = alerts.slice(0, 5).map(dashboardAlertHtml).join("") || `<div class="dashboard-alert-empty"><i>${gmIcon("checkCircle", { size:20 })}</i><span>Nenhum alerta importante no momento.</span></div>`;
+      target.innerHTML = alerts.length ? `<div class="gm-alert-overview"><span><i class="critical"></i><strong>${alerts.filter(item=>item.level==="critical").length}</strong> críticos</span><span><i class="attention"></i><strong>${alerts.filter(item=>item.level==="attention").length}</strong> atenção</span><small>Exibindo ${Math.min(5,alerts.length)} de ${alerts.length}</small></div><div class="gm-alert-rows">${alerts.slice(0,5).map(dashboardAlertHtml).join("")}</div><p class="gm-alert-hint">Selecione um alerta para abrir o registro correspondente.</p>` : `<div class="dashboard-alert-empty"><i>${gmIcon("checkCircle", { size:20 })}</i><span>Nenhum alerta importante no momento.</span></div>`;
       if ($("headerNotificationCount")) $("headerNotificationCount").textContent = alerts.length.toLocaleString("pt-BR");
     }
     function openDashboardAlertsModal() {
