@@ -130,6 +130,7 @@
         ${card.valid ? plot(card) : `<div class="gm-metric-state" role="status"><strong>Ainda não é possível calcular a evolução</strong><p>${escape(card.metric.detail || card.hint)}</p><p>${card.key === 'mtbf' ? 'Confira os horímetros ou vincule um calendário operacional aos ativos, além de registrar as falhas corretivas.' : card.key === 'availability' ? 'Vincule um calendário operacional válido aos ativos e registre as paradas com início e fim.' : 'Conclua os reparos corretivos com horários válidos de início e término.'}</p></div>`}
         ${card.value !== null ? `<p class="gm-metric-reference-label"><span aria-hidden="true"></span>Referência: ${card.key === 'availability' ? 'disponibilidade' : 'média'} do período · ${format(card.value, card.unit)}</p>` : ''}
         ${coverage(card)}
+        ${options.details ? '<button type="button" class="btn gm-metric-open-details" data-gm-skip-icon data-metric-details>Ver detalhes e O.S. do período</button>' : ''}
         ${card.valid ? `<div class="gm-metric-detail" aria-live="polite" data-point-detail>${initialDetail(card)}</div>` : ''}
         ${card.valid === 1 ? '<p class="gm-metric-empty">Apenas um intervalo com dados. Ainda não há histórico suficiente para mostrar uma tendência.</p>' : ''}
         ${card.metric.quality?.state === 'partial' ? '<p class="gm-metric-quality-note">Leitura parcial: resultado considera apenas os registros disponíveis.</p>' : ''}
@@ -140,6 +141,8 @@
       <div class="gm-metric-table-wrap" tabindex="0" role="region" aria-label="Tabela dos indicadores por intervalo"><table><caption>Valores oficiais por intervalo</caption><thead><tr><th scope="col">Indicador</th><th scope="col">Intervalo</th><th scope="col">Valor</th><th scope="col">Registros</th><th scope="col">Qualidade</th></tr></thead><tbody>${cards.flatMap(card => card.points.map(point => `<tr><th scope="row">${card.name} · ${point.period}</th><td>${escape(point.range)}</td><td>${format(point.value, card.unit)}</td><td>${point.recordCount}</td><td>${quality(point.quality)}</td></tr>`)).join('')}</tbody></table></div></details>`;
     cards.forEach(card => {
       const element = target.querySelector(`[data-metric="${card.key}"]`);
+      const details = point => options.details?.({key:card.key,name:card.name,unit:card.unit,metric:point ? {...card.metric,...point,period:{start:point.start,end:point.end},quality:{state:point.quality}} : card.metric,period:contract.period});
+      element.querySelector('[data-metric-details]')?.addEventListener('click', () => details());
       const select = event => {
         const hit = event.target.closest('[data-point]');
         if (!hit) return;
@@ -148,9 +151,14 @@
         element.querySelectorAll('.gm-metric-hit').forEach(node => node.classList.toggle('is-selected', node === hit));
       };
       element.addEventListener('pointerover', select);
-      element.addEventListener('click', select);
+      element.addEventListener('click', event => {
+        select(event);
+        const hit = event.target.closest('[data-point]');
+        if (hit) details(card.points[Number(hit.dataset.point)]);
+        else if (event.target.closest('.gm-metric-plot')) details();
+      });
       element.addEventListener('focusin', select);
-      element.addEventListener('keydown', event => { if (event.target.closest('[data-point]') && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); select(event); } });
+      element.addEventListener('keydown', event => { const hit=event.target.closest('[data-point]'); if (hit && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); select(event); details(card.points[Number(hit.dataset.point)]); } });
     });
   }
   root.GMMaintenanceCharts = Object.freeze({ model, render });

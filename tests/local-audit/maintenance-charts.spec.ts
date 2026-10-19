@@ -69,6 +69,8 @@ for (const viewport of [{width:1366,height:768},{width:951,height:535},{width:39
         await lastPoint.scrollIntoViewIfNeeded();
         await lastPoint.click();
         await expect(widget.locator('[data-metric="availability"] [data-point-detail]')).toContainText('91,25 %');
+        await expect(page.locator('#maintenanceMetricDetails')).toBeVisible();
+        await page.evaluate(()=>window.eval('closeModal()'));
         await page.screenshot({path:info.outputPath(`charts-mobile-last-${theme}.png`)});
       }
       const methodology = widget.getByText('Ver dados e metodologia',{exact:true});
@@ -175,6 +177,47 @@ test('cards e gráficos compartilham contrato, filtros e precisão após atualiz
   const requests = await page.evaluate(() => (window as any).qaMetricRequests);
   expect(requests.filter((request:any) => request.asset || request.plant === 'outra-planta')).toEqual([]);
   expect(requests.every((request:any) => [6,12,24].includes(request.seriesBuckets))).toBe(true);
+});
+
+test('detalhes exibem fontes oficiais, distinguem intervalo e abrem O.S. filtradas', async ({page}) => {
+  await prepare(page);
+  await page.evaluate(()=>window.eval(`
+    state.assets=[{id:'a',code:'A-001',name:'Bomba QA',status:'Operando'}];
+    state.orders=[{id:'o1',number:'OS-001',assetId:'a',type:'Corretiva',status:'Concluída'},{id:'o2',number:'OS-002',assetId:'a',type:'Corretiva',status:'Concluída'}];
+    state.measurements=[{id:'m1',assetId:'a',value:100,unit:'h'}];
+    state.downtimes=[{id:'d1',assetId:'a',orderId:'o1',reason:'Parada QA',status:'Encerrada'}];
+    const period={start:'2026-01-01T00:00:00Z',end:'2026-06-30T23:59:59Z'};
+    const metric=(value,recordIds,formula)=>({value,recordIds,recordCount:recordIds.length,period,formula,detail:'Base oficial QA',source:'Contrato QA',updatedAt:'2026-06-30T23:00:00Z',quality:{state:'valid',reason:'Base válida QA',ignoredRecords:0}});
+    const contract={period,updatedAt:'2026-06-30T23:00:00Z',metrics:{mttr:metric(2,['o1'],'duração total ÷ reparos'),mtbf:metric(100,['o1','m1'],'horas operacionais ÷ falhas'),availability:metric(95,['d1'],'tempo disponível ÷ tempo programado × 100')},series:{mttr:[{...period,start:'2026-01-01T00:00:00Z',end:'2026-01-31T23:59:59Z',value:4,recordIds:['o2'],recordCount:1,quality:'valid',detail:'Intervalo QA'}]}};
+    GMMaintenanceCharts.render(document.getElementById('trendChart'),contract,{details:openMaintenanceMetricDetails});
+  `));
+  await page.locator('[data-metric="mttr"] [data-metric-details]').click();
+  const modal=page.locator('#maintenanceMetricDetails');
+  await expect(modal).toContainText('duração total ÷ reparos');
+  await expect(modal).toContainText('OS-001');
+  await expect(modal).not.toContainText('OS-002');
+  await page.evaluate(()=>window.eval('closeModal()'));
+  await page.locator('[data-metric="mttr"] [data-point="0"]').focus();
+  await page.locator('[data-metric="mttr"] [data-point="0"]').press('Enter');
+  await expect(modal).toContainText('4 h');
+  await expect(modal).toContainText('OS-002');
+  await expect(modal).not.toContainText('OS-001');
+  await page.evaluate(()=>window.eval('closeModal()'));
+  await page.locator('[data-metric="mtbf"] [data-metric-details]').click();
+  await expect(modal).toContainText('Leitura');
+  await expect(modal).toContainText('100 h');
+  await page.evaluate(()=>window.eval('closeModal()'));
+  await page.locator('[data-metric="availability"] [data-metric-details]').click();
+  await expect(modal).toContainText('Parada QA');
+  await expect(modal).toContainText('não são fonte direta');
+  await expect(modal).toContainText('OS-001');
+  await expect(modal).not.toContainText('OS-002');
+  await page.screenshot({path:'test-results/metric-evidence-desktop.png'});
+  await page.setViewportSize({width:390,height:844});
+  expect(await modal.evaluate(el=>el.getBoundingClientRect().right<=innerWidth+1)).toBe(true);
+  await page.screenshot({path:'test-results/metric-evidence-mobile.png'});
+  await modal.locator('[data-evidence-orders]').click();
+  expect(await page.evaluate(()=>window.eval('filteredOrdersForWorkspace().map(order=>order.id)'))).toEqual(['o1']);
 });
 
 test('minigráficos não desenham zeros ou linhas através de lacunas', async ({page}) => {

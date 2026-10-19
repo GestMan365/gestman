@@ -22439,8 +22439,10 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   <script src="assets/preventive-year.js"></script>
   <script src="assets/preventive-year-ui.js"></script>
   <link rel="stylesheet" href="assets/maintenance-charts.css?v=readable-metrics-2">
+  <link rel="stylesheet" href="assets/maintenance-metric-details.css?v=metric-evidence-1">
+  <script src="assets/maintenance-metric-details.js?v=metric-evidence-1"></script>
   <link rel="stylesheet" href="assets/dashboard-distributions.css?v=clickable-distributions-2">
-  <script src="assets/maintenance-charts.js?v=readable-metrics-2"></script>
+  <script src="assets/maintenance-charts.js?v=metric-evidence-1"></script>
   <link rel="stylesheet" href="assets/operational-planning.css?v=operations-refresh-2">
   <link rel="stylesheet" href="assets/dashboard-operations.css?v=kpi-drilldown-5">
   <script src="assets/operational-planning.js?v=kpi-drilldown-5"></script>
@@ -28927,6 +28929,25 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
         drawDashboardSparkline(id + "Spark", card.points.map(point => point.value));
       });
     }
+    function openMaintenanceMetricDetails(selection) {
+      if (!hasPermission("dashboard") && !hasPermission("reports")) return denyProfileAccess();
+      if (gmStateDirty || gmSyncConflict) return showToast("Aguarde a sincronização para consultar a base oficial dos indicadores.");
+      const moduleFor = {orders:"orders",downtimes:"downtime",measurements:"measurements"};
+      const sources = Object.fromEntries(Object.entries(moduleFor).map(([kind,view]) => [kind, canAccessView(view) ? stage16ScopedRows(kind, state[kind] || []) : []]));
+      const evidence = window.GMMaintenanceMetricDetails.model(selection, sources);
+      openModal("Detalhes de " + selection.name, '<div id="maintenanceMetricDetails"></div>', true);
+      window.GMMaintenanceMetricDetails.render($("maintenanceMetricDetails"), evidence, {
+        assetName: id => hasPermission("assets") && stage16ScopedRows("assets",state.assets || []).some(asset => asset.id === id) ? machineName(id) : "Equipamento não disponível neste perfil",
+        openRecord: ({kind,record}) => {
+          if (!canAccessView(moduleFor[kind]) || !stage16ScopedRows(kind,state[kind] || []).some(item => item.id === record.id)) return denyProfileAccess();
+          closeModal();
+          if (kind === "orders") showOrderDetails(record.id);
+          else if (kind === "downtimes") openStage14DowntimeDetail(record.id);
+          else if (kind === "measurements") showStage15ReadingDetail(record.id);
+        },
+        openOrders: orderIds => { closeModal(); openOperationalOrderSelection({orderIds,label:selection.name + " — " + (selection.key === "availability" ? "O.S. vinculadas às paradas" : "O.S. usadas no cálculo")}); }
+      });
+    }
     function renderTrendChart() {
       const target = $("trendChart");
       if (!target || !window.GMMaintenanceCharts) return;
@@ -28942,6 +28963,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       window.GMMaintenanceCharts.render(target, contract, {
         state:chartState,
         scope:filters.plant || "Todas as plantas",
+        details:openMaintenanceMetricDetails,
         retry:() => { gmMaintenanceMetricsErrors.delete(key); renderTrendChart(); }
       });
     }
