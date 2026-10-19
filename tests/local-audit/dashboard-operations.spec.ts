@@ -18,7 +18,7 @@ test('barras abrem exatamente as ordens da prioridade, idade e equipamento e per
     ];
     render();
     const data=GMOperationalPlanning.summary(state.orders,state.assets,now),results=[];
-    for(const label of ['Prioridade — Alta','Idade do backlog — Menos de 7 dias','Idade do backlog — 90 dias ou mais','Corretivas — Bomba QA']) {
+    for(const label of ['Prioridade — Alta','Idade do backlog — Menos de 7 dias','Idade do backlog — 90 dias ou mais','Corretivas — Bomba QA','Tipo de manutenção — Preventiva','Tipo de manutenção — Corretiva']) {
       GMOperationalPlanning.renderSummary(document.getElementById('operationalInsights'),data,openOperationalOrderSelection);
       [...document.querySelectorAll('[data-ops-selection]')].find(button=>button.getAttribute('aria-label').includes(label)).click();
       results.push({label,ids:[...dashboardBacklogOrderIds].sort(),visible:filteredOrdersForWorkspace().map(order=>order.id).sort(),banner:document.getElementById('dashboardOrderSelection').textContent});
@@ -26,7 +26,7 @@ test('barras abrem exatamente as ordens da prioridade, idade e equipamento e per
     document.querySelector('#dashboardOrderSelection button').click();
     return {results,cleared:dashboardBacklogOrderIds===null&&!dashboardBacklogView};
   })()`));
-  expect(results.results.map((r:any)=>r.ids)).toEqual([['recent','unknown'],['recent'],[],['done','recent']]);
+  expect(results.results.map((r:any)=>r.ids)).toEqual([['recent','unknown'],['recent'],[],['done','recent'],['old','unknown'],['done','recent']]);
   for(const item of results.results) {
     expect(item.visible).toEqual(item.ids);
     expect(item.banner).toContain(item.label);

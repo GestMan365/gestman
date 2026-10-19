@@ -64,6 +64,7 @@ test("resume backlog deduplicado, ignora canceladas e não fabrica idade", () =>
   assert.equal(data.unknownAge, 1);
   assert.equal(data.corrective, 1);
   assert.equal(data.preventive, 1);
+  assert.deepEqual(JSON.parse(JSON.stringify(data.selections.maintenance)), {preventiva:['unknown'],corretiva:['open']});
   assert.deepEqual(JSON.parse(JSON.stringify(data.selections.age)), [["open"],[],[],[]]);
   assert.deepEqual(JSON.parse(JSON.stringify(data.selections.priority)), {Alta:["open"],Baixa:["unknown"]});
   assert.deepEqual(JSON.parse(JSON.stringify(data.selections.asset)), {"asset-1":["open"]});

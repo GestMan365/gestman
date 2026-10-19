@@ -42,6 +42,7 @@
     const active = unique.filter(order => !terminal(order.status));
     const age = [0,0,0,0], byPriority = new Map(), byAsset = new Map();
     const ageIds = [[],[],[],[]], priorityIds = new Map(), assetIds = new Map();
+    const maintenanceIds = {preventiva:[],corretiva:[]};
     let overdue = 0, noDeadline = 0, unknownAge = 0, preventive = 0, corrective = 0;
     for (const order of active) {
       const opened = stamp(order.createdAt || order.openedAt);
@@ -57,6 +58,7 @@
     for (const order of unique) {
       if (key(order.status).startsWith('cancelad')) continue;
       const type = key(order.maintenanceType || order.type || order.maintenance);
+      if (type === 'preventiva' || type === 'corretiva') maintenanceIds[type].push(order.id);
       if (type === 'preventiva') preventive++;
       if (type === 'corretiva') {
         corrective++;
@@ -68,7 +70,7 @@
       }
     }
     const top = [...byAsset].map(([id,count]) => ({ id, count, name:assets.find(asset => asset.id === id)?.name || 'Equipamento não disponível' })).sort((a,b) => b.count-a.count || a.name.localeCompare(b.name)).slice(0,5);
-    return { total:unique.length, active:active.length, overdue, noDeadline, unknownAge, age, byPriority:[...byPriority], preventive, corrective, top, selections:{age:ageIds,priority:Object.fromEntries(priorityIds),asset:Object.fromEntries(assetIds)} };
+    return { total:unique.length, active:active.length, overdue, noDeadline, unknownAge, age, byPriority:[...byPriority], preventive, corrective, top, selections:{age:ageIds,priority:Object.fromEntries(priorityIds),asset:Object.fromEntries(assetIds),maintenance:maintenanceIds} };
   }
   function renderSummary(target, data, onSelect) {
     if (!target) return;
@@ -89,7 +91,7 @@
       <div class="gm-ops-kpis">${[[data.active,'O.S. pendentes','Acompanhar a fila de atendimento','blue'],[data.overdue,'Prazos vencidos','Pendências que ultrapassaram o prazo','red'],[data.noDeadline,'Sem prazo válido','Ordens que precisam de um prazo','amber']].map(([count,label,hint,tone])=>`<div data-tone="${tone}"><span class="gm-ops-kpi-label">${label}</span><strong>${fmt(count)}</strong><small>${hint}</small></div>`).join('')}</div>
       <div class="gm-ops-columns"><section><header><span>01 · TEMPO EM ABERTO</span><h3>Idade do backlog</h3><p>Há quanto tempo as ordens aguardam conclusão</p></header>${bars(['Menos de 7 dias','7 a 29 dias','30 a 89 dias','90 dias ou mais'].map((name,i)=>[name,data.age[i]]),['#29a486','#4a91d8','#e6a23a','#e15b66'],data.active,['Menos de 7 dias','7 a 29 dias','30 a 89 dias','90 dias ou mais'].map((label,i)=>({label:'Idade do backlog — '+label,orderIds:data.selections?.age[i]||[]})))}${data.unknownAge?`<p class="gm-ops-quality">${fmt(data.unknownAge)} registro(s) sem data válida de abertura.</p>`:''}</section>
       <section><header><span>02 · URGÊNCIA</span><h3>Prioridades pendentes</h3><p>Distribuição das ordens ainda não encerradas</p></header>${bars(pendingPriorities,pendingPriorities.map(([label])=>priorityColors[label]),data.active,pendingPriorities.map(([label])=>({label:'Prioridade — '+label,orderIds:data.selections?.priority[label]||[]})))}</section>
-      <section><header><span>03 · ESTRATÉGIA DE MANUTENÇÃO</span><h3>Preventiva × corretiva</h3><p>Volume de ordens por tipo de manutenção</p></header>${bars([['Preventivas',data.preventive],['Corretivas',data.corrective]],['#29a486','#e68b35'],totalTyped)}<p class="gm-ops-quality">Inclui ordens concluídas; exclui canceladas. Percentuais sobre preventivas + corretivas.</p></section>
+      <section><header><span>03 · ESTRATÉGIA DE MANUTENÇÃO</span><h3>Preventiva × corretiva</h3><p>Volume de ordens por tipo de manutenção</p></header>${bars([['Preventivas',data.preventive],['Corretivas',data.corrective]],['#29a486','#e68b35'],totalTyped,['preventiva','corretiva'].map(type=>({label:'Tipo de manutenção — '+(type==='preventiva'?'Preventiva':'Corretiva'),orderIds:data.selections?.maintenance?.[type]||[]})))}<p class="gm-ops-quality">Inclui ordens concluídas; exclui canceladas. Percentuais sobre preventivas + corretivas.</p></section>
       <section><header><span>04 · RECORRÊNCIA</span><h3>Ativos com mais corretivas</h3><p>Equipamentos com maior número de ocorrências</p></header>${bars(data.top.map((item,index)=>[`${index+1}. ${item.name}`,item.count]),['#4a91d8'],undefined,data.top.map(item=>({label:'Corretivas — '+item.name,orderIds:data.selections?.asset[item.id]||[]})))}<p class="gm-ops-quality">Quantidade de ordens corretivas por equipamento.</p></section></div>
       <details class="gm-ops-scope"><summary>Sobre este histórico</summary><p>Histórico disponível da empresa, limitado ao seu perfil de acesso. Inclui pendências antigas; não é limitado pelo período dos gráficos de confiabilidade. Percentuais de idade e prioridade consideram todas as O.S. pendentes.</p></details>`;
     target.querySelectorAll?.('[data-ops-selection]').forEach(button => {
