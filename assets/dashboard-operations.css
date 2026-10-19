@@ -5,10 +5,13 @@
   #dashboard .gm-ops-context { display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; margin-bottom:16px; font-size:12px; }
   #dashboard .gm-ops-context small { color:var(--p-muted,#64788d); font-size:11px; }
   #dashboard .gm-ops-kpis { display:grid!important; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px!important; margin:0 0 20px!important; }
-  #dashboard .gm-ops-kpis > div { display:grid!important; gap:7px!important; padding:16px!important; border:1px solid var(--p-line,#d6e1ed)!important; border-top:3px solid var(--ops-tone)!important; border-radius:11px!important; background:color-mix(in srgb,var(--ops-tone) 4%,var(--p-surface,#fff)); }
+  #dashboard .gm-ops-kpis > :is(div,button) { display:grid!important; gap:7px!important; padding:16px!important; border:1px solid var(--p-line,#d6e1ed)!important; border-top:3px solid var(--ops-tone)!important; border-radius:11px!important; background:color-mix(in srgb,var(--ops-tone) 4%,var(--p-surface,#fff)); }
   #dashboard .gm-ops-kpis [data-tone=blue] { --ops-tone:#4a91d8; }
   #dashboard .gm-ops-kpis [data-tone=red] { --ops-tone:#e15b66; }
   #dashboard .gm-ops-kpis [data-tone=amber] { --ops-tone:#d99b32; }
+  html#gm-premium body.premium-shell #dashboard .gm-ops-kpi-action { min-width:0; width:100%; justify-items:start!important; align-content:start!important; text-align:left!important; color:var(--p-text,#19344c)!important; background:color-mix(in srgb,var(--ops-tone) 4%,var(--p-surface,#fff))!important; font:inherit; cursor:pointer; box-shadow:none!important; }
+  html#gm-premium body.premium-shell #dashboard .gm-ops-kpi-action:hover { background:var(--p-tint,#f0f6fc)!important; }
+  #dashboard .gm-ops-kpi-action:focus-visible { outline:2px solid var(--p-accent,#2584ed); outline-offset:2px; }
   #dashboard .gm-ops-kpi-label { font-size:12px; font-weight:600; }
   #dashboard .gm-ops-kpis strong { font-size:32px!important; line-height:1.1; font-variant-numeric:tabular-nums; letter-spacing:-.04em; }
   #dashboard .gm-ops-kpis small { color:var(--p-muted,#64788d); font-size:11px; line-height:1.5; }
@@ -64,7 +67,7 @@
   @media(max-width:700px) {
     #dashboard .gm-ops-columns { grid-template-columns:1fr!important; }
     #dashboard #operationalInsights { padding:16px!important; }
-    #dashboard .gm-ops-kpis > div { padding:12px!important; }
+    #dashboard .gm-ops-kpis > :is(div,button) { padding:12px!important; }
     #dashboard .gm-ops-kpis strong { font-size:27px!important; }
     #dashboard .gm-ops-kpis small { display:none; }
     html#gm-premium body.premium-shell #dashboard .dashboard-alert-item { grid-template-columns:32px minmax(0,1fr)!important; gap:8px 10px!important; }

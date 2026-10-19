@@ -10,15 +10,15 @@ test('barras abrem exatamente as ordens da prioridade, idade e equipamento e per
     state.assets=[{id:'a',code:'A-001',name:'Bomba QA',status:'Operando'}];
     const now=Date.now(),day=86400000;
     state.orders=[
-      {id:'recent',number:'OS-1',status:'Aberta',priority:'Alta',type:'Corretiva',assetId:'a',createdAt:now-day},
-      {id:'old',number:'OS-2',status:'Em execução',priority:'Baixa',type:'Preventiva',assetId:'a',createdAt:now-10*day},
+      {id:'recent',number:'OS-1',status:'Aberta',priority:'Alta',type:'Corretiva',assetId:'a',createdAt:now-day,deadline:now-day},
+      {id:'old',number:'OS-2',status:'Em execução',priority:'Baixa',type:'Preventiva',assetId:'a',createdAt:now-10*day,deadline:now+day},
       {id:'done',number:'OS-3',status:'Concluída',priority:'Alta',type:'Corretiva',assetId:'a',createdAt:now-100*day},
       {id:'cancel',number:'OS-4',status:'Cancelada',priority:'Alta',type:'Corretiva',assetId:'a',createdAt:now-day},
       {id:'unknown',number:'OS-5',status:'Aberta',priority:'Alta',type:'Preventiva',assetId:'a'}
     ];
     render();
     const data=GMOperationalPlanning.summary(state.orders,state.assets,now),results=[];
-    for(const label of ['Prioridade — Alta','Idade do backlog — Menos de 7 dias','Idade do backlog — 90 dias ou mais','Corretivas — Bomba QA','Tipo de manutenção — Preventiva','Tipo de manutenção — Corretiva']) {
+    for(const label of ['Prioridade — Alta','Idade do backlog — Menos de 7 dias','Idade do backlog — 90 dias ou mais','Corretivas — Bomba QA','Tipo de manutenção — Preventiva','Tipo de manutenção — Corretiva','O.S. pendentes','Prazos vencidos','Sem prazo válido']) {
       GMOperationalPlanning.renderSummary(document.getElementById('operationalInsights'),data,openOperationalOrderSelection);
       [...document.querySelectorAll('[data-ops-selection]')].find(button=>button.getAttribute('aria-label').includes(label)).click();
       results.push({label,ids:[...dashboardBacklogOrderIds].sort(),visible:filteredOrdersForWorkspace().map(order=>order.id).sort(),banner:document.getElementById('dashboardOrderSelection').textContent});
@@ -26,7 +26,7 @@ test('barras abrem exatamente as ordens da prioridade, idade e equipamento e per
     document.querySelector('#dashboardOrderSelection button').click();
     return {results,cleared:dashboardBacklogOrderIds===null&&!dashboardBacklogView};
   })()`));
-  expect(results.results.map((r:any)=>r.ids)).toEqual([['recent','unknown'],['recent'],[],['done','recent'],['old','unknown'],['done','recent']]);
+  expect(results.results.map((r:any)=>r.ids)).toEqual([['recent','unknown'],['recent'],[],['done','recent'],['old','unknown'],['done','recent'],['old','recent','unknown'],['recent'],['unknown']]);
   for(const item of results.results) {
     expect(item.visible).toEqual(item.ids);
     expect(item.banner).toContain(item.label);
@@ -70,6 +70,8 @@ for (const [width,light] of [[1440,true],[390,true],[1440,false]] as const) {
     await expect(page.locator('.industrial-quick-actions .gm-icon')).toHaveCount(6);
     expect(await page.locator('.dashboard-alert-icon .gm-icon').first().evaluate(el=>getComputedStyle(el).backgroundColor)).not.toBe('rgba(0, 0, 0, 0)');
     await expect(page.locator('.gm-ops-kpis')).toContainText('62');
+    await expect(page.locator('.gm-ops-kpi-action')).toHaveCount(3);
+    expect(await page.locator('.gm-ops-kpi-action').first().evaluate(el=>getComputedStyle(el).justifyItems)).toBe('start');
     await expect(page.locator('.gm-ops-columns > section')).toHaveCount(4);
     const layout = await page.evaluate(() => ({overflow:document.documentElement.scrollWidth>innerWidth,align:getComputedStyle(document.querySelector('.dashboard-alert-item')!).textAlign,colors:[...document.querySelectorAll('.gm-ops-columns section:nth-child(2) .gm-ops-bar-track i')].map(el=>getComputedStyle(el).backgroundColor)}));
     expect(layout.overflow).toBe(false);

@@ -51,6 +51,23 @@ test("valida calendário por equipamento sem preencher jornada presumida", () =>
   assert.throws(() => planning.calendar({ name: "Turno inválido", assetId: "asset-1", weekdays: [1], startTime: "17:00", endTime: "08:00" }, assets), /posterior/);
 });
 
+test("cards selecionam pendentes, vencidas e sem prazo com os mesmos critérios das contagens", () => {
+  const now = Date.parse('2026-10-19T12:00:00Z');
+  const data = planning.summary([
+    {id:'late',status:'Aberta',deadline:now-1},
+    {id:'future',status:'Em execução',dueAt:now+1000},
+    {id:'now',status:'Aberta',scheduledAt:now},
+    {id:'missing',status:'Aberta'},
+    {id:'invalid',status:'Aberta',deadline:'inválido'},
+    {id:'done',status:'Concluída',deadline:now-1},
+    {id:'cancel',status:'Cancelada'},
+  ], [], now);
+  assert.deepEqual(JSON.parse(JSON.stringify(data.selections.kpi)), {pending:['late','future','now','missing','invalid'],overdue:['late'],noDeadline:['missing','invalid']});
+  assert.equal(data.selections.kpi.pending.length, data.active);
+  assert.equal(data.selections.kpi.overdue.length, data.overdue);
+  assert.equal(data.selections.kpi.noDeadline.length, data.noDeadline);
+});
+
 test("resume backlog deduplicado, ignora canceladas e não fabrica idade", () => {
   const data = planning.summary([
     { id: "open", status: "Aberta", createdAt: "2026-09-24T00:00:00Z", priority: "Alta", type: "Corretiva", assetId: "asset-1" },

@@ -43,13 +43,15 @@
     const age = [0,0,0,0], byPriority = new Map(), byAsset = new Map();
     const ageIds = [[],[],[],[]], priorityIds = new Map(), assetIds = new Map();
     const maintenanceIds = {preventiva:[],corretiva:[]};
+    const kpiIds = {pending:active.map(order=>order.id),overdue:[],noDeadline:[]};
     let overdue = 0, noDeadline = 0, unknownAge = 0, preventive = 0, corrective = 0;
     for (const order of active) {
       const opened = stamp(order.createdAt || order.openedAt);
       if (!Number.isFinite(opened) || opened > now) unknownAge++;
       else { const elapsed = (now - opened) / 86400000, bucket = elapsed < 7 ? 0 : elapsed < 30 ? 1 : elapsed < 90 ? 2 : 3; age[bucket]++; ageIds[bucket].push(order.id); }
       const due = stamp(order.deadline || order.dueAt || order.scheduledAt);
-      if (!Number.isFinite(due)) noDeadline++; else if (due < now) overdue++;
+      if (!Number.isFinite(due)) { noDeadline++; kpiIds.noDeadline.push(order.id); }
+      else if (due < now) { overdue++; kpiIds.overdue.push(order.id); }
       const label = priorities.find(p => key(p) === key(order.priority)) || 'Sem prioridade';
       byPriority.set(label, (byPriority.get(label) || 0) + 1);
       if (!priorityIds.has(label)) priorityIds.set(label, []);
@@ -70,7 +72,7 @@
       }
     }
     const top = [...byAsset].map(([id,count]) => ({ id, count, name:assets.find(asset => asset.id === id)?.name || 'Equipamento não disponível' })).sort((a,b) => b.count-a.count || a.name.localeCompare(b.name)).slice(0,5);
-    return { total:unique.length, active:active.length, overdue, noDeadline, unknownAge, age, byPriority:[...byPriority], preventive, corrective, top, selections:{age:ageIds,priority:Object.fromEntries(priorityIds),asset:Object.fromEntries(assetIds),maintenance:maintenanceIds} };
+    return { total:unique.length, active:active.length, overdue, noDeadline, unknownAge, age, byPriority:[...byPriority], preventive, corrective, top, selections:{age:ageIds,priority:Object.fromEntries(priorityIds),asset:Object.fromEntries(assetIds),maintenance:maintenanceIds,kpi:kpiIds} };
   }
   function renderSummary(target, data, onSelect) {
     if (!target) return;
@@ -88,7 +90,11 @@
     const pendingPriorities = [...data.byPriority].sort((a,b)=>priorityOrder.indexOf(a[0])-priorityOrder.indexOf(b[0]));
     const totalTyped = data.preventive + data.corrective;
     target.innerHTML = `<div class="gm-ops-context"><span>Histórico completo da operação</span><small>Conforme seu perfil de acesso</small></div>
-      <div class="gm-ops-kpis">${[[data.active,'O.S. pendentes','Acompanhar a fila de atendimento','blue'],[data.overdue,'Prazos vencidos','Pendências que ultrapassaram o prazo','red'],[data.noDeadline,'Sem prazo válido','Ordens que precisam de um prazo','amber']].map(([count,label,hint,tone])=>`<div data-tone="${tone}"><span class="gm-ops-kpi-label">${label}</span><strong>${fmt(count)}</strong><small>${hint}</small></div>`).join('')}</div>
+      <div class="gm-ops-kpis">${[[data.active,'O.S. pendentes','Acompanhar a fila de atendimento','blue','pending'],[data.overdue,'Prazos vencidos','Pendências que ultrapassaram o prazo','red','overdue'],[data.noDeadline,'Sem prazo válido','Ordens que precisam de um prazo','amber','noDeadline']].map(([count,label,hint,tone,key])=>{
+        const clickable = typeof onSelect === 'function';
+        const action = clickable ? actions.push({label,orderIds:data.selections?.kpi?.[key]||[]})-1 : -1;
+        return `<${clickable?'button':'div'} data-tone="${tone}" ${clickable?`type="button" class="gm-ops-kpi-action" data-gm-skip-icon data-ops-selection="${action}" aria-label="Ver ${esc(label)}: ${fmt(count)} ordens"`:''}><span class="gm-ops-kpi-label">${label}</span><strong>${fmt(count)}</strong><small>${hint}</small></${clickable?'button':'div'}>`;
+      }).join('')}</div>
       <div class="gm-ops-columns"><section><header><span>01 · TEMPO EM ABERTO</span><h3>Idade do backlog</h3><p>Há quanto tempo as ordens aguardam conclusão</p></header>${bars(['Menos de 7 dias','7 a 29 dias','30 a 89 dias','90 dias ou mais'].map((name,i)=>[name,data.age[i]]),['#29a486','#4a91d8','#e6a23a','#e15b66'],data.active,['Menos de 7 dias','7 a 29 dias','30 a 89 dias','90 dias ou mais'].map((label,i)=>({label:'Idade do backlog — '+label,orderIds:data.selections?.age[i]||[]})))}${data.unknownAge?`<p class="gm-ops-quality">${fmt(data.unknownAge)} registro(s) sem data válida de abertura.</p>`:''}</section>
       <section><header><span>02 · URGÊNCIA</span><h3>Prioridades pendentes</h3><p>Distribuição das ordens ainda não encerradas</p></header>${bars(pendingPriorities,pendingPriorities.map(([label])=>priorityColors[label]),data.active,pendingPriorities.map(([label])=>({label:'Prioridade — '+label,orderIds:data.selections?.priority[label]||[]})))}</section>
       <section><header><span>03 · ESTRATÉGIA DE MANUTENÇÃO</span><h3>Preventiva × corretiva</h3><p>Volume de ordens por tipo de manutenção</p></header>${bars([['Preventivas',data.preventive],['Corretivas',data.corrective]],['#29a486','#e68b35'],totalTyped,['preventiva','corretiva'].map(type=>({label:'Tipo de manutenção — '+(type==='preventiva'?'Preventiva':'Corretiva'),orderIds:data.selections?.maintenance?.[type]||[]})))}<p class="gm-ops-quality">Inclui ordens concluídas; exclui canceladas. Percentuais sobre preventivas + corretivas.</p></section>
