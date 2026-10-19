@@ -1,12 +1,46 @@
 import { expect, test } from '@playwright/test';
 
+test('barras abrem exatamente as ordens da prioridade, idade e equipamento e permitem limpar', async ({page}) => {
+  await page.route('**/*', route => new URL(route.request().url()).hostname === '127.0.0.1' ? route.continue() : route.abort());
+  await page.goto('./');
+  const results = await page.evaluate(() => window.eval(`(() => {
+    document.body.classList.remove('auth-required','auth-loading','auth-restoring');
+    currentAccount={company:{id:'qa-drilldown',name:'QA',remoteSync:false},user:{id:'qa-admin',name:'QA',role:'admin',accessProfile:'admin',active:true}};
+    state=normalizeState(emptyState());
+    state.assets=[{id:'a',code:'A-001',name:'Bomba QA',status:'Operando'}];
+    const now=Date.now(),day=86400000;
+    state.orders=[
+      {id:'recent',number:'OS-1',status:'Aberta',priority:'Alta',type:'Corretiva',assetId:'a',createdAt:now-day},
+      {id:'old',number:'OS-2',status:'Em execução',priority:'Baixa',type:'Preventiva',assetId:'a',createdAt:now-10*day},
+      {id:'done',number:'OS-3',status:'Concluída',priority:'Alta',type:'Corretiva',assetId:'a',createdAt:now-100*day},
+      {id:'cancel',number:'OS-4',status:'Cancelada',priority:'Alta',type:'Corretiva',assetId:'a',createdAt:now-day},
+      {id:'unknown',number:'OS-5',status:'Aberta',priority:'Alta',type:'Preventiva',assetId:'a'}
+    ];
+    render();
+    const data=GMOperationalPlanning.summary(state.orders,state.assets,now),results=[];
+    for(const label of ['Prioridade — Alta','Idade do backlog — Menos de 7 dias','Idade do backlog — 90 dias ou mais','Corretivas — Bomba QA']) {
+      GMOperationalPlanning.renderSummary(document.getElementById('operationalInsights'),data,openOperationalOrderSelection);
+      [...document.querySelectorAll('[data-ops-selection]')].find(button=>button.getAttribute('aria-label').includes(label)).click();
+      results.push({label,ids:[...dashboardBacklogOrderIds].sort(),visible:filteredOrdersForWorkspace().map(order=>order.id).sort(),banner:document.getElementById('dashboardOrderSelection').textContent});
+    }
+    document.querySelector('#dashboardOrderSelection button').click();
+    return {results,cleared:dashboardBacklogOrderIds===null&&!dashboardBacklogView};
+  })()`));
+  expect(results.results.map((r:any)=>r.ids)).toEqual([['recent','unknown'],['recent'],[],['done','recent']]);
+  for(const item of results.results) {
+    expect(item.visible).toEqual(item.ids);
+    expect(item.banner).toContain(item.label);
+  }
+  expect(results.cleared).toBe(true);
+});
+
 // Presentation fixture only; no account, storage or remote records are modified.
 async function preview(page: import('@playwright/test').Page) {
   await page.route('**/*', route => new URL(route.request().url()).hostname === '127.0.0.1' ? route.continue() : route.abort());
   await page.goto('./');
   const fixture = await page.evaluate(() => window.eval(`(() => {
     const data={active:62,overdue:31,noDeadline:9,unknownAge:0,age:[5,57,0,0],byPriority:[['Alta',12],['Média',10],['Crítica',11],['Urgente',11],['Baixa',18]],preventive:11,corrective:27,top:[{name:'H28 14',count:10},{name:'Motor Elétrico Linha 1',count:3},{name:'Balança Industrial',count:1}]};
-    GMOperationalPlanning.renderSummary(document.getElementById('operationalInsights'),data);
+    GMOperationalPlanning.renderSummary(document.getElementById('operationalInsights'),data,()=>{});
     collectDashboardAlerts=()=>[
       {id:'plan-1',type:'preventive',level:'critical',title:'Preventiva vencida',description:'Preventiva semanal do motor · GFG-QA-20261007-MOT-001 · Motor de Teste Empresarial',priority:'CRÍTICO',date:'2026-10-16T15:00:00Z'},
       {id:'order-1',type:'lateOrder',level:'critical',title:'O.S. atrasada',description:'O.S-0033 · Motor Elétrico Linha 1',priority:'CRÍTICO',date:'2026-10-15T15:00:00Z'},

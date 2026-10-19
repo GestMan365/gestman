@@ -22442,8 +22442,8 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
   <link rel="stylesheet" href="assets/dashboard-distributions.css?v=clickable-distributions-2">
   <script src="assets/maintenance-charts.js?v=readable-metrics-2"></script>
   <link rel="stylesheet" href="assets/operational-planning.css?v=operations-refresh-2">
-  <link rel="stylesheet" href="assets/dashboard-operations.css?v=operations-refresh-2">
-  <script src="assets/operational-planning.js?v=operations-refresh-2"></script>
+  <link rel="stylesheet" href="assets/dashboard-operations.css?v=operations-drilldown-3">
+  <script src="assets/operational-planning.js?v=operations-drilldown-3"></script>
   <script src="assets/vendor/qrcode-generator.js"></script>
   <script src="assets/ui/gestman-pagination.js"></script>
   <script defer src="assets/vendor/asset-qr-scanner.js"></script>
@@ -28599,7 +28599,7 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       if (window.GMOperationalPlanning && hasPermission("orders")) {
         const orders = stage16ScopedRows("orders", state.orders || []);
         const assets = hasPermission("assets") ? stage16ScopedRows("assets", state.assets || []) : [];
-        window.GMOperationalPlanning.renderSummary($("operationalInsights"), window.GMOperationalPlanning.summary(orders, assets));
+        window.GMOperationalPlanning.renderSummary($("operationalInsights"), window.GMOperationalPlanning.summary(orders, assets), openOperationalOrderSelection);
       } else if ($("operationalInsights")) $("operationalInsights").replaceChildren();
     }
     const dashboardWidgetDefaults = [
@@ -29044,6 +29044,18 @@ body.theme-light.panel-mode #activeOrdersPanel :is(.os-live-title span, .os-live
       osCurrentPage = 1;
       setView("orders", { dashboardFilter:"backlog" });
       showDashboardSelection("dashboardOrderSelection", "osFilterPanel", status ? "O.S. — " + labels[status] : "Todas as O.S. pendentes", resetOrderFilters);
+    }
+    function openOperationalOrderSelection(selection) {
+      if (!canAccessView("orders")) { showToast("Sem permissão para consultar ordens de serviço."); return; }
+      if (!selection || !Array.isArray(selection.orderIds)) return;
+      const allowedIds = new Set(stage16ScopedRows("orders", state.orders || []).map(order => order.id));
+      dashboardBacklogView = true;
+      dashboardBacklogOrderIds = new Set(selection.orderIds.filter(id => allowedIds.has(id)));
+      ["osPeriodStart","osPeriodEnd","osStatusFilter","osPriorityFilter","osAssetFilter","osExecutorFilter","osSearch","globalSearch"].forEach(id => { if ($(id)) $(id).value = ""; });
+      mobileOrderFilter = "all";
+      osCurrentPage = 1;
+      setView("orders", { dashboardFilter:"backlog" });
+      showDashboardSelection("dashboardOrderSelection", "osFilterPanel", selection.label, resetOrderFilters);
     }
     function openAssetCondition(condition = "critical") {
       const labels = {excellent:"Excelente",good:"Bom",regular:"Regular",critical:"Crítico"};

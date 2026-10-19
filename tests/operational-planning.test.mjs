@@ -30,6 +30,18 @@ test("valida política sem inventar SLA e calcula prazo em horas", () => {
   assert.throws(() => planning.policy({ baixa: "0" }), /entre 0 e 8760/);
 });
 
+test("faixas de idade selecionam os mesmos registros das contagens nos limites", () => {
+  const now = Date.parse('2026-10-19T12:00:00Z');
+  const orders = [0,6,7,29,30,89,90,100].map(days => ({id:String(days),status:'Aberta',priority:'Alta',createdAt:now-days*86400000}));
+  orders.push({id:'future',status:'Aberta',createdAt:now+86400000});
+  orders.push({id:'done',status:'Concluída',priority:'Alta',createdAt:now});
+  const data = planning.summary(orders, [], now);
+  assert.deepEqual(JSON.parse(JSON.stringify(data.selections.age)), [['0','6'],['7','29'],['30','89'],['90','100']]);
+  assert.deepEqual([...data.age], [2,2,2,2]);
+  assert.equal(data.unknownAge, 1);
+  assert.equal(data.selections.priority.Alta.length, 8);
+});
+
 test("valida calendário por equipamento sem preencher jornada presumida", () => {
   const assets = [{ id: "asset-1", code: "A-1", name: "Bomba" }];
   const calendar = planning.calendar({ name: "Turno A", assetId: "asset-1", weekdays: ["1", "2", "1"], startTime: "08:00", endTime: "17:00", breakMinutes: "60", status: "Ativo" }, assets);
@@ -52,5 +64,8 @@ test("resume backlog deduplicado, ignora canceladas e não fabrica idade", () =>
   assert.equal(data.unknownAge, 1);
   assert.equal(data.corrective, 1);
   assert.equal(data.preventive, 1);
+  assert.deepEqual(JSON.parse(JSON.stringify(data.selections.age)), [["open"],[],[],[]]);
+  assert.deepEqual(JSON.parse(JSON.stringify(data.selections.priority)), {Alta:["open"],Baixa:["unknown"]});
+  assert.deepEqual(JSON.parse(JSON.stringify(data.selections.asset)), {"asset-1":["open"]});
   assert.deepEqual(JSON.parse(JSON.stringify(data.top)), [{ id: "asset-1", count: 1, name: "Bomba" }]);
 });
