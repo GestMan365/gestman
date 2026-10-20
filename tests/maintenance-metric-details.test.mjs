@@ -3,6 +3,19 @@ import assert from 'node:assert/strict';
 import '../assets/maintenance-metric-details.js';
 const {model}=globalThis.GMMaintenanceMetricDetails;
 
+test('durações pequenas usam segundos/minutos e mantêm o zero real',()=>{
+  const {duration}=globalThis.GMMaintenanceMetricDetails;
+  assert.equal(duration(1/3600),'1 s');
+  assert.equal(duration(5/60),'5 min');
+  assert.equal(duration(0),'0 h');
+  assert.equal(duration(1e-9),'<0,01 s');
+  const evidence=model({key:'mttr',name:'MTTR',unit:'h',metric:{value:1/3600,quality:{state:'valid'},calculation:{numerator:1/3600,numeratorUnit:'h de reparo',denominator:1,denominatorUnit:'O.S.',contributions:[{amount:1/3600,unit:'h de reparo',kind:'orders',recordIds:[],label:'Reparo breve'}]}}});
+  const target={innerHTML:'',querySelectorAll:()=>[],querySelector:()=>null};
+  globalThis.GMMaintenanceMetricDetails.render(target,evidence);
+  assert.ok(target.innerHTML.includes('1 s de reparo'));
+  assert.ok(!target.innerHTML.includes('0 h de reparo'));
+});
+
 test('contribuição exibe quantidade e abre exatamente a O.S. referenciada',()=>{
   const order={id:'o1',number:'O.S.-001'};
   const evidence=model({key:'mttr',name:'MTTR',metric:{value:2,quality:{state:'valid'},recordIds:['o1'],calculation:{numerator:2,denominator:1,contributions:[{kind:'orders',recordIds:['o1'],label:'O.S.-001',amount:2,unit:'h de reparo',effect:'Inclui 2 h.'}]}}},{orders:[order]});

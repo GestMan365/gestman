@@ -88,6 +88,40 @@ test("preserva ausência de evidência como null, sem fabricar zero", () => {
   assert.equal(result.metrics.availability.quality.state, "insufficient");
 });
 
+test("reparo de um segundo mantém duração e contribuição positivas sem arredondar para zero", () => {
+  const result = calculateMaintenanceMetrics(baseState({
+    orders: [{ id: "short", maintenanceType: "Corretiva", status: "Concluída", startedAt: "2026-08-10T10:00:00Z", finishedAt: "2026-08-10T10:00:01Z" }],
+  }), PERIOD, NOW);
+  const metric = result.metrics.mttr;
+  assert.equal(metric.value, 1 / 3600);
+  assert.equal(metric.calculation.contributions[0].amount, 1 / 3600);
+  assert.match(metric.calculation.contributions[0].effect, /Inclui 1 s no total/);
+  assert.match(metric.calculation.explanation, /1 s por reparo/);
+});
+
+test("paradas zeradas distinguem ausência de calendário, cadastro posterior e horário não programado", () => {
+  const asset = { ...activeAsset(), createdAt: "2026-10-10T14:52:05Z" };
+  const other = activeAsset("other");
+  const result = calculateMaintenanceMetrics(baseState({
+    assets: [asset, other],
+    operationalCalendars: [mondayCalendar({ default: false, assetId: asset.id, weekdays: [1, 2, 3, 4, 5], startTime: "11:00", endTime: "20:00", breakMinutes: 60 })],
+    downtimes: [
+      { id: "historical", assetId: asset.id, startAt: "2026-10-09T13:00:00Z", endAt: "2026-10-09T15:00:00Z" },
+      { id: "missing", assetId: other.id, startAt: "2026-10-19T13:00:00Z", endAt: "2026-10-19T15:00:00Z" },
+      { id: "weekend", assetId: asset.id, startAt: "2026-10-11T13:00:00Z", endAt: "2026-10-11T15:00:00Z" },
+    ],
+  }), { period: "custom", start: "2026-10-01", end: "2026-10-20" }, "2026-10-20T21:00:00Z");
+  const rows = result.metrics.availability.calculation.contributions;
+  assert.deepEqual(rows.map(item => item.amount), [0, 0, 0]);
+  assert.match(rows[0].effect, /anterior ao cadastro.*10\/10\/2026/);
+  assert.match(rows[1].effect, /Sem calendário operacional válido/);
+  assert.match(rows[2].effect, /fora dos dias ou horários/);
+  assert.equal(result.metrics.availability.calculation.denominator, 56);
+  assert.equal(result.metrics.availability.value, 100);
+  assert.equal(result.metrics.availability.quality.state, "partial");
+  assert.equal(result.metrics.mtbf.calculation.contributions.find(item => item.recordIds.includes("historical")).effect, rows[0].effect);
+});
+
 test("calcula MTTR somente com corretivas concluídas e duração válida", () => {
   const asset = activeAsset();
   const state = baseState({

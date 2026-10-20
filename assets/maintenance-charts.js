@@ -12,7 +12,14 @@
     const parsed = Number(value);
     return Number.isFinite(parsed) && parsed >= 0 && (key !== 'availability' || parsed <= 100) ? parsed : null;
   }
-  const format = (value, unit) => value === null ? 'Sem dados' : `${value.toLocaleString('pt-BR', { maximumFractionDigits: 2 })} ${unit}`;
+  const format = (value, unit) => {
+    if (value === null) return 'Sem dados';
+    if (unit === 'h' && value > 0 && value < 1) {
+      if (value * 3600 < .01) return 'Menos de 0,01 s';
+      return value < 1/60 ? `${(value * 3600).toLocaleString('pt-BR',{maximumFractionDigits:2})} s` : `${(value * 60).toLocaleString('pt-BR',{maximumFractionDigits:2})} min`;
+    }
+    return `${value.toLocaleString('pt-BR', { maximumFractionDigits: 2 })} ${unit}`;
+  };
   const date = value => {
     const parsed = new Date(value || '');
     return Number.isFinite(+parsed) ? parsed.toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : 'Data não informada';

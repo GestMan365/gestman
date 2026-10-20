@@ -71,6 +71,16 @@ const HOUR_MS = 3_600_000;
 const DAY_MS = 86_400_000;
 const SOURCE = "gm_tenant_state (Supabase/PostgreSQL)";
 
+function displayNumber(value: number): string {
+  return value.toLocaleString("pt-BR", { maximumFractionDigits: 2 });
+}
+
+function displayDuration(hours: number): string {
+  if (hours > 0 && hours < 1 / 60) return hours * 3600 < .01 ? "<0,01 s" : `${displayNumber(hours * 3600)} s`;
+  if (hours > 0 && hours < 1) return `${displayNumber(hours * 60)} min`;
+  return `${displayNumber(hours)} h`;
+}
+
 function record(value: unknown): JsonRecord {
   return value && typeof value === "object" && !Array.isArray(value) ? value as JsonRecord : {};
 }
@@ -344,7 +354,7 @@ function metric(
   calculation?: MetricCalculation,
 ): MaintenanceMetric {
   return {
-    value: value === null || !Number.isFinite(value) ? null : Number(value.toFixed(4)),
+    value: value === null || !Number.isFinite(value) ? null : unit === "h" ? value : Number(value.toFixed(4)) || value,
     unit,
     period: { start: range.start.toISOString(), end: range.end.toISOString() },
     filters,
@@ -536,6 +546,20 @@ function computeMetricSet(state: JsonRecord, filters: JsonRecord, range: { start
     return Boolean(done && due && done <= due);
   });
   const validDowntimeItems = downtimeRows.map((row) => row.item);
+  const stopZeroReason = (item: JsonRecord): string => {
+    const assetId = id(item.assetId);
+    if (!scheduleByAsset.has(assetId)) return "Sem calendário operacional válido com jornada neste período para este equipamento; não há base para descontar esta parada.";
+    const row = downtimeRows.find((row) => row.item === item);
+    const registered = dateValue(assets.find((asset) => id(asset.id) === assetId)?.createdAt);
+    if (row && registered) {
+      registered.setUTCHours(0, 0, 0, 0);
+      if (row.interval.end <= registered.getTime()) return `Parada anterior ao cadastro do ativo (${registered.toLocaleDateString("pt-BR", { timeZone: "UTC" })}); a regra atual só gera jornadas a partir dessa data.`;
+    }
+    const intersectsSchedule = row && (scheduleByAsset.get(assetId) || []).some((slot) => overlap(slot, row.interval));
+    return intersectsSchedule
+      ? "Todo o tempo desta parada já foi contabilizado em outra parada sobreposta do mesmo equipamento."
+      : "Parada fora dos dias ou horários previstos no calendário operacional do equipamento.";
+  };
   const downtimeByAsset = new Map<string, TimeInterval[]>();
   for (const row of downtimeRows) {
     const assetId = id(row.item.assetId);
@@ -572,17 +596,17 @@ function computeMetricSet(state: JsonRecord, filters: JsonRecord, range: { start
       recordIds: [recordId],
       kind: "orders" as const,
       label: `O.S. ${text(order.number || order.id)}`,
-      amount: Number(hours.toFixed(4)),
+      amount: hours,
       unit: "h de reparo",
-      effect: `Inclui ${hours.toFixed(2)} h no total; equivale a ${(hours / validMttr.length).toFixed(2)} h da média.`,
+      effect: `Inclui ${displayDuration(hours)} no total; equivale a ${displayDuration(hours / validMttr.length)} da média.`,
     }] : [];
   });
   const mttrCalculation = {
-    numerator: Number(mttrTotalHours.toFixed(4)),
+    numerator: mttrTotalHours,
     numeratorUnit: "h de reparo",
     denominator: validMttr.length,
     denominatorUnit: "O.S. corretivas válidas",
-    explanation: `${mttrTotalHours.toFixed(2)} horas somadas ÷ ${validMttr.length} O.S. corretivas com duração válida${mttrValue === null ? ". Não foi possível obter a média." : ` = ${mttrValue.toFixed(2)} h por reparo.`}`,
+    explanation: `${displayDuration(mttrTotalHours)} somadas ÷ ${validMttr.length} O.S. corretivas com duração válida${mttrValue === null ? ". Não foi possível obter a média." : ` = ${displayDuration(mttrValue)} por reparo.`}`,
     contributions: mttrContributions.slice(0, 500),
     truncated: mttrContributions.length > 500,
     contributionLimit: 500,
@@ -606,9 +630,9 @@ function computeMetricSet(state: JsonRecord, filters: JsonRecord, range: { start
           recordIds,
           kind: "measurements" as const,
           label: `Horímetro: ${finite(before.value ?? before.reading) ?? "?"} → ${finite(after.value ?? after.reading) ?? "?"}`,
-          amount: Number(hours.toFixed(4)),
+          amount: hours,
           unit: "h operacionais",
-          effect: `Acrescenta ${hours.toFixed(2)} h ao numerador, pela diferença entre as duas leituras.`,
+          effect: `Acrescenta ${displayDuration(hours)} ao numerador, pela diferença entre as duas leituras.`,
         }] : [];
       })
       : validDowntimeItems.flatMap((item) => {
@@ -619,18 +643,18 @@ function computeMetricSet(state: JsonRecord, filters: JsonRecord, range: { start
           recordIds: [recordId],
           kind: "downtimes" as const,
           label: `Parada ${text(item.number || item.id)}`,
-          amount: Number(hours.toFixed(4)),
+          amount: hours,
           unit: "h indisponíveis",
-          effect: `Retira ${hours.toFixed(2)} h das horas operacionais usadas no numerador${hours === 0 ? "; o intervalo já estava coberto por outra parada ou fora do calendário" : ""}.`,
+          effect: hours === 0 ? stopZeroReason(item) : `Retira ${displayDuration(hours)} das horas operacionais usadas no numerador.`,
         }];
       })),
   ];
   const mtbfCalculation = {
-    numerator: Number(mtbfHours.toFixed(4)),
+    numerator: mtbfHours,
     numeratorUnit: meterHours > 0 ? "h de horímetro" : "h operacionais após paradas",
     denominator: failures.length,
     denominatorUnit: "falhas corretivas concluídas",
-    explanation: `${mtbfHours.toFixed(2)} ${meterHours > 0 ? "h de horímetro" : "h operacionais"} ÷ ${failures.length} falha(s) corretiva(s)${mtbfValue === null ? ". Não foi possível obter a média." : ` = ${mtbfValue.toFixed(2)} h entre falhas.`}`,
+    explanation: `${displayDuration(mtbfHours)} ${meterHours > 0 ? "de horímetro" : "operacionais"} ÷ ${failures.length} falha(s) corretiva(s)${mtbfValue === null ? ". Não foi possível obter a média." : ` = ${displayDuration(mtbfValue)} entre falhas.`}`,
     contributions: mtbfContributions.slice(0, 500),
     truncated: mtbfContributions.length > 500,
     contributionLimit: 500,
@@ -644,17 +668,17 @@ function computeMetricSet(state: JsonRecord, filters: JsonRecord, range: { start
       recordIds: [recordId],
       kind: "downtimes" as const,
       label: `Parada ${text(item.number || item.id)}`,
-      amount: Number(hours.toFixed(4)),
+      amount: hours,
       unit: "h dentro do calendário",
-      effect: `Reduz a disponibilidade em ${percentagePoints.toFixed(2)} ponto(s) percentual(is)${hours === 0 ? "; não acrescenta horas porque já estava coberta por outra parada ou fora do calendário" : ""}.`,
+      effect: hours === 0 ? stopZeroReason(item) : `Reduz a disponibilidade em ${percentagePoints > 0 && percentagePoints < .005 ? "<0,01" : displayNumber(percentagePoints)} ponto(s) percentual(is).`,
     }];
   });
   const availabilityCalculation = {
-    numerator: Number(Math.max(0, scheduledHours - stoppedScheduledHours).toFixed(4)),
+    numerator: Math.max(0, scheduledHours - stoppedScheduledHours),
     numeratorUnit: "h programadas disponíveis",
-    denominator: Number(scheduledHours.toFixed(4)),
+    denominator: scheduledHours,
     denominatorUnit: "h programadas",
-    explanation: `${Math.max(0, scheduledHours - stoppedScheduledHours).toFixed(2)} h disponíveis ÷ ${scheduledHours.toFixed(2)} h programadas${availabilityValue === null ? ". Não foi possível obter o percentual." : ` × 100 = ${availabilityValue.toFixed(2)}%.`}`,
+    explanation: `${displayDuration(Math.max(0, scheduledHours - stoppedScheduledHours))} disponíveis ÷ ${displayDuration(scheduledHours)} programadas${availabilityValue === null ? ". Não foi possível obter o percentual." : ` × 100 = ${displayNumber(availabilityValue)}%.`}`,
     contributions: availabilityContributions.slice(0, 500),
     truncated: availabilityContributions.length > 500,
     contributionLimit: 500,
