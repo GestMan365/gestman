@@ -3,6 +3,20 @@ import assert from 'node:assert/strict';
 import '../assets/maintenance-metric-details.js';
 const {model}=globalThis.GMMaintenanceMetricDetails;
 
+test('contribuição exibe quantidade e abre exatamente a O.S. referenciada',()=>{
+  const order={id:'o1',number:'O.S.-001'};
+  const evidence=model({key:'mttr',name:'MTTR',metric:{value:2,quality:{state:'valid'},recordIds:['o1'],calculation:{numerator:2,denominator:1,contributions:[{kind:'orders',recordIds:['o1'],label:'O.S.-001',amount:2,unit:'h de reparo',effect:'Inclui 2 h.'}]}}},{orders:[order]});
+  let handler,opened;
+  const button={dataset:{calculationRecord:'0:0'},addEventListener:(event,callback)=>{handler=callback;}};
+  const target={innerHTML:'',querySelectorAll:selector=>selector==='[data-calculation-record]'?[button]:[],querySelector:()=>null};
+  globalThis.GMMaintenanceMetricDetails.render(target,evidence,{openRecord:item=>{opened=item;}});
+  assert.ok(target.innerHTML.includes('2 h de reparo'));
+  assert.ok(target.innerHTML.includes('Inclui 2 h.'));
+  handler();
+  assert.equal(opened.record,order);
+  assert.equal(opened.kind,'orders');
+});
+
 test('MTTR lista somente as referências oficiais, não outras O.S. do equipamento',()=>{
   const evidence=model({key:'mttr',metric:{recordIds:['o1'],recordCount:1}}, {orders:[{id:'o1',assetId:'a'},{id:'o2',assetId:'a'}]});
   assert.deepEqual(evidence.orderIds,['o1']);

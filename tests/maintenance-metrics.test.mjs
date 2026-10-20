@@ -53,6 +53,29 @@ function mondayCalendar(overrides = {}) {
   };
 }
 
+test("contribuições explicam reparos e atribuem cada hora de parada uma única vez", () => {
+  const asset = activeAsset();
+  const result = calculateMaintenanceMetrics(baseState({
+    assets: [asset],
+    operationalCalendars: [mondayCalendar()],
+    orders: [{ id: "o1", assetId: asset.id, maintenanceType: "Corretiva", status: "Concluída", actualHours: 2, finishedAt: "2026-08-10T15:00:00.000Z" }],
+    downtimes: [
+      { id: "d1", assetId: asset.id, status: "Encerrada", startAt: "2026-08-10T10:00:00.000Z", endAt: "2026-08-10T12:00:00.000Z" },
+      { id: "d2", assetId: asset.id, status: "Encerrada", startAt: "2026-08-10T11:00:00.000Z", endAt: "2026-08-10T13:00:00.000Z" },
+    ],
+  }), { ...PERIOD, seriesBuckets: 1 }, NOW);
+  assert.equal(result.metrics.mttr.calculation.numerator, 2);
+  assert.equal(result.metrics.mttr.calculation.denominator, 1);
+  assert.equal(result.metrics.mttr.calculation.contributions[0].amount, 2);
+  assert.deepEqual(result.metrics.availability.calculation.contributions.map(item => item.amount), [2, 1]);
+  assert.equal(result.metrics.availability.calculation.numerator, 5);
+  assert.equal(result.metrics.availability.calculation.denominator, 8);
+  assert.equal(result.metrics.availability.value, 62.5);
+  assert.equal(result.metrics.mtbf.value, 5);
+  assert.deepEqual(result.metrics.mtbf.recordIds, ["o1", "d1", "d2"]);
+  assert.deepEqual(result.series.availability[0].calculation.contributions.map(item => item.amount), [2, 1]);
+});
+
 test("preserva ausência de evidência como null, sem fabricar zero", () => {
   const result = calculateMaintenanceMetrics(baseState(), PERIOD, NOW);
 

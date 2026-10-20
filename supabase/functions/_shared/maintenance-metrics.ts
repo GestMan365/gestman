@@ -1,5 +1,25 @@
 export type JsonRecord = Record<string, unknown>;
 
+export type MetricContribution = {
+  recordIds: string[];
+  kind: "orders" | "downtimes" | "measurements";
+  label: string;
+  amount: number;
+  unit: string;
+  effect: string;
+};
+
+export type MetricCalculation = {
+  numerator: number | null;
+  numeratorUnit: string;
+  denominator: number | null;
+  denominatorUnit: string;
+  explanation: string;
+  contributions: MetricContribution[];
+  truncated?: boolean;
+  contributionLimit?: number;
+};
+
 export type MaintenanceMetric = {
   value: number | null;
   unit: string;
@@ -16,6 +36,7 @@ export type MaintenanceMetric = {
   };
   updatedAt: string;
   detail: string;
+  calculation?: MetricCalculation;
 };
 
 export type MaintenanceMetricsContract = {
@@ -33,6 +54,7 @@ export type MaintenanceMetricsContract = {
     recordIds: string[];
     source: string;
     detail: string;
+    calculation?: MetricCalculation;
   }>>;
   quality: {
     state: "valid" | "partial" | "insufficient";
@@ -319,6 +341,7 @@ function metric(
   ignoredRecords: number,
   updatedAt: string,
   detail: string,
+  calculation?: MetricCalculation,
 ): MaintenanceMetric {
   return {
     value: value === null || !Number.isFinite(value) ? null : Number(value.toFixed(4)),
@@ -332,6 +355,17 @@ function metric(
     quality: { state: qualityState, reason, ignoredRecords },
     updatedAt,
     detail,
+    ...(calculation ? { calculation } : {}),
+  };
+}
+
+function limitCalculation(calculation: MetricCalculation | undefined, limit: number): MetricCalculation | undefined {
+  if (!calculation) return undefined;
+  return {
+    ...calculation,
+    contributions: calculation.contributions.slice(0, limit),
+    truncated: Boolean(calculation.truncated) || calculation.contributions.length > limit,
+    contributionLimit: limit,
   };
 }
 
@@ -425,6 +459,22 @@ function computeMetricSet(state: JsonRecord, filters: JsonRecord, range: { start
     scheduledDowntimeByAsset.set(assetId, [...(scheduledDowntimeByAsset.get(assetId) || []), ...intersections]);
   }
   const stoppedScheduledHours = [...scheduledDowntimeByAsset.values()].reduce((sum, intervals) => sum + intervalHours(mergeIntervals(intervals)), 0);
+  // Attribute overlap only once: each stop receives the newly covered scheduled time.
+  const scheduledStopHoursByRecord = new Map<JsonRecord, number>();
+  for (const [assetId, rows] of [...new Set(downtimeRows.map((row) => id(row.item.assetId)))].map((assetId) => [
+    assetId,
+    downtimeRows.filter((row) => id(row.item.assetId) === assetId)
+      .sort((left, right) => left.interval.start - right.interval.start || left.interval.end - right.interval.end),
+  ] as const)) {
+    const schedule = scheduleByAsset.get(assetId) || [];
+    let covered: TimeInterval[] = [];
+    for (const row of rows) {
+      const intersections = schedule.map((slot) => overlap(slot, row.interval)).filter((item): item is TimeInterval => Boolean(item));
+      const before = intervalHours(covered);
+      covered = mergeIntervals([...covered, ...intersections]);
+      scheduledStopHoursByRecord.set(row.item, Math.max(0, intervalHours(covered) - before));
+    }
+  }
   const availabilityValue = scheduledHours > 0 ? Math.max(0, (scheduledHours - stoppedScheduledHours) / scheduledHours * 100) : null;
 
   const measurementPoints = records(state.measurementPoints);
@@ -445,6 +495,7 @@ function computeMetricSet(state: JsonRecord, filters: JsonRecord, range: { start
   }
   let meterHours = 0;
   const meterRecords: JsonRecord[] = [];
+  const meterDeltas: Array<{ before: JsonRecord; after: JsonRecord; hours: number }> = [];
   const meteredAssets = new Set<string>();
   for (const readings of meterGroups.values()) {
     readings.sort((a, b) => a.at - b.at);
@@ -456,6 +507,7 @@ function computeMetricSet(state: JsonRecord, filters: JsonRecord, range: { start
       if (delta > 0) {
         meterHours += delta;
         meterRecords.push(selected[index - 1].item, selected[index].item);
+        meterDeltas.push({ before: selected[index - 1].item, after: selected[index].item, hours: delta });
         const pointId = id(selected[index].item.pointId);
         meteredAssets.add(id(selected[index].item.assetId || pointAssets.get(pointId)));
       }
@@ -513,10 +565,104 @@ function computeMetricSet(state: JsonRecord, filters: JsonRecord, range: { start
     ? (assetsWithoutCalendar ? "Cálculo parcial: somente ativos com calendário operacional válido." : "Calendário operacional e paradas válidas disponíveis.")
     : assets.length ? "Nenhum ativo filtrado possui calendário operacional vinculável e válido." : "Nenhum ativo válido no período e filtros informados.";
   const filtersOut = { ...filters };
+  const mttrTotalHours = validMttr.reduce((sum, item) => sum + item.hours, 0);
+  const mttrContributions = validMttr.flatMap(({ order, hours }) => {
+    const recordId = id(order.id || order.number);
+    return recordId ? [{
+      recordIds: [recordId],
+      kind: "orders" as const,
+      label: `O.S. ${text(order.number || order.id)}`,
+      amount: Number(hours.toFixed(4)),
+      unit: "h de reparo",
+      effect: `Inclui ${hours.toFixed(2)} h no total; equivale a ${(hours / validMttr.length).toFixed(2)} h da média.`,
+    }] : [];
+  });
+  const mttrCalculation = {
+    numerator: Number(mttrTotalHours.toFixed(4)),
+    numeratorUnit: "h de reparo",
+    denominator: validMttr.length,
+    denominatorUnit: "O.S. corretivas válidas",
+    explanation: `${mttrTotalHours.toFixed(2)} horas somadas ÷ ${validMttr.length} O.S. corretivas com duração válida${mttrValue === null ? ". Não foi possível obter a média." : ` = ${mttrValue.toFixed(2)} h por reparo.`}`,
+    contributions: mttrContributions.slice(0, 500),
+    truncated: mttrContributions.length > 500,
+    contributionLimit: 500,
+  };
+  const mtbfContributions = [
+    ...failures.flatMap((order) => {
+      const recordId = id(order.id || order.number);
+      return recordId ? [{
+        recordIds: [recordId],
+        kind: "orders" as const,
+        label: `O.S. ${text(order.number || order.id)}`,
+        amount: 1,
+        unit: "falha",
+        effect: "Conta como 1 falha no divisor do MTBF.",
+      }] : [];
+    }),
+    ...(meterHours > 0
+      ? meterDeltas.flatMap(({ before, after, hours }) => {
+        const recordIds = [id(before.id || before.number), id(after.id || after.number)].filter(Boolean);
+        return recordIds.length ? [{
+          recordIds,
+          kind: "measurements" as const,
+          label: `Horímetro: ${finite(before.value ?? before.reading) ?? "?"} → ${finite(after.value ?? after.reading) ?? "?"}`,
+          amount: Number(hours.toFixed(4)),
+          unit: "h operacionais",
+          effect: `Acrescenta ${hours.toFixed(2)} h ao numerador, pela diferença entre as duas leituras.`,
+        }] : [];
+      })
+      : validDowntimeItems.flatMap((item) => {
+        const recordId = id(item.id || item.number);
+        if (!recordId) return [];
+        const hours = scheduledStopHoursByRecord.get(item) ?? 0;
+        return [{
+          recordIds: [recordId],
+          kind: "downtimes" as const,
+          label: `Parada ${text(item.number || item.id)}`,
+          amount: Number(hours.toFixed(4)),
+          unit: "h indisponíveis",
+          effect: `Retira ${hours.toFixed(2)} h das horas operacionais usadas no numerador${hours === 0 ? "; o intervalo já estava coberto por outra parada ou fora do calendário" : ""}.`,
+        }];
+      })),
+  ];
+  const mtbfCalculation = {
+    numerator: Number(mtbfHours.toFixed(4)),
+    numeratorUnit: meterHours > 0 ? "h de horímetro" : "h operacionais após paradas",
+    denominator: failures.length,
+    denominatorUnit: "falhas corretivas concluídas",
+    explanation: `${mtbfHours.toFixed(2)} ${meterHours > 0 ? "h de horímetro" : "h operacionais"} ÷ ${failures.length} falha(s) corretiva(s)${mtbfValue === null ? ". Não foi possível obter a média." : ` = ${mtbfValue.toFixed(2)} h entre falhas.`}`,
+    contributions: mtbfContributions.slice(0, 500),
+    truncated: mtbfContributions.length > 500,
+    contributionLimit: 500,
+  };
+  const availabilityContributions = validDowntimeItems.flatMap((item) => {
+    const recordId = id(item.id || item.number);
+    if (!recordId) return [];
+    const hours = scheduledStopHoursByRecord.get(item) ?? 0;
+    const percentagePoints = scheduledHours > 0 ? hours / scheduledHours * 100 : 0;
+    return [{
+      recordIds: [recordId],
+      kind: "downtimes" as const,
+      label: `Parada ${text(item.number || item.id)}`,
+      amount: Number(hours.toFixed(4)),
+      unit: "h dentro do calendário",
+      effect: `Reduz a disponibilidade em ${percentagePoints.toFixed(2)} ponto(s) percentual(is)${hours === 0 ? "; não acrescenta horas porque já estava coberta por outra parada ou fora do calendário" : ""}.`,
+    }];
+  });
+  const availabilityCalculation = {
+    numerator: Number(Math.max(0, scheduledHours - stoppedScheduledHours).toFixed(4)),
+    numeratorUnit: "h programadas disponíveis",
+    denominator: Number(scheduledHours.toFixed(4)),
+    denominatorUnit: "h programadas",
+    explanation: `${Math.max(0, scheduledHours - stoppedScheduledHours).toFixed(2)} h disponíveis ÷ ${scheduledHours.toFixed(2)} h programadas${availabilityValue === null ? ". Não foi possível obter o percentual." : ` × 100 = ${availabilityValue.toFixed(2)}%.`}`,
+    contributions: availabilityContributions.slice(0, 500),
+    truncated: availabilityContributions.length > 500,
+    contributionLimit: 500,
+  };
   const metrics: Record<string, MaintenanceMetric> = {
-    mttr: metric(mttrValue, "h", range, filtersOut, validMttr.map((item) => item.order), "Σ duração de reparos corretivos válidos ÷ quantidade de reparos", qualityState(mttrValue !== null, validMttr.length < correctiveClosed.length), mttrReason, correctiveClosed.length - validMttr.length, updatedAt, validMttr.length ? `${validMttr.length} reparo(s) válido(s).` : mttrReason),
-    mtbf: metric(mtbfValue, "h", range, filtersOut, [...failures, ...meterRecords], "horas operacionais válidas ÷ falhas corretivas concluídas", qualityState(mtbfValue !== null, meterHours > 0 ? meteredAssets.size < assets.length : assetsWithoutCalendar > 0), mtbfReason, 0, updatedAt, mtbfValue !== null ? `${failures.length} falha(s) e ${mtbfHours.toFixed(1)} hora(s) operacionais.` : mtbfReason),
-    availability: metric(availabilityValue, "%", range, filtersOut, validDowntimeItems, "(horas programadas − horas de parada dentro do calendário) ÷ horas programadas × 100", qualityState(availabilityValue !== null, assetsWithoutCalendar > 0 || invalidDowntimes > 0), availabilityReason, invalidDowntimes, updatedAt, availabilityValue !== null ? `${stoppedScheduledHours.toFixed(1)}h de parada em ${scheduledHours.toFixed(1)}h programadas.` : availabilityReason),
+    mttr: metric(mttrValue, "h", range, filtersOut, validMttr.map((item) => item.order), "Σ duração de reparos corretivos válidos ÷ quantidade de reparos", qualityState(mttrValue !== null, validMttr.length < correctiveClosed.length), mttrReason, correctiveClosed.length - validMttr.length, updatedAt, validMttr.length ? `${validMttr.length} reparo(s) válido(s).` : mttrReason, mttrCalculation),
+    mtbf: metric(mtbfValue, "h", range, filtersOut, meterHours > 0 ? [...failures, ...meterRecords] : [...failures, ...validDowntimeItems], "horas operacionais válidas ÷ falhas corretivas concluídas", qualityState(mtbfValue !== null, meterHours > 0 ? meteredAssets.size < assets.length : assetsWithoutCalendar > 0), mtbfReason, 0, updatedAt, mtbfValue !== null ? `${failures.length} falha(s) e ${mtbfHours.toFixed(1)} hora(s) operacionais.` : mtbfReason, mtbfCalculation),
+    availability: metric(availabilityValue, "%", range, filtersOut, validDowntimeItems, "(horas programadas − horas de parada dentro do calendário) ÷ horas programadas × 100", qualityState(availabilityValue !== null, assetsWithoutCalendar > 0 || invalidDowntimes > 0), availabilityReason, invalidDowntimes, updatedAt, availabilityValue !== null ? `${stoppedScheduledHours.toFixed(1)}h de parada em ${scheduledHours.toFixed(1)}h programadas.` : availabilityReason, availabilityCalculation),
     openOrders: metric(openOrders.length, "", range, filtersOut, openOrders, "contagem de O.S. não concluídas e não canceladas no período", "valid", "Contagem direta de registros válidos.", 0, updatedAt, `${openOrders.length} O.S. pendente(s).`),
     runningOrders: metric(runningOrders.length, "", range, filtersOut, runningOrders, "contagem de O.S. em execução no período", "valid", "Contagem direta de registros válidos.", 0, updatedAt, `${runningOrders.length} O.S. em execução.`),
     lateOrders: metric(lateOrders.length, "", range, filtersOut, lateOrders, "contagem de O.S. abertas com prazo válido anterior ao instante de cálculo", urgentWithoutDeadline.length ? "partial" : "valid", urgentWithoutDeadline.length ? `${urgentWithoutDeadline.length} O.S. crítica/urgente sem prazo não pode ser classificada como atrasada.` : "Todos os prazos relevantes são classificáveis.", urgentWithoutDeadline.length, updatedAt, `${lateOrders.length} O.S. fora do prazo; ${urgentWithoutDeadline.length} crítica(s)/urgente(s) sem prazo.`),
@@ -568,6 +714,7 @@ export function calculateMaintenanceMetrics(
           recordIds: bucket.metrics[metricName].recordIds,
           source: bucket.metrics[metricName].source,
           detail: bucket.metrics[metricName].detail,
+          calculation: limitCalculation(bucket.metrics[metricName].calculation, 100),
         });
       }
     }
