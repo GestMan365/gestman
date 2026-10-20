@@ -12,6 +12,8 @@
   .gm-metric-evidence :is(td,th) { text-align:left; padding:10px; border-bottom:1px solid var(--p-line,#d6e1ed); min-width:110px; max-width:280px; overflow-wrap:anywhere; }
   .gm-metric-evidence small { color:var(--p-muted,#64788d); }
   .gm-metric-evidence summary { cursor:pointer; }
+  .gm-evidence-calendar-actions { display:grid; gap:8px; margin-top:16px; }
+  .gm-evidence-calendar-actions button { white-space:normal; text-align:left; }
   .gm-metric-evidence dl { display:grid; grid-template-columns:1fr 2fr; gap:6px; }
   .gm-metric-evidence dd { margin:0; overflow-wrap:anywhere; }
   #dashboard .gm-metric-open-details { width:100%; margin:12px 0; }

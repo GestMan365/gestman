@@ -9,6 +9,15 @@ vm.createContext(context);
 vm.runInContext(source, context);
 const planning = context.GMOperationalPlanning;
 
+test("lista equipamentos sem vínculo válido e respeita calendários de abrangência e inativos",()=>{
+  const assets=[{id:'a',status:'Operando'},{id:'b',status:'Operando'},{id:'c',status:'Inativo'}];
+  const base={weekdays:[1,2,3,4,5],startTime:'08:00',endTime:'17:00',status:'Ativo'};
+  assert.deepEqual([...planning.uncoveredAssets(assets,[{...base,assetId:'a'}])].map(item=>item.id),['b']);
+  assert.deepEqual([...planning.uncoveredAssets(assets,[{...base,default:true}])],[]);
+  assert.deepEqual([...planning.uncoveredAssets(assets,[{...base,assetId:'a',status:'Inativo'}])].map(item=>item.id),['a','b']);
+  assert.deepEqual([...planning.uncoveredAssets(assets,[{...base,regionId:'r'}],asset=>({regionId:asset.id==='a'?'r':'other'}))].map(item=>item.id),['b']);
+});
+
 test("painel operacional trata base vazia e escapa nomes dos equipamentos", () => {
   const target = { innerHTML: "" };
   planning.renderSummary(target, planning.summary([], []));

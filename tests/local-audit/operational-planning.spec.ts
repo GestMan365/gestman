@@ -34,3 +34,30 @@ test('cadastro inválido não é aceito pelo contrato de calendário', async ({ 
   })()`));
   expect(result).toContain('posterior');
 });
+
+test('equipamento sem calendário abre pré-selecionado e sai da lista depois de salvar',async({page})=>{
+  await page.evaluate(()=>window.eval(`state.assets.push({id:'asset-2',code:'A-002',name:'Motor sem calendário',status:'Operando'});gmPersistState=async()=>true;renderOperationalPlanning();`));
+  await page.locator('[data-calendar-search]').fill('A-002');
+  await page.getByRole('button',{name:'Configurar calendário de A-002',exact:true}).click();
+  const form=page.locator('#gmOperationalCalendarForm');
+  await expect(form.locator('[name=assetId]')).toHaveValue('asset-2');
+  await expect(form.locator('[name=name]')).toHaveValue('Jornada · A-002');
+  await expect(form.locator('[name=startTime]')).toHaveValue('');
+  await form.locator('[name=weekday][value="1"]').check();
+  await form.locator('[name=startTime]').fill('11:00');
+  await form.locator('[name=endTime]').fill('20:00');
+  await form.getByRole('button',{name:'Salvar calendário',exact:true}).click();
+  await expect(page.getByRole('button',{name:'Configurar calendário de A-002',exact:true})).toHaveCount(0);
+  expect(await page.evaluate(()=>window.eval(`state.operationalCalendars.some(item=>item.assetId==='asset-2'&&item.startTime==='11:00')`))).toBe(true);
+});
+
+test('atalho nos detalhes de disponibilidade abre o calendário do equipamento correto',async({page})=>{
+  await page.evaluate(()=>window.eval(`
+    state.assets.push({id:'asset-2',code:'A-002',name:'Motor sem calendário',status:'Operando'});
+    gmStateDirty=false;gmSyncConflict=false;
+    openMaintenanceMetricDetails({key:'availability',name:'Disponibilidade',unit:'%',metric:{value:100,quality:{state:'partial'},recordIds:[],calculation:{contributions:[{kind:'downtimes',recordIds:[],assetId:'asset-2',reasonCode:'missing_calendar',label:'Parada',amount:0,unit:'h',effect:'Sem calendário'}]}}});
+  `));
+  await page.getByRole('button',{name:/Configurar calendário · A-002/}).click();
+  await expect(page.locator('#gmOperationalCalendarForm [name=assetId]')).toHaveValue('asset-2');
+  await expect(page.locator('#gmOperationalCalendarForm [name=startTime]')).toHaveValue('');
+});

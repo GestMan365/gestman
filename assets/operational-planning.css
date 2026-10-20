@@ -1,4 +1,12 @@
 .gm-ops-settings { margin-top: 20px; padding: 20px; }
+.gm-ops-missing { margin-bottom:20px; padding:16px; border:1px solid var(--p-line,#cbd9e7); border-radius:12px; background:var(--p-raised,#f5f8fc); }
+.gm-ops-missing h3 { margin:0 0 8px; }
+.gm-ops-missing label { display:grid; gap:6px; max-width:480px; }
+.gm-ops-missing-list { max-height:320px; overflow:auto; margin-top:12px; }
+.gm-ops-missing-row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 0; border-bottom:1px solid var(--p-line,#cbd9e7); }
+.gm-ops-missing-row[hidden] { display:none; }
+.gm-ops-missing-row span { min-width:0; overflow-wrap:anywhere; }
+.gm-ops-missing-row .btn { flex-shrink:0; }
 .gm-ops-settings h2 { font-size: 18px; margin-right: auto; }
 .gm-ops-settings p, .gm-ops-columns p { line-height: 1.5; color: var(--muted, #8da9bd); }
 .gm-ops-day { display: inline-flex !important; align-items: center; gap: 6px; margin: 8px 12px 8px 0; }

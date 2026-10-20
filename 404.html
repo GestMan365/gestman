@@ -22656,13 +22656,13 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
   <script src="assets/preventive-year.js"></script>
   <script src="assets/preventive-year-ui.js"></script>
   <link rel="stylesheet" href="assets/maintenance-charts.css?v=readable-metrics-2">
-  <link rel="stylesheet" href="assets/maintenance-metric-details.css?v=metric-evidence-3">
-  <script src="assets/maintenance-metric-details.js?v=metric-evidence-3"></script>
+  <link rel="stylesheet" href="assets/maintenance-metric-details.css?v=metric-evidence-4">
+  <script src="assets/maintenance-metric-details.js?v=metric-evidence-4"></script>
   <link rel="stylesheet" href="assets/dashboard-distributions.css?v=clickable-distributions-2">
   <script src="assets/maintenance-charts.js?v=metric-evidence-3"></script>
-  <link rel="stylesheet" href="assets/operational-planning.css?v=operations-refresh-2">
+  <link rel="stylesheet" href="assets/operational-planning.css?v=calendar-history-1">
   <link rel="stylesheet" href="assets/dashboard-operations.css?v=kpi-drilldown-5">
-  <script src="assets/operational-planning.js?v=kpi-drilldown-5"></script>
+  <script src="assets/operational-planning.js?v=calendar-history-1"></script>
   <script src="assets/vendor/qrcode-generator.js"></script>
   <script src="assets/ui/gestman-pagination.js"></script>
   <script defer src="assets/vendor/asset-qr-scanner.js"></script>
@@ -29168,6 +29168,7 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
       const evidence = window.GMMaintenanceMetricDetails.model(selection, sources);
       openModal("Detalhes de " + selection.name, '<div id="maintenanceMetricDetails"></div>', true);
       window.GMMaintenanceMetricDetails.render($("maintenanceMetricDetails"), evidence, {
+        configureCalendar: isAdminUser() && canAccessView("productiveCalendars") ? openOperationalCalendarForAsset : null,
         assetName: id => hasPermission("assets") && stage16ScopedRows("assets",state.assets || []).some(asset => asset.id === id) ? machineName(id) : "Equipamento não disponível neste perfil",
         openRecord: ({kind,record}) => {
           if (!canAccessView(moduleFor[kind]) || !stage16ScopedRows(kind,state[kind] || []).some(item => item.id === record.id)) return denyProfileAccess();
@@ -33637,16 +33638,32 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
       saveState();
       return await gmPersistState(true);
     }
-    function renderOperationalPlanning() {
+    function openOperationalCalendarForAsset(assetId) {
+      if (!isAdminUser() || !canAccessView("productiveCalendars")) return denyProfileAccess();
+      if (!stage16ScopedRows("assets", state.assets || []).some(asset => asset.id === assetId)) return denyProfileAccess();
+      closeModal();
+      setView("productiveCalendars");
+      renderOperationalPlanning(assetId);
+    }
+    function renderOperationalPlanning(startAssetId = "") {
       const target = $("operationalPlanning");
       if (!target || !window.GMOperationalPlanning) return;
-      window.GMOperationalPlanning.render({
-        target, calendars:state.operationalCalendars || [], assets:state.assets || [],
+      const controller = window.GMOperationalPlanning.render({
+        target, calendars:[...(state.operationalCalendars || []), ...(state.productiveCalendars || [])], assets:stage16ScopedRows("assets",state.assets || []),
+        assetContext: asset => {
+          const location = byId(state.locations || [], asset.locationId) || {};
+          const structure = byId(state.installationStructures || [], asset.installationStructureId || asset.structureId || asset.installationId) || {};
+          const sector = byId(state.sectorsLocations || [], structure.sectorLocationId || asset.sectorLocationId) || {};
+          const area = byId(state.operationalAreas || [], sector.operationalAreaId || asset.operationalAreaId || asset.areaId) || {};
+          const region = byId(state.regions || [], location.regionId || asset.regionId) || {};
+          return {sectorLocationId:sector.id, operationalAreaId:area.id, regionId:region.id};
+        },
         settings:state.operationalPolicy || { slaHours:{} }, canManage:isAdminUser(),
         id:() => uid("calendar"), open:(title, html) => openModal(title, html, true),
         close:() => closeModal(), save:change => gmSaveOperationalPlanning(change),
         refresh:() => renderProductiveCalendars()
       });
+      if (startAssetId) controller?.openCalendarForAsset(startAssetId);
     }
     function renderProductiveCalendars() {
       const target = $("productiveCalendarRows");

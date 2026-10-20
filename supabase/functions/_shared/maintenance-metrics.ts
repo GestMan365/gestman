@@ -7,6 +7,8 @@ export type MetricContribution = {
   amount: number;
   unit: string;
   effect: string;
+  assetId?: string;
+  reasonCode?: string;
 };
 
 export type MetricCalculation = {
@@ -307,7 +309,7 @@ function calendarMatchesAsset(calendar: JsonRecord, asset: JsonRecord, context: 
   return declared.every(([expected, actual]) => id(expected) === id(actual));
 }
 
-function scheduleIntervals(calendar: JsonRecord, asset: JsonRecord, range: { start: Date; end: Date }): TimeInterval[] {
+function scheduleIntervals(calendar: JsonRecord, activeFrom: number, range: { start: Date; end: Date }): TimeInterval[] {
   const weekdays = weekdayValues(calendar.weekdays || calendar.daysOfWeek || calendar.days);
   if (!weekdays.length) return [];
   let startMinute = parseTime(calendar.startTime || calendar.start);
@@ -324,8 +326,7 @@ function scheduleIntervals(calendar: JsonRecord, asset: JsonRecord, range: { sta
   }
   if (startMinute === null || endMinute === null || endMinute <= startMinute) return [];
   const breakMinutes = Math.max(0, finite(calendar.breakMinutes || calendar.breaksMinutes) ?? 0);
-  const createdAt = dateValue(asset.createdAt)?.getTime() ?? range.start.getTime();
-  const firstDay = new Date(Math.max(range.start.getTime(), createdAt));
+  const firstDay = new Date(Math.max(range.start.getTime(), activeFrom));
   firstDay.setUTCHours(0, 0, 0, 0);
   const intervals: TimeInterval[] = [];
   for (let cursor = firstDay.getTime(); cursor <= range.end.getTime(); cursor += DAY_MS) {
@@ -402,10 +403,23 @@ function computeMetricSet(state: JsonRecord, filters: JsonRecord, range: { start
     };
   };
   const filterEquals = (expected: unknown, ...actual: unknown[]) => !text(expected) || actual.some((value) => key(value) === key(expected));
+  // A registration timestamp does not invalidate an earlier, valid downtime history.
+  const historicalStart = new Map<string, number>();
+  for (const stop of records(state.downtimes)) {
+    if (isCanceled(stop.status)) continue;
+    const started = firstDate(stop, ["startAt", "createdAt"]);
+    let ended = firstDate(stop, ["endAt", "finishedAt"]);
+    const hours = finite(stop.durationHours);
+    if (!ended && started && hours !== null && hours >= 0) ended = new Date(started.getTime() + hours * HOUR_MS);
+    if (!ended && key(stop.status).startsWith("ativ")) ended = now;
+    if (!started || !ended || ended <= started || started > now) continue;
+    const assetId = id(stop.assetId);
+    historicalStart.set(assetId, Math.min(historicalStart.get(assetId) ?? Infinity, started.getTime()));
+  }
+  const activeFrom = (asset: JsonRecord) => Math.min(dateValue(asset.createdAt)?.getTime() ?? range.start.getTime(), historicalStart.get(id(asset.id)) ?? Infinity);
   const assets = records(state.assets).filter((asset) => {
     if (isInactive(asset.status)) return false;
-    const created = dateValue(asset.createdAt);
-    if (created && created > range.end) return false;
+    if (activeFrom(asset) > range.end.getTime()) return false;
     const context = assetContext(asset);
     return filterEquals(filters.asset, asset.id)
       && filterEquals(filters.plant, context.plant, context.regionId)
@@ -438,7 +452,7 @@ function computeMetricSet(state: JsonRecord, filters: JsonRecord, range: { start
   for (const asset of assets) {
     const context = assetContext(asset);
     const matching = calendars.filter((calendar) => calendarMatchesAsset(calendar, asset, context));
-    const intervals = mergeIntervals(matching.flatMap((calendar) => scheduleIntervals(calendar, asset, range)));
+    const intervals = mergeIntervals(matching.flatMap((calendar) => scheduleIntervals(calendar, activeFrom(asset), range)));
     if (intervals.length) scheduleByAsset.set(id(asset.id), intervals);
   }
   const scheduledHours = [...scheduleByAsset.values()].reduce((sum, intervals) => sum + intervalHours(intervals), 0);
@@ -550,11 +564,6 @@ function computeMetricSet(state: JsonRecord, filters: JsonRecord, range: { start
     const assetId = id(item.assetId);
     if (!scheduleByAsset.has(assetId)) return "Sem calendário operacional válido com jornada neste período para este equipamento; não há base para descontar esta parada.";
     const row = downtimeRows.find((row) => row.item === item);
-    const registered = dateValue(assets.find((asset) => id(asset.id) === assetId)?.createdAt);
-    if (row && registered) {
-      registered.setUTCHours(0, 0, 0, 0);
-      if (row.interval.end <= registered.getTime()) return `Parada anterior ao cadastro do ativo (${registered.toLocaleDateString("pt-BR", { timeZone: "UTC" })}); a regra atual só gera jornadas a partir dessa data.`;
-    }
     const intersectsSchedule = row && (scheduleByAsset.get(assetId) || []).some((slot) => overlap(slot, row.interval));
     return intersectsSchedule
       ? "Todo o tempo desta parada já foi contabilizado em outra parada sobreposta do mesmo equipamento."
@@ -642,6 +651,8 @@ function computeMetricSet(state: JsonRecord, filters: JsonRecord, range: { start
         return [{
           recordIds: [recordId],
           kind: "downtimes" as const,
+          assetId: id(item.assetId),
+          reasonCode: scheduleByAsset.has(id(item.assetId)) ? "" : "missing_calendar",
           label: `Parada ${text(item.number || item.id)}`,
           amount: hours,
           unit: "h indisponíveis",
@@ -667,6 +678,8 @@ function computeMetricSet(state: JsonRecord, filters: JsonRecord, range: { start
     return [{
       recordIds: [recordId],
       kind: "downtimes" as const,
+      assetId: id(item.assetId),
+      reasonCode: scheduleByAsset.has(id(item.assetId)) ? "" : "missing_calendar",
       label: `Parada ${text(item.number || item.id)}`,
       amount: hours,
       unit: "h dentro do calendário",

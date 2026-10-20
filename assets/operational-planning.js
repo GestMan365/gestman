@@ -37,6 +37,21 @@
     return Boolean(item?.id && item.assetId && Array.isArray(item.weekdays) && item.startTime && item.endTime
       && !['locationId','sectorLocationId','operationalAreaId','regionId','default','appliesToAllAssets','timezone','validFrom','validTo'].some(field => item[field]));
   }
+  function uncoveredAssets(assets, calendars, contextFor = () => ({})) {
+    return assets.filter(asset => !key(asset.status).startsWith('inativ')).filter(asset => !calendars.some(item => {
+      if (key(item.status).startsWith('inativ')) return false;
+      const weekdays = item.weekdays || item.daysOfWeek || item.days;
+      if (!Array.isArray(weekdays) || !weekdays.length) return false;
+      const minute = value => /^([01]?\d|2[0-3]):[0-5]\d$/.test(value || '') ? Number(value.split(':')[0])*60+Number(value.split(':')[1]) : NaN;
+      const schedule = String(item.schedule || item.hours || item.operatingHours || '').match(/(\d{1,2}:\d{2})\s*[-–às]+\s*(\d{1,2}:\d{2})/i);
+      const start = minute(item.startTime || item.start || schedule?.[1]), end = minute(item.endTime || item.end || schedule?.[2]);
+      const dailyHours = number(item.dailyHours || item.hoursPerDay || item.operatingHoursPerDay);
+      if (!(end > start && end-start > Number(item.breakMinutes || item.breaksMinutes || 0)) && !(dailyHours > 0 && dailyHours <= 24 && (!Number.isFinite(start) || !Number.isFinite(end)))) return false;
+      const context = contextFor(asset);
+      const bindings = [['assetId',asset.id],['locationId',asset.locationId],['sectorLocationId',context.sectorLocationId],['operationalAreaId',context.operationalAreaId],['regionId',context.regionId]].filter(([field]) => item[field]);
+      return bindings.length ? bindings.every(([field,value]) => String(item[field]) === String(value || '')) : item.default === true || item.appliesToAllAssets === true;
+    }));
+  }
   function summary(orders, assets, now = Date.now()) {
     const unique = [...new Map(orders.filter(order => order?.id).map(order => [order.id, order])).values()];
     const active = unique.filter(order => !terminal(order.status));
@@ -108,7 +123,16 @@
     const target = env.target;
     if (!target) return;
     const calendars = Array.isArray(env.calendars) ? env.calendars : [];
+    const missing = uncoveredAssets(env.assets || [], calendars, env.assetContext);
     target.innerHTML = `<section class="panel gm-ops-settings"><div class="toolbar"><h2>Operação dos equipamentos</h2>${env.canManage?'<button class="btn primary" type="button" data-new-calendar>Novo calendário operacional</button><button class="btn" type="button" data-policy>Prazos por prioridade</button>':''}</div><p>Estes calendários alimentam MTBF e disponibilidade. Jornadas de usuários, acima, são um cadastro separado.</p><div class="table-wrap"><table><thead><tr><th>Calendário / equipamento</th><th>Dias</th><th>Horário UTC</th><th>Status</th><th>Ação</th></tr></thead><tbody>${calendars.map((item,index)=>`<tr><td><strong>${esc(item.name)}</strong><br>${esc(env.assets.find(asset=>asset.id===item.assetId)?.name||'Vínculo não disponível')}</td><td>${esc((item.weekdays||[]).map(day=>days[day]).join(', '))}</td><td>${esc(item.startTime)}–${esc(item.endTime)}<br>${Number(item.breakMinutes)||0} min de pausa</td><td>${esc(item.status||'Ativo')}</td><td>${env.canManage?`<button class="btn" type="button" data-edit-calendar="${index}">Editar</button>`:'Somente leitura'}</td></tr>`).join('')||'<tr><td colspan="5">Nenhum calendário operacional cadastrado. Não há jornada presumida para calcular os indicadores.</td></tr>'}</tbody></table></div><p>Prazo padrão: ${priorities.map(p=>`${p}: ${env.settings?.slaHours?.[key(p)]>0?esc(env.settings.slaHours[key(p)])+' h':'não definido'}`).join(' · ')}</p></section>`;
+    const missingPanel = document.createElement('section');
+    missingPanel.className = 'gm-ops-missing';
+    missingPanel.innerHTML = `<h3>Equipamentos sem calendário operacional <span>(${missing.length})</span></h3><p>Configure a jornada real para incluir as paradas na disponibilidade e no MTBF. Paradas históricas válidas também são consideradas, mesmo anteriores ao cadastro.</p>${missing.length?`<label>Buscar equipamento<input class="field" type="search" data-calendar-search placeholder="Código ou nome do equipamento"></label><div class="gm-ops-missing-list">${missing.map((asset,index)=>`<div class="gm-ops-missing-row" data-calendar-asset="${index}"><span><strong>${esc(asset.code || '')}</strong><br>${esc(asset.name || '')}</span>${env.canManage?`<button class="btn" type="button" data-configure-calendar="${index}" aria-label="Configurar calendário de ${esc(asset.code || asset.name)}">Configurar</button>`:'Solicite a configuração ao administrador'}</div>`).join('')}</div>`:'<p>Todos os equipamentos ativos possuem calendário vinculado.</p>'}`;
+    target.querySelector('.gm-ops-settings').prepend(missingPanel);
+    missingPanel.querySelector('[data-calendar-search]')?.addEventListener('input',event=>{
+      const query=key(event.target.value);
+      missingPanel.querySelectorAll('[data-calendar-asset]').forEach(row=>{const asset=missing[Number(row.dataset.calendarAsset)];row.hidden=!key(`${asset.code} ${asset.name}`).includes(query);});
+    });
     const saveForm = (form, makeChange, done) => {
       let busy = false;
       form.addEventListener('submit', async event => {
@@ -123,15 +147,20 @@
         finally{busy=false;form.classList.remove('is-loading');buttons.forEach(button=>button.disabled=false);}
       });
     };
-    const openCalendar = old => {
+    const openCalendar = (old, assetId = '') => {
       if(!env.canManage)return;
       if(old && !editableCalendar(old)) return;
       const id=old?.id||env.id();
       env.open(old?'Editar calendário operacional':'Novo calendário operacional', `<form class="form" id="gmOperationalCalendarForm"><label class="full">Nome<input class="field" name="name" required maxlength="100" value="${esc(old?.name)}"></label><label class="full">Equipamento<select class="field" name="assetId" required><option value="">Selecione</option>${env.assets.map(asset=>`<option value="${esc(asset.id)}" ${old?.assetId===asset.id?'selected':''}>${esc(asset.code)} · ${esc(asset.name)}</option>`).join('')}</select></label><fieldset class="full"><legend>Dias de operação</legend>${days.map((day,i)=>`<label class="gm-ops-day"><input type="checkbox" name="weekday" value="${i}" ${old?.weekdays?.includes(i)?'checked':''}>${day}</label>`).join('')}</fieldset><label>Início (UTC)<input class="field" name="startTime" type="time" required value="${esc(old?.startTime)}"></label><label>Término (UTC)<input class="field" name="endTime" type="time" required value="${esc(old?.endTime)}"></label><label>Pausa total (minutos)<input class="field" name="breakMinutes" type="number" min="0" step="1" value="${Number(old?.breakMinutes)||0}"></label><label>Status<select class="field" name="status"><option>Ativo</option><option ${old?.status==='Inativo'?'selected':''}>Inativo</option></select></label><p class="full">O cálculo atual utiliza UTC e turnos dentro do mesmo dia. Exemplo: 08:00 em UTC−3 corresponde a 11:00 UTC. A pausa é descontada do fim do turno. Confira a jornada antes de salvar.</p><p class="full" role="alert"></p><button class="btn primary" type="submit">Salvar calendário</button></form>`);
       const form=document.getElementById('gmOperationalCalendarForm');
+      if (!old && assetId) {
+        const asset = env.assets.find(item => item.id === assetId);
+        if (asset) { form.elements.assetId.value = asset.id; form.elements.name.value = `Jornada · ${asset.code || asset.name}`.slice(0,100); }
+      }
       saveForm(form,()=>{const values=Object.fromEntries(new FormData(form));values.weekdays=new FormData(form).getAll('weekday');return {calendar:{...old,...calendar(values,env.assets),id}};},()=>{env.close();env.refresh();});
     };
     target.querySelector('[data-new-calendar]')?.addEventListener('click',()=>openCalendar(null));
+    missingPanel.querySelectorAll('[data-configure-calendar]').forEach(button=>button.addEventListener('click',()=>openCalendar(null,missing[Number(button.dataset.configureCalendar)].id)));
     target.querySelectorAll('[data-edit-calendar]').forEach(button=>button.addEventListener('click',()=>openCalendar(calendars[Number(button.dataset.editCalendar)])));
     target.querySelectorAll('[data-edit-calendar]').forEach(button=>{
       if(!editableCalendar(calendars[Number(button.dataset.editCalendar)])) {
@@ -145,6 +174,7 @@
       const form=document.getElementById('gmOperationalPolicyForm');
       saveForm(form,()=>({policy:policy(Object.fromEntries(new FormData(form)))}),()=>{env.close();env.refresh();});
     });
+    return { openCalendarForAsset: assetId => openCalendar(null,assetId) };
   }
-  root.GMOperationalPlanning = { policy, deadline, calendar, editableCalendar, summary, renderSummary, render };
+  root.GMOperationalPlanning = { policy, deadline, calendar, editableCalendar, uncoveredAssets, summary, renderSummary, render };
 })(typeof window === 'undefined' ? globalThis : window);
