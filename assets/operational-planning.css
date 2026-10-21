@@ -30,3 +30,40 @@
 #operationalInsights { padding: 20px; }
 .dashboard-operational-summary { grid-column: 1 / -1; margin-top: 14px; }
 @media (max-width: 680px) { .gm-ops-columns { grid-template-columns: minmax(0, 1fr); } .gm-ops-settings { padding: 12px; } }
+.gm-calendar-coverage{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) 2fr;gap:12px;margin-bottom:24px}
+.gm-calendar-coverage>div{padding:18px;border:1px solid var(--p-line,#d8e3ef);border-radius:12px;background:var(--p-raised,#f5f8fc)}
+.gm-calendar-coverage span{display:block;color:var(--p-muted,#526b85);font-size:12px}
+.gm-calendar-coverage strong{display:block;font-size:30px;line-height:1.4;color:var(--p-text,#153450)}
+.gm-calendar-coverage .needs-attention{border-top:3px solid #db943a}
+.gm-calendar-coverage>p{align-self:center;padding:0 16px;line-height:1.7;color:var(--p-text,#153450)}
+.gm-calendar-coverage small{color:var(--p-muted,#526b85)}
+.gm-ops-settings>.toolbar{flex-wrap:wrap;gap:10px;margin:24px 0 12px}
+.gm-ops-settings>.toolbar h2{flex:1 1 260px}
+.gm-ops-missing>h3{font-size:18px;margin:0 0 12px}
+.gm-ops-missing>p{max-width:850px;line-height:1.6}
+.gm-ops-missing>label{display:block;margin-top:18px;max-width:480px}
+.gm-ops-missing-list{margin-top:12px}
+.gm-calendar-wizard{gap:16px!important}
+.gm-calendar-steps{display:flex;list-style:none;margin:0;padding:0 0 18px;gap:12px;border-bottom:1px solid var(--p-line,#d8e3ef)}
+.gm-calendar-steps li{display:flex;align-items:center;gap:8px;flex:1;font-size:12px;color:var(--p-muted,#526b85)}
+.gm-calendar-steps li>span{display:grid;place-items:center;border:1px solid var(--p-line,#cbd9e7);border-radius:50%;width:28px;height:28px;flex-shrink:0}
+.gm-calendar-steps [aria-current]{color:var(--p-text,#153450);font-weight:700}
+.gm-calendar-steps [aria-current]>span{background:#1465d5;border-color:#1465d5;color:white}
+.gm-calendar-steps .complete>span{background:#e3f4ec;color:#136c4c;border-color:#b4dccc}
+.gm-calendar-step{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.gm-calendar-step .full{grid-column:1/-1}
+.gm-calendar-step>label:first-child{grid-column:1/-1}
+.gm-calendar-wizard [hidden]{display:none!important}
+.gm-calendar-wizard fieldset{min-width:0;border:1px solid var(--p-line,#d8e3ef);border-radius:12px;padding:16px}
+.gm-calendar-preview{padding:18px;border:1px solid var(--p-line,#d8e3ef);border-left:3px solid #1465d5;border-radius:12px;background:var(--p-raised,#f5f8fc);color:var(--p-text,#153450);line-height:1.6}
+.gm-calendar-preview p{margin:8px 0;font-size:13px}
+.gm-calendar-preview small{color:var(--p-muted,#526b85)}
+.gm-calendar-days{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
+.gm-calendar-days span{padding:5px 9px;border-radius:6px;font-size:12px;border:1px solid var(--p-line,#d8e3ef);color:var(--p-muted,#526b85)}
+.gm-calendar-days .active{background:#1465d5;color:white;border-color:#1465d5}
+.gm-calendar-review ul{max-height:190px;overflow:auto;list-style:none;padding:0;border:1px solid var(--p-line,#d8e3ef);border-radius:10px}
+.gm-calendar-review li{padding:10px 12px;border-bottom:1px solid var(--p-line,#d8e3ef);font-size:13px}
+.gm-calendar-review>p{font-size:13px;line-height:1.6;color:var(--p-muted,#526b85)}
+.gm-calendar-footer{position:sticky;bottom:0;z-index:2;display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--p-surface,#fff);padding:16px 0 4px;border-top:1px solid var(--p-line,#d8e3ef)}
+.gm-calendar-footer>span{flex:1;font-size:12px;color:var(--p-muted,#526b85)}
+@media(max-width:640px){.gm-calendar-coverage{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.gm-calendar-coverage>div{padding:10px}.gm-calendar-coverage strong{font-size:24px}.gm-calendar-coverage>p{grid-column:1/-1;padding:0}.gm-calendar-steps{gap:6px}.gm-calendar-steps li{flex-direction:column;align-items:flex-start;font-size:11px}.gm-calendar-step{grid-template-columns:1fr}.gm-calendar-footer>span{flex-basis:100%}.gm-calendar-footer .btn{flex:1}.gm-ops-missing-row{align-items:flex-start;gap:8px}.gm-ops-missing-row>span{min-width:0;overflow-wrap:anywhere}}

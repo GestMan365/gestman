@@ -126,6 +126,52 @@
       button.addEventListener('click', () => onSelect(actions[Number(button.dataset.opsSelection)]));
     });
   }
+  // Keeps all inputs mounted so moving between steps never discards a selection.
+  function calendarWizard(form,selection,assets,missing) {
+    form.classList.add('gm-calendar-wizard');form.noValidate=true;
+    const submit=form.querySelector('[type=submit]'),message=form.querySelector('[role=alert]');
+    const steps=document.createElement('ol');steps.className='gm-calendar-steps full';
+    steps.innerHTML=['Escolher jornada','Selecionar equipamentos','Revisar e aplicar'].map((label,i)=>`<li><span>${i+1}</span>${label}</li>`).join('');
+    const schedule=document.createElement('section');schedule.className='full gm-calendar-step';
+    schedule.setAttribute('aria-label','Escolher jornada');
+    [...form.children].filter(node=>node!==selection&&node!==message&&node!==submit).forEach(node=>schedule.append(node));
+    const template=selection.querySelector('[data-calendar-template]').closest('label');schedule.prepend(template);
+    const preview=document.createElement('div');preview.className='gm-calendar-preview full';preview.setAttribute('aria-live','polite');schedule.append(preview);
+    const review=document.createElement('section');review.className='full gm-calendar-review';review.setAttribute('aria-label','Revisar aplicação');
+    const footer=document.createElement('div');footer.className='full gm-calendar-footer';
+    const back=document.createElement('button');back.type='button';back.className='btn';back.textContent='Voltar';
+    const count=document.createElement('span');count.setAttribute('aria-live','polite');footer.append(count,back,submit);
+    form.prepend(steps,schedule);form.append(selection,review,message,footer);
+    let step=0;
+    const selected=()=>[...selection.querySelectorAll('[name=bulkAssetId]:checked')].map(input=>input.value);
+    const values=()=>{const data=new FormData(form);return {...Object.fromEntries(data),weekdays:data.getAll('weekday'),assetId:missing[0]?.id};};
+    const scheduleSummary=()=>{
+      const value=values(),labels=value.weekdays.map(day=>days[Number(day)]);
+      const minutes=time=>{const [h,m]=String(time).split(':').map(Number);return h*60+m;};
+      const duration=minutes(value.endTime)-minutes(value.startTime)-Number(value.breakMinutes||0);
+      return `<strong>${esc(value.name||'Sua jornada operacional')}</strong><div class="gm-calendar-days">${days.map((day,i)=>`<span class="${value.weekdays.includes(String(i))?'active':''}">${day}</span>`).join('')}</div><p>${labels.length?esc(labels.join(' · ')):'Selecione os dias de operação'}</p><b>${esc(value.startTime||'--:--')} → ${esc(value.endTime||'--:--')} <small>UTC</small></b><p>${Number.isFinite(duration)&&duration>0?`${Math.floor(duration/60)} h ${duration%60} min de operação por dia`:'Defina o horário da jornada'} · ${esc(value.breakMinutes||0)} min de pausa</p><small>Status: ${esc(value.status)}. A pausa é descontada do fim do turno.</small>`;
+    };
+    const update=()=>{
+      const ids=selected();schedule.hidden=step!==0;selection.hidden=step!==1;review.hidden=step!==2;
+      [...steps.children].forEach((node,i)=>{if(i===step)node.setAttribute('aria-current','step');else node.removeAttribute('aria-current');node.classList.toggle('complete',i<step);});
+      preview.innerHTML=scheduleSummary();
+      count.textContent=`${ids.length} equipamento(s) selecionado(s)`;
+      submit.textContent=step===2?`Aplicar em ${ids.length} equipamento${ids.length===1?'':'s'}`:'Continuar';submit.disabled=step>0&&!ids.length;
+      back.hidden=step===0;
+      if(step===2)review.innerHTML=`<h3>Confira antes de aplicar</h3><div class="gm-calendar-preview">${scheduleSummary()}</div><h4>${ids.length} ${ids.length===1?'equipamento receberá':'equipamentos receberão'} esta jornada</h4><ul>${missing.filter(asset=>ids.includes(asset.id)).map(asset=>`<li><strong>${esc(asset.code)}</strong> · ${esc(asset.name)}</li>`).join('')}</ul><p>Os calendários existentes não serão alterados. Cada equipamento receberá uma cópia independente desta jornada. MTBF e disponibilidade serão recalculados após salvar.</p>`;
+    };
+    form.addEventListener('input',update);form.addEventListener('change',update);
+    selection.querySelector('[data-bulk-all]').addEventListener('click',update);
+    selection.querySelector('[data-bulk-none]').addEventListener('click',update);
+    back.addEventListener('click',()=>{step=Math.max(0,step-1);message.textContent='';update();steps.scrollIntoView({block:'nearest'});});
+    update();
+    return {beforeSubmit(){
+      if(step===0){calendar(values(),assets);step=1;update();steps.scrollIntoView({block:'nearest'});return false;}
+      if(!selected().length)throw Error('Selecione pelo menos um equipamento.');
+      if(step===1){step=2;update();steps.scrollIntoView({block:'nearest'});return false;}
+      return true;
+    }};
+  }
   function render(env) {
     const target = env.target;
     if (!target) return;
@@ -135,23 +181,28 @@
     const missingPanel = document.createElement('section');
     missingPanel.className = 'gm-ops-missing';
     missingPanel.innerHTML = `<h3>Equipamentos sem calendário operacional <span>(${missing.length})</span></h3><p>Configure a jornada real para incluir as paradas na disponibilidade e no MTBF. Paradas históricas válidas também são consideradas, mesmo anteriores ao cadastro.</p>${missing.length?`<label>Buscar equipamento<input class="field" type="search" data-calendar-search placeholder="Código ou nome do equipamento"></label><div class="gm-ops-missing-list">${missing.map((asset,index)=>`<div class="gm-ops-missing-row" data-calendar-asset="${index}"><span><strong>${esc(asset.code || '')}</strong><br>${esc(asset.name || '')}</span>${env.canManage?`<button class="btn" type="button" data-configure-calendar="${index}" aria-label="Configurar calendário de ${esc(asset.code || asset.name)}">Configurar</button>`:'Solicite a configuração ao administrador'}</div>`).join('')}</div>`:'<p>Todos os equipamentos ativos possuem calendário vinculado.</p>'}`;
+    const coverage=document.createElement('div');coverage.className='gm-calendar-coverage';
+    const active=(env.assets||[]).filter(asset=>!key(asset.status).startsWith('inativ')).length;
+    coverage.innerHTML=`<div><span>Equipamentos ativos</span><strong>${active}</strong></div><div><span>Com calendário</span><strong>${active-missing.length}</strong></div><div class="needs-attention"><span>Sem calendário</span><strong>${missing.length}</strong></div><p>Jornadas reais, indicadores confiáveis.<br><small>Configure os equipamentos pendentes individualmente ou em lote.</small></p>`;
     target.querySelector('.gm-ops-settings').prepend(missingPanel);
+    target.querySelector('.gm-ops-settings').prepend(coverage);
     missingPanel.querySelector('[data-calendar-search]')?.addEventListener('input',event=>{
       const query=key(event.target.value);
       missingPanel.querySelectorAll('[data-calendar-asset]').forEach(row=>{const asset=missing[Number(row.dataset.calendarAsset)];row.hidden=!key(`${asset.code} ${asset.name}`).includes(query);});
     });
-    const saveForm = (form, makeChange, done) => {
+    const saveForm = (form, makeChange, done, beforeSubmit) => {
       let busy = false;
       form.addEventListener('submit', async event => {
         event.preventDefault(); if(busy)return;
         const message=form.querySelector('[role=alert]'), buttons=[...form.querySelectorAll('button')];
         message.textContent='';
         try {
+          if(beforeSubmit && !beforeSubmit())return;
           const change=makeChange(); busy=true;form.classList.add('is-loading');buttons.forEach(button=>button.disabled=true);
           if(!await env.save(change)) {message.textContent='Salvamento não confirmado. Seus campos continuam nesta tela; tente novamente.';return;}
           done();
         } catch(error) {message.textContent=error.message||'Não foi possível salvar.';}
-        finally{busy=false;form.classList.remove('is-loading');buttons.forEach(button=>button.disabled=false);}
+        finally{if(busy){busy=false;form.classList.remove('is-loading');buttons.forEach(button=>button.disabled=false);}}
       });
     };
     const openCalendar = (old, assetId = '', bulk = false) => {
@@ -161,6 +212,7 @@
       env.open(bulk?'Aplicar calendário em vários equipamentos':old?'Editar calendário operacional':'Novo calendário operacional', `<form class="form" id="gmOperationalCalendarForm"><label class="full">Nome<input class="field" name="name" required maxlength="100" value="${esc(old?.name)}"></label><label class="full">Equipamento<select class="field" name="assetId" required><option value="">Selecione</option>${env.assets.map(asset=>`<option value="${esc(asset.id)}" ${old?.assetId===asset.id?'selected':''}>${esc(asset.code)} · ${esc(asset.name)}</option>`).join('')}</select></label><fieldset class="full"><legend>Dias de operação</legend>${days.map((day,i)=>`<label class="gm-ops-day"><input type="checkbox" name="weekday" value="${i}" ${old?.weekdays?.includes(i)?'checked':''}>${day}</label>`).join('')}</fieldset><label>Início (UTC)<input class="field" name="startTime" type="time" required value="${esc(old?.startTime)}"></label><label>Término (UTC)<input class="field" name="endTime" type="time" required value="${esc(old?.endTime)}"></label><label>Pausa total (minutos)<input class="field" name="breakMinutes" type="number" min="0" step="1" value="${Number(old?.breakMinutes)||0}"></label><label>Status<select class="field" name="status"><option>Ativo</option><option ${old?.status==='Inativo'?'selected':''}>Inativo</option></select></label><p class="full">O cálculo atual utiliza UTC e turnos dentro do mesmo dia. Exemplo: 08:00 em UTC−3 corresponde a 11:00 UTC. A pausa é descontada do fim do turno. Confira a jornada antes de salvar.</p><p class="full" role="alert"></p><button class="btn primary" type="submit">Salvar calendário</button></form>`);
       const form=document.getElementById('gmOperationalCalendarForm');
       const batchIds = new Map();
+      let wizard;
       if (bulk) {
         form.elements.assetId.required=false;
         const single=form.elements.assetId.closest('label');single.hidden=true;single.classList.add('gm-ops-bulk-single');
@@ -180,6 +232,7 @@
           for(const name of ['name','startTime','endTime','breakMinutes','status'])form.elements[name].value=template[name]??(name==='breakMinutes'?0:'Ativo');
           form.querySelectorAll('[name=weekday]').forEach(input=>input.checked=template.weekdays.map(Number).includes(Number(input.value)));
         });
+        wizard=calendarWizard(form,selection,env.assets,missing);
       }
       if (!old && assetId) {
         const asset = env.assets.find(item => item.id === assetId);
@@ -188,7 +241,7 @@
       saveForm(form,()=>{const data=new FormData(form),values=Object.fromEntries(data);values.weekdays=data.getAll('weekday');
         if(bulk)return {calendars:calendarBatch(values,data.getAll('bulkAssetId'),env.assets,calendars,env.assetContext,assetId=>{if(!batchIds.has(assetId))batchIds.set(assetId,env.id());return batchIds.get(assetId);})};
         return {calendar:{...old,...calendar(values,env.assets),id}};
-      },()=>{env.close();env.refresh();});
+      },()=>{env.close();env.refresh();},()=>!wizard||wizard.beforeSubmit());
     };
     if(env.canManage&&missing.length){const batchButton=document.createElement('button');batchButton.type='button';batchButton.className='btn primary';batchButton.textContent='Aplicar calendário em vários equipamentos';missingPanel.querySelector('h3').after(batchButton);batchButton.addEventListener('click',()=>openCalendar(null,'',true));}
     target.querySelector('[data-new-calendar]')?.addEventListener('click',()=>openCalendar(null));
