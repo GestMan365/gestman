@@ -22660,9 +22660,9 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
   <script src="assets/maintenance-metric-details.js?v=metric-evidence-4"></script>
   <link rel="stylesheet" href="assets/dashboard-distributions.css?v=clickable-distributions-2">
   <script src="assets/maintenance-charts.js?v=metric-evidence-3"></script>
-  <link rel="stylesheet" href="assets/operational-planning.css?v=calendar-history-1">
+  <link rel="stylesheet" href="assets/operational-planning.css?v=calendar-batch-1">
   <link rel="stylesheet" href="assets/dashboard-operations.css?v=kpi-drilldown-5">
-  <script src="assets/operational-planning.js?v=calendar-history-1"></script>
+  <script src="assets/operational-planning.js?v=calendar-batch-1"></script>
   <script src="assets/vendor/qrcode-generator.js"></script>
   <script src="assets/ui/gestman-pagination.js"></script>
   <script defer src="assets/vendor/asset-qr-scanner.js"></script>
@@ -33629,10 +33629,21 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
     async function gmSaveOperationalPlanning(change = {}) {
       if (!isAdminUser() || !currentAccount) return false;
       const now = Date.now();
-      if (change.calendar) {
-        const next = { ...change.calendar, updatedAt:now, history:[...(change.calendar.history || []), { date:now, label:"Calendário operacional alterado" }] };
-        const current = Array.isArray(state.operationalCalendars) ? state.operationalCalendars : [];
-        state.operationalCalendars = current.some(item => item.id === next.id) ? current.map(item => item.id === next.id ? next : item) : [next, ...current];
+      const batch = change.calendars || (change.calendar ? [change.calendar] : []);
+      if (!Array.isArray(batch)) return false;
+      if (batch.length) {
+        const assets = stage16ScopedRows("assets", state.assets || []);
+        let validated;
+        try {
+          const ids = new Set();
+          validated = batch.map(item => {
+            if (!item.id || ids.has(item.id)) throw Error("Identificador de calendário inválido.");
+            ids.add(item.id);
+            return {...item,...window.GMOperationalPlanning.calendar(item,assets),updatedAt:now,history:[...(item.history || []),{date:now,label:batch.length>1?"Calendário aplicado em lote":"Calendário operacional alterado"}]};
+          });
+        } catch { return false; }
+        const nextIds = new Set(validated.map(item=>item.id));
+        state.operationalCalendars = [...validated,...(state.operationalCalendars || []).filter(item=>!nextIds.has(item.id))];
       }
       if (change.policy) state.operationalPolicy = { ...(state.operationalPolicy || {}), ...change.policy, updatedAt:now };
       saveState();

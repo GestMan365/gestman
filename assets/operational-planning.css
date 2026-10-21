@@ -7,6 +7,12 @@
 .gm-ops-missing-row[hidden] { display:none; }
 .gm-ops-missing-row span { min-width:0; overflow-wrap:anywhere; }
 .gm-ops-missing-row .btn { flex-shrink:0; }
+.gm-ops-bulk-list { max-height:280px; overflow:auto; border:1px solid var(--p-line,#cbd9e7); border-radius:8px; }
+.gm-ops-bulk-row { display:flex!important; align-items:center; gap:10px; padding:10px; border-bottom:1px solid var(--p-line,#cbd9e7); }
+.gm-ops-bulk-row input { flex:0 0 auto; width:18px!important; height:18px; }
+.gm-ops-bulk-row span { min-width:0; overflow-wrap:anywhere; }
+.gm-ops-bulk-row[hidden], .gm-ops-bulk-single[hidden] { display:none!important; }
+.gm-ops-bulk .toolbar { flex-wrap:wrap; margin:12px 0; }
 .gm-ops-settings h2 { font-size: 18px; margin-right: auto; }
 .gm-ops-settings p, .gm-ops-columns p { line-height: 1.5; color: var(--muted, #8da9bd); }
 .gm-ops-day { display: inline-flex !important; align-items: center; gap: 6px; margin: 8px 12px 8px 0; }

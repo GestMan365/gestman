@@ -9,6 +9,20 @@ vm.createContext(context);
 vm.runInContext(source, context);
 const planning = context.GMOperationalPlanning;
 
+test('aplicação em lote valida todos os destinos, deduplica e preserva os calendários existentes',()=>{
+  const assets=[{id:'a'},{id:'b'},{id:'linked'}];
+  const input={name:'Turno comum',weekdays:[1,2,3],startTime:'11:00',endTime:'20:00',breakMinutes:60,status:'Ativo'};
+  const existing=[{...input,id:'original',assetId:'linked'}];
+  const batch=planning.calendarBatch(input,['a','b','a'],assets,existing,undefined,id=>'new-'+id);
+  assert.deepEqual([...batch].map(item=>item.assetId),['a','b']);
+  assert.deepEqual([...batch].map(item=>item.id),['new-a','new-b']);
+  assert.equal(batch[0].startTime,batch[1].startTime);
+  assert.equal(existing.length,1);
+  assert.throws(()=>planning.calendarBatch(input,[],assets,existing,undefined,id=>id),/Selecione/);
+  assert.throws(()=>planning.calendarBatch(input,['a','linked'],assets,existing,undefined,id=>id),/já possui/);
+  assert.throws(()=>planning.calendarBatch(input,['unknown'],assets,existing,undefined,id=>id),/indisponível/);
+});
+
 test("lista equipamentos sem vínculo válido e respeita calendários de abrangência e inativos",()=>{
   const assets=[{id:'a',status:'Operando'},{id:'b',status:'Operando'},{id:'c',status:'Inativo'}];
   const base={weekdays:[1,2,3,4,5],startTime:'08:00',endTime:'17:00',status:'Ativo'};

@@ -61,3 +61,41 @@ test('atalho nos detalhes de disponibilidade abre o calendário do equipamento c
   await expect(page.locator('#gmOperationalCalendarForm [name=assetId]')).toHaveValue('asset-2');
   await expect(page.locator('#gmOperationalCalendarForm [name=startTime]')).toHaveValue('');
 });
+
+test('aplica jornada existente a dois equipamentos selecionados em uma única gravação',async({page})=>{
+  await page.evaluate(()=>window.eval(`
+    state.assets.push({id:'asset-2',code:'MOT-A',name:'Motor A',status:'Operando'},{id:'asset-3',code:'MOT-B',name:'Motor B',status:'Operando'},{id:'asset-4',code:'PUMP-C',name:'Bomba C',status:'Operando'});
+    window.qaCalendarWrites=0;gmRemoteStateVersion=1;gmRemoteSavePromise=Promise.resolve();gmSyncConflict=null;
+    gmRpc=async(name)=>{if(name!=='gm_save_tenant_state')return [];window.qaCalendarWrites++;return [{version:gmRemoteStateVersion+1,updated_at:new Date().toISOString()}];};renderOperationalPlanning();
+  `));
+  await page.getByRole('button',{name:'Aplicar calendário em vários equipamentos',exact:true}).click();
+  const form=page.locator('#gmOperationalCalendarForm');
+  await expect(form.getByRole('button',{name:'Aplicar aos selecionados'})).toBeDisabled();
+  await form.locator('[data-calendar-template]').selectOption('0');
+  await form.locator('[data-bulk-search]').fill('MOT');
+  await form.getByRole('button',{name:'Selecionar todos os resultados'}).click();
+  await expect(form.locator('[data-bulk-count]')).toHaveText('2 selecionado(s)');
+  await form.getByRole('button',{name:'Limpar seleção'}).click();
+  await expect(form.locator('[data-bulk-count]')).toHaveText('0 selecionado(s)');
+  await form.getByRole('button',{name:'Selecionar todos os resultados'}).click();
+  await form.getByRole('button',{name:'Aplicar aos selecionados',exact:true}).click();
+  await expect(form).not.toBeVisible();
+  const result=await page.evaluate(()=>window.eval(`({writes:window.qaCalendarWrites,calendars:state.operationalCalendars.map(item=>({id:item.id,assetId:item.assetId,start:item.startTime,end:item.endTime}))})`));
+  expect(result.writes).toBe(1);
+  expect(result.calendars).toHaveLength(3);
+  expect(result.calendars.map(item=>item.assetId).sort()).toEqual(['asset-1','asset-2','asset-3']);
+  expect(result.calendars.every(item=>item.start==='08:00'&&item.end==='17:00')).toBe(true);
+  expect(new Set(result.calendars.map(item=>item.id)).size).toBe(3);
+  await expect(page.getByRole('button',{name:'Configurar calendário de PUMP-C',exact:true})).toBeVisible();
+});
+
+test('lote inválido não altera parte dos calendários nem inicia gravação',async({page})=>{
+  const result=await page.evaluate(()=>window.eval(`(async()=>{
+    window.qaCalendarWrites=0;gmPersistState=async()=>{window.qaCalendarWrites++;return true;};
+    const before=JSON.stringify(state.operationalCalendars);
+    const valid={id:'new-1',name:'Turno',assetId:'asset-1',weekdays:[1],startTime:'08:00',endTime:'17:00'};
+    const saved=await gmSaveOperationalPlanning({calendars:[valid,{...valid,id:'new-2',assetId:'unknown'}]});
+    return {saved,writes:window.qaCalendarWrites,unchanged:before===JSON.stringify(state.operationalCalendars)};
+  })()`));
+  expect(result).toEqual({saved:false,writes:0,unchanged:true});
+});
