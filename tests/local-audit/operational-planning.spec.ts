@@ -103,7 +103,8 @@ test('lote inválido não altera parte dos calendários nem inicia gravação',a
     window.qaCalendarWrites=0;gmPersistState=async()=>{window.qaCalendarWrites++;return true;};
     const before=JSON.stringify(state.operationalCalendars);
     const valid={id:'new-1',name:'Turno',assetId:'asset-1',weekdays:[1],startTime:'08:00',endTime:'17:00'};
-    const saved=await gmSaveOperationalPlanning({calendars:[valid,{...valid,id:'new-2',assetId:'unknown'}]});
+    let saved=false;
+    try { saved=await gmSaveOperationalPlanning({calendars:[valid,{...valid,id:'new-2',assetId:'unknown'}]}); } catch(error) { if(!error.message.includes('validar os calendários'))throw error; }
     return {saved,writes:window.qaCalendarWrites,unchanged:before===JSON.stringify(state.operationalCalendars)};
   })()`));
   expect(result).toEqual({saved:false,writes:0,unchanged:true});

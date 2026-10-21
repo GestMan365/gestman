@@ -33641,13 +33641,22 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
             ids.add(item.id);
             return {...item,...window.GMOperationalPlanning.calendar(item,assets),updatedAt:now,history:[...(item.history || []),{date:now,label:batch.length>1?"Calendário aplicado em lote":"Calendário operacional alterado"}]};
           });
-        } catch { return false; }
+        } catch (error) {
+          stage21TechnicalLog("error", "operational-calendar.validate", error);
+          throw new Error(`Não foi possível validar os calendários: ${error.message || "dados inválidos"}`);
+        }
         const nextIds = new Set(validated.map(item=>item.id));
         state.operationalCalendars = [...validated,...(state.operationalCalendars || []).filter(item=>!nextIds.has(item.id))];
       }
       if (change.policy) state.operationalPolicy = { ...(state.operationalPolicy || {}), ...change.policy, updatedAt:now };
       saveState();
-      return await gmPersistState(true);
+      const saved = await gmPersistState(true);
+      if (!saved) {
+        const logs = safeParseJson(scopedGetItem(STAGE21_TECH_LOG_KEY,"user"),[]);
+        const failure = Array.isArray(logs) && logs.find(item=>item.context === "supabase.state.save" && item.at >= now);
+        throw new Error(failure ? `Não foi possível salvar os calendários: ${failure.message}` : "Salvamento não confirmado. Seus campos foram preservados; verifique a sincronização e tente novamente.");
+      }
+      return true;
     }
     function openOperationalCalendarForAsset(assetId) {
       if (!isAdminUser() || !canAccessView("productiveCalendars")) return denyProfileAccess();
