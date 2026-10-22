@@ -24619,13 +24619,14 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
         reason: String(item.reason || item.title || item.motive || "").trim(),
         description: String(item.description || "").trim(),
         type: [...DOWNTIME_TYPES, "Não planejada", "Planejada", "Operacional", "Segurança"].includes(item.type) ? item.type : "Falha",
-        startAt: String(item.startAt || item.start || "").slice(0, 16),
-        endAt: String(item.endAt || item.end || "").slice(0, 16),
+        // RPC-protected timestamps must round-trip unchanged, including seconds/zone.
+        startAt: item.startAt ?? item.start ?? "",
+        endAt: item.endAt ?? item.end ?? "",
         status: DOWNTIME_STATUSES.includes(item.status) ? item.status : "Ativa",
         owner: String(item.owner || item.responsible || "").trim(),
         previousAssetStatus: String(item.previousAssetStatus || "").trim(),
-        durationMs: Number.isFinite(Number(item.durationMs)) ? Math.max(0, Number(item.durationMs)) : null,
-        durationHours: Number.isFinite(Number(item.durationHours)) ? Math.max(0, Number(item.durationHours)) : null,
+        durationMs: item.durationMs == null || item.durationMs === "" ? null : Number.isFinite(Number(item.durationMs)) ? Math.max(0, Number(item.durationMs)) : null,
+        durationHours: item.durationHours == null || item.durationHours === "" ? null : Number.isFinite(Number(item.durationHours)) ? Math.max(0, Number(item.durationHours)) : null,
         history: Array.isArray(item.history) ? item.history : [],
         createdAt: Number(item.createdAt || Date.now()),
         updatedAt: Number(item.updatedAt || item.createdAt || Date.now())
@@ -31006,6 +31007,8 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
       const match = text.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
       if (!match) return null;
       const date = new Date(text);
+      // Server timestamps include a zone; only local form inputs need wall-clock validation.
+      if (/(?:Z|[+-]\d{2}:\d{2})$/i.test(text)) return Number.isNaN(date.getTime()) ? null : date;
       const year=Number(match[1]),month=Number(match[2]),day=Number(match[3]),hour=Number(match[4]),minute=Number(match[5]);
       return Number.isNaN(date.getTime()) || date.getFullYear()!==year || date.getMonth()!==month-1 || date.getDate()!==day || date.getHours()!==hour || date.getMinutes()!==minute ? null : date;
     }

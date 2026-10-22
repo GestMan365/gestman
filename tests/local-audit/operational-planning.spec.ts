@@ -35,6 +35,19 @@ test('cadastro inválido não é aceito pelo contrato de calendário', async ({ 
   expect(result).toContain('posterior');
 });
 
+test('normalização preserva timestamps protegidos e durações nulas das paradas',async({page})=>{
+  const result=await page.evaluate(()=>window.eval(`(() => {
+    const source={id:'stop-raw',assetId:'asset-1',status:'Ativa',startAt:'2026-10-19T11:44:32.123Z',endAt:'',durationMs:null,durationHours:null};
+    const first=normalizeState({...emptyState(),downtimes:[source]}).downtimes[0];
+    const second=normalizeState({...emptyState(),downtimes:[first]}).downtimes[0];
+    const fields=['startAt','endAt','durationMs','durationHours'];
+    return {first:fields.map(key=>first[key]),second:fields.map(key=>second[key]),parsed:downtimeDateFromInput(first.startAt)?.toISOString()};
+  })()`));
+  expect(result.first).toEqual(['2026-10-19T11:44:32.123Z','',null,null]);
+  expect(result.second).toEqual(result.first);
+  expect(result.parsed).toBe('2026-10-19T11:44:32.123Z');
+});
+
 test('equipamento sem calendário abre pré-selecionado e sai da lista depois de salvar',async({page})=>{
   await page.evaluate(()=>window.eval(`state.assets.push({id:'asset-2',code:'A-002',name:'Motor sem calendário',status:'Operando'});gmPersistState=async()=>true;renderOperationalPlanning();`));
   await page.locator('[data-calendar-search]').fill('A-002');
@@ -65,8 +78,22 @@ test('atalho nos detalhes de disponibilidade abre o calendário do equipamento c
 test('aplica jornada existente a dois equipamentos selecionados em uma única gravação',async({page})=>{
   await page.evaluate(()=>window.eval(`
     state.assets.push({id:'asset-2',code:'MOT-A',name:'Motor A',status:'Operando'},{id:'asset-3',code:'MOT-B',name:'Motor B',status:'Operando'},{id:'asset-4',code:'PUMP-C',name:'Bomba C',status:'Operando'});
+    window.qaProtectedStops=[
+      {id:'stop-active',assetId:'asset-4',status:'Ativa',startAt:'2026-10-19T11:44:32.123Z',endAt:'',durationMs:null,durationHours:null},
+      {id:'stop-closed',assetId:'asset-1',status:'Encerrada',startAt:'2026-10-07T18:40:12.000Z',endAt:'2026-10-07T18:41:19.000Z',durationMs:67000,durationHours:0.0186}
+    ];
+    state=normalizeState({...state,downtimes:window.qaProtectedStops});
     window.qaCalendarWrites=0;gmRemoteStateVersion=1;gmRemoteSavePromise=Promise.resolve();gmSyncConflict=null;
-    gmRpc=async(name)=>{if(name!=='gm_save_tenant_state')return [];window.qaCalendarWrites++;return [{version:gmRemoteStateVersion+1,updated_at:new Date().toISOString()}];};renderOperationalPlanning();
+    gmRpc=async(name,body)=>{
+      if(name!=='gm_save_tenant_state')return [];
+      for(const old of window.qaProtectedStops){
+        const next=body.p_state.downtimes.find(item=>item.id===old.id);
+        for(const field of ['assetId','status','startAt','endAt','durationMs','durationHours']){
+          if(next[field]!==old[field])throw Error('GM_DOWNTIME_TRANSITION_RPC_REQUIRED');
+        }
+      }
+      window.qaCalendarWrites++;return [{version:gmRemoteStateVersion+1,updated_at:new Date().toISOString()}];
+    };renderOperationalPlanning();
   `));
   await page.getByRole('button',{name:'Aplicar calendário em vários equipamentos',exact:true}).click();
   const form=page.locator('#gmOperationalCalendarForm');
@@ -89,10 +116,10 @@ test('aplica jornada existente a dois equipamentos selecionados em uma única gr
   await form.getByRole('button',{name:'Continuar',exact:true}).click();
   await form.getByRole('button',{name:'Aplicar em 2 equipamentos',exact:true}).click();
   await expect(form).not.toBeVisible();
-  const result=await page.evaluate(()=>window.eval(`({writes:window.qaCalendarWrites,calendars:state.operationalCalendars.map(item=>({id:item.id,assetId:item.assetId,start:item.startTime,end:item.endTime}))})`));
+  const result=await page.evaluate(()=>window.eval(`({writes:window.qaCalendarWrites,expectedAssetIds:[...state.assets.filter(item=>['MOT-A','MOT-B'].includes(item.code)).map(item=>item.id),'asset-1'].sort(),calendars:state.operationalCalendars.map(item=>({id:item.id,assetId:item.assetId,start:item.startTime,end:item.endTime}))})`));
   expect(result.writes).toBe(1);
   expect(result.calendars).toHaveLength(3);
-  expect(result.calendars.map(item=>item.assetId).sort()).toEqual(['asset-1','asset-2','asset-3']);
+  expect(result.calendars.map(item=>item.assetId).sort()).toEqual(result.expectedAssetIds);
   expect(result.calendars.every(item=>item.start==='08:00'&&item.end==='17:00')).toBe(true);
   expect(new Set(result.calendars.map(item=>item.id)).size).toBe(3);
   await expect(page.getByRole('button',{name:'Configurar calendário de PUMP-C',exact:true})).toBeVisible();
