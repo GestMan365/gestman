@@ -9,6 +9,25 @@ vm.createContext(context);
 vm.runInContext(source, context);
 const planning = context.GMOperationalPlanning;
 
+test('valida fuso, vigência e cria nova versão preservando o calendário anterior',()=>{
+  const assets=[{id:'a'}], old={id:'v1',name:'Legado UTC',assetId:'a',weekdays:[1,2,3,4,5],startTime:'11:00',endTime:'20:00',breakMinutes:60,status:'Ativo'};
+  const input={...old,timezone:'America/Sao_Paulo',startTime:'08:00',endTime:'17:00',validFrom:'2026-10-23',validTo:''};
+  const versions=planning.calendarRevision(old,input,assets,[old],'v2');
+  assert.equal(old.validTo,undefined);
+  assert.equal(versions[0].validTo,'2026-10-22');
+  assert.equal(versions[0].startTime,'11:00');
+  assert.equal(versions[1].timezone,'America/Sao_Paulo');
+  assert.equal(versions[1].previousCalendarId,'v1');
+  assert.doesNotThrow(()=>planning.validateCalendarSet(versions,[old]));
+  assert.throws(()=>planning.calendar({...input,validTo:'2026-10-22'},assets),/vigência/);
+  assert.throws(()=>planning.calendar({...input,timezone:'Not/AZone'},assets),/fuso/);
+  assert.throws(()=>planning.calendar({...input,validFrom:'2026-02-30'},assets),/vigência/);
+  assert.throws(()=>planning.validateCalendarSet([{...input,id:'v2'}],[old]),/já possui/);
+  assert.deepEqual([...planning.uncoveredAssets(assets,[versions[1]],undefined,new Date('2026-10-22T12:00:00Z'))].map(item=>item.id),['a']);
+  assert.equal(planning.uncoveredAssets(assets,[versions[1]],undefined,new Date('2026-10-23T12:00:00Z')).length,0);
+  assert.equal(planning.uncoveredAssets(assets,[versions[0]],undefined,new Date('2026-10-23T12:00:00Z')).length,1);
+});
+
 test('aplicação em lote valida todos os destinos, deduplica e preserva os calendários existentes',()=>{
   const assets=[{id:'a'},{id:'b'},{id:'linked'}];
   const input={name:'Turno comum',weekdays:[1,2,3],startTime:'11:00',endTime:'20:00',breakMinutes:60,status:'Ativo'};

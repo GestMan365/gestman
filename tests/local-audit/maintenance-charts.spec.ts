@@ -29,7 +29,7 @@ async function prepare(page: Page, mode = 'ready') {
           source:'Contrato QA', detail:'Registro controlado para validação local.'
         }))]));
         return {tenant_state_version:1,contract:{version:1,period:{start:'2026-01-01T00:00:00Z',end:'2026-06-30T23:59:59Z'},updatedAt:'2026-06-30T23:00:00Z',series,
-          metrics:Object.fromEntries(keys.map(key=>[key,{value:window.qaChartMode === 'single'?(key === 'mttr'?6.52:null):window.qaChartMode === 'empty'?null:key === 'mttr'?2.8:key === 'mtbf'?170:96.4,quality:{state:window.qaChartMode === 'single'?(key === 'mttr'?'valid':'insufficient'):window.qaChartMode === 'empty'?'insufficient':'partial'},detail:'Base controlada de QA.'}]))}};
+          metrics:Object.fromEntries(keys.map(key=>[key,{value:window.qaChartMode === 'single'?(key === 'mttr'?6.52:null):window.qaChartMode === 'empty'?null:key === 'mttr'?2.8:key === 'mtbf'?170:96.4,coverage:{basis:key==='mttr'?'repairs':'calendar',total:28,covered:3,missing:25,percentage:10.71},quality:{state:window.qaChartMode === 'single'?(key === 'mttr'?'valid':'insufficient'):window.qaChartMode === 'empty'?'insufficient':'partial'},detail:'Base controlada de QA.'}]))}};
       };
       document.body.classList.remove('auth-required','auth-loading','auth-restoring');
       document.body.classList.toggle('theme-light',false);
@@ -52,6 +52,8 @@ for (const viewport of [{width:1366,height:768},{width:951,height:535},{width:39
       await expect(widget.locator('[data-metric="availability"] .gm-metric-value strong')).toHaveText('96,4 %');
       await expect(widget.locator('[data-metric="mttr"] .gm-metric-line')).toHaveCount(1);
       await expect(widget.locator('.gm-metric-reference')).toHaveCount(3);
+      await expect(widget.locator('[data-metric="availability"] .gm-source-coverage')).toContainText('3 de 28');
+      await expect(widget.locator('[data-metric="availability"] .gm-source-coverage progress')).toHaveAttribute('value','3');
       await expect(widget.locator('[data-metric="mttr"] .gm-metric-dot.is-partial')).toHaveCount(1);
       const point=widget.locator('[data-metric="mttr"] [data-point="0"]');
       await point.focus();

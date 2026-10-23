@@ -53,6 +53,50 @@ function mondayCalendar(overrides = {}) {
   };
 }
 
+test('jornada em Brasília converte horário local, mantém UTC legado e informa cobertura',()=>{
+  const asset=activeAsset();
+  const state=baseState({assets:[asset,activeAsset('asset-2')],operationalCalendars:[mondayCalendar({default:false,assetId:asset.id,timezone:'America/Sao_Paulo',startTime:'08:00',endTime:'17:00',breakMinutes:60,validFrom:'2026-08-10',validTo:'2026-08-10'})],
+    orders:[{id:'o1',assetId:asset.id,maintenanceType:'Corretiva',status:'Concluída',actualHours:1,finishedAt:'2026-08-10T15:00:00Z'}],
+    downtimes:[{id:'inside',assetId:asset.id,status:'Encerrada',startAt:'2026-08-10T11:00:00Z',endAt:'2026-08-10T12:00:00Z'},{id:'outside',assetId:asset.id,status:'Encerrada',startAt:'2026-08-10T08:00:00Z',endAt:'2026-08-10T09:00:00Z'}]});
+  const result=calculateMaintenanceMetrics(state,{...PERIOD,seriesBuckets:1},'2026-08-10T23:59:59.999Z');
+  assert.equal(result.metrics.availability.calculation.denominator,8);
+  assert.equal(result.metrics.mtbf.value,7);
+  assert.equal(result.metrics.availability.value,87.5);
+  assert.deepEqual(result.metrics.availability.calculation.contributions.map(row=>row.amount),[1,0]);
+  assert.deepEqual(result.metrics.availability.coverage,{basis:'calendar',total:2,covered:1,missing:1,percentage:50});
+  assert.deepEqual(result.series.availability[0].coverage,result.metrics.availability.coverage);
+  assert.deepEqual(result.metrics.mttr.coverage,{basis:'repairs',total:1,covered:1,missing:0,percentage:100});
+});
+
+test('vigências inclusivas respeitam as versões e não alteram dias anteriores',()=>{
+  const asset=activeAsset();
+  const legacy=mondayCalendar({default:false,assetId:asset.id,validTo:'2026-08-10'});
+  const next=mondayCalendar({id:'v2',default:false,assetId:asset.id,timezone:'America/Sao_Paulo',weekdays:[1,2,3,4,5],startTime:'08:00',endTime:'17:00',breakMinutes:60,validFrom:'2026-08-11'});
+  const withBoth=baseState({assets:[asset],operationalCalendars:[legacy,next]});
+  const before=calculateMaintenanceMetrics(withBoth,PERIOD,'2026-08-12T23:59:59Z');
+  assert.equal(before.metrics.availability.calculation.denominator,8);
+  const after=calculateMaintenanceMetrics(withBoth,{period:'custom',start:'2026-08-11',end:'2026-08-11'},'2026-08-12T23:59:59Z');
+  assert.equal(after.metrics.availability.calculation.denominator,8);
+  const future=calculateMaintenanceMetrics(baseState({assets:[asset],operationalCalendars:[next]}),PERIOD,'2026-08-12T23:59:59Z');
+  assert.equal(future.metrics.availability.value,null);
+  assert.equal(future.metrics.availability.coverage.covered,0);
+});
+
+test('fuso atravessa a meia-noite UTC e calendário inválido não fabrica horas',()=>{
+  const asset=activeAsset();
+  const compute=calendar=>calculateMaintenanceMetrics(baseState({assets:[asset],operationalCalendars:[mondayCalendar({assetId:asset.id,default:false,...calendar})]}),PERIOD,'2026-08-11T12:00:00Z');
+  assert.equal(compute({timezone:'America/Sao_Paulo',startTime:'20:00',endTime:'23:00'}).metrics.availability.calculation.denominator,1);
+  for(const calendar of [{timezone:'Invalid/Zone'},{validFrom:'2026-99-01'},{validFrom:'2026-08-12',validTo:'2026-08-10'}])assert.equal(compute(calendar).metrics.availability.value,null);
+});
+
+test('fuso IANA aplica horário de verão por data, sem deslocamento UTC fixo',()=>{
+  const asset=activeAsset();
+  const calendar=mondayCalendar({assetId:asset.id,default:false,timezone:'Europe/Lisbon',weekdays:[0],startTime:'00:00',endTime:'04:00'});
+  const compute=day=>calculateMaintenanceMetrics(baseState({assets:[asset],operationalCalendars:[calendar]}),{period:'custom',rangeStart:new Date(Date.parse(day+'T00:00:00Z')-4*3600000).toISOString(),rangeEnd:day+'T20:00:00Z'},'2026-11-01T23:59:59Z');
+  assert.equal(compute('2026-03-29').metrics.availability.calculation.denominator,3);
+  assert.equal(compute('2026-10-25').metrics.availability.calculation.denominator,5);
+});
+
 test("contribuições explicam reparos e atribuem cada hora de parada uma única vez", () => {
   const asset = activeAsset();
   const result = calculateMaintenanceMetrics(baseState({

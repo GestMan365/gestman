@@ -154,3 +154,39 @@ test('assistente responsivo mantém revisão e seleção no celular',async({page
   await page.setViewportSize({width:1440,height:1000});
   await page.screenshot({path:'test-results/calendar-desktop.png',fullPage:true});
 });
+
+test('nova vigência salva duas versões atomicamente e preserva o horário UTC anterior',async({page})=>{
+  await page.setViewportSize({width:390,height:844});
+  await page.evaluate(()=>window.eval(`window.qaCalendarWrites=0;gmRemoteStateVersion=1;gmRemoteSavePromise=Promise.resolve();gmSyncConflict=null;gmRpc=async(name)=>{if(name!=='gm_save_tenant_state')return [];window.qaCalendarWrites++;return [{version:gmRemoteStateVersion+1,updated_at:new Date().toISOString()}];};`));
+  await page.locator('[data-edit-calendar="0"]').click();
+  const form=page.locator('#gmOperationalCalendarForm');
+  await expect(form.locator('[name=timezone]')).toHaveValue('UTC');
+  await expect(form.locator('[name=validFrom]')).toHaveValue('');
+  await page.getByRole('button',{name:'Fechar janela',exact:true}).click();
+  await page.locator('[data-revise-calendar="0"]').click();
+  await form.locator('[name=timezone]').selectOption('America/Sao_Paulo');
+  await form.locator('[name=startTime]').fill('08:00');
+  await form.locator('[name=endTime]').fill('17:00');
+  await form.locator('[name=validFrom]').fill('2030-01-02');
+  await form.getByRole('button',{name:'Salvar nova vigência',exact:true}).click();
+  await expect(form).not.toBeVisible();
+  const result=await page.evaluate(()=>window.eval(`({writes:window.qaCalendarWrites,calendars:state.operationalCalendars})`));
+  expect(result.writes).toBe(1);
+  expect(result.calendars).toHaveLength(2);
+  expect(result.calendars.find(item=>item.id==='calendar-1')).toMatchObject({startTime:'08:00',timezone:'UTC',validTo:'2030-01-01'});
+  expect(result.calendars.find(item=>item.previousCalendarId==='calendar-1')).toMatchObject({startTime:'08:00',timezone:'America/Sao_Paulo',validFrom:'2030-01-02'});
+});
+
+test('cadastro comum bloqueia vigência sobreposta sem alterar o calendário existente',async({page})=>{
+  await page.getByRole('button',{name:'Novo calendário operacional',exact:true}).click();
+  const form=page.locator('#gmOperationalCalendarForm');
+  await expect(form.locator('[name=timezone]')).toHaveValue('America/Sao_Paulo');
+  await form.locator('[name=name]').fill('Conflito');
+  await form.locator('[name=assetId]').selectOption('asset-1');
+  await form.locator('[name=weekday][value="1"]').check();
+  await form.locator('[name=startTime]').fill('08:00');
+  await form.locator('[name=endTime]').fill('17:00');
+  await form.getByRole('button',{name:'Salvar calendário',exact:true}).click();
+  await expect(form.getByRole('alert')).toContainText('já possui calendário');
+  expect(await page.evaluate(()=>window.eval('state.operationalCalendars.length'))).toBe(1);
+});

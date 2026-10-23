@@ -106,6 +106,12 @@
   function coverage(card) {
     return `<div class="gm-metric-coverage"><div><span>Cobertura do histórico</span><strong>${card.valid} de ${card.points.length} intervalos</strong></div><div class="gm-metric-coverage-track" aria-hidden="true">${card.points.map(point => `<span class="${point.value === null ? 'is-missing' : point.quality === 'partial' ? 'is-partial' : 'has-data'}" title="${escape(`${point.range}: ${point.value === null ? 'sem dados' : quality(point.quality)}`)}"></span>`).join('')}</div></div>`;
   }
+  function sourceCoverage(metric) {
+    const data=metric.coverage;if(!data)return '';
+    const label=data.basis==='repairs'?'Reparos com duração válida':data.basis==='hour_meter'?'Equipamentos com horímetro válido':'Equipamentos com jornada no período';
+    const note=!data.total?'Nenhum registro no período e filtros selecionados.':data.missing?`${escape(data.missing)} sem base válida. Este resultado não representa toda a operação.`:'Todos os registros do filtro têm base válida.';
+    return `<div class="gm-source-coverage"><span>${label}</span><strong>${escape(data.covered)} de ${escape(data.total)} · ${data.percentage==null?'sem base':escape(data.percentage.toLocaleString('pt-BR'))+'%'}</strong><progress max="${Math.max(1,data.total)}" value="${Math.max(0,data.covered)}" aria-label="${label}"></progress><small>${note}${data.basis==='calendar'?' Conta equipamentos com alguma jornada no período, não todos os dias do histórico.':''}</small></div>`;
+  }
   const previous = new WeakMap();
   function render(target, contract, options = {}) {
     if (!target) return;
@@ -136,6 +142,7 @@
         <div class="gm-metric-chart-heading"><strong>Evolução por intervalo</strong><span>${card.valid === 1 ? '1 intervalo registrado' : `${card.valid} intervalos registrados`}</span></div>
         ${card.valid ? plot(card) : `<div class="gm-metric-state" role="status"><strong>Ainda não é possível calcular a evolução</strong><p>${escape(card.metric.detail || card.hint)}</p><p>${card.key === 'mtbf' ? 'Confira os horímetros ou vincule um calendário operacional aos ativos, além de registrar as falhas corretivas.' : card.key === 'availability' ? 'Vincule um calendário operacional válido aos ativos e registre as paradas com início e fim.' : 'Conclua os reparos corretivos com horários válidos de início e término.'}</p></div>`}
         ${card.value !== null ? `<p class="gm-metric-reference-label"><span aria-hidden="true"></span>Referência: ${card.key === 'availability' ? 'disponibilidade' : 'média'} do período · ${format(card.value, card.unit)}</p>` : ''}
+        ${sourceCoverage(card.metric)}
         ${coverage(card)}
         ${options.details ? '<button type="button" class="btn gm-metric-open-details" data-gm-skip-icon data-metric-details>Ver detalhes e O.S. do período</button>' : ''}
         ${card.valid ? `<div class="gm-metric-detail" aria-live="polite" data-point-detail>${initialDetail(card)}</div>` : ''}

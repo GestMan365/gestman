@@ -22,6 +22,14 @@ export type MetricCalculation = {
   contributionLimit?: number;
 };
 
+export type MetricCoverage = {
+  basis: "calendar" | "hour_meter" | "repairs";
+  total: number;
+  covered: number;
+  missing: number;
+  percentage: number | null;
+};
+
 export type MaintenanceMetric = {
   value: number | null;
   unit: string;
@@ -39,6 +47,7 @@ export type MaintenanceMetric = {
   updatedAt: string;
   detail: string;
   calculation?: MetricCalculation;
+  coverage?: MetricCoverage;
 };
 
 export type MaintenanceMetricsContract = {
@@ -57,6 +66,7 @@ export type MaintenanceMetricsContract = {
     source: string;
     detail: string;
     calculation?: MetricCalculation;
+    coverage?: MetricCoverage;
   }>>;
   quality: {
     state: "valid" | "partial" | "insufficient";
@@ -309,7 +319,37 @@ function calendarMatchesAsset(calendar: JsonRecord, asset: JsonRecord, context: 
   return declared.every(([expected, actual]) => id(expected) === id(actual));
 }
 
+function calendarDate(value: unknown): string | null {
+  if (!text(value)) return "";
+  const source = text(value);
+  const parsed = new Date(source + "T00:00:00Z");
+  return /^\d{4}-\d{2}-\d{2}$/.test(source) && Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0,10) === source ? source : null;
+}
+
+// Local calendar dates are labels, never browser/server-local Date values.
+function zonedClock(format: Intl.DateTimeFormat, at: number): number {
+  const parts = Object.fromEntries(format.formatToParts(at).map(part => [part.type, part.value]));
+  return Date.UTC(Number(parts.year),Number(parts.month)-1,Number(parts.day),Number(parts.hour),Number(parts.minute));
+}
+
+function zonedInstant(local: number, format: Intl.DateTimeFormat): number | null {
+  let at = local;
+  for (let count = 0; count < 4; count++) {
+    const difference = local - zonedClock(format,at);
+    if (!difference) return at;
+    at += difference;
+  }
+  // A nonexistent civil time (DST gap) must not silently move the shift.
+  return zonedClock(format,at) === local ? at : null;
+}
+
 function scheduleIntervals(calendar: JsonRecord, activeFrom: number, range: { start: Date; end: Date }): TimeInterval[] {
+  const validFrom = calendarDate(calendar.validFrom), validTo = calendarDate(calendar.validTo);
+  if (validFrom === null || validTo === null || (validFrom && validTo && validTo < validFrom)) return [];
+  let format: Intl.DateTimeFormat;
+  const utc = !text(calendar.timezone) || text(calendar.timezone) === "UTC";
+  try { format = new Intl.DateTimeFormat("en-GB",{timeZone:text(calendar.timezone)||"UTC",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}); }
+  catch { return []; }
   const weekdays = weekdayValues(calendar.weekdays || calendar.daysOfWeek || calendar.days);
   if (!weekdays.length) return [];
   let startMinute = parseTime(calendar.startTime || calendar.start);
@@ -326,14 +366,20 @@ function scheduleIntervals(calendar: JsonRecord, activeFrom: number, range: { st
   }
   if (startMinute === null || endMinute === null || endMinute <= startMinute) return [];
   const breakMinutes = Math.max(0, finite(calendar.breakMinutes || calendar.breaksMinutes) ?? 0);
-  const firstDay = new Date(Math.max(range.start.getTime(), activeFrom));
+  const firstDay = new Date(utc?Math.max(range.start.getTime(), activeFrom):zonedClock(format,Math.max(range.start.getTime(), activeFrom)));
   firstDay.setUTCHours(0, 0, 0, 0);
+  const lastDay = new Date(utc?range.end.getTime():zonedClock(format,range.end.getTime()));
+  lastDay.setUTCHours(0,0,0,0);
   const intervals: TimeInterval[] = [];
-  for (let cursor = firstDay.getTime(); cursor <= range.end.getTime(); cursor += DAY_MS) {
+  for (let cursor = firstDay.getTime(); cursor <= lastDay.getTime(); cursor += DAY_MS) {
     const day = new Date(cursor);
+    const label = day.toISOString().slice(0,10);
+    if ((validFrom && label < validFrom) || (validTo && label > validTo)) continue;
     if (!weekdays.includes(day.getUTCDay())) continue;
-    const rawStart = cursor + startMinute * 60_000;
-    const rawEnd = cursor + endMinute * 60_000 - breakMinutes * 60_000;
+    const rawStart = utc?cursor + startMinute * 60_000:zonedInstant(cursor + startMinute * 60_000,format);
+    const end = utc?cursor + endMinute * 60_000:zonedInstant(cursor + endMinute * 60_000,format);
+    if (rawStart === null || end === null) continue;
+    const rawEnd = end - breakMinutes * 60_000;
     const clipped = overlap({ start: rawStart, end: rawEnd }, { start: range.start.getTime(), end: range.end.getTime() + 1 });
     if (clipped) intervals.push(clipped);
   }
@@ -710,6 +756,10 @@ function computeMetricSet(state: JsonRecord, filters: JsonRecord, range: { start
     overdueActions: metric(pendingActions.length, "", range, filtersOut, pendingActions, "contagem de ações não concluídas com prazo vencido", "valid", "Contagem direta de registros com prazo válido.", 0, updatedAt, `${pendingActions.length} ação(ões) vencida(s).`),
     lowStock: metric(lowStock.length, "", range, filtersOut, lowStock, "contagem de itens com mínimo maior que zero e saldo abaixo do mínimo", "valid", "Contagem do cadastro de peças.", 0, updatedAt, `${lowStock.length} item(ns) requerendo reposição.`),
   };
+  const coverage = (basis: MetricCoverage["basis"], covered: number, total: number): MetricCoverage => ({basis,covered,total,missing:total-covered,percentage:total?Number((covered/total*100).toFixed(2)):null});
+  metrics.mttr.coverage = coverage("repairs",validMttr.length,correctiveClosed.length);
+  metrics.mtbf.coverage = coverage(meterHours>0?"hour_meter":"calendar",meterHours>0?meteredAssets.size:scheduleByAsset.size,assets.length);
+  metrics.availability.coverage = coverage("calendar",scheduleByAsset.size,assets.length);
   return {
     metrics,
     quality: {
@@ -752,6 +802,7 @@ export function calculateMaintenanceMetrics(
           source: bucket.metrics[metricName].source,
           detail: bucket.metrics[metricName].detail,
           calculation: limitCalculation(bucket.metrics[metricName].calculation, 100),
+          coverage: bucket.metrics[metricName].coverage,
         });
       }
     }
