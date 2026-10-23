@@ -22655,11 +22655,11 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
   <link rel="stylesheet" href="assets/preventive-year.css">
   <script src="assets/preventive-year.js"></script>
   <script src="assets/preventive-year-ui.js"></script>
-  <link rel="stylesheet" href="assets/maintenance-charts.css?v=readable-metrics-2">
+  <link rel="stylesheet" href="assets/maintenance-charts.css?v=metric-insights-1">
   <link rel="stylesheet" href="assets/maintenance-metric-details.css?v=metric-evidence-4">
   <script src="assets/maintenance-metric-details.js?v=calendar-coverage-1"></script>
   <link rel="stylesheet" href="assets/dashboard-distributions.css?v=clickable-distributions-2">
-  <script src="assets/maintenance-charts.js?v=calendar-coverage-1"></script>
+  <script src="assets/maintenance-charts.js?v=metric-insights-1"></script>
   <link rel="stylesheet" href="assets/operational-planning.css?v=calendar-validity-2">
   <link rel="stylesheet" href="assets/dashboard-operations.css?v=kpi-drilldown-5">
   <script src="assets/operational-planning.js?v=calendar-validity-2"></script>
@@ -29182,6 +29182,23 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
         openOrders: orderIds => { closeModal(); openOperationalOrderSelection({orderIds,label:selection.name + " — " + (selection.key === "availability" ? "O.S. vinculadas às paradas" : "O.S. usadas no cálculo")}); }
       });
     }
+    function openMaintenanceTargets() {
+      if (!isAdminUser() || !currentAccount) return denyProfileAccess();
+      const targets = state.operationalPolicy?.metricTargets || {};
+      openModal("Metas de confiabilidade", `<form id="maintenanceTargetsForm"><p>Metas da empresa, aplicadas aos gráficos em todos os filtros. Não alteram os cálculos. Deixe vazio para remover uma meta.</p>${[{key:"mttr",label:"MTTR máximo (horas)"},{key:"mtbf",label:"MTBF mínimo (horas)"},{key:"availability",label:"Disponibilidade mínima (%)"}].map(item=>`<label class="gm-target-field">${item.label}<input name="${item.key}" inputmode="decimal" type="text" value="${escapeHtml(targets[item.key] ?? "")}" autocomplete="off"></label>`).join("")}<p role="alert" id="maintenanceTargetsError"></p><div class="toolbar"><button type="button" class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Salvar metas</button></div></form>`);
+      $("maintenanceTargetsForm").addEventListener("submit", async event => {
+        event.preventDefault();
+        if (!isAdminUser() || !currentAccount) return denyProfileAccess();
+        const form = event.currentTarget, button = form.querySelector('[type="submit"]');
+        button.disabled = true;
+        try {
+          const metricTargets = window.GMMaintenanceCharts.validateTargets(Object.fromEntries(new FormData(form)));
+          await gmSaveOperationalPlanning({policy:{metricTargets}});
+          closeModal(); renderTrendChart(); showToast("Metas salvas para a empresa.");
+        } catch(error) { $("maintenanceTargetsError").textContent = error.message || "Não foi possível confirmar o salvamento das metas."; }
+        finally { button.disabled = false; }
+      });
+    }
     function renderTrendChart() {
       const target = $("trendChart");
       if (!target || !window.GMMaintenanceCharts) return;
@@ -29193,10 +29210,16 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
       const key = gmMaintenanceMetricsKey(filters, months);
       const failed = gmMaintenanceMetricsErrors.has(key);
       const chartState = blocked ? "pending" : contract ? "ready" : !currentAccount ? "unavailable" : failed ? "error" : "loading";
+      const previousFilters = stage16PreviousFilters(filters);
+      const previousContract = contract && !blocked ? gmMaintenanceMetricsContract(previousFilters, months) : null;
+      const comparisonState = previousContract ? "ready" : gmMaintenanceMetricsErrors.has(gmMaintenanceMetricsKey(previousFilters, months)) ? "error" : "loading";
       renderDashboardReliabilityKpis(contract, chartState, filters, months);
       window.GMMaintenanceCharts.render(target, contract, {
         state:chartState,
         scope:filters.plant || "Todas as plantas",
+        previousContract, comparisonState,
+        targets:state.operationalPolicy?.metricTargets || {},
+        configureTargets:isAdminUser() ? openMaintenanceTargets : null,
         details:openMaintenanceMetricDetails,
         retry:() => { gmMaintenanceMetricsErrors.delete(key); renderTrendChart(); }
       });

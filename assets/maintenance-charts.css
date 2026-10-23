@@ -1,4 +1,12 @@
 /* Scoped to the reliability widget; no changes to module layout or navigation. */
+#dashboard .gm-metric-insight-toolbar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; font-size:12px; color:var(--metric-muted); }
+#dashboard .gm-metric-summary { font-size:13px; line-height:1.6; margin:16px 0 0; color:var(--metric-ink); padding:12px; border-left:3px solid var(--metric-accent); background:color-mix(in srgb,var(--metric-accent) 7%,transparent); border-radius:6px; }
+#dashboard .gm-metric-goal { display:grid; gap:5px; margin-top:16px; padding:12px; border:1px solid var(--metric-border); border-radius:10px; font-size:12px; color:var(--metric-ink); }
+#dashboard .gm-metric-goal small { color:var(--metric-muted); }
+#dashboard .gm-metric-goal-line { stroke:var(--metric-accent); stroke-width:2; stroke-dasharray:2 5; }
+.gm-target-field { display:grid; gap:8px; margin:16px 0; }
+.gm-target-field input { width:100%; min-width:0; box-sizing:border-box; }
+#maintenanceTargetsError { color:#c73838; overflow-wrap:anywhere; }
 body:not(.auth-required):not(.auth-loading) #dashboard .maintenance-trend-card {
   grid-column: 1 / -1 !important;
   min-height: 0 !important;

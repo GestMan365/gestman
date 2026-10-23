@@ -3,6 +3,22 @@ import assert from 'node:assert/strict';
 import '../assets/maintenance-charts.js';
 import { calculateMaintenanceMetrics } from '../supabase/functions/_shared/maintenance-metrics.ts';
 const { model } = globalThis.GMMaintenanceCharts;
+const {compare,validateTargets} = globalThis.GMMaintenanceCharts;
+test('metas opcionais validam limites e incluem meta na escala sem alterar valor oficial',()=>{
+  assert.deepEqual(validateTargets({mttr:'2,5',mtbf:'',availability:'100'}),{mttr:2.5,mtbf:null,availability:100});
+  for(const input of [{mttr:-1},{availability:101},{mtbf:'abc'},{mttr:Infinity}]) assert.throws(()=>validateTargets(input));
+  const card=model({metrics:{mttr:{value:2,quality:{state:'valid'}}}},{mttr:50})[0];
+  assert.equal(card.value,2);assert.equal(card.ceiling,50);assert.equal(card.goal,50);
+});
+test('comparação usa agregados oficiais e direção correta, sem dividir por zero',()=>{
+  const contract=(key,value,state='valid')=>({metrics:{[key]:{value,quality:{state}}}});
+  for(const [key,current,prior,better] of [['mttr',2,4,true],['mtbf',4,2,true],['availability',90,95,false],['mtbf',1,0,true]]) {
+    const result=compare(model(contract(key,current)).find(card=>card.key===key),contract(key,prior));
+    assert.equal(result.better,better);assert.equal(result.delta,current-prior);
+  }
+  assert.equal(compare(model(contract('mttr',2))[0],null),null);
+  assert.equal(compare(model(contract('mttr',2,'partial'))[0],contract('mttr',4)).partial,true);
+});
 const point = (value, quality = 'valid') => ({ value, quality, start: '2026-09-01T00:00:00Z', end: '2026-09-10T23:59:59Z', recordCount: 2 });
 
 test('preserva lacunas, zero real e dados parciais sem conectar períodos ausentes', () => {

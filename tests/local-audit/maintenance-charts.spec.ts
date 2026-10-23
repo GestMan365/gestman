@@ -85,6 +85,36 @@ for (const viewport of [{width:1366,height:768},{width:951,height:535},{width:39
   }
 }
 
+test('resumos, comparação oficial e metas persistidas pelo fluxo administrativo no celular',async({page})=>{
+  await page.setViewportSize({width:360,height:800});
+  await prepare(page);
+  await expect(page.locator('[data-metric="mttr"] .gm-metric-summary')).toContainText('Cada reparo corretivo');
+  await expect(page.locator('[data-metric="mtbf"] .gm-metric-comparison')).toContainText('Anterior: 170 h');
+  await expect(page.locator('[data-metric="availability"] .gm-metric-comparison')).toContainText('base parcial');
+  await page.evaluate(()=>window.eval(`window.qaSaved=0; gmPersistState=async()=>{window.qaSaved++;gmStateDirty=false;return true;};`));
+  await page.getByRole('button',{name:'Configurar metas',exact:true}).click();
+  await page.getByLabel('MTTR máximo (horas)').fill('2,5');
+  await page.getByLabel('MTBF mínimo (horas)').fill('200');
+  await page.getByLabel('Disponibilidade mínima (%)').fill('101');
+  await page.getByRole('button',{name:'Salvar metas',exact:true}).click();
+  await expect(page.locator('#maintenanceTargetsError')).toContainText('entre 0 e 100');
+  expect(await page.evaluate(()=>(window as any).qaSaved)).toBe(0);
+  await page.getByLabel('Disponibilidade mínima (%)').fill('95');
+  await page.getByRole('button',{name:'Salvar metas',exact:true}).click();
+  await expect(page.locator('#maintenanceTargetsForm')).not.toBeVisible();
+  await expect(page.locator('.gm-metric-goal-line')).toHaveCount(3);
+  await expect(page.locator('[data-metric="mttr"] .gm-metric-goal')).toContainText('Fora da meta');
+  await expect(page.locator('[data-metric="availability"] .gm-metric-goal')).toContainText('Dentro da meta');
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  await page.getByRole('button',{name:'Configurar metas',exact:true}).click();
+  await expect(page.getByLabel('MTBF mínimo (horas)')).toHaveValue('200');
+  await page.getByLabel('MTTR máximo (horas)').fill('');
+  await page.getByRole('button',{name:'Salvar metas',exact:true}).click();
+  await expect(page.locator('[data-metric="mttr"] .gm-metric-goal')).toHaveText('Meta não configurada');
+  await page.evaluate(()=>window.eval(`currentAccount.user.role='technician';currentAccount.user.accessProfile='executante';renderTrendChart();`));
+  await expect(page.getByRole('button',{name:'Configurar metas',exact:true})).toHaveCount(0);
+});
+
 test('período 6/12/24 consulta contrato filtrado, sem filtros ocultos de outra tela', async ({page})=>{
   await prepare(page);
   for(const months of ['6','12','24']){
