@@ -88,6 +88,7 @@ for (const viewport of [{width:1366,height:768},{width:951,height:535},{width:39
 test('resumos, comparação oficial e metas persistidas pelo fluxo administrativo no celular',async({page})=>{
   await page.setViewportSize({width:360,height:800});
   await prepare(page);
+  expect(await page.locator('#trendPlantFilter').evaluate(el=>el.getBoundingClientRect().width)).toBeGreaterThan(240);
   await expect(page.locator('[data-metric="mttr"] .gm-metric-summary')).toContainText('Cada reparo corretivo');
   await expect(page.locator('[data-metric="mtbf"] .gm-metric-comparison')).toContainText('Anterior: 170 h');
   await expect(page.locator('[data-metric="availability"] .gm-metric-comparison')).toContainText('base parcial');

@@ -105,6 +105,10 @@ body.theme-light #dashboard .gm-metric-card[data-metric="availability"] { --metr
   #dashboard .gm-metric-plot { max-height: 250px; }
 }
 @media (max-width: 600px) {
+  #dashboard .gm-trend-filters { width:100%; display:grid; grid-template-columns:minmax(0,1fr); }
+  #dashboard .gm-trend-filters .trend-period-control { width:100%; }
+  #dashboard .gm-trend-filters select { width:100%; max-width:none; }
+  #dashboard .gm-metric-plot text, #dashboard .gm-metric-plot .gm-metric-axis-date, #dashboard .gm-metric-plot .gm-metric-axis-unit { font-size:20px; }
   /* Preserve field-mode shortcuts; expose only the read-only reliability widget. */
   body:not(.auth-required):not(.auth-loading) #dashboard .industrial-dashboard-shell { display: block !important; margin-top: 16px; }
   #dashboard .industrial-dashboard-shell > :not(#dashboardWidgetGrid),
