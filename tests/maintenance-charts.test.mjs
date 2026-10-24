@@ -5,6 +5,57 @@ import { calculateMaintenanceMetrics } from '../supabase/functions/_shared/maint
 const { model } = globalThis.GMMaintenanceCharts;
 const {compare,validateTargets} = globalThis.GMMaintenanceCharts;
 const {resolveTargets,targetPolicyChange} = globalThis.GMMaintenanceCharts;
+const {targetVersionChange,targetVersionAt,targetDate,targetTimeline} = globalThis.GMMaintenanceCharts;
+const versionMeta=(versionId,at='2026-06-30T15:00:00Z')=>({versionId,at,actor:{id:'admin',name:'Administrador QA'}});
+const targetAllowed={plant:['P'],asset:['A']};
+test('vigência futura preserva cadastro anterior, aplica limites inclusivos e expira para herança',()=>{
+  const original={metricTargets:{mttr:10,mtbf:100,availability:90},metricTargetOverrides:[{scope:'plant',id:'P',targets:{mttr:8}}]};
+  const before=JSON.stringify(original);
+  const policy={...original,...targetVersionChange(original,{scope:'plant',id:'P'},{mttr:4,validFrom:'2026-08-01',validTo:'2026-08-31',reason:'Turno novo'},targetAllowed,versionMeta('v1'))};
+  const value=date=>resolveTargets(policy,{plant:'P',date}).targets.mttr;
+  assert.equal(value('2026-07-31'),8);assert.equal(value('2026-08-01'),4);assert.equal(value('2026-08-31'),4);assert.equal(value('2026-09-01'),10);
+  assert.equal(JSON.stringify(original),before);
+  assert.equal(policy.metricTargetVersions[0].legacy,true);
+  assert.equal(policy.metricTargetVersions[1].actor.name,'Administrador QA');
+  assert.equal(policy.metricTargetVersions[1].reason,'Turno novo');
+});
+test('revisão no mesmo dia conserva valores, autor e motivo anteriores após serialização',()=>{
+  let policy={metricTargets:{mttr:8}};
+  policy={...policy,...targetVersionChange(policy,{scope:'company'},{mttr:4,validFrom:'2026-06-30',reason:'Primeira revisão'},targetAllowed,versionMeta('one'))};
+  policy={...policy,...targetVersionChange(policy,{scope:'company'},{mttr:2,validFrom:'2026-06-30',reason:'Correção aprovada'},targetAllowed,versionMeta('two','2026-06-30T16:00:00Z'))};
+  policy=JSON.parse(JSON.stringify(policy));
+  assert.equal(resolveTargets(policy,{date:'2026-06-29'}).targets.mttr,8);
+  assert.equal(resolveTargets(policy,{date:'2026-06-30'}).targets.mttr,2);
+  const old=policy.metricTargetVersions.find(v=>v.versionId==='one');
+  assert.equal(old.targets.mttr,4);assert.equal(old.reason,'Primeira revisão');assert.equal(old.supersededBy,'two');
+});
+test('versões específicas encerradas ou vazias herdam por indicador sem ressuscitar legado',()=>{
+  let policy={metricTargets:{mttr:10,mtbf:100},metricTargetOverrides:[{scope:'asset',id:'A',targets:{mttr:8}}]};
+  policy={...policy,...targetVersionChange(policy,{scope:'asset',id:'A'},{mttr:0,validFrom:'2026-07-01',validTo:'2026-07-02'},targetAllowed,versionMeta('a'))};
+  assert.equal(resolveTargets(policy,{asset:'A',date:'2026-06-30'}).targets.mttr,8);
+  assert.equal(resolveTargets(policy,{asset:'A',date:'2026-07-01'}).targets.mttr,0);
+  assert.equal(resolveTargets(policy,{asset:'A',date:'2026-07-03'}).targets.mttr,10);
+  policy={...policy,...targetVersionChange(policy,{scope:'asset',id:'A'},{validFrom:'2026-07-03'},targetAllowed,versionMeta('b'))};
+  assert.equal(resolveTargets(policy,{asset:'A',date:'2026-07-03'}).targets.mttr,10);
+});
+test('bloqueia datas impossíveis, intervalo invertido, sobreposição futura e retroatividade sem motivo',()=>{
+  const make=input=>targetVersionChange({}, {scope:'plant',id:'P'},input,targetAllowed,versionMeta('v'));
+  for(const input of [{validFrom:'2026-02-30'},{validFrom:'2026-08-01',validTo:'2026-07-31'},{validFrom:'2026-06-29'}]) assert.throws(()=>make(input));
+  assert.doesNotThrow(()=>make({validFrom:'2026-06-29',reason:'Correção histórica'}));
+  let policy=make({validFrom:'2026-08-01',mttr:2});
+  assert.throws(()=>targetVersionChange(policy,{scope:'plant',id:'P'},{validFrom:'2026-07-01',mttr:3},targetAllowed,versionMeta('other')));
+  assert.doesNotThrow(()=>targetVersionChange(policy,{scope:'plant',id:'P'},{validFrom:'2026-07-01',validTo:'2026-07-31',mttr:3},targetAllowed,versionMeta('other')));
+  assert.throws(()=>targetVersionChange(policy,{scope:'plant',id:'P'},{validFrom:'2026-08-01'},targetAllowed,versionMeta('v')));
+});
+test('datas de vigência usam Brasília e linha histórica consulta cada fim de intervalo',()=>{
+  assert.equal(targetDate('2026-07-01T01:00:00Z'),'2026-06-30');
+  let policy={metricTargets:{mttr:8}};
+  policy={...policy,...targetVersionChange(policy,{scope:'company'},{mttr:4,validFrom:'2026-07-01'},targetAllowed,versionMeta('new'))};
+  const series={mttr:[{end:'2026-06-30'},{end:'2026-07-01'}]};
+  assert.deepEqual(targetTimeline(policy,{},series).mttr.map(p=>p.value),[8,4]);
+  const card=model({metrics:{mttr:{value:1}},series:{mttr:[point(1),point(2)]}},{mttr:4},targetTimeline(policy,{},series))[0];
+  assert.deepEqual(card.goals,[8,4]);assert.equal(card.ceiling,8);
+});
 test('metas por indicador priorizam equipamento, planta e empresa, sem média de metas',()=>{
   const policy={metricTargets:{mttr:4,mtbf:100,availability:90},metricTargetOverrides:[
     {scope:'plant',id:'P1',targets:{mttr:2,mtbf:200}},

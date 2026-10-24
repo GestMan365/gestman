@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
 async function prepare(page: Page, mode = 'ready') {
+  await page.clock.setFixedTime(new Date('2026-06-30T12:00:00Z'));
   await page.route('**/*', route => new URL(route.request().url()).hostname === '127.0.0.1' ? route.continue() : route.abort());
   await page.goto('./');
   await page.evaluate((mode) => {
@@ -103,7 +104,7 @@ test('resumos, comparação oficial e metas persistidas pelo fluxo administrativ
   await page.getByLabel('Disponibilidade mínima (%)').fill('95');
   await page.getByRole('button',{name:'Salvar metas',exact:true}).click();
   await expect(page.locator('#maintenanceTargetsForm')).not.toBeVisible();
-  await expect(page.locator('.gm-metric-goal-line')).toHaveCount(3);
+  await expect(page.locator('.gm-metric-goal strong')).toHaveCount(3);
   await expect(page.locator('[data-metric="mttr"] .gm-metric-goal')).toContainText('Fora da meta');
   await expect(page.locator('[data-metric="availability"] .gm-metric-goal')).toContainText('Dentro da meta');
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
@@ -155,7 +156,7 @@ test('metas por planta e equipamento herdam por indicador e acompanham os filtro
   await expect(page.locator('[data-metric="mttr"] .gm-metric-goal')).toContainText('2 h');
   await expect(page.locator('[data-metric="availability"] .gm-metric-goal-source')).toHaveText('Meta geral da empresa');
   const persisted=await page.evaluate(()=>(window as any).qaSavedPolicy);
-  expect(persisted.metricTargetOverrides).toHaveLength(1);
+  expect(persisted.metricTargetVersions.filter((v:any)=>!v.supersededBy)).toHaveLength(3);
   await prepare(page);
   await page.evaluate(policy=>window.eval(`state.operationalPolicy=${JSON.stringify(policy)};renderTrendChart();`),persisted);
   await page.locator('#trendPlantFilter').selectOption('Planta real de QA');
@@ -182,6 +183,86 @@ test('rascunhos de metas por destino são preservados e falha de gravação não
   await expect(page.locator('#maintenanceTargetsForm')).toBeVisible();
   await expect(page.getByLabel('MTTR máximo (horas)')).toHaveValue('8');
   await expect(page.getByRole('button',{name:'Salvar metas',exact:true})).toBeEnabled();
+});
+
+test('vigência futura no celular preserva legado, persiste autor e ativa/expira na data correta',async({page})=>{
+  test.setTimeout(60000);
+  await page.setViewportSize({width:360,height:800});
+  await prepare(page);
+  await page.evaluate(()=>window.eval(`
+    state.operationalPolicy={metricTargets:{mttr:10,mtbf:100,availability:90},metricTargetOverrides:[{scope:'plant',id:'Planta real de QA',targets:{mttr:8}},{scope:'asset',id:'qa-asset',targets:{mttr:6}}]};
+    gmPersistState=async()=>{clearTimeout(gmRemoteSaveTimer);window.qaSavedPolicy=JSON.parse(JSON.stringify(state.operationalPolicy));gmStateDirty=false;return true;};
+    const qaOriginalMetrics=gmAuthenticatedFunction;
+    gmAuthenticatedFunction=async(...args)=>{const result=await qaOriginalMetrics(...args);if(window.qaMetricEnd)result.contract.period.end=window.qaMetricEnd;return result;};
+    renderTrendChart();
+  `));
+  await page.locator('#trendAssetFilter').selectOption('qa-asset');
+  await expect(page.locator('[data-metric="mttr"] .gm-metric-goal')).toContainText('6 h');
+  await page.getByRole('button',{name:'Configurar metas',exact:true}).click();
+  await page.getByLabel('Início da vigência').fill('2026-07-01');
+  await page.getByLabel('Fim da vigência (opcional)').fill('2026-07-05');
+  await page.getByLabel('MTTR máximo (horas)').fill('4');
+  await page.getByLabel('Disponibilidade mínima (%)').fill('99');
+  await page.getByLabel('Motivo da alteração').fill('Nova meta homologada');
+  await page.getByRole('button',{name:'Salvar metas',exact:true}).click();
+  await expect(page.locator('#maintenanceTargetsForm')).not.toBeVisible();
+  await expect(page.locator('[data-metric="mttr"] .gm-metric-goal')).toContainText('6 h');
+  const saved=await page.evaluate(()=>(window as any).qaSavedPolicy);
+  expect(saved.metricTargetVersions.at(-1).actor).toEqual({id:'qa',name:'QA'});
+  expect(saved.metricTargetVersions.at(-1).reason).toBe('Nova meta homologada');
+  await prepare(page);
+  await page.evaluate(policy=>window.eval(`state.operationalPolicy=${JSON.stringify(policy)};renderTrendChart();`),saved);
+  await page.locator('#trendAssetFilter').selectOption('qa-asset');
+  await page.getByRole('button',{name:'Configurar metas',exact:true}).click();
+  await page.getByText('Histórico de versões (2)',{exact:true}).click();
+  await expect(page.locator('.gm-target-history')).toContainText('Programada');
+  await expect(page.locator('.gm-target-history')).toContainText('Nova meta homologada');
+  await expect(page.locator('.gm-target-history')).toContainText('QA');
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  await page.getByRole('button',{name:'Cancelar',exact:true}).click();
+  for(const [day,expected] of [['2026-07-01','4 h'],['2026-07-05','4 h'],['2026-07-06','8 h']]){
+    await page.clock.setFixedTime(new Date(day+'T15:00:00Z'));
+    await page.evaluate(day=>window.eval(`
+      const original=gmAuthenticatedFunction;gmAuthenticatedFunction=async(...args)=>{const result=await original(...args);result.contract.period.end=${JSON.stringify(day+'T23:59:59Z')};return result;};
+      gmInvalidateMaintenanceMetrics();renderTrendChart();
+    `),day);
+    await expect(page.locator('[data-metric="mttr"] .gm-metric-goal')).toContainText(expected);
+  }
+  await expect(page.locator('[data-metric="mttr"] .gm-metric-goal-source')).toContainText('Planta:');
+});
+
+test('histórico mantém revisões, permite usar como base e bloqueia sobreposição no formulário',async({page})=>{
+  await prepare(page);
+  await page.evaluate(()=>window.eval(`gmPersistState=async()=>{clearTimeout(gmRemoteSaveTimer);gmStateDirty=false;return true;};`));
+  const open=()=>page.getByRole('button',{name:'Configurar metas',exact:true}).click();
+  await open();
+  await page.getByLabel('Abrangência da meta').selectOption('plant');
+  await page.getByLabel('Planta da meta').selectOption('Planta real de QA');
+  await page.getByLabel('MTTR máximo (horas)').fill('4');
+  await page.getByLabel('Motivo da alteração').fill('Primeira meta');
+  await page.getByRole('button',{name:'Salvar metas',exact:true}).click();
+  await page.locator('#trendPlantFilter').selectOption('Planta real de QA');
+  await open();
+  await page.getByLabel('MTTR máximo (horas)').fill('3');
+  await page.getByLabel('Motivo da alteração').fill('Correção aprovada');
+  await page.getByRole('button',{name:'Salvar metas',exact:true}).click();
+  await open();
+  await page.getByText('Histórico de versões (2)',{exact:true}).click();
+  await expect(page.locator('.gm-target-history')).toContainText('Substituída por revisão');
+  await expect(page.locator('.gm-target-history')).toContainText('Primeira meta');
+  await expect(page.locator('.gm-target-history')).toContainText('Correção aprovada');
+  await page.locator('.gm-target-history article').filter({hasText:'Primeira meta'}).getByRole('button',{name:'Usar como base'}).click();
+  await expect(page.getByLabel('MTTR máximo (horas)')).toHaveValue('4');
+  await page.getByLabel('Início da vigência').fill('2026-08-01');
+  await page.getByRole('button',{name:'Salvar metas',exact:true}).click();
+  await open();
+  await page.getByLabel('Início da vigência').fill('2026-07-01');
+  await page.getByRole('button',{name:'Salvar metas',exact:true}).click();
+  await expect(page.locator('#maintenanceTargetsError')).toContainText('versão futura');
+  await expect(page.getByLabel('Início da vigência')).toHaveValue('2026-07-01');
+  await page.getByLabel('Fim da vigência (opcional)').fill('2026-07-31');
+  await page.getByRole('button',{name:'Salvar metas',exact:true}).click();
+  await expect(page.locator('#maintenanceTargetsForm')).not.toBeVisible();
 });
 
 test('período 6/12/24 consulta contrato filtrado, sem filtros ocultos de outra tela', async ({page})=>{

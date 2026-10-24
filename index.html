@@ -22655,11 +22655,11 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
   <link rel="stylesheet" href="assets/preventive-year.css">
   <script src="assets/preventive-year.js"></script>
   <script src="assets/preventive-year-ui.js"></script>
-  <link rel="stylesheet" href="assets/maintenance-charts.css?v=scoped-targets-1">
+  <link rel="stylesheet" href="assets/maintenance-charts.css?v=target-versions-1">
   <link rel="stylesheet" href="assets/maintenance-metric-details.css?v=metric-evidence-4">
   <script src="assets/maintenance-metric-details.js?v=calendar-coverage-1"></script>
   <link rel="stylesheet" href="assets/dashboard-distributions.css?v=clickable-distributions-2">
-  <script src="assets/maintenance-charts.js?v=scoped-targets-1"></script>
+  <script src="assets/maintenance-charts.js?v=target-versions-1"></script>
   <link rel="stylesheet" href="assets/operational-planning.css?v=calendar-validity-2">
   <link rel="stylesheet" href="assets/dashboard-operations.css?v=kpi-drilldown-5">
   <script src="assets/operational-planning.js?v=calendar-validity-2"></script>
@@ -29208,13 +29208,24 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
       openModal("Metas de confiabilidade", `<form id="maintenanceTargetsForm"><p>Prioridade por indicador: <strong>equipamento → planta → empresa</strong>. Campos vazios herdam a meta do nível anterior. Metas não alteram os cálculos.</p><label class="gm-target-field">Abrangência da meta<select id="maintenanceTargetScope" name="scope"><option value="company">Empresa (geral)</option><option value="plant">Planta</option><option value="asset">Equipamento</option></select></label><div id="maintenanceTargetDestination"></div><div id="maintenanceTargetFields"></div><p role="alert" id="maintenanceTargetsError"></p><div class="toolbar"><button type="button" class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Salvar metas</button></div></form>`);
       const remember = () => {
         const data = new FormData($("maintenanceTargetsForm"));
-        drafts.set(draftKey(selection),Object.fromEntries(["mttr","mtbf","availability"].map(key=>[key,data.get(key) ?? ""])));
+        drafts.set(draftKey(selection),Object.fromEntries(["mttr","mtbf","availability","validFrom","validTo","reason"].map(key=>[key,data.get(key) ?? ""])));
       };
       const renderFields = () => {
         const policy = state.operationalPolicy || {};
-        const saved = selection.scope === "company" ? policy.metricTargets : (Array.isArray(policy.metricTargetOverrides) ? policy.metricTargetOverrides : []).findLast(item=>item.scope === selection.scope && item.id === selection.id)?.targets;
-        const targets = drafts.get(draftKey(selection)) || saved || {};
-        $("maintenanceTargetFields").innerHTML = `<p class="gm-target-help">${selection.scope === "company" ? "Meta geral: usada quando não existe meta específica. Campo vazio significa sem meta geral." : "Informe apenas as metas próprias deste destino. Deixe vazio para usar a planta ou a empresa, conforme disponível."}</p>${[{key:"mttr",label:"MTTR máximo (horas)"},{key:"mtbf",label:"MTBF mínimo (horas)"},{key:"availability",label:"Disponibilidade mínima (%)"}].map(item=>`<label class="gm-target-field">${item.label}<input name="${item.key}" inputmode="decimal" type="text" value="${escapeHtml(targets[item.key] ?? "")}" autocomplete="off"></label>`).join("")}`;
+        const api=window.GMMaintenanceCharts, today=api.targetDate();
+        const saved=api.targetVersionAt(policy,selection,today);
+        const targets = drafts.get(draftKey(selection)) || {...(saved?.targets || {}),validFrom:today,validTo:"",reason:""};
+        const versions=api.targetVersions(policy,selection).slice().reverse();
+        const dayLabel=value=>value ? new Date(value+'T12:00:00Z').toLocaleDateString('pt-BR',{timeZone:'UTC'}) : 'Sem início definido';
+        $("maintenanceTargetFields").innerHTML = `<p class="gm-target-help">${selection.scope === "company" ? "Meta geral: usada quando não existe meta específica. Campo vazio significa sem meta geral." : "Informe apenas as metas próprias deste destino. Deixe vazio para usar a planta ou a empresa, conforme disponível."} Cada salvamento registra uma nova versão. Revisões na mesma data preservam a versão anterior no histórico.</p><div class="gm-target-dates"><label class="gm-target-field">Início da vigência<input type="date" name="validFrom" required value="${escapeHtml(targets.validFrom || today)}"></label><label class="gm-target-field">Fim da vigência (opcional)<input type="date" name="validTo" value="${escapeHtml(targets.validTo || '')}"></label></div><p class="gm-target-help">Datas inclusivas no fuso Brasília (America/Sao_Paulo). Versões futuras não alteram metas anteriores. Sem versão vigente, aplica-se a herança.</p>${[{key:"mttr",label:"MTTR máximo (horas)"},{key:"mtbf",label:"MTBF mínimo (horas)"},{key:"availability",label:"Disponibilidade mínima (%)"}].map(item=>`<label class="gm-target-field">${item.label}<input name="${item.key}" inputmode="decimal" type="text" value="${escapeHtml(targets[item.key] ?? "")}" autocomplete="off"></label>`).join("")}<label class="gm-target-field">Motivo da alteração<textarea name="reason" maxlength="500" rows="2">${escapeHtml(targets.reason || '')}</textarea></label><p class="gm-target-help">Obrigatório para vigência retroativa. Autor e horário são registrados no salvamento.</p><details class="gm-target-history"><summary>Histórico de versões (${versions.length})</summary>${versions.length ? versions.map((version,index)=>`<article><strong>${escapeHtml(dayLabel(version.validFrom))} até ${escapeHtml(version.validTo ? dayLabel(version.validTo) : 'sem término')}</strong><span>${version.supersededBy ? 'Substituída por revisão' : version.validFrom>today ? 'Programada' : version.validTo && version.validTo<today ? 'Encerrada' : 'Vigente'}${version.legacy ? ' · Cadastro anterior' : ''}</span><p>MTTR: ${escapeHtml(version.targets.mttr ?? 'Herdar')} h · MTBF: ${escapeHtml(version.targets.mtbf ?? 'Herdar')} h · Disponibilidade: ${escapeHtml(version.targets.availability ?? 'Herdar')}%</p><small>${escapeHtml(version.actor?.name || 'Autor não informado')} · ${escapeHtml(version.createdAt ? new Date(version.createdAt).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}) : 'Horário não informado')} (Brasília)</small><p>${escapeHtml(version.reason || 'Sem motivo informado.')}</p>${version.legacy ? '' : `<button class="btn" type="button" data-gm-skip-icon data-target-base="${index}">Usar como base</button>`}</article>`).join('') : '<p>Sem versões registradas. O cadastro anterior continua válido até a primeira nova vigência.</p>'}</details>`;
+        $("maintenanceTargetFields").querySelectorAll('[data-target-base]').forEach(button=>button.addEventListener('click',()=>{
+          const version=versions[Number(button.dataset.targetBase)];
+          const form=$("maintenanceTargetsForm");
+          ["mttr","mtbf","availability"].forEach(key=>form.elements.namedItem(key).value=version.targets[key] ?? "");
+          form.elements.namedItem('validFrom').value=version.validFrom || today;
+          form.elements.namedItem('validTo').value=version.validTo || "";
+          form.elements.namedItem('reason').value="";
+        }));
         $("maintenanceTargetsError").textContent = "";
       };
       const renderDestination = () => {
@@ -29236,14 +29247,14 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
         const form = event.currentTarget, button = form.querySelector('[type="submit"]');
         const input = Object.fromEntries(new FormData(form));
         button.disabled = true;
-        form.querySelectorAll("input,select").forEach(element=>element.disabled=true);
+        form.querySelectorAll("input,select,textarea,button").forEach(element=>element.disabled=true);
         try {
           const availableAssets = dashboardMetricAssets();
-          const policy = window.GMMaintenanceCharts.targetPolicyChange(state.operationalPolicy || {},selection,input,{asset:availableAssets.map(asset=>asset.id),plant:[...new Set(availableAssets.map(dashboardMetricAssetPlant).filter(Boolean))]});
+          const policy = window.GMMaintenanceCharts.targetVersionChange(state.operationalPolicy || {},selection,input,{asset:availableAssets.map(asset=>asset.id),plant:[...new Set(availableAssets.map(dashboardMetricAssetPlant).filter(Boolean))]}, {versionId:uid('target-version'),at:new Date().toISOString(),actor:{id:currentAccount.user.id,name:currentAccount.user.name}});
           await gmSaveOperationalPlanning({policy});
           closeModal(); renderTrendChart(); showToast("Metas salvas para " + (selection.scope === "company" ? "a empresa." : selection.scope === "plant" ? "a planta." : "o equipamento."));
         } catch(error) { $("maintenanceTargetsError").textContent = (error.message || "Não foi possível confirmar o salvamento das metas.").replace("os calendários","as metas"); }
-        finally { button.disabled = false; form.querySelectorAll("input,select").forEach(element=>element.disabled=false); }
+        finally { button.disabled = false; form.querySelectorAll("input,select,textarea,button").forEach(element=>element.disabled=false); }
       });
     }
     function renderTrendChart() {
@@ -29263,12 +29274,14 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
       const comparisonState = previousContract ? "ready" : gmMaintenanceMetricsErrors.has(gmMaintenanceMetricsKey(previousFilters, months)) ? "error" : "loading";
       renderDashboardReliabilityKpis(contract, chartState, filters, months);
       const selectedAsset = dashboardMetricAssets().find(asset=>asset.id === filters.asset);
-      const resolved = window.GMMaintenanceCharts.resolveTargets(state.operationalPolicy || {}, {asset:selectedAsset?.id,assetLabel:selectedAsset ? dashboardMetricAssetLabel(selectedAsset) : "",plant:selectedAsset ? dashboardMetricAssetPlant(selectedAsset) : filters.plant});
+      const targetContext={asset:selectedAsset?.id,assetLabel:selectedAsset ? dashboardMetricAssetLabel(selectedAsset) : "",plant:selectedAsset ? dashboardMetricAssetPlant(selectedAsset) : filters.plant,date:contract?.period?.end || window.GMMaintenanceCharts.targetDate()};
+      const resolved = window.GMMaintenanceCharts.resolveTargets(state.operationalPolicy || {},targetContext);
       window.GMMaintenanceCharts.render(target, contract, {
         state:chartState,
         scope:[filters.plant || "Todas as plantas",selectedAsset ? dashboardMetricAssetLabel(selectedAsset) : "Todos os equipamentos"].join(" · "),
         previousContract, comparisonState,
         targets:resolved.targets, targetSources:resolved.sources,
+        targetTimeline:window.GMMaintenanceCharts.targetTimeline(state.operationalPolicy || {},targetContext,contract?.series),
         configureTargets:isAdminUser() ? openMaintenanceTargets : null,
         details:openMaintenanceMetricDetails,
         retry:() => { gmMaintenanceMetricsErrors.delete(key); renderTrendChart(); }
