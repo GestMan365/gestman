@@ -29,7 +29,8 @@ async function prepare(page: Page, mode = 'ready') {
           quality:window.qaChartMode === 'empty' || i === 1 ? 'insufficient' : i === 2 ? 'partial' : 'valid', recordCount:2,
           source:'Contrato QA', detail:'Registro controlado para validação local.'
         }))]));
-        return {tenant_state_version:1,contract:{version:1,period:{start:'2026-01-01T00:00:00Z',end:'2026-06-30T23:59:59Z'},updatedAt:'2026-06-30T23:00:00Z',series,
+        const assetBreakdown=body.filters.assetBreakdown?{total:2,truncated:false,items:['qa-asset','qa-region-asset'].filter(id=>!body.filters.asset || body.filters.asset===id).map((assetId,i)=>({assetId,metrics:Object.fromEntries(keys.map(key=>[key,{value:key==='mttr'?2.8+i*5:key==='mtbf'?170-i*100:96.4-i*10,quality:{state:'partial'},recordCount:2}]))}))}:undefined;
+        return {tenant_state_version:1,contract:{version:1,period:{start:'2026-01-01T00:00:00Z',end:'2026-06-30T23:59:59Z'},updatedAt:'2026-06-30T23:00:00Z',series,assetBreakdown,
           metrics:Object.fromEntries(keys.map(key=>[key,{value:window.qaChartMode === 'single'?(key === 'mttr'?6.52:null):window.qaChartMode === 'empty'?null:key === 'mttr'?2.8:key === 'mtbf'?170:96.4,coverage:{basis:key==='mttr'?'repairs':'calendar',total:28,covered:3,missing:25,percentage:10.71},quality:{state:window.qaChartMode === 'single'?(key === 'mttr'?'valid':'insufficient'):window.qaChartMode === 'empty'?'insufficient':'partial'},detail:'Base controlada de QA.'}]))}};
       };
       document.body.classList.remove('auth-required','auth-loading','auth-restoring');
@@ -263,6 +264,32 @@ test('histórico mantém revisões, permite usar como base e bloqueia sobreposi�
   await page.getByLabel('Fim da vigência (opcional)').fill('2026-07-31');
   await page.getByRole('button',{name:'Salvar metas',exact:true}).click();
   await expect(page.locator('#maintenanceTargetsForm')).not.toBeVisible();
+});
+
+for(const theme of ['light','dark']) test('ranking móvel '+theme+' ordena equipamentos, respeita metas e abre cálculo oficial',async({page})=>{
+  await page.setViewportSize({width:360,height:800});
+  await prepare(page);
+  await page.evaluate(theme=>window.eval(`
+    document.body.classList.toggle('theme-light',${JSON.stringify(theme==='light')});
+    state.operationalPolicy={metricTargets:{mttr:2,mtbf:200,availability:99}};renderTrendChart();
+  `),theme);
+  const mttr=page.locator('[data-metric="mttr"] .gm-metric-ranking');
+  await expect(mttr.locator('[data-ranked-asset]')).toHaveCount(2);
+  await expect(mttr.locator('[data-ranked-asset]').first()).toHaveAttribute('data-ranked-asset','qa-region-asset');
+  await expect(page.locator('[data-metric="availability"] .gm-metric-ranking')).toContainText('pontos percentuais');
+  await expect(mttr).toContainText('Base parcial');
+  await mttr.screenshot({path:`test-results/ranking-mobile-${theme}.png`});
+  await mttr.locator('[data-ranked-asset="qa-asset"]').click();
+  await expect(page.locator('#maintenanceMetricDetails')).toBeVisible();
+  const request=await page.evaluate(()=>(window as any).qaMetricRequests.at(-1));
+  expect(request.asset).toBe('qa-asset');expect(request.assetBreakdown).toBe(false);expect(request.seriesBuckets).toBeUndefined();
+  await page.evaluate(()=>window.eval('closeModal()'));
+  await page.locator('#trendAssetFilter').selectOption('qa-asset');
+  await expect(mttr.locator('[data-ranked-asset]')).toHaveCount(1);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  await page.evaluate(()=>window.eval('state.operationalPolicy={};renderTrendChart();'));
+  await expect(mttr).toContainText('1 sem meta');
+  await expect(mttr.locator('[data-ranked-asset]')).toHaveCount(0);
 });
 
 test('período 6/12/24 consulta contrato filtrado, sem filtros ocultos de outra tela', async ({page})=>{

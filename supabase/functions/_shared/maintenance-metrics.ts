@@ -77,6 +77,11 @@ export type MaintenanceMetricsContract = {
   };
   updatedAt: string;
   source: string;
+  assetBreakdown?: {
+    total: number;
+    truncated: boolean;
+    items: Array<{ assetId: string; metrics: Record<string, Pick<MaintenanceMetric, "value" | "quality" | "coverage" | "recordCount">> }>;
+  };
 };
 
 const HOUR_MS = 3_600_000;
@@ -180,7 +185,7 @@ function normalizeFilters(input: unknown): JsonRecord {
   const allowed = [
     "period", "start", "end", "rangeStart", "rangeEnd", "asset", "plant", "area", "location",
     "maintenanceType", "criticality", "orderStatus", "priority", "responsible", "team",
-    "assetCategory", "downtimeType", "plan", "seriesBuckets",
+    "assetCategory", "downtimeType", "plan", "seriesBuckets", "assetBreakdown",
   ];
   return Object.fromEntries(allowed.filter((name) => raw[name] !== undefined).map((name) => [name, raw[name]]));
 }
@@ -644,6 +649,7 @@ function computeMetricSet(state: JsonRecord, filters: JsonRecord, range: { start
     ? (assetsWithoutCalendar ? "Cálculo parcial: somente ativos com calendário operacional válido." : "Calendário operacional e paradas válidas disponíveis.")
     : assets.length ? "Nenhum ativo filtrado possui calendário operacional vinculável e válido." : "Nenhum ativo válido no período e filtros informados.";
   const filtersOut = { ...filters };
+  delete filtersOut.assetBreakdown; // Transport option, not an operational filter shown in details.
   const mttrTotalHours = validMttr.reduce((sum, item) => sum + item.hours, 0);
   const mttrContributions = validMttr.flatMap(({ order, hours }) => {
     const recordId = id(order.id || order.number);
@@ -762,6 +768,7 @@ function computeMetricSet(state: JsonRecord, filters: JsonRecord, range: { start
   metrics.availability.coverage = coverage("calendar",scheduleByAsset.size,assets.length);
   return {
     metrics,
+    eligibleAssets: assets,
     quality: {
       state: (invalidDowntimes || missingAssetLinks || urgentWithoutDeadline.length || assetsWithoutCalendar) ? "partial" as const : "valid" as const,
       invalidRecords: invalidDowntimes + (correctiveClosed.length - validMttr.length),
@@ -810,6 +817,21 @@ export function calculateMaintenanceMetrics(
   const globalQuality = result.quality.state === "valid" && Object.values(result.metrics).some((item) => item.quality.state === "insufficient")
     ? { ...result.quality, state: "partial" as const }
     : result.quality;
+  // Optional, bounded read-only breakdown. Reuse the exact aggregate engine and range;
+  // never derive per-equipment values by dividing the plant average.
+  let assetBreakdown: MaintenanceMetricsContract["assetBreakdown"];
+  if (filters.assetBreakdown === true) {
+    const eligible = [...new Map(result.eligibleAssets.map(asset => [id(asset.id), asset])).values()]
+      .filter(asset => id(asset.id)).sort((a,b) => id(a.id).localeCompare(id(b.id)));
+    const limit = 250;
+    assetBreakdown = {total:eligible.length,truncated:eligible.length>limit,items:eligible.slice(0,limit).map(asset=>{
+      const one = computeMetricSet(state,{...filters,asset:id(asset.id),assetBreakdown:false,seriesBuckets:0},range,now,updatedAt);
+      return {assetId:id(asset.id),metrics:Object.fromEntries(["mttr","mtbf","availability"].map(name=>{
+        const metric=one.metrics[name];
+        return [name,{value:metric.value,quality:metric.quality,coverage:metric.coverage,recordCount:metric.recordCount}];
+      }))};
+    })};
+  }
   return {
     version: 1,
     period: { start: range.start.toISOString(), end: range.end.toISOString(), label: range.label },
@@ -819,5 +841,6 @@ export function calculateMaintenanceMetrics(
     quality: globalQuality,
     updatedAt,
     source: SOURCE,
+    ...(assetBreakdown ? {assetBreakdown} : {}),
   };
 }

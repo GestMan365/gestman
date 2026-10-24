@@ -22655,11 +22655,11 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
   <link rel="stylesheet" href="assets/preventive-year.css">
   <script src="assets/preventive-year.js"></script>
   <script src="assets/preventive-year-ui.js"></script>
-  <link rel="stylesheet" href="assets/maintenance-charts.css?v=target-versions-1">
+  <link rel="stylesheet" href="assets/maintenance-charts.css?v=target-ranking-1">
   <link rel="stylesheet" href="assets/maintenance-metric-details.css?v=metric-evidence-4">
   <script src="assets/maintenance-metric-details.js?v=calendar-coverage-1"></script>
   <link rel="stylesheet" href="assets/dashboard-distributions.css?v=clickable-distributions-2">
-  <script src="assets/maintenance-charts.js?v=target-versions-1"></script>
+  <script src="assets/maintenance-charts.js?v=target-ranking-1"></script>
   <link rel="stylesheet" href="assets/operational-planning.css?v=calendar-validity-2">
   <link rel="stylesheet" href="assets/dashboard-operations.css?v=kpi-drilldown-5">
   <script src="assets/operational-planning.js?v=calendar-validity-2"></script>
@@ -29155,10 +29155,10 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
       const plant = $("trendPlantFilter")?.value || "";
       const now = new Date();
       const firstMonth = new Date(now.getFullYear(), now.getMonth() - (months - 1), 1);
-      return { period:"custom", start:stage16DateInput(firstMonth), end:stage16DateInput(now), plant, asset:$("trendAssetFilter")?.value || "" };
+      return { period:"custom", start:stage16DateInput(firstMonth), end:stage16DateInput(now), plant, asset:$("trendAssetFilter")?.value || "", assetBreakdown:true };
     }
     function renderDashboardReliabilityKpis(contract, chartState, filters, months) {
-      const previous = contract ? gmMaintenanceMetricsContract(stage16PreviousFilters(filters), months) : null;
+      const previous = contract ? gmMaintenanceMetricsContract({...stage16PreviousFilters(filters),assetBreakdown:false}, months) : null;
       const previousCards = window.GMMaintenanceCharts.model(previous);
       const ids = { mttr:"professionalMttr", mtbf:"professionalMtbf", availability:"professionalAvailability" };
       const pendingText = { loading:"Carregando...", error:"Indisponível", pending:"Aguardando sincronização", unavailable:"Indisponível" };
@@ -29257,6 +29257,20 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
         finally { button.disabled = false; form.querySelectorAll("input,select,textarea,button").forEach(element=>element.disabled=false); }
       });
     }
+    async function openRankedMaintenanceMetric(key, assetId) {
+      if (!hasPermission("dashboard") && !hasPermission("reports")) return denyProfileAccess();
+      if (!dashboardMetricAssets().some(asset=>asset.id===assetId) || !["mttr","mtbf","availability"].includes(key)) return denyProfileAccess();
+      if (gmStateDirty || gmSyncConflict) return showToast("Aguarde a sincronização para consultar os dados oficiais.");
+      const months=[6,12,24].includes(Number($("trendPeriodFilter")?.value)) ? Number($("trendPeriodFilter").value) : 6;
+      const filters={...dashboardTrendFilters(months),asset:assetId,assetBreakdown:false};
+      const requestId=uid('ranking'),companyId=currentAccount?.company?.id;
+      openModal("Detalhes do equipamento",`<div id="maintenanceRankingLoad" data-request="${escapeHtml(requestId)}" role="status">Consultando indicador e registros oficiais do equipamento…</div>`);
+      const contract=gmMaintenanceMetricsContract(filters,0) || await gmLoadMaintenanceMetrics(filters,0);
+      if (!$('genericModal')?.classList.contains('open') || $('maintenanceRankingLoad')?.dataset.request!==requestId || currentAccount?.company?.id!==companyId) return;
+      if (!contract) { $('maintenanceRankingLoad').textContent="Não foi possível consultar os detalhes. Feche esta janela e tente novamente. Nenhum valor estimado foi apresentado."; return; }
+      const names={mttr:'MTTR',mtbf:'MTBF',availability:'Disponibilidade'};
+      openMaintenanceMetricDetails({key,name:names[key],unit:key==='availability'?'%':'h',metric:contract.metrics[key],period:contract.period});
+    }
     function renderTrendChart() {
       const target = $("trendChart");
       if (!target || !window.GMMaintenanceCharts) return;
@@ -29269,7 +29283,7 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
       const key = gmMaintenanceMetricsKey(filters, months);
       const failed = gmMaintenanceMetricsErrors.has(key);
       const chartState = blocked ? "pending" : contract ? "ready" : !currentAccount ? "unavailable" : failed ? "error" : "loading";
-      const previousFilters = stage16PreviousFilters(filters);
+      const previousFilters = {...stage16PreviousFilters(filters),assetBreakdown:false};
       const previousContract = contract && !blocked ? gmMaintenanceMetricsContract(previousFilters, months) : null;
       const comparisonState = previousContract ? "ready" : gmMaintenanceMetricsErrors.has(gmMaintenanceMetricsKey(previousFilters, months)) ? "error" : "loading";
       renderDashboardReliabilityKpis(contract, chartState, filters, months);
@@ -29282,9 +29296,11 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
         previousContract, comparisonState,
         targets:resolved.targets, targetSources:resolved.sources,
         targetTimeline:window.GMMaintenanceCharts.targetTimeline(state.operationalPolicy || {},targetContext,contract?.series),
+        rankings:window.GMMaintenanceCharts.ranking(contract,state.operationalPolicy || {},dashboardMetricAssets().map(asset=>({id:asset.id,label:dashboardMetricAssetLabel(asset),plant:dashboardMetricAssetPlant(asset)}))),
+        rankedDetails:openRankedMaintenanceMetric,
         configureTargets:isAdminUser() ? openMaintenanceTargets : null,
         details:openMaintenanceMetricDetails,
-        retry:() => { gmMaintenanceMetricsErrors.delete(key); renderTrendChart(); }
+        retry:() => { gmMaintenanceMetricsCache.delete(key); gmMaintenanceMetricsErrors.delete(key); renderTrendChart(); }
       });
     }
     function backlogStatusKey(order) {
@@ -41647,7 +41663,7 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
       overdueActions:"pendingActions", lowStock:"spareParts"
     };
     function gmMaintenanceMetricFilters(filters = {}, seriesBuckets = 0) {
-      const keys = ["period","start","end","rangeStart","rangeEnd","asset","plant","area","location","maintenanceType","criticality","orderStatus","priority","responsible","team","assetCategory","downtimeType","plan"];
+      const keys = ["period","start","end","rangeStart","rangeEnd","asset","plant","area","location","maintenanceType","criticality","orderStatus","priority","responsible","team","assetCategory","downtimeType","plan","assetBreakdown"];
       const normalized = {};
       keys.forEach(key => { if (filters?.[key] !== undefined && filters[key] !== "") normalized[key] = filters[key]; });
       if (seriesBuckets > 0) normalized.seriesBuckets = Math.max(1, Math.min(24, Math.trunc(Number(seriesBuckets) || 0)));

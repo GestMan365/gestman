@@ -5,6 +5,31 @@ import { calculateMaintenanceMetrics } from '../supabase/functions/_shared/maint
 const { model } = globalThis.GMMaintenanceCharts;
 const {compare,validateTargets} = globalThis.GMMaintenanceCharts;
 const {resolveTargets,targetPolicyChange} = globalThis.GMMaintenanceCharts;
+const {ranking} = globalThis.GMMaintenanceCharts;
+test('ranking ordena desvio absoluto na direção de cada indicador e não inventa metas/dados',()=>{
+  const assets=[{id:'a',label:'Motor A',plant:'P'},{id:'b',label:'Motor B',plant:'P'},{id:'c',label:'Motor C',plant:'P'}];
+  const metric=(value,quality='valid')=>({value,quality:{state:quality}});
+  const item=(assetId,mttr,mtbf,availability)=>({assetId,metrics:{mttr:metric(mttr),mtbf:metric(mtbf),availability:metric(availability)}});
+  const contract={period:{end:'2026-06-30'},assetBreakdown:{items:[item('a',2,50,90),item('b',10,0,94),item('c',null,null,null),item('hidden',9999,0,0)]}};
+  const policy={metricTargets:{mttr:4,mtbf:100,availability:95},metricTargetOverrides:[{scope:'asset',id:'a',targets:{mttr:0}}]};
+  const result=ranking(contract,policy,assets);
+  assert.deepEqual(result.mttr.rows.map(row=>row.assetId),['b','a']);
+  assert.deepEqual(result.mtbf.rows.map(row=>row.gap),[100,50]);
+  assert.deepEqual(result.availability.rows.map(row=>row.assetId),['a','b']);
+  assert.equal(result.mttr.rows[1].source.scope,'asset');
+  assert.equal(result.mttr.considered,3);assert.equal(result.mttr.missingData,1);
+  assert.equal(ranking(contract,{},assets).mttr.rows.length,0);assert.equal(ranking(contract,{},assets).mttr.missingGoals,3);
+  assert.equal(ranking(null,policy,assets).mttr.available,false);
+});
+test('ranking considera vigência no fim do período, empates determinísticos e qualidade parcial',()=>{
+  const assets=[{id:'b',label:'B',plant:'P'},{id:'a',label:'A',plant:'P'}];
+  const contract={period:{end:'2026-06-30'},assetBreakdown:{truncated:true,items:assets.map(asset=>({assetId:asset.id,metrics:{mttr:{value:8,quality:{state:'partial'}}}}))}};
+  const policy={metricTargets:{mttr:4},metricTargetVersions:[{scope:'company',id:'',validFrom:'2026-07-01',targets:{mttr:1}}]};
+  assert.equal(ranking(contract,policy,assets).mttr.rows.length,0);
+  contract.period.end='2026-07-01';
+  const data=ranking(contract,policy,assets).mttr;
+  assert.deepEqual(data.rows.map(row=>row.assetId),['a','b']);assert.equal(data.rows[0].gap,7);assert.equal(data.rows[0].quality,'partial');assert.equal(data.truncated,true);
+});
 const {targetVersionChange,targetVersionAt,targetDate,targetTimeline} = globalThis.GMMaintenanceCharts;
 const versionMeta=(versionId,at='2026-06-30T15:00:00Z')=>({versionId,at,actor:{id:'admin',name:'Administrador QA'}});
 const targetAllowed={plant:['P'],asset:['A']};

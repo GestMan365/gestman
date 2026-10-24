@@ -10,6 +10,38 @@ const PERIOD = {
   end: "2026-08-10",
 };
 
+test('detalhamento por equipamento reutiliza cálculo oficial, respeita planta e preserva agregados',()=>{
+  const state=baseState({assets:[{id:'a',plant:'P',status:'Operando'},{id:'b',plant:'P',status:'Operando'},{id:'other',plant:'Q',status:'Operando'},{id:'off',plant:'P',status:'Inativo'}],orders:[
+    {id:'o1',assetId:'a',type:'Corretiva',status:'Concluída',actualHours:2,finishedAt:NOW},
+    {id:'o2',assetId:'b',type:'Corretiva',status:'Concluída',actualHours:10,finishedAt:NOW},
+    {id:'o3',assetId:'other',type:'Corretiva',status:'Concluída',actualHours:100,finishedAt:NOW},
+  ]});
+  const filters={...PERIOD,plant:'P'};
+  const baseline=calculateMaintenanceMetrics(state,filters,NOW);
+  const ranked=calculateMaintenanceMetrics(state,{...filters,assetBreakdown:true},NOW);
+  assert.equal(baseline.assetBreakdown,undefined);
+  assert.deepEqual(ranked.assetBreakdown.items.map(item=>item.assetId),['a','b']);
+  assert.equal(ranked.assetBreakdown.total,2);
+  for(const key of ['mttr','mtbf','availability']) assert.equal(ranked.metrics[key].value,baseline.metrics[key].value);
+  for(const item of ranked.assetBreakdown.items){
+    const individual=calculateMaintenanceMetrics(state,{...filters,asset:item.assetId},NOW);
+    for(const key of ['mttr','mtbf','availability']){
+      assert.equal(item.metrics[key].value,individual.metrics[key].value);
+      assert.deepEqual(item.metrics[key].quality,individual.metrics[key].quality);
+      assert.equal(item.metrics[key].recordIds,undefined);
+    }
+  }
+  assert.equal(calculateMaintenanceMetrics(state,{...filters,asset:'b',assetBreakdown:true},NOW).assetBreakdown.items.length,1);
+  assert.equal(calculateMaintenanceMetrics(state,{...filters,asset:'unknown',assetBreakdown:true},NOW).assetBreakdown.total,0);
+});
+
+test('consulta em lote é limitada e informa explicitamente quando há equipamentos restantes',()=>{
+  const state=baseState({assets:Array.from({length:251},(_,index)=>({id:String(index).padStart(4,'0'),status:'Operando'}))});
+  const result=calculateMaintenanceMetrics(state,{...PERIOD,assetBreakdown:true},NOW);
+  assert.equal(result.assetBreakdown.total,251);assert.equal(result.assetBreakdown.items.length,250);assert.equal(result.assetBreakdown.truncated,true);
+  assert.equal(calculateMaintenanceMetrics(state,{...PERIOD,assetBreakdown:'true'},NOW).assetBreakdown,undefined);
+});
+
 function baseState(overrides = {}) {
   return {
     assets: [],
