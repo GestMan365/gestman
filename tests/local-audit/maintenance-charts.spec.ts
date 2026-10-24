@@ -116,6 +116,74 @@ test('resumos, comparação oficial e metas persistidas pelo fluxo administrativ
   await expect(page.getByRole('button',{name:'Configurar metas',exact:true})).toHaveCount(0);
 });
 
+test('metas por planta e equipamento herdam por indicador e acompanham os filtros no celular',async({page})=>{
+  await page.setViewportSize({width:360,height:800});
+  await prepare(page);
+  await page.evaluate(()=>window.eval(`gmPersistState=async()=>{clearTimeout(gmRemoteSaveTimer);window.qaSavedPolicy=JSON.parse(JSON.stringify(state.operationalPolicy));gmStateDirty=false;return true;};`));
+  const save = async(scope:string,id:string,values:string[])=>{
+    await page.getByRole('button',{name:'Configurar metas',exact:true}).click();
+    await page.getByLabel('Abrangência da meta').selectOption(scope);
+    if(scope!=='company') await page.locator('#maintenanceTargetId').selectOption(id);
+    for(const [index,label] of ['MTTR máximo (horas)','MTBF mínimo (horas)','Disponibilidade mínima (%)'].entries()) await page.getByLabel(label).fill(values[index]);
+    await page.getByRole('button',{name:'Salvar metas',exact:true}).click();
+    await expect(page.locator('#maintenanceTargetsForm')).not.toBeVisible();
+    await expect(page.locator('.gm-metric-card')).toHaveCount(3);
+  };
+  await save('company','',['3','100','90']);
+  await save('plant','Planta real de QA',['2','200','']);
+  await save('asset','qa-asset',['1','','99']);
+  await expect(page.locator('[data-metric="mttr"] .gm-metric-goal')).toContainText('3 h');
+  await expect(page.locator('[data-metric="mttr"] .gm-metric-goal-source')).toHaveText('Meta geral da empresa');
+  await page.locator('#trendPlantFilter').selectOption('Planta real de QA');
+  await expect(page.locator('[data-metric="mttr"] .gm-metric-goal')).toContainText('2 h');
+  await page.locator('#trendAssetFilter').selectOption('qa-asset');
+  await expect(page.locator('[data-metric="mttr"] .gm-metric-goal')).toContainText('1 h');
+  await expect(page.locator('[data-metric="mttr"] .gm-metric-goal-source')).toContainText('Equipamento: qa-asset');
+  await expect(page.locator('[data-metric="mtbf"] .gm-metric-goal-source')).toHaveText('Planta: Planta real de QA');
+  await expect(page.locator('[data-metric="availability"] .gm-metric-goal')).toContainText('99 %');
+  const requests=await page.evaluate(()=>(window as any).qaMetricRequests);
+  expect(requests.filter((request:any)=>request.asset==='qa-asset').length).toBeGreaterThanOrEqual(2);
+  for(const request of requests.filter((request:any)=>request.asset==='qa-asset')) expect(request.plant).toBe('Planta real de QA');
+  await page.locator('#trendPlantFilter').selectOption('Região QA');
+  await expect(page.locator('#trendAssetFilter')).toHaveValue('');
+  await expect(page.locator('[data-metric="mttr"] .gm-metric-goal-source')).toHaveText('Meta geral da empresa');
+  await expect(page.locator('#trendAssetFilter option[value="qa-asset"]')).toHaveCount(0);
+  await page.locator('#trendPlantFilter').selectOption('');
+  await page.locator('#trendAssetFilter').selectOption('qa-asset');
+  await expect(page.locator('[data-metric="mtbf"] .gm-metric-goal-source')).toHaveText('Planta: Planta real de QA');
+  await save('asset','qa-asset',['','','']);
+  await expect(page.locator('[data-metric="mttr"] .gm-metric-goal')).toContainText('2 h');
+  await expect(page.locator('[data-metric="availability"] .gm-metric-goal-source')).toHaveText('Meta geral da empresa');
+  const persisted=await page.evaluate(()=>(window as any).qaSavedPolicy);
+  expect(persisted.metricTargetOverrides).toHaveLength(1);
+  await prepare(page);
+  await page.evaluate(policy=>window.eval(`state.operationalPolicy=${JSON.stringify(policy)};renderTrendChart();`),persisted);
+  await page.locator('#trendPlantFilter').selectOption('Planta real de QA');
+  await expect(page.locator('[data-metric="mtbf"] .gm-metric-goal')).toContainText('200 h');
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+});
+
+test('rascunhos de metas por destino são preservados e falha de gravação não anuncia sucesso',async({page})=>{
+  await prepare(page);
+  await page.evaluate(()=>window.eval(`gmPersistState=async()=>{clearTimeout(gmRemoteSaveTimer);return false;};`));
+  await page.getByRole('button',{name:'Configurar metas',exact:true}).click();
+  await page.getByLabel('MTTR máximo (horas)').fill('7');
+  await page.getByLabel('Abrangência da meta').selectOption('asset');
+  await page.getByRole('button',{name:'Salvar metas',exact:true}).click();
+  await expect(page.locator('#maintenanceTargetsError')).toContainText('Selecione uma planta ou equipamento');
+  await page.locator('#maintenanceTargetId').selectOption('qa-asset');
+  await page.getByLabel('MTTR máximo (horas)').fill('8');
+  await page.getByLabel('Abrangência da meta').selectOption('company');
+  await expect(page.getByLabel('MTTR máximo (horas)')).toHaveValue('7');
+  await page.getByLabel('Abrangência da meta').selectOption('asset');
+  await expect(page.getByLabel('MTTR máximo (horas)')).toHaveValue('8');
+  await page.getByRole('button',{name:'Salvar metas',exact:true}).click();
+  await expect(page.locator('#maintenanceTargetsError')).toContainText('Salvamento não confirmado');
+  await expect(page.locator('#maintenanceTargetsForm')).toBeVisible();
+  await expect(page.getByLabel('MTTR máximo (horas)')).toHaveValue('8');
+  await expect(page.getByRole('button',{name:'Salvar metas',exact:true})).toBeEnabled();
+});
+
 test('período 6/12/24 consulta contrato filtrado, sem filtros ocultos de outra tela', async ({page})=>{
   await prepare(page);
   for(const months of ['6','12','24']){

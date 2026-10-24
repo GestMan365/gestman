@@ -5,7 +5,9 @@
 #dashboard .gm-metric-goal small { color:var(--metric-muted); }
 #dashboard .gm-metric-goal-line { stroke:var(--metric-accent); stroke-width:2; stroke-dasharray:2 5; }
 .gm-target-field { display:grid; gap:8px; margin:16px 0; }
-.gm-target-field input { width:100%; min-width:0; box-sizing:border-box; }
+.gm-target-field input, .gm-target-field select { width:100%; min-width:0; max-width:100%; box-sizing:border-box; }
+.gm-target-help { font-size:12px; line-height:1.6; }
+#dashboard .gm-metric-goal-source { font-size:11px; overflow-wrap:anywhere; color:var(--metric-muted); }
 #maintenanceTargetsError { color:#c73838; overflow-wrap:anywhere; }
 body:not(.auth-required):not(.auth-loading) #dashboard .maintenance-trend-card {
   grid-column: 1 / -1 !important;
@@ -14,6 +16,7 @@ body:not(.auth-required):not(.auth-loading) #dashboard .maintenance-trend-card {
 #dashboard .maintenance-trend-card > .industrial-card-head { flex-wrap: wrap; gap: 14px; }
 #dashboard .gm-trend-filters { display: flex; flex-wrap: wrap; gap: 12px; min-width: 0; max-width: 100%; }
 #dashboard .gm-trend-filters .trend-period-control { min-width: 0; max-width: 100%; }
+#dashboard .gm-trend-filters .trend-period-control:not(:last-child) { width:200px; }
 #dashboard .gm-trend-filters select { max-width: 220px; min-width: 0; text-overflow: ellipsis; }
 #dashboard .gm-maintenance-charts {
   --metric-ink: #e4edf5; --metric-muted: #a4b6c7; --metric-border: #2b4053;
@@ -106,7 +109,7 @@ body.theme-light #dashboard .gm-metric-card[data-metric="availability"] { --metr
 }
 @media (max-width: 600px) {
   #dashboard .gm-trend-filters { width:100%; display:grid; grid-template-columns:minmax(0,1fr); }
-  #dashboard .gm-trend-filters .trend-period-control { width:100%; }
+  #dashboard .gm-trend-filters .trend-period-control, #dashboard .gm-trend-filters .trend-period-control:not(:last-child) { width:100%; }
   #dashboard .gm-trend-filters select { width:100%; max-width:none; }
   #dashboard .gm-metric-plot text, #dashboard .gm-metric-plot .gm-metric-axis-date, #dashboard .gm-metric-plot .gm-metric-axis-unit { font-size:20px; }
   /* Preserve field-mode shortcuts; expose only the read-only reliability widget. */

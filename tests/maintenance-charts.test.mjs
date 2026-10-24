@@ -4,6 +4,36 @@ import '../assets/maintenance-charts.js';
 import { calculateMaintenanceMetrics } from '../supabase/functions/_shared/maintenance-metrics.ts';
 const { model } = globalThis.GMMaintenanceCharts;
 const {compare,validateTargets} = globalThis.GMMaintenanceCharts;
+const {resolveTargets,targetPolicyChange} = globalThis.GMMaintenanceCharts;
+test('metas por indicador priorizam equipamento, planta e empresa, sem média de metas',()=>{
+  const policy={metricTargets:{mttr:4,mtbf:100,availability:90},metricTargetOverrides:[
+    {scope:'plant',id:'P1',targets:{mttr:2,mtbf:200}},
+    {scope:'asset',id:'A1',targets:{mttr:0,availability:99}},
+    {scope:'asset',id:'A2',targets:{mtbf:500}},
+  ]};
+  const resolved=resolveTargets(policy,{plant:'P1',asset:'A1',assetLabel:'Motor A'});
+  assert.deepEqual(resolved.targets,{mttr:0,mtbf:200,availability:99});
+  assert.deepEqual(Object.values(resolved.sources).map(item=>item.scope),['asset','plant','asset']);
+  assert.equal(resolved.sources.mttr.label,'Motor A');
+  assert.deepEqual(resolveTargets(policy,{plant:'P1'}).targets,{mttr:2,mtbf:200,availability:90});
+  assert.deepEqual(resolveTargets(policy).targets,policy.metricTargets);
+  assert.deepEqual(resolveTargets(policy,{plant:'P2',asset:'A3'}).targets,policy.metricTargets);
+  assert.deepEqual(resolveTargets({}).targets,{mttr:null,mtbf:null,availability:null});
+});
+test('gravar e limpar meta específica preserva os outros destinos e valida o perfil',()=>{
+  const policy={slaHours:{alta:2},metricTargets:{mttr:4},metricTargetOverrides:[{scope:'plant',id:'P',targets:{mttr:2}},{scope:'asset',id:'B',targets:{mttr:3}}]};
+  const allowed={plant:['P'],asset:['A','B']};
+  const patch=targetPolicyChange(policy,{scope:'asset',id:'A'},{mttr:1},allowed);
+  assert.equal(patch.metricTargetOverrides.length,3);
+  assert.equal(policy.metricTargetOverrides.length,2);
+  const removed=targetPolicyChange({...policy,...patch},{scope:'asset',id:'A'},{mttr:''},allowed);
+  assert.deepEqual(removed.metricTargetOverrides,policy.metricTargetOverrides);
+  assert.equal(resolveTargets({...policy,...removed},{asset:'A',plant:'P'}).targets.mttr,2);
+  assert.throws(()=>targetPolicyChange(policy,{scope:'asset',id:'unknown'},{mttr:2},allowed));
+  assert.throws(()=>targetPolicyChange(policy,{scope:'invalid',id:'P'},{mttr:2},allowed));
+  assert.throws(()=>targetPolicyChange(policy,{scope:'plant',id:'P'},{availability:101},allowed));
+  assert.deepEqual(targetPolicyChange(policy,{scope:'company'},{mttr:5},allowed),{metricTargets:{mttr:5,mtbf:null,availability:null}});
+});
 test('metas opcionais validam limites e incluem meta na escala sem alterar valor oficial',()=>{
   assert.deepEqual(validateTargets({mttr:'2,5',mtbf:'',availability:'100'}),{mttr:2.5,mtbf:null,availability:100});
   for(const input of [{mttr:-1},{availability:101},{mtbf:'abc'},{mttr:Infinity}]) assert.throws(()=>validateTargets(input));

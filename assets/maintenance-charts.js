@@ -115,10 +115,11 @@
     const value = format(card.value,card.unit);
     return card.key === 'mttr' ? `Cada reparo corretivo levou, em média, ${value} para ser concluído.` : card.key === 'mtbf' ? `Foram comprovadas ${value} de operação para cada falha corretiva registrada.` : `${value} do tempo programado esteve disponível para operar.`;
   }
-  function goalStatus(card) {
+  function goalStatus(card, source) {
     if(card.goal === null) return '<div class="gm-metric-goal">Meta não configurada</div>';
     const met = card.value !== null && (card.key === 'mttr' ? card.value <= card.goal : card.value >= card.goal);
-    return `<div class="gm-metric-goal"><strong>Meta ${card.key === 'mttr' ? 'máxima' : 'mínima'}: ${format(card.goal,card.unit)}</strong><span>${card.value === null ? 'Sem base para avaliar' : `${met ? 'Dentro da meta' : 'Fora da meta'}${card.metric.quality?.state === 'partial' ? ' · avaliação parcial' : ''}`}</span><small>Linha pontilhada no gráfico</small></div>`;
+    const origin = source?.scope === 'asset' ? `Equipamento: ${source.label || source.id}` : source?.scope === 'plant' ? `Planta: ${source.label || source.id}` : 'Meta geral da empresa';
+    return `<div class="gm-metric-goal"><strong>Meta ${card.key === 'mttr' ? 'máxima' : 'mínima'}: ${format(card.goal,card.unit)}</strong><span class="gm-metric-goal-source">${escape(origin)}</span><span>${card.value === null ? 'Sem base para avaliar' : `${met ? 'Dentro da meta' : 'Fora da meta'}${card.metric.quality?.state === 'partial' ? ' · avaliação parcial' : ''}`}</span><small>Linha pontilhada no gráfico</small></div>`;
   }
   function validateTargets(input) {
     return Object.fromEntries(definitions.map(({key}) => {
@@ -128,6 +129,35 @@
       if(value === null) throw Error('Informe metas numéricas não negativas; disponibilidade deve estar entre 0 e 100%.');
       return [key,value];
     }));
+  }
+  // Resolve each metric independently. Blank overrides inherit; zero is a real goal.
+  function resolveTargets(policy = {}, context = {}) {
+    const overrides = Array.isArray(policy.metricTargetOverrides) ? policy.metricTargetOverrides : [];
+    const candidates = [
+      {scope:'asset',id:context.asset,label:context.assetLabel},
+      {scope:'plant',id:context.plant,label:context.plant},
+      {scope:'company',id:'',label:'Empresa'},
+    ];
+    const targets = {}, sources = {};
+    for(const {key} of definitions) {
+      targets[key] = null;
+      for(const candidate of candidates) {
+        if(candidate.scope !== 'company' && !candidate.id) continue;
+        const entry = candidate.scope === 'company' ? policy.metricTargets : overrides.findLast(item=>item.scope === candidate.scope && item.id === candidate.id)?.targets;
+        const value = number(entry?.[key],key);
+        if(value !== null) { targets[key] = value; sources[key] = candidate; break; }
+      }
+    }
+    return {targets,sources};
+  }
+  function targetPolicyChange(policy, selection, input, allowed = {}) {
+    const targets = validateTargets(input);
+    if(selection.scope === 'company') return {metricTargets:targets};
+    if(!['plant','asset'].includes(selection.scope) || !selection.id || !(allowed[selection.scope] || []).includes(selection.id)) throw Error('Selecione uma planta ou equipamento disponível no seu perfil.');
+    const previous = Array.isArray(policy?.metricTargetOverrides) ? policy.metricTargetOverrides : [];
+    const entries = previous.filter(item=>item.scope !== selection.scope || item.id !== selection.id);
+    if(Object.values(targets).some(value=>value !== null)) entries.push({scope:selection.scope,id:selection.id,targets});
+    return {metricTargetOverrides:entries};
   }
   function coverage(card) {
     return `<div class="gm-metric-coverage"><div><span>Cobertura do histórico</span><strong>${card.valid} de ${card.points.length} intervalos</strong></div><div class="gm-metric-coverage-track" aria-hidden="true">${card.points.map(point => `<span class="${point.value === null ? 'is-missing' : point.quality === 'partial' ? 'is-partial' : 'has-data'}" title="${escape(`${point.range}: ${point.value === null ? 'sem dados' : quality(point.quality)}`)}"></span>`).join('')}</div></div>`;
@@ -142,7 +172,7 @@
   function render(target, contract, options = {}) {
     if (!target) return;
     const state = options.state || (contract ? 'ready' : 'loading');
-    const signature = JSON.stringify([state, contract, options.scope, options.previousContract, options.comparisonState, options.targets, !!options.configureTargets]);
+    const signature = JSON.stringify([state, contract, options.scope, options.previousContract, options.comparisonState, options.targets, options.targetSources, !!options.configureTargets]);
     if (previous.get(target) === signature) return;
     previous.set(target, signature);
     target.classList.add('gm-maintenance-charts');
@@ -161,13 +191,13 @@
     }
     const cards = model(contract, options.targets);
     target.innerHTML = `<div class="gm-metric-context"><span>${escape(options.scope || 'Empresa')} · ${date(contract.period?.start)} – ${date(contract.period?.end)}</span><span>Atualizado em ${escape(new Date(contract.updatedAt).toLocaleString('pt-BR'))}</span></div>
-      <div class="gm-metric-insight-toolbar"><span>Comparação: período anterior de igual duração · mesmo filtro de planta</span>${options.configureTargets ? '<button class="btn" type="button" data-gm-skip-icon data-configure-targets>Configurar metas</button>' : ''}</div>
+      <div class="gm-metric-insight-toolbar"><span>Comparação: período anterior de igual duração · mesmos filtros de planta e equipamento</span>${options.configureTargets ? '<button class="btn" type="button" data-gm-skip-icon data-configure-targets>Configurar metas</button>' : ''}</div>
       <div class="gm-metric-cards">${cards.map(card => `<section class="gm-metric-card" data-metric="${card.key}" aria-label="${card.name}">
         <div class="gm-metric-heading"><span class="gm-metric-symbol">${metricIcon(card.key)}</span><div class="gm-metric-heading-copy"><h3>${card.name}</h3><p>${card.title}</p></div><span class="gm-metric-quality" data-quality="${escape(card.metric.quality?.state || 'insufficient')}">${quality(card.metric.quality?.state)}</span></div>
         <div class="gm-metric-value"><span class="gm-metric-eyebrow">${card.key === 'availability' ? 'Disponibilidade no período' : 'Média do período'}</span><strong>${format(card.value, card.unit)}</strong><span>${interpretation(card)}</span></div>
         <p class="gm-metric-summary">${summary(card)}${card.metric.quality?.state === 'partial' ? ' Resultado parcial: não representa toda a operação.' : ''}</p>
         <div class="gm-metric-direction"><span>${card.key === 'mttr' ? '↓' : '↑'} ${card.direction}</span>${comparison(card,options.previousContract,options.comparisonState)}</div>
-        ${goalStatus(card)}
+        ${goalStatus(card, options.targetSources?.[card.key])}
         <div class="gm-metric-chart-heading"><strong>Evolução por intervalo</strong><span>${card.valid === 1 ? '1 intervalo registrado' : `${card.valid} intervalos registrados`}</span></div>
         ${card.valid ? plot(card) : `<div class="gm-metric-state" role="status"><strong>Ainda não é possível calcular a evolução</strong><p>${escape(card.metric.detail || card.hint)}</p><p>${card.key === 'mtbf' ? 'Confira os horímetros ou vincule um calendário operacional aos ativos, além de registrar as falhas corretivas.' : card.key === 'availability' ? 'Vincule um calendário operacional válido aos ativos e registre as paradas com início e fim.' : 'Conclua os reparos corretivos com horários válidos de início e término.'}</p></div>`}
         ${card.value !== null ? `<p class="gm-metric-reference-label"><span aria-hidden="true"></span>Referência: ${card.key === 'availability' ? 'disponibilidade' : 'média'} do período · ${format(card.value, card.unit)}</p>` : ''}
@@ -205,5 +235,5 @@
       element.addEventListener('keydown', event => { const hit=event.target.closest('[data-point]'); if (hit && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); select(event); details(card.points[Number(hit.dataset.point)]); } });
     });
   }
-  root.GMMaintenanceCharts = Object.freeze({ model, render, compare, validateTargets });
+  root.GMMaintenanceCharts = Object.freeze({ model, render, compare, validateTargets, resolveTargets, targetPolicyChange });
 })(typeof window === 'undefined' ? globalThis : window);

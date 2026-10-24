@@ -21685,7 +21685,7 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
               <article class="professional-kpi-card" data-dashboard-kpi="preventivePlans" style="--kpi:#36a56a"><i class="professional-kpi-icon"></i><div class="professional-kpi-copy"><span>PLANOS PREVENTIVOS</span><strong id="professionalPreventivePlans">0</strong><small>Planos ativos</small></div></article>
             </div>
           </section>
-          <article class="industrial-card maintenance-trend-card dashboard-widget" data-dashboard-widget="trend"><div class="dashboard-controls" data-dashboard-controls="trend"></div><div class="industrial-card-head"><div><span>CONFIABILIDADE</span><h2>Confiabilidade da manutenção</h2></div><div class="gm-trend-filters"><label class="trend-period-control"><span>Planta</span><select id="trendPlantFilter" aria-label="Planta dos gráficos de confiabilidade" onchange="renderDashboard()"><option value="">Todas as plantas</option></select></label><label class="trend-period-control"><span>Período</span><select id="trendPeriodFilter" aria-label="Período dos gráficos de confiabilidade" onchange="renderDashboard()"><option value="6">6 meses</option><option value="12">12 meses</option><option value="24">24 meses</option></select></label></div></div><div id="trendChart" class="maintenance-trend-content"></div></article>
+          <article class="industrial-card maintenance-trend-card dashboard-widget" data-dashboard-widget="trend"><div class="dashboard-controls" data-dashboard-controls="trend"></div><div class="industrial-card-head"><div><span>CONFIABILIDADE</span><h2>Confiabilidade da manutenção</h2></div><div class="gm-trend-filters"><label class="trend-period-control"><span>Planta</span><select id="trendPlantFilter" aria-label="Planta dos gráficos de confiabilidade" onchange="renderDashboard()"><option value="">Todas as plantas</option></select></label><label class="trend-period-control"><span>Equipamento</span><select id="trendAssetFilter" aria-label="Equipamento dos gráficos de confiabilidade" onchange="renderDashboard()"><option value="">Todos os equipamentos</option></select></label><label class="trend-period-control"><span>Período</span><select id="trendPeriodFilter" aria-label="Período dos gráficos de confiabilidade" onchange="renderDashboard()"><option value="6">6 meses</option><option value="12">12 meses</option><option value="24">24 meses</option></select></label></div></div><div id="trendChart" class="maintenance-trend-content"></div></article>
           <article class="industrial-card maintenance-backlog-card dashboard-widget" data-dashboard-widget="status"><div class="dashboard-controls" data-dashboard-controls="status"></div><div class="industrial-card-head"><div><span>CARTEIRA</span><h2>Backlog de Manutenção</h2></div></div><div class="maintenance-backlog-content" id="statusBars"></div></article>
           <article class="industrial-card asset-health-card dashboard-widget" data-dashboard-widget="criticality"><div class="dashboard-controls" data-dashboard-controls="criticality"></div><div class="industrial-card-head"><div><span>CONDIÇÃO OPERACIONAL</span><h2>Saúde dos Ativos</h2></div></div><div class="asset-health-content" id="criticalityBars"></div></article>
           <article class="industrial-card industrial-chart-card dashboard-widget" data-dashboard-widget="ordersChart"><div class="dashboard-controls" data-dashboard-controls="ordersChart"></div><div class="industrial-card-head"><div><span>ÚLTIMOS 7 DIAS</span><h2>Ordens de Serviço</h2></div><div class="chart-legend"><span><i class="dot blue"></i>Abertas</span><span><i class="dot green"></i>Concluídas</span><span><i class="dot red"></i>Atrasadas</span></div></div><div class="industrial-stacked-chart" id="industrialOrdersChart"></div></article>
@@ -22655,11 +22655,11 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
   <link rel="stylesheet" href="assets/preventive-year.css">
   <script src="assets/preventive-year.js"></script>
   <script src="assets/preventive-year-ui.js"></script>
-  <link rel="stylesheet" href="assets/maintenance-charts.css?v=metric-insights-2">
+  <link rel="stylesheet" href="assets/maintenance-charts.css?v=scoped-targets-1">
   <link rel="stylesheet" href="assets/maintenance-metric-details.css?v=metric-evidence-4">
   <script src="assets/maintenance-metric-details.js?v=calendar-coverage-1"></script>
   <link rel="stylesheet" href="assets/dashboard-distributions.css?v=clickable-distributions-2">
-  <script src="assets/maintenance-charts.js?v=metric-insights-1"></script>
+  <script src="assets/maintenance-charts.js?v=scoped-targets-1"></script>
   <link rel="stylesheet" href="assets/operational-planning.css?v=calendar-validity-2">
   <link rel="stylesheet" href="assets/dashboard-operations.css?v=kpi-drilldown-5">
   <script src="assets/operational-planning.js?v=calendar-validity-2"></script>
@@ -29122,15 +29122,29 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
       const numeric = typeof value === "number" || /^\d+$/.test(String(value)) ? new Date(Number(value)) : new Date(value);
       return Number.isNaN(numeric.getTime()) ? null : numeric;
     }
+    function dashboardMetricAssetPlant(asset) {
+      const location = (state.locations || []).find(item => item.id === asset.locationId);
+      const region = (state.regions || []).find(item => item.id === (location?.regionId || asset.regionId));
+      return String(asset.plant || asset.unit || asset.factory || region?.name || "").trim();
+    }
+    function dashboardMetricAssets() { return stage16ScopedRows("assets", state.assets || []); }
+    function dashboardMetricAssetLabel(asset) { return [asset.code || asset.tag || asset.id, asset.name].filter(Boolean).join(" — "); }
+    function refreshDashboardTrendAssets() {
+      const select = $("trendAssetFilter"); if (!select) return;
+      const selected = select.value, plant = $("trendPlantFilter")?.value || "";
+      const assets = dashboardMetricAssets().filter(asset=>!plant || dashboardMetricAssetPlant(asset) === plant);
+      const options = assets.map(asset=>({id:asset.id,label:dashboardMetricAssetLabel(asset)})).sort((a,b)=>a.label.localeCompare(b.label,"pt-BR"));
+      const signature = JSON.stringify(options);
+      if(select.dataset.optionsSignature === signature) return;
+      select.dataset.optionsSignature = signature;
+      select.innerHTML = '<option value="">Todos os equipamentos</option>' + options.map(item=>`<option value="${escapeHtml(item.id)}">${escapeHtml(item.label)}</option>`).join("");
+      select.value = assets.some(asset=>asset.id === selected) ? selected : "";
+    }
     function refreshDashboardTrendPlants() {
       const select = $("trendPlantFilter");
       if (!select) return;
       const selected = select.value;
-      const plants = [...new Set((state.assets || []).map(asset => {
-        const location = (state.locations || []).find(item => item.id === asset.locationId);
-        const region = (state.regions || []).find(item => item.id === (location?.regionId || asset.regionId));
-        return String(asset.plant || asset.unit || asset.factory || region?.name || "").trim();
-      }).filter(Boolean))].sort((a,b) => a.localeCompare(b, "pt-BR"));
+      const plants = [...new Set(dashboardMetricAssets().map(dashboardMetricAssetPlant).filter(Boolean))].sort((a,b) => a.localeCompare(b, "pt-BR"));
       const signature = JSON.stringify(plants);
       if (select.dataset.optionsSignature === signature) return;
       select.dataset.optionsSignature = signature;
@@ -29141,7 +29155,7 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
       const plant = $("trendPlantFilter")?.value || "";
       const now = new Date();
       const firstMonth = new Date(now.getFullYear(), now.getMonth() - (months - 1), 1);
-      return { period:"custom", start:stage16DateInput(firstMonth), end:stage16DateInput(now), plant };
+      return { period:"custom", start:stage16DateInput(firstMonth), end:stage16DateInput(now), plant, asset:$("trendAssetFilter")?.value || "" };
     }
     function renderDashboardReliabilityKpis(contract, chartState, filters, months) {
       const previous = contract ? gmMaintenanceMetricsContract(stage16PreviousFilters(filters), months) : null;
@@ -29184,25 +29198,59 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
     }
     function openMaintenanceTargets() {
       if (!isAdminUser() || !currentAccount) return denyProfileAccess();
-      const targets = state.operationalPolicy?.metricTargets || {};
-      openModal("Metas de confiabilidade", `<form id="maintenanceTargetsForm"><p>Metas da empresa, aplicadas aos gráficos em todos os filtros. Não alteram os cálculos. Deixe vazio para remover uma meta.</p>${[{key:"mttr",label:"MTTR máximo (horas)"},{key:"mtbf",label:"MTBF mínimo (horas)"},{key:"availability",label:"Disponibilidade mínima (%)"}].map(item=>`<label class="gm-target-field">${item.label}<input name="${item.key}" inputmode="decimal" type="text" value="${escapeHtml(targets[item.key] ?? "")}" autocomplete="off"></label>`).join("")}<p role="alert" id="maintenanceTargetsError"></p><div class="toolbar"><button type="button" class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Salvar metas</button></div></form>`);
+      const assets = dashboardMetricAssets();
+      const plants = [...new Set(assets.map(dashboardMetricAssetPlant).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt-BR"));
+      const chartAsset = $("trendAssetFilter")?.value || "", chartPlant = $("trendPlantFilter")?.value || "";
+      let selection = {scope:chartAsset ? "asset" : chartPlant ? "plant" : "company", id:chartAsset || chartPlant};
+      const destinations = {asset:chartAsset,plant:chartPlant};
+      const drafts = new Map();
+      const draftKey = item => JSON.stringify([item.scope,item.id]);
+      openModal("Metas de confiabilidade", `<form id="maintenanceTargetsForm"><p>Prioridade por indicador: <strong>equipamento → planta → empresa</strong>. Campos vazios herdam a meta do nível anterior. Metas não alteram os cálculos.</p><label class="gm-target-field">Abrangência da meta<select id="maintenanceTargetScope" name="scope"><option value="company">Empresa (geral)</option><option value="plant">Planta</option><option value="asset">Equipamento</option></select></label><div id="maintenanceTargetDestination"></div><div id="maintenanceTargetFields"></div><p role="alert" id="maintenanceTargetsError"></p><div class="toolbar"><button type="button" class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Salvar metas</button></div></form>`);
+      const remember = () => {
+        const data = new FormData($("maintenanceTargetsForm"));
+        drafts.set(draftKey(selection),Object.fromEntries(["mttr","mtbf","availability"].map(key=>[key,data.get(key) ?? ""])));
+      };
+      const renderFields = () => {
+        const policy = state.operationalPolicy || {};
+        const saved = selection.scope === "company" ? policy.metricTargets : (Array.isArray(policy.metricTargetOverrides) ? policy.metricTargetOverrides : []).findLast(item=>item.scope === selection.scope && item.id === selection.id)?.targets;
+        const targets = drafts.get(draftKey(selection)) || saved || {};
+        $("maintenanceTargetFields").innerHTML = `<p class="gm-target-help">${selection.scope === "company" ? "Meta geral: usada quando não existe meta específica. Campo vazio significa sem meta geral." : "Informe apenas as metas próprias deste destino. Deixe vazio para usar a planta ou a empresa, conforme disponível."}</p>${[{key:"mttr",label:"MTTR máximo (horas)"},{key:"mtbf",label:"MTBF mínimo (horas)"},{key:"availability",label:"Disponibilidade mínima (%)"}].map(item=>`<label class="gm-target-field">${item.label}<input name="${item.key}" inputmode="decimal" type="text" value="${escapeHtml(targets[item.key] ?? "")}" autocomplete="off"></label>`).join("")}`;
+        $("maintenanceTargetsError").textContent = "";
+      };
+      const renderDestination = () => {
+        $("maintenanceTargetScope").value = selection.scope;
+        const options = selection.scope === "plant" ? plants.map(plant=>({id:plant,label:plant})) : assets.map(asset=>({id:asset.id,label:dashboardMetricAssetLabel(asset)})).sort((a,b)=>a.label.localeCompare(b.label,"pt-BR"));
+        $("maintenanceTargetDestination").innerHTML = selection.scope === "company" ? "" : `<label class="gm-target-field">${selection.scope === "plant" ? "Planta da meta" : "Equipamento da meta"}<select name="destination" id="maintenanceTargetId"><option value="">Selecione…</option>${options.map(item=>`<option value="${escapeHtml(item.id)}">${escapeHtml(item.label)}</option>`).join("")}</select></label>`;
+        if($("maintenanceTargetId")) {
+          $("maintenanceTargetId").value = options.some(item=>item.id === selection.id) ? selection.id : "";
+          selection.id = $("maintenanceTargetId").value;
+          $("maintenanceTargetId").addEventListener("change",event=>{remember();selection={...selection,id:event.target.value};destinations[selection.scope]=selection.id;renderFields();});
+        }
+        renderFields();
+      };
+      $("maintenanceTargetScope").addEventListener("change",event=>{remember();selection={scope:event.target.value,id:destinations[event.target.value] || ""};renderDestination();});
+      renderDestination();
       $("maintenanceTargetsForm").addEventListener("submit", async event => {
         event.preventDefault();
         if (!isAdminUser() || !currentAccount) return denyProfileAccess();
         const form = event.currentTarget, button = form.querySelector('[type="submit"]');
+        const input = Object.fromEntries(new FormData(form));
         button.disabled = true;
+        form.querySelectorAll("input,select").forEach(element=>element.disabled=true);
         try {
-          const metricTargets = window.GMMaintenanceCharts.validateTargets(Object.fromEntries(new FormData(form)));
-          await gmSaveOperationalPlanning({policy:{metricTargets}});
-          closeModal(); renderTrendChart(); showToast("Metas salvas para a empresa.");
-        } catch(error) { $("maintenanceTargetsError").textContent = error.message || "Não foi possível confirmar o salvamento das metas."; }
-        finally { button.disabled = false; }
+          const availableAssets = dashboardMetricAssets();
+          const policy = window.GMMaintenanceCharts.targetPolicyChange(state.operationalPolicy || {},selection,input,{asset:availableAssets.map(asset=>asset.id),plant:[...new Set(availableAssets.map(dashboardMetricAssetPlant).filter(Boolean))]});
+          await gmSaveOperationalPlanning({policy});
+          closeModal(); renderTrendChart(); showToast("Metas salvas para " + (selection.scope === "company" ? "a empresa." : selection.scope === "plant" ? "a planta." : "o equipamento."));
+        } catch(error) { $("maintenanceTargetsError").textContent = (error.message || "Não foi possível confirmar o salvamento das metas.").replace("os calendários","as metas"); }
+        finally { button.disabled = false; form.querySelectorAll("input,select").forEach(element=>element.disabled=false); }
       });
     }
     function renderTrendChart() {
       const target = $("trendChart");
       if (!target || !window.GMMaintenanceCharts) return;
       refreshDashboardTrendPlants();
+      refreshDashboardTrendAssets();
       const months = [6,12,24].includes(Number($("trendPeriodFilter")?.value)) ? Number($("trendPeriodFilter").value) : 6;
       const filters = dashboardTrendFilters(months);
       const blocked = gmStateDirty || gmSyncConflict;
@@ -29214,11 +29262,13 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
       const previousContract = contract && !blocked ? gmMaintenanceMetricsContract(previousFilters, months) : null;
       const comparisonState = previousContract ? "ready" : gmMaintenanceMetricsErrors.has(gmMaintenanceMetricsKey(previousFilters, months)) ? "error" : "loading";
       renderDashboardReliabilityKpis(contract, chartState, filters, months);
+      const selectedAsset = dashboardMetricAssets().find(asset=>asset.id === filters.asset);
+      const resolved = window.GMMaintenanceCharts.resolveTargets(state.operationalPolicy || {}, {asset:selectedAsset?.id,assetLabel:selectedAsset ? dashboardMetricAssetLabel(selectedAsset) : "",plant:selectedAsset ? dashboardMetricAssetPlant(selectedAsset) : filters.plant});
       window.GMMaintenanceCharts.render(target, contract, {
         state:chartState,
-        scope:filters.plant || "Todas as plantas",
+        scope:[filters.plant || "Todas as plantas",selectedAsset ? dashboardMetricAssetLabel(selectedAsset) : "Todos os equipamentos"].join(" · "),
         previousContract, comparisonState,
-        targets:state.operationalPolicy?.metricTargets || {},
+        targets:resolved.targets, targetSources:resolved.sources,
         configureTargets:isAdminUser() ? openMaintenanceTargets : null,
         details:openMaintenanceMetricDetails,
         retry:() => { gmMaintenanceMetricsErrors.delete(key); renderTrendChart(); }
