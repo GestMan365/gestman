@@ -5,15 +5,15 @@
 #dashboard .gm-ranking-heading>span { font-size:11px; color:var(--metric-accent); }
 #dashboard .gm-metric-ranking p { font-size:11px; line-height:1.6; color:var(--metric-muted); overflow-wrap:anywhere; }
 #dashboard .gm-ranking-list { display:grid; gap:8px; min-width:0; }
-#dashboard .gm-ranking-row { display:grid; gap:7px; width:100%; min-width:0; text-align:left; font:inherit; color:var(--metric-ink); background:color-mix(in srgb,var(--metric-accent) 4%,var(--metric-surface)); border:1px solid var(--metric-border); border-radius:10px; padding:12px; cursor:pointer; }
+#dashboard .gm-ranking-row { display:grid!important; grid-template-columns:minmax(0,1fr)!important; grid-auto-flow:row!important; gap:7px; width:100%; min-width:0; text-align:left; font:inherit; color:var(--metric-ink); background:color-mix(in srgb,var(--metric-accent) 4%,var(--metric-surface)); border:1px solid var(--metric-border); border-radius:10px; padding:12px; cursor:pointer; }
 #dashboard .gm-ranking-row:hover, #dashboard .gm-ranking-row:focus-visible { border-color:var(--metric-accent); outline:2px solid var(--metric-accent); outline-offset:2px; }
-#dashboard .gm-ranking-row-title { display:flex; flex-wrap:wrap; align-items:baseline; gap:6px; font-size:12px; }
+#dashboard .gm-ranking-row-title { display:grid; grid-template-columns:20px minmax(0,1fr); align-items:baseline; gap:6px; font-size:12px; grid-column:1/-1; }
 #dashboard .gm-ranking-row-title b { color:var(--metric-muted); }
-#dashboard .gm-ranking-row-title strong { flex:1; min-width:120px; overflow-wrap:anywhere; }
-#dashboard .gm-ranking-row-title>span { color:var(--metric-accent); font-weight:700; }
-#dashboard .gm-ranking-values, #dashboard .gm-ranking-source { font-size:11px; overflow-wrap:anywhere; }
+#dashboard .gm-ranking-row-title strong { min-width:0; overflow-wrap:anywhere; }
+#dashboard .gm-ranking-row-title>span { grid-column:2; color:var(--metric-accent); font-weight:700; }
+#dashboard .gm-ranking-values, #dashboard .gm-ranking-source { display:block; grid-column:1/-1; min-width:0; font-size:11px; overflow-wrap:anywhere; }
 #dashboard .gm-ranking-source { color:var(--metric-muted); }
-#dashboard .gm-ranking-track { height:4px; border-radius:8px; background:var(--metric-grid); overflow:hidden; }
+#dashboard .gm-ranking-track { display:block; grid-column:1/-1; width:100%; height:4px; border-radius:8px; background:var(--metric-grid); overflow:hidden; }
 #dashboard .gm-ranking-track i { display:block; height:100%; background:var(--metric-accent); border-radius:inherit; }
 #dashboard .gm-ranking-more { margin-top:10px; font-size:12px; }
 #dashboard .gm-ranking-more summary { cursor:pointer; padding:10px 0; }

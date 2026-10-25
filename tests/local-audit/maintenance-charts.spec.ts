@@ -278,6 +278,8 @@ for(const theme of ['light','dark']) test('ranking móvel '+theme+' ordena equip
   await expect(mttr.locator('[data-ranked-asset]').first()).toHaveAttribute('data-ranked-asset','qa-region-asset');
   await expect(page.locator('[data-metric="availability"] .gm-metric-ranking')).toContainText('pontos percentuais');
   await expect(mttr).toContainText('Base parcial');
+  const rowLayout=await mttr.locator('[data-ranked-asset]').first().evaluate(row=>({width:row.getBoundingClientRect().width,sourceWidth:row.querySelector('.gm-ranking-source')!.getBoundingClientRect().width}));
+  expect(rowLayout.sourceWidth).toBeGreaterThan(rowLayout.width*.8);
   await mttr.screenshot({path:`test-results/ranking-mobile-${theme}.png`});
   await mttr.locator('[data-ranked-asset="qa-asset"]').click();
   await expect(page.locator('#maintenanceMetricDetails')).toBeVisible();
