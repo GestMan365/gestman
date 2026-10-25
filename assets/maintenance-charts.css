@@ -51,6 +51,16 @@ body:not(.auth-required):not(.auth-loading) #dashboard .maintenance-trend-card {
 #dashboard .gm-trend-filters select { max-width: 220px; min-width: 0; text-overflow: ellipsis; }
 #dashboard .gm-trend-filters .gm-trend-clear { align-self:end; min-height:44px!important; max-width:100%; white-space:nowrap; }
 @media(max-width:600px) { #dashboard .gm-trend-filters .gm-trend-clear { width:100%; } }
+#dashboard .gm-trend-summary { --filter-border:#30495d; --filter-chip:#193246; margin:14px 16px 10px; padding:12px; border:1px solid var(--filter-border); border-radius:10px; background:#102332; color:#dce9f4; min-width:0; }
+body.theme-light #dashboard .gm-trend-summary { --filter-border:#cbdbe5; --filter-chip:#fff; background:#f1f7fc; color:#18354b; }
+#dashboard .gm-trend-summary-head { display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; align-items:center; font-size:12px; }
+#dashboard .gm-trend-summary-head>span { font-size:11px; }
+#dashboard .gm-trend-chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; min-width:0; }
+#dashboard .gm-trend-chips button { display:inline-flex!important; align-items:center; justify-content:space-between; gap:10px; min-height:44px!important; min-width:0; max-width:100%; padding:8px 12px; border:1px solid var(--filter-border); border-radius:14px; background:var(--filter-chip)!important; color:inherit!important; text-align:left!important; white-space:normal!important; font:inherit; font-size:12px; line-height:1.5; cursor:pointer; }
+#dashboard .gm-trend-chips button>span:first-child { min-width:0; overflow-wrap:anywhere; }
+#dashboard .gm-trend-chips button>span:last-child { flex:none; font-size:18px; }
+#dashboard .gm-trend-chips button:focus-visible { outline:2px solid #2584ed; outline-offset:2px; }
+#dashboard .gm-trend-summary p { margin:8px 0 0; font-size:11px; line-height:1.6; overflow-wrap:anywhere; }
 #dashboard .gm-maintenance-charts {
   --metric-ink: #e4edf5; --metric-muted: #a4b6c7; --metric-border: #2b4053;
   --metric-surface: #0c1c2a; --metric-grid: #263c50;

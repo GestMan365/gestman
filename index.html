@@ -21685,7 +21685,7 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
               <article class="professional-kpi-card" data-dashboard-kpi="preventivePlans" style="--kpi:#36a56a"><i class="professional-kpi-icon"></i><div class="professional-kpi-copy"><span>PLANOS PREVENTIVOS</span><strong id="professionalPreventivePlans">0</strong><small>Planos ativos</small></div></article>
             </div>
           </section>
-<article class="industrial-card maintenance-trend-card dashboard-widget" data-dashboard-widget="trend"><div class="dashboard-controls" data-dashboard-controls="trend"></div><div class="industrial-card-head"><div><span>CONFIABILIDADE</span><h2>Confiabilidade da manutenção</h2></div><div class="gm-trend-filters"><label class="trend-period-control"><span>Planta</span><select id="trendPlantFilter" aria-label="Planta dos gráficos de confiabilidade" onchange="changeDashboardTrendFilters('plant')"><option value="">Todas as plantas</option></select></label><label class="trend-period-control"><span>Equipamento</span><select id="trendAssetFilter" aria-label="Equipamento dos gráficos de confiabilidade" onchange="changeDashboardTrendFilters('asset')"><option value="">Todos os equipamentos</option></select></label><label class="trend-period-control"><span>Período</span><select id="trendPeriodFilter" aria-label="Período dos gráficos de confiabilidade" onchange="changeDashboardTrendFilters('months')"><option value="6">6 meses</option><option value="12">12 meses</option><option value="24">24 meses</option></select></label><button id="clearTrendFilters" type="button" class="btn gm-trend-clear" data-gm-skip-icon title="Todas as plantas, todos os equipamentos e 6 meses. Mantém os modos dos rankings." onclick="clearDashboardTrendFilters()">Limpar filtros</button></div></div><div id="trendChart" class="maintenance-trend-content"></div></article>
+<article class="industrial-card maintenance-trend-card dashboard-widget" data-dashboard-widget="trend"><div class="dashboard-controls" data-dashboard-controls="trend"></div><div class="industrial-card-head"><div><span>CONFIABILIDADE</span><h2>Confiabilidade da manutenção</h2></div><div class="gm-trend-filters"><label class="trend-period-control"><span>Planta</span><select id="trendPlantFilter" aria-label="Planta dos gráficos de confiabilidade" onchange="changeDashboardTrendFilters('plant')"><option value="">Todas as plantas</option></select></label><label class="trend-period-control"><span>Equipamento</span><select id="trendAssetFilter" aria-label="Equipamento dos gráficos de confiabilidade" onchange="changeDashboardTrendFilters('asset')"><option value="">Todos os equipamentos</option></select></label><label class="trend-period-control"><span>Período</span><select id="trendPeriodFilter" aria-label="Período dos gráficos de confiabilidade" onchange="changeDashboardTrendFilters('months')"><option value="6">6 meses</option><option value="12">12 meses</option><option value="24">24 meses</option></select></label><button id="clearTrendFilters" type="button" class="btn gm-trend-clear" data-gm-skip-icon title="Todas as plantas, todos os equipamentos e 6 meses. Mantém os modos dos rankings." onclick="clearDashboardTrendFilters()">Limpar filtros</button></div></div><div id="trendFilterSummary" class="gm-trend-summary" role="group" aria-label="Resumo dos filtros dos gráficos"></div><div id="trendChart" class="maintenance-trend-content"></div></article>
           <article class="industrial-card maintenance-backlog-card dashboard-widget" data-dashboard-widget="status"><div class="dashboard-controls" data-dashboard-controls="status"></div><div class="industrial-card-head"><div><span>CARTEIRA</span><h2>Backlog de Manutenção</h2></div></div><div class="maintenance-backlog-content" id="statusBars"></div></article>
           <article class="industrial-card asset-health-card dashboard-widget" data-dashboard-widget="criticality"><div class="dashboard-controls" data-dashboard-controls="criticality"></div><div class="industrial-card-head"><div><span>CONDIÇÃO OPERACIONAL</span><h2>Saúde dos Ativos</h2></div></div><div class="asset-health-content" id="criticalityBars"></div></article>
           <article class="industrial-card industrial-chart-card dashboard-widget" data-dashboard-widget="ordersChart"><div class="dashboard-controls" data-dashboard-controls="ordersChart"></div><div class="industrial-card-head"><div><span>ÚLTIMOS 7 DIAS</span><h2>Ordens de Serviço</h2></div><div class="chart-legend"><span><i class="dot blue"></i>Abertas</span><span><i class="dot green"></i>Concluídas</span><span><i class="dot red"></i>Atrasadas</span></div></div><div class="industrial-stacked-chart" id="industrialOrdersChart"></div></article>
@@ -22655,7 +22655,7 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
   <link rel="stylesheet" href="assets/preventive-year.css">
   <script src="assets/preventive-year.js"></script>
   <script src="assets/preventive-year-ui.js"></script>
-  <link rel="stylesheet" href="assets/maintenance-charts.css?v=trend-clear-1">
+  <link rel="stylesheet" href="assets/maintenance-charts.css?v=trend-filter-summary-1">
   <link rel="stylesheet" href="assets/maintenance-metric-details.css?v=metric-evidence-4">
   <script src="assets/maintenance-metric-details.js?v=calendar-coverage-1"></script>
   <link rel="stylesheet" href="assets/dashboard-distributions.css?v=clickable-distributions-2">
@@ -29168,6 +29168,30 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
       refreshDashboardTrendAssets();
       $("trendAssetFilter").value=restored.asset;
       $("trendPeriodFilter").value=String(restored.months);
+      renderDashboardTrendFilterSummary();
+    }
+    function renderDashboardTrendFilterSummary() {
+      const target=$("trendFilterSummary"); if (!target) return;
+      const plant=$("trendPlantFilter")?.value || '',asset=$("trendAssetFilter")?.value || '';
+      const months=Number($("trendPeriodFilter")?.value) || 6;
+      const equipment=dashboardMetricAssets().find(item=>item.id===asset);
+      const filters=[];
+      if (plant) filters.push({key:'plant',name:'Planta',label:plant});
+      if (equipment) filters.push({key:'asset',name:'Equipamento',label:dashboardMetricAssetLabel(equipment)});
+      if (months!==6) filters.push({key:'months',name:'Período',label:months+' meses'});
+      const signature=JSON.stringify([filters,months]);
+      if (target.dataset.signature===signature) return;
+      target.dataset.signature=signature;
+      target.innerHTML=`<div class="gm-trend-summary-head"><strong>Filtros ativos</strong><span aria-live="polite">${filters.length ? filters.length+(filters.length===1?' filtro':' filtros') : 'Padrão'}</span></div>${filters.length ? `<div class="gm-trend-chips">${filters.map(filter=>`<button type="button" data-gm-skip-icon data-remove-trend-filter="${filter.key}" aria-label="Remover filtro de ${filter.name.toLowerCase()}"><span>${filter.name}: ${escapeHtml(filter.label)}</span><span aria-hidden="true">×</span></button>`).join('')}</div><p>Toque em um filtro para removê-lo.${months===6?' Período padrão: 6 meses.':''}</p>` : '<p>Todas as plantas · Todos os equipamentos · 6 meses (padrão).</p>'}`;
+      target.querySelectorAll('[data-remove-trend-filter]').forEach(button=>button.addEventListener('click',()=>removeDashboardTrendFilter(button.dataset.removeTrendFilter)));
+    }
+    function removeDashboardTrendFilter(key) {
+      const ids={plant:'trendPlantFilter',asset:'trendAssetFilter',months:'trendPeriodFilter'};
+      if (!Object.prototype.hasOwnProperty.call(ids,key)) return;
+      $(ids[key]).value=key==='months' ? '6' : '';
+      // Removing the plant retains an explicitly selected equipment (now across all plants).
+      changeDashboardTrendFilters(key);
+      ($("trendFilterSummary")?.querySelector('button') || $(ids[key]))?.focus({preventScroll:true});
     }
     function changeDashboardTrendFilters(changed) {
       // Changing a plant clears an incompatible equipment before saving the selection.

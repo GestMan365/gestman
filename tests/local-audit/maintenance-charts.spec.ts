@@ -266,6 +266,68 @@ test('histórico mantém revisões, permite usar como base e bloqueia sobreposi�
   await expect(page.locator('#maintenanceTargetsForm')).not.toBeVisible();
 });
 
+for(const theme of ['light','dark']) test('resumo móvel '+theme+' remove filtros individualmente sem alterar rankings',async({page})=>{
+  test.setTimeout(90000);
+  const setup=async()=>{
+    await page.setViewportSize({width:theme==='light'?360:390,height:800});
+    await prepare(page);
+    await page.evaluate(theme=>window.eval(`document.body.classList.toggle('theme-light',${JSON.stringify(theme==='light')});state.assets[0].name='Motor <QA> & inspeção';state.operationalPolicy={metricTargets:{mttr:2,mtbf:200,availability:99}};renderTrendChart();`),theme);
+  };
+  await setup();
+  const summary=page.getByRole('group',{name:'Resumo dos filtros dos gráficos',exact:true});
+  await expect(summary).toContainText('6 meses (padrão)');
+  await expect(summary.getByRole('button')).toHaveCount(0);
+  await page.locator('#trendPlantFilter').selectOption('Planta real de QA');
+  await page.locator('#trendAssetFilter').selectOption('qa-asset');
+  await page.locator('#trendPeriodFilter').selectOption('24');
+  for(const [name,value] of [['MTTR','percentage'],['MTBF','absolute'],['Disponibilidade','percentage']]) {
+    await page.getByRole('combobox',{name:'Desvio no ranking de '+name,exact:true}).selectOption(value);
+  }
+  const modesUnchanged=async()=>{
+    for(const [name,value] of [['MTTR','percentage'],['MTBF','absolute'],['Disponibilidade','percentage']]) {
+      await expect(page.getByRole('combobox',{name:'Desvio no ranking de '+name,exact:true})).toHaveValue(value);
+    }
+  };
+  await expect(summary.getByRole('button')).toHaveCount(3);
+  await expect(summary).toContainText('Motor <QA> & inspeção');
+  await expect(summary.locator('img,script')).toHaveCount(0);
+  expect(await summary.getByRole('button').first().evaluate(el=>el.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
+  await summary.screenshot({path:`test-results/trend-summary-${theme}.png`});
+  await summary.getByRole('button',{name:'Remover filtro de planta',exact:true}).click();
+  await expect(page.locator('#trendPlantFilter')).toHaveValue('');
+  await expect(page.locator('#trendAssetFilter')).toHaveValue('qa-asset');
+  await expect(page.locator('#trendPeriodFilter')).toHaveValue('24');
+  await modesUnchanged();
+  await page.locator('[data-metric="mttr"] [data-ranked-asset="qa-asset"]').click();
+  await expect(page.locator('#maintenanceMetricDetails')).toBeVisible();
+  await page.evaluate(()=>window.eval('closeModal()'));
+  await page.reload();await setup();
+  await expect(summary.getByRole('button')).toHaveCount(2);
+  await expect(page.locator('#trendAssetFilter')).toHaveValue('qa-asset');
+  await modesUnchanged();
+  await summary.getByRole('button',{name:'Remover filtro de período',exact:true}).press('Enter');
+  await expect(page.locator('#trendPeriodFilter')).toHaveValue('6');
+  await expect(page.locator('#trendAssetFilter')).toHaveValue('qa-asset');
+  await summary.getByRole('button',{name:'Remover filtro de equipamento',exact:true}).click();
+  await expect(summary.getByRole('button')).toHaveCount(0);
+  await modesUnchanged();
+  await page.locator('#trendPlantFilter').selectOption('Planta real de QA');
+  await page.locator('#trendAssetFilter').selectOption('qa-asset');
+  await page.locator('#trendPeriodFilter').selectOption('12');
+  await summary.getByRole('button',{name:'Remover filtro de equipamento',exact:true}).click();
+  await expect(page.locator('#trendPlantFilter')).toHaveValue('Planta real de QA');
+  await expect(page.locator('#trendAssetFilter')).toHaveValue('');
+  await expect(page.locator('#trendPeriodFilter')).toHaveValue('12');
+  await modesUnchanged();
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  await page.getByRole('button',{name:'Limpar filtros',exact:true}).click();
+  await expect(summary).toContainText('Todas as plantas · Todos os equipamentos · 6 meses');
+  await expect(summary.getByRole('button')).toHaveCount(0);
+  await setup();
+  await expect(summary.getByRole('button')).toHaveCount(0);
+  await modesUnchanged();
+});
+
 for(const theme of ['light','dark']) test('filtros móveis '+theme+' persistem por conta ao reabrir e preservam detalhes e rankings',async({page,context})=>{
   test.setTimeout(60000);
   const setup=async(target:Page)=>{
