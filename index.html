@@ -21685,7 +21685,7 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
               <article class="professional-kpi-card" data-dashboard-kpi="preventivePlans" style="--kpi:#36a56a"><i class="professional-kpi-icon"></i><div class="professional-kpi-copy"><span>PLANOS PREVENTIVOS</span><strong id="professionalPreventivePlans">0</strong><small>Planos ativos</small></div></article>
             </div>
           </section>
-<article class="industrial-card maintenance-trend-card dashboard-widget" data-dashboard-widget="trend"><div class="dashboard-controls" data-dashboard-controls="trend"></div><div class="industrial-card-head"><div><span>CONFIABILIDADE</span><h2>Confiabilidade da manutenção</h2></div><div class="gm-trend-filters"><label class="trend-period-control"><span>Planta</span><select id="trendPlantFilter" aria-label="Planta dos gráficos de confiabilidade" onchange="changeDashboardTrendFilters('plant')"><option value="">Todas as plantas</option></select></label><label class="trend-period-control"><span>Equipamento</span><select id="trendAssetFilter" aria-label="Equipamento dos gráficos de confiabilidade" onchange="changeDashboardTrendFilters('asset')"><option value="">Todos os equipamentos</option></select></label><label class="trend-period-control"><span>Período</span><select id="trendPeriodFilter" aria-label="Período dos gráficos de confiabilidade" onchange="changeDashboardTrendFilters('months')"><option value="6">6 meses</option><option value="12">12 meses</option><option value="24">24 meses</option></select></label></div></div><div id="trendChart" class="maintenance-trend-content"></div></article>
+<article class="industrial-card maintenance-trend-card dashboard-widget" data-dashboard-widget="trend"><div class="dashboard-controls" data-dashboard-controls="trend"></div><div class="industrial-card-head"><div><span>CONFIABILIDADE</span><h2>Confiabilidade da manutenção</h2></div><div class="gm-trend-filters"><label class="trend-period-control"><span>Planta</span><select id="trendPlantFilter" aria-label="Planta dos gráficos de confiabilidade" onchange="changeDashboardTrendFilters('plant')"><option value="">Todas as plantas</option></select></label><label class="trend-period-control"><span>Equipamento</span><select id="trendAssetFilter" aria-label="Equipamento dos gráficos de confiabilidade" onchange="changeDashboardTrendFilters('asset')"><option value="">Todos os equipamentos</option></select></label><label class="trend-period-control"><span>Período</span><select id="trendPeriodFilter" aria-label="Período dos gráficos de confiabilidade" onchange="changeDashboardTrendFilters('months')"><option value="6">6 meses</option><option value="12">12 meses</option><option value="24">24 meses</option></select></label><button id="clearTrendFilters" type="button" class="btn gm-trend-clear" data-gm-skip-icon title="Todas as plantas, todos os equipamentos e 6 meses. Mantém os modos dos rankings." onclick="clearDashboardTrendFilters()">Limpar filtros</button></div></div><div id="trendChart" class="maintenance-trend-content"></div></article>
           <article class="industrial-card maintenance-backlog-card dashboard-widget" data-dashboard-widget="status"><div class="dashboard-controls" data-dashboard-controls="status"></div><div class="industrial-card-head"><div><span>CARTEIRA</span><h2>Backlog de Manutenção</h2></div></div><div class="maintenance-backlog-content" id="statusBars"></div></article>
           <article class="industrial-card asset-health-card dashboard-widget" data-dashboard-widget="criticality"><div class="dashboard-controls" data-dashboard-controls="criticality"></div><div class="industrial-card-head"><div><span>CONDIÇÃO OPERACIONAL</span><h2>Saúde dos Ativos</h2></div></div><div class="asset-health-content" id="criticalityBars"></div></article>
           <article class="industrial-card industrial-chart-card dashboard-widget" data-dashboard-widget="ordersChart"><div class="dashboard-controls" data-dashboard-controls="ordersChart"></div><div class="industrial-card-head"><div><span>ÚLTIMOS 7 DIAS</span><h2>Ordens de Serviço</h2></div><div class="chart-legend"><span><i class="dot blue"></i>Abertas</span><span><i class="dot green"></i>Concluídas</span><span><i class="dot red"></i>Atrasadas</span></div></div><div class="industrial-stacked-chart" id="industrialOrdersChart"></div></article>
@@ -22655,7 +22655,7 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
   <link rel="stylesheet" href="assets/preventive-year.css">
   <script src="assets/preventive-year.js"></script>
   <script src="assets/preventive-year-ui.js"></script>
-  <link rel="stylesheet" href="assets/maintenance-charts.css?v=target-ranking-mode-1">
+  <link rel="stylesheet" href="assets/maintenance-charts.css?v=trend-clear-1">
   <link rel="stylesheet" href="assets/maintenance-metric-details.css?v=metric-evidence-4">
   <script src="assets/maintenance-metric-details.js?v=calendar-coverage-1"></script>
   <link rel="stylesheet" href="assets/dashboard-distributions.css?v=clickable-distributions-2">
@@ -29175,6 +29175,12 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
       dashboardTrendPreferences().save(dashboardTrendPreferenceScope(),{
         plant:$("trendPlantFilter")?.value || '',asset:$("trendAssetFilter")?.value || '',months:$("trendPeriodFilter")?.value
       });
+      renderDashboard();
+    }
+    function clearDashboardTrendFilters() {
+      // Reset only the scoped chart filters; ranking preferences are independent.
+      dashboardTrendPreferences().save(dashboardTrendPreferenceScope(),{plant:'',asset:'',months:6});
+      syncDashboardTrendFilters();
       renderDashboard();
     }
     function dashboardTrendFilters(months) {

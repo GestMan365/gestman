@@ -278,6 +278,8 @@ for(const theme of ['light','dark']) test('filtros móveis '+theme+' persistem p
   await page.locator('#trendAssetFilter').selectOption('qa-region-asset');
   await page.locator('#trendPeriodFilter').selectOption('24');
   await page.getByRole('combobox',{name:'Desvio no ranking de MTTR',exact:true}).selectOption('percentage');
+  await page.getByRole('combobox',{name:'Desvio no ranking de MTBF',exact:true}).selectOption('absolute');
+  await page.getByRole('combobox',{name:'Desvio no ranking de Disponibilidade',exact:true}).selectOption('percentage');
   await page.reload();await setup(page);
   await expect(page.locator('#trendPlantFilter')).toHaveValue('Região QA');
   await expect(page.locator('#trendAssetFilter')).toHaveValue('qa-region-asset');
@@ -306,13 +308,30 @@ for(const theme of ['light','dark']) test('filtros móveis '+theme+' persistem p
   await expect(reopened.locator('#trendPeriodFilter')).toHaveValue('12');
   expect(await reopened.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
   await reopened.locator('.maintenance-trend-card').screenshot({path:`test-results/trend-filters-${theme}.png`});
-  await reopened.locator('#trendPlantFilter').selectOption('');
-  await reopened.locator('#trendAssetFilter').selectOption('');
-  await reopened.locator('#trendPeriodFilter').selectOption('6');
+  const clear=reopened.getByRole('button',{name:'Limpar filtros',exact:true});
+  expect(await clear.evaluate(el=>el.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
+  await clear.click();
+  await expect(reopened.locator('#trendPlantFilter')).toHaveValue('');
+  await expect(reopened.locator('#trendAssetFilter')).toHaveValue('');
+  await expect(reopened.locator('#trendPeriodFilter')).toHaveValue('6');
+  for(const [name,value] of [['MTTR','percentage'],['MTBF','absolute'],['Disponibilidade','percentage']]) {
+    await expect(reopened.getByRole('combobox',{name:'Desvio no ranking de '+name,exact:true})).toHaveValue(value);
+  }
+  await clear.press('Enter');
+  await expect(reopened.locator('[data-metric="mttr"] [data-ranked-asset]')).toHaveCount(2);
+  await reopened.locator('[data-metric="mttr"] [data-ranked-asset="qa-asset"]').click();
+  await expect(reopened.locator('#maintenanceMetricDetails')).toBeVisible();
+  await reopened.evaluate(()=>window.eval('closeModal()'));
+  await reopened.locator('.gm-trend-filters').screenshot({path:`test-results/trend-clear-${theme}.png`});
   await setup(reopened);
   await expect(reopened.locator('#trendPlantFilter')).toHaveValue('');
   await expect(reopened.locator('#trendAssetFilter')).toHaveValue('');
   await expect(reopened.locator('#trendPeriodFilter')).toHaveValue('6');
+  for(const [name,value] of [['MTTR','percentage'],['MTBF','absolute'],['Disponibilidade','percentage']]) {
+    await expect(reopened.getByRole('combobox',{name:'Desvio no ranking de '+name,exact:true})).toHaveValue(value);
+  }
+  const clearedRequests=await reopened.evaluate(()=>(window as any).qaMetricRequests);
+  expect(clearedRequests.some((r:any)=>r.seriesBuckets===6&&!r.plant&&!r.asset)).toBe(true);
 });
 
 for(const theme of ['light','dark']) test('preferência móvel '+theme+' persiste cada ranking ao recarregar e reabrir a página',async({page,context})=>{
