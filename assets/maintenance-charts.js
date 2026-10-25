@@ -274,10 +274,35 @@
     return `<div class="gm-metric-ranking">${header}${selector}<p>${explanation} Meta vigente no fim do período. Toque para ver os detalhes.</p>${data.excluded?`<p class="gm-ranking-warning">${data.excluded} equipamento(s) fora da meta sem percentual calculável (meta zero ou resultado fora do limite numérico). Consulte o desvio absoluto.</p>`:''}${data.truncated?'<p class="gm-ranking-warning">Ranking parcial: consulta limitada a 250 equipamentos. Refine a planta ou o equipamento para consultar os demais.</p>':''}${data.rows.length?`<div class="gm-ranking-list">${data.rows.slice(0,5).map(rowHtml).join('')}</div>${data.rows.length>5?`<details class="gm-ranking-more"><summary>Ver os ${data.rows.length} equipamentos classificados</summary><div class="gm-ranking-list">${data.rows.slice(5).map((row,index)=>rowHtml(row,index+5)).join('')}</div></details>`:''}`:`<p class="gm-ranking-empty">${data.excluded?'Nenhum desvio percentual calculável. Consulte o desvio absoluto.':data.within?'Nenhum equipamento avaliado está fora da meta.':'Sem equipamentos com meta e dados válidos para classificar.'}</p>`}<p class="gm-ranking-quality">${data.considered} consultados · ${data.within} dentro da meta · ${data.missingGoals} sem meta · ${data.missingData} sem dados válidos. As duas últimas contagens podem incluir o mesmo equipamento. Bases parciais permanecem sinalizadas.</p></div>`;
   }
   const previous = new WeakMap();
-  const rankingModes = new WeakMap();
+  // Presentation preferences only: no tenant data, goals or calculated values are stored.
+  function createRankingPreferences(getStorage = () => root.localStorage) {
+    let modes;
+    const storageKey = key => `gm:maintenance-ranking-mode:v1:${key}`;
+    function read() {
+      if (!modes) {
+        modes = {};
+        for (const {key} of definitions) {
+          try {
+            const saved = getStorage()?.getItem(storageKey(key));
+            if (saved === 'absolute' || saved === 'percentage') modes[key] = saved;
+          } catch (_) { /* Private/restricted storage must not prevent rendering. */ }
+        }
+      }
+      return {...modes};
+    }
+    function set(key, mode) {
+      if (!definitions.some(item => item.key === key) || !['absolute','percentage'].includes(mode)) return;
+      read();
+      modes[key] = mode;
+      try { getStorage()?.setItem(storageKey(key), mode); }
+      catch (_) { /* Keep the preference in memory when persistence is unavailable. */ }
+    }
+    return Object.freeze({read, set});
+  }
+  const rankingPreferences = createRankingPreferences();
   function render(target, contract, options = {}) {
     if (!target) return;
-    const modes=rankingModes.get(target) || {};
+    const modes=rankingPreferences.read();
     const state = options.state || (contract ? 'ready' : 'loading');
     const signature = JSON.stringify([state, contract, options.scope, options.previousContract, options.comparisonState, options.targets, options.targetSources, options.targetTimeline, options.rankings, !!options.configureTargets, modes]);
     if (previous.get(target) === signature) return;
@@ -327,7 +352,7 @@
       element.querySelector('[data-metric-details]')?.addEventListener('click', () => details());
       element.querySelector('[data-ranking-retry]')?.addEventListener('click',()=>options.retry?.());
       element.querySelector('[data-ranking-mode]')?.addEventListener('change',event=>{
-        rankingModes.set(target,{...modes,[card.key]:event.target.value==='percentage'?'percentage':'absolute'});
+        rankingPreferences.set(card.key,event.target.value==='percentage'?'percentage':'absolute');
         render(target,contract,options);
         target.querySelector(`[data-metric="${card.key}"] [data-ranking-mode]`)?.focus({preventScroll:true});
       });
@@ -350,5 +375,5 @@
       element.addEventListener('keydown', event => { const hit=event.target.closest('[data-point]'); if (hit && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); select(event); details(card.points[Number(hit.dataset.point)]); } });
     });
   }
-  root.GMMaintenanceCharts = Object.freeze({ model, render, compare, validateTargets, resolveTargets, targetPolicyChange, targetDate, targetVersionAt, targetVersions, targetVersionChange, targetTimeline, ranking, rankingOrder });
+  root.GMMaintenanceCharts = Object.freeze({ model, render, compare, validateTargets, resolveTargets, targetPolicyChange, targetDate, targetVersionAt, targetVersions, targetVersionChange, targetTimeline, ranking, rankingOrder, createRankingPreferences });
 })(typeof window === 'undefined' ? globalThis : window);

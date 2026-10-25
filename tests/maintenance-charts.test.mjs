@@ -7,6 +7,35 @@ const {compare,validateTargets} = globalThis.GMMaintenanceCharts;
 const {resolveTargets,targetPolicyChange} = globalThis.GMMaintenanceCharts;
 const {ranking} = globalThis.GMMaintenanceCharts;
 const {rankingOrder} = globalThis.GMMaintenanceCharts;
+const {createRankingPreferences} = globalThis.GMMaintenanceCharts;
+
+test('preferências independentes dos rankings sobrevivem a nova sessão sem armazenar dados operacionais',()=>{
+  const values=new Map();
+  const storage={getItem:key=>values.get(key)??null,setItem:(key,value)=>values.set(key,value)};
+  const first=createRankingPreferences(()=>storage);
+  assert.deepEqual(first.read(),{});
+  first.set('mttr','percentage');first.set('mtbf','absolute');first.set('availability','percentage');
+  const reopened=createRankingPreferences(()=>storage);
+  assert.deepEqual(reopened.read(),{mttr:'percentage',mtbf:'absolute',availability:'percentage'});
+  reopened.set('mttr','absolute');
+  assert.deepEqual(createRankingPreferences(()=>storage).read(),{mttr:'absolute',mtbf:'absolute',availability:'percentage'});
+  reopened.set('unknown','percentage');reopened.set('mtbf','invalid');
+  assert.equal(values.size,3);
+  assert.ok([...values.values()].every(value=>['absolute','percentage'].includes(value)));
+  const copy=reopened.read();copy.mtbf='percentage';assert.equal(reopened.read().mtbf,'absolute');
+});
+
+test('preferências inválidas ou armazenamento indisponível não bloqueiam os gráficos',()=>{
+  const invalid=createRankingPreferences(()=>({getItem:()=>'{broken',setItem:()=>{throw new Error('quota');}}));
+  assert.deepEqual(invalid.read(),{});
+  invalid.set('mttr','percentage');assert.equal(invalid.read().mttr,'percentage');
+  const blocked=createRankingPreferences(()=>{throw new Error('SecurityError');});
+  assert.deepEqual(blocked.read(),{});
+  assert.doesNotThrow(()=>blocked.set('availability','percentage'));
+  assert.equal(blocked.read().availability,'percentage');
+  const unavailable=createRankingPreferences(()=>undefined);
+  unavailable.set('mtbf','absolute');assert.equal(unavailable.read().mtbf,'absolute');
+});
 
 test('alternância do ranking reordena pelo percentual da própria meta sem modificar dados oficiais',()=>{
   const row=(assetId,gap,goal)=>({assetId,label:assetId,gap,goal});

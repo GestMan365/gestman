@@ -266,6 +266,46 @@ test('histórico mantém revisões, permite usar como base e bloqueia sobreposi�
   await expect(page.locator('#maintenanceTargetsForm')).not.toBeVisible();
 });
 
+for(const theme of ['light','dark']) test('preferência móvel '+theme+' persiste cada ranking ao recarregar e reabrir a página',async({page,context})=>{
+  const width=theme==='light'?360:390;
+  const setup=async (target:Page)=>{
+    await target.setViewportSize({width,height:800});
+    await prepare(target);
+    await target.evaluate(theme=>window.eval(`
+      document.body.classList.toggle('theme-light',${JSON.stringify(theme==='light')});
+      state.operationalPolicy={metricTargets:{mttr:2,mtbf:200,availability:99}};renderTrendChart();
+    `),theme);
+  };
+  const select=(target:Page,name:string)=>target.getByRole('combobox',{name:'Desvio no ranking de '+name,exact:true});
+  await setup(page);
+  await select(page,'MTTR').selectOption('percentage');
+  await select(page,'MTBF').selectOption('absolute');
+  await select(page,'Disponibilidade').selectOption('percentage');
+  await page.reload();
+  await setup(page);
+  await expect(select(page,'MTTR')).toHaveValue('percentage');
+  await expect(select(page,'MTBF')).toHaveValue('absolute');
+  await expect(select(page,'Disponibilidade')).toHaveValue('percentage');
+  await page.close();
+  const reopened=await context.newPage();
+  await setup(reopened);
+  await expect(select(reopened,'MTTR')).toHaveValue('percentage');
+  await expect(select(reopened,'MTBF')).toHaveValue('absolute');
+  await expect(select(reopened,'Disponibilidade')).toHaveValue('percentage');
+  await reopened.locator('[data-metric="mttr"] [data-ranked-asset="qa-asset"]').click();
+  await expect(reopened.locator('#maintenanceMetricDetails')).toBeVisible();
+  await reopened.evaluate(()=>window.eval('closeModal()'));
+  await reopened.locator('#trendAssetFilter').selectOption('qa-asset');
+  await expect(select(reopened,'MTTR')).toHaveValue('percentage');
+  await expect(reopened.locator('[data-metric="mttr"] [data-ranked-asset]')).toHaveCount(1);
+  expect(await reopened.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  await reopened.locator('[data-metric="mttr"] .gm-metric-ranking').screenshot({path:`test-results/ranking-persist-${theme}.png`});
+  await select(reopened,'MTTR').selectOption('absolute');
+  await setup(reopened);
+  await expect(select(reopened,'MTTR')).toHaveValue('absolute');
+  await expect(select(reopened,'Disponibilidade')).toHaveValue('percentage');
+});
+
 for(const theme of ['light','dark']) test('ranking móvel '+theme+' ordena equipamentos, respeita metas e abre cálculo oficial',async({page})=>{
   await page.setViewportSize({width:360,height:800});
   await prepare(page);
