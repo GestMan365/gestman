@@ -8,6 +8,42 @@ const {resolveTargets,targetPolicyChange} = globalThis.GMMaintenanceCharts;
 const {ranking} = globalThis.GMMaintenanceCharts;
 const {rankingOrder} = globalThis.GMMaintenanceCharts;
 const {createRankingPreferences} = globalThis.GMMaintenanceCharts;
+const {createTrendFilterPreferences,resolveTrendFilters,normalizeTrendFilters} = globalThis.GMMaintenanceCharts;
+
+test('filtros persistem por empresa e usuário sem compartilhar seleção entre contas',()=>{
+  const values=new Map();const storage={getItem:key=>values.get(key)??null,setItem:(key,value)=>values.set(key,value)};
+  const first=createTrendFilterPreferences(()=>storage);
+  first.save('company-A/user-1',{plant:'P',asset:'A',months:24});
+  first.save('company-A/user-2',{plant:'Q',asset:'B',months:12});
+  const reopened=createTrendFilterPreferences(()=>storage);
+  assert.deepEqual(reopened.read('company-A/user-1'),{plant:'P',asset:'A',months:24});
+  assert.deepEqual(reopened.read('company-A/user-2'),{plant:'Q',asset:'B',months:12});
+  assert.deepEqual(reopened.read('company-B/user-1'),{plant:'',asset:'',months:6});
+  assert.deepEqual(reopened.read(''),{plant:'',asset:'',months:6});
+  reopened.save('company-A/user-1',{plant:'',asset:'',months:6});
+  assert.deepEqual(createTrendFilterPreferences(()=>storage).read('company-A/user-1'),{plant:'',asset:'',months:6});
+  assert.deepEqual(normalizeTrendFilters({plant:33,asset:{id:'x'},months:99}),{plant:'',asset:'',months:6});
+});
+
+test('restauração rejeita plantas e equipamentos removidos, sem permissão ou incompatíveis',()=>{
+  const assets=[{id:'A',plant:'P'},{id:'B',plant:'Q'}];
+  assert.deepEqual(resolveTrendFilters({plant:'P',asset:'A',months:12},assets),{plant:'P',asset:'A',months:12});
+  assert.equal(resolveTrendFilters({plant:'P',asset:'B'},assets).asset,'');
+  assert.deepEqual(resolveTrendFilters({plant:'hidden',asset:'A',months:24},assets),{plant:'',asset:'',months:24});
+  assert.equal(resolveTrendFilters({asset:'hidden'},assets).asset,'');
+  assert.equal(resolveTrendFilters({asset:'A'},assets).asset,'A');
+  assert.deepEqual(resolveTrendFilters({plant:'P',asset:'A',months:24},[]),{plant:'',asset:'',months:24});
+});
+
+test('filtros toleram armazenamento inválido ou bloqueado, mantendo seleção em memória',()=>{
+  const preferences=createTrendFilterPreferences(()=>({getItem:()=>'{bad',setItem:()=>{throw Error('quota');}}));
+  assert.deepEqual(preferences.read('scope'),{plant:'',asset:'',months:6});
+  preferences.save('scope',{plant:'P',asset:'A',months:'12'});
+  assert.deepEqual(preferences.read('scope'),{plant:'P',asset:'A',months:12});
+  const blocked=createTrendFilterPreferences(()=>{throw Error('SecurityError');});
+  assert.doesNotThrow(()=>blocked.read('scope'));
+  blocked.save('scope',{months:24});assert.equal(blocked.read('scope').months,24);
+});
 
 test('preferências independentes dos rankings sobrevivem a nova sessão sem armazenar dados operacionais',()=>{
   const values=new Map();

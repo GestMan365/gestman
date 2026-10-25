@@ -21685,7 +21685,7 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
               <article class="professional-kpi-card" data-dashboard-kpi="preventivePlans" style="--kpi:#36a56a"><i class="professional-kpi-icon"></i><div class="professional-kpi-copy"><span>PLANOS PREVENTIVOS</span><strong id="professionalPreventivePlans">0</strong><small>Planos ativos</small></div></article>
             </div>
           </section>
-          <article class="industrial-card maintenance-trend-card dashboard-widget" data-dashboard-widget="trend"><div class="dashboard-controls" data-dashboard-controls="trend"></div><div class="industrial-card-head"><div><span>CONFIABILIDADE</span><h2>Confiabilidade da manutenção</h2></div><div class="gm-trend-filters"><label class="trend-period-control"><span>Planta</span><select id="trendPlantFilter" aria-label="Planta dos gráficos de confiabilidade" onchange="renderDashboard()"><option value="">Todas as plantas</option></select></label><label class="trend-period-control"><span>Equipamento</span><select id="trendAssetFilter" aria-label="Equipamento dos gráficos de confiabilidade" onchange="renderDashboard()"><option value="">Todos os equipamentos</option></select></label><label class="trend-period-control"><span>Período</span><select id="trendPeriodFilter" aria-label="Período dos gráficos de confiabilidade" onchange="renderDashboard()"><option value="6">6 meses</option><option value="12">12 meses</option><option value="24">24 meses</option></select></label></div></div><div id="trendChart" class="maintenance-trend-content"></div></article>
+<article class="industrial-card maintenance-trend-card dashboard-widget" data-dashboard-widget="trend"><div class="dashboard-controls" data-dashboard-controls="trend"></div><div class="industrial-card-head"><div><span>CONFIABILIDADE</span><h2>Confiabilidade da manutenção</h2></div><div class="gm-trend-filters"><label class="trend-period-control"><span>Planta</span><select id="trendPlantFilter" aria-label="Planta dos gráficos de confiabilidade" onchange="changeDashboardTrendFilters('plant')"><option value="">Todas as plantas</option></select></label><label class="trend-period-control"><span>Equipamento</span><select id="trendAssetFilter" aria-label="Equipamento dos gráficos de confiabilidade" onchange="changeDashboardTrendFilters('asset')"><option value="">Todos os equipamentos</option></select></label><label class="trend-period-control"><span>Período</span><select id="trendPeriodFilter" aria-label="Período dos gráficos de confiabilidade" onchange="changeDashboardTrendFilters('months')"><option value="6">6 meses</option><option value="12">12 meses</option><option value="24">24 meses</option></select></label></div></div><div id="trendChart" class="maintenance-trend-content"></div></article>
           <article class="industrial-card maintenance-backlog-card dashboard-widget" data-dashboard-widget="status"><div class="dashboard-controls" data-dashboard-controls="status"></div><div class="industrial-card-head"><div><span>CARTEIRA</span><h2>Backlog de Manutenção</h2></div></div><div class="maintenance-backlog-content" id="statusBars"></div></article>
           <article class="industrial-card asset-health-card dashboard-widget" data-dashboard-widget="criticality"><div class="dashboard-controls" data-dashboard-controls="criticality"></div><div class="industrial-card-head"><div><span>CONDIÇÃO OPERACIONAL</span><h2>Saúde dos Ativos</h2></div></div><div class="asset-health-content" id="criticalityBars"></div></article>
           <article class="industrial-card industrial-chart-card dashboard-widget" data-dashboard-widget="ordersChart"><div class="dashboard-controls" data-dashboard-controls="ordersChart"></div><div class="industrial-card-head"><div><span>ÚLTIMOS 7 DIAS</span><h2>Ordens de Serviço</h2></div><div class="chart-legend"><span><i class="dot blue"></i>Abertas</span><span><i class="dot green"></i>Concluídas</span><span><i class="dot red"></i>Atrasadas</span></div></div><div class="industrial-stacked-chart" id="industrialOrdersChart"></div></article>
@@ -22659,7 +22659,7 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
   <link rel="stylesheet" href="assets/maintenance-metric-details.css?v=metric-evidence-4">
   <script src="assets/maintenance-metric-details.js?v=calendar-coverage-1"></script>
   <link rel="stylesheet" href="assets/dashboard-distributions.css?v=clickable-distributions-2">
-  <script src="assets/maintenance-charts.js?v=target-ranking-persist-1"></script>
+  <script src="assets/maintenance-charts.js?v=trend-filters-persist-1"></script>
   <link rel="stylesheet" href="assets/operational-planning.css?v=calendar-validity-2">
   <link rel="stylesheet" href="assets/dashboard-operations.css?v=kpi-drilldown-5">
   <script src="assets/operational-planning.js?v=calendar-validity-2"></script>
@@ -28389,6 +28389,7 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
     }
     function calcMetrics() {
       if (window.GMMaintenanceCharts && !gmStateDirty && !gmSyncConflict) {
+        syncDashboardTrendFilters();
         const months = [6,12,24].includes(Number($("trendPeriodFilter")?.value)) ? Number($("trendPeriodFilter").value) : 6;
         const contract = gmMaintenanceMetricsContract(dashboardTrendFilters(months), months);
         return Object.fromEntries(window.GMMaintenanceCharts.model(contract).map(card => [card.key, card.value]));
@@ -29151,7 +29152,34 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
       select.innerHTML = '<option value="">Todas as plantas</option>' + plants.map(plant => `<option value="${escapeHtml(plant)}">${escapeHtml(plant)}</option>`).join("");
       select.value = plants.includes(selected) ? selected : "";
     }
+    let dashboardTrendPreferenceStore;
+    function dashboardTrendPreferenceScope() {
+      return currentAccount?.company?.id && currentAccount?.user?.id ? JSON.stringify([currentAccount.company.id,currentAccount.user.id]) : '';
+    }
+    function dashboardTrendPreferences() {
+      return dashboardTrendPreferenceStore ||= window.GMMaintenanceCharts.createTrendFilterPreferences();
+    }
+    function syncDashboardTrendFilters() {
+      if (!window.GMMaintenanceCharts || !$("trendPlantFilter") || !$("trendAssetFilter") || !$("trendPeriodFilter")) return;
+      refreshDashboardTrendPlants();
+      const saved=dashboardTrendPreferences().read(dashboardTrendPreferenceScope());
+      const restored=window.GMMaintenanceCharts.resolveTrendFilters(saved,dashboardMetricAssets().map(asset=>({id:asset.id,plant:dashboardMetricAssetPlant(asset)})));
+      $("trendPlantFilter").value=restored.plant;
+      refreshDashboardTrendAssets();
+      $("trendAssetFilter").value=restored.asset;
+      $("trendPeriodFilter").value=String(restored.months);
+    }
+    function changeDashboardTrendFilters(changed) {
+      // Changing a plant clears an incompatible equipment before saving the selection.
+      if (changed === 'plant') refreshDashboardTrendAssets();
+      dashboardTrendPreferences().save(dashboardTrendPreferenceScope(),{
+        plant:$("trendPlantFilter")?.value || '',asset:$("trendAssetFilter")?.value || '',months:$("trendPeriodFilter")?.value
+      });
+      renderDashboard();
+    }
     function dashboardTrendFilters(months) {
+      syncDashboardTrendFilters();
+      months=Number($("trendPeriodFilter")?.value) || months;
       const plant = $("trendPlantFilter")?.value || "";
       const now = new Date();
       const firstMonth = new Date(now.getFullYear(), now.getMonth() - (months - 1), 1);
@@ -29274,8 +29302,7 @@ body.os-panel-fullscreen #activeOrdersPanel .os-live-card {
     function renderTrendChart() {
       const target = $("trendChart");
       if (!target || !window.GMMaintenanceCharts) return;
-      refreshDashboardTrendPlants();
-      refreshDashboardTrendAssets();
+      syncDashboardTrendFilters();
       const months = [6,12,24].includes(Number($("trendPeriodFilter")?.value)) ? Number($("trendPeriodFilter").value) : 6;
       const filters = dashboardTrendFilters(months);
       const blocked = gmStateDirty || gmSyncConflict;

@@ -300,6 +300,40 @@
     return Object.freeze({read, set});
   }
   const rankingPreferences = createRankingPreferences();
+  function normalizeTrendFilters(input = {}) {
+    return {
+      plant:typeof input?.plant === 'string' ? input.plant.trim().slice(0,512) : '',
+      asset:typeof input?.asset === 'string' ? input.asset.trim().slice(0,200) : '',
+      months:[6,12,24].includes(Number(input?.months)) ? Number(input.months) : 6
+    };
+  }
+  function resolveTrendFilters(input, assets = []) {
+    const saved=normalizeTrendFilters(input);
+    const plantValid=!saved.plant || assets.some(asset=>asset.plant===saved.plant);
+    const plant=plantValid ? saved.plant : '';
+    const asset=plantValid && assets.some(asset=>asset.id===saved.asset && (!plant || asset.plant===plant)) ? saved.asset : '';
+    return {plant,asset,months:saved.months};
+  }
+  function createTrendFilterPreferences(getStorage = () => root.localStorage) {
+    const cache=new Map();
+    const storageKey=scope=>`gm:maintenance-trend-filters:v1:${encodeURIComponent(scope)}`;
+    function read(scope) {
+      if (!scope) return normalizeTrendFilters();
+      if (!cache.has(scope)) {
+        let saved;
+        try { saved=JSON.parse(getStorage()?.getItem(storageKey(scope)) || '{}'); } catch (_) { /* Safe defaults for unavailable or malformed storage. */ }
+        cache.set(scope,normalizeTrendFilters(saved));
+      }
+      return {...cache.get(scope)};
+    }
+    function save(scope, input) {
+      if (!scope) return;
+      const filters=normalizeTrendFilters(input);
+      cache.set(scope,filters);
+      try { getStorage()?.setItem(storageKey(scope),JSON.stringify(filters)); } catch (_) { /* Keep filters usable in memory. */ }
+    }
+    return Object.freeze({read,save});
+  }
   function render(target, contract, options = {}) {
     if (!target) return;
     const modes=rankingPreferences.read();
@@ -375,5 +409,5 @@
       element.addEventListener('keydown', event => { const hit=event.target.closest('[data-point]'); if (hit && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); select(event); details(card.points[Number(hit.dataset.point)]); } });
     });
   }
-  root.GMMaintenanceCharts = Object.freeze({ model, render, compare, validateTargets, resolveTargets, targetPolicyChange, targetDate, targetVersionAt, targetVersions, targetVersionChange, targetTimeline, ranking, rankingOrder, createRankingPreferences });
+  root.GMMaintenanceCharts = Object.freeze({ model, render, compare, validateTargets, resolveTargets, targetPolicyChange, targetDate, targetVersionAt, targetVersions, targetVersionChange, targetTimeline, ranking, rankingOrder, createRankingPreferences, normalizeTrendFilters, resolveTrendFilters, createTrendFilterPreferences });
 })(typeof window === 'undefined' ? globalThis : window);

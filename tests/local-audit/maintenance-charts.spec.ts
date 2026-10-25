@@ -266,6 +266,55 @@ test('histórico mantém revisões, permite usar como base e bloqueia sobreposi�
   await expect(page.locator('#maintenanceTargetsForm')).not.toBeVisible();
 });
 
+for(const theme of ['light','dark']) test('filtros móveis '+theme+' persistem por conta ao reabrir e preservam detalhes e rankings',async({page,context})=>{
+  test.setTimeout(60000);
+  const setup=async(target:Page)=>{
+    await target.setViewportSize({width:theme==='light'?360:390,height:800});
+    await prepare(target);
+    await target.evaluate(theme=>window.eval(`document.body.classList.toggle('theme-light',${JSON.stringify(theme==='light')});state.operationalPolicy={metricTargets:{mttr:2,mtbf:200,availability:99}};renderTrendChart();`),theme);
+  };
+  await setup(page);
+  await page.locator('#trendPlantFilter').selectOption('Região QA');
+  await page.locator('#trendAssetFilter').selectOption('qa-region-asset');
+  await page.locator('#trendPeriodFilter').selectOption('24');
+  await page.getByRole('combobox',{name:'Desvio no ranking de MTTR',exact:true}).selectOption('percentage');
+  await page.reload();await setup(page);
+  await expect(page.locator('#trendPlantFilter')).toHaveValue('Região QA');
+  await expect(page.locator('#trendAssetFilter')).toHaveValue('qa-region-asset');
+  await expect(page.locator('#trendPeriodFilter')).toHaveValue('24');
+  await page.close();
+  const reopened=await context.newPage();await setup(reopened);
+  await expect(reopened.locator('#trendPlantFilter')).toHaveValue('Região QA');
+  await expect(reopened.locator('#trendAssetFilter')).toHaveValue('qa-region-asset');
+  await expect(reopened.locator('#trendPeriodFilter')).toHaveValue('24');
+  await expect(reopened.getByRole('combobox',{name:'Desvio no ranking de MTTR',exact:true})).toHaveValue('percentage');
+  const requests=await reopened.evaluate(()=>(window as any).qaMetricRequests);
+  expect(requests.some((r:any)=>r.plant==='Região QA'&&r.asset==='qa-region-asset'&&r.seriesBuckets===24)).toBe(true);
+  await reopened.locator('[data-metric="mttr"] [data-ranked-asset]').click();
+  await expect(reopened.locator('#maintenanceMetricDetails')).toBeVisible();
+  await reopened.evaluate(()=>window.eval('closeModal()'));
+  await reopened.locator('#trendPlantFilter').selectOption('Planta real de QA');
+  await expect(reopened.locator('#trendAssetFilter')).toHaveValue('');
+  await reopened.locator('#trendAssetFilter').selectOption('qa-asset');
+  await reopened.locator('#trendPeriodFilter').selectOption('12');
+  await reopened.evaluate(()=>window.eval("currentAccount.company.id='another-company';renderTrendChart();"));
+  await expect(reopened.locator('#trendPlantFilter')).toHaveValue('');
+  await expect(reopened.locator('#trendAssetFilter')).toHaveValue('');
+  await expect(reopened.locator('#trendPeriodFilter')).toHaveValue('6');
+  await reopened.evaluate(()=>window.eval("currentAccount.company.id='qa-charts';renderTrendChart();"));
+  await expect(reopened.locator('#trendAssetFilter')).toHaveValue('qa-asset');
+  await expect(reopened.locator('#trendPeriodFilter')).toHaveValue('12');
+  expect(await reopened.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  await reopened.locator('.maintenance-trend-card').screenshot({path:`test-results/trend-filters-${theme}.png`});
+  await reopened.locator('#trendPlantFilter').selectOption('');
+  await reopened.locator('#trendAssetFilter').selectOption('');
+  await reopened.locator('#trendPeriodFilter').selectOption('6');
+  await setup(reopened);
+  await expect(reopened.locator('#trendPlantFilter')).toHaveValue('');
+  await expect(reopened.locator('#trendAssetFilter')).toHaveValue('');
+  await expect(reopened.locator('#trendPeriodFilter')).toHaveValue('6');
+});
+
 for(const theme of ['light','dark']) test('preferência móvel '+theme+' persiste cada ranking ao recarregar e reabrir a página',async({page,context})=>{
   const width=theme==='light'?360:390;
   const setup=async (target:Page)=>{
