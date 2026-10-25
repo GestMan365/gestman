@@ -253,19 +253,33 @@
       return [definition.key,{rows,missingGoals,missingData,within,considered:items.size,available:!!contract?.assetBreakdown,truncated:!!contract?.assetBreakdown?.truncated}];
     }));
   }
-  function rankingPanel(card, data) {
-    if(!data) return '';
-    const header=`<div class="gm-ranking-heading"><h4>Mais distantes da meta</h4><span>${data.rows.length} fora da meta</span></div>`;
+  function rankingOrder(data, mode = 'absolute') {
+    const percentage = mode === 'percentage';
+    const rows = (data?.rows || []).map(row=>({...row,percentage:row.goal>0 && Number.isFinite(row.gap/row.goal*100) ? row.gap/row.goal*100 : null}));
+    const eligible = percentage ? rows.filter(row=>row.percentage!==null) : rows;
+    eligible.sort((a,b)=>(percentage ? b.percentage-a.percentage : b.gap-a.gap) || a.label.localeCompare(b.label,'pt-BR') || a.assetId.localeCompare(b.assetId));
+    return {...data,rows:eligible,excluded:rows.length-eligible.length,totalOutside:rows.length,mode:percentage?'percentage':'absolute'};
+  }
+  function rankingPanel(card, rawData, mode) {
+    const data=rankingOrder(rawData,mode);
+    if(!rawData) return '';
+    const percentage=data.mode==='percentage';
+    const header=`<div class="gm-ranking-heading"><h4>Mais distantes da meta</h4><span>${data.totalOutside} fora da meta</span></div>`;
     if(!data.available) return `<div class="gm-metric-ranking">${header}<p>Ranking ainda não disponível nesta consulta. Atualize os indicadores para tentar novamente.</p><button type="button" class="btn" data-gm-skip-icon data-ranking-retry>Atualizar indicadores</button></div>`;
-    const gapText=row=>card.unit==='%' && row.gap<.01 ? '<0,01 p.p.' : format(row.gap,card.unit==='%'?'p.p.':'h');
-    const rowHtml=(row,index)=>`<button type="button" class="gm-ranking-row" data-gm-skip-icon data-ranked-asset="${escape(row.assetId)}" aria-label="${escape(`Ver detalhes de ${card.name} de ${row.label}, desvio de ${gapText(row)}`)}"><span class="gm-ranking-row-title"><b>${index+1}</b><strong>${escape(row.label)}</strong><span>${escape(gapText(row))} ${card.key==='mttr'?'acima':'abaixo'}</span></span><span class="gm-ranking-values">Real: ${format(row.value,card.unit)} · Meta: ${format(row.goal,card.unit)}${row.quality!=='valid'?' · Base parcial':''}</span><span class="gm-ranking-source">${escape(row.source.scope==='asset'?'Meta do equipamento':row.source.scope==='plant'?'Meta da planta: '+row.source.label:'Meta geral da empresa')}</span><span class="gm-ranking-track" aria-hidden="true"><i style="width:${Math.max(1,row.gap/data.rows[0].gap*100)}%"></i></span></button>`;
-    return `<div class="gm-metric-ranking">${header}<p>Desvio absoluto ${card.key==='mttr'?'acima':'abaixo'} da meta vigente no fim do período (${card.unit==='%'?'pontos percentuais':'horas'}). Toque para ver os detalhes.</p>${data.truncated?'<p class="gm-ranking-warning">Ranking parcial: consulta limitada a 250 equipamentos. Refine a planta ou o equipamento para consultar os demais.</p>':''}${data.rows.length?`<div class="gm-ranking-list">${data.rows.slice(0,5).map(rowHtml).join('')}</div>${data.rows.length>5?`<details class="gm-ranking-more"><summary>Ver os ${data.rows.length} equipamentos fora da meta</summary><div class="gm-ranking-list">${data.rows.slice(5).map((row,index)=>rowHtml(row,index+5)).join('')}</div></details>`:''}`:`<p class="gm-ranking-empty">${data.within?'Nenhum equipamento avaliado está fora da meta.':'Sem equipamentos com meta e dados válidos para classificar.'}</p>`}<p class="gm-ranking-quality">${data.considered} consultados · ${data.within} dentro da meta · ${data.missingGoals} sem meta · ${data.missingData} sem dados válidos. As duas últimas contagens podem incluir o mesmo equipamento. Bases parciais permanecem sinalizadas.</p></div>`;
+    const gapText=row=>percentage ? (row.percentage<.01 ? '<0,01 % da meta' : `${row.percentage.toLocaleString('pt-BR',{maximumFractionDigits:2})} % da meta`) : card.unit==='%' && row.gap<.01 ? '<0,01 p.p.' : format(row.gap,card.unit==='%'?'p.p.':'h');
+    const score=row=>percentage ? row.percentage : row.gap;
+    const rowHtml=(row,index)=>`<button type="button" class="gm-ranking-row" data-gm-skip-icon data-ranked-asset="${escape(row.assetId)}" aria-label="${escape(`Ver detalhes de ${card.name} de ${row.label}, desvio de ${gapText(row)}`)}"><span class="gm-ranking-row-title"><b>${index+1}</b><strong>${escape(row.label)}</strong><span>${escape(gapText(row))} ${card.key==='mttr'?'acima':'abaixo'}</span></span><span class="gm-ranking-values">Real: ${format(row.value,card.unit)} · Meta: ${format(row.goal,card.unit)}${row.quality!=='valid'?' · Base parcial':''}</span><span class="gm-ranking-source">${escape(row.source.scope==='asset'?'Meta do equipamento':row.source.scope==='plant'?'Meta da planta: '+row.source.label:'Meta geral da empresa')}</span><span class="gm-ranking-track" aria-hidden="true"><i style="width:${Math.max(1,score(row)/score(data.rows[0])*100)}%"></i></span></button>`;
+    const selector=`<label class="gm-ranking-mode">Ordenar por<select data-ranking-mode aria-label="Desvio no ranking de ${escape(card.name)}"><option value="absolute"${!percentage?' selected':''}>Desvio absoluto</option><option value="percentage"${percentage?' selected':''}>Percentual da meta</option></select></label>`;
+    const explanation=percentage ? 'Desvio percentual = desvio absoluto ÷ meta × 100. Não é o percentual atingido nem pontos percentuais.' : `Desvio absoluto ${card.key==='mttr'?'acima':'abaixo'} da meta (${card.unit==='%'?'pontos percentuais':'horas'}).`;
+    return `<div class="gm-metric-ranking">${header}${selector}<p>${explanation} Meta vigente no fim do período. Toque para ver os detalhes.</p>${data.excluded?`<p class="gm-ranking-warning">${data.excluded} equipamento(s) fora da meta sem percentual calculável (meta zero ou resultado fora do limite numérico). Consulte o desvio absoluto.</p>`:''}${data.truncated?'<p class="gm-ranking-warning">Ranking parcial: consulta limitada a 250 equipamentos. Refine a planta ou o equipamento para consultar os demais.</p>':''}${data.rows.length?`<div class="gm-ranking-list">${data.rows.slice(0,5).map(rowHtml).join('')}</div>${data.rows.length>5?`<details class="gm-ranking-more"><summary>Ver os ${data.rows.length} equipamentos classificados</summary><div class="gm-ranking-list">${data.rows.slice(5).map((row,index)=>rowHtml(row,index+5)).join('')}</div></details>`:''}`:`<p class="gm-ranking-empty">${data.excluded?'Nenhum desvio percentual calculável. Consulte o desvio absoluto.':data.within?'Nenhum equipamento avaliado está fora da meta.':'Sem equipamentos com meta e dados válidos para classificar.'}</p>`}<p class="gm-ranking-quality">${data.considered} consultados · ${data.within} dentro da meta · ${data.missingGoals} sem meta · ${data.missingData} sem dados válidos. As duas últimas contagens podem incluir o mesmo equipamento. Bases parciais permanecem sinalizadas.</p></div>`;
   }
   const previous = new WeakMap();
+  const rankingModes = new WeakMap();
   function render(target, contract, options = {}) {
     if (!target) return;
+    const modes=rankingModes.get(target) || {};
     const state = options.state || (contract ? 'ready' : 'loading');
-    const signature = JSON.stringify([state, contract, options.scope, options.previousContract, options.comparisonState, options.targets, options.targetSources, options.targetTimeline, options.rankings, !!options.configureTargets]);
+    const signature = JSON.stringify([state, contract, options.scope, options.previousContract, options.comparisonState, options.targets, options.targetSources, options.targetTimeline, options.rankings, !!options.configureTargets, modes]);
     if (previous.get(target) === signature) return;
     previous.set(target, signature);
     target.classList.add('gm-maintenance-charts');
@@ -296,7 +310,7 @@
         ${card.value !== null ? `<p class="gm-metric-reference-label"><span aria-hidden="true"></span>Referência: ${card.key === 'availability' ? 'disponibilidade' : 'média'} do período · ${format(card.value, card.unit)}</p>` : ''}
         ${sourceCoverage(card.metric)}
         ${coverage(card)}
-        ${rankingPanel(card,options.rankings?.[card.key])}
+        ${rankingPanel(card,options.rankings?.[card.key],modes[card.key])}
         ${options.details ? '<button type="button" class="btn gm-metric-open-details" data-gm-skip-icon data-metric-details>Ver detalhes e O.S. do período</button>' : ''}
         ${card.valid ? `<div class="gm-metric-detail" aria-live="polite" data-point-detail>${initialDetail(card)}</div>` : ''}
         ${card.valid === 1 ? '<p class="gm-metric-empty">Apenas um intervalo com dados. Ainda não há histórico suficiente para mostrar uma tendência.</p>' : ''}
@@ -312,6 +326,11 @@
       const details = point => options.details?.({key:card.key,name:card.name,unit:card.unit,metric:point ? {...card.metric,...point,period:{start:point.start,end:point.end},quality:{state:point.quality}} : card.metric,period:contract.period});
       element.querySelector('[data-metric-details]')?.addEventListener('click', () => details());
       element.querySelector('[data-ranking-retry]')?.addEventListener('click',()=>options.retry?.());
+      element.querySelector('[data-ranking-mode]')?.addEventListener('change',event=>{
+        rankingModes.set(target,{...modes,[card.key]:event.target.value==='percentage'?'percentage':'absolute'});
+        render(target,contract,options);
+        target.querySelector(`[data-metric="${card.key}"] [data-ranking-mode]`)?.focus({preventScroll:true});
+      });
       element.querySelectorAll('[data-ranked-asset]').forEach(button=>button.addEventListener('click',()=>options.rankedDetails?.(card.key,button.dataset.rankedAsset)));
       const select = event => {
         const hit = event.target.closest('[data-point]');
@@ -331,5 +350,5 @@
       element.addEventListener('keydown', event => { const hit=event.target.closest('[data-point]'); if (hit && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); select(event); details(card.points[Number(hit.dataset.point)]); } });
     });
   }
-  root.GMMaintenanceCharts = Object.freeze({ model, render, compare, validateTargets, resolveTargets, targetPolicyChange, targetDate, targetVersionAt, targetVersions, targetVersionChange, targetTimeline, ranking });
+  root.GMMaintenanceCharts = Object.freeze({ model, render, compare, validateTargets, resolveTargets, targetPolicyChange, targetDate, targetVersionAt, targetVersions, targetVersionChange, targetTimeline, ranking, rankingOrder });
 })(typeof window === 'undefined' ? globalThis : window);

@@ -280,6 +280,26 @@ for(const theme of ['light','dark']) test('ranking móvel '+theme+' ordena equip
   await expect(mttr).toContainText('Base parcial');
   const rowLayout=await mttr.locator('[data-ranked-asset]').first().evaluate(row=>({width:row.getBoundingClientRect().width,sourceWidth:row.querySelector('.gm-ranking-source')!.getBoundingClientRect().width}));
   expect(rowLayout.sourceWidth).toBeGreaterThan(rowLayout.width*.8);
+  await page.evaluate(()=>window.eval("state.operationalPolicy.metricTargetOverrides=[{scope:'asset',id:'qa-asset',targets:{mttr:.5}}];renderTrendChart();"));
+  const requestsBefore=await page.evaluate(()=>(window as any).qaMetricRequests.length);
+  await mttr.locator('[data-ranking-mode]').selectOption('percentage');
+  await expect(mttr.locator('[data-ranked-asset]').first()).toHaveAttribute('data-ranked-asset','qa-asset');
+  await expect(mttr).toContainText('460 % da meta');
+  await expect(mttr.locator('[data-ranking-mode]')).toBeFocused();
+  expect(await page.evaluate(()=>(window as any).qaMetricRequests.length)).toBe(requestsBefore);
+  for(const key of ['mtbf','availability']) {
+    const panel=page.locator(`[data-metric="${key}"] .gm-metric-ranking`);
+    await panel.locator('[data-ranking-mode]').selectOption('percentage');
+    await expect(panel).toContainText('% da meta');
+    await expect(panel).toContainText('Não é o percentual atingido');
+  }
+  await mttr.locator('[data-ranking-mode]').selectOption('absolute');
+  await expect(mttr.locator('[data-ranked-asset]').first()).toHaveAttribute('data-ranked-asset','qa-region-asset');
+  await mttr.locator('[data-ranking-mode]').selectOption('percentage');
+  await page.evaluate(()=>window.eval('state.operationalPolicy.metricTargetOverrides[0].targets.mttr=0;renderTrendChart();'));
+  await expect(mttr).toContainText('1 equipamento(s) fora da meta sem percentual calculável');
+  await expect(mttr.locator('[data-ranked-asset]')).toHaveCount(1);
+  await page.evaluate(()=>window.eval('state.operationalPolicy.metricTargetOverrides[0].targets.mttr=.5;renderTrendChart();'));
   await mttr.screenshot({path:`test-results/ranking-mobile-${theme}.png`});
   await mttr.locator('[data-ranked-asset="qa-asset"]').click();
   await expect(page.locator('#maintenanceMetricDetails')).toBeVisible();
@@ -288,6 +308,7 @@ for(const theme of ['light','dark']) test('ranking móvel '+theme+' ordena equip
   await page.evaluate(()=>window.eval('closeModal()'));
   await page.locator('#trendAssetFilter').selectOption('qa-asset');
   await expect(mttr.locator('[data-ranked-asset]')).toHaveCount(1);
+  await expect(mttr.locator('[data-ranking-mode]')).toHaveValue('percentage');
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
   await page.evaluate(()=>window.eval('state.operationalPolicy={};renderTrendChart();'));
   await expect(mttr).toContainText('1 sem meta');

@@ -6,6 +6,41 @@ const { model } = globalThis.GMMaintenanceCharts;
 const {compare,validateTargets} = globalThis.GMMaintenanceCharts;
 const {resolveTargets,targetPolicyChange} = globalThis.GMMaintenanceCharts;
 const {ranking} = globalThis.GMMaintenanceCharts;
+const {rankingOrder} = globalThis.GMMaintenanceCharts;
+
+test('alternância do ranking reordena pelo percentual da própria meta sem modificar dados oficiais',()=>{
+  const row=(assetId,gap,goal)=>({assetId,label:assetId,gap,goal});
+  const data={rows:[row('A',6,10),row('B',3,1),row('C',2,0)],within:2};
+  const snapshot=JSON.stringify(data);
+  assert.deepEqual(rankingOrder(data).rows.map(r=>r.assetId),['A','B','C']);
+  const percent=rankingOrder(data,'percentage');
+  assert.deepEqual(percent.rows.map(r=>r.assetId),['B','A']);
+  assert.deepEqual(percent.rows.map(r=>r.percentage),[300,60]);
+  assert.equal(percent.excluded,1);assert.equal(percent.totalOutside,3);assert.equal(percent.within,2);
+  assert.equal(JSON.stringify(data),snapshot);
+  assert.equal(rankingOrder({rows:[row('x',1,Number.MIN_VALUE)]},'percentage').rows.length,0);
+  assert.equal(rankingOrder({rows:[]},'percentage').excluded,0);
+  assert.equal(rankingOrder(data,'unexpected').mode,'absolute');
+});
+
+test('percentual preserva direção de MTTR, MTBF e disponibilidade e desempate estável',()=>{
+  const assets=[{id:'A'},{id:'B'}];
+  const metric=value=>({value,quality:{state:'valid'}});
+  const contract={period:{end:'2026-06-30'},assetBreakdown:{items:[
+    {assetId:'A',metrics:{mttr:metric(4),mtbf:metric(50),availability:metric(80)}},
+    {assetId:'B',metrics:{mttr:metric(20),mtbf:metric(150),availability:metric(94)}}
+  ]}};
+  const policy={metricTargets:{mttr:10,mtbf:200,availability:95},metricTargetOverrides:[{scope:'asset',id:'A',targets:{mttr:1,mtbf:100,availability:90}}]};
+  const result=ranking(contract,policy,assets);
+  for(const key of ['mttr','mtbf','availability']) {
+    const rows=rankingOrder(result[key],'percentage').rows;
+    assert.equal(rows[0].assetId,'A');
+    assert.ok(rows.every(r=>Number.isFinite(r.percentage)&&r.percentage>0));
+  }
+  assert.equal(rankingOrder(result.mttr).rows[0].assetId,'B');
+  const tied={rows:[{assetId:'b',label:'B',gap:2,goal:1},{assetId:'a',label:'A',gap:4,goal:2}]};
+  assert.deepEqual(rankingOrder(tied,'percentage').rows.map(r=>r.assetId),['a','b']);
+});
 test('ranking ordena desvio absoluto na direção de cada indicador e não inventa metas/dados',()=>{
   const assets=[{id:'a',label:'Motor A',plant:'P'},{id:'b',label:'Motor B',plant:'P'},{id:'c',label:'Motor C',plant:'P'}];
   const metric=(value,quality='valid')=>({value,quality:{state:quality}});
