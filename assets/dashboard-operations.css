@@ -1,4 +1,18 @@
 /* Presentation only: existing permissions, alert actions and summary calculations stay intact. */
+/* Dashboard-only visual polish. No visibility, action, data or permission changes. */
+@layer premium {
+  html#gm-premium body.premium-shell #dashboard #dashboardWidgetGrid>.industrial-card { border:1px solid color-mix(in srgb,var(--p-line) 85%,transparent)!important; border-radius:18px!important; box-shadow:0 2px 12px #152c4906!important; }
+  html#gm-premium body.premium-shell #dashboard #dashboardWidgetGrid>.industrial-card>.industrial-card-head { border-bottom-color:color-mix(in srgb,var(--p-line) 75%,transparent)!important; }
+  html#gm-premium body.premium-shell #dashboard .industrial-card-head h2 { font-size:16px!important; line-height:1.4!important; font-weight:600!important; }
+  html#gm-premium body.premium-shell #dashboard .gm-ops-columns>section { border-color:transparent; background:var(--p-raised); border-radius:14px; }
+  html#gm-premium body.premium-shell #dashboard .gm-ops-kpis>button { border-width:1px!important; border-radius:14px!important; }
+  html#gm-premium body.premium-shell #dashboard .gm-ops-kpis strong { font-weight:700!important; }
+  html#gm-premium body.premium-shell #dashboard .gm-ops-columns h3 { font-weight:600!important; }
+  html#gm-premium body.premium-shell #dashboard .dashboard-alert-copy strong { font-size:13px!important; font-weight:600!important; }
+  html#gm-premium body.premium-shell #dashboard .dashboard-alert-copy>span { font-size:12px!important; }
+  html#gm-premium body.premium-shell #dashboard .industrial-quick-actions>button strong { font-size:13px!important; font-weight:600!important; }
+  html#gm-premium body.premium-shell #dashboard .industrial-quick-actions>button small { font-size:11px!important; }
+}
 @layer premium {
   #dashboard :is(.dashboard-operational-summary,.dashboard-alerts-card,.quick-actions-card) { border-radius:16px!important; overflow:hidden; }
   #dashboard #operationalInsights { padding:20px!important; color:var(--p-text,#19344c); }

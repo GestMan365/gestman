@@ -164,3 +164,73 @@ body.theme-light #dashboard .gm-metric-card[data-metric="availability"] { --metr
   #dashboard .gm-metric-quality { font-size:9px; padding:4px 6px; }
   #dashboard .gm-metric-heading p { font-size:11px; }
 }
+
+/* Visual refinement only: preserve all controls, labels, chart data and hit targets. */
+#dashboard .gm-maintenance-charts { --metric-border:color-mix(in srgb,var(--p-line,#2a384c) 78%,transparent); --metric-grid:var(--p-line,#2a384c); --metric-ink:var(--p-text,#edf2fa); --metric-muted:var(--p-muted,#a4b2c7); --metric-surface:var(--p-surface,#131b29); }
+body.theme-light #dashboard .gm-maintenance-charts { --metric-border:#e3e9f1; --metric-grid:#dce5ef; --metric-ink:#17283f; --metric-muted:#56677e; --metric-surface:#fff; }
+#dashboard .gm-metric-card[data-metric] { --metric-accent:#8cbcff; }
+body.theme-light #dashboard .gm-metric-card[data-metric] { --metric-accent:#2465be; }
+#dashboard .gm-metric-context { line-height:1.6; gap:6px 16px; }
+#dashboard .gm-metric-insight-toolbar { padding-bottom:14px; border-bottom:1px solid var(--metric-border); line-height:1.6; }
+#dashboard .gm-metric-heading p { line-height:1.5; }
+#dashboard .gm-metric-summary { padding:12px 14px; border-left:0; border-radius:10px; background:var(--p-raised,#1a2535); color:var(--metric-muted); font-size:12.5px; line-height:1.7; }
+#dashboard .gm-metric-goal { gap:7px; padding:14px; background:var(--p-raised,#1a2535); border-color:transparent; border-radius:12px; line-height:1.6; }
+#dashboard .gm-metric-goal strong { font-weight:600; }
+#dashboard .gm-metric-goal small { font-size:11px; }
+#dashboard .gm-metric-gridline { stroke-opacity:.45; }
+#dashboard .gm-metric-area { opacity:.055; }
+#dashboard .gm-metric-reference { stroke-opacity:.55; }
+#dashboard .gm-metric-chart-heading { margin-top:22px; padding-top:18px; }
+#dashboard .gm-metric-chart-heading strong { font-size:12px; font-weight:600; }
+#dashboard .gm-metric-chart-heading>span { font-size:11px; }
+#dashboard .gm-metric-quality { background:var(--p-raised,#1a2535); font-size:10px; }
+#dashboard .gm-ranking-heading h4 { font-size:13px; font-weight:600; }
+#dashboard .gm-ranking-mode { font-weight:500; text-transform:none; line-height:1.5; }
+#dashboard .gm-ranking-row-title { grid-template-columns:24px minmax(0,1fr); gap:8px; }
+#dashboard .gm-ranking-row-title b { display:grid; place-items:center; width:22px; height:22px; border-radius:50%; background:var(--p-tint,#1c3251); color:var(--metric-accent); font-size:11px; font-weight:600; }
+#dashboard .gm-ranking-row-title strong { font-weight:600; line-height:1.5; }
+#dashboard .gm-ranking-values { font-size:12px; line-height:1.6; }
+#dashboard .gm-ranking-source { font-size:11px; line-height:1.5; }
+#dashboard .gm-ranking-track { height:3px; }
+#dashboard .gm-metric-detail { padding:14px; border-left-width:1px; background:var(--p-raised,#1a2535); border-radius:12px; }
+#dashboard .gm-metric-selection-head>span,#dashboard .gm-metric-selection-meta { font-size:11px; }
+#dashboard .gm-metric-quality-note { background:transparent; padding:0; font-size:11px; }
+#dashboard .gm-metric-reference-label,#dashboard .gm-metric-coverage>div:first-child { font-size:11px; }
+#dashboard .gm-metric-explanation summary { padding-block:12px; }
+#dashboard .gm-source-coverage { border-color:transparent; border-radius:12px; background:var(--p-raised,#1a2535); font-size:12px; }
+#dashboard .gm-source-coverage strong { font-weight:600; }
+#dashboard .gm-source-coverage small { font-size:11px; line-height:1.65; }
+#dashboard .gm-source-coverage progress { appearance:none; border:0; height:5px; border-radius:999px; overflow:hidden; background:var(--metric-grid); }
+#dashboard .gm-source-coverage progress::-webkit-progress-bar { background:var(--metric-grid); border-radius:999px; }
+#dashboard .gm-source-coverage progress::-webkit-progress-value { background:var(--metric-accent); border-radius:999px; }
+#dashboard .gm-source-coverage progress::-moz-progress-bar { background:var(--metric-accent); border-radius:999px; }
+body:not(.theme-light) #dashboard .gm-metric-comparison.is-better { color:#6ed3a8; }
+body:not(.theme-light) #dashboard .gm-metric-comparison.is-worse { color:#f0ae82; }
+@layer premium {
+  html#gm-premium body.premium-shell #dashboard .maintenance-trend-card>.industrial-card-head { padding:22px!important; gap:20px!important; }
+  html#gm-premium body.premium-shell #dashboard .gm-trend-filters .trend-period-control { gap:7px; text-transform:none; letter-spacing:0; font-size:12px; font-weight:500; color:var(--p-muted); }
+  html#gm-premium body.premium-shell #dashboard .gm-trend-filters .trend-period-control>span { text-transform:none!important; letter-spacing:.01em!important; font-size:12px!important; font-weight:500!important; color:var(--p-muted)!important; }
+  html#gm-premium body.premium-shell #dashboard .gm-trend-filters .trend-period-control:last-of-type { width:132px; }
+  html#gm-premium body.premium-shell #dashboard :is(.gm-trend-filters,.gm-ranking-mode) select { min-height:44px!important; height:44px!important; padding:9px 30px 9px 12px!important; font-size:13px!important; font-weight:500!important; border:1px solid var(--p-line)!important; border-radius:10px!important; background:var(--p-raised)!important; box-shadow:none!important; }
+  html#gm-premium body.premium-shell #dashboard .gm-trend-clear { min-height:44px!important; height:44px!important; border-color:transparent!important; background:transparent!important; color:var(--p-muted)!important; font-weight:500!important; box-shadow:none!important; }
+  html#gm-premium body.premium-shell #dashboard .gm-trend-clear:hover { background:var(--p-hover)!important; color:var(--p-text)!important; }
+  html#gm-premium body.premium-shell #dashboard .gm-trend-summary { background:var(--p-raised)!important; border-color:transparent!important; border-radius:14px!important; color:var(--p-text)!important; padding:14px!important; }
+  html#gm-premium body.premium-shell #dashboard .gm-trend-summary-head strong { font-weight:600!important; }
+  html#gm-premium body.premium-shell #dashboard .gm-trend-summary-head>span { padding:3px 8px; border-radius:999px; background:var(--p-tint); color:var(--p-accent); }
+  html#gm-premium body.premium-shell #dashboard .gm-trend-chips button { border-radius:22px!important; padding:9px 12px!important; border-color:var(--p-line)!important; background:var(--p-surface)!important; color:var(--p-text)!important; font-weight:500!important; font-size:12px!important; box-shadow:none!important; }
+  html#gm-premium body.premium-shell #dashboard .gm-trend-chips button>span:last-child { color:var(--p-muted); font-weight:400; }
+  html#gm-premium body.premium-shell #dashboard .gm-trend-summary p { color:var(--p-muted)!important; font-size:12px!important; }
+  html#gm-premium body.premium-shell #dashboard .gm-metric-card { padding:22px; border-color:color-mix(in srgb,var(--p-line) 80%,transparent)!important; border-radius:16px!important; box-shadow:none!important; }
+  html#gm-premium body.premium-shell #dashboard .gm-metric-heading h3 { font-size:16px!important; font-weight:600!important; line-height:1.4; }
+  html#gm-premium body.premium-shell #dashboard .gm-metric-value strong { font-size:clamp(32px,2.6vw,40px)!important; font-weight:700!important; letter-spacing:-.03em!important; }
+  html#gm-premium body.premium-shell #dashboard .gm-ranking-row { background:var(--p-raised)!important; text-align:left!important; border-color:transparent!important; border-radius:12px!important; box-shadow:none!important; padding:14px!important; }
+  html#gm-premium body.premium-shell #dashboard .gm-ranking-row:hover { border-color:var(--p-accent)!important; }
+  @media(max-width:600px) {
+    html#gm-premium body.premium-shell #dashboard .gm-trend-filters .trend-period-control:last-of-type { width:100%; }
+    html#gm-premium body.premium-shell #dashboard .maintenance-trend-card>.industrial-card-head { padding:18px 16px!important; gap:18px!important; }
+    html#gm-premium body.premium-shell #dashboard .maintenance-trend-content { padding:16px!important; }
+    html#gm-premium body.premium-shell #dashboard .gm-metric-card { padding:18px 14px; }
+    html#gm-premium body.premium-shell #dashboard .gm-metric-heading { flex-wrap:wrap; }
+    html#gm-premium body.premium-shell #dashboard .gm-metric-heading-copy { flex:1 1 140px; }
+  }
+}

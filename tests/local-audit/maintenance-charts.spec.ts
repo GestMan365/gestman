@@ -49,6 +49,18 @@ for (const viewport of [{width:1366,height:768},{width:951,height:535},{width:39
       const widget=page.locator('#trendChart');
       await expect(widget.locator('.gm-metric-card')).toHaveCount(3);
       await expect(widget).toBeVisible();
+      const refinement=await page.evaluate(()=>({
+        fieldHeight:document.querySelector('#trendPeriodFilter')!.getBoundingClientRect().height,
+        clearHeight:document.querySelector('#clearTrendFilters')!.getBoundingClientRect().height,
+        gridOpacity:getComputedStyle(document.querySelector('.gm-metric-gridline')!).strokeOpacity,
+        numberWeight:getComputedStyle(document.querySelector('.gm-metric-value strong')!).fontWeight,
+        shadow:getComputedStyle(document.querySelector('.gm-metric-card')!).boxShadow
+      }));
+      expect(refinement.fieldHeight).toBeGreaterThanOrEqual(44);
+      expect(refinement.clearHeight).toBeGreaterThanOrEqual(44);
+      expect(Number(refinement.gridOpacity)).toBeLessThan(.7);
+      expect(Number(refinement.numberWeight)).toBe(700);
+      expect(refinement.shadow).toBe('none');
       await expect(widget.locator('[data-metric="mttr"] .gm-metric-value strong')).toHaveText('2,8 h');
       await expect(widget.locator('[data-metric="mtbf"] .gm-metric-value strong')).toHaveText('170 h');
       await expect(widget.locator('[data-metric="availability"] .gm-metric-value strong')).toHaveText('96,4 %');
@@ -68,6 +80,8 @@ for (const viewport of [{width:1366,height:768},{width:951,height:535},{width:39
       expect(layout.document).toBeLessThanOrEqual(layout.viewport+1);
       for(const card of layout.cards){expect(card.width).toBeGreaterThan(270);expect(card.right).toBeLessThanOrEqual(layout.viewport+1);}
       await widget.screenshot({path:info.outputPath(`charts-${theme}.png`)});
+      await page.locator('.maintenance-trend-card>.industrial-card-head').screenshot({path:info.outputPath(`filters-${theme}.png`)});
+      await widget.locator('.gm-metric-card').first().screenshot({path:info.outputPath(`card-${theme}.png`)});
       if (viewport.width === 390) {
         const lastPoint = widget.locator('[data-metric="availability"] [data-point="5"]');
         await lastPoint.scrollIntoViewIfNeeded();
